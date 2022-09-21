@@ -127,6 +127,7 @@ def build(args: GoalArgs) -> int:
 def test(args: GoalArgs) -> int:
     return conan_build_goal(args, "--test")
 
+
 @goal
 def doc(args: GoalArgs) -> int:
     if conan_build_goal(args, "--configure"):
@@ -135,24 +136,23 @@ def doc(args: GoalArgs) -> int:
 
     generator = build_utils.get_generator(args.generator)
     build_dir = build_utils.get_build_dir(args.build_dir, generator)
-    
+
     cmd = ["cmake",
            "--build",
            build_dir,
            "-t",
            "doc"
-    ]
+           ]
 
     try:
-        returnValue =  subprocess.call(cmd)
+        returnValue = subprocess.call(cmd)
         if not returnValue:
-            webbrowser.open("file://" + os.path.realpath("docs/html/index.html"))
+            webbrowser.open(
+                "file://" + os.path.realpath("docs/html/index.html"))
         return returnValue
     except:
         print("Failed to build the documentation")
         raise
-
-
 
 
 @goal
@@ -340,7 +340,7 @@ def run_goal(goal: str, args: GoalArgs) -> int:
 
 
 # ----------------------------------#
-# CLI                              #
+# CLI                               #
 # ----------------------------------#
 
 

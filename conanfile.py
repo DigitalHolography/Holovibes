@@ -34,9 +34,10 @@ class HolovibesConan(ConanFile):
         "nlohmann_json/3.10.4",
         "opencv/4.5.3",
         "opengl/system",
-        "zlib/1.2.12", # needed to overwrite qt bad dependency
-        "openssl/1.1.1q", # needed to overwrite qt bad dependency
+        "zlib/1.2.12",  # needed to overwrite qt bad dependency
+        "openssl/1.1.1q",  # needed to overwrite qt bad dependency
         "freetype/2.11.0",  # needed to overwrite qt bad dependency
+        "spdlog/1.10.0",
     )
 
     default_options = (
@@ -44,7 +45,8 @@ class HolovibesConan(ConanFile):
         "qt:widgets=True",
         "qt:qtcharts=True",
         "cmake_compiler=None",
-        "cmake_generator=Ninja"
+        "cmake_generator=Ninja",
+        "spdlog:header_only=True",
     )
 
     _cmake = None

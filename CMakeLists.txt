@@ -10,6 +10,7 @@ set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(SPDLOG_DIR "${CONAN_SPDLOG_ROOT}/")
 
 # Used in every sub project
 find_package(Boost REQUIRED
@@ -19,9 +20,10 @@ find_package(Boost REQUIRED
 
 # Add spdlog to include path || don't move it bellow
 find_package(CUDAToolkit 11.5 REQUIRED)
-INCLUDE_DIRECTORIES(libs/ libs/spdlog/)
+find_package(spdlog REQUIRED)
+include_directories("${SPDLOG_DIR}/include")
 
-add_subdirectory(Camera)
+#add_subdirectory(Camera)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
 add_subdirectory(docs)
