@@ -23,8 +23,9 @@
  *         (long long, r42)
  *    )
  *	  ```
- * 
- * 	  If you want to have a micro-cache with initialized values, use the macro NEW_INITIAIZED_MICRO_CACHE as follows:
+ *
+ * 	  If you want to have a micro-cache with initialized values, use the macro NEW_INITIAIZED_MICRO_CACHE as
+ *follows:
  *	  ```
  *    NEW_INITIALIZED_MICRO_CACHE(MicroCacheClassName,
  *         (type_var_1, name_var_1, value_var_1),

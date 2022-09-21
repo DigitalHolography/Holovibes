@@ -53,9 +53,7 @@ class InformationWorker final : public Worker
      * \param input_frame_size Frame size of input images
      * \param record_frame_size Frame size of record images
      */
-    void compute_throughput(size_t output_frame_res,
-                            size_t input_frame_size,
-                            size_t record_frame_size);
+    void compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size);
 
     /*! \brief Refresh side informations according to new computations */
     void display_gui_information();
