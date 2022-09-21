@@ -2,7 +2,6 @@
 
 #include "thread_worker_controller.hh"
 
-#include "spdlog/fmt/ostr.h"
 #include "logger.hh"
 
 namespace holovibes::worker
@@ -46,10 +45,7 @@ void ThreadWorkerController<T>::start(Args&&... args)
     worker_ = std::make_unique<T>(args...);
     thread_ = std::thread(&ThreadWorkerController::run, this);
 
-    LOG_INFO(main,
-             "Worker of type {} started with ID: {}",
-             typeid(T).name(),
-             thread_.get_id());
+    LOG_INFO(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
 }
 
 template <WorkerDerived T>

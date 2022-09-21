@@ -123,7 +123,7 @@ void load_compute_settings(const std::string& json_path)
     after_load_checks();
     pipe_refresh();
 
-    LOG_INFO(main, "Compute settings loaded from : {}", json_path);
+    // FIXME-LOG LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 }
 
 // clang-format off
