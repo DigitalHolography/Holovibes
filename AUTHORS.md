@@ -1,5 +1,10 @@
 ## Authors
 
+- Adrien Langou
+- Julien Nicolle
+- Sacha Bellier
+- David Chemaly
+- Damien Didier
 - Philippe Bernet
 - Eliott Bouhana
 - Fabien Colmagro

@@ -29,6 +29,12 @@ const std::string get_credits()
 
            "Developers:\n\n"
 
+           "Adrien Langou\n"
+           "Julien Nicolle\n"
+           "Sacha Bellier\n"
+           "David Chemaly\n"
+           "Damien Didier\n"
+
            "Philippe Bernet\n"
            "Eliott Bouhana\n"
            "Fabien Colmagro\n"
