@@ -2,6 +2,7 @@ project (CameraPhantom CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_phantom.cc
+    ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE

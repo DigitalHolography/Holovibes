@@ -1,5 +1,7 @@
 #include "logger.hh"
 
+namespace holovibes
+{
 std::shared_ptr<spdlog::logger> Logger::frame_read_worker_ = nullptr;
 std::shared_ptr<spdlog::logger> Logger::compute_worker_ = nullptr;
 std::shared_ptr<spdlog::logger> Logger::record_worker_ = nullptr;
@@ -104,3 +106,5 @@ std::shared_ptr<spdlog::logger> Logger::init_logger(std::string name, spdlog::le
     logger->set_level(level);
     return logger;
 }
+
+} // namespace holovibes

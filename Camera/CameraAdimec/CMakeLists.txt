@@ -2,6 +2,7 @@ project (CameraAdimec CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_adimec.cc
+    ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
