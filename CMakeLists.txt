@@ -23,7 +23,7 @@ find_package(CUDAToolkit 11.5 REQUIRED)
 find_package(spdlog REQUIRED)
 include_directories("${SPDLOG_DIR}/include")
 
-#add_subdirectory(Camera)
+add_subdirectory(Camera)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
 add_subdirectory(docs)

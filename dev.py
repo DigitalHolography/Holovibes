@@ -67,6 +67,7 @@ def conan(args: GoalArgs) -> int:
         "-o", f"cmake_generator={generator}",
         "-o", f"cmake_compiler={args.toolchain}",
     ] + args.goal_args
+    print("TOOLCHAIN USED = ", args.toolchain)
 
     if args.verbose:
         print("conan cmd: {}".format(" ".join(cmd)))
