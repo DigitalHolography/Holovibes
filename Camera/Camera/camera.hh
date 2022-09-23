@@ -8,6 +8,8 @@
 #include "icamera.hh"
 #include "frame_desc.hh"
 #include "camera_config.hh"
+#include "../../Holovibes/includes/holovibes_config.hh"
+#include <spdlog/spdlog.h>
 
 namespace camera
 {
@@ -26,6 +28,7 @@ namespace camera
  * The Camera class provides methods to parse the INI file and keep data stored
  * for later use.
  */
+
 class Camera : public ICamera
 {
   public:

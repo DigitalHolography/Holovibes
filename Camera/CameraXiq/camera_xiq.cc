@@ -2,9 +2,9 @@
 #include <iostream>
 
 #include "camera_xiq.hh"
+#include "camera_logger.hh"
 
 #include <chrono>
-#include <spdlog/spdlog.h>
 
 namespace camera
 {
@@ -13,13 +13,14 @@ CameraXiq::CameraXiq()
     , device_(nullptr)
 {
     name_ = "XIQ MQ042MG-CM";
+    Logger::camera()->info("Loading XIQ MQ042MG-CM...");
 
     load_default_params();
     if (ini_file_is_open())
+    {
         load_ini_params();
-
-    if (ini_file_is_open())
         ini_file_.close();
+    }
 
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
@@ -149,33 +150,35 @@ void CameraXiq::load_ini_params()
     exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
 }
 
+#define XI_STATUS_CALL(func)                                                                                           \
+    if (func != XI_OK)                                                                                                 \
+    {                                                                                                                  \
+        Logger::camera()->info("{}:{} -> Can't set parameter : {}", get_file_name(__FILE__), __LINE__, #func);         \
+        throw CameraException(CameraException::CANT_SET_CONFIG);                                                       \
+    }
+
 void CameraXiq::bind_params()
 {
-    XI_RETURN status = XI_OK;
-
     const unsigned int name_buffer_size = 32;
     char name[name_buffer_size];
 
-    status |= xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
+    XI_STATUS_CALL(xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size));
 
-    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
-    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
-    status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
-    status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
-    status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
-    status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
-    status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_));
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_));
 
-    status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_));
 
-    status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+    XI_STATUS_CALL(xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_));
 
-    status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
+    XI_STATUS_CALL(xiSetParamFloat(device_, XI_PRM_GAIN, gain_));
 
-    status |= xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
-
-    if (status != XI_OK)
-        throw CameraException(CameraException::CANT_SET_CONFIG);
+    XI_STATUS_CALL(xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_));
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)

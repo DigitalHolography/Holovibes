@@ -2,6 +2,7 @@ project (CameraIds CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_ids.cc
+    ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
