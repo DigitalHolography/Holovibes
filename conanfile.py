@@ -10,7 +10,7 @@ from build import build_utils
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "10.7.2"
+    version = "11.0.0"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
@@ -64,7 +64,8 @@ class HolovibesConan(ConanFile):
             if '-' not in dep:
                 res[dep] = self.deps_cpp_info[dep].rootpath
 
-        with open(os.path.join(INSTALLER_OUTPUT, LIBS_PATH_FILE), 'w') as fp:
+        path = os.path.realpath("../../" + INSTALLER_OUTPUT)
+        with open(os.path.join(path, LIBS_PATH_FILE), 'w') as fp:
             json.dump(res, fp)
 
     def _configure_cmake(self):

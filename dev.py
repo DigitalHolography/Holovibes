@@ -398,7 +398,7 @@ def parse_args():
         if arg in all_goals:
             current_goal = arg
             goals[current_goal] = []
-        elif arg in goals:
+        elif current_goal in goals:
             goals[current_goal].append(arg)
         else:
             raise Exception(f"Goal {arg} does not exist")
