@@ -1,5 +1,16 @@
 ## Changelog
 
+### 11.0.0
+
+* Changed logger to spdlog (1.10.0 header_only)
+* Add rule doxygen (1.9.4) documentation
+* Upgrade Cmake from 3.22 to 3.24
+* Upgrade zlib from 1.2.11 to 1.2.12
+* Upgrade openssl from 1.1.1m to 1.1.1q
+* Upgrade conan from 1.42.2 to 1.52.0
+* Upgrade Jinja2 from 2.11.3 to 3.0
+* Upgrade PyJWT from 1.7.1 to 2.4.0
+
 ### 10.7.2
 
 * Fixed icons not being displayed properly
