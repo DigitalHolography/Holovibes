@@ -100,7 +100,7 @@ class GSH
 
     inline View_XYZ get_xy() const noexcept { return view_cache_.get_xy(); }
     inline bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().flip_enabled; }
-    inline float get_xy_rot() const noexcept { return view_cache_.get_xy().flip_enabled; }
+    inline float get_xy_rot() const noexcept { return view_cache_.get_xy().rot; }
     inline uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().img_accu_level; }
     inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_scale_slice_enabled; }
     inline bool get_xy_contrast_enabled() const noexcept { return view_cache_.get_xy().contrast_enabled; }
@@ -112,7 +112,7 @@ class GSH
 
     inline View_XYZ get_xz() const noexcept { return view_cache_.get_xz(); }
     inline bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().flip_enabled; }
-    inline float get_xz_rot() const noexcept { return view_cache_.get_xz().flip_enabled; }
+    inline float get_xz_rot() const noexcept { return view_cache_.get_xz().rot; }
     inline uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().img_accu_level; }
     inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_scale_slice_enabled; }
     inline bool get_xz_contrast_enabled() const noexcept { return view_cache_.get_xz().contrast_enabled; }
@@ -124,7 +124,7 @@ class GSH
 
     inline View_XYZ get_yz() const noexcept { return view_cache_.get_yz(); }
     inline bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().flip_enabled; }
-    inline float get_yz_rot() const noexcept { return view_cache_.get_yz().flip_enabled; }
+    inline float get_yz_rot() const noexcept { return view_cache_.get_yz().rot; }
     inline uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().img_accu_level; }
     inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_scale_slice_enabled; }
     inline bool get_yz_contrast_enabled() const noexcept { return view_cache_.get_yz().contrast_enabled; }
