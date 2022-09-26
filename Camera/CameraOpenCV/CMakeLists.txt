@@ -1,0 +1,22 @@
+project (CameraOpenCV CXX)
+
+add_library("${PROJECT_NAME}" SHARED
+    camera_opencv.cc
+)
+
+target_include_directories("${PROJECT_NAME}" PRIVATE
+    "${CMAKE_SOURCE_DIR}/Camera/include/"
+    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
+)
+
+target_link_libraries("${PROJECT_NAME}"
+
+    Boost::boost
+    Opencv::opencv
+)
+
+# Generate the dll file in build/Debug or build/Release
+set_target_properties("${PROJECT_NAME}"
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
+)
