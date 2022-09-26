@@ -53,10 +53,7 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline uint get_time_transformation_stride() const noexcept
-    {
-        return compute_cache_.get_time_transformation_stride();
-    }
+    inline uint get_time_stride() const noexcept { return compute_cache_.get_time_stride(); }
 
     inline SpaceTransformation get_space_transformation() const noexcept
     {
@@ -305,7 +302,7 @@ class GSH
 #pragma region(collapsed) SETTERS
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
-    void set_time_transformation_stride(uint value);
+    void set_time_stride(uint value);
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);

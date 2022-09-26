@@ -39,11 +39,11 @@ void ImageRenderingPanel::on_notify()
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
 
-    ui_->TimeTransformationStrideSpinBox->setEnabled(!is_raw);
+    ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
-    ui_->TimeTransformationStrideSpinBox->setValue(api::get_time_transformation_stride());
-    ui_->TimeTransformationStrideSpinBox->setSingleStep(api::get_batch_size());
-    ui_->TimeTransformationStrideSpinBox->setMinimum(api::get_batch_size());
+    ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
+    ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
+    ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
@@ -140,7 +140,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
             if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
                 ui_->NumberOfFramesSpinBox->setValue(
                     ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                         (float)ui_->TimeTransformationStrideSpinBox->value()));
+                         (float)ui_->TimeStrideSpinBox->value()));
 
             /* Batch size */
             // The batch size is set with the value present in GUI.
@@ -166,32 +166,32 @@ void ImageRenderingPanel::update_batch_size()
     api::update_batch_size(notify_callback, batch_size);
 }
 
-void ImageRenderingPanel::update_time_transformation_stride()
+void ImageRenderingPanel::update_time_stride()
 {
     if (api::get_compute_mode() == Computation::Raw ||
         UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    uint time_transformation_stride = ui_->TimeTransformationStrideSpinBox->value();
+    uint time_stride = ui_->TimeStrideSpinBox->value();
 
-    if (time_transformation_stride == api::get_time_transformation_stride())
+    if (time_stride == api::get_time_stride())
         return;
 
     auto callback = [=]()
     {
-        api::set_time_transformation_stride(time_transformation_stride);
-        Holovibes::instance().get_compute_pipe()->request_update_time_transformation_stride();
+        api::set_time_stride(time_stride);
+        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.
         if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeTransformationStrideSpinBox->value()));
+                     (float)ui_->TimeStrideSpinBox->value()));
         parent_->notify();
     };
 
-    api::update_time_transformation_stride(callback, time_transformation_stride);
+    api::update_time_stride(callback, time_stride);
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)

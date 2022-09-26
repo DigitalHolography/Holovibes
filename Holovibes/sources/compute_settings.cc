@@ -8,7 +8,7 @@ void load_image_rendering(const json& data)
 {
     GSH::instance().set_compute_mode(computation_from_string(data["image mode"]));
     GSH::instance().set_batch_size(data["batch size"]);
-    GSH::instance().set_time_transformation_stride(data["time transformation stride"]);
+    GSH::instance().set_time_stride(data["time transformation stride"]);
 
     const json& filter_2d_data = data["filter2d"];
     GSH::instance().set_filter2d_enabled(filter_2d_data["enabled"]);
@@ -135,7 +135,7 @@ json compute_settings_to_json()
         {"image rendering", {
                 {"image mode", computation_to_string(GSH::instance().get_compute_mode())},
                 {"batch size", GSH::instance().get_batch_size()},
-                {"time transformation stride", GSH::instance().get_time_transformation_stride()},
+                {"time transformation stride", GSH::instance().get_time_stride()},
                 {"filter2d", {
                         {"enabled", GSH::instance().get_filter2d_enabled()},
                         {"n1", GSH::instance().get_filter2d_n1()},

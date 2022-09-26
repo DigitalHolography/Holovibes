@@ -19,8 +19,8 @@ inline WindowKind get_current_window_type() { return GSH::instance().get_current
 inline uint get_batch_size() { return GSH::instance().get_batch_size(); }
 inline void set_batch_size(uint value) { GSH::instance().set_batch_size(value); }
 
-inline uint get_time_transformation_stride() { return GSH::instance().get_time_transformation_stride(); }
-inline void set_time_transformation_stride(uint value) { GSH::instance().set_time_transformation_stride(value); }
+inline uint get_time_stride() { return GSH::instance().get_time_stride(); }
+inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value); }
 
 inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
 inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }

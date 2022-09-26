@@ -45,7 +45,7 @@ class ImageRenderingPanel : public Panel
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
     /*! \brief Modifies time transformation stride size from ui value */
-    void update_time_transformation_stride();
+    void update_time_stride();
 
     /*! \brief Applies or removes 2d filter on output display
      *
