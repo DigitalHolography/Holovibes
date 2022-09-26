@@ -58,10 +58,10 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     else
     {
         LOG_INFO(main, "full file");
-        LOG_INFO(main, "Raw recording: {}", opts.record_raw);
-        LOG_INFO(main, "Skip accumulation frames: {}", !opts.noskip_acc);
-        LOG_INFO(main, "Load in GPU: {}", opts.gpu);
     }
+    LOG_INFO(main, "Raw recording: {}", opts.record_raw);
+    LOG_INFO(main, "Skip accumulation frames: {}", !opts.noskip_acc);
+    LOG_INFO(main, "Load in GPU: {}", opts.gpu);
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)

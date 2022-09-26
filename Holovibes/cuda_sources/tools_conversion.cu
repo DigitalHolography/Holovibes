@@ -99,7 +99,7 @@ void input_queue_to_input_buffer(void* const output,
     {
         // max uchar value is 255, multiplied by 257 you have 65535 which is max
         // ushort
-        return static_cast<float>(input_pixel * 257);
+        return static_cast<float>(input_pixel) * 257;
     };
     static const auto convert_16_bit = [] __device__(const ushort input_pixel)
     { return static_cast<float>(input_pixel); };
