@@ -17,6 +17,7 @@ find_package(Boost REQUIRED
 	COMPONENTS
 	program_options
 )
+find_package(OpenCV REQUIRED)
 
 # Add spdlog to include path || don't move it bellow
 find_package(CUDAToolkit 11.5 REQUIRED)
