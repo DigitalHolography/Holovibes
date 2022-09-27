@@ -103,7 +103,7 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
-    cudaError_t error_code = cudaMallocHost(&cpu_frame_buffer_, buffer_size);
+    cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
 
     if (error_code != cudaSuccess)
     {
@@ -117,7 +117,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         return false;
     }
 
-    error_code = cudaMalloc(&gpu_frame_buffer_, buffer_size);
+    error_code = cudaXRMalloc(&gpu_frame_buffer_, buffer_size);
 
     if (error_code != cudaSuccess)
     {
@@ -132,7 +132,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         return false;
     }
 
-    error_code = cudaMalloc(&gpu_packed_buffer_, frame_size_);
+    error_code = cudaXRMalloc(&gpu_packed_buffer_, frame_size_);
 
     if (error_code != cudaSuccess)
     {

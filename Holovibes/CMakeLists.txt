@@ -154,6 +154,8 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     cublas
     cusolver
 
+    CUDA::cuda_driver
+
     "${PROJECT_NAME}_cuda_lib"
 )
 
