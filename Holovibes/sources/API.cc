@@ -124,6 +124,7 @@ void camera_none()
 
 bool change_camera(CameraKind c)
 {
+    LOG_FUNC(main, static_cast<int>(c));
     camera_none();
 
     if (c == CameraKind::NONE)

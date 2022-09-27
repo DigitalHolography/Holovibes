@@ -102,6 +102,7 @@ class MainWindow : public QMainWindow, public Observer
     void camera_hamamatsu();
     void camera_xiq();
     void camera_xib();
+    void camera_opencv();
 
     /*! \brief Opens the credit display */
     void credits();

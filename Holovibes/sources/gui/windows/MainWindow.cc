@@ -480,6 +480,8 @@ void MainWindow::camera_xiq() { change_camera(CameraKind::xiQ); }
 
 void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
+void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
+
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
 /* ------------ */
