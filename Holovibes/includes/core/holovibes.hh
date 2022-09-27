@@ -37,14 +37,14 @@ constexpr int CUDA_STREAM_READER_PRIORITY = 1;
 constexpr int CUDA_STREAM_RECORDER_PRIORITY = 1;
 constexpr int CUDA_STREAM_COMPUTE_PRIORITY = 0;
 
+namespace holovibes::gui
+{
+class MainWindow;
+} // namespace holovibes::gui
+
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
 {
-namespace gui
-{
-class MainWindow;
-}
-
 class Queue;
 class BatchInputQueue;
 

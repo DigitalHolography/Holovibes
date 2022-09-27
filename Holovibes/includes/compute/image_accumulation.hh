@@ -17,9 +17,10 @@ namespace holovibes
 class Queue;
 struct CoreBuffersEnv;
 struct ImageAccEnv;
+} // namespace holovibes
 
 /*! \brief Contains all functions and structure for computations variables */
-namespace compute
+namespace holovibes::compute
 {
 /*! \class ImageAccumulation
  *
@@ -91,5 +92,4 @@ class ImageAccumulation
 
     ViewCache::Cache& view_cache_;
 };
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

@@ -21,7 +21,9 @@ struct BatchEnv;
 struct TimeTransformationEnv;
 struct UnwrappingResources;
 struct UnwrappingResources_2d;
-namespace compute
+} // namespace holovibes
+
+namespace holovibes::compute
 {
 /*! \class Converts
  *
@@ -110,5 +112,4 @@ class Converts
     ViewCache::Cache& view_cache_;
     ZoneCache::Cache& zone_cache_;
 };
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

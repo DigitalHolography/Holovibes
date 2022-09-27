@@ -8,9 +8,7 @@
 #include "cublas_handle.hh"
 #include "common.cuh"
 
-namespace holovibes
-{
-namespace compute
+namespace holovibes::compute
 {
 /*! \brief Compute the covariance matrix of a given matrix
  *
@@ -67,5 +65,4 @@ void matrix_multiply(const cuComplex* A,
                      cuComplex* C,
                      cublasOperation_t op_A = CUBLAS_OP_N,
                      cublasOperation_t op_B = CUBLAS_OP_N);
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute
