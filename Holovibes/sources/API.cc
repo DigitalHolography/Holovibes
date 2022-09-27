@@ -340,7 +340,7 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 #pragma region STFT
 
 // FIXME: Same function as above
-void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
+void update_time_stride(std::function<void()> callback, const uint time_stride)
 {
     get_compute_pipe()->insert_fn_end_vect(callback);
 }

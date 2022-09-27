@@ -625,9 +625,9 @@ bool set_3d_cuts_view(uint time_transformation_size);
 /*! \brief Modifies time transformation stride size from ui value
  *
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
- * \param time_transformation_stride the new value
+ * \param time_stride the new value
  */
-void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride);
+void update_time_stride(std::function<void()> callback, const uint time_stride);
 
 /*! \brief Modifies batch size from ui value
  *

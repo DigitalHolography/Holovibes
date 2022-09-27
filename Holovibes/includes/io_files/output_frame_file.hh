@@ -71,7 +71,7 @@ class OutputFrameFile : public FrameFile
     }
 
     /*!
-     * \brief Compute the output fps as follow: input_fps / time_transformation_stride.
+     * \brief Compute the output fps as follow: input_fps / time_stride.
      *
      * \return double return the compute output fps
      */

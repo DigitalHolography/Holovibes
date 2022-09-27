@@ -399,9 +399,9 @@ void ICompute::request_update_batch_size()
     request_refresh();
 }
 
-void ICompute::request_update_time_transformation_stride()
+void ICompute::request_update_time_stride()
 {
-    request_update_time_transformation_stride_ = true;
+    request_update_time_stride_ = true;
     request_refresh();
 }
 
