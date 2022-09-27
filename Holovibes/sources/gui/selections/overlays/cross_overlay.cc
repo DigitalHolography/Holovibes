@@ -17,6 +17,8 @@ CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
     , elemLineIndex_(0)
     , locked_(true)
 {
+    LOG_FUNC(main);
+
     color_ = {1.f, 0.f, 0.f};
     alpha_ = 0.05f;
     display_ = true;

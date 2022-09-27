@@ -43,6 +43,8 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
+    LOG_FUNC(main);
+
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);

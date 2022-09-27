@@ -10,6 +10,8 @@ namespace gui
 Filter2DReticleOverlay::Filter2DReticleOverlay(BasicOpenGLWindow* parent)
     : Overlay(Filter2DReticle, parent)
 {
+    LOG_FUNC(main);
+
     display_ = true;
     alpha_ = 1.0f;
 }

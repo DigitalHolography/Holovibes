@@ -60,8 +60,8 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
     camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
-    // new_fd.depth = 8;
-    // FIXME-BANGGER-CAMERA : WTF depth 8
+    new_fd.depth = 8;
+    // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
     time_transformation_env_.gpu_time_transformation_queue.reset(
         new Queue(new_fd, compute_cache_.get_time_transformation_size()));
 

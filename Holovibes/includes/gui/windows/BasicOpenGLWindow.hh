@@ -43,7 +43,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
   public:
     // Constructor & Destructor
     BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
-    virtual ~BasicOpenGLWindow() = 0;
+    virtual ~BasicOpenGLWindow();
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
