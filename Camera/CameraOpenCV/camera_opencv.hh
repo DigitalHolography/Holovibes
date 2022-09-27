@@ -6,6 +6,7 @@
 
 #include "camera.hh"
 #include "camera_exception.hh"
+#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -30,7 +31,7 @@ class CameraOpenCV : public Camera
     cv::Mat frame_;
     cv::VideoCapture capture_device_;
     int deviceID_;
-    int apiId_;
+    int apiID_;
     unsigned int fps_; 
-}
+};
 } // namespace camera

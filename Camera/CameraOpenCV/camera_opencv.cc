@@ -1,8 +1,9 @@
 #include "camera_opencv.hh"
 
-#include <opencv2/core.hpp>
-#include <opencv2/videoio.hpp>
 #include <iostream>
+
+#include "opencv2/core.hpp"
+#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -25,8 +26,6 @@ CameraOpenCV::CameraOpenCV()
     init_camera();
 }
 
-void CameraOpenCV::~CameraOpenCV() { return; }
-
 void CameraOpenCV::load_default_params()
 {
     fd_.depth = 2;
@@ -44,18 +43,18 @@ void CameraOpenCV::load_ini_params()
 
 void CameraOpenCV::bind_params()
 {
-    capture_device_.set(CAP_PROP_FPS, fps_);
-    capture_device_.set(CAP_PROP_FRAME_WIDTH, fd_.width);
-    capture_device_.set(CAP_PROP_FRAME_HEIGHT, fd_.height);
-    capture_device_.set(CAP_PROP_FORMAT, -1);
+    capture_device_.set(cv::CAP_PROP_FPS, fps_);
+    capture_device_.set(cv::CAP_PROP_FRAME_WIDTH, fd_.width);
+    capture_device_.set(cv::CAP_PROP_FRAME_HEIGHT, fd_.height);
+    capture_device_.set(cv::CAP_PROP_FORMAT, CV_16UC1);
 }
 
 void CameraOpenCV::init_camera()
 {
     deviceID_ = 0;        // open default camera
     apiID_ = cv::CAP_ANY; // autodetect default API
-    capture_device_.open(deviceID, apiID);
-    if (!cpature_device_.isOpened())
+    capture_device_.open(deviceID_, apiID_);
+    if (!capture_device_.isOpened())
     {
         // FIXME LOG : Could not connect the camera opencv
         throw CameraException(CameraException::NOT_CONNECTED);
@@ -69,9 +68,9 @@ void CameraOpenCV::stop_acquisition() { return; }
 
 void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
 
-CapturedFramesDescriptor get_frames()
+CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
-    frame_ = capture_device_.read();
-    return new CapturedFramesDescriptor(frame_);
+    capture_device_.read(frame_);
+    return CapturedFramesDescriptor(frame_.data);
 }
 } // namespace camera
