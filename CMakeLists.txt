@@ -24,6 +24,10 @@ find_package(CUDAToolkit 11.5 REQUIRED)
 find_package(spdlog REQUIRED)
 include_directories("${SPDLOG_DIR}/include")
 
+set(EXTERNAL_INCLUDES
+    ${opencv_INCLUDE_DIRS}
+)
+
 add_subdirectory(Camera)
 add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
