@@ -73,4 +73,5 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
     capture_device_.read(frame_);
     return CapturedFramesDescriptor(frame_.data);
 }
+ICamera* new_camera_device() { return new CameraOpenCV(); }
 } // namespace camera
