@@ -59,14 +59,14 @@ void InformationWorker::run()
                 input_frame_size = gpu_input_queue->get_fd().get_frame_size();
             }
 
-            try
+            std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe_nothrow();
+            if (pipe != nullptr)
             {
-                std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe();
                 std::unique_ptr<Queue>& gpu_frame_record_queue = pipe->get_frame_record_queue();
                 if (gpu_frame_record_queue)
                     record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
-            catch (const std::exception&)
+            else
             {
                 record_frame_size = 0;
             }

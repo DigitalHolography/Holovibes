@@ -113,6 +113,7 @@ class Holovibes
      * \{
      */
     std::shared_ptr<Pipe> get_compute_pipe();
+    std::shared_ptr<Pipe> get_compute_pipe_nothrow();
 
     const CudaStreams& get_cuda_streams() const;
 

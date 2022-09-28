@@ -69,16 +69,11 @@ inline void gpuAssertRelease(cudaError_t code)
     {                                                                                                                  \
         gpuAssertDebug((ans), __FILE__, __LINE__);                                                                     \
     }
-inline void gpuAssertDebug(cudaError_t code, const char* file, int line, bool abort = true)
+inline void gpuAssertDebug(cudaError_t code, const char* file, int line)
 {
     if (code != cudaSuccess)
     {
-        // FIXME: Print callers stack for a more efficient debug
-        // See std::source_location
-        fprintf(stderr, "GPUassert: %s (%s:%d)\n", cudaGetErrorString(code), file, line);
-        // FIXME: Make QT crash because of calling destructor in the compute_worker thread instead of the main one.
-        if (abort)
-            exit(code);
+        throw std::runtime_error(fmt::format("GPU assert : {} in {}:{}", cudaGetErrorString(code), file, line));
     }
 }
 #endif
