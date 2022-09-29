@@ -2,6 +2,7 @@ project (CameraOpenCV CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_opencv.cc
+    ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE

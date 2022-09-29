@@ -2,9 +2,10 @@
 
 #include <iostream>
 
+#include "camera_logger.hh"
 #include "opencv2/core.hpp"
-#include "opencv2/videoio.hpp"
 #include "opencv2/imgproc.hpp"
+#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -22,6 +23,7 @@ CameraOpenCV::CameraOpenCV()
     else
     {
         // FIXME LOG : Could not open opencv.ini config file
+        Logger::camera()->error("Could not open opencv.ini config file");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     init_camera();
@@ -39,6 +41,16 @@ void CameraOpenCV::load_ini_params()
     pixel_size_ = pt.get<unsigned int>("opencv.pixel_size", pixel_size_);
 }
 
+double CameraOpenCV::get_and_check(int param, double value, std::string param_str)
+{
+    double tmp_value = capture_device_.get(param);
+    if (tmp_value != value)
+    {
+        Logger::camera()->warn("Cannot set parameter {} to {}, value will be {}.", param_str, value, tmp_value);
+    }
+    return tmp_value;
+}
+
 void CameraOpenCV::bind_params()
 {
     capture_device_.set(cv::CAP_PROP_FPS, fps_);
@@ -51,24 +63,30 @@ void CameraOpenCV::bind_params()
         capture_device_.read(frame_);
         format = frame_.depth();
     }
+    /*
+     * explanation:
+     * (format & CV_MAT_DEPTH_MASK) gives the depth code internal to opencv
+     *
+     *  depth code | value | depth (byte)
+     * ------------+-------+-------------
+     *       CV_8U | 0     | 1
+     *       CV_8S | 1     | 1
+     *      CV_16U | 2     | 2
+     *      CV_16S | 3     | 2
+     *      CV_32S | 4     | 4
+     *      CV_32F | 5     | 4
+     *      CV_64F | 6     | 8
+     * CV_USRTYPE1 | 7     | ERROR
+     *
+     */
+
+    // FIXME: what to do if usrtype1 is given (atm it give a depth of 0)
+
     fd_.depth = ((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 15);
 
-    int tmp_fps, tmp_width, tmp_height;
-    if ((tmp_fps = capture_device_.get(cv::CAP_PROP_FPS)) != fps_)
-    {
-        // FIXME LOG:
-        fps_ = tmp_fps;
-    }
-    if ((tmp_width = capture_device_.get(cv::CAP_PROP_FRAME_WIDTH)) != fd_.width)
-    {
-        // FIXME: LOG
-        fd_.width = tmp_width;
-    }
-    if ((tmp_height = capture_device_.get(cv::CAP_PROP_FRAME_HEIGHT)) != fd_.height)
-    {
-        // FIXME: LOG
-        fd_.height = tmp_height;
-    }
+    fps_ = get_and_check(cv::CAP_PROP_FPS, fps_, "opencv.fps");
+    fd_.width = get_and_check(cv::CAP_PROP_FRAME_WIDTH, fd_.width, "opencv.width");
+    fd_.height = get_and_check(cv::CAP_PROP_FRAME_HEIGHT, fd_.height, "opencv.height");
 }
 
 void CameraOpenCV::init_camera()
@@ -78,7 +96,6 @@ void CameraOpenCV::init_camera()
     capture_device_.open(deviceID_, apiID_);
     if (!capture_device_.isOpened())
     {
-        // FIXME LOG : Could not connect the camera opencv
         throw CameraException(CameraException::NOT_CONNECTED);
     }
     bind_params();

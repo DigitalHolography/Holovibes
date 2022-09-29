@@ -27,11 +27,12 @@ class CameraOpenCV : public Camera
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
     virtual void bind_params() override;
+    double get_and_check(int param, double value, std::string param_str);
 
     cv::Mat frame_;
     cv::VideoCapture capture_device_;
     int deviceID_;
     int apiID_;
-    unsigned int fps_; 
+    unsigned int fps_;
 };
 } // namespace camera
