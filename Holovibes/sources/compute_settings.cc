@@ -9,23 +9,12 @@
 namespace holovibes
 {
 
-// Compute settings
 
-struct ComputeSettings
-{
-    Rendering image_rendering;
-    Views view;
-    Composite composite;
-    AdvancedSettings advanced;
-
-    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
-};
-
-static void debug_compute_settings()
-{
-    std::cout << std::setw(1) << json{ComputeSettings{}};
-    std::cout << std::setw(1) << api::compute_settings_to_json();
-}
+// static void debug_compute_settings()
+//{
+//     std::cout << std::setw(1) << json{ComputeSettings{}};
+//     std::cout << std::setw(1) << api::compute_settings_to_json();
+// }
 
 } // namespace holovibes
 

@@ -33,6 +33,9 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;
 
+    /*! \brief Update holo_file_footer from version before 4.0 to 4.0 */
+    void convert_holo_footer_to_v4(json& meta_data);
+
   private:
     // Give access to private members to the factory
     friend class InputFrameFileFactory;

@@ -22,6 +22,7 @@ struct ViewContrast
 struct ViewWindow
 {
     bool log_enabled = false;
+    
     ViewContrast contrast;
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)

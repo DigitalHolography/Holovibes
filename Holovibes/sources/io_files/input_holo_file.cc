@@ -3,6 +3,7 @@
 #include "file_exception.hh"
 
 #include "logger.hh"
+#include "all_struct.hh"
 #include "API.hh"
 #include "global_state_holder.hh"
 
@@ -100,6 +101,15 @@ T get_value(const json& json, const std::string& key, const T& default_value)
     return json[key];
 }
 
+template <typename T>
+void create_value(json& json, const std::string& key, const T& default_value)
+{
+    if (!json.contains(key) || json[key].is_null())
+    {
+        json[key] = default_value;
+    }
+}
+
 void import_holo_v4(const json& meta_data)
 {
     if (meta_data.contains("compute settings"))
@@ -184,4 +194,195 @@ void InputHoloFile::import_info() const
         LOG_ERROR(main, "HOLO file version not supported!");
     }
 }
+
+void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
+{
+    auto new_footer = ComputeSettings{};
+
+    new_footer.advanced.buffer_size.file =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.buffer_size.input =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.buffer_size.output =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.buffer_size.record =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.buffer_size.time_transformation_cuts =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.contrast.cuts_p_offset =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.contrast.lower = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.contrast.upper = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.filter2d_smooth.high =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.filter2d_smooth.low =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.advanced.renorm_constant = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.auto_weight = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.blur.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.blur.kernel_size =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.p.max = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.p.min = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.slider_threshold.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.slider_threshold.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.threshold.high =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.h.threshold.low =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.p.activated =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.p.max = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.p.min = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.slider_threshold.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.slider_threshold.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.slider_threshold.high =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.s.slider_threshold.low =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.composite.hsv.v.p.activated =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.p.max = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.p.min = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.slider_threshold.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.slider_threshold.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.threshold.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.hsv.v.threshold.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.composite.mode = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.composite.rgb.p.max = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.rgb.p.min = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.composite.rgb.weight.b = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.rgb.weight.g = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.composite.rgb.weight.r = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.image_rendering.batch_size =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.image_rendering.convolution.divided =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.convolution.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.convolution.type =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.image_rendering.filter2d.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.filter2d.n1 =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.filter2d.n2 =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.image_mode =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.lambda = get_value(meta_data, "lambda", GSH::instance().get_lambda());
+    new_footer.image_rendering.space_transformation =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.time_transformation =
+        get_value(meta_data, "time_filter", GSH::instance().get_time_transformation());
+    new_footer.image_rendering.time_transformation_size =
+        get_value(meta_data, "#img", GSH::instance().get_time_transformation_size());
+    new_footer.image_rendering.time_transformation_stride =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.image_rendering.z_distance = get_value(meta_data, "z", GSH::instance().get_z_distance());
+
+    new_footer.view.fft_shift = get_value(meta_data, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled());
+    new_footer.view.p.accu_level = get_value(meta_data, "p_acc_level", GSH::instance().get_p_accu_level());
+    new_footer.view.p.index = get_value(meta_data, "p", GSH::instance().get_p_index());
+    new_footer.view.q.accu_level = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.q.index = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.renorm = get_value(meta_data, "renorm_enabled", GSH::instance().get_renorm_enabled());
+    new_footer.view.reticle.display_enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.reticle.scale = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.type = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.contrast.auto_refresh =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.contrast.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.contrast.invert =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.contrast.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.contrast.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.filter2d.log_enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.view.window.xy.contrast.auto_refresh =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xy.contrast.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xy.contrast.invert =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xy.contrast.max =
+        get_value(meta_data, "contrast_max", GSH::instance().get_xy_contrast_max());
+    new_footer.view.window.xy.contrast.min =
+        get_value(meta_data, "contrast_min", GSH::instance().get_xy_contrast_min());
+    new_footer.view.window.xy.flip = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xy.img_accu_level =
+        get_value(meta_data, "img_acc_slice_xy_level", GSH::instance().get_xy_img_accu_level());
+    new_footer.view.window.xy.log_enabled =
+        get_value(meta_data, "log_enabled", GSH::instance().get_xy_log_scale_slice_enabled());
+    new_footer.view.window.xy.rot = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.view.window.xz.contrast.auto_refresh =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.contrast.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.contrast.invert =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.contrast.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.contrast.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.flip = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.img_accu_level =
+        get_value(meta_data, "img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level());
+    new_footer.view.window.xz.log_enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.xz.rot = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.view.window.yz.contrast.auto_refresh =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.contrast.enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.contrast.invert =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.contrast.max =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.contrast.min =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.flip = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.img_accu_level =
+        get_value(meta_data, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level());
+    new_footer.view.window.yz.log_enabled =
+        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+    new_footer.view.window.yz.rot = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.view.x.accu_level = get_value(meta_data, "x_acc_level", GSH::instance().get_x_accu_level());
+    new_footer.view.x.cuts = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    new_footer.view.y.accu_level = get_value(meta_data, "y_acc_level", GSH::instance().get_y_accu_level());
+    new_footer.view.y.cuts = get_value(meta_data, "algorithm", GSH::instance().get_space_transformation());
+
+    json info;
+    info["contiguous"];
+    info["input_fps"];
+    info["pixel_size"]["x"];
+    info["pixel_size"]["y"];
+    info["raw_bitshift"];
+}
+
 } // namespace holovibes::io_files
