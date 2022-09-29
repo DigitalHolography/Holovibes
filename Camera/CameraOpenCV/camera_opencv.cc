@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief OpenCV camera for the masse
+ *
+ */
+
 #include "camera_opencv.hh"
 
 #include <iostream>
@@ -22,7 +28,6 @@ CameraOpenCV::CameraOpenCV()
     }
     else
     {
-        // FIXME LOG : Could not open opencv.ini config file
         Logger::camera()->error("Could not open opencv.ini config file");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
@@ -63,7 +68,7 @@ void CameraOpenCV::bind_params()
         capture_device_.read(frame_);
         format = frame_.depth();
     }
-    /*
+    /*!
      * explanation:
      * (format & CV_MAT_DEPTH_MASK) gives the depth code internal to opencv
      *
@@ -80,9 +85,12 @@ void CameraOpenCV::bind_params()
      *
      */
 
-    // FIXME: what to do if usrtype1 is given (atm it give a depth of 0)
-
     fd_.depth = ((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 15);
+    if (fd_.depth == 0)
+    {
+        Logger::camera()->error("camera depth is unknown");
+        throw CameraException(CameraException::NOT_INITIALIZED);
+    }
 
     fps_ = get_and_check(cv::CAP_PROP_FPS, fps_, "opencv.fps");
     fd_.width = get_and_check(cv::CAP_PROP_FRAME_WIDTH, fd_.width, "opencv.width");
@@ -91,8 +99,8 @@ void CameraOpenCV::bind_params()
 
 void CameraOpenCV::init_camera()
 {
-    deviceID_ = 0;        // open default camera
-    apiID_ = cv::CAP_ANY; // autodetect default API
+    deviceID_ = 0;        /* open default camera */
+    apiID_ = cv::CAP_ANY; /* autodetect default API */
     capture_device_.open(deviceID_, apiID_);
     if (!capture_device_.isOpened())
     {
@@ -110,6 +118,18 @@ void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
 CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
     capture_device_.read(frame_);
+    /*
+     * TODO: change how colors are converted to grey
+     *
+     * problem:
+     * cvtColor(COLOR_BGR2GRAY) use some arbitrary values to make the conversion
+     * from documentation (https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html):
+     * - grey = 0.299*R + 0.587*G + 0.114*B
+     *
+     * idea by Michael:
+     * - get the mean of all 3 colors (mean_B, mean_G, mean_R)
+     * - grey = R/mean_R + G/mean_G + B/mean_B
+     */
     cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
     return CapturedFramesDescriptor(frame_.data);
 }
