@@ -46,15 +46,15 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
                                             CUDA_C_32F,         // Input type
                                             n,
                                             1,
-                                            fd.get_frame_res(),              // Ouput layout same as input
-                                            CUDA_C_32F,                      // Output type
-                                            compute_cache_.get_batch_size(), // Batch size
-                                            CUDA_C_32F);                     // Computation type
+                                            fd.get_frame_res(),                    // Ouput layout same as input
+                                            CUDA_C_32F,                            // Output type
+                                            compute_cache_.get_value<BatchSize>(), // Batch size
+                                            CUDA_C_32F);                           // Computation type
 
     int inembed[1];
     int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-    inembed[0] = compute_cache_.get_time_transformation_size();
+    inembed[0] = compute_cache_.get_value<TimeTransformationSize>();
 
     time_transformation_env_.stft_plan
         .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -63,11 +63,12 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     new_fd.depth = 8;
     // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
     time_transformation_env_.gpu_time_transformation_queue.reset(
-        new Queue(new_fd, compute_cache_.get_time_transformation_size()));
+        new Queue(new_fd, compute_cache_.get_value<TimeTransformationSize>()));
 
     // Static cast size_t to avoid overflow
-    if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(compute_cache_.get_batch_size()) *
-                                                           gpu_input_queue_.get_fd().get_frame_res()))
+    if (!buffers_.gpu_spatial_transformation_buffer.resize(
+            static_cast<const size_t>(compute_cache_.get_value<BatchSize>()) *
+            gpu_input_queue_.get_fd().get_frame_res()))
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
@@ -103,12 +104,14 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
 
+ICompute::~ICompute() {}
+
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
     time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
+    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
@@ -118,7 +121,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
     }
-    else if (compute_cache_.get_time_transformation() == TimeTransformation::PCA)
+    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA)
     {
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         // every frame Static cast to avoid ushort overflow
@@ -127,11 +130,11 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
-    else if (compute_cache_.get_time_transformation() == TimeTransformation::NONE)
+    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::NONE)
     {
         // Nothing to do
     }
-    else if (compute_cache_.get_time_transformation() == TimeTransformation::SSA_STFT)
+    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
@@ -176,7 +179,7 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(compute_cache_.get_batch_size() *
+    buffers_.gpu_spatial_transformation_buffer.resize(compute_cache_.get_value<BatchSize>() *
                                                       gpu_input_queue_fd.get_frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
@@ -191,10 +194,10 @@ void ICompute::update_spatial_transformation_parameters()
         CUDA_C_32F,                         // Input type
         n,
         1,
-        gpu_input_queue_fd.get_frame_res(), // Ouput layout same as input
-        CUDA_C_32F,                         // Output type
-        compute_cache_.get_batch_size(),    // Batch size
-        CUDA_C_32F);                        // Computation type
+        gpu_input_queue_fd.get_frame_res(),    // Ouput layout same as input
+        CUDA_C_32F,                            // Output type
+        compute_cache_.get_value<BatchSize>(), // Batch size
+        CUDA_C_32F);                           // Computation type
 }
 
 void ICompute::init_cuts()
@@ -203,13 +206,13 @@ void ICompute::init_cuts()
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;
-    fd_xz.height = GSH::instance().get_time_transformation_size();
-    fd_yz.width = GSH::instance().get_time_transformation_size();
+    fd_xz.height = GSH::instance().get_value<TimeTransformationSize>();
+    fd_yz.width = GSH::instance().get_value<TimeTransformationSize>();
 
     time_transformation_env_.gpu_output_queue_xz.reset(
-        new Queue(fd_xz, GSH::instance().get_time_transformation_cuts_output_buffer_size()));
+        new Queue(fd_xz, GSH::instance().get_value<TimeTransformationCutsOutputBufferSize>()));
     time_transformation_env_.gpu_output_queue_yz.reset(
-        new Queue(fd_yz, GSH::instance().get_time_transformation_cuts_output_buffer_size()));
+        new Queue(fd_yz, GSH::instance().get_value<TimeTransformationCutsOutputBufferSize>()));
 
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());
@@ -276,12 +279,6 @@ void ICompute::pipe_error(const int& err_count, const std::exception& e)
     notify_error_observers(e);
 }
 */
-
-void ICompute::soft_request_refresh()
-{
-    if (!refresh_requested_)
-        refresh_requested_ = true;
-}
 
 void ICompute::request_refresh() { refresh_requested_ = true; }
 
@@ -388,12 +385,6 @@ void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
 void ICompute::request_disable_record_chart()
 {
     disable_chart_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_update_batch_size()
-{
-    request_update_batch_size_ = true;
     request_refresh();
 }
 

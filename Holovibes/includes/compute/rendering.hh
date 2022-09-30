@@ -13,6 +13,9 @@
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
 
+#include "advanced.hh"
+#include "compute.hh"
+
 namespace holovibes
 {
 class ICompute;
@@ -42,10 +45,10 @@ class Rendering
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
+              AdvancedCache::Cache& advanced_cache,
               ComputeCache::Cache& compute_cache,
               ExportCache::Cache& export_cache,
               ViewCache::Cache& view_cache,
-              AdvancedCache::Cache& advanced_cache,
               ZoneCache::Cache& zone_cache);
     ~Rendering();
 
@@ -99,11 +102,10 @@ class Rendering
     const cudaStream_t& stream_;
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
+    AdvancedCache::Cache& advanced_cache_;
     ComputeCache::Cache& compute_cache_;
-
     ExportCache::Cache& export_cache_;
     ViewCache::Cache& view_cache_;
-    AdvancedCache::Cache& advanced_cache_;
     ZoneCache::Cache& zone_cache_;
 
     float* percent_min_max_;

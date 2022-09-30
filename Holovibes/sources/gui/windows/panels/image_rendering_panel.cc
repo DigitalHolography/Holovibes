@@ -310,7 +310,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value * 1.0e-9f);
+    api::set_lambda(value * 1.0e-9f);
 }
 
 void ImageRenderingPanel::set_z(const double value)
@@ -371,7 +371,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    api::set_divide_convolution(value);
+    api::set_divide_convolution_enabled(value);
 
     parent_->notify();
 }

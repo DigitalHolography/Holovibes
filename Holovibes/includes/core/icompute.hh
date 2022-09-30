@@ -19,6 +19,9 @@
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 
+#include "advanced.hh"
+#include "compute.hh"
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -184,8 +187,48 @@ class ICompute
 {
   public:
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
-    // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
-    void soft_request_refresh();
+    ICompute& operator=(const ICompute&) = delete;
+    ICompute(const ICompute&) = delete;
+    virtual ~ICompute();
+
+  public:
+    BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
+    Queue& gpu_output_queue() { return gpu_output_queue_; }
+    CoreBuffersEnv& get_buffers() { return buffers_; }
+    BatchEnv& get_batch_env() { return batch_env_; }
+    TimeTransformationEnv& get_time_transformation_env() { return time_transformation_env_; }
+    FrameRecordEnv& get_frame_record_env() { return frame_record_env_; }
+    ChartEnv& get_chart_env() { return chart_env_; }
+    ImageAccEnv& get_image_acc_env() { return image_acc_env_; }
+    AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
+    ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
+    ExportCache::Cache& get_export_cache() { return export_cache_; }
+    CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
+    Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
+    ViewCache::Cache& get_view_cache() { return view_cache_; }
+    ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
+
+    template <typename T>
+    typename T::ValueType get_value()
+    {
+        if constexpr (AdvancedCache::has<T>())
+            return advanced_cache_.get_value<T>();
+        if constexpr (ComputeCache::has<T>())
+            return compute_cache_.get_value<T>();
+    }
+
+    template <typename T>
+    void set_value(typename T::ValueConstRef value)
+    {
+        advanced_cache_.set_value_safe<T>(value);
+        compute_cache_.set_value_safe<T>(value);
+    }
+
+  public:
+    void add_cache_to_synchronize();
+    void remove_cache_to_synchronize();
+
+  public:
     void request_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
@@ -197,7 +240,6 @@ class ICompute
     void request_record_chart(unsigned int nb_chart_points_to_record);
     void request_disable_record_chart();
     void request_termination();
-    void request_update_batch_size();
     void request_update_time_stride();
     void request_disable_lens_view();
     void request_raw_view();
@@ -258,33 +300,22 @@ class ICompute
     bool get_convolution_requested() const { return convolution_requested_; }
     bool get_disable_convolution_requested() const { return convolution_requested_; }
 
-    virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
+    std::unique_ptr<Queue>& get_raw_view_queue();
+    std::unique_ptr<Queue>& get_filter2d_view_queue();
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
+    std::unique_ptr<Queue>& get_frame_record_queue();
 
-    virtual std::unique_ptr<Queue>& get_raw_view_queue();
-
-    virtual std::unique_ptr<Queue>& get_filter2d_view_queue();
-
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
-
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
-
-    virtual std::unique_ptr<Queue>& get_frame_record_queue();
-
-  protected:
-    virtual void refresh() = 0;
-    virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
+  public:
+    bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
      */
-    virtual void update_spatial_transformation_parameters();
+    void update_spatial_transformation_parameters();
     void init_cuts();
     void dispose_cuts();
     /*! \} */
-
-    ICompute& operator=(const ICompute&) = delete;
-    ICompute(const ICompute&) = delete;
-    virtual ~ICompute() {}
 
   protected:
     /*! \brief Reference on the input queue */
@@ -357,7 +388,6 @@ class ICompute
     std::atomic<bool> termination_requested_{false};
     std::atomic<bool> request_time_transformation_cuts_{false};
     std::atomic<bool> request_delete_time_transformation_cuts_{false};
-    std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
     std::atomic<bool> hologram_record_requested_{false};
@@ -368,12 +398,12 @@ class ICompute
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
 
+    AdvancedCache::Cache advanced_cache_;
     ComputeCache::Cache compute_cache_;
     ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
-    AdvancedCache::Cache advanced_cache_;
     ZoneCache::Cache zone_cache_;
 };
 } // namespace holovibes

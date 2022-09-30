@@ -9,7 +9,6 @@
 #include "SliceWindow.hh"
 #include "MainWindow.hh"
 #include "tools.hh"
-#include "API.hh"
 namespace holovibes::gui
 {
 SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)

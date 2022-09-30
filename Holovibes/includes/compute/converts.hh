@@ -14,6 +14,8 @@
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
+#include "compute.hh"
+
 namespace holovibes
 {
 struct CoreBuffersEnv;
@@ -106,6 +108,7 @@ class Converts
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
+
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     CompositeCache::Cache& composite_cache_;
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */

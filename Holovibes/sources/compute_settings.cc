@@ -20,7 +20,7 @@ void after_load_checks()
 {
     if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
         GSH::instance().set_filter2d_n1(GSH::instance().get_filter2d_n1() - 1);
-    if (GSH::instance().get_time_transformation_size() < 1)
+    if (GSH::instance().get_value<TimeTransformationSize>() < 1)
         GSH::instance().set_time_transformation_size(1);
     // TODO: Check convolution type if it  exists (when it will be added to cd)
     if (GSH::instance().get_p().start >= GSH::instance().get_time_transformation_size())

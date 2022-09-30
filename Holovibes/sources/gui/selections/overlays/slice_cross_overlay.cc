@@ -95,7 +95,7 @@ void SliceCrossOverlay::setBuffer()
     units::PointFd bottomRight;
     auto kView = parent_->getKindOfView();
 
-    ViewPQ p = api::get_p();
+    View_PQ p = api::get_p();
 
     uint pmin = p.start;
     uint pmax = pmin + p.width;

@@ -57,7 +57,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
+    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA &&
         view_cache_.get_img_type() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
@@ -91,12 +91,12 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            ViewPQ p = view_cache_.get_p();
+            View_PQ p = view_cache_.get_p();
             pmin_ = p.start;
             if (p.width != 0)
                 pmax_ = std::max(
                     0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_time_transformation_size())));
+                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_value<TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -144,8 +144,8 @@ void Converts::insert_to_composite()
         [=]()
         {
             CompositeRGB rgb_struct = composite_cache_.get_rgb();
-            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_time_transformation_size()))
+            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
+                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_value<TimeTransformationSize>()))
                 return;
 
             if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
@@ -165,7 +165,7 @@ void Converts::insert_to_composite()
                     fd_.width,
                     fd_.height,
                     stream_,
-                    compute_cache_.get_time_transformation_size(),
+                    compute_cache_.get_value<TimeTransformationSize>(),
                     composite_cache_.get_hsv_const_ref());
 
             if (composite_cache_.get_composite_auto_weights())
@@ -241,8 +241,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     {
         if (!unwrap_res_)
             unwrap_res_.reset(
-                new UnwrappingResources(compute_cache_.get_unwrap_history_size(), fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(compute_cache_.get_unwrap_history_size());
+                new UnwrappingResources(compute_cache_.get_value<UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(compute_cache_.get_value<UnwrapHistorySize>());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()
