@@ -100,4 +100,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     state/global_state_holder.cc
 
     struct/all_struct.cc
+
+    state/parameter/parameters_handler.cc
 )

@@ -65,7 +65,7 @@ class Pipe : public ICompute
     ~Pipe() override;
 
     /*! \brief Get the lens queue to display it. */
-    std::unique_ptr<Queue>& get_lens_queue() override;
+    std::unique_ptr<Queue>& get_lens_queue();
 
     /*! \brief Runs a function after the current pipe iteration ends */
     void insert_fn_end_vect(std::function<void()> function);
@@ -82,7 +82,7 @@ class Pipe : public ICompute
     void exec() override;
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
-    void refresh() override;
+    void refresh();
 
   protected:
     /*! \brief Make requests at the beginning of the refresh.

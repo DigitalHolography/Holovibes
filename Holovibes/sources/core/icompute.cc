@@ -30,6 +30,14 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
+
+    GSH::instance().get_params().add_cache_to_synchronize(params_);
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+    GSH::instance().get_params().set(BatchSize{8});
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+    params_.synchronize();
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+
     int err = 0;
 
     plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
@@ -278,12 +286,6 @@ void ICompute::pipe_error(const int& err_count, const std::exception& e)
     notify_error_observers(e);
 }
 */
-
-void ICompute::soft_request_refresh()
-{
-    if (!refresh_requested_)
-        refresh_requested_ = true;
-}
 
 void ICompute::request_refresh() { refresh_requested_ = true; }
 

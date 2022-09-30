@@ -11,6 +11,7 @@
 
 #include "fast_updates_holder.hh"
 #include "caches.hh"
+#include "parameters_handler.hh"
 #include "entities.hh"
 #include "view_struct.hh"
 #include "rendering_struct.hh"
@@ -52,13 +53,21 @@ class GSH
 {
     static GSH* instance_;
 
+  private:
+    GSH() { params_.set(BatchSize{2}); }
+
   public:
     GSH(GSH& other) = delete;
     void operator=(const GSH&) = delete;
 
-    // static inline GSH& instance() { return *instance_; }
+  public:
     static GSH& instance();
 
+  public:
+    const ParametersHandlerRef& get_params() const { return params_; }
+    ParametersHandlerRef& get_params() { return params_; }
+
+  public:
     // inline prevents MSVC from brain-dying, dunno why
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
@@ -616,25 +625,24 @@ class GSH
     void update_contrast(WindowKind kind, float min, float max);
 
   private:
-    GSH() noexcept {}
-
-    std::shared_ptr<holovibes::ViewWindow> get_window(WindowKind kind);
-    std::shared_ptr<holovibes::ViewWindow> get_current_window();
+    std::shared_ptr<holovibes::View_Window> get_window(WindowKind kind);
+    std::shared_ptr<holovibes::View_Window> get_current_window();
 
     std::function<void()> notify_callback_ = []() {};
-    void notify() { notify_callback_(); }
-    
+
+    AdvancedCache::Ref advanced_cache_;
     ComputeCache::Ref compute_cache_;
-    CompositeCache::Ref composite_cache_;
     ExportCache::Ref export_cache_;
-    ImportCache::Ref import_cache_;
+    CompositeCache::Ref composite_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
-    AdvancedCache::Ref advanced_cache_;
-    FileReadCache::Ref file_read_cache_;
     ZoneCache::Ref zone_cache_;
+    ImportCache::Ref import_cache_;
+    FileReadCache::Ref file_read_cache_;
 
     mutable std::mutex mutex_;
+
+    ParametersHandlerRef params_;
 };
 
 } // namespace holovibes

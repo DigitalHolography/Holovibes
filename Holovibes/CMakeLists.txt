@@ -62,6 +62,7 @@ set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
     includes/state/
+    includes/state/parameter
     includes/compute/
     includes/core/
     includes/enum/
