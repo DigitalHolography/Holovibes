@@ -5,24 +5,14 @@
 
 #pragma once
 
-#include <optional>
-
-#include "logger.hh"
-#include "input_frame_file.hh"
-#include "input_frame_file_factory.hh"
-#include "holovibes.hh"
-#include "view_panel.hh"
-#include "AdvancedSettingsWindow.hh"
-#include "holovibes_config.hh"
-#include "user_interface_descriptor.hh"
-#include "global_state_holder.hh"
+#include "API_detail.hh"
+#include "advanced_cache_API.hh"
+#include "compute_cache_API.hh"
 #include "compute_settings_struct.hh"
-
-#include <nlohmann/json_fwd.hpp>
-using json = ::nlohmann::json;
 
 namespace holovibes::api
 {
+
 /*! \brief Gets an Input file from a given filename
  *
  * \param filename the given filename to open
@@ -343,13 +333,6 @@ void increment_p();
 /*! \brief Decrement p by 1 */
 void decrement_p();
 
-/*!
- * \brief Modifies wave length (represented by lambda symbol in phisics)
- *
- * \param value the new value
- */
-void set_wavelength(double value);
-
 /*! \brief Modifies z
  *
  * \param value the new value
@@ -459,12 +442,6 @@ void set_auto_refresh_contrast(bool value);
  */
 void set_log_scale(const bool value);
 
-/*! \brief Set value of raw bit shift
- *
- * \param value to set
- */
-void set_raw_bitshift(unsigned int value);
-
 /*! \name	Setter of the overlay positions.
  * \{
  */
@@ -474,13 +451,6 @@ void set_composite_zone(const units::RectFd& rect);
 void set_zoomed_zone(const units::RectFd& rect);
 void set_reticle_zone(const units::RectFd& rect);
 /*! \} */
-
-/*!
- * \brief Gets the raw bit shift
- *
- * \return int the raw bit shift
- */
-unsigned int get_raw_bitshift();
 
 /*!
  * \brief Gets the contrast min of a given window
@@ -515,25 +485,25 @@ bool get_img_log_scale_slice_enabled();
  *
  * \return x
  */
-ViewXY get_x(void);
+View_XY get_x(void);
 
 /*! \brief get y
  *
  * \return y
  */
-ViewXY get_y(void);
+View_XY get_y(void);
 
 /*! \brief get p
  *
  * \return p
  */
-ViewPQ get_p(void);
+View_PQ get_p(void);
 
 /*! \brief get q
  *
  * \return q
  */
-ViewPQ get_q(void);
+View_PQ get_q(void);
 
 /*! \name	Getter of the overlay positions.
  * \{
@@ -543,13 +513,6 @@ units::RectFd get_noise_zone();
 units::RectFd get_composite_zone();
 units::RectFd get_zoomed_zone();
 units::RectFd get_reticle_zone();
-/*! \} */
-
-/*! \brief Enable the divide convolution mode
- *
- * \param value true: enable, false: disable
- */
-void set_divide_convolution(const bool value);
 
 /*! \brief Creates or Removes the reticle overlay
  *

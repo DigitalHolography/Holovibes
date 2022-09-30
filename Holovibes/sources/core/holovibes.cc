@@ -24,9 +24,9 @@ const float Holovibes::get_boundary()
     if (gpu_input_queue_.load())
     {
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
-        const float d = GSH::instance().get_pixel_size() * 0.000001f;
+        const float d = GSH::instance().get_value<PixelSize>() * 0.000001f;
         const float n = static_cast<float>(fd.height);
-        return (n * d * d) / GSH::instance().get_lambda();
+        return (n * d * d) / GSH::instance().get_value<Lambda>();
     }
     return 0.f;
 }
@@ -81,7 +81,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
     try
     {
-        GSH::instance().set_pixel_size(active_camera_->get_pixel_size());
+        GSH::instance().set_value<PixelSize>(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
@@ -122,7 +122,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
-    if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
+    if (GSH::instance().get_value<BatchSize>() > GSH::instance().get_value<RecordBufferSize>())
     {
         LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
         return;
@@ -135,7 +135,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                           nb_frames_to_record,
                                           record_mode,
                                           nb_frames_skip,
-                                          GSH::instance().get_output_buffer_size());
+                                          GSH::instance().get_value<OutputBufferSize>());
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -166,7 +166,7 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
                                         output_path,
                                         nb_frames_to_record,
                                         record_mode,
-                                        GSH::instance().get_output_buffer_size());
+                                        GSH::instance().get_value<OutputBufferSize>());
 }
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
@@ -186,7 +186,7 @@ void Holovibes::init_pipe()
     LOG_FUNC();
 
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (GSH::instance().get_compute_mode() == Computation::Hologram)
+    if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
     {
         output_fd.depth = 2;
         if (GSH::instance().get_img_type() == ImgType::Composite)
@@ -194,7 +194,7 @@ void Holovibes::init_pipe()
     }
 
     gpu_output_queue_.store(
-        std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
+        std::make_shared<Queue>(output_fd, GSH::instance().get_value<OutputBufferSize>(), QueueType::OUTPUT_QUEUE));
 
     if (!compute_pipe_.load())
     {

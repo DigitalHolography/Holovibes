@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "logger.hh"
+
 /*! \brief #TODO Add a description for this namespace */
 namespace holovibes::worker
 {

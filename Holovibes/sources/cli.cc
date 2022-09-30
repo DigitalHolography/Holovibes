@@ -152,13 +152,12 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
 
     auto pipe = holovibes.get_compute_pipe();
-    if (holovibes::GSH::instance().get_convolution_enabled())
+    if (holovibes::GSH::instance().get_value<holovibes::ConvolutionEnabled>())
     {
         holovibes::GSH::instance().enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
         pipe->request_convolution();
     }
 
-    pipe->request_update_batch_size();
     pipe->request_update_time_stride();
     pipe->request_update_time_transformation_size();
 
@@ -211,8 +210,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Force some values
     holovibes.is_cli = true;
     holovibes::GSH::instance().set_frame_record_enabled(true);
-    holovibes::GSH::instance().set_compute_mode(opts.record_raw ? holovibes::Computation::Raw
-                                                                : holovibes::Computation::Hologram);
+    holovibes::GSH::instance().set_value<holovibes::ComputeMode>(opts.record_raw ? holovibes::Computation::Raw
+                                                                                 : holovibes::Computation::Hologram);
 
     // Value used in more than 1 thread
     size_t input_nb_frames =

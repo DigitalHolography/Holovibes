@@ -12,6 +12,7 @@
 #include "rect.hh"
 
 #include "global_state_holder.hh"
+
 namespace holovibes
 {
 class Queue;

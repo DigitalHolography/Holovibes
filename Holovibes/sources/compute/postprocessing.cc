@@ -18,9 +18,9 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const camera::FrameDescriptor& input_fd,
                                const cudaStream_t& stream,
+                               AdvancedCache::Cache& advanced_cache,
                                ComputeCache::Cache& compute_cache,
-                               ViewCache::Cache& view_cache,
-                               AdvancedCache::Cache& advanced_cache)
+                               ViewCache::Cache& view_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -30,9 +30,9 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
     , stream_(stream)
+    , advanced_cache_(advanced_cache)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
-    , advanced_cache_(advanced_cache)
 {
 }
 
@@ -53,7 +53,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_convo_matrix_const_ref().data(),
+                                   GSH::instance().get_value<ConvolutionMatrix>().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -97,7 +97,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -107,7 +107,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -117,7 +117,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -131,7 +131,7 @@ void Postprocessing::insert_convolution()
 {
     LOG_FUNC();
 
-    if (!compute_cache_.get_convolution_enabled() || compute_cache_.get_convo_matrix_const_ref().empty())
+    if (!compute_cache_.get_value<ConvolutionEnabled>() || compute_cache_.get_value<ConvolutionMatrix>().empty())
         return;
 
     if (view_cache_.get_img_type() != ImgType::Composite)
@@ -145,7 +145,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_divide_convolution_enabled(),
+                                   compute_cache_.get_value<DivideConvolutionEnable>(),
                                    true,
                                    stream_);
             });
@@ -172,7 +172,7 @@ void Postprocessing::insert_renormalize()
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),
                           frame_res,
-                          advanced_cache_.get_renorm_constant(),
+                          advanced_cache_.get_value<RenormConstant>(),
                           stream_);
         });
 }

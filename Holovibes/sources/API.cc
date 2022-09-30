@@ -324,7 +324,6 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
         return;
 
     api::set_batch_size(batch_size);
-    Holovibes::instance().get_compute_pipe()->request_update_batch_size();
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
@@ -755,23 +754,12 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_wavelength(double value)
-{
-    set_lambda(static_cast<float>(value));
-
-    pipe_refresh();
-}
-
 void set_z_distance(const double value)
 {
-    GSH::instance().set_z_distance(static_cast<float>(value));
+    GSH::instance().set_value<ZDistance>(static_cast<float>(value));
 
     pipe_refresh();
 }
-
-void set_space_transformation(const SpaceTransformation value) { GSH::instance().set_space_transformation(value); }
-
-void set_time_transformation(const TimeTransformation value) { GSH::instance().set_time_transformation(value); }
 
 void set_unwrapping_2d(const bool value)
 {
@@ -966,10 +954,6 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
-void set_raw_bitshift(unsigned int value) { GSH::instance().set_raw_bitshift(value); }
-
-unsigned int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
-
 float get_contrast_min() { return GSH::instance().get_contrast_min(); }
 
 float get_contrast_max() { return GSH::instance().get_contrast_max(); }
@@ -1024,15 +1008,6 @@ void disable_convolution()
     {
         LOG_ERROR("Catch {}", e.what());
     }
-}
-
-void set_divide_convolution(const bool value)
-{
-    if (value == get_divide_convolution_enabled())
-        return;
-
-    set_divide_convolution_enabled(value);
-    pipe_refresh();
 }
 
 #pragma endregion

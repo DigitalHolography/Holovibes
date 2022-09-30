@@ -19,7 +19,7 @@ void fft1_lens(cuComplex* lens,
 /*! \brief Apply a lens and call an fft1 on the image
  *
  * \param lens the lens that will be applied to the image
- * \param plan the first paramater of cufftExecC2C that will be called on the image
+ * \param plan the first parameter of cufftExecC2C that will be called on the image
  */
 void fft_1(cuComplex* input,
            cuComplex* output,

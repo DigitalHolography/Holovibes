@@ -31,6 +31,7 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
     , fd_(fd)
     , stream_(stream)
     , view_cache_(view_cache)
+//, cache_(cache)
 {
 }
 
@@ -83,7 +84,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.height = GSH::instance().get_time_transformation_size();
+        new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
                                     GSH::instance().get_xz_img_accu_level(),
@@ -95,7 +96,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.width = GSH::instance().get_time_transformation_size();
+        new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
                                     GSH::instance().get_yz_img_accu_level(),

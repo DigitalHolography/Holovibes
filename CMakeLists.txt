@@ -22,7 +22,7 @@ find_package(Boost REQUIRED
 find_package(OpenCV REQUIRED)
 
 # Add spdlog to include path || don't move it bellow
-find_package(CUDAToolkit 11.5 REQUIRED)
+find_package(CUDAToolkit 11.4 REQUIRED)
 find_package(spdlog REQUIRED)
 include_directories("${SPDLOG_DIR}/include")
 

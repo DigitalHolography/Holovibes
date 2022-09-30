@@ -32,11 +32,12 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_FUNC(input_fps, contiguous);
+    LOG_DEBUG("raw bitshift : {}", GSH::instance().get_raw_bitshift());
 
     try
     {
         auto j_fi =
-            json{{"pixel_pitch", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
+            json{{"pixel_pitch", {{"x", GSH::instance().get_value<PixelSize>()}, {"y", GSH::instance().get_value<PixelSize>()}}},
                  {"input_fps", input_fps},
                  {"contiguous", contiguous}};
         raw_footer_.Update();
