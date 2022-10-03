@@ -7,11 +7,11 @@
 #include "camera_opencv.hh"
 
 #include <iostream>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
 
 #include "camera_logger.hh"
-#include "opencv2/core.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -117,7 +117,6 @@ void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
 
 CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
-    capture_device_.read(frame_);
     /*
      * TODO: change how colors are converted to grey
      *
@@ -130,8 +129,12 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
      * - get the mean of all 3 colors (mean_B, mean_G, mean_R)
      * - grey = R/mean_R + G/mean_G + B/mean_B
      */
+
+    capture_device_.read(frame_);
+
     cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
     return CapturedFramesDescriptor(frame_.data);
 }
+
 ICamera* new_camera_device() { return new CameraOpenCV(); }
 } // namespace camera

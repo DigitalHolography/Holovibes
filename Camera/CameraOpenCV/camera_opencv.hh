@@ -5,9 +5,10 @@
  */
 #pragma once
 
+#include <opencv2/videoio.hpp>
+
 #include "camera.hh"
 #include "camera_exception.hh"
-#include "opencv2/videoio.hpp"
 
 namespace camera
 {
