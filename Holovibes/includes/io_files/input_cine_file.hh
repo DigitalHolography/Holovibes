@@ -26,7 +26,7 @@ class InputCineFile : public InputFrameFile, public CineFile
     size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
     /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() const override;
+    void import_compute_settings() override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;

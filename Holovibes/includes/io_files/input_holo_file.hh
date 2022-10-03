@@ -28,7 +28,7 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     void set_pos_to_frame(size_t frame_id) override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() const override;
+    void import_compute_settings() override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;

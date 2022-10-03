@@ -1,22 +1,6 @@
 #include "enum_theme.hh"
 #include "API.hh"
-#include "view_struct.hh"
-#include "rendering_struct.hh"
-#include "composite_struct.hh"
 #include "internals_struct.hh"
-#include "advanced_struct.hh"
-
-namespace holovibes
-{
-
-
-// static void debug_compute_settings()
-//{
-//     std::cout << std::setw(1) << json{ComputeSettings{}};
-//     std::cout << std::setw(1) << api::compute_settings_to_json();
-// }
-
-} // namespace holovibes
 
 #include "logger.hh"
 

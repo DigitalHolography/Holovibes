@@ -16,7 +16,7 @@ class InputFrameFile : public FrameFile
 {
   public:
     /*! \brief Update Global State Holder with the settings present in the file */
-    virtual void import_compute_settings() const = 0;
+    virtual void import_compute_settings() = 0;
 
     /*! \brief Update Global State Holder with the info settings present in the file */
     virtual void import_info() const = 0;
