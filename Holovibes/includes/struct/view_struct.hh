@@ -72,22 +72,22 @@ struct ViewAccu
  *
  * \brief Class that represents ViewPQ
  */
-struct ViewPQ : public ViewAccu
+struct View_Accu_PQ : public ViewAccu
 {
     unsigned index = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
+    SERIALIZE_JSON_STRUCT(View_Accu_PQ, accu_level, index)
 };
 
 /*! \class ViewXY
  *
  * \brief Class that represents ViewXY
  */
-struct ViewXY : public ViewAccu
+struct View_Accu_XY : public ViewAccu
 {
     unsigned cuts = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
+    SERIALIZE_JSON_STRUCT(View_Accu_XY, accu_level, cuts)
 };
 
 /*! \class Windows
@@ -130,10 +130,10 @@ struct Views
 {
     ImgType img_type = ImgType::Modulus;
     bool fft_shift = false;
-    ViewXY x;
-    ViewXY y;
-    ViewPQ p;
-    ViewPQ q;
+    View_Accu_XY x;
+    View_Accu_XY y;
+    View_Accu_PQ p;
+    View_Accu_PQ q;
     Windows window;
     bool renorm = false;
     Reticle reticle;

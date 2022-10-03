@@ -5,13 +5,6 @@
 namespace holovibes
 {
 
-class ContrastThreshold
-{
-  public:
-    float upper;
-    float lower;
-};
-
 class ContrastThresholdParam : public ICustomParameter<ContrastThreshold>
 {
   public:

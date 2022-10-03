@@ -100,19 +100,19 @@ class GSH
     inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
     inline ImgType get_img_type() const noexcept { return view_cache_.get_img_type(); }
 
-    inline ViewXY get_x() const noexcept { return view_cache_.get_x(); }
+    inline View_Accu_XY get_x() const noexcept { return view_cache_.get_x(); }
     inline int get_x_accu_level() const noexcept { return view_cache_.get_x().accu_level; }
     inline int get_x_cuts() const noexcept { return view_cache_.get_x().cuts; }
 
-    inline ViewXY get_y() const noexcept { return view_cache_.get_y(); }
+    inline View_Accu_XY get_y() const noexcept { return view_cache_.get_y(); }
     inline int get_y_accu_level() const noexcept { return view_cache_.get_y().accu_level; }
     inline int get_y_cuts() const noexcept { return view_cache_.get_y().cuts; }
 
-    inline ViewPQ get_p() const noexcept { return view_cache_.get_p(); }
+    inline View_Accu_PQ get_p() const noexcept { return view_cache_.get_p(); }
     inline int get_p_accu_level() const noexcept { return view_cache_.get_p().accu_level; }
     inline uint get_p_index() const noexcept { return view_cache_.get_p().index; }
 
-    inline ViewPQ get_q() const noexcept { return view_cache_.get_q(); }
+    inline View_Accu_PQ get_q() const noexcept { return view_cache_.get_q(); }
     inline int get_q_accu_level() const noexcept { return view_cache_.get_q().accu_level; }
     inline uint get_q_index() const noexcept { return view_cache_.get_q().index; }
 
@@ -344,15 +344,15 @@ class GSH
 
     inline void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
 
-    inline void set_x(ViewXY value) noexcept { view_cache_.set_x(value); }
+    inline void set_x(View_Accu_XY value) noexcept { view_cache_.set_x(value); }
     inline void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
     inline void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
 
-    inline void set_y(ViewXY value) noexcept { view_cache_.set_y(value); }
+    inline void set_y(View_Accu_XY value) noexcept { view_cache_.set_y(value); }
     inline void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
     inline void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
 
-    inline void set_p(ViewPQ value) noexcept { view_cache_.set_p(value); }
+    inline void set_p(View_Accu_PQ value) noexcept { view_cache_.set_p(value); }
     inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
     inline void set_p_index(uint value) noexcept
     {
@@ -360,7 +360,7 @@ class GSH
         notify_callback_();
     }
 
-    inline void set_q(ViewPQ value) noexcept { view_cache_.set_q(value); }
+    inline void set_q(View_Accu_PQ value) noexcept { view_cache_.set_q(value); }
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
     inline void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->index = value; }
 
@@ -368,23 +368,6 @@ class GSH
     inline void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->flip_enabled = value; }
     inline void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rot = value; }
     inline void set_xy_img_accu_level(uint value) noexcept { view_cache_.get_xy_ref()->img_accu_level = value; }
-    inline void set_xy_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_xy_ref()->log_enabled = value; }
-    inline void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast.enabled = value; }
-    inline void set_xy_contrast_auto_refresh(bool value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.auto_refresh = value;
-    }
-    inline void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast.invert = value; }
-    inline void set_xy_contrast_min(float value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.min = value > 1.0f ? value : 1.0f;
-    }
-    inline void set_xy_contrast_max(float value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.max = value > 1.0f ? value : 1.0f;
-    }
-
-    inline void set_xz(ViewXYZ value) noexcept { view_cache_.set_xz(value); }
     inline void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->flip_enabled = value; }
     inline void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rot = value; }
     inline void set_xz_img_accu_level(uint value) noexcept { view_cache_.get_xz_ref()->img_accu_level = value; }

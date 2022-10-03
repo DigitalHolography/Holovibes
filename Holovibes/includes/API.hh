@@ -515,25 +515,25 @@ bool get_img_log_scale_slice_enabled();
  *
  * \return x
  */
-ViewXY get_x(void);
+View_Accu_XY get_x(void);
 
 /*! \brief get y
  *
  * \return y
  */
-ViewXY get_y(void);
+View_Accu_XY get_y(void);
 
 /*! \brief get p
  *
  * \return p
  */
-ViewPQ get_p(void);
+View_Accu_PQ get_p(void);
 
 /*! \brief get q
  *
  * \return q
  */
-ViewPQ get_q(void);
+View_Accu_PQ get_q(void);
 
 /*! \name	Getter of the overlay positions.
  * \{

@@ -91,7 +91,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            ViewPQ p = view_cache_.get_p();
+            View_Accu_PQ p = view_cache_.get_p();
             pmin_ = p.index;
             if (p.accu_level != 0)
                 pmax_ = std::max(0,
