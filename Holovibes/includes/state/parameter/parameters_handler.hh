@@ -14,7 +14,7 @@ namespace holovibes
 {
 class ParametersHandler
 {
-  private:
+  protected:
     MapKeyParams key_params_;
     StaticContainer<BatchSize> params_;
 
@@ -27,6 +27,13 @@ class ParametersHandler
 
   public:
     void force_sync_with(ParametersHandler& handler) { params_.force_sync_with(handler.params_); }
+
+    template <typename FunctionClass, typename... Args>
+    void call(Args&&... args)
+    {
+        FunctionClass functions_class;
+        params_.call(functions_class, std::forward<Args>(args)...);
+    }
 
   public:
     template <typename T>
@@ -67,6 +74,16 @@ struct ParamsChange
     IParameter* param_to_change = nullptr;
 };
 
+class SetSynchronize
+{
+  public:
+    template <typename T>
+    void call(T& value)
+    {
+        value.set_has_been_synchronized(false);
+    }
+};
+
 class ParametersHandlerCache : public ParametersHandler
 {
   public:
@@ -83,7 +100,28 @@ class ParametersHandlerCache : public ParametersHandler
     }
 
   public:
-    void synchronize();
+    void synchronize()
+    {
+        for (auto change : change_pool)
+        {
+            change.param_to_change->sync_with(change.ref);
+            change.param_to_change->set_has_been_synchronized(true);
+        }
+        change_pool.clear();
+    }
+
+    template <typename FunctionClass, typename... Args>
+    void call_synchronize(Args&&... args)
+    {
+        SetSynchronize set_synchronize;
+        params_.template call(set_synchronize);
+
+        synchronize();
+
+        FunctionClass functions_class;
+        params_.template call(functions_class, std::forward<Args>(args)...);
+    }
+
     std::vector<ParamsChange>& get_change_pool() { return change_pool; }
     const std::vector<ParamsChange>& get_change_pool() const { return change_pool; }
 

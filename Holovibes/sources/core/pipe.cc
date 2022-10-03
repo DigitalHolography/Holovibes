@@ -22,6 +22,8 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
+#include "functions_pipe.hh"
+
 namespace holovibes
 {
 
@@ -41,6 +43,14 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
+    GSH::instance().get_params().add_cache_to_synchronize(params_);
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+    GSH::instance().get_params().set(BatchSize{8});
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+    params_.call_synchronize<PipeFunction>(*this);
+    LOG_INFO(main, "TEST BATCH_SIZE {}", params_.get_value<BatchSize>());
+    params_.call_synchronize<PipeFunction>(*this);
+
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
 

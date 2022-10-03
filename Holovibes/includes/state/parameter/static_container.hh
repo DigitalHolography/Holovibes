@@ -20,6 +20,13 @@ class StaticContainer<>
 
   public:
     void force_sync_with();
+
+    template <typename FunctionClass, typename... Args>
+    void call(FunctionClass functions_class, Args&&... args)
+    {
+    }
+
+    void set_has_been_synchronized(bool) {}
 };
 
 template <typename T, typename... R>
@@ -41,6 +48,21 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
         value_ = ref.value_;
         if constexpr (sizeof...(R) > 0)
             StaticContainer<R...>::force_sync_with(static_cast<StaticContainer<R...>>(ref));
+    }
+
+    template <typename FunctionClass, typename... Args>
+    void call(FunctionClass& functions_class, Args&&... args)
+    {
+        StaticContainer<R...>::template call<FunctionClass>(functions_class, std::forward<Args>(args)...);
+
+        constexpr bool has_member_test = requires(FunctionClass functions_class)
+        {
+            functions_class.template test(value_);
+        };
+
+        if constexpr (has_member_test) if (!functions_class.template test<T>(value_)) return;
+
+        functions_class.template call<T>(value_, std::forward<Args>(args)...);
     }
 
   public:

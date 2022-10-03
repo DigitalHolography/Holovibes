@@ -19,7 +19,7 @@ class BatchSize : public IUIntParameter
 
   public:
     static const char* static_key() { return "batch_size"; }
-    const char* get_key() override { return BatchSize::static_key(); }
+    const char* get_key() const override { return BatchSize::static_key(); }
 };
 
 } // namespace holovibes
