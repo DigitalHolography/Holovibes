@@ -11,10 +11,6 @@ class IStringParameter : public IParameter
     using TransfertType = std::string_view;
 
   public:
-    IStringParameter()
-        : value_("")
-    {
-    }
     IStringParameter(TransfertType value)
         : value_(value)
     {

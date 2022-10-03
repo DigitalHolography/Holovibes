@@ -62,7 +62,7 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  * \param renorm_constant postprocessing remormalize multiplication constant
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
-                            (uint, batch_size, 1),
+                            (uint, batch_size, 1), // DONE
                             (uint, time_stride, 1),
                             (uint, time_transformation_size, 1),
                             (SpaceTransformation, space_transformation, SpaceTransformation::NONE),

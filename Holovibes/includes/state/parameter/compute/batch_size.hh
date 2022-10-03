@@ -7,8 +7,11 @@ namespace holovibes
 class BatchSize : public IUIntParameter
 {
   public:
+    static constexpr ValueType DEFAULT_VALUE = 1;
+
+  public:
     BatchSize()
-        : IUIntParameter()
+        : IUIntParameter(DEFAULT_VALUE)
     {
     }
 

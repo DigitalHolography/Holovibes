@@ -63,6 +63,18 @@ set(INTERNAL_INCLUDES
     includes/
     includes/state/
     includes/state/parameter
+    includes/state/parameter/detail
+    includes/state/parameter/base_type
+    includes/state/parameter/advanced
+    includes/state/parameter/compute
+    includes/state/parameter/composite
+    includes/state/parameter/export
+    includes/state/parameter/import
+    includes/state/parameter/view
+    includes/state/parameter/filter2d
+    includes/state/parameter/file_read
+    includes/state/parameter/zone
+
     includes/compute/
     includes/core/
     includes/enum/

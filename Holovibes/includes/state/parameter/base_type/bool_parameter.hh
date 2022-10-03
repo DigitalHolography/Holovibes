@@ -11,10 +11,6 @@ class IBoolParameter : public IParameter
     using TransfertType = bool;
 
   public:
-    IBoolParameter()
-        : value_(false)
-    {
-    }
     IBoolParameter(TransfertType value)
         : value_(value)
     {

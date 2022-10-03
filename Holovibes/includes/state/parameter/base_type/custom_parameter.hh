@@ -4,28 +4,25 @@
 
 namespace holovibes
 {
-class IUIntParameter : public IParameter
+template <typename T>
+class ICustomParameter : public IParameter
 {
   public:
-    using ValueType = uint;
-    using TransfertType = uint;
+    using ValueType = T;
+    using TransfertType = const T&;
 
   public:
-    IUIntParameter()
-        : value_(0)
-    {
-    }
-    IUIntParameter(TransfertType value)
+    ICustomParameter(TransfertType value)
         : value_(value)
     {
     }
-    virtual ~IUIntParameter() override {}
+    virtual ~ICustomParameter() override {}
 
   public:
     virtual TransfertType get_value() const { return value_; }
     virtual ValueType& get_value() { return value_; }
     virtual void set_value(TransfertType value) { value_ = value; }
-    virtual void sync_with(IParameter* ref) override { value_ = reinterpret_cast<IUIntParameter*>(ref)->value_; };
+    virtual void sync_with(IParameter* ref) override { value_ = reinterpret_cast<ICustomParameter<T>*>(ref)->value_; };
 
   private:
     ValueType value_;
