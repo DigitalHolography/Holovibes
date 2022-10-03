@@ -4,9 +4,7 @@
 
 #include "common.cuh"
 
-namespace holovibes
-{
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
 bool CusolverHandle::initialized_ = false;
 cusolverDnHandle_t CusolverHandle::handle_;
@@ -27,5 +25,4 @@ void CusolverHandle::set_stream(const cudaStream_t& stream)
     instance();
     cusolverSafeCall(cusolverDnSetStream(handle_, stream));
 }
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

@@ -20,9 +20,7 @@
 #include "concurrent_deque.hh"
 #include "chart_point.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class CurvePlot
  *
@@ -140,5 +138,4 @@ class CurvePlot : public QWidget
     /*! \brief Numbers of new points that already arrived since last auto_scale */
     size_t auto_scale_curr_points_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

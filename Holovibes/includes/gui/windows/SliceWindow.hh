@@ -6,9 +6,7 @@
 
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 class MainWindow;
 
@@ -36,5 +34,4 @@ class SliceWindow : public BasicOpenGLWindow
     void mouseReleaseEvent(QMouseEvent*) override;
     void focusInEvent(QFocusEvent*) override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

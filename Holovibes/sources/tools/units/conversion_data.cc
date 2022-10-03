@@ -7,7 +7,9 @@
 namespace holovibes
 {
 using gui::BasicOpenGLWindow;
-namespace units
+} // namespace holovibes
+
+namespace holovibes::units
 {
 ConversionData::ConversionData(const BasicOpenGLWindow& window)
     : window_(&window)
@@ -118,5 +120,4 @@ int ConversionData::get_fd_size(Axis axis) const
         throw std::exception("Unreachable code");
     }
 }
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

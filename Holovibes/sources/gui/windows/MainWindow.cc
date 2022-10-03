@@ -28,7 +28,9 @@ namespace holovibes
 {
 using camera::Endianness;
 using camera::FrameDescriptor;
-namespace gui
+} // namespace holovibes
+
+namespace holovibes::gui
 {
 namespace
 {
@@ -682,5 +684,4 @@ void MainWindow::set_theme(const Theme theme)
         set_night();
 }
 #pragma endregion
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

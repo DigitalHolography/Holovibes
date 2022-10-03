@@ -9,9 +9,7 @@
 
 #include "cuda_memory.cuh"
 
-namespace holovibes
-{
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
 /*! \class Array
  *
@@ -99,5 +97,4 @@ class Array : public UniquePtr<T>
   private:
     std::size_t size_;
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

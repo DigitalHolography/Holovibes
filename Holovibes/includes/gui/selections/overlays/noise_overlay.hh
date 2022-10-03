@@ -6,9 +6,7 @@
 
 #include "rect_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class NoiseOverlay
  *
@@ -21,5 +19,4 @@ class NoiseOverlay : public RectOverlay
 
     void release(ushort frameSide) override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

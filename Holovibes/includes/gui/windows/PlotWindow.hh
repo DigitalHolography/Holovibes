@@ -16,11 +16,9 @@ namespace holovibes
 {
 template <class T>
 class ConcurrentDeque;
-}
+} // namespace holovibes
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class PlotWindow
  *
@@ -93,5 +91,4 @@ class PlotWindow : public QMainWindow
     /*! \brief CurvePlot object */
     CurvePlot curve_plot_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

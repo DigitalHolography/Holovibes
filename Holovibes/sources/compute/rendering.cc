@@ -11,9 +11,7 @@
 #include "cuda_memory.cuh"
 #include "logger.hh"
 
-namespace holovibes
-{
-namespace compute
+namespace holovibes::compute
 {
 Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
@@ -359,5 +357,4 @@ void Rendering::autocontrast_caller(
         break;
     }
 }
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

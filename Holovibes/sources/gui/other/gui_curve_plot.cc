@@ -8,9 +8,7 @@
 #define TIMER_FREQ 40
 #define POINTS 200
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 CurvePlot::CurvePlot(ConcurrentDeque<ChartPoint>& data_vect,
                      const size_t auto_scale_point_threshold,
@@ -179,8 +177,7 @@ void CurvePlot::toggle_dark_mode(bool dark_mode)
     chart->setTheme(theme);
     line_series->setColor(line_color);
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui
 #undef WIDTH
 #undef HEIGHT
 #undef TOP_OFFSET

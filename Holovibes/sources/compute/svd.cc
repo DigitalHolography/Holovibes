@@ -1,9 +1,7 @@
 #include "svd.hh"
 #include "logger.hh"
 
-namespace holovibes
-{
-namespace compute
+namespace holovibes::compute
 {
 constexpr cuComplex alpha{1, 0};
 constexpr cuComplex beta{0, 0};
@@ -92,5 +90,4 @@ void matrix_multiply(const cuComplex* A,
                                  C,
                                  A_height));
 }
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

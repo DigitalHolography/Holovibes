@@ -21,7 +21,9 @@ namespace holovibes
 {
 using camera::Endianness;
 using camera::FrameDescriptor;
-namespace gui
+} // namespace holovibes
+
+namespace holovibes::gui
 {
 RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
@@ -190,7 +192,7 @@ void RawWindow::resizeGL(int w, int h)
             old_width = h * ratio;
             old_height = h;
         }
-    } // namespace gui
+    }
     else
     {
         if (is_resize)
@@ -229,7 +231,7 @@ void RawWindow::resizeGL(int w, int h)
     }
     resize(old_width, old_height);
     this->setPosition(point);
-} // namespace holovibes
+}
 
 void RawWindow::paintGL()
 {
@@ -389,5 +391,4 @@ void RawWindow::wheelEvent(QWheelEvent* e)
         }
     }
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

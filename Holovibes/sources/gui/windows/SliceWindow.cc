@@ -10,9 +10,7 @@
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : BasicOpenGLWindow(p, s, q, k)
@@ -196,5 +194,4 @@ void SliceWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

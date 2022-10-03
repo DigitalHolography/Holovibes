@@ -15,7 +15,9 @@ namespace holovibes
 {
 using cuda_tools::CufftHandle;
 using cuda_tools::UniquePtr;
-namespace compute
+} // namespace holovibes
+
+namespace holovibes::compute
 {
 ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      ImageAccEnv& image_acc_env,
@@ -216,5 +218,4 @@ void ImageAccumulation::insert_copy_accumulation_result()
 
     fn_compute_vect_.conditional_push_back(copy_accumulation_result);
 }
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

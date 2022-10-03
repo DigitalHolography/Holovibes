@@ -15,9 +15,7 @@
 #include "frame_desc.hh"
 #include "rect.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 
 /*! \enum KindOfOverlay
@@ -135,5 +133,4 @@ class Overlay : protected QOpenGLFunctions
     /*! \brief Pointer to the parent to access Compute descriptor and Pipe */
     BasicOpenGLWindow* parent_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

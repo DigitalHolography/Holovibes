@@ -18,8 +18,9 @@ enum class Computation
     Raw = 0, /*!< Interferogram recorded */
     Hologram /*!<  Reconstruction of the object */
 };
+} // namespace holovibes
 
-namespace _internal
+namespace holovibes::_internal
 {
 static std::map<std::string, Computation> string_to_computation = {
     {"RAW", Computation::Raw},
@@ -30,8 +31,10 @@ static std::map<Computation, std::string> computation_to_string = {
     {Computation::Raw, "RAW"},
     {Computation::Hologram, "HOLOGRAM"},
 };
-} // namespace _internal
+} // namespace holovibes::_internal
 
+namespace holovibes
+{
 inline std::string computation_to_string(Computation value) { return _internal::computation_to_string.at(value); }
 
 inline Computation computation_from_string(const std::string& in) { return _internal::string_to_computation.at(in); }

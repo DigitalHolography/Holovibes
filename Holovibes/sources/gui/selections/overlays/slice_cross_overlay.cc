@@ -3,9 +3,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 SliceCrossOverlay::SliceCrossOverlay(BasicOpenGLWindow* parent)
     : RectOverlay(KindOfOverlay::SliceCross, parent)
@@ -113,5 +111,4 @@ void SliceCrossOverlay::setBuffer()
     // Updating opengl buffer
     RectOverlay::setBuffer();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

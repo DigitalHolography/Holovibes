@@ -8,9 +8,7 @@
 #include "unit.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class RainbowOverlay
  *
@@ -34,5 +32,4 @@ class RainbowOverlay : public Overlay
 
     void setBuffer() override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

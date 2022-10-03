@@ -7,9 +7,7 @@
 #include "icompute.hh"
 #include "RawWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 class MainWindow;
 using SharedPipe = std::shared_ptr<ICompute>;
@@ -48,5 +46,4 @@ class HoloWindow : public RawWindow
     std::unique_ptr<SliceWindow>& xz_slice_;
     std::unique_ptr<SliceWindow>& yz_slice_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

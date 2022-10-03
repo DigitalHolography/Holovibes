@@ -16,8 +16,9 @@ namespace holovibes
 // Fast forward declarations
 class Queue;
 class ICompute;
+} // namespace holovibes
 
-namespace worker
+namespace holovibes::worker
 {
 /*! \class FrameRecordWorker
  *
@@ -86,5 +87,4 @@ class FrameRecordWorker final : public Worker
 
     const cudaStream_t stream_;
 };
-} // namespace worker
-} // namespace holovibes
+} // namespace holovibes::worker
