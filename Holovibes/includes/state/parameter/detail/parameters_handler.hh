@@ -2,9 +2,13 @@
 
 #include <unordered_map>
 #include <vector>
+#include <deque>
+#include <map>
 #include <functional>
 #include <memory>
 #include <utility>
+#include <mutex>
+#include <thread>
 #include "parameter.hh"
 #include "static_container.hh"
 #include "logger.hh"
@@ -27,13 +31,30 @@ class ParametersHandler
     }
 
   public:
+    virtual void synchronize(){};
     void force_sync_with(ParametersHandler& handler) { params_.force_sync_with(handler.params_); }
 
+  public:
     template <typename FunctionClass, typename... Args>
     void call(Args&&... args)
     {
         FunctionClass functions_class;
+
+        if constexpr (requires { typename FunctionClass::BeforeMethods; })
+        {
+            typename FunctionClass::BeforeMethods before;
+            params_.call(before);
+            before.template call(*this);
+        }
+
         params_.call(functions_class, std::forward<Args>(args)...);
+
+        if constexpr (requires { typename FunctionClass::AfterMethods; })
+        {
+            typename FunctionClass::AfterMethods after;
+            params_.call(after);
+            after.template call(*this);
+        }
     }
 
   public:
@@ -75,23 +96,6 @@ class ParametersHandler
     }
 };
 
-struct ParamsChange
-{
-  public:
-    IParameter* ref = nullptr;
-    IParameter* param_to_change = nullptr;
-};
-
-class SetSynchronize
-{
-  public:
-    template <typename T>
-    void call(T& value)
-    {
-        value.set_has_been_synchronized(false);
-    }
-};
-
 class ParametersHandlerCache : public ParametersHandler
 {
   public:
@@ -104,39 +108,33 @@ class ParametersHandlerCache : public ParametersHandler
     template <typename T>
     void trigger_param(IParameter* ref)
     {
-        // static_cast<IParameter*>(&ParametersHandler::get_type<T>())
-        change_pool.push_back(ParamsChange{ref, &get_type<T>()});
+        std::lock_guard<std::mutex> guard(change_pool_mutex);
+        IParameter* param_to_change = static_cast<IParameter*>(&ParametersHandler::get_type<T>());
+        change_pool[param_to_change] = ref;
     }
 
   public:
-    void synchronize()
+    void synchronize() override
     {
+        std::lock_guard<std::mutex> guard(change_pool_mutex);
         for (auto change : change_pool)
         {
-            change.param_to_change->sync_with(change.ref);
-            change.param_to_change->set_has_been_synchronized(true);
+            change.first->sync_with(change.second);
+            change.second->set_has_been_synchronized(true);
         }
         change_pool.clear();
     }
 
-    template <typename FunctionClass, typename... Args>
-    void call_synchronize(Args&&... args)
+    bool has_change_requested()
     {
-        SetSynchronize set_synchronize;
-        params_.template call(set_synchronize);
-
-        synchronize();
-
-        FunctionClass functions_class;
-        params_.template call(functions_class, std::forward<Args>(args)...);
+        std::lock_guard<std::mutex> guard(change_pool_mutex);
+        return change_pool.size() > 0;
     }
 
-    std::vector<ParamsChange>& get_change_pool() { return change_pool; }
-    const std::vector<ParamsChange>& get_change_pool() const { return change_pool; }
-    bool has_change_requested() const { return change_pool.size() > 0; }
-
   private:
-    std::vector<ParamsChange> change_pool;
+    // first is param_to_change ; second is ref
+    std::map<IParameter*, IParameter*> change_pool;
+    std::mutex change_pool_mutex;
 };
 
 class ParametersHandlerRef : public ParametersHandler
@@ -151,9 +149,11 @@ class ParametersHandlerRef : public ParametersHandler
   public:
     void add_cache_to_synchronize(ParametersHandlerCache& cache)
     {
-        caches_to_sync_.push_back(&cache);
+        caches_to_sync_.insert(&cache);
         cache.force_sync_with(*this);
     }
+
+    void remove_cache_to_synchronize(ParametersHandlerCache& cache) { caches_to_sync_.erase(&cache); }
 
     template <typename T>
     void trigger_params()
@@ -172,7 +172,7 @@ class ParametersHandlerRef : public ParametersHandler
     }
 
   private:
-    std::vector<ParametersHandlerCache*> caches_to_sync_;
+    std::set<ParametersHandlerCache*> caches_to_sync_;
 };
 
 } // namespace holovibes

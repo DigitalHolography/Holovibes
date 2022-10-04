@@ -30,6 +30,8 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
+    GSH::instance().get_params().add_cache_to_synchronize(params_);
+
     int err = 0;
 
     plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);

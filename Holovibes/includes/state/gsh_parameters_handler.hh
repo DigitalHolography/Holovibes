@@ -26,7 +26,6 @@ class GSHParametersHandler : public ParametersHandlerRef
         //     compute_cache_.set_time_stride(compute_cache_.get_time_stride() - compute_cache_.get_time_stride() %
         //     value);
 
-        LOG_INFO(main, "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         old_value = std::forward<BatchSize>(new_value);
     }
 };

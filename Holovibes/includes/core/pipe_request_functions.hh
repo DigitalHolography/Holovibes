@@ -3,11 +3,15 @@
 #include "pipe.hh"
 #include "logger.hh"
 #include "parameters_handler.hh"
+#include "on_synchronize_functions.hh"
 
 namespace holovibes
 {
 class PipeRequestFunctions
 {
+  public:
+    using BeforeMethods = OnSynchronizeFunctions;
+
   public:
     template <typename T>
     bool test(const T& value)

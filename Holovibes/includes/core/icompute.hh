@@ -187,7 +187,7 @@ class ICompute
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
-    virtual ~ICompute() {}
+    virtual ~ICompute() { GSH::instance().get_params().remove_cache_to_synchronize(params_); }
 
   public:
     BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };

@@ -65,8 +65,6 @@ void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_
 
 void ImageAccumulation::init()
 {
-    LOG_FUNC(compute_worker);
-
     // XY view
     if (GSH::instance().get_xy_img_accu_enabled())
     {
@@ -105,8 +103,6 @@ void ImageAccumulation::init()
 
 void ImageAccumulation::dispose()
 {
-    LOG_FUNC(compute_worker);
-
     if (!GSH::instance().get_xy_img_accu_enabled())
         image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
     if (!GSH::instance().get_xz_img_accu_enabled())

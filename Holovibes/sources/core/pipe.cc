@@ -43,7 +43,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
-    GSH::instance().get_params().add_cache_to_synchronize(params_);
 
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
@@ -363,8 +362,9 @@ void Pipe::refresh()
     // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
     synchronize_caches();
     refresh_requested_ = false;
+
     fn_compute_vect_.clear();
-    params_.call_synchronize<PipeRequestFunctions>(*this);
+    params_.call<PipeRequestFunctions>(*this);
 
     // Aborting if allocation failed
     if (!make_requests())
@@ -376,7 +376,7 @@ void Pipe::refresh()
     // This call has to be after make_requests() because this method needs
     // to honor cache modifications
     synchronize_caches();
-    params_.call_synchronize<PipeRequestFunctions>(*this);
+    params_.call<PipeRequestFunctions>(*this);
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -685,11 +685,8 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-    if (refresh_requested_)
+    if (refresh_requested_ || params_.has_change_requested())
         refresh();
-
-    params_.call_synchronize<PipeRequestFunctions>(*this);
-
     synchronize_caches();
 
     while (!termination_requested_)
