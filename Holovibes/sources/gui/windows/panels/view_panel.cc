@@ -276,7 +276,7 @@ void ViewPanel::update_raw_view(bool checked)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (checked && api::get_batch_size() > api::get_output_buffer_size())
+    if (checked && api::get_value<BatchSize>() > api::get_output_buffer_size())
     {
         LOG_ERROR(main, "[RAW VIEW] Batch size must be lower than output queue size");
         return;

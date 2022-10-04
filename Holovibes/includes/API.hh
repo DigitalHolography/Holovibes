@@ -18,11 +18,26 @@
 #include "global_state_holder.hh"
 #include "compute_settings_struct.hh"
 
-#include <nlohmann/json_fwd.hpp>
+#include "parameters_handler.hh"
+
+#include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
 namespace holovibes::api
 {
+
+template <typename T>
+typename T::ValueType get_value()
+{
+    return GSH::instance().get_params().get_value<T>();
+}
+
+template <typename T>
+void set_value(T&& value)
+{
+    GSH::instance().get_params().set_value<T>(std::forward<T>(value));
+}
+
 /*! \brief Gets an Input file from a given filename
  *
  * \param filename the given filename to open

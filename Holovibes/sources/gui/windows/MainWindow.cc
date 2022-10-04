@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+        ui_->BatchSizeSpinBox->setValue(api::get_value<BatchSize>());
     }
     catch (const std::exception&)
     {
@@ -299,7 +299,7 @@ void MainWindow::reload_ini(const std::string& filename)
     api::load_compute_settings(filename);
 
     // Set values not set by notify
-    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    ui_->BatchSizeSpinBox->setValue(api::get_value<BatchSize>());
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();

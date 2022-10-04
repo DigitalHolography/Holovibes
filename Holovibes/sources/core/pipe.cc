@@ -22,7 +22,7 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-#include "functions_pipe.hh"
+#include "pipe_request_functions.hh"
 
 namespace holovibes
 {
@@ -251,15 +251,6 @@ bool Pipe::make_requests()
         request_update_time_stride_ = false;
     }
 
-    if (request_update_batch_size_)
-    {
-        LOG_DEBUG(compute_worker, "request_update_batch_size");
-
-        update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(compute_cache_.get_batch_size());
-        request_update_batch_size_ = false;
-    }
-
     if (request_time_transformation_cuts_)
     {
         LOG_DEBUG(compute_worker, "request_time_transformation_cuts");
@@ -371,10 +362,9 @@ void Pipe::refresh()
     // This call could be removed if make_requests() only gets value through
     // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
     synchronize_caches();
-
     refresh_requested_ = false;
-
     fn_compute_vect_.clear();
+    params_.call_synchronize<PipeRequestFunctions>(*this);
 
     // Aborting if allocation failed
     if (!make_requests())
@@ -386,6 +376,7 @@ void Pipe::refresh()
     // This call has to be after make_requests() because this method needs
     // to honor cache modifications
     synchronize_caches();
+    params_.call_synchronize<PipeRequestFunctions>(*this);
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -697,6 +688,8 @@ void Pipe::exec()
     if (refresh_requested_)
         refresh();
 
+    params_.call_synchronize<PipeRequestFunctions>(*this);
+
     synchronize_caches();
 
     while (!termination_requested_)
@@ -706,7 +699,7 @@ void Pipe::exec()
             // Run the entire pipeline of calculation
             run_all();
 
-            if (refresh_requested_)
+            if (refresh_requested_ || params_.has_change_requested())
             {
                 refresh();
                 synchronize_caches();

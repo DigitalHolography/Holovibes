@@ -321,11 +321,10 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 // FIXME: Same function as under
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
-    if (batch_size == api::get_batch_size())
+    if (batch_size == api::get_value<BatchSize>())
         return;
 
-    api::set_batch_size(batch_size);
-    Holovibes::instance().get_compute_pipe()->request_update_batch_size();
+    api::set_value(BatchSize{batch_size});
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {

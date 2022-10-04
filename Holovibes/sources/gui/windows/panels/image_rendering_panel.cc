@@ -46,8 +46,8 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
     ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
-    ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
-    ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
+    ui_->TimeStrideSpinBox->setSingleStep(api::get_value<BatchSize>());
+    ui_->TimeStrideSpinBox->setMinimum(api::get_value<BatchSize>());
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 

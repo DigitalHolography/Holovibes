@@ -387,12 +387,6 @@ void ICompute::request_disable_record_chart()
     request_refresh();
 }
 
-void ICompute::request_update_batch_size()
-{
-    request_update_batch_size_ = true;
-    request_refresh();
-}
-
 void ICompute::request_update_time_stride()
 {
     request_update_time_stride_ = true;

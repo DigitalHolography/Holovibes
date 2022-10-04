@@ -73,21 +73,6 @@ unsigned GSH::get_img_accu_level() const
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
-
-void GSH::set_batch_size(uint value)
-{
-    if (value > advanced_cache_.get_input_buffer_size())
-        value = advanced_cache_.get_input_buffer_size();
-
-    if (compute_cache_.get_time_stride() < value)
-        compute_cache_.set_time_stride(value);
-    // Go to lower multiple
-    if (compute_cache_.get_time_stride() % value != 0)
-        compute_cache_.set_time_stride(compute_cache_.get_time_stride() - compute_cache_.get_time_stride() % value);
-
-    compute_cache_.set_batch_size(value);
-}
-
 void GSH::set_time_transformation_size(uint value)
 {
     // FIXME: temporary fix due to ttsize change in pipe.make_request

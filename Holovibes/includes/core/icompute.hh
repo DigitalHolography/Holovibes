@@ -219,7 +219,6 @@ class ICompute
     void request_record_chart(unsigned int nb_chart_points_to_record);
     void request_disable_record_chart();
     void request_termination();
-    void request_update_batch_size();
     void request_update_time_stride();
     void request_disable_lens_view();
     void request_raw_view();
@@ -368,7 +367,6 @@ class ICompute
     std::atomic<bool> termination_requested_{false};
     std::atomic<bool> request_time_transformation_cuts_{false};
     std::atomic<bool> request_delete_time_transformation_cuts_{false};
-    std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
     std::atomic<bool> hologram_record_requested_{false};

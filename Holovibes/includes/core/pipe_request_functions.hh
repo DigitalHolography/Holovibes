@@ -1,11 +1,12 @@
 #pragma once
 
 #include "pipe.hh"
+#include "logger.hh"
 #include "parameters_handler.hh"
 
 namespace holovibes
 {
-class PipeFunction
+class PipeRequestFunctions
 {
   public:
     template <typename T>
@@ -22,6 +23,10 @@ class PipeFunction
     template <>
     void call<BatchSize>(const BatchSize& batch_size, Pipe& pipe)
     {
+        LOG_DEBUG(compute_worker, "UPDATE BATCH");
+
+        pipe.update_spatial_transformation_parameters();
+        pipe.get_gpu_input_queue().resize(batch_size.get_value());
     }
 };
 } // namespace holovibes

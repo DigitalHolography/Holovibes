@@ -57,15 +57,15 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
 
         constexpr bool has_member_test = requires(FunctionClass functions_class)
         {
-            functions_class.template test(value_);
+            functions_class.template test<T>(value_);
         };
-
         if constexpr (has_member_test) if (!functions_class.template test<T>(value_)) return;
 
         functions_class.template call<T>(value_, std::forward<Args>(args)...);
     }
 
   public:
+    // getters
     template <typename U>
     requires std::is_same_v<T, U>
     const U& get() const { return value_; }
@@ -79,6 +79,7 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     template <typename U>
     requires(false == std::is_same_v<T, U>) U& get() { return StaticContainer<R...>::get<U>(); }
 
+    // setters
     template <typename U>
     requires std::is_same_v<T, U>
     void set(U&& value) { value_ = std::forward<U>(value); }

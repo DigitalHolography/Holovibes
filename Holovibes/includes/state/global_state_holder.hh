@@ -18,6 +18,7 @@
 #include "composite_struct.hh"
 #include "internals_struct.hh"
 #include "advanced_struct.hh"
+#include "gsh_parameters_handler.hh"
 
 namespace holovibes
 {
@@ -54,7 +55,7 @@ class GSH
     static GSH* instance_;
 
   private:
-    GSH() { params_.set(BatchSize{2}); }
+    GSH() {}
 
   public:
     GSH(GSH& other) = delete;
@@ -64,8 +65,8 @@ class GSH
     static GSH& instance();
 
   public:
-    const ParametersHandlerRef& get_params() const { return params_; }
-    ParametersHandlerRef& get_params() { return params_; }
+    const GSHParametersHandler& get_params() const { return params_; }
+    GSHParametersHandler& get_params() { return params_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -86,7 +87,6 @@ class GSH
         return compute_cache_.get_time_transformation();
     };
 
-    inline uint get_batch_size() const noexcept { return compute_cache_.get_batch_size(); }
     inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
     inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
@@ -318,7 +318,6 @@ class GSH
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
-    void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_stride(uint value);
     void disable_convolution();
@@ -625,7 +624,7 @@ class GSH
 
     mutable std::mutex mutex_;
 
-    ParametersHandlerRef params_;
+    GSHParametersHandler params_;
 };
 
 } // namespace holovibes

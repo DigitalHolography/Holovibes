@@ -16,9 +16,6 @@ inline void set_img_type(ImgType type) { return GSH::instance().set_img_type(typ
 
 inline WindowKind get_current_window_type() { return GSH::instance().get_current_window_type(); }
 
-inline uint get_batch_size() { return GSH::instance().get_batch_size(); }
-inline void set_batch_size(uint value) { GSH::instance().set_batch_size(value); }
-
 inline uint get_time_stride() { return GSH::instance().get_time_stride(); }
 inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value); }
 

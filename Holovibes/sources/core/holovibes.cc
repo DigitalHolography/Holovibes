@@ -39,7 +39,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 
     gpu_input_queue_ =
         std::make_shared<BatchInputQueue>(input_queue_size,
-                                          api::get_compute_mode() == Computation::Raw ? 1 : api::get_batch_size(),
+                                          api::get_compute_mode() == Computation::Raw ? 1 : api::get_value<BatchSize>(),
                                           queue_fd);
 }
 
@@ -125,7 +125,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
-    if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
+    if (GSH::instance().get_params().get_value<BatchSize>() > GSH::instance().get_record_buffer_size())
     {
         LOG_ERROR(main, "[RECORDER] Batch size must be lower than record queue size");
         return;

@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <utility>
 #include "parameter.hh"
 #include "static_container.hh"
 #include "logger.hh"
@@ -60,10 +61,17 @@ class ParametersHandler
         return params_.get<T>().get_value();
     }
 
+  public:
     template <typename T>
-    void set_value(T&& type)
+    void setter(T& old_value, T&& new_value)
     {
-        params_.get<T>().set_value(type.get_value());
+        old_value = std::forward<T>(new_value);
+    }
+
+    template <typename T>
+    void set_value(T&& value)
+    {
+        setter<T>(params_.get<T>(), std::forward<T>(value));
     }
 };
 
@@ -94,8 +102,9 @@ class ParametersHandlerCache : public ParametersHandler
     }
 
     template <typename T>
-    void add_params_change(IParameter* ref)
+    void trigger_param(IParameter* ref)
     {
+        // static_cast<IParameter*>(&ParametersHandler::get_type<T>())
         change_pool.push_back(ParamsChange{ref, &get_type<T>()});
     }
 
@@ -124,6 +133,7 @@ class ParametersHandlerCache : public ParametersHandler
 
     std::vector<ParamsChange>& get_change_pool() { return change_pool; }
     const std::vector<ParamsChange>& get_change_pool() const { return change_pool; }
+    bool has_change_requested() const { return change_pool.size() > 0; }
 
   private:
     std::vector<ParamsChange> change_pool;
@@ -146,20 +156,19 @@ class ParametersHandlerRef : public ParametersHandler
     }
 
     template <typename T>
-    void add_params_change()
+    void trigger_params()
     {
         IParameter* ref = &get_type<T>();
         for (auto cache : caches_to_sync_)
-            cache->add_params_change<T>(ref);
+            cache->trigger_param<T>(ref);
     }
 
   public:
     template <typename T>
-    void set(T&& value)
+    void set_value(T&& value)
     {
-        LOG_DEBUG(main, "++++++ SET VALUE ON REF");
-        add_params_change<T>();
-        ParametersHandler::set_value<T>(std::forward<T>(value));
+        setter<T>(params_.get<T>(), std::forward<T>(value));
+        trigger_params<T>();
     }
 
   private:
