@@ -19,6 +19,7 @@
 #include "internals_struct.hh"
 #include "advanced_struct.hh"
 #include "gsh_parameters_handler.hh"
+#include "cache_gsh.hh"
 
 namespace holovibes
 {
@@ -65,8 +66,8 @@ class GSH
     static GSH& instance();
 
   public:
-    const GSHParametersHandler& get_params() const { return params_; }
-    GSHParametersHandler& get_params() { return params_; }
+    const CacheGSH& get_params() const { return params_; }
+    CacheGSH& get_params() { return params_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -624,7 +625,7 @@ class GSH
 
     mutable std::mutex mutex_;
 
-    GSHParametersHandler params_;
+    CacheGSH params_;
 };
 
 } // namespace holovibes

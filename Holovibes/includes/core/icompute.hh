@@ -18,7 +18,7 @@
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
-#include "parameters_handler.hh"
+#include "cache_icompute.hh"
 
 namespace holovibes
 {
@@ -205,7 +205,7 @@ class ICompute
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
-    ParametersHandler& get_params() { return params_; }
+    CacheICompute& get_params() { return params_; }
 
   public:
     void request_refresh();
@@ -385,6 +385,6 @@ class ICompute
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
 
-    ParametersHandlerCache params_;
+    CacheICompute params_;
 };
 } // namespace holovibes

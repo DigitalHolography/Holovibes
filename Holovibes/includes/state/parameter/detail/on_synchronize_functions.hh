@@ -15,8 +15,8 @@ class OnSynchronizeFunctions
         value.set_has_been_synchronized(false);
     }
 
-    template <>
-    void call<ParametersHandler>(ParametersHandler& params)
+    template <typename ParametersHandler>
+    void call_handler(ParametersHandler& params)
     {
         params.synchronize();
     }

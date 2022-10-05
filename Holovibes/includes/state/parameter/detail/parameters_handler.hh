@@ -17,11 +17,13 @@
 
 namespace holovibes
 {
+
+template <typename... Params>
 class ParametersHandler
 {
   protected:
     MapKeyParams key_params_;
-    StaticContainer<BatchSize> params_;
+    StaticContainer<Params...> params_;
 
   public:
     ParametersHandler()
@@ -32,7 +34,12 @@ class ParametersHandler
 
   public:
     virtual void synchronize(){};
-    void force_sync_with(ParametersHandler& handler) { params_.force_sync_with(handler.params_); }
+
+    template <typename ParametersHandlerRef>
+    void force_sync_with(ParametersHandlerRef& ref)
+    {
+        params_.force_sync_with(ref.params_);
+    }
 
   public:
     template <typename FunctionClass, typename... Args>
@@ -44,7 +51,7 @@ class ParametersHandler
         {
             typename FunctionClass::BeforeMethods before;
             params_.call(before);
-            before.template call(*this);
+            before.template call_handler(*this);
         }
 
         params_.call(functions_class, std::forward<Args>(args)...);
@@ -53,54 +60,46 @@ class ParametersHandler
         {
             typename FunctionClass::AfterMethods after;
             params_.call(after);
-            after.template call(*this);
+            after.template call_handler(*this);
         }
     }
+
+  public:
+    const MapKeyParams& get_map_key() const { return key_params_; }
+    MapKeyParams& get_map_key() { return key_params_; }
 
   public:
     template <typename T>
     const T& get_type() const
     {
-        return params_.get<T>();
+        return params_.template get<T>();
     }
 
     template <typename T>
     T& get_type()
     {
-        return params_.get<T>();
+        return params_.template get<T>();
     }
 
     template <typename T>
     typename T::TransfertType get_value() const
     {
-        return params_.get<T>().get_value();
+        return params_.template get<T>().get_value();
     }
 
     template <typename T>
     typename T::ValueType& get_value()
     {
-        return params_.get<T>().get_value();
-    }
-
-  public:
-    template <typename T>
-    void setter(T& old_value, T&& new_value)
-    {
-        old_value = std::forward<T>(new_value);
-    }
-
-    template <typename T>
-    void set_value(T&& value)
-    {
-        setter<T>(params_.get<T>(), std::forward<T>(value));
+        return params_.template get<T>().get_value();
     }
 };
 
-class ParametersHandlerCache : public ParametersHandler
+template <typename... Params>
+class ParametersHandlerCache : public ParametersHandler<Params...>
 {
   public:
     ParametersHandlerCache()
-        : ParametersHandler()
+        : ParametersHandler<Params...>()
         , change_pool{}
     {
     }
@@ -109,7 +108,7 @@ class ParametersHandlerCache : public ParametersHandler
     void trigger_param(IParameter* ref)
     {
         std::lock_guard<std::mutex> guard(change_pool_mutex);
-        IParameter* param_to_change = static_cast<IParameter*>(&ParametersHandler::get_type<T>());
+        IParameter* param_to_change = static_cast<IParameter*>(&ParametersHandler<Params...>::template get_type<T>());
         change_pool[param_to_change] = ref;
     }
 
@@ -120,7 +119,7 @@ class ParametersHandlerCache : public ParametersHandler
         for (auto change : change_pool)
         {
             change.first->sync_with(change.second);
-            change.second->set_has_been_synchronized(true);
+            change.first->set_has_been_synchronized(true);
         }
         change_pool.clear();
     }
@@ -137,42 +136,123 @@ class ParametersHandlerCache : public ParametersHandler
     std::mutex change_pool_mutex;
 };
 
-class ParametersHandlerRef : public ParametersHandler
+template <typename... T>
+class CachesToSync
+{
+};
+
+template <typename T>
+class CachesToSync<T>
 {
   public:
-    ParametersHandlerRef()
-        : ParametersHandler()
+    using CacheType = T;
+    using Next = void;
+};
+
+template <typename T, typename... R>
+class CachesToSync<T, R...> : CachesToSync<R...>
+{
+  public:
+    using CacheType = T;
+    using Next = CachesToSync<R...>;
+};
+
+template <typename Setters, typename CachesToSync, typename... Params>
+class BasicParametersHandlerRef : public BasicParametersHandlerRef<Setters, typename CachesToSync::Next, Params...>
+{
+  public:
+    using Base = BasicParametersHandlerRef<Setters, typename CachesToSync::Next, Params...>;
+    using CacheType = typename CachesToSync::CacheType;
+
+    using Base::trigger_params_all;
+
+  public:
+    BasicParametersHandlerRef()
+        : Base()
         , caches_to_sync_{}
     {
     }
 
+  private:
+    template <typename T>
+    void trigger_params()
+    {
+        IParameter* ref = &this->template get_type<T>();
+        for (auto cache : caches_to_sync_)
+            cache->template trigger_param<T>(ref);
+    }
+
+  protected:
+    template <typename T>
+    void trigger_params_all()
+    {
+        trigger_params<T>();
+        Base::template trigger_params_all<T>();
+    }
+
   public:
-    void add_cache_to_synchronize(ParametersHandlerCache& cache)
+    void add_cache_to_synchronize(CacheType& cache)
     {
         caches_to_sync_.insert(&cache);
         cache.force_sync_with(*this);
     }
 
-    void remove_cache_to_synchronize(ParametersHandlerCache& cache) { caches_to_sync_.erase(&cache); }
+    void remove_cache_to_synchronize(CacheType& cache) { caches_to_sync_.erase(&cache); }
 
-    template <typename T>
-    void trigger_params()
+  private:
+    std::set<CacheType*> caches_to_sync_;
+};
+template <typename Setters, typename... Params>
+class BasicParametersHandlerRef<Setters, void, Params...> : public ParametersHandler<Params...>
+{
+  public:
+    using Base = ParametersHandler<Params...>;
+
+  public:
+    BasicParametersHandlerRef()
+        : ParametersHandler<Params...>()
     {
-        IParameter* ref = &get_type<T>();
-        for (auto cache : caches_to_sync_)
-            cache->trigger_param<T>(ref);
     }
+
+  protected:
+    template <typename T>
+    void trigger_params_all()
+    {
+    }
+};
+
+template <typename Master, typename Setters, typename CachesToSync, typename... Params>
+class ParametersHandlerRef : public BasicParametersHandlerRef<Setters, CachesToSync, Params...>
+{
+  public:
+    using Base = BasicParametersHandlerRef<Setters, CachesToSync, Params...>;
 
   public:
     template <typename T>
-    void set_value(T&& value)
+    void default_setter(T& old_value, T&& new_value)
     {
-        setter<T>(params_.get<T>(), std::forward<T>(value));
-        trigger_params<T>();
+        old_value = std::forward<T>(new_value);
     }
 
-  private:
-    std::set<ParametersHandlerCache*> caches_to_sync_;
-};
+    template <typename T>
+    void set_value(T&& value)
+    {
+        constexpr bool has_member_setter = requires(Setters setters)
+        {
+            setters.template setter<T>(*static_cast<Master*>(this),
+                                       this->params_.template get<T>(),
+                                       std::forward<T>(value));
+        };
+        if constexpr (has_member_setter)
+        {
+            Setters setters;
+            setters.template setter<T>(*static_cast<Master*>(this),
+                                       this->params_.template get<T>(),
+                                       std::forward<T>(value));
+        }
+        else { default_setter<T>(this->params_.template get<T>(), std::forward<T>(value)); }
 
+        Base::template trigger_params_all<T>();
+    } // namespace holovibes
+};
 } // namespace holovibes

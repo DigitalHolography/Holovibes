@@ -25,8 +25,6 @@ class StaticContainer<>
     void call(FunctionClass functions_class, Args&&... args)
     {
     }
-
-    void set_has_been_synchronized(bool) {}
 };
 
 template <typename T, typename... R>
@@ -43,9 +41,10 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     }
 
   public:
-    void force_sync_with(StaticContainer<T, R...>& ref)
+    template <typename StaticContainerRef>
+    void force_sync_with(StaticContainerRef& ref)
     {
-        value_ = ref.get<T>();
+        value_ = ref.template get<T>();
         if constexpr (sizeof...(R) > 0)
             StaticContainer<R...>::force_sync_with(ref);
     }
