@@ -17,6 +17,38 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     : InputFrameFile(file_path)
     , HoloFile()
 {
+
+    // fd_.width = holo_file_header_.img_width;
+    // fd_.height = holo_file_header_.img_height;
+    // fd_.depth = holo_file_header_.bits_per_pixel / 8;
+    // fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
+    LOG_FUNC(main, file_path);
+
+    InputHoloFile::load_header();
+
+    InputHoloFile::load_fd();
+
+    frame_size_ = fd_.get_frame_size();
+
+    // perform a checksum
+    if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
+    {
+        std::fclose(file_);
+        throw FileException("Invalid holo file", false);
+    }
+}
+
+void InputHoloFile::set_pos_to_frame(size_t frame_id)
+{
+    std::fpos_t frame_offset = sizeof(HoloFileHeader) + frame_size_ * frame_id;
+
+    if (std::fsetpos(file_, &frame_offset) != 0)
+        throw FileException("Unable to seek the frame requested");
+}
+
+void InputHoloFile::load_header()
+{
+    LOG_FUNC(main);
     // read the file header
     size_t bytes_read = std::fread(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_);
 
@@ -33,24 +65,24 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
         std::fclose(file_);
         throw FileException("Invalid holo file", false);
     }
+    LOG_TRACE(main, "Exiting InputHoloFile::load_header");
+}
 
+void InputHoloFile::load_fd()
+{
+    LOG_FUNC(main);
     fd_.width = holo_file_header_.img_width;
     fd_.height = holo_file_header_.img_height;
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
-
-    frame_size_ = fd_.get_frame_size();
-
-    // perform a checksum
-    if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
-    {
-        std::fclose(file_);
-        throw FileException("Invalid holo file", false);
-    }
-
+    LOG_TRACE(main, "Exiting InputHoloFile::load_fd");
+}
+void InputHoloFile::load_footer()
+{
+    LOG_FUNC(main);
     // compute the meta data offset to retrieve the meta data
     uintmax_t meta_data_offset = sizeof(HoloFileHeader) + holo_file_header_.total_data_size;
-    uintmax_t file_size = std::filesystem::file_size(file_path);
+    uintmax_t file_size = std::filesystem::file_size(file_path_);
 
     if (meta_data_offset > file_size)
     {
@@ -85,14 +117,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
             LOG_WARN(main, "An error occurred while retrieving the meta data. Meta data skipped");
         }
     }
-}
-
-void InputHoloFile::set_pos_to_frame(size_t frame_id)
-{
-    std::fpos_t frame_offset = sizeof(HoloFileHeader) + frame_size_ * frame_id;
-
-    if (std::fsetpos(file_, &frame_offset) != 0)
-        throw FileException("Unable to seek the frame requested");
+    LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
 }
 
 template <typename T>
@@ -118,6 +143,11 @@ void import_holo_v4(const json& meta_data)
 {
     if (meta_data.contains("compute settings"))
         api::json_to_compute_settings(meta_data["compute settings"]);
+}
+
+void import_holo_v5(const json& meta_data)
+{
+        api::json_to_compute_settings_v5(meta_data);
 }
 
 // This is done for retrocompatibility
@@ -161,14 +191,15 @@ void import_holo_v2_v3(const json& meta_data)
 void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC(main);
-
-    if (holo_file_header_.version == 4)
-        import_holo_v4(meta_data_);
-    else if (holo_file_header_.version < 4)
+    if (holo_file_header_.version < 4)
     {
         convert_holo_footer_to_v4(meta_data_);
-        // import_holo_v2_v3(meta_data_);
+        import_holo_v5(meta_data_);
+        // import_holo_v4(meta_data_);
+        //  import_holo_v2_v3(meta_data_);
     }
+    else if (holo_file_header_.version == 4)
+        import_holo_v4(meta_data_);
     else
     {
         LOG_ERROR(main, "HOLO file version not supported!");
@@ -205,43 +236,39 @@ void InputHoloFile::import_info() const
 void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
 {
 
-    auto new_footer = ComputeSettings{};
-    // std::cout << std::setw(1) << json{new_footer};
+    raw_footer_.image_rendering.time_transformation_size = meta_data["#img"];
+    raw_footer_.image_rendering.space_transformation = static_cast<SpaceTransformation>(static_cast<int>(meta_data["algorithm"]));
 
-    new_footer.image_rendering.time_transformation_size = meta_data["#img"];
-    new_footer.image_rendering.space_transformation = static_cast<SpaceTransformation>(meta_data["algorithm"]);
+    raw_footer_.view.window.xy.contrast.max = meta_data["contrast_max"];
+    raw_footer_.view.window.xy.contrast.min = meta_data["contrast_min"];
 
-    new_footer.view.window.xy.contrast.max = meta_data["contrast_max"];
-    new_footer.view.window.xy.contrast.min = meta_data["contrast_min"];
+    raw_footer_.view.fft_shift = meta_data["fft_shift_enabled"];
+    raw_footer_.view.window.xy.img_accu_level = meta_data["img_acc_slice_xy_level"];
+    raw_footer_.view.window.xz.img_accu_level = meta_data["img_acc_slice_xz_level"];
+    raw_footer_.view.window.yz.img_accu_level = meta_data["img_acc_slice_yz_level"];
 
-    new_footer.view.fft_shift = meta_data["fft_shift_enabled"];
-    new_footer.view.window.xy.img_accu_level = meta_data["img_acc_slice_xy_level"];
-    new_footer.view.window.xz.img_accu_level = meta_data["img_acc_slice_xz_level"];
-    new_footer.view.window.yz.img_accu_level = meta_data["img_acc_slice_yz_level"];
-
-    new_footer.view.window.xy.contrast.enabled = meta_data["img_acc_slice_xy_enabled"];
-    new_footer.view.window.xz.contrast.enabled = meta_data["img_acc_slice_xz_enabled"];
-    new_footer.view.window.yz.contrast.enabled = meta_data["img_acc_slice_yz_enabled"];
-    new_footer.image_rendering.lambda = meta_data["lambda"];
-    new_footer.view.window.xy.log_enabled = meta_data["log_scale"];
+    raw_footer_.image_rendering.lambda = meta_data["lambda"];
+    raw_footer_.view.window.xy.log_enabled = meta_data["log_scale"];
 
     if (meta_data.contains("mode"))
     {
-        new_footer.image_rendering.image_mode = static_cast<Computation>(static_cast<int>(meta_data["mode"]) - 1);
+        raw_footer_.image_rendering.image_mode = static_cast<Computation>(static_cast<int>(meta_data["mode"]) - 1);
     }
-    new_footer.view.p.index = meta_data["p"];
+    raw_footer_.view.p.index = meta_data["p"];
 
-    new_footer.view.p.accu_level = meta_data["p_acc_level"];
+    raw_footer_.view.p.accu_level = meta_data["p_acc_level"];
 
-    new_footer.advanced.renorm_constant = meta_data["renorm_constant"];
-    new_footer.view.renorm = meta_data["renorm_enabled"];
-    new_footer.image_rendering.time_transformation = static_cast<TimeTransformation>(meta_data["time_filter"]);
+    raw_footer_.view.renorm = meta_data["renorm_enabled"];
+    raw_footer_.image_rendering.time_transformation = static_cast<TimeTransformation>(static_cast<int>(meta_data["time_filter"]));
 
-    new_footer.view.x.accu_level = meta_data["x_acc_level"];
-    new_footer.view.y.accu_level = meta_data["y_acc_level"];
-    new_footer.image_rendering.z_distance = meta_data["z"];
+    raw_footer_.view.x.accu_level = meta_data["x_acc_level"];
+    raw_footer_.view.y.accu_level = meta_data["y_acc_level"];
+    raw_footer_.image_rendering.z_distance = meta_data["z"];
 
-    meta_data = json{new_footer};
+    raw_footer_.image_rendering.convolution.type = "None";
+
+    meta_data.clear();
+    to_json(meta_data, raw_footer_);
 }
 
 } // namespace holovibes::io_files

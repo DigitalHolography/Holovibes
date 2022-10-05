@@ -98,9 +98,6 @@ void ImportPanel::import_file(const QString& filename)
         size_t nb_frames = input_file->get_total_nb_frames();
         UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
 
-        input_file->import_compute_settings();
-        input_file->import_info();
-
         // Don't need the input file anymore
         delete input_file;
 

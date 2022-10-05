@@ -85,12 +85,99 @@ void load_advanced(const json& data)
     GSH::instance().set_renorm_constant(data["renorm constant"]);
 }
 
+void load_image_rendering_inter(const json& data)
+{
+    GSH::instance().set_compute_mode(data["image_mode"]);
+    GSH::instance().set_batch_size(data["batch_size"]);
+    GSH::instance().set_time_stride(data["time_transformation_stride"]);
+
+    const json& filter_2d_data = data["filter2d"];
+    GSH::instance().set_filter2d_enabled(filter_2d_data["enabled"]);
+    GSH::instance().set_filter2d_n1(filter_2d_data["n1"]);
+    GSH::instance().set_filter2d_n2(filter_2d_data["n2"]);
+
+    GSH::instance().set_space_transformation(data["space_transformation"]);
+    GSH::instance().set_time_transformation(data["time_transformation"]);
+    GSH::instance().set_time_transformation_size(data["time_transformation_size"]);
+    GSH::instance().set_lambda(data["lambda"]);
+    GSH::instance().set_z_distance(data["z_distance"]);
+
+    const json& convolution_data = data["convolution"];
+    GSH::instance().set_convolution_enabled(convolution_data["enabled"]);
+    // FIXME: Use GSH instead of UID
+    UserInterfaceDescriptor::instance().convo_name = convolution_data["type"];
+    // FIXME: Loads convolution matrix
+    GSH::instance().set_divide_convolution_enabled(convolution_data["divide"]);
+
+    // FIXME: Need to use setters that are currently in CD
+    // Example, matrix is not loaded if we do not pass through setter
+}
+
+void load_view_inter(const json& data)
+{
+    GSH::instance().set_img_type(static_cast<ImgType>(data["img_type"]));
+    GSH::instance().set_fft_shift_enabled(data["fft_shift"]);
+    GSH::instance().set_x(ViewXY(data["x"]));
+    GSH::instance().set_y(ViewXY(data["y"]));
+    GSH::instance().set_p(ViewPQ(data["p"]));
+    GSH::instance().set_q(ViewPQ(data["q"]));
+
+    const json& window_data = data["window"];
+    GSH::instance().set_xy(ViewXYZ(window_data["xy"]));
+    GSH::instance().set_yz(ViewXYZ(window_data["yz"]));
+    GSH::instance().set_xz(ViewXYZ(window_data["xz"]));
+    GSH::instance().set_filter2d(ViewWindow(window_data["filter2d"]));
+
+    GSH::instance().set_renorm_enabled(data["renorm"]);
+
+    const json& reticle_data = data["reticle"];
+    GSH::instance().set_reticle_display_enabled(reticle_data["display_enabled"]);
+    GSH::instance().set_reticle_scale(reticle_data["reticle_scale"]);
+}
+
+void load_composite_inter(const json& data)
+{
+    GSH::instance().set_composite_kind(data["mode"]);
+    GSH::instance().set_composite_auto_weights(data["composite_auto_weights"]);
+    GSH::instance().set_rgb(CompositeRGB(data["rgb"]));
+    GSH::instance().set_hsv(CompositeHSV(data["hsv"]));
+}
+
+void load_advanced_inter(const json& data)
+{
+    const json& buffer_size_data = data["buffer_size"];
+    GSH::instance().set_file_buffer_size(buffer_size_data["file"]);
+    GSH::instance().set_input_buffer_size(buffer_size_data["input"]);
+    GSH::instance().set_output_buffer_size(buffer_size_data["output"]);
+    GSH::instance().set_record_buffer_size(buffer_size_data["record"]);
+    GSH::instance().set_time_transformation_cuts_output_buffer_size(buffer_size_data["time_transformation_cuts"]);
+
+    const json& contrast_data = data["contrast"];
+    GSH::instance().set_contrast_lower_threshold(contrast_data["lower"]);
+    GSH::instance().set_contrast_upper_threshold(contrast_data["upper"]);
+    GSH::instance().set_cuts_contrast_p_offset(contrast_data["cuts_p_offset"]);
+
+    const json& filter2d_smooth_data = data["filter2d_smooth"];
+    GSH::instance().set_filter2d_smooth_high(filter2d_smooth_data["high"]);
+    GSH::instance().set_filter2d_smooth_low(filter2d_smooth_data["low"]);
+
+    GSH::instance().set_renorm_constant(data["renorm_constant"]);
+}
+
 void json_to_compute_settings(const json& data)
 {
     load_image_rendering(data["image rendering"]);
     load_view(data["view"]);
     load_composite(data["composite"]);
     load_advanced(data["advanced"]);
+}
+
+void json_to_compute_settings_v5(const json& data)
+{
+    load_image_rendering_inter(data["image_rendering"]);
+    load_view_inter(data["view"]);
+    load_composite_inter(data["composite"]);
+    load_advanced_inter(data["advanced"]);
 }
 
 void after_load_checks()

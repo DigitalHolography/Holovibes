@@ -48,6 +48,8 @@ void FileFrameReadWorker::run()
         LOG_ERROR(frame_read_worker, "{}", e.what());
         return;
     }
+    input_file_->load_footer();
+    input_file_->import_compute_settings();
 
     const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
     frame_size_ = fd.get_frame_size();

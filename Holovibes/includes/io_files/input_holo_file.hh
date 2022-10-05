@@ -48,5 +48,17 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      * \throw FileException if an error occurred while opening or reading the file
      */
     InputHoloFile(const std::string& file_path);
+
+    /*! \brief Open file to initialize holo_file_header_
+     */
+    void load_header();
+
+    /*! \brief Open file to initialize holo_file_header_
+     */
+    void load_fd();
+
+    /*! \brief Open file to initialize raw_rooter_
+     */
+    void load_footer() override;
 };
 } // namespace holovibes::io_files

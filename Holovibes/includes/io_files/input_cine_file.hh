@@ -50,6 +50,11 @@ class InputCineFile : public InputFrameFile, public CineFile
      */
     size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
 
+    /*! \brief Needed for InputHoloFile
+     *  Does not do anything
+     */
+    void load_footer() override;
+
   private:
     // Give access to private members to the factory
     friend class InputFrameFileFactory;

@@ -39,6 +39,8 @@ class InputFrameFile : public FrameFile
      */
     virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
+    virtual void load_footer() = 0;
+
   protected:
     // Give access to protected members to the handler
     friend class InputFrameFileFactory;
