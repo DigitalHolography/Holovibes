@@ -85,7 +85,7 @@ void CameraOpenCV::bind_params()
      *
      */
 
-    fd_.depth = ((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 15);
+    fd_.depth = ((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 0xf);
     if (fd_.depth == 0)
     {
         Logger::camera()->error("camera depth is unknown");
@@ -117,24 +117,9 @@ void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
 
 CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
-    /*
-     * TODO: change how colors are converted to grey
-     *
-     * problem:
-     * cvtColor(COLOR_BGR2GRAY) use some arbitrary values to make the conversion
-     * from documentation (https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html):
-     * - grey = 0.299*R + 0.587*G + 0.114*B
-     *
-     * idea by Michael:
-     * - get the mean of all 3 colors (mean_B, mean_G, mean_R)
-     * - grey = R/mean_R + G/mean_G + B/mean_B
-     */
-
     capture_device_.read(frame_);
-
     cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
     return CapturedFramesDescriptor(frame_.data);
 }
-
 ICamera* new_camera_device() { return new CameraOpenCV(); }
 } // namespace camera

@@ -1,6 +1,7 @@
 /*! \file
  *
- * \brief Default Camera using openCV VideoCapture to provide an "all-default" camera mode.
+ * \brief Default Camera using openCV VideoCapture to provide an "all-default"
+ * camera mode.
  *
  */
 #pragma once
@@ -34,8 +35,10 @@ class CameraOpenCV : public Camera
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
     virtual void bind_params() override;
+
     /*!
-     * \brief get the parameter from capture_device_, compare it with value and return it
+     * \brief get the parameter from capture_device_, compare it with value and
+     * return it
      *
      * @param param
      * @param value
