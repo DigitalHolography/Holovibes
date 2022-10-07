@@ -1,5 +1,4 @@
 #pragma once
-
 #include "all_struct.hh"
 #include "enum_composite_kind.hh"
 
@@ -87,6 +86,8 @@ struct Composite
     bool composite_auto_weights = false;
     CompositeRGB rgb;
     CompositeHSV hsv;
+
+    void Update();
 
     SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
 };

@@ -41,7 +41,10 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
                  {"pixel size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
                  {"input fps", input_fps},
                  {"contiguous", contiguous}};
-        meta_data_ = json{{"compute settings", holovibes::api::compute_settings_to_json()}, {"info", j_fi}};
+        raw_footer_.Update();
+        auto inter = json{};
+        to_json(inter, raw_footer_);
+        meta_data_ = json{{"compute_settings", inter}, {"info", j_fi}};
     }
     catch (const json::exception& e)
     {

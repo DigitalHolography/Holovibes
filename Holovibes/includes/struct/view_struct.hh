@@ -4,6 +4,8 @@
 #include "all_struct.hh"
 #include "enum_img_type.hh"
 
+#define CONSTRUCTOR(name, arg_name)
+
 typedef unsigned int uint;
 
 namespace holovibes
@@ -22,7 +24,7 @@ struct ViewContrast
 struct ViewWindow
 {
     bool log_enabled = false;
-    
+
     ViewContrast contrast;
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
@@ -66,6 +68,8 @@ struct Windows
     ViewWindow filter2d;
 
     SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
+
+    void Update();
 };
 
 struct Reticle
@@ -74,6 +78,8 @@ struct Reticle
     float reticle_scale = 0.5f;
 
     SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
+
+    void Update();
 };
 
 struct Views
@@ -89,6 +95,8 @@ struct Views
     Reticle reticle;
 
     SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, window, renorm, reticle);
+
+    void Update();
 };
 
 } // namespace holovibes

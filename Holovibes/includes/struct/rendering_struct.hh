@@ -17,6 +17,8 @@ struct Rendering
         int n1 = 0;
         int n2 = 1;
 
+        void Update();
+
         SERIALIZE_JSON_STRUCT(Filter2D, enabled, n1, n2)
     };
 
@@ -25,6 +27,8 @@ struct Rendering
         bool enabled = false;
         std::string type;
         bool divide = false;
+
+        void Update();
 
         SERIALIZE_JSON_STRUCT(Convolution, enabled, type, divide)
     };
@@ -39,6 +43,8 @@ struct Rendering
     float lambda = 852e-9f;
     float z_distance = 1.5f;
     Convolution convolution;
+
+    void Update();
 
     SERIALIZE_JSON_STRUCT(Rendering,
                           image_mode,

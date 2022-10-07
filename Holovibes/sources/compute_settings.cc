@@ -1,6 +1,7 @@
 #include "enum_theme.hh"
 #include "API.hh"
 #include "internals_struct.hh"
+#include "compute_settings_struct.hh"
 
 #include "logger.hh"
 
@@ -217,6 +218,7 @@ void load_compute_settings(const std::string& json_path)
 
 // clang-format off
 
+// FIXME - TO DELETE
 json compute_settings_to_json()
 {
 
@@ -305,7 +307,7 @@ json compute_settings_to_json()
 
 void save_compute_settings(const std::string& json_path)
 {
-    LOG_FUNC(main, json_path);
+   LOG_FUNC(main, json_path);
 
     if (json_path.empty())
         return;

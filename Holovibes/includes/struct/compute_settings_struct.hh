@@ -4,6 +4,7 @@
 #include "view_struct.hh"
 #include "composite_struct.hh"
 #include "advanced_struct.hh"
+#include "API.hh"
 
 namespace holovibes
 {
@@ -13,6 +14,8 @@ struct ComputeSettings
     Views view;
     Composite composite;
     AdvancedSettings advanced;
+
+    void Update();
 
     SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
 };
