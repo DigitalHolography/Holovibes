@@ -44,18 +44,6 @@ RawWindow::~RawWindow()
 #endif
 }
 
-void RawWindow::setTransform()
-{
-    BasicOpenGLWindow::setTransform();
-    if (Program)
-    {
-        makeCurrent();
-        Program->bind();
-        Program->setUniformValue(Program->uniformLocation("bitshift"), 2);
-        Program->release();
-    }
-}
-
 void RawWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();

@@ -40,8 +40,6 @@ class RawWindow : public BasicOpenGLWindow
 
     const float translation_step_ = 0.05f;
 
-    void setTransform() override;
-
     void initShaders() override;
     void initializeGL() override;
     void resizeGL(int width, int height) override;

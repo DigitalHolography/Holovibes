@@ -2,8 +2,8 @@
 
 in vec2 texCoord;
 uniform sampler2D tex;
-uniform uint bitshift; 
+uniform int bitshift; 
 
 out vec4 outColor;
 
-void main() { outColor = texture(tex, texCoord) * (1 << bitshift); }
+void main() { outColor = (texture(tex, texCoord) * ( 1 << bitshift)); }
