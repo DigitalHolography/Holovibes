@@ -22,7 +22,7 @@ class IParameter
     bool get_has_been_synchronized() const { return has_been_synchronized_; }
     void set_has_been_synchronized(bool value) { has_been_synchronized_ = value; }
 
-  private:
+  protected:
     bool has_been_synchronized_ = false;
 };
 } // namespace holovibes

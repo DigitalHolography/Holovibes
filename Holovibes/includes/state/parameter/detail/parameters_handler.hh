@@ -22,13 +22,13 @@ template <typename... Params>
 class ParametersHandler
 {
   protected:
-    MapKeyParams key_params_;
-    StaticContainer<Params...> params_;
+    MapKeyParams key_container_;
+    StaticContainer<Params...> container_;
 
   public:
     ParametersHandler()
-        : key_params_()
-        , params_(key_params_)
+        : key_container_()
+        , container_(key_container_)
     {
     }
 
@@ -38,7 +38,7 @@ class ParametersHandler
     template <typename ParametersHandlerRef>
     void force_sync_with(ParametersHandlerRef& ref)
     {
-        params_.force_sync_with(ref.params_);
+        container_.force_sync_with(ref.container_);
     }
 
   public:
@@ -50,47 +50,47 @@ class ParametersHandler
         if constexpr (requires { typename FunctionClass::BeforeMethods; })
         {
             typename FunctionClass::BeforeMethods before;
-            params_.call(before);
+            container_.call(before);
             before.template call_handler(*this);
         }
 
-        params_.call(functions_class, std::forward<Args>(args)...);
+        container_.call(functions_class, std::forward<Args>(args)...);
 
         if constexpr (requires { typename FunctionClass::AfterMethods; })
         {
             typename FunctionClass::AfterMethods after;
-            params_.call(after);
+            container_.call(after);
             after.template call_handler(*this);
         }
     }
 
   public:
-    const MapKeyParams& get_map_key() const { return key_params_; }
-    MapKeyParams& get_map_key() { return key_params_; }
+    const MapKeyParams& get_map_key() const { return key_container_; }
+    MapKeyParams& get_map_key() { return key_container_; }
 
   public:
     template <typename T>
     const T& get_type() const
     {
-        return params_.template get<T>();
+        return container_.template get<T>();
     }
 
     template <typename T>
     T& get_type()
     {
-        return params_.template get<T>();
+        return container_.template get<T>();
     }
 
     template <typename T>
     typename T::TransfertType get_value() const
     {
-        return params_.template get<T>().get_value();
+        return container_.template get<T>().get_value();
     }
 
     template <typename T>
     typename T::ValueType& get_value()
     {
-        return params_.template get<T>().get_value();
+        return container_.template get<T>().get_value();
     }
 };
 
@@ -117,10 +117,7 @@ class ParametersHandlerCache : public ParametersHandler<Params...>
     {
         std::lock_guard<std::mutex> guard(change_pool_mutex);
         for (auto change : change_pool)
-        {
             change.first->sync_with(change.second);
-            change.first->set_has_been_synchronized(true);
-        }
         change_pool.clear();
     }
 
@@ -240,17 +237,17 @@ class ParametersHandlerRef : public BasicParametersHandlerRef<Setters, CachesToS
         constexpr bool has_member_setter = requires(Setters setters)
         {
             setters.template setter<T>(*static_cast<Master*>(this),
-                                       this->params_.template get<T>(),
+                                       this->container_.template get<T>(),
                                        std::forward<T>(value));
         };
         if constexpr (has_member_setter)
         {
             Setters setters;
             setters.template setter<T>(*static_cast<Master*>(this),
-                                       this->params_.template get<T>(),
+                                       this->container_.template get<T>(),
                                        std::forward<T>(value));
         }
-        else { default_setter<T>(this->params_.template get<T>(), std::forward<T>(value)); }
+        else { default_setter<T>(this->container_.template get<T>(), std::forward<T>(value)); }
 
         Base::template trigger_params_all<T>();
     } // namespace holovibes

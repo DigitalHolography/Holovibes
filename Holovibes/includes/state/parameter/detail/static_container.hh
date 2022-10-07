@@ -44,7 +44,7 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     template <typename StaticContainerRef>
     void force_sync_with(StaticContainerRef& ref)
     {
-        value_ = ref.template get<T>();
+        value_.sync_with(&ref.template get<T>());
         if constexpr (sizeof...(R) > 0)
             StaticContainer<R...>::force_sync_with(ref);
     }
