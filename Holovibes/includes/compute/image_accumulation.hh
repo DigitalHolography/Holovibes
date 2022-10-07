@@ -12,6 +12,9 @@
 #include "rect.hh"
 
 #include "global_state_holder.hh"
+
+#include "cache_icompute.hh"
+
 namespace holovibes
 {
 class Queue;
@@ -38,7 +41,8 @@ class ImageAccumulation
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
                       const cudaStream_t& stream,
-                      ViewCache::Cache& view_cache);
+                      ViewCache::Cache& view_cache,
+                      CacheICompute& cache);
 
     /*! \brief Enqueue the image accumulation.
      *
@@ -91,5 +95,6 @@ class ImageAccumulation
     const cudaStream_t& stream_;
 
     ViewCache::Cache& view_cache_;
+    // FIXME CacheICompute& cache_;
 };
 } // namespace holovibes::compute

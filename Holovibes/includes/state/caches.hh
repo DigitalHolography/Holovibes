@@ -21,7 +21,6 @@ namespace holovibes
 {
 /*! \brief Construct a new new micro cache object
  *
- * \param display_rate of frame per seconds displayed
  * \param input_buffer_size Max size of input queue in number of images.
  * \param record_buffer_size Max size of frame record queue in number of images.
  * \param output_buffer_size Max size of output queue in number of images.
@@ -29,7 +28,6 @@ namespace holovibes
  * \param contrast_upper_threshold
  */
 NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
-                            (float, display_rate, 30),
                             (uint, input_buffer_size, 512),
                             (uint, output_buffer_size, 256),
                             (uint, record_buffer_size, 1024),
@@ -45,11 +43,9 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  * \param time_transformation_size Number of images used by the time transformation
  * \param space_transformation Space transformation algorithm to apply in hologram mode
  * \param time_transformation Time transformation to apply in hologram mode
- * \param lambda Wave length of the laser
  * \param z_distance z value used by fresnel transform
  * \param convolution_enabled Is convolution enabled
  * \param convo_matrix Input matrix used for convolution
- * \param divide_convolution_enabled
  * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
  * \param pixel_size Size of a pixel in micron. Depends on camera or input file.
@@ -67,11 +63,9 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, time_transformation_size, 1),
                             (SpaceTransformation, space_transformation, SpaceTransformation::NONE),
                             (TimeTransformation, time_transformation, TimeTransformation::NONE),
-                            (float, lambda, 852e-9f),
                             (float, z_distance, 1.50f),
                             (bool, convolution_enabled, false),
                             (std::vector<float>, convo_matrix, {}),
-                            (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw),
                             (float, pixel_size, 12.0f),
@@ -127,10 +121,10 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
 
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
-                            (View_Accu_XY, x, View_Accu_XY{}),
-                            (View_Accu_XY, y, View_Accu_XY{}),
-                            (View_Accu_PQ, p, View_Accu_PQ{}),
-                            (View_Accu_PQ, q, View_Accu_PQ{}),
+                            (View_XY, x, View_XY{}),
+                            (View_XY, y, View_XY{}),
+                            (View_PQ, p, View_PQ{}),
+                            (View_PQ, q, View_PQ{}),
                             (ViewXYZ, xy, ViewXYZ{}),
                             (ViewXYZ, xz, ViewXYZ{}),
                             (ViewXYZ, yz, ViewXYZ{}),

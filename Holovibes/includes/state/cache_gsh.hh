@@ -1,7 +1,11 @@
 #pragma once
 
 #include "parameters_handler.hh"
+
 #include "cache_icompute.hh"
+
+#include "advanced.hh"
+#include "compute.hh"
 
 namespace holovibes
 {
@@ -10,7 +14,14 @@ using GSHCachesToSync = CachesToSync<CacheICompute>;
 template <typename ParamRef>
 class CacheGSHSetters;
 
-class CacheGSH : public ParametersHandlerRef<CacheGSH, CacheGSHSetters<CacheGSH>, GSHCachesToSync, BatchSize>
+class CacheGSH : public ParametersHandlerRef<CacheGSH,
+                                             CacheGSHSetters<CacheGSH>,
+                                             GSHCachesToSync,
+
+                                             BatchSize,
+                                             DivideConvolutionEnable,
+                                             Lambda,
+                                             DisplayRate>
 {
 };
 

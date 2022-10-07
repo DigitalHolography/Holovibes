@@ -13,6 +13,8 @@
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
 
+#include "cache_icompute.hh"
+
 namespace holovibes
 {
 class ICompute;
@@ -46,7 +48,8 @@ class Rendering
               ExportCache::Cache& export_cache,
               ViewCache::Cache& view_cache,
               AdvancedCache::Cache& advanced_cache,
-              ZoneCache::Cache& zone_cache);
+              ZoneCache::Cache& zone_cache,
+              CacheICompute& cache);
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -105,6 +108,7 @@ class Rendering
     ViewCache::Cache& view_cache_;
     AdvancedCache::Cache& advanced_cache_;
     ZoneCache::Cache& zone_cache_;
+    // FIXME CacheICompute& cache_;
 
     float* percent_min_max_;
 };

@@ -13,8 +13,6 @@
 #include "static_container.hh"
 #include "logger.hh"
 
-#include "batch_size.hh"
-
 namespace holovibes
 {
 
@@ -38,7 +36,7 @@ class ParametersHandler
     template <typename ParametersHandlerRef>
     void force_sync_with(ParametersHandlerRef& ref)
     {
-        container_.force_sync_with(ref.container_);
+        container_.force_sync_with(ref.get_container());
     }
 
   public:
@@ -67,6 +65,8 @@ class ParametersHandler
   public:
     const MapKeyParams& get_map_key() const { return key_container_; }
     MapKeyParams& get_map_key() { return key_container_; }
+
+    StaticContainer<Params...>& get_container() { return container_; }
 
   public:
     template <typename T>
@@ -174,6 +174,8 @@ class BasicParametersHandlerRef : public BasicParametersHandlerRef<Setters, type
     template <typename T>
     void trigger_params()
     {
+        if (caches_to_sync_.size() == 0)
+            return;
         IParameter* ref = &this->template get_type<T>();
         for (auto cache : caches_to_sync_)
             cache->template trigger_param<T>(ref);
@@ -194,7 +196,11 @@ class BasicParametersHandlerRef : public BasicParametersHandlerRef<Setters, type
         cache.force_sync_with(*this);
     }
 
-    void remove_cache_to_synchronize(CacheType& cache) { caches_to_sync_.erase(&cache); }
+    void remove_cache_to_synchronize(CacheType& cache)
+    {
+        if (caches_to_sync_.erase(&cache))
+            LOG_ERROR(main, "Maybe a problem here...");
+    }
 
   private:
     std::set<CacheType*> caches_to_sync_;

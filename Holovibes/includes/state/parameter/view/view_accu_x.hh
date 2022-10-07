@@ -9,7 +9,7 @@ namespace holovibes
 class View_Accu_XParam : public ICustomParameter<View_Accu_X>
 {
   public:
-    static constexpr ValueType DEFAULT_VALUE = View_Accu_XY{};
+    static constexpr ValueType DEFAULT_VALUE = View_XY{};
 
   public:
     View_Accu_XParam()

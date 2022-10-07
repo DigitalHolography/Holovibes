@@ -755,13 +755,6 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_wavelength(double value)
-{
-    set_lambda(static_cast<float>(value));
-
-    pipe_refresh();
-}
-
 void set_z_distance(const double value)
 {
     GSH::instance().set_z_distance(static_cast<float>(value));
@@ -1024,15 +1017,6 @@ void disable_convolution()
     {
         LOG_ERROR(main, "Catch {}", e.what());
     }
-}
-
-void set_divide_convolution(const bool value)
-{
-    if (value == get_divide_convolution_enabled())
-        return;
-
-    set_divide_convolution_enabled(value);
-    pipe_refresh();
 }
 
 #pragma endregion

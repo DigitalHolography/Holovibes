@@ -89,7 +89,6 @@ class GSH
     };
 
     inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
-    inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
@@ -101,19 +100,19 @@ class GSH
     inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
     inline ImgType get_img_type() const noexcept { return view_cache_.get_img_type(); }
 
-    inline View_Accu_XY get_x() const noexcept { return view_cache_.get_x(); }
+    inline View_XY get_x() const noexcept { return view_cache_.get_x(); }
     inline int get_x_accu_level() const noexcept { return view_cache_.get_x().accu_level; }
     inline int get_x_cuts() const noexcept { return view_cache_.get_x().cuts; }
 
-    inline View_Accu_XY get_y() const noexcept { return view_cache_.get_y(); }
+    inline View_XY get_y() const noexcept { return view_cache_.get_y(); }
     inline int get_y_accu_level() const noexcept { return view_cache_.get_y().accu_level; }
     inline int get_y_cuts() const noexcept { return view_cache_.get_y().cuts; }
 
-    inline View_Accu_PQ get_p() const noexcept { return view_cache_.get_p(); }
+    inline View_PQ get_p() const noexcept { return view_cache_.get_p(); }
     inline int get_p_accu_level() const noexcept { return view_cache_.get_p().accu_level; }
     inline uint get_p_index() const noexcept { return view_cache_.get_p().index; }
 
-    inline View_Accu_PQ get_q() const noexcept { return view_cache_.get_q(); }
+    inline View_PQ get_q() const noexcept { return view_cache_.get_q(); }
     inline int get_q_accu_level() const noexcept { return view_cache_.get_q().accu_level; }
     inline uint get_q_index() const noexcept { return view_cache_.get_q().index; }
 
@@ -180,8 +179,6 @@ class GSH
     bool get_img_log_scale_slice_enabled() const;
     unsigned get_img_accu_level() const;
 
-    inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
-
     inline bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
 
     inline uint get_input_fps() const { return compute_cache_.get_input_fps(); };
@@ -208,8 +205,6 @@ class GSH
 
     inline uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
     inline uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
-
-    inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
 
     inline bool get_cuts_view_enabled() const noexcept { return view_cache_.get_cuts_view_enabled(); }
 
@@ -335,8 +330,6 @@ class GSH
         compute_cache_.set_time_transformation(value);
     }
 
-    inline void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
-
     inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
 
     inline void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
@@ -344,15 +337,15 @@ class GSH
 
     inline void set_img_type(ImgType value) noexcept { view_cache_.set_img_type(value); }
 
-    inline void set_x(View_Accu_XY value) noexcept { view_cache_.set_x(value); }
+    inline void set_x(View_XY value) noexcept { view_cache_.set_x(value); }
     inline void set_x_accu_level(int value) noexcept { view_cache_.get_x_ref()->accu_level = value; }
     inline void set_x_cuts(int value) noexcept { view_cache_.get_x_ref()->cuts = value; }
 
-    inline void set_y(View_Accu_XY value) noexcept { view_cache_.set_y(value); }
+    inline void set_y(View_XY value) noexcept { view_cache_.set_y(value); }
     inline void set_y_accu_level(int value) noexcept { view_cache_.get_y_ref()->accu_level = value; }
     inline void set_y_cuts(int value) noexcept { view_cache_.get_y_ref()->cuts = value; }
 
-    inline void set_p(View_Accu_PQ value) noexcept { view_cache_.set_p(value); }
+    inline void set_p(View_PQ value) noexcept { view_cache_.set_p(value); }
     inline void set_p_accu_level(int value) noexcept { view_cache_.get_p_ref()->accu_level = value; }
     inline void set_p_index(uint value) noexcept
     {
@@ -360,7 +353,7 @@ class GSH
         notify_callback_();
     }
 
-    inline void set_q(View_Accu_PQ value) noexcept { view_cache_.set_q(value); }
+    inline void set_q(View_PQ value) noexcept { view_cache_.set_q(value); }
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->accu_level = value; }
     inline void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->index = value; }
 
@@ -449,8 +442,6 @@ class GSH
     void set_rotation(double value);
     void set_flip_enabled(double value);
 
-    inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
-
     inline void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
 
     inline void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
@@ -478,8 +469,6 @@ class GSH
     inline void set_start_frame(uint value) { import_cache_.set_start_frame(value); }
 
     inline void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
-
-    inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
 
     inline void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 

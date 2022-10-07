@@ -55,7 +55,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                        buffers_,
                                                                        input.get_fd(),
                                                                        stream_,
-                                                                       view_cache_);
+                                                                       view_cache_,
+                                                                       cache_);
     fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                       buffers_,
                                                                       input.get_fd(),
@@ -64,7 +65,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                       stream_,
                                                                       compute_cache_,
                                                                       view_cache_,
-                                                                      filter2d_cache_);
+                                                                      filter2d_cache_,
+                                                                      cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -77,7 +79,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                       export_cache_,
                                                       view_cache_,
                                                       advanced_cache_,
-                                                      zone_cache_);
+                                                      zone_cache_,
+                                                      cache_);
     converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                     buffers_,
                                                     time_transformation_env_,
@@ -87,15 +90,16 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                     compute_cache_,
                                                     composite_cache_,
                                                     view_cache_,
-                                                    zone_cache_);
+                                                    zone_cache_,
+                                                    cache_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,
                                                              input.get_fd(),
                                                              stream_,
                                                              compute_cache_,
                                                              view_cache_,
-                                                             advanced_cache_);
-
+                                                             advanced_cache_,
+                                                             cache_);
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
 
@@ -364,7 +368,7 @@ void Pipe::refresh()
     refresh_requested_ = false;
 
     fn_compute_vect_.clear();
-    params_.call<PipeRequestFunctions>(*this);
+    cache_.call<PipeRequestFunctions>(*this);
 
     // Aborting if allocation failed
     if (!make_requests())
@@ -376,7 +380,7 @@ void Pipe::refresh()
     // This call has to be after make_requests() because this method needs
     // to honor cache modifications
     synchronize_caches();
-    params_.call<PipeRequestFunctions>(*this);
+    cache_.call<PipeRequestFunctions>(*this);
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -685,7 +689,7 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
-    if (refresh_requested_ || params_.has_change_requested())
+    if (refresh_requested_ || cache_.has_change_requested())
         refresh();
     synchronize_caches();
 
@@ -696,7 +700,7 @@ void Pipe::exec()
             // Run the entire pipeline of calculation
             run_all();
 
-            if (refresh_requested_ || params_.has_change_requested())
+            if (refresh_requested_ || cache_.has_change_requested())
             {
                 refresh();
                 synchronize_caches();

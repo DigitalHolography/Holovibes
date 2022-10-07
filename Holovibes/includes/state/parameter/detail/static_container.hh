@@ -36,6 +36,7 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
   public:
     StaticContainer(MapKeyParams& map_key_params)
         : StaticContainer<R...>(map_key_params)
+        , value_()
     {
         map_key_params[T::static_key()] = &value_;
     }
@@ -73,10 +74,10 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     requires std::is_same_v<T, U> U& get() { return value_; }
 
     template <typename U>
-    requires(false == std::is_same_v<T, U>) const U& get() const { return StaticContainer<R...>::get<U>(); }
+    requires(false == std::is_same_v<T, U>) const U& get() const { return StaticContainer<R...>::template get<U>(); }
 
     template <typename U>
-    requires(false == std::is_same_v<T, U>) U& get() { return StaticContainer<R...>::get<U>(); }
+    requires(false == std::is_same_v<T, U>) U& get() { return StaticContainer<R...>::template get<U>(); }
 
     // setters
     template <typename U>
@@ -84,7 +85,10 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     void set(U&& value) { value_ = std::forward<U>(value); }
 
     template <typename U>
-    requires(false == std::is_same_v<T, U>) void set(U&& value) { StaticContainer<R...>::set(std::forward<U>(value)); }
+    requires(false == std::is_same_v<T, U>) void set(U&& value)
+    {
+        StaticContainer<R...>::template set(std::forward<U>(value));
+    }
 };
 
 } // namespace holovibes

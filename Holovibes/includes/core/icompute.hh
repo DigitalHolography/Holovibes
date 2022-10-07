@@ -187,7 +187,7 @@ class ICompute
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
-    virtual ~ICompute() { GSH::instance().get_params().remove_cache_to_synchronize(params_); }
+    virtual ~ICompute() { GSH::instance().get_params().remove_cache_to_synchronize(cache_); }
 
   public:
     BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
@@ -205,7 +205,7 @@ class ICompute
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
-    CacheICompute& get_params() { return params_; }
+    CacheICompute& get_params() { return cache_; }
 
   public:
     void request_refresh();
@@ -385,6 +385,6 @@ class ICompute
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
 
-    CacheICompute params_;
+    CacheICompute cache_;
 };
 } // namespace holovibes

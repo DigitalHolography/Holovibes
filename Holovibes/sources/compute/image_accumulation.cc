@@ -24,13 +24,15 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      const CoreBuffersEnv& buffers,
                                      const camera::FrameDescriptor& fd,
                                      const cudaStream_t& stream,
-                                     ViewCache::Cache& view_cache)
+                                     ViewCache::Cache& view_cache,
+                                     CacheICompute&)
     : fn_compute_vect_(fn_compute_vect)
     , image_acc_env_(image_acc_env)
     , buffers_(buffers)
     , fd_(fd)
     , stream_(stream)
     , view_cache_(view_cache)
+//, cache_(cache)
 {
 }
 

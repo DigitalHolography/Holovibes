@@ -358,13 +358,6 @@ void increment_p();
 /*! \brief Decrement p by 1 */
 void decrement_p();
 
-/*!
- * \brief Modifies wave length (represented by lambda symbol in phisics)
- *
- * \param value the new value
- */
-void set_wavelength(double value);
-
 /*! \brief Modifies z
  *
  * \param value the new value
@@ -530,25 +523,25 @@ bool get_img_log_scale_slice_enabled();
  *
  * \return x
  */
-View_Accu_XY get_x(void);
+View_XY get_x(void);
 
 /*! \brief get y
  *
  * \return y
  */
-View_Accu_XY get_y(void);
+View_XY get_y(void);
 
 /*! \brief get p
  *
  * \return p
  */
-View_Accu_PQ get_p(void);
+View_PQ get_p(void);
 
 /*! \brief get q
  *
  * \return q
  */
-View_Accu_PQ get_q(void);
+View_PQ get_q(void);
 
 /*! \name	Getter of the overlay positions.
  * \{
@@ -558,13 +551,6 @@ units::RectFd get_noise_zone();
 units::RectFd get_composite_zone();
 units::RectFd get_zoomed_zone();
 units::RectFd get_reticle_zone();
-/*! \} */
-
-/*! \brief Enable the divide convolution mode
- *
- * \param value true: enable, false: disable
- */
-void set_divide_convolution(const bool value);
 
 /*! \brief Creates or Removes the reticle overlay
  *

@@ -355,7 +355,7 @@ void MainWindow::load_gui()
     auxiliary_window_max_size =
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
-    api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
+    api::set_value<DisplayRate>(json_get_or_default(j_us, api::get_value<DisplayRate>(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
 
     ui_->ExportPanel->set_record_frame_step(
@@ -405,7 +405,7 @@ void MainWindow::save_gui()
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
 
-    j_us["display"]["refresh rate"] = api::get_display_rate();
+    j_us["display"]["refresh rate"] = api::get_value<DisplayRate>();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;

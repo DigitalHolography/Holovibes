@@ -34,7 +34,8 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const cudaStream_t& stream,
                                    ComputeCache::Cache& compute_cache,
                                    ViewCache::Cache& view_cache,
-                                   Filter2DCache::Cache& filter2d_cache)
+                                   Filter2DCache::Cache& filter2d_cache,
+                                   CacheICompute& cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -47,6 +48,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
     , filter2d_cache_(filter2d_cache)
+    , cache_(cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -99,7 +101,7 @@ void FourierTransform::insert_filter2d()
 
 void FourierTransform::insert_fft1()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC(compute_worker, cache_.get_value<Lambda>());
 
     const float z = compute_cache_.get_z_distance();
 
@@ -107,7 +109,7 @@ void FourierTransform::insert_fft1()
               lens_side_size_,
               fd_.height,
               fd_.width,
-              compute_cache_.get_lambda(),
+              cache_.get_value<Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);
@@ -129,7 +131,7 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC(compute_worker, cache_.get_value<Lambda>());
 
     const float z = compute_cache_.get_z_distance();
 
@@ -137,7 +139,7 @@ void FourierTransform::insert_fft2()
               lens_side_size_,
               fd_.height,
               fd_.width,
-              compute_cache_.get_lambda(),
+              cache_.get_value<Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);
@@ -312,7 +314,7 @@ void FourierTransform::insert_ssa_stft()
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            View_Accu_PQ q_struct = view_cache_.get_q();
+            View_PQ q_struct = view_cache_.get_q();
             int q = q_struct.accu_level != 0 ? q_struct.index : 0;
             int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
             int q_index = q * time_transformation_size;
@@ -382,8 +384,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                 const ushort width = fd_.width;
                 const ushort height = fd_.height;
 
-                View_Accu_XY x = view_cache_.get_x();
-                View_Accu_XY y = view_cache_.get_y();
+                View_XY x = view_cache_.get_x();
+                View_XY y = view_cache_.get_y();
                 if (x.cuts < width && y.cuts < height)
                 {
                     {

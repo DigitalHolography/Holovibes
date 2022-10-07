@@ -22,9 +22,6 @@ inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value)
 inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
 inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }
 
-inline float get_lambda() { return GSH::instance().get_lambda(); }
-inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
-
 inline float get_z_distance() { return GSH::instance().get_z_distance(); }
 
 inline float get_contrast_lower_threshold() { return GSH::instance().get_contrast_lower_threshold(); }
@@ -61,11 +58,8 @@ inline void set_filter2d_smooth_low(int value) { GSH::instance().set_filter2d_sm
 inline int get_filter2d_smooth_high() { return GSH::instance().get_filter2d_smooth_high(); }
 inline void set_filter2d_smooth_high(int value) { GSH::instance().set_filter2d_smooth_high(value); }
 
-inline float get_display_rate() { return GSH::instance().get_display_rate(); }
-inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
-
-inline View_Accu_XY get_x(void) { return GSH::instance().get_x(); }
-inline View_Accu_XY get_y(void) { return GSH::instance().get_y(); }
+inline View_XY get_x(void) { return GSH::instance().get_x(); }
+inline View_XY get_y(void) { return GSH::instance().get_y(); }
 
 inline uint get_img_accu_xy_level() { return GSH::instance().get_xy_img_accu_level(); }
 inline void set_img_accu_xy_level(uint value) { GSH::instance().set_xy_img_accu_level(value); }
@@ -76,8 +70,8 @@ inline uint get_img_accu_yz_level() { return GSH::instance().get_yz_img_accu_lev
 
 inline uint get_p_index() { return GSH::instance().get_p_index(); }
 
-inline View_Accu_PQ get_p(void) { return GSH::instance().get_p(); }
-inline View_Accu_PQ get_q(void) { return GSH::instance().get_q(); }
+inline View_PQ get_p(void) { return GSH::instance().get_p(); }
+inline View_PQ get_q(void) { return GSH::instance().get_q(); }
 
 inline int get_p_accu_level() { return GSH::instance().get_p_accu_level(); }
 
@@ -167,9 +161,6 @@ inline bool get_is_computation_stopped() { return GSH::instance().get_is_computa
 inline void set_is_computation_stopped(bool value) { GSH::instance().set_is_computation_stopped(value); }
 
 inline bool get_convolution_enabled() { return GSH::instance().get_convolution_enabled(); }
-
-inline bool get_divide_convolution_enabled() { return GSH::instance().get_divide_convolution_enabled(); }
-inline void set_divide_convolution_enabled(bool value) { return GSH::instance().set_divide_convolution_enabled(value); }
 
 inline bool get_renorm_enabled() { return GSH::instance().get_renorm_enabled(); }
 inline void set_renorm_enabled(bool value) { GSH::instance().set_renorm_enabled(value); }

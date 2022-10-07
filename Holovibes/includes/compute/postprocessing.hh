@@ -12,6 +12,8 @@
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
 
+#include "cache_icompute.hh"
+
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -35,7 +37,8 @@ class Postprocessing
                    const cudaStream_t& stream,
                    ComputeCache::Cache& compute_cache,
                    ViewCache::Cache& view_cache,
-                   AdvancedCache::Cache& advanced_cache);
+                   AdvancedCache::Cache& advanced_cache,
+                   CacheICompute& cache);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -79,5 +82,6 @@ class Postprocessing
     ComputeCache::Cache& compute_cache_;
     ViewCache::Cache& view_cache_;
     AdvancedCache::Cache& advanced_cache_;
+    CacheICompute& cache_;
 };
 } // namespace holovibes::compute

@@ -164,7 +164,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / api::get_value<DisplayRate>());
 }
 
 /* This part of code makes a resizing of the window displaying image to

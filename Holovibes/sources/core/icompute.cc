@@ -30,7 +30,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
-    GSH::instance().get_params().add_cache_to_synchronize(params_);
+    GSH::instance().get_params().add_cache_to_synchronize(cache_);
 
     int err = 0;
 

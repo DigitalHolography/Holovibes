@@ -72,22 +72,22 @@ struct ViewAccu
  *
  * \brief Class that represents ViewPQ
  */
-struct View_Accu_PQ : public ViewAccu
+struct View_PQ : public ViewAccu
 {
     unsigned index = 0;
 
-    SERIALIZE_JSON_STRUCT(View_Accu_PQ, accu_level, index)
+    SERIALIZE_JSON_STRUCT(View_PQ, accu_level, index)
 };
 
 /*! \class ViewXY
  *
  * \brief Class that represents ViewXY
  */
-struct View_Accu_XY : public ViewAccu
+struct View_XY : public ViewAccu
 {
     unsigned cuts = 0;
 
-    SERIALIZE_JSON_STRUCT(View_Accu_XY, accu_level, cuts)
+    SERIALIZE_JSON_STRUCT(View_XY, accu_level, cuts)
 };
 
 /*! \class Windows

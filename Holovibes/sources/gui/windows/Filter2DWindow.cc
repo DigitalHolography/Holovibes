@@ -146,7 +146,7 @@ void Filter2DWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / api::get_value<DisplayRate>());
 }
 
 void Filter2DWindow::paintGL()

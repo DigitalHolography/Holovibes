@@ -25,7 +25,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ExportCache::Cache& export_cache,
                      ViewCache::Cache& view_cache,
                      AdvancedCache::Cache& advanced_cache,
-                     ZoneCache::Cache& zone_cache)
+                     ZoneCache::Cache& zone_cache,
+                     CacheICompute&)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -39,6 +40,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , view_cache_(view_cache)
     , advanced_cache_(advanced_cache)
     , zone_cache_(zone_cache)
+//    , cache_(cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));

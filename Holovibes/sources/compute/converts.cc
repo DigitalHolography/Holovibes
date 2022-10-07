@@ -25,7 +25,8 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    ComputeCache::Cache& compute_cache,
                    CompositeCache::Cache& composite_cache,
                    ViewCache::Cache& view_cache,
-                   ZoneCache::Cache& zone_cache)
+                   ZoneCache::Cache& zone_cache,
+                   CacheICompute&)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -38,6 +39,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , composite_cache_(composite_cache)
     , view_cache_(view_cache)
     , zone_cache_(zone_cache)
+// , cache_(cache)
 {
 }
 
@@ -91,7 +93,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            View_Accu_PQ p = view_cache_.get_p();
+            View_PQ p = view_cache_.get_p();
             pmin_ = p.index;
             if (p.accu_level != 0)
                 pmax_ = std::max(0,

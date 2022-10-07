@@ -4,6 +4,7 @@
 
 namespace holovibes
 {
+
 template <size_t N>
 struct StringLiteral
 {
@@ -12,29 +13,39 @@ struct StringLiteral
     char value[N];
 };
 
+struct FloatLiteral
+{
+    constexpr FloatLiteral(float f) { value = f; }
+    constexpr FloatLiteral(int f) { value = f; }
+
+    constexpr operator float() const { return value; }
+    float value;
+};
+
 template <typename T, auto DefaultValue, StringLiteral Key, typename TConstRef = const T&>
 class CustomParameter : public IParameter
 {
   public:
     using ValueType = T;
-    using TransfertType = TConstRef;
+    using ValueConstRef = TConstRef;
 
   public:
     CustomParameter()
-        : value_(DefaultValue)
+        : value_(std::forward<ValueType>(DefaultValue))
     {
     }
 
-    CustomParameter(TransfertType value)
-        : value_(value)
+    CustomParameter(ValueConstRef value)
+        : value_(std::forward<ValueType>(value))
     {
+        LOG_DEBUG(main, "Change value : {} -> {}", value_, value);
     }
     virtual ~CustomParameter() override {}
 
   public:
-    TransfertType get_value() const { return value_; }
+    ValueConstRef get_value() const { return value_; }
     ValueType& get_value() { return value_; }
-    void set_value(TransfertType value) { value_ = value; }
+    void set_value(ValueConstRef value) { value_ = value; }
 
     static const char* static_key() { return Key; }
     const char* get_key() const override { return static_key(); }
@@ -63,7 +74,7 @@ using UIntParameter = CustomParameter<uint, DefaultValue, Key, uint>;
 template <int DefaultValue, StringLiteral Key>
 using IntParameter = CustomParameter<int, DefaultValue, Key, int>;
 
-template <int DefaultValue, StringLiteral Key>
+template <FloatLiteral DefaultValue, StringLiteral Key>
 using FloatParameter = CustomParameter<float, DefaultValue, Key, float>;
 
 template <StringLiteral DefaultValue, StringLiteral Key>

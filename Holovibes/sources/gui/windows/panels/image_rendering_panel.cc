@@ -67,7 +67,7 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
+    ui_->WaveLengthDoubleSpinBox->setValue(api::get_value<Lambda>() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -86,7 +86,7 @@ void ImageRenderingPanel::on_notify()
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_value<DivideConvolutionEnable>());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
@@ -310,7 +310,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value * 1.0e-9f);
+    api::set_value<Lambda>(value * 1.0e-9f);
 }
 
 void ImageRenderingPanel::set_z(const double value)
@@ -371,7 +371,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    api::set_divide_convolution(value);
+    api::set_value<DivideConvolutionEnable>(value);
 
     parent_->notify();
 }
