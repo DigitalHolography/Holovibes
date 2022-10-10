@@ -69,6 +69,18 @@ class GSH
     const CacheGSH& get_params() const { return params_; }
     CacheGSH& get_params() { return params_; }
 
+    template <typename T>
+    typename T::ValueType get_value()
+    {
+        return get_params().get_value<T>();
+    }
+
+    template <typename T>
+    void set_value(typename T::ValueConstRef value)
+    {
+        get_params().set_value<T>(value);
+    }
+
   public:
     // inline prevents MSVC from brain-dying, dunno why
     template <class T>

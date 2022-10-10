@@ -154,11 +154,11 @@ class CachesToSync<T, R...> : CachesToSync<R...>
     using Next = CachesToSync<R...>;
 };
 
-template <typename Setters, typename CachesToSync, typename... Params>
-class BasicParametersHandlerRef : public BasicParametersHandlerRef<Setters, typename CachesToSync::Next, Params...>
+template <typename CachesToSync, typename... Params>
+class BasicParametersHandlerRef : public BasicParametersHandlerRef<typename CachesToSync::Next, Params...>
 {
   public:
-    using Base = BasicParametersHandlerRef<Setters, typename CachesToSync::Next, Params...>;
+    using Base = BasicParametersHandlerRef<typename CachesToSync::Next, Params...>;
     using CacheType = typename CachesToSync::CacheType;
 
     using Base::trigger_params_all;
@@ -192,21 +192,21 @@ class BasicParametersHandlerRef : public BasicParametersHandlerRef<Setters, type
   public:
     void add_cache_to_synchronize(CacheType& cache)
     {
-        caches_to_sync_.insert(&cache);
+        caches_to_sync_.push_back(&cache);
         cache.force_sync_with(*this);
     }
 
     void remove_cache_to_synchronize(CacheType& cache)
     {
-        if (caches_to_sync_.erase(&cache))
+        if (caches_to_sync_.remove(&cache) != 1)
             LOG_ERROR(main, "Maybe a problem here...");
     }
 
   private:
-    std::set<CacheType*> caches_to_sync_;
+    std::list<CacheType*> caches_to_sync_;
 };
-template <typename Setters, typename... Params>
-class BasicParametersHandlerRef<Setters, void, Params...> : public ParametersHandler<Params...>
+template <typename... Params>
+class BasicParametersHandlerRef<void, Params...> : public ParametersHandler<Params...>
 {
   public:
     using Base = ParametersHandler<Params...>;
@@ -224,37 +224,17 @@ class BasicParametersHandlerRef<Setters, void, Params...> : public ParametersHan
     }
 };
 
-template <typename Master, typename Setters, typename CachesToSync, typename... Params>
-class ParametersHandlerRef : public BasicParametersHandlerRef<Setters, CachesToSync, Params...>
+template <typename Master, typename CachesToSync, typename... Params>
+class ParametersHandlerRef : public BasicParametersHandlerRef<CachesToSync, Params...>
 {
   public:
-    using Base = BasicParametersHandlerRef<Setters, CachesToSync, Params...>;
+    using Base = BasicParametersHandlerRef<CachesToSync, Params...>;
 
   public:
     template <typename T>
-    void default_setter(T& old_value, T&& new_value)
+    void set_value(typename T::ValueConstRef value)
     {
-        old_value = std::forward<T>(new_value);
-    }
-
-    template <typename T>
-    void set_value(T&& value)
-    {
-        constexpr bool has_member_setter = requires(Setters setters)
-        {
-            setters.template setter<T>(*static_cast<Master*>(this),
-                                       this->container_.template get<T>(),
-                                       std::forward<T>(value));
-        };
-        if constexpr (has_member_setter)
-        {
-            Setters setters;
-            setters.template setter<T>(*static_cast<Master*>(this),
-                                       this->container_.template get<T>(),
-                                       std::forward<T>(value));
-        }
-        else { default_setter<T>(this->container_.template get<T>(), std::forward<T>(value)); }
-
+        this->container_.template get<T>().set_value(value);
         Base::template trigger_params_all<T>();
     } // namespace holovibes
 };

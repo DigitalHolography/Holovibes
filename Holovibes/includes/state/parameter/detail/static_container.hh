@@ -25,6 +25,18 @@ class StaticContainer<>
     void call(FunctionClass functions_class, Args&&... args)
     {
     }
+
+    template <typename U>
+    const U& get() const
+    {
+        static_assert(false, "Type is not in the template");
+    }
+
+    template <typename U>
+    U& get()
+    {
+        static_assert(false, "Type is not in the template");
+    }
 };
 
 template <typename T, typename... R>
@@ -73,23 +85,11 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     template <typename U>
     requires std::is_same_v<T, U> U& get() { return value_; }
 
-    // FIXME : add if  get<U> is not defined => better error
     template <typename U>
     requires(false == std::is_same_v<T, U>) const U& get() const { return StaticContainer<R...>::template get<U>(); }
 
     template <typename U>
     requires(false == std::is_same_v<T, U>) U& get() { return StaticContainer<R...>::template get<U>(); }
-
-    // setters
-    template <typename U>
-    requires std::is_same_v<T, U>
-    void set(U&& value) { value_ = std::forward<U>(value); }
-
-    template <typename U>
-    requires(false == std::is_same_v<T, U>) void set(U&& value)
-    {
-        StaticContainer<R...>::template set(std::forward<U>(value));
-    }
 };
 
 } // namespace holovibes

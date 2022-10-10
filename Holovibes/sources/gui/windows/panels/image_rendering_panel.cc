@@ -182,7 +182,7 @@ void ImageRenderingPanel::update_time_stride()
 
     auto callback = [=]()
     {
-        api::set_value<TimeStride>(TimeStride{time_stride});
+        api::set_value<TimeStride>(time_stride);
         Holovibes::instance().get_compute_pipe()->request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
