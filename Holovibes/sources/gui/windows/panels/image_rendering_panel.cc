@@ -45,7 +45,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
-    ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
+    ui_->TimeStrideSpinBox->setValue(api::get_value<TimeStride>());
     ui_->TimeStrideSpinBox->setSingleStep(api::get_value<BatchSize>());
     ui_->TimeStrideSpinBox->setMinimum(api::get_value<BatchSize>());
 
@@ -53,7 +53,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
-    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setMaximum(api::get_value<InputBufferSize>());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
@@ -177,12 +177,12 @@ void ImageRenderingPanel::update_time_stride()
 
     uint time_stride = ui_->TimeStrideSpinBox->value();
 
-    if (time_stride == api::get_time_stride())
+    if (time_stride == api::get_value<TimeStride>())
         return;
 
     auto callback = [=]()
     {
-        api::set_time_stride(time_stride);
+        api::set_value<TimeStride>(TimeStride{time_stride});
         Holovibes::instance().get_compute_pipe()->request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change

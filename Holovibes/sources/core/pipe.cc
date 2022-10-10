@@ -44,8 +44,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
 
-    ConditionType batch_condition = [&]() -> bool
-    { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
+    ConditionType batch_condition = [&]() -> bool { return batch_env_.batch_index == cache_.get_value<TimeStride>(); };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
     fn_end_vect_ = FunctionVector(batch_condition);
@@ -504,7 +503,7 @@ void Pipe::insert_transfer_for_time_transformation()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
                 buffers_.gpu_spatial_transformation_buffer.get(),
-                compute_cache_.get_batch_size(),
+                cache_.get_value<BatchSize>(),
                 stream_);
         });
 }
@@ -514,10 +513,8 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [&]()
         {
-            batch_env_.batch_index += compute_cache_.get_batch_size();
-            CHECK(batch_env_.batch_index <= compute_cache_.get_time_stride(),
-                  "batch_index = {}",
-                  batch_env_.batch_index);
+            batch_env_.batch_index += cache_.get_value<BatchSize>();
+            CHECK(batch_env_.batch_index <= cache_.get_value<TimeStride>(), "batch_index = {}", batch_env_.batch_index);
         });
 }
 
@@ -532,7 +529,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            *processed_output_fps_ += compute_cache_.get_batch_size();
+            *processed_output_fps_ += cache_.get_value<BatchSize>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -633,12 +630,12 @@ void Pipe::insert_raw_record()
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
+            fn_compute_vect_.push_back([&]() { keep_contiguous(cache_.get_value<BatchSize>()); });
 
         fn_compute_vect_.push_back(
             [&]() {
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
-                                               compute_cache_.get_batch_size());
+                                               cache_.get_value<BatchSize>());
             });
     }
 }

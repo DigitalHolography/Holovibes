@@ -76,8 +76,6 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline uint get_time_stride() const noexcept { return compute_cache_.get_time_stride(); }
-
     inline SpaceTransformation get_space_transformation() const noexcept
     {
         return compute_cache_.get_space_transformation();
@@ -210,8 +208,6 @@ class GSH
 
     inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
 
-    inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
-
     inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
 
     inline uint get_output_buffer_size() const noexcept { return advanced_cache_.get_output_buffer_size(); }
@@ -315,7 +311,6 @@ class GSH
 
 #pragma region(collapsed) SETTERS
     void set_time_transformation_size(uint value);
-    void set_time_stride(uint value);
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
@@ -473,8 +468,6 @@ class GSH
     inline void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
     inline void set_file_buffer_size(uint value) { file_read_cache_.set_file_buffer_size(value); }
-
-    inline void set_input_buffer_size(uint value) { advanced_cache_.set_input_buffer_size(value); }
 
     inline void set_record_buffer_size(uint value) { advanced_cache_.set_record_buffer_size(value); }
 

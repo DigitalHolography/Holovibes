@@ -80,20 +80,7 @@ void GSH::set_time_transformation_size(uint value)
     compute_cache_.set_time_transformation_size(value);
 }
 
-void GSH::set_time_stride(uint value)
-{
-    // FIXME: temporary fix due to ttstride change in pipe.make_request
-    // std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_stride(value);
-
-    if (compute_cache_.get_batch_size() > value)
-        compute_cache_.set_time_stride(compute_cache_.get_batch_size());
-    // Go to lower multiple
-    if (value % compute_cache_.get_batch_size() != 0)
-        compute_cache_.set_time_stride(value - value % compute_cache_.get_batch_size());
-}
-
-void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast.enabled = contrast_enabled; }
+void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast_enabled = contrast_enabled; }
 
 void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
 {

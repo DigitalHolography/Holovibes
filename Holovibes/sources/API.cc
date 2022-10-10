@@ -1236,7 +1236,7 @@ bool import_start(
     {
 
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_input_buffer_size());
+                                               api::get_value<InputBufferSize>());
         Holovibes::instance().start_file_frame_read(file_path,
                                                     true,
                                                     fps,

@@ -7,7 +7,12 @@
 
 namespace holovibes
 {
-class CacheICompute : public ParametersHandlerCache<BatchSize, DivideConvolutionEnable, Lambda, DisplayRate>
+class CacheICompute : public ParametersHandlerCache<BatchSize,
+                                                    DivideConvolutionEnable,
+                                                    Lambda,
+                                                    DisplayRate,
+                                                    InputBufferSize,
+                                                    TimeStride>
 {
 };
 } // namespace holovibes

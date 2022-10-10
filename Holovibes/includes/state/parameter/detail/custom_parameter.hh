@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+
 #include "parameter.hh"
 
 namespace holovibes
@@ -38,8 +40,13 @@ class CustomParameter : public IParameter
     CustomParameter(ValueConstRef value)
         : value_(std::forward<ValueType>(value))
     {
-        LOG_DEBUG(main, "Change value : {} -> {}", value_, value);
     }
+
+    CustomParameter(const std::convertible_to<ValueType> auto& value)
+        : value_(static_cast<ValueType>(value))
+    {
+    }
+
     virtual ~CustomParameter() override {}
 
   public:

@@ -16,9 +16,6 @@ inline void set_img_type(ImgType type) { return GSH::instance().set_img_type(typ
 
 inline WindowKind get_current_window_type() { return GSH::instance().get_current_window_type(); }
 
-inline uint get_time_stride() { return GSH::instance().get_time_stride(); }
-inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value); }
-
 inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
 inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }
 
@@ -216,9 +213,6 @@ inline void set_end_frame(uint value) { GSH::instance().set_end_frame(value); }
 
 inline uint get_file_buffer_size() { return GSH::instance().get_file_buffer_size(); }
 inline void set_file_buffer_size(uint value) { GSH::instance().set_file_buffer_size(value); }
-
-inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }
-inline void set_input_buffer_size(uint value) { GSH::instance().set_input_buffer_size(value); }
 
 inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_size(); }
 inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }

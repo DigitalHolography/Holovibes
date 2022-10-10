@@ -73,6 +73,7 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     template <typename U>
     requires std::is_same_v<T, U> U& get() { return value_; }
 
+    // FIXME : add if  get<U> is not defined => better error
     template <typename U>
     requires(false == std::is_same_v<T, U>) const U& get() const { return StaticContainer<R...>::template get<U>(); }
 
