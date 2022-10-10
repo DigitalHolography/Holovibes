@@ -145,10 +145,7 @@ void import_holo_v4(const json& meta_data)
         api::json_to_compute_settings(meta_data["compute settings"]);
 }
 
-void import_holo_v5(const json& meta_data)
-{
-        api::json_to_compute_settings_v5(meta_data);
-}
+void import_holo_v5(const json& meta_data) { api::json_to_compute_settings_v5(meta_data); }
 
 // This is done for retrocompatibility
 void import_holo_v2_v3(const json& meta_data)
@@ -235,9 +232,10 @@ void InputHoloFile::import_info() const
 
 void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
 {
-
+    LOG_FUNC(main, meta_data);
     raw_footer_.image_rendering.time_transformation_size = meta_data["#img"];
-    raw_footer_.image_rendering.space_transformation = static_cast<SpaceTransformation>(static_cast<int>(meta_data["algorithm"]));
+    raw_footer_.image_rendering.space_transformation =
+        static_cast<SpaceTransformation>(static_cast<int>(meta_data["algorithm"]));
 
     raw_footer_.view.window.xy.contrast.max = meta_data["contrast_max"];
     raw_footer_.view.window.xy.contrast.min = meta_data["contrast_min"];
@@ -259,7 +257,8 @@ void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
     raw_footer_.view.p.accu_level = meta_data["p_acc_level"];
 
     raw_footer_.view.renorm = meta_data["renorm_enabled"];
-    raw_footer_.image_rendering.time_transformation = static_cast<TimeTransformation>(static_cast<int>(meta_data["time_filter"]));
+    raw_footer_.image_rendering.time_transformation =
+        static_cast<TimeTransformation>(static_cast<int>(meta_data["time_filter"]));
 
     raw_footer_.view.x.accu_level = meta_data["x_acc_level"];
     raw_footer_.view.y.accu_level = meta_data["y_acc_level"];
@@ -269,6 +268,7 @@ void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
 
     meta_data.clear();
     to_json(meta_data, raw_footer_);
+    std::cerr << std::setw(1) << meta_data;
 }
 
 } // namespace holovibes::io_files

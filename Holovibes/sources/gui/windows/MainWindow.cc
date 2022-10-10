@@ -172,7 +172,7 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 {
     // We can't update gui values from a different thread
     // so we pass it to the right one using a signal
-    // (This whole notify thing needs to be cleaned up / removed)
+    // FIXME - (This whole notify thing needs to be cleaned up / removed)
     if (QThread::currentThread() != this->thread())
         emit synchronize_thread_signal(f);
     else
