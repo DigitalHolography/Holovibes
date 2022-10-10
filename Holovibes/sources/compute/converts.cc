@@ -347,7 +347,7 @@ void Converts::insert_filter2d_ushort()
 
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
-    LOG_FUNC(compute_worker, fd_.depth);
+    LOG_FUNC(compute_worker);
 
     fn_compute_vect_.push_back(
         [&]()
