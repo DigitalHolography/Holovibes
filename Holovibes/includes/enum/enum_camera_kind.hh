@@ -19,6 +19,7 @@ enum class CameraKind
     BitflowCyton, /*!< Generic bitflow cyton frame grabber */
     Hamamatsu,    /*!< Hamamatsu camera */
     xiQ,          /*!< xiQ camera */
-    xiB           /*!< xiB camera */
+    xiB,          /*!< xiB camera */
+    OpenCV,       /*!< OpenCV camera */
 };
 } // namespace holovibes

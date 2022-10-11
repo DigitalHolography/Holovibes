@@ -35,7 +35,6 @@ string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
 # Packages
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
 find_package(opengl_system REQUIRED)
-find_package(OpenCV REQUIRED)
 find_package(GTest REQUIRED)
 find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -54,7 +53,6 @@ SET(CUDA_EXTERNAL_INCLUDES
 )
 
 set(EXTERNAL_INCLUDES
-    ${opencv_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${Qt6_INCLUDE_DIRS}
     ${CUDA_EXTERNAL_INCLUDES}

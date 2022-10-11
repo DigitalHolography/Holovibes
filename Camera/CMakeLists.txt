@@ -1,5 +1,7 @@
 include(CheckIncludeFile)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Idealy create a FindBitflow.cmake file
 set(BITFLOW_SDK "C:/BitFlow SDK 6.50/")
 # idem
@@ -29,3 +31,4 @@ add_subdirectory(CameraHamamatsu)
 add_subdirectory(CameraIds)
 add_subdirectory(CameraXib)
 add_subdirectory(CameraXiq)
+add_subdirectory(CameraOpenCV)

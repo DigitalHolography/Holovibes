@@ -1,21 +1,21 @@
-project (CameraIds CXX)
+project (CameraOpenCV CXX)
 
 add_library("${PROJECT_NAME}" SHARED
-    camera_ids.cc
+    camera_opencv.cc
     ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/libs/ids/include/"
     "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
+    "${OpenCV_INCLUDE_DIRS}"
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/libs/ids/uEye_api_64.lib"
 
     Boost::boost
+    opencv::videoio
 )
 
 # Generate the dll file in build/Debug or build/Release
