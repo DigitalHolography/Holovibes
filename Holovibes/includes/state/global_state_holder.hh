@@ -53,10 +53,7 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline uint get_time_transformation_stride() const noexcept
-    {
-        return compute_cache_.get_time_transformation_stride();
-    }
+    inline uint get_time_stride() const noexcept { return compute_cache_.get_time_stride(); }
 
     inline SpaceTransformation get_space_transformation() const noexcept
     {
@@ -100,7 +97,7 @@ class GSH
 
     inline View_XYZ get_xy() const noexcept { return view_cache_.get_xy(); }
     inline bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().flip_enabled; }
-    inline float get_xy_rot() const noexcept { return view_cache_.get_xy().flip_enabled; }
+    inline float get_xy_rot() const noexcept { return view_cache_.get_xy().rot; }
     inline uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().img_accu_level; }
     inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_scale_slice_enabled; }
     inline bool get_xy_contrast_enabled() const noexcept { return view_cache_.get_xy().contrast_enabled; }
@@ -112,7 +109,7 @@ class GSH
 
     inline View_XYZ get_xz() const noexcept { return view_cache_.get_xz(); }
     inline bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().flip_enabled; }
-    inline float get_xz_rot() const noexcept { return view_cache_.get_xz().flip_enabled; }
+    inline float get_xz_rot() const noexcept { return view_cache_.get_xz().rot; }
     inline uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().img_accu_level; }
     inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_scale_slice_enabled; }
     inline bool get_xz_contrast_enabled() const noexcept { return view_cache_.get_xz().contrast_enabled; }
@@ -124,7 +121,7 @@ class GSH
 
     inline View_XYZ get_yz() const noexcept { return view_cache_.get_yz(); }
     inline bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().flip_enabled; }
-    inline float get_yz_rot() const noexcept { return view_cache_.get_yz().flip_enabled; }
+    inline float get_yz_rot() const noexcept { return view_cache_.get_yz().rot; }
     inline uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().img_accu_level; }
     inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_scale_slice_enabled; }
     inline bool get_yz_contrast_enabled() const noexcept { return view_cache_.get_yz().contrast_enabled; }
@@ -234,7 +231,7 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold_max;
     }
-    inline int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
+    inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.low_threshold; }
     inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.high_threshold; }
@@ -305,7 +302,7 @@ class GSH
 #pragma region(collapsed) SETTERS
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
-    void set_time_transformation_stride(uint value);
+    void set_time_stride(uint value);
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
@@ -598,7 +595,7 @@ class GSH
 
     inline void set_reticle_display_enabled(bool value) { view_cache_.set_reticle_display_enabled(value); }
 
-    inline void set_raw_bitshift(int value) { advanced_cache_.set_raw_bitshift(value); }
+    inline void set_raw_bitshift(unsigned int value) { advanced_cache_.set_raw_bitshift(value); }
 
     inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
     inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }

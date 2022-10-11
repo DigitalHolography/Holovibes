@@ -19,12 +19,12 @@ static void chart_test(const ushort image_width,
     const ushort total_zone_size = zone_width * zone_height;
 
     float* input;
-    cudaMallocManaged(&input, total_image_size * sizeof(float));
+    cudaXMallocManaged(&input, total_image_size * sizeof(float));
     for (int i = 0; i < total_image_size; ++i)
         input[i] = cell_value;
 
     double* output;
-    cudaMallocManaged(&output, sizeof(double));
+    cudaXMallocManaged(&output, sizeof(double));
     *output = 0;
 
     RectFd zone;
@@ -123,7 +123,7 @@ TEST(ChartTest, SmallDifferentValuesImage)
     ushort total_image_size = image_width * image_height;
 
     float* input;
-    cudaMallocManaged(&input, total_image_size * sizeof(float));
+    cudaXMallocManaged(&input, total_image_size * sizeof(float));
     /*
      * 7 31 6
      * 1 3 84
@@ -145,7 +145,7 @@ TEST(ChartTest, SmallDifferentValuesImage)
     input[x_zone_offset + (y_zone_offset + 3) * image_width + 2] = 40;
 
     double* output;
-    cudaMallocManaged(&output, sizeof(double));
+    cudaXMallocManaged(&output, sizeof(double));
     *output = 0;
 
     RectFd zone;
@@ -182,7 +182,7 @@ TEST(ChartTest, DifferentValuesImage)
     double expected_value = 0.f;
 
     float* input;
-    cudaMallocManaged(&input, total_image_size * sizeof(float));
+    cudaXMallocManaged(&input, total_image_size * sizeof(float));
     for (int i = 0; i < total_image_size; ++i)
     {
         input[i] = i;
@@ -190,7 +190,7 @@ TEST(ChartTest, DifferentValuesImage)
     }
 
     double* output;
-    cudaMallocManaged(&output, sizeof(double));
+    cudaXMallocManaged(&output, sizeof(double));
     *output = 0;
 
     RectFd zone;

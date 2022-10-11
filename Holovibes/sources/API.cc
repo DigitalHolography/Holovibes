@@ -207,6 +207,7 @@ void set_raw_mode(uint window_max_size)
                                       get_gpu_input_queue().get(),
                                       static_cast<float>(width) / static_cast<float>(height)));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
+    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(GSH::instance().get_raw_bitshift());
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
 }
@@ -341,7 +342,7 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 #pragma region STFT
 
 // FIXME: Same function as above
-void update_time_transformation_stride(std::function<void()> callback, const uint time_transformation_stride)
+void update_time_stride(std::function<void()> callback, const uint time_stride)
 {
     get_compute_pipe()->insert_fn_end_vect(callback);
 }
@@ -966,9 +967,9 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
-void set_raw_bitshift(int value) { GSH::instance().set_raw_bitshift(value); }
+void set_raw_bitshift(unsigned int value) { GSH::instance().set_raw_bitshift(value); }
 
-int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
+unsigned int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
 
 float get_contrast_min() { return GSH::instance().get_contrast_min(); }
 

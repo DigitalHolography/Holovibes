@@ -8,6 +8,8 @@ namespace holovibes::gui
 RainbowOverlay::RainbowOverlay(BasicOpenGLWindow* parent)
     : Overlay(Rainbow, parent)
 {
+    LOG_FUNC(main);
+
     alpha_ = 0.2f;
     display_ = true;
 }

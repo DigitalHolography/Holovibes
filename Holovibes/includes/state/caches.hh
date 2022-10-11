@@ -28,14 +28,14 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (uint, output_buffer_size, 256),
                             (uint, record_buffer_size, 1024),
                             (float, contrast_lower_threshold, 0.5f),
-                            (int, raw_bitshift, 0),
+                            (unsigned int, raw_bitshift, 0),
                             (float, contrast_upper_threshold, 99.5f),
                             (unsigned, renorm_constant, 5),
                             (uint, cuts_contrast_p_offset, 2));
 
 /*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches
- * \param time_transformation_stride Number of pipe iterations between two time transformations (STFT/PCA)
+ * \param time_stride Number of pipe iterations between two time transformations (STFT/PCA)
  * \param time_transformation_size Number of images used by the time transformation
  * \param space_transformation Space transformation algorithm to apply in hologram mode
  * \param time_transformation Time transformation to apply in hologram mode
@@ -57,7 +57,7 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
-                            (uint, time_transformation_stride, 1),
+                            (uint, time_stride, 1),
                             (uint, time_transformation_size, 1),
                             (SpaceTransformation, space_transformation, SpaceTransformation::NONE),
                             (TimeTransformation, time_transformation, TimeTransformation::NONE),

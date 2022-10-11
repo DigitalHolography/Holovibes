@@ -8,6 +8,7 @@ namespace gui
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : Overlay(overlay, parent)
 {
+    LOG_FUNC(main);
 }
 
 void RectOverlay::init()

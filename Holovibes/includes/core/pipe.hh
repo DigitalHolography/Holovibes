@@ -122,7 +122,7 @@ class Pipe : public ICompute
 
     void insert_cuts_record();
 
-    /*! \brief Reset the batch index if time_transformation_stride has been reached */
+    /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
 
     /*! \brief Enqueue a frame in an output queue

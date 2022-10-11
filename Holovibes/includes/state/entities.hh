@@ -12,12 +12,12 @@ struct BatchCommand
     unsigned int value;
 };
 
-struct TimeTransformationStrideQuery
+struct TimeStrideQuery
 {
     unsigned int value;
 };
 
-struct TimeTransformationStrideCommand
+struct TimeStrideCommand
 {
     unsigned int value;
 };

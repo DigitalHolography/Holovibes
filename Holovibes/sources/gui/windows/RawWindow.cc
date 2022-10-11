@@ -28,6 +28,8 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView
     , texDepth(0)
     , texType(0)
 {
+    LOG_FUNC(main);
+
     this->ratio = ratio;
     show();
 }
@@ -46,7 +48,7 @@ void RawWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
     Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.raw.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.raw.glsl"));
     Program->link();
     overlay_manager_.create_default();
 }

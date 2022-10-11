@@ -152,7 +152,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
 
     pipe->request_update_batch_size();
-    pipe->request_update_time_transformation_stride();
+    pipe->request_update_time_stride();
     pipe->request_update_time_transformation_size();
 
     delete input_frame_file;
@@ -210,7 +210,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Value used in more than 1 thread
     size_t input_nb_frames =
         holovibes::GSH::instance().get_end_frame() - holovibes::GSH::instance().get_start_frame() + 1;
-    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_transformation_stride());
+    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
     if (record_nb_frames == 0)
     {
         LOG_ERROR(setup, "Asking to record 0 frames, abort");

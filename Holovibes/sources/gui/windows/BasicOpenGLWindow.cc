@@ -40,9 +40,12 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , scale_(1.f)
     , angle_(0.f)
     , flip_(0)
+    , bitshift_(0)
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
+    LOG_FUNC(main);
+
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
     setFramePosition(p);
@@ -122,6 +125,14 @@ void BasicOpenGLWindow::setFlip(bool f)
 
 bool BasicOpenGLWindow::getFlip() const { return flip_; }
 
+void BasicOpenGLWindow::setBitshift(unsigned int b)
+{
+    bitshift_ = b;
+    setTransform();
+}
+
+unsigned int BasicOpenGLWindow::getBitshift() const { return bitshift_; }
+
 void BasicOpenGLWindow::setTranslate(float x, float y)
 {
     translate_[0] = x;
@@ -149,6 +160,8 @@ float BasicOpenGLWindow::getScale() const { return scale_; }
 
 void BasicOpenGLWindow::setTransform()
 {
+    LOG_FUNC(main, angle_, flip_, bitshift_);
+
     const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (flip_ == 1)), glm::vec3(0.f, 1.f, 0.f));
     const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));
     glm::mat4 rotYZ = rotY * rotZ;
@@ -184,6 +197,8 @@ void BasicOpenGLWindow::setTransform()
         Program->setUniformValue(Program->uniformLocation("angle"), angle_);
         Program->setUniformValue(Program->uniformLocation("flip"), flip_);
         Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
+        Program->setUniformValue(Program->uniformLocation("bitshift"), bitshift_);
+
         QMatrix4x4 m(glm::value_ptr(mvp));
         Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
         Program->release();

@@ -172,16 +172,16 @@ ${datetime} <${time from start}> [${Thread ID}] ${filename}:${line_in_file} ${lo
 ##### Usage
 
 We have 5 levels of log:
-* Trace (// LOG_TRACE)
-* Debug (// LOG_DEBUG)
-* Infos (// LOG_INFO)
-* Warnings (// LOG_WARN)
-* Errors (// LOG_ERROR)
+* Trace (LOG_TRACE)
+* Debug (LOG_DEBUG)
+* Infos (LOG_INFO)
+* Warnings (LOG_WARN)
+* Errors (LOG_ERROR)
 
 They are usable as std:cout and any C++ Stream.
 For instance, if a file named `config.json` is not found, you could write:
 ```cpp
-// LOG_ERROR << "File named config.json could not be found";
+LOG_ERROR << "File named config.json could not be found";
 ```
 
 ##### Assertions

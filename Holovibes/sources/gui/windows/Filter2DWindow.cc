@@ -18,6 +18,8 @@ namespace gui
 Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
 {
+    LOG_FUNC(main);
+
     setMinimumSize(s);
     show();
 }

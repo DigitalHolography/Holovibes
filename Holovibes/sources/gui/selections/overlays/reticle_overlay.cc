@@ -9,6 +9,8 @@ namespace gui
 ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
     : Overlay(Reticle, parent)
 {
+    LOG_FUNC(main);
+
     display_ = true;
     alpha_ = 1.0f;
 }
