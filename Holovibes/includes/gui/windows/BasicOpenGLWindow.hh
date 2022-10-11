@@ -62,6 +62,8 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     float getAngle() const;
     void setFlip(bool f);
     bool getFlip() const;
+    void setBitshift(unsigned int b);
+    unsigned int getBitshift() const;
     void setTranslate(float x, float y);
     glm::vec2 getTranslate() const;
 
@@ -125,6 +127,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \brief Angle in degree */
     float angle_;
     bool flip_;
+    int bitshift_;
 
     glm::mat3x3 transform_matrix_;
     glm::mat3x3 transform_inverse_matrix_;

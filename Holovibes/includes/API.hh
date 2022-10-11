@@ -457,7 +457,7 @@ void set_log_scale(const bool value);
  *
  * \param value to set
  */
-void set_raw_bitshift(int value);
+void set_raw_bitshift(unsigned int value);
 
 /*! \name	Setter of the overlay positions.
  * \{
@@ -474,7 +474,7 @@ void set_reticle_zone(const units::RectFd& rect);
  *
  * \return int the raw bit shift
  */
-int get_raw_bitshift();
+unsigned int get_raw_bitshift();
 
 /*!
  * \brief Gets the contrast min of a given window

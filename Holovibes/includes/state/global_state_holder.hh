@@ -231,7 +231,7 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold_max;
     }
-    inline int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
+    inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.low_threshold; }
     inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.high_threshold; }
@@ -595,7 +595,7 @@ class GSH
 
     inline void set_reticle_display_enabled(bool value) { view_cache_.set_reticle_display_enabled(value); }
 
-    inline void set_raw_bitshift(int value) { advanced_cache_.set_raw_bitshift(value); }
+    inline void set_raw_bitshift(unsigned int value) { advanced_cache_.set_raw_bitshift(value); }
 
     inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
     inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }
