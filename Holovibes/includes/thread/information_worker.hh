@@ -6,9 +6,7 @@
 
 #include "worker.hh"
 
-namespace holovibes
-{
-namespace worker
+namespace holovibes::worker
 {
 /*! \class InformationWorker
  *
@@ -76,5 +74,4 @@ class InformationWorker final : public Worker
     /*! \brief Saving throughput */
     size_t saving_throughput_ = 0;
 };
-} // namespace worker
-} // namespace holovibes
+} // namespace holovibes::worker

@@ -7,9 +7,7 @@
 #include <QGroupBox>
 #include <QObject>
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class GroupBox
  *
@@ -31,5 +29,4 @@ class GroupBox : public QGroupBox
     /*! \brief Show or hide GroupBox */
     void ShowOrHide();
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

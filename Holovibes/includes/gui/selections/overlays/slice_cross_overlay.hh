@@ -6,9 +6,7 @@
 
 #include "rect_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class SliceCrossOverlay
  *
@@ -42,5 +40,4 @@ class SliceCrossOverlay : public RectOverlay
     /*! \brief p_index of the mouse position */
     units::PointFd pIndex_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

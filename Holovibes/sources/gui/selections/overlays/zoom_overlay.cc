@@ -3,9 +3,7 @@
 #include "RawWindow.hh"
 #include "HoloWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 ZoomOverlay::ZoomOverlay(BasicOpenGLWindow* parent)
     : SquareOverlay(KindOfOverlay::Zoom, parent)
@@ -29,5 +27,4 @@ void ZoomOverlay::release(ushort frameSide)
     }
     disable();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

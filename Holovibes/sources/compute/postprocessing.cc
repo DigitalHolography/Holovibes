@@ -12,9 +12,7 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-namespace holovibes
-{
-namespace compute
+namespace holovibes::compute
 {
 Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
@@ -178,5 +176,4 @@ void Postprocessing::insert_renormalize()
                           stream_);
         });
 }
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

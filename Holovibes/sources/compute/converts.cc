@@ -14,9 +14,7 @@
 
 #include <mutex>
 
-namespace holovibes
-{
-namespace compute
+namespace holovibes::compute
 {
 Converts::Converts(FunctionVector& fn_compute_vect,
                    const CoreBuffersEnv& buffers,
@@ -365,5 +363,4 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
             gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
         });
 }
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

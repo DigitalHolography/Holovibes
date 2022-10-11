@@ -17,8 +17,9 @@ using holovibes::cuda_tools::CufftHandle;
 namespace holovibes
 {
 struct CoreBuffersEnv;
+} // namespace holovibes
 
-namespace compute
+namespace holovibes::compute
 {
 /*! \class Postprocessing
  *
@@ -79,5 +80,4 @@ class Postprocessing
     ViewCache::Cache& view_cache_;
     AdvancedCache::Cache& advanced_cache_;
 };
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

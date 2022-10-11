@@ -21,8 +21,9 @@ enum class ImgType
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
     Composite       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
 };
+} // namespace holovibes
 
-namespace _internal
+namespace holovibes::_internal
 {
 
 const static std::map<std::string, ImgType> string_to_img_type = {
@@ -40,8 +41,10 @@ const static std::map<ImgType, std::string> img_type_to_string = {
     {ImgType::PhaseIncrease, "PHASEINCREASE"},
     {ImgType::Composite, "COMPOSITE"},
 };
-} // namespace _internal
+} // namespace holovibes::_internal
 
+namespace holovibes
+{
 inline std::string img_type_to_string(ImgType value) { return _internal::img_type_to_string.at(value); }
 
 inline ImgType img_type_from_string(const std::string& in) { return _internal::string_to_img_type.at(in); }

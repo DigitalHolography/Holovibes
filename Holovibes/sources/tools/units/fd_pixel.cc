@@ -3,9 +3,7 @@
 #include "opengl_position.hh"
 #include "real_position.hh"
 
-namespace holovibes
-{
-namespace units
+namespace holovibes::units
 {
 FDPixel::FDPixel(ConversionData data, Axis axis, int val)
     : Unit(data, axis, val)
@@ -31,5 +29,4 @@ FDPixel::operator RealPosition() const
     RealPosition res(conversion_data_, axis_, conversion_data_.fd_to_real(val_, axis_));
     return res;
 }
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

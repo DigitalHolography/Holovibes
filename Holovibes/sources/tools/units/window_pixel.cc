@@ -2,9 +2,7 @@
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
 
-namespace holovibes
-{
-namespace units
+namespace holovibes::units
 {
 WindowPixel::WindowPixel(ConversionData data, Axis axis, int val)
     : Unit(data, axis, val)
@@ -24,5 +22,4 @@ WindowPixel::operator FDPixel() const
                 conversion_data_.opengl_to_fd(static_cast<units::OpenglPosition>(*this).get(), axis_));
     return res;
 }
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

@@ -9,11 +9,10 @@
 namespace holovibes::gui
 {
 class BasicOpenGLWindow;
-}
+} // namespace holovibes::gui
 
 namespace holovibes::units
 {
-
 /*! \class ConversionData
  *
  * \brief Encapsulates the conversion from a unit to another

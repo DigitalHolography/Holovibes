@@ -12,8 +12,9 @@ namespace holovibes
 class ICompute;
 class Queue;
 class BatchInputQueue;
+} // namespace holovibes
 
-namespace worker
+namespace holovibes::worker
 {
 /*! \class ComputeWorker
  *
@@ -42,5 +43,4 @@ class ComputeWorker final : public Worker
 
     const cudaStream_t stream_;
 };
-} // namespace worker
-} // namespace holovibes
+} // namespace holovibes::worker

@@ -51,10 +51,11 @@ enum class QueueType
     OUTPUT_QUEUE,
     RECORD_QUEUE,
 };
+} // namespace holovibes
 
 /*! \} */
 
-namespace _internal
+namespace holovibes::_internal
 {
 
 template <typename T>
@@ -92,7 +93,9 @@ struct TypeValue<QueueType>
     using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
 };
 
-} // namespace _internal
+} // namespace holovibes::_internal
+namespace holovibes
+{
 
 /*!
  * \brief Compile time

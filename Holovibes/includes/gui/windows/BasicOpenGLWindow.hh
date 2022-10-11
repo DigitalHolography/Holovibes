@@ -15,10 +15,8 @@
 #include "tools_conversion.cuh"
 #include "display_queue.hh"
 
-namespace holovibes
-{
 /*! \brief Contains all function to display the graphical user interface */
-namespace gui
+namespace holovibes::gui
 {
 /*! \enum KindOfView
  *
@@ -132,5 +130,4 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     glm::mat3x3 transform_matrix_;
     glm::mat3x3 transform_inverse_matrix_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

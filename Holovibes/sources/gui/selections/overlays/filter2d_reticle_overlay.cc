@@ -3,9 +3,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 Filter2DReticleOverlay::Filter2DReticleOverlay(BasicOpenGLWindow* parent)
     : Overlay(Filter2DReticle, parent)
@@ -130,5 +128,4 @@ void Filter2DReticleOverlay::setBuffer()
     Vao_.release();
     Program_->release();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

@@ -13,9 +13,7 @@ class ICamera;
 struct CapturedFramesDescriptor;
 } // namespace camera
 
-namespace holovibes
-{
-namespace worker
+namespace holovibes::worker
 {
 /*! \class CameraFrameReadWorker
  *
@@ -40,5 +38,4 @@ class CameraFrameReadWorker final : public FrameReadWorker
 
     void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const camera::FrameDescriptor& camera_fd);
 };
-} // namespace worker
-} // namespace holovibes
+} // namespace holovibes::worker

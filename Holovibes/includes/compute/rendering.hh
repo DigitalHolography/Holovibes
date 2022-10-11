@@ -20,8 +20,9 @@ struct CoreBuffersEnv;
 struct ChartEnv;
 struct TimeTransformationEnv;
 struct ImageAccEnv;
+} // namespace holovibes
 
-namespace compute
+namespace holovibes::compute
 {
 using uint = unsigned int;
 
@@ -107,5 +108,4 @@ class Rendering
 
     float* percent_min_max_;
 };
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

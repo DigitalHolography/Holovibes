@@ -16,7 +16,9 @@
 namespace holovibes
 {
 using camera::FrameDescriptor;
-namespace gui
+} // namespace holovibes
+
+namespace holovibes::gui
 {
 BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
@@ -216,5 +218,4 @@ bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 
     return QObject::eventFilter(obj, event);
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

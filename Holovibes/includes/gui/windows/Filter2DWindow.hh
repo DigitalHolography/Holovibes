@@ -6,9 +6,7 @@
 
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 class MainWindow;
 
@@ -33,5 +31,4 @@ class Filter2DWindow : public BasicOpenGLWindow
 
     void focusInEvent(QFocusEvent*) override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

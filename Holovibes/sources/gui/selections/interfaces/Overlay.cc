@@ -5,9 +5,7 @@
 #include "logger.hh"
 #include "tools.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : QOpenGLFunctions()
@@ -101,5 +99,4 @@ void Overlay::print()
     zone_oss << zone_;
     LOG_INFO(main, "Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

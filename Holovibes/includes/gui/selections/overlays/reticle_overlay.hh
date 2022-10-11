@@ -7,9 +7,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "Overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class ReticleOverlay
  *
@@ -33,5 +31,4 @@ class ReticleOverlay : public Overlay
     /*! \brief Transparency of the lines */
     float alpha_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

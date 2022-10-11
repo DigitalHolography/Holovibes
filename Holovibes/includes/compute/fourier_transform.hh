@@ -20,8 +20,9 @@ class Queue;
 struct BatchEnv;
 struct TimeTransformationEnv;
 struct CoreBuffersEnv;
+} // namespace holovibes
 
-namespace compute
+namespace holovibes::compute
 {
 /*! \class FourierTransform
  *
@@ -116,5 +117,4 @@ class FourierTransform
     ViewCache::Cache& view_cache_;
     Filter2DCache::Cache& filter2d_cache_;
 };
-} // namespace compute
-} // namespace holovibes
+} // namespace holovibes::compute

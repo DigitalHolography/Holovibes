@@ -6,9 +6,7 @@
 
 #include "square_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class CompositeAreaOverlay
  *
@@ -21,5 +19,4 @@ class CompositeAreaOverlay : public RectOverlay
 
     void release(ushort frameSide) override;
 };
-} // namespace gui
 } // namespace holovibes

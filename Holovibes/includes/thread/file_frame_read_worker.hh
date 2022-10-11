@@ -11,13 +11,14 @@
 namespace holovibes
 {
 class Queue;
+} // namespace holovibes
 
-namespace io_files
+namespace holovibes::io_files
 {
 class InputFrameFile;
-}
+} // namespace holovibes::io_files
 
-namespace worker
+namespace holovibes::worker
 {
 /*! \class FileFrameReadWorker
  *
@@ -135,7 +136,6 @@ class FileFrameReadWorker final : public FrameReadWorker
 
     FileReadCache::Cache file_read_cache_;
 };
-} // namespace worker
-} // namespace holovibes
+} // namespace holovibes::worker
 
 #include "file_frame_read_worker.hxx"

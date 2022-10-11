@@ -17,8 +17,9 @@ enum class CompositeKind
     RGB = 0, /*!< Composite in RGB */
     HSV      /*!< Composite in HSV */
 };
+} // namespace holovibes
 
-namespace _internal
+namespace holovibes::_internal
 {
 const std::map<CompositeKind, std::string> composite_kind_to_string = {
     {CompositeKind::RGB, "RGB"},
@@ -30,8 +31,10 @@ const std::map<std::string, CompositeKind> string_to_composite_kind = {
     {"HSV", CompositeKind::HSV},
 };
 
-} // namespace _internal
+} // namespace holovibes::_internal
 
+namespace holovibes
+{
 inline std::string composite_kind_to_string(const CompositeKind in)
 {
     return _internal::composite_kind_to_string.at(in);

@@ -7,9 +7,7 @@
 #include <QFrame>
 #include <QObject>
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class Frame
  *
@@ -31,5 +29,4 @@ class Frame : public QFrame
     /*! \brief Show or hide Frame */
     void ShowOrHide();
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

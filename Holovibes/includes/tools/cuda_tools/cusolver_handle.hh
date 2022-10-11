@@ -6,9 +6,7 @@
 
 #include "cusolverDn.h"
 
-namespace holovibes
-{
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
 /*! \class CusolverHandle
  *
@@ -26,5 +24,4 @@ class CusolverHandle
     static bool initialized_;
     static cusolverDnHandle_t handle_;
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

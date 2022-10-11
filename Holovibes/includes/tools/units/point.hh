@@ -12,11 +12,8 @@
 
 #include <type_traits>
 
-namespace holovibes
+namespace holovibes::units
 {
-namespace units
-{
-
 /*! \class Point
  *
  * \brief A point in some specific unit
@@ -121,5 +118,4 @@ std::ostream& operator<<(std::ostream& o, const Point<T>& p)
     return o << '(' << p.x() << ", " << p.y() << ')';
 }
 
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

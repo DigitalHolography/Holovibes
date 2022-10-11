@@ -8,9 +8,7 @@
 #define WIDTH 580
 #define HEIGHT 250
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 PlotWindow::PlotWindow(ConcurrentDeque<ChartPoint>& data_vect,
                        const size_t auto_scale_point_threshold,
@@ -52,8 +50,7 @@ void PlotWindow::toggle_dark_mode()
     QCheckBox* box = findChild<QCheckBox*>("darkModeCheckBox");
     curve_plot_.toggle_dark_mode(box->isChecked());
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui
 
 #undef WIDTH
 #undef HEIGHT

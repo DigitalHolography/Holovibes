@@ -11,9 +11,7 @@
 #include "filter2d_reticle_overlay.hh"
 #include "logger.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
     : current_overlay_(nullptr)
@@ -256,5 +254,4 @@ void OverlayManager::printVector()
         o->print();
 }
 #endif
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

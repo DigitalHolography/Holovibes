@@ -20,8 +20,9 @@ enum class TimeTransformation
     NONE,     /*!< No transformation */
     SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
 };
+} // namespace holovibes
 
-namespace _internal
+namespace holovibes::_internal
 {
 
 const std::map<TimeTransformation, std::string> time_transform_to_string = {
@@ -39,8 +40,10 @@ const std::map<std::string, TimeTransformation> string_to_time_transform = {
     {"SSA_STFT", TimeTransformation::SSA_STFT},
 };
 
-} // namespace _internal
+} // namespace holovibes::_internal
 
+namespace holovibes
+{
 inline std::string time_transformation_to_string(TimeTransformation value)
 {
     return _internal::time_transform_to_string.at(value);
