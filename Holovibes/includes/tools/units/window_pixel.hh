@@ -6,9 +6,7 @@
 
 #include "unit.hh"
 
-namespace holovibes
-{
-namespace units
+namespace holovibes::units
 {
 class FDPixel;
 class OpenglPosition;
@@ -25,5 +23,4 @@ class WindowPixel : public Unit<int>
     operator OpenglPosition() const;
     operator FDPixel() const;
 };
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

@@ -36,7 +36,7 @@ static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
     };
 
     char* d_buff;
-    cudaSafeCall(cudaMallocHost((void**)&d_buff, frame_size * batch_size));
+    cudaXMallocHost((void**)&d_buff, frame_size * batch_size);
     q.dequeue(d_buff, sizeof(char), lambda);
 
     return d_buff;
@@ -419,8 +419,8 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
 
     float* d_producer;
     float* d_consumer;
-    cudaSafeCall(cudaMalloc((void**)&d_producer, frame_size));
-    cudaSafeCall(cudaMalloc((void**)&d_consumer, frame_size * batch_size));
+    cudaXMalloc((void**)&d_producer, frame_size);
+    cudaXMalloc((void**)&d_consumer, frame_size * batch_size);
 
     constexpr uint nb_tests = 50;
     for (uint i = 0; i < nb_tests; i++)

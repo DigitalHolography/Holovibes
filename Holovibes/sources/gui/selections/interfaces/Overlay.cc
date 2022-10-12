@@ -5,9 +5,7 @@
 #include "logger.hh"
 #include "tools.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : QOpenGLFunctions()
@@ -23,6 +21,7 @@ Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     , display_(false)
     , parent_(parent)
 {
+    LOG_FUNC(main);
 }
 
 Overlay::~Overlay()
@@ -72,6 +71,7 @@ void Overlay::keyPress(QKeyEvent*) {}
 
 void Overlay::initProgram()
 {
+    LOG_FUNC(main);
     parent_->makeCurrent();
     initializeOpenGLFunctions();
     Program_ = std::make_unique<QOpenGLShaderProgram>();
@@ -98,5 +98,4 @@ void Overlay::print()
     zone_oss << zone_;
     LOG_INFO(main, "Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

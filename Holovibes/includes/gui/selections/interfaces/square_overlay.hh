@@ -6,9 +6,7 @@
 
 #include "rect_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class SquareOverlay
  *
@@ -28,5 +26,4 @@ class SquareOverlay : public RectOverlay
 
     virtual void move(QMouseEvent* e) override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

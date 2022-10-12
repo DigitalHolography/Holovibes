@@ -15,10 +15,8 @@
 #include "tools_conversion.cuh"
 #include "display_queue.hh"
 
-namespace holovibes
-{
 /*! \brief Contains all function to display the graphical user interface */
-namespace gui
+namespace holovibes::gui
 {
 /*! \enum KindOfView
  *
@@ -43,7 +41,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
   public:
     // Constructor & Destructor
     BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
-    virtual ~BasicOpenGLWindow() = 0;
+    virtual ~BasicOpenGLWindow();
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
@@ -62,6 +60,8 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     float getAngle() const;
     void setFlip(bool f);
     bool getFlip() const;
+    void setBitshift(unsigned int b);
+    unsigned int getBitshift() const;
     void setTranslate(float x, float y);
     glm::vec2 getTranslate() const;
 
@@ -125,9 +125,9 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \brief Angle in degree */
     float angle_;
     bool flip_;
+    int bitshift_;
 
     glm::mat3x3 transform_matrix_;
     glm::mat3x3 transform_inverse_matrix_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

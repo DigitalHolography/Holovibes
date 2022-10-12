@@ -6,9 +6,7 @@
 
 #include "square_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class ZoomOverlay
  *
@@ -21,5 +19,4 @@ class ZoomOverlay : public SquareOverlay
 
     void release(ushort frameSide) override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

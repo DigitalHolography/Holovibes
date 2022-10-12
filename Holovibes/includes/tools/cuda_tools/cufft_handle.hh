@@ -9,9 +9,7 @@
 #include <cufft.h>
 #include <cufftXt.h>
 
-namespace holovibes
-{
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
 /*! \class CufftHandle
  *
@@ -93,5 +91,4 @@ class CufftHandle
 
     static cudaStream_t stream_;
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

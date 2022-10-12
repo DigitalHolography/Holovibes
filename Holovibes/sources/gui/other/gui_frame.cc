@@ -1,8 +1,6 @@
 #include "gui_frame.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 Frame::Frame(QWidget* parent)
     : QFrame(parent)
@@ -18,5 +16,4 @@ void Frame::ShowOrHide()
     else
         show();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

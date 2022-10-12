@@ -15,7 +15,6 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     tools_conversion.cu
     tools_unwrap.cu
     transforms.cu
-    cuda_memory.cu
     shift_corners.cu
     frame_reshape.cu
     map.cu

@@ -28,7 +28,9 @@ namespace holovibes
 {
 using camera::Endianness;
 using camera::FrameDescriptor;
-namespace gui
+} // namespace holovibes
+
+namespace holovibes::gui
 {
 namespace
 {
@@ -480,6 +482,8 @@ void MainWindow::camera_xiq() { change_camera(CameraKind::xiQ); }
 
 void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
+void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
+
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
 /* ------------ */
@@ -682,5 +686,4 @@ void MainWindow::set_theme(const Theme theme)
         set_night();
 }
 #pragma endregion
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

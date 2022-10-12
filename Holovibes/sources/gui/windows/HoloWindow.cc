@@ -7,9 +7,7 @@
 #include "tools.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 HoloWindow::HoloWindow(QPoint p,
                        QSize s,
@@ -67,5 +65,4 @@ void HoloWindow::setTransform()
     BasicOpenGLWindow::setTransform();
     update_slice_transforms();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

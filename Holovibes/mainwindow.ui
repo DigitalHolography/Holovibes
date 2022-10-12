@@ -237,7 +237,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="TimeTransformationStrideSpinBox">
+            <widget class="QSpinBox" name="TimeStrideSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3081,6 +3081,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
+     <addaction name="actionOpenCV"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3316,6 +3317,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionAdvanced">
    <property name="text">
     <string>Advanced</string>
+   </property>
+  </action>
+  <action name="actionOpenCV">
+   <property name="text">
+    <string>OpenCV Camera</string>
    </property>
   </action>
  </widget>
@@ -4408,10 +4414,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TimeTransformationStrideSpinBox</sender>
+   <sender>TimeStrideSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>update_time_transformation_stride()</slot>
+   <slot>update_time_stride()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5159,6 +5165,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionOpenCV</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_opencv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
@@ -5183,6 +5205,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
+  <slot>camera_opencv()</slot>
   <slot>change_window(int)</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
@@ -5211,7 +5234,7 @@ p, li { white-space: pre-wrap; }
   <slot>write_compute_settings()</slot>
   <slot>browse_export_ini()</slot>
   <slot>update_batch_size()</slot>
-  <slot>update_time_transformation_stride()</slot>
+  <slot>update_time_stride()</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
   <slot>activeSignalZone()</slot>

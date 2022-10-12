@@ -11,11 +11,8 @@
 
 #include <cmath>
 
-namespace holovibes
+namespace holovibes::units
 {
-namespace units
-{
-
 /*! \class Rect
  *
  * \brief A rectangle in some specific unit
@@ -219,5 +216,4 @@ std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
     return o << '[' << r.src() << ", " << r.dst() << ']';
 }
 
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

@@ -1,5 +1,7 @@
 #include "logger.hh"
 
+namespace holovibes
+{
 std::shared_ptr<spdlog::logger> Logger::frame_read_worker_ = nullptr;
 std::shared_ptr<spdlog::logger> Logger::compute_worker_ = nullptr;
 std::shared_ptr<spdlog::logger> Logger::record_worker_ = nullptr;
@@ -87,7 +89,7 @@ void Logger::init_sinks()
     file_sink->set_pattern(LOGGER_PATTERN);
 
     static auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    console_sink->set_level(spdlog::level::info);
+    console_sink->set_level(spdlog::level::trace);
     console_sink->set_pattern(LOGGER_PATTERN);
 
     sinks_.push_back(file_sink);
@@ -104,3 +106,5 @@ std::shared_ptr<spdlog::logger> Logger::init_logger(std::string name, spdlog::le
     logger->set_level(level);
     return logger;
 }
+
+} // namespace holovibes

@@ -37,14 +37,14 @@
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
-#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(Logger::log(), __VA_ARGS__)
-#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(Logger::log(), __VA_ARGS__)
-#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(Logger::log(), __VA_ARGS__)
-#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(Logger::log(), __VA_ARGS__)
-#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(Logger::log(), __VA_ARGS__)
-#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(Logger::log(), __VA_ARGS__)
+#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::log(), __VA_ARGS__)
 
-static constexpr inline const char* const get_file_name(const char* path)
+constexpr const char* const get_file_name(const char* path)
 {
     const char* file = path;
     while (*path)
@@ -85,11 +85,12 @@ static constexpr inline const char* const get_file_name(const char* path)
         abort();                                                                                                       \
     }
 
+namespace holovibes
+{
+
 class Logger
 {
   public:
-    static void init_logger();
-
     static std::shared_ptr<spdlog::logger> frame_read_worker();
     static std::shared_ptr<spdlog::logger> compute_worker();
     static std::shared_ptr<spdlog::logger> record_worker();
@@ -113,3 +114,5 @@ class Logger
 
     static std::vector<spdlog::sink_ptr> sinks_;
 };
+
+} // namespace holovibes

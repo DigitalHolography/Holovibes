@@ -8,9 +8,7 @@
 #include "Overlay.hh"
 #include "zoom_overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class CrossOverlay
  *
@@ -66,5 +64,4 @@ class CrossOverlay : public Overlay
     /*! \brief Horizontal area. zone_ corresponds to the vertical area */
     units::RectFd horizontal_zone_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

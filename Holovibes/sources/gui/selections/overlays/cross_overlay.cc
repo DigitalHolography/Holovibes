@@ -7,9 +7,7 @@
 #include "holovibes.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
     : Overlay(KindOfOverlay::Cross, parent)
@@ -17,6 +15,8 @@ CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
     , elemLineIndex_(0)
     , locked_(true)
 {
+    LOG_FUNC(main);
+
     color_ = {1.f, 0.f, 0.f};
     alpha_ = 0.05f;
     display_ = true;
@@ -274,5 +274,4 @@ void CrossOverlay::setBuffer()
 
     Program_->release();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

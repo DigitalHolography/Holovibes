@@ -6,9 +6,7 @@
 
 #include <cublas_v2.h>
 
-namespace holovibes
-{
-namespace cuda_tools
+namespace holovibes::cuda_tools
 {
 /*! \class CublasHandle
  *
@@ -26,5 +24,4 @@ class CublasHandle
     static bool initialized_;
     static cublasHandle_t handle_;
 };
-} // namespace cuda_tools
-} // namespace holovibes
+} // namespace holovibes::cuda_tools

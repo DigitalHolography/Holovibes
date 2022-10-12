@@ -2,6 +2,7 @@ project (BitflowCyton CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     bitflow_cyton.cc
+    ../Camera/camera_logger.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
@@ -10,6 +11,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
+    "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
 )
 
 # find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})

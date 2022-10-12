@@ -1,9 +1,7 @@
 #include "gui_group_box.hh"
 #include "logger.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 GroupBox::GroupBox(QWidget* parent)
     : QGroupBox(parent)
@@ -19,5 +17,4 @@ void GroupBox::ShowOrHide()
     else
         show();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

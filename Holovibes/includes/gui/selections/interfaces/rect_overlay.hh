@@ -6,9 +6,7 @@
 
 #include "Overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class RectOverlay
  *
@@ -30,5 +28,4 @@ class RectOverlay : public Overlay
   protected:
     void setBuffer() override;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

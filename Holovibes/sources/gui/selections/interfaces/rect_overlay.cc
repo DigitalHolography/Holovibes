@@ -1,13 +1,12 @@
 #include "rect_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : Overlay(overlay, parent)
 {
+    LOG_FUNC(main);
 }
 
 void RectOverlay::init()
@@ -149,5 +148,4 @@ void RectOverlay::checkCorners()
         zone_.dstRef().y().set(parent_fd.height);
     }
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

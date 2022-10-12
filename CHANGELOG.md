@@ -1,5 +1,10 @@
 ## Changelog
 
+### 11.0.1
+
+* Add OpenCV compatibility
+* Fix rotation function
+* Fix rawbitshift
 ### 11.0.0
 
 * Changed logger to spdlog (1.10.0 header_only)

@@ -46,6 +46,45 @@ void cudaXMalloc(T** devPtr, size_t size);
 template <typename T>
 void cudaXMallocHost(T** devPtr, size_t size);
 
+/*! \brief Wrapper around cudaMallocManaged to handle errors
+ *
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ *
+ */
+template <typename T>
+void cudaXMallocManaged(T** devPtr, size_t size);
+
+/*! \brief Wrapper around cudaMalloc for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ *
+ */
+template <typename T>
+cudaError_t cudaXRMalloc(T** devPtr, size_t size);
+
+/*! \brief Wrapper around cudaMallocHost for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ *
+ */
+template <typename T>
+cudaError_t cudaXRMallocHost(T** devPtr, size_t size);
+
+/*! \brief Wrapper around cudaMallocManaged for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ *
+ */
+template <typename T>
+cudaError_t cudaXRMallocManaged(T** devPtr, size_t size);
+
 /*! \brief Wrapper around cudaMemcpy to handle errors
  *
  * This function uses the error handling from common.cuh (cudaSafeCall)

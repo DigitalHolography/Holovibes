@@ -2,9 +2,7 @@
 #include "signal_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
     : RectOverlay(KindOfOverlay::Signal, parent)
@@ -17,5 +15,4 @@ void SignalOverlay::release(ushort frameSide)
     if (parent_->getKindOfView() == KindOfView::Hologram)
         api::set_signal_zone(zone_);
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

@@ -61,6 +61,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
     camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
     new_fd.depth = 8;
+    // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
     time_transformation_env_.gpu_time_transformation_queue.reset(
         new Queue(new_fd, compute_cache_.get_time_transformation_size()));
 
@@ -398,9 +399,9 @@ void ICompute::request_update_batch_size()
     request_refresh();
 }
 
-void ICompute::request_update_time_transformation_stride()
+void ICompute::request_update_time_stride()
 {
-    request_update_time_transformation_stride_ = true;
+    request_update_time_stride_ = true;
     request_refresh();
 }
 

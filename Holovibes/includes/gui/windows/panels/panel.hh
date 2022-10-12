@@ -14,7 +14,7 @@ using json = ::nlohmann::json;
 namespace Ui
 {
 class MainWindow;
-}
+} // namespace Ui
 
 namespace holovibes::gui
 {

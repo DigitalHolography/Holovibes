@@ -43,7 +43,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool
-    { return batch_env_.batch_index == compute_cache_.get_time_transformation_stride(); };
+    { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
     fn_end_vect_ = FunctionVector(batch_condition);
@@ -239,12 +239,12 @@ bool Pipe::make_requests()
         update_time_transformation_size_requested_ = false;
     }
 
-    if (request_update_time_transformation_stride_)
+    if (request_update_time_stride_)
     {
-        LOG_DEBUG(compute_worker, "request_update_time_transformation_stride");
+        LOG_DEBUG(compute_worker, "request_update_time_stride");
 
         batch_env_.batch_index = 0;
-        request_update_time_transformation_stride_ = false;
+        request_update_time_stride_ = false;
     }
 
     if (request_update_batch_size_)
@@ -426,7 +426,7 @@ void Pipe::refresh()
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
-    // time_transformation_stride)
+    // time_stride)
     insert_transfer_for_time_transformation();
 
     update_batch_index();
@@ -516,7 +516,7 @@ void Pipe::update_batch_index()
         [&]()
         {
             batch_env_.batch_index += compute_cache_.get_batch_size();
-            CHECK(batch_env_.batch_index <= compute_cache_.get_time_transformation_stride(),
+            CHECK(batch_env_.batch_index <= compute_cache_.get_time_stride(),
                   "batch_index = {}",
                   batch_env_.batch_index);
         });

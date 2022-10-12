@@ -1,9 +1,7 @@
 #include "square_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 SquareOverlay::SquareOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : RectOverlay(overlay, parent)
@@ -50,5 +48,4 @@ void SquareOverlay::move(QMouseEvent* e)
         display_ = true;
     }
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

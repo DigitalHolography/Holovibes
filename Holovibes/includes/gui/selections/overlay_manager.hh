@@ -8,9 +8,7 @@
 
 #include "Overlay.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 /*! \class OverlayManager
  *
@@ -81,5 +79,4 @@ class OverlayManager
      */
     BasicOpenGLWindow* parent_;
 };
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

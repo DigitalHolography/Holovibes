@@ -11,13 +11,13 @@
 #include "tools.hh"
 #include "API.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
     : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D)
 {
+    LOG_FUNC(main);
+
     setMinimumSize(s);
     show();
 }
@@ -180,5 +180,4 @@ void Filter2DWindow::focusInEvent(QFocusEvent* e)
     QWindow::focusInEvent(e);
     api::change_window(static_cast<int>(WindowKind::Filter2D));
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui

@@ -6,9 +6,7 @@
 
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 class SliceWindow;
 
@@ -51,5 +49,4 @@ class RawWindow : public BasicOpenGLWindow
     void keyPressEvent(QKeyEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
 };
-} // namespace gui
 } // namespace holovibes

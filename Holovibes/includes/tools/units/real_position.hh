@@ -6,9 +6,7 @@
 
 #include "unit.hh"
 
-namespace holovibes
-{
-namespace units
+namespace holovibes::units
 {
 class FDPixel;
 
@@ -21,5 +19,4 @@ class RealPosition : public Unit<double>
   public:
     RealPosition(ConversionData data, Axis axis, double val = 0);
 };
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

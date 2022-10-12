@@ -2,13 +2,13 @@
 #include "reticle_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
-namespace holovibes
-{
-namespace gui
+namespace holovibes::gui
 {
 ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
     : Overlay(Reticle, parent)
 {
+    LOG_FUNC(main);
+
     display_ = true;
     alpha_ = 1.0f;
 }
@@ -125,5 +125,4 @@ void ReticleOverlay::setBuffer()
     Vao_.release();
     Program_->release();
 }
-} // namespace gui
-} // namespace holovibes
+} // namespace holovibes::gui
