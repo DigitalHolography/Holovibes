@@ -52,15 +52,11 @@ inline size_t cudaGetAllocatedSize(T* devPtr)
 
 inline void cudaXFree(void* devPtr)
 {
-    size_t size = cudaGetAllocatedSize(devPtr);
-    LOG_TRACE(cuda, "Free {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
     cudaSafeCall(cudaFree(devPtr));
 }
 
 inline void cudaXFreeHost(void* devPtr)
 {
-    size_t size = cudaGetAllocatedSize(devPtr);
-    LOG_TRACE(cuda, "Free {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
     cudaSafeCall(cudaFreeHost(devPtr));
 }
 
