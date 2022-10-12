@@ -11,7 +11,7 @@
 
 #include "fast_updates_holder.hh"
 #include "caches.hh"
-#include "parameters_handler.hh"
+#include "micro_cache_tmp.hh"
 #include "entities.hh"
 #include "view_struct.hh"
 #include "rendering_struct.hh"
@@ -20,6 +20,9 @@
 #include "advanced_struct.hh"
 #include "gsh_parameters_handler.hh"
 #include "cache_gsh.hh"
+
+#include "compute.hh"
+#include "advanced.hh"
 
 namespace holovibes
 {
@@ -66,20 +69,24 @@ class GSH
     static GSH& instance();
 
   public:
-    const CacheGSH& get_params() const { return params_; }
-    CacheGSH& get_params() { return params_; }
-
     template <typename T>
     typename T::ValueType get_value()
     {
-        return get_params().get_value<T>();
+        if constexpr (AdvancedCacheTmp::has<T>())
+            return advanced_cache_tmp_.get_value<T>();
+        if constexpr (ComputeCacheTmp::has<T>())
+            return compute_cache_tmp_.get_value<T>();
     }
 
     template <typename T>
     void set_value(typename T::ValueConstRef value)
     {
-        get_params().set_value<T>(value);
+        advanced_cache_tmp_.set_value_safe<T>(value);
+        compute_cache_tmp_.set_value_safe<T>(value);
     }
+
+    AdvancedCacheTmp::Ref& get_advanced_cache_tmp() { return advanced_cache_tmp_; }
+    ComputeCacheTmp::Ref& get_compute_cache_tmp() { return compute_cache_tmp_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -619,7 +626,8 @@ class GSH
 
     mutable std::mutex mutex_;
 
-    CacheGSH params_;
+    AdvancedCacheTmp::Ref advanced_cache_tmp_;
+    ComputeCacheTmp::Ref compute_cache_tmp_;
 };
 
 } // namespace holovibes

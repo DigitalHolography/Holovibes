@@ -26,7 +26,7 @@ const float Holovibes::get_boundary()
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
         const float d = GSH::instance().get_pixel_size() * 0.000001f;
         const float n = static_cast<float>(fd.height);
-        return (n * d * d) / GSH::instance().get_params().get_value<Lambda>();
+        return (n * d * d) / GSH::instance().get_value<Lambda>();
     }
     return 0.f;
 }
@@ -125,7 +125,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
-    if (GSH::instance().get_params().get_value<BatchSize>() > GSH::instance().get_record_buffer_size())
+    if (GSH::instance().get_value<BatchSize>() > GSH::instance().get_record_buffer_size())
     {
         LOG_ERROR(main, "[RECORDER] Batch size must be lower than record queue size");
         return;

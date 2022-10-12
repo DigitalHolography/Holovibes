@@ -21,12 +21,13 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const camera::FrameDescriptor& input_fd,
                      const camera::FrameDescriptor& output_fd,
                      const cudaStream_t& stream,
+                     AdvancedCache::Cache& advanced_cache,
+                     AdvancedCacheTmp::Cache& advanced_cache_tmp,
                      ComputeCache::Cache& compute_cache,
+                     ComputeCacheTmp::Cache& compute_cache_tmp,
                      ExportCache::Cache& export_cache,
                      ViewCache::Cache& view_cache,
-                     AdvancedCache::Cache& advanced_cache,
-                     ZoneCache::Cache& zone_cache,
-                     CacheICompute&)
+                     ZoneCache::Cache& zone_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -35,10 +36,12 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , input_fd_(input_fd)
     , fd_(output_fd)
     , stream_(stream)
+    , advanced_cache_(advanced_cache)
+    , advanced_cache_tmp_(advanced_cache_tmp)
     , compute_cache_(compute_cache)
+    , compute_cache_tmp_(compute_cache_tmp)
     , export_cache_(export_cache)
     , view_cache_(view_cache)
-    , advanced_cache_(advanced_cache)
     , zone_cache_(zone_cache)
 //    , cache_(cache)
 {

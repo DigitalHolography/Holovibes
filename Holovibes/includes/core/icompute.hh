@@ -18,7 +18,9 @@
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
-#include "cache_icompute.hh"
+
+#include "compute.hh"
+#include "advanced.hh"
 
 namespace holovibes
 {
@@ -187,7 +189,7 @@ class ICompute
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
-    virtual ~ICompute() { GSH::instance().get_params().remove_cache_to_synchronize(cache_); }
+    virtual ~ICompute();
 
   public:
     BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
@@ -199,13 +201,34 @@ class ICompute
     ChartEnv& get_chart_env() { return chart_env_; }
     ImageAccEnv& get_image_acc_env() { return image_acc_env_; }
     AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
+    AdvancedCacheTmp::Cache& get_advanced_cache_tmp() { return advanced_cache_tmp_; }
     ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
+    ComputeCacheTmp::Cache& get_compute_cache_tmp() { return compute_cache_tmp_; }
     ExportCache::Cache& get_export_cache() { return export_cache_; }
     CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
-    CacheICompute& get_params() { return cache_; }
+
+    template <typename T>
+    typename T::ValueType get_value()
+    {
+        if constexpr (AdvancedCacheTmp::has<T>())
+            return advanced_cache_tmp_.get_value<T>();
+        if constexpr (ComputeCacheTmp::has<T>())
+            return compute_cache_tmp_.get_value<T>();
+    }
+
+    template <typename T>
+    void set_value(typename T::ValueConstRef value)
+    {
+        advanced_cache_tmp_.set_value_safe<T>(value);
+        compute_cache_tmp_.set_value_safe<T>(value);
+    }
+
+  public:
+    void add_cache_to_synchronize();
+    void remove_cache_to_synchronize();
 
   public:
     void request_refresh();
@@ -378,13 +401,13 @@ class ICompute
     std::atomic<bool> disable_convolution_requested_{false};
 
     AdvancedCache::Cache advanced_cache_;
+    AdvancedCacheTmp::Cache advanced_cache_tmp_;
     ComputeCache::Cache compute_cache_;
+    ComputeCacheTmp::Cache compute_cache_tmp_;
     ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
-
-    CacheICompute cache_;
 };
 } // namespace holovibes

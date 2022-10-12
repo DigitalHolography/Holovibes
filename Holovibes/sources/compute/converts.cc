@@ -23,10 +23,10 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const camera::FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
                    ComputeCache::Cache& compute_cache,
+                   ComputeCacheTmp::Cache& compute_cache_tmp,
                    CompositeCache::Cache& composite_cache,
                    ViewCache::Cache& view_cache,
-                   ZoneCache::Cache& zone_cache,
-                   CacheICompute&)
+                   ZoneCache::Cache& zone_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -36,10 +36,10 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , compute_cache_tmp_(compute_cache_tmp)
     , composite_cache_(composite_cache)
     , view_cache_(view_cache)
     , zone_cache_(zone_cache)
-// , cache_(cache)
 {
 }
 

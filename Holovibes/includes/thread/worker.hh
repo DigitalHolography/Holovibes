@@ -25,18 +25,6 @@ class Worker
     /*! \brief Core method of the worker, main method of its execution */
     virtual void run() = 0;
 
-    void safe_run()
-    {
-        try
-        {
-            run();
-        }
-        catch (...)
-        {
-            LOG_ERROR(main, "EXECPTION on Worker");
-        }
-    }
-
   protected:
     /*! \brief Whether the worker should stop its execution */
     std::atomic<bool> stop_requested_{false};

@@ -20,8 +20,8 @@ void ChartRecordWorker::run()
 
     // Header displaying
     of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << GSH::instance().get_p_index()
-       << ", lambda : " << GSH::instance().get_params().get_value<Lambda>()
-       << ", z : " << GSH::instance().get_z_distance() << "]" << std::endl;
+       << ", lambda : " << GSH::instance().get_value<Lambda>() << ", z : " << GSH::instance().get_z_distance() << "]"
+       << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "

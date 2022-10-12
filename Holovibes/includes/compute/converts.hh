@@ -14,7 +14,7 @@
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
-#include "cache_icompute.hh"
+#include "compute.hh"
 
 namespace holovibes
 {
@@ -42,10 +42,10 @@ class Converts
              const camera::FrameDescriptor& input_fd,
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
+             ComputeCacheTmp::Cache& compute_cache_tmp,
              CompositeCache::Cache& composite_cache,
              ViewCache::Cache& view_cache,
-             ZoneCache::Cache& zone_cache,
-             CacheICompute& cache);
+             ZoneCache::Cache& zone_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested);
@@ -109,11 +109,12 @@ class Converts
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
+    [[maybe_unused]] ComputeCacheTmp::Cache& compute_cache_tmp_;
+
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     CompositeCache::Cache& composite_cache_;
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
     ZoneCache::Cache& zone_cache_;
-    // FIXME CacheICompute& cache_;
 };
 } // namespace holovibes::compute

@@ -60,7 +60,14 @@ class CustomParameter : public IParameter
   public:
     virtual void sync_with(IParameter* ref) override
     {
-        const ValueType& new_value = reinterpret_cast<CustomParameter*>(ref)->get_value();
+        CustomParameter* ref_cast = dynamic_cast<CustomParameter*>(ref);
+        if (ref_cast == nullptr)
+        {
+            LOG_ERROR(main, "Not supposed to end here : Not the good type casted when syncing");
+            return;
+        }
+
+        const ValueType& new_value = ref_cast->get_value();
         if (value_ != new_value)
         {
             value_ = new_value;

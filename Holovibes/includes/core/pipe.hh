@@ -168,5 +168,6 @@ class Pipe : public ICompute
 
     /*! \brief Updates all attribute caches with the reference held by GSH */
     void synchronize_caches();
+    bool caches_has_change_requested();
 };
 } // namespace holovibes

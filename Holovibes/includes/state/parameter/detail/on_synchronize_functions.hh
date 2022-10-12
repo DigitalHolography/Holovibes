@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parameters_handler.hh"
+#include "micro_cache_tmp.hh"
 #include "logger.hh"
 
 namespace holovibes
@@ -10,13 +10,13 @@ class OnSynchronizeFunctions
 {
   public:
     template <typename T>
-    void call(T& value)
+    void operator()(T& value)
     {
         value.set_has_been_synchronized(false);
     }
 
-    template <typename ParametersHandler>
-    void call_handler(ParametersHandler& params)
+    template <typename MicroCacheTmp>
+    void call_handler(MicroCacheTmp& params)
     {
         params.synchronize();
     }

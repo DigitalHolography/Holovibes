@@ -30,7 +30,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
-    GSH::instance().get_params().add_cache_to_synchronize(cache_);
+    add_cache_to_synchronize();
 
     int err = 0;
 
@@ -48,10 +48,10 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
                                             CUDA_C_32F,         // Input type
                                             n,
                                             1,
-                                            fd.get_frame_res(),            // Ouput layout same as input
-                                            CUDA_C_32F,                    // Output type
-                                            cache_.get_value<BatchSize>(), // Batch size
-                                            CUDA_C_32F);                   // Computation type
+                                            fd.get_frame_res(),                        // Ouput layout same as input
+                                            CUDA_C_32F,                                // Output type
+                                            compute_cache_tmp_.get_value<BatchSize>(), // Batch size
+                                            CUDA_C_32F);                               // Computation type
 
     int inembed[1];
     int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
@@ -68,8 +68,9 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         new Queue(new_fd, compute_cache_.get_time_transformation_size()));
 
     // Static cast size_t to avoid overflow
-    if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(cache_.get_value<BatchSize>()) *
-                                                           gpu_input_queue_.get_fd().get_frame_res()))
+    if (!buffers_.gpu_spatial_transformation_buffer.resize(
+            static_cast<const size_t>(compute_cache_tmp_.get_value<BatchSize>()) *
+            gpu_input_queue_.get_fd().get_frame_res()))
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
@@ -103,6 +104,20 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
+}
+
+ICompute::~ICompute() { remove_cache_to_synchronize(); }
+
+void ICompute::add_cache_to_synchronize()
+{
+    GSH::instance().get_advanced_cache_tmp().add_cache_to_synchronize(advanced_cache_tmp_);
+    GSH::instance().get_compute_cache_tmp().add_cache_to_synchronize(compute_cache_tmp_);
+}
+
+void ICompute::remove_cache_to_synchronize()
+{
+    GSH::instance().get_advanced_cache_tmp().remove_cache_to_synchronize(advanced_cache_tmp_);
+    GSH::instance().get_compute_cache_tmp().remove_cache_to_synchronize(compute_cache_tmp_);
 }
 
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
@@ -180,7 +195,7 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(cache_.get_value<BatchSize>() *
+    buffers_.gpu_spatial_transformation_buffer.resize(compute_cache_tmp_.get_value<BatchSize>() *
                                                       gpu_input_queue_fd.get_frame_res());
 
     long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
@@ -195,10 +210,10 @@ void ICompute::update_spatial_transformation_parameters()
         CUDA_C_32F,                         // Input type
         n,
         1,
-        gpu_input_queue_fd.get_frame_res(), // Ouput layout same as input
-        CUDA_C_32F,                         // Output type
-        cache_.get_value<BatchSize>(),      // Batch size
-        CUDA_C_32F);                        // Computation type
+        gpu_input_queue_fd.get_frame_res(),        // Ouput layout same as input
+        CUDA_C_32F,                                // Output type
+        compute_cache_tmp_.get_value<BatchSize>(), // Batch size
+        CUDA_C_32F);                               // Computation type
 }
 
 void ICompute::init_cuts()

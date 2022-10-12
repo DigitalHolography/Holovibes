@@ -33,9 +33,9 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
                                    ComputeCache::Cache& compute_cache,
+                                   ComputeCacheTmp::Cache& compute_cache_tmp,
                                    ViewCache::Cache& view_cache,
-                                   Filter2DCache::Cache& filter2d_cache,
-                                   CacheICompute& cache)
+                                   Filter2DCache::Cache& filter2d_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -46,9 +46,9 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
     , compute_cache_(compute_cache)
+    , compute_cache_tmp_(compute_cache_tmp)
     , view_cache_(view_cache)
     , filter2d_cache_(filter2d_cache)
-    , cache_(cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -92,7 +92,7 @@ void FourierTransform::insert_filter2d()
         {
             filter2D(buffers_.gpu_spatial_transformation_buffer,
                      buffers_.gpu_filter2d_mask,
-                     cache_.get_value<BatchSize>(),
+                     compute_cache_tmp_.get_value<BatchSize>(),
                      spatial_transformation_plan_,
                      fd_.width * fd_.height,
                      stream_);
@@ -101,7 +101,7 @@ void FourierTransform::insert_filter2d()
 
 void FourierTransform::insert_fft1()
 {
-    LOG_FUNC(compute_worker, cache_.get_value<Lambda>());
+    LOG_FUNC(compute_worker, compute_cache_tmp_.get_value<Lambda>());
 
     const float z = compute_cache_.get_z_distance();
 
@@ -109,7 +109,7 @@ void FourierTransform::insert_fft1()
               lens_side_size_,
               fd_.height,
               fd_.width,
-              cache_.get_value<Lambda>(),
+              compute_cache_tmp_.get_value<Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);
@@ -121,7 +121,7 @@ void FourierTransform::insert_fft1()
         {
             fft_1(static_cast<cuComplex*>(input_output),
                   static_cast<cuComplex*>(input_output),
-                  cache_.get_value<BatchSize>(),
+                  compute_cache_tmp_.get_value<BatchSize>(),
                   gpu_lens_.get(),
                   spatial_transformation_plan_,
                   fd_.get_frame_res(),
@@ -131,7 +131,7 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-    LOG_FUNC(compute_worker, cache_.get_value<Lambda>());
+    LOG_FUNC(compute_worker, compute_cache_tmp_.get_value<Lambda>());
 
     const float z = compute_cache_.get_z_distance();
 
@@ -139,7 +139,7 @@ void FourierTransform::insert_fft2()
               lens_side_size_,
               fd_.height,
               fd_.width,
-              cache_.get_value<Lambda>(),
+              compute_cache_tmp_.get_value<Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);
@@ -156,7 +156,7 @@ void FourierTransform::insert_fft2()
         {
             fft_2(static_cast<cuComplex*>(input_output),
                   static_cast<cuComplex*>(input_output),
-                  cache_.get_value<BatchSize>(),
+                  compute_cache_tmp_.get_value<BatchSize>(),
                   gpu_lens_.get(),
                   spatial_transformation_plan_,
                   fd_,

@@ -19,7 +19,16 @@ class StaticContainer<>
     StaticContainer(MapKeyParams&) {}
 
   public:
-    void force_sync_with();
+    template <typename StaticContainerRef>
+    void sync_with(StaticContainerRef& ref)
+    {
+    }
+
+    template <typename K>
+    static constexpr bool has()
+    {
+        return false;
+    }
 
     template <typename FunctionClass, typename... Args>
     void call(FunctionClass functions_class, Args&&... args)
@@ -54,12 +63,20 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
     }
 
   public:
+    template <typename K>
+    static constexpr bool has()
+    {
+        if (std::is_same_v<T, K> == true)
+            return true;
+        return StaticContainer<R...>::template has<K>();
+    }
+
+  public:
     template <typename StaticContainerRef>
-    void force_sync_with(StaticContainerRef& ref)
+    void sync_with(StaticContainerRef& ref)
     {
         value_.sync_with(&ref.template get<T>());
-        if constexpr (sizeof...(R) > 0)
-            StaticContainer<R...>::force_sync_with(ref);
+        StaticContainer<R...>::sync_with(ref);
     }
 
     template <typename FunctionClass, typename... Args>
@@ -73,7 +90,7 @@ class StaticContainer<T, R...> : public StaticContainer<R...>
         };
         if constexpr (has_member_test) if (!functions_class.template test<T>(value_)) return;
 
-        functions_class.template call<T>(value_, std::forward<Args>(args)...);
+        functions_class.template operator()<T>(value_, std::forward<Args>(args)...);
     }
 
   public:

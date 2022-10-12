@@ -18,10 +18,11 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const camera::FrameDescriptor& input_fd,
                                const cudaStream_t& stream,
-                               ComputeCache::Cache& compute_cache,
-                               ViewCache::Cache& view_cache,
                                AdvancedCache::Cache& advanced_cache,
-                               CacheICompute& cache)
+                               AdvancedCacheTmp::Cache& advanced_cache_tmp,
+                               ComputeCache::Cache& compute_cache,
+                               ComputeCacheTmp::Cache& compute_cache_tmp,
+                               ViewCache::Cache& view_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -31,10 +32,11 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
     , stream_(stream)
-    , compute_cache_(compute_cache)
-    , view_cache_(view_cache)
     , advanced_cache_(advanced_cache)
-    , cache_(cache)
+    , advanced_cache_tmp_(advanced_cache_tmp)
+    , compute_cache_(compute_cache)
+    , compute_cache_tmp_(compute_cache_tmp)
+    , view_cache_(view_cache)
 {
 }
 
@@ -99,7 +101,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_tmp_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -109,7 +111,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_tmp_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -119,7 +121,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_tmp_.get_value<DivideConvolutionEnable>(),
                        true,
                        stream_);
 
@@ -147,7 +149,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   cache_.get_value<DivideConvolutionEnable>(),
+                                   compute_cache_tmp_.get_value<DivideConvolutionEnable>(),
                                    true,
                                    stream_);
             });

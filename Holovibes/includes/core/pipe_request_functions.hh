@@ -2,7 +2,7 @@
 
 #include "pipe.hh"
 #include "logger.hh"
-#include "parameters_handler.hh"
+#include "micro_cache_tmp.hh"
 #include "on_synchronize_functions.hh"
 
 namespace holovibes
@@ -20,12 +20,12 @@ class PipeRequestFunctions
     }
 
     template <typename T>
-    void call(const T&, Pipe& pipe)
+    void operator()(const T&, Pipe& pipe)
     {
     }
 
     template <>
-    void call<BatchSize>(const BatchSize& batch_size, Pipe& pipe)
+    void operator()<BatchSize>(const BatchSize& batch_size, Pipe& pipe)
     {
         LOG_DEBUG(compute_worker, "UPDATE BATCH");
 
