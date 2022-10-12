@@ -71,8 +71,7 @@ void Overlay::keyPress(QKeyEvent*) {}
 
 void Overlay::initProgram()
 {
-    bool tmp = true;
-    LOG_FUNC(main, tmp);
+    LOG_FUNC(main);
     parent_->makeCurrent();
     initializeOpenGLFunctions();
     Program_ = std::make_unique<QOpenGLShaderProgram>();
