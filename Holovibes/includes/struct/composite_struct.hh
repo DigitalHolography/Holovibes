@@ -87,6 +87,7 @@ struct Composite
     CompositeRGB rgb;
     CompositeHSV hsv;
 
+    void Load();
     void Update();
 
     SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)

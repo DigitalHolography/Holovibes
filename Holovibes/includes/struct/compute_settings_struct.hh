@@ -16,6 +16,7 @@ struct ComputeSettings
     AdvancedSettings advanced;
 
     void Update();
+    void Load();
 
     SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
 };

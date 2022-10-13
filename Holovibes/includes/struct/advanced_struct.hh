@@ -15,6 +15,7 @@ struct AdvancedSettings
         unsigned output = 256;
         unsigned time_transformation_cuts = 512;
 
+        void Load();
         void Update();
 
         SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
@@ -25,6 +26,7 @@ struct AdvancedSettings
         int low = 0;
         int high = 0;
 
+        void Load();
         void Update();
 
         SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
@@ -36,6 +38,7 @@ struct AdvancedSettings
         float upper = 99.5f;
         unsigned cuts_p_offset = 2;
 
+        void Load();
         void Update();
 
         SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
@@ -47,6 +50,7 @@ struct AdvancedSettings
     unsigned renorm_constant = 5;
 
     void Update();
+    void Load();
 
     SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant)
 };

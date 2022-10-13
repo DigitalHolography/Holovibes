@@ -7,7 +7,7 @@ namespace holovibes
 void Windows::Update()
 {
     this->xy = GSH::instance().get_xy();
-    this->xy = GSH::instance().get_xy();
+    this->yz = GSH::instance().get_yz();
     this->xz = GSH::instance().get_xz();
     this->filter2d = GSH::instance().get_filter2d();
 }
@@ -103,6 +103,107 @@ void ComputeSettings::Update()
     this->view.Update();
     this->composite.Update();
     this->advanced.Update();
+}
+
+void AdvancedSettings::BufferSizes::Load()
+{
+    GSH::instance().set_file_buffer_size(this->input);
+    GSH::instance().set_input_buffer_size(this->file);
+    GSH::instance().set_output_buffer_size(this->record);
+    GSH::instance().set_record_buffer_size(this->output);
+    GSH::instance().set_time_transformation_cuts_output_buffer_size(this->time_transformation_cuts);
+}
+
+void AdvancedSettings::Filter2DSmooth::Load()
+{
+    GSH::instance().set_filter2d_smooth_low(this->low);
+    GSH::instance().set_filter2d_smooth_high(this->high);
+}
+
+void AdvancedSettings::ContrastThreshold::Load()
+{
+    GSH::instance().set_contrast_lower_threshold(this->lower);
+    GSH::instance().set_contrast_upper_threshold(this->upper);
+    GSH::instance().set_cuts_contrast_p_offset(this->cuts_p_offset);
+}
+
+void AdvancedSettings::Load()
+{
+    this->buffer_size.Load();
+    this->filter2d_smooth.Load();
+    this->contrast.Load();
+    GSH::instance().set_renorm_constant(this->renorm_constant);
+}
+
+void Composite::Load()
+{
+    GSH::instance().set_composite_kind(this->mode);
+    GSH::instance().set_composite_auto_weights(this->composite_auto_weights);
+    GSH::instance().set_rgb(this->rgb);
+    GSH::instance().set_hsv(this->hsv);
+}
+
+void ComputeSettings::Load()
+{
+    this->image_rendering.Load();
+    this->view.Load();
+    this->composite.Load();
+    this->advanced.Load();
+}
+
+void Windows::Load()
+{
+    GSH::instance().set_xy(this->xy);
+    GSH::instance().set_yz(this->yz);
+    GSH::instance().set_xz(this->xz);
+    GSH::instance().set_filter2d(this->filter2d);
+}
+
+void Reticle::Load()
+{
+    GSH::instance().set_reticle_display_enabled(this->display_enabled);
+    GSH::instance().set_reticle_scale(this->reticle_scale);
+}
+
+void Views::Load()
+{
+    GSH::instance().set_img_type(this->img_type);
+    GSH::instance().set_fft_shift_enabled(this->fft_shift);
+    GSH::instance().set_x(this->x);
+    GSH::instance().set_y(this->y);
+    GSH::instance().set_p(this->p);
+    GSH::instance().set_q(this->q);
+    this->window.Update();
+    GSH::instance().set_renorm_enabled(this->renorm);
+    this->reticle.Update();
+}
+
+void Rendering::Convolution::Load()
+{
+    GSH::instance().set_convolution_enabled(this->enabled);
+    UserInterfaceDescriptor::instance().convo_name = this->type;
+    GSH::instance().set_divide_convolution_enabled(this->divide);
+}
+
+void Rendering::Filter2D::Load()
+{
+    GSH::instance().set_filter2d_enabled(this->enabled);
+    GSH::instance().set_filter2d_n1(this->n1);
+    GSH::instance().set_filter2d_n2(this->n2);
+}
+
+void Rendering::Load()
+{
+    GSH::instance().set_compute_mode(this->image_mode);
+    GSH::instance().set_batch_size(this->batch_size);
+    GSH::instance().set_time_stride(this->time_transformation_stride);
+    this->filter2d.Load();
+    GSH::instance().set_space_transformation(this->space_transformation);
+    GSH::instance().set_time_transformation(this->time_transformation);
+    GSH::instance().set_time_transformation_size(this->time_transformation_size);
+    GSH::instance().set_lambda(this->lambda);
+    GSH::instance().set_z_distance(this->z_distance);
+    this->convolution.Load();
 }
 
 } // namespace holovibes

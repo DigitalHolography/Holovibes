@@ -70,6 +70,7 @@ struct Windows
     SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
 
     void Update();
+    void Load();
 };
 
 struct Reticle
@@ -80,6 +81,7 @@ struct Reticle
     SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
 
     void Update();
+    void Load();
 };
 
 struct Views
@@ -97,6 +99,7 @@ struct Views
     SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, window, renorm, reticle);
 
     void Update();
+    void Load();
 };
 
 } // namespace holovibes
