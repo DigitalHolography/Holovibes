@@ -19,9 +19,9 @@ namespace holovibes::settings
 #define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path(getenv("AppData")) / __APPNAME__)
 #define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__ / __HOLOVIBES_VERSION__)
 
-// #define __CAMERAS_CONFIG_FOLDER_PATH__                                                                                 \
-//     std::filesystem::path("C:/Users/Karachayevsk/Desktop/Stagiaires-2022/david.chemaly/Holovibes/Camera/configs")
+#define __CAMERAS_CONFIG_FOLDER_PATH__                                                                                 \
+    std::filesystem::path("C:/Users/Karachayevsk/Desktop/Stagiaires-2022/david.chemaly/Holovibes/Camera/configs")
 
-#define __CAMERAS_CONFIG_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
+// #define __CAMERAS_CONFIG_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
 
 } // namespace holovibes::settings

@@ -3,7 +3,7 @@ include(CheckIncludeFile)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Idealy create a FindBitflow.cmake file
-set(BITFLOW_SDK "C:/BitFlow SDK 6.50/")
+set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
 # idem
 set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
 
