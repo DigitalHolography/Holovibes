@@ -198,8 +198,7 @@ void after_load_checks()
 
 void load_compute_settings(const std::string& json_path)
 {
-    LOG_TRACE(main, "Entering load_compute_settings()");
-    ::holovibes::debug_compute_settings();
+    LOG_FUNC(main, json_path);
     if (json_path.empty())
         return;
 
@@ -307,7 +306,7 @@ json compute_settings_to_json()
 
 void save_compute_settings(const std::string& json_path)
 {
-   LOG_FUNC(main, json_path);
+    LOG_FUNC(main, json_path);
 
     if (json_path.empty())
         return;

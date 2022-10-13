@@ -17,7 +17,6 @@ enum class CompositeKind
     RGB = 0, /*!< Composite in RGB */
     HSV      /*!< Composite in HSV */
 };
-} // namespace holovibes
 
 // clang-format off
 SERIALIZE_JSON_ENUM(CompositeKind, {

@@ -20,7 +20,6 @@ enum class SpaceTransformation
     FFT1,     /*!< Fresnel Transform */
     FFT2      /*!< Angular spectrum propagation */
 };
-} // namespace holovibes
 
 // clang-format off
 SERIALIZE_JSON_ENUM(SpaceTransformation, {

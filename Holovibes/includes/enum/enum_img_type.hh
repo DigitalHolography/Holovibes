@@ -21,7 +21,6 @@ enum class ImgType
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
     Composite       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
 };
-} // namespace holovibes
 
 // clang-format off
 SERIALIZE_JSON_ENUM(ImgType, {

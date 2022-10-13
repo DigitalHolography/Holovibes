@@ -284,5 +284,4 @@ inline void from_json(const json& j, units::RectFd& rect)
     );
 }
 // clang-format on
-} // namespace units
-} // namespace holovibes
+} // namespace holovibes::units

@@ -20,7 +20,6 @@ enum class TimeTransformation
     NONE,     /*!< No transformation */
     SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
 };
-} // namespace holovibes
 
 // clang-format off
 SERIALIZE_JSON_ENUM(TimeTransformation, {
