@@ -83,6 +83,7 @@ std::shared_ptr<spdlog::logger> Logger::main()
 
 void Logger::init_sinks()
 {
+    // FIXME - Look better way to extend path
     static auto file_sink =
         std::make_shared<spdlog::sinks::basic_file_sink_mt>(holovibes::settings::logs_dirpath + "/log", true);
     file_sink->set_level(spdlog::level::trace);

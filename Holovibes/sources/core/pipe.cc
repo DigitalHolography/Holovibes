@@ -145,7 +145,13 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG(compute_worker, "request_disable_lens_view");
 
+        
+
         fourier_transforms_->get_lens_queue().reset(nullptr);
+
+
+
+
         request_disable_lens_view_ = false;
     }
 

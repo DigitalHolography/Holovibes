@@ -529,6 +529,8 @@ class GSH
     }
     inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.min = value; }
     inline void set_composite_high_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.max = value; }
+    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref()->h.p.min = value; }
+    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref()->h.p.max = value; }
     inline void set_h_blur_kernel_size(uint value) { composite_cache_.get_hsv_ref()->h.blur.kernel_size = value; }
     inline void set_composite_p_min_s(uint value) { composite_cache_.get_hsv_ref()->s.p.min = value; }
     inline void set_composite_p_max_s(uint value) { composite_cache_.get_hsv_ref()->s.p.max = value; }

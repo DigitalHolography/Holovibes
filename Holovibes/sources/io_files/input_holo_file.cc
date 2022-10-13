@@ -1,13 +1,14 @@
 #include <filesystem>
 #include <iomanip>
+#include <fstream>
+
 #include "input_holo_file.hh"
 #include "file_exception.hh"
-
+#include "holovibes_config.hh"
 #include "logger.hh"
 #include "all_struct.hh"
 #include "API.hh"
 #include "global_state_holder.hh"
-
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
 
@@ -145,7 +146,12 @@ void import_holo_v4(const json& meta_data)
         api::json_to_compute_settings(meta_data["compute settings"]);
 }
 
-void import_holo_v5(const json& meta_data) { api::json_to_compute_settings_v5(meta_data); }
+void import_holo_v5(const json& meta_data)
+{
+    auto compute_settings = ComputeSettings();
+    from_json(meta_data["compute_settings"], compute_settings);
+    compute_settings.Load();
+}
 
 // This is done for retrocompatibility
 void import_holo_v2_v3(const json& meta_data)
@@ -190,17 +196,23 @@ void InputHoloFile::import_compute_settings()
     LOG_FUNC(main);
     if (holo_file_header_.version < 4)
     {
-        convert_holo_footer_to_v4(meta_data_);
-        import_holo_v5(meta_data_);
-        // import_holo_v4(meta_data_);
-        //  import_holo_v2_v3(meta_data_);
+        apply_json_patch(meta_data_, "patch_v2-3_to_v5.json");
+        meta_data_["compute_settings"]["image_rendering"]["space_transformation"] = static_cast<SpaceTransformation>(
+            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["space_transformation"]));
+        meta_data_["compute_settings"]["image_rendering"]["image_mode"] = static_cast<Computation>(
+            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["image_mode"]) - 1);
+        meta_data_["compute_settings"]["image_rendering"]["time_transformation"] = static_cast<TimeTransformation>(
+            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["time_transformation"]));
     }
     else if (holo_file_header_.version == 4)
-        import_holo_v4(meta_data_);
+    {
+        apply_json_patch(meta_data_, "patch_v4_to_v5.json");
+    }
     else
     {
         LOG_ERROR(main, "HOLO file version not supported!");
     }
+    import_holo_v5(meta_data_);
 }
 
 void InputHoloFile::import_info() const
@@ -269,6 +281,15 @@ void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
     meta_data.clear();
     to_json(meta_data, raw_footer_);
     std::cerr << std::setw(1) << meta_data;
+}
+
+void InputHoloFile::apply_json_patch(json& meta_data, const std::string& json_patch_path)
+{
+    auto path_path = std::filesystem::path(holovibes::settings::patch_dirpath) / json_patch_path;
+    auto file_content = std::ifstream(path_path, std::ifstream::in);
+    auto patch = nlohmann::json::parse(file_content);
+
+    meta_data = meta_data.patch(patch);
 }
 
 } // namespace holovibes::io_files
