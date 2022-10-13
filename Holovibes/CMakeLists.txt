@@ -62,12 +62,13 @@ set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
     includes/state/
-    includes/state/parameter
-    includes/state/parameter/detail
+    includes/state/caches
+    includes/state/caches/detail
     includes/API
 
     includes/compute/
     includes/core/
+    includes/core/pipe_request_functions
     includes/enum/
     includes/struct/
     includes/gui/other/

@@ -58,7 +58,8 @@ class GSH
     static GSH* instance_;
 
   private:
-    GSH() {}
+    GSH();
+    ~GSH();
 
   public:
     GSH(GSH& other) = delete;

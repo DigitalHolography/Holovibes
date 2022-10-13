@@ -30,8 +30,6 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
-    add_cache_to_synchronize();
-
     int err = 0;
 
     plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
@@ -106,19 +104,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
 
-ICompute::~ICompute() { remove_cache_to_synchronize(); }
-
-void ICompute::add_cache_to_synchronize()
-{
-    GSH::instance().get_advanced_cache().add_cache_to_synchronize(advanced_cache_);
-    GSH::instance().get_compute_cache().add_cache_to_synchronize(compute_cache_);
-}
-
-void ICompute::remove_cache_to_synchronize()
-{
-    GSH::instance().get_advanced_cache().remove_cache_to_synchronize(advanced_cache_);
-    GSH::instance().get_compute_cache().remove_cache_to_synchronize(compute_cache_);
-}
+ICompute::~ICompute() {}
 
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {

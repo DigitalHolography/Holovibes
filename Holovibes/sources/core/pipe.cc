@@ -22,7 +22,7 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-#include "pipe_request_functions.hh"
+#include "all_pipe_functions.hh"
 
 namespace holovibes
 {
@@ -128,9 +128,6 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 bool Pipe::make_requests()
 {
-    advanced_cache_.call<PipeRequestFunctions>(*this);
-    compute_cache_.call<PipeRequestFunctions>(*this);
-
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
 
@@ -735,8 +732,8 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    advanced_cache_.synchronize();
-    compute_cache_.synchronize();
+    advanced_cache_.call<AdvancedPipeRequest>(*this);
+    compute_cache_.call<ComputePipeRequest>(*this);
     export_cache_.synchronize();
     filter2d_cache_.synchronize();
     view_cache_.synchronize();

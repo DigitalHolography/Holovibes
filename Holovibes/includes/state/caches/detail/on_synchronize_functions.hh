@@ -16,7 +16,7 @@ class OnSynchronizeFunctions
     }
 
     template <typename MicroCacheTmp>
-    void call_handler(MicroCacheTmp& params)
+    void call_on_cache(MicroCacheTmp& params)
     {
         params.synchronize();
     }

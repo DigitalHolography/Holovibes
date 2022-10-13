@@ -11,6 +11,17 @@
 namespace holovibes
 {
 static inline const std::filesystem::path dir(get_exe_dir());
+GSH::GSH()
+{
+    AdvancedCache::Ref::set_ref(advanced_cache_);
+    ComputeCache::Ref::set_ref(compute_cache_);
+}
+
+GSH::~GSH()
+{
+    AdvancedCache::Ref::remove_ref(advanced_cache_);
+    ComputeCache::Ref::remove_ref(compute_cache_);
+}
 
 GSH& GSH::instance()
 {

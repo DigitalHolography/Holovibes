@@ -1,4 +1,6 @@
-#include "APIdetail.hh"
+#pragma once
+
+#include "API_detail.hh"
 
 namespace holovibes::api
 {

@@ -1,13 +1,15 @@
-#include "APIdetail.hh"
+#pragma once
+
+#include "API_detail.hh"
 
 namespace holovibes::api
 {
 
 inline int get_batch_size() { return api::detail::get_value<BatchSize>(); }
-inline void set_batch_size(int value) { api::detail::set_value<BatchSize>(value); }
+inline void set_batch_size(int value);
 
 inline int get_time_stride() { return api::detail::get_value<TimeStride>(); }
-inline void set_time_stride(int value) { api::detail::set_value<TimeTransformationSize>(value); }
+inline void set_time_stride(int value);
 
 inline bool get_divide_convolution_enabled() { return api::detail::get_value<DivideConvolutionEnable>(); }
 inline void set_divide_convolution_enabled(bool value) { api::detail::set_value<DivideConvolutionEnable>(value); }
@@ -67,3 +69,5 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 }
 
 } // namespace holovibes::api
+
+#include "compute_cache_API.hxx"

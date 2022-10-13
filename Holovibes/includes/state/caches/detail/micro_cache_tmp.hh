@@ -19,7 +19,6 @@ namespace holovibes
 template <typename... Params>
 class MicroCacheTmp
 {
-
   protected:
     class BasicMicroCache
     {
@@ -35,15 +34,6 @@ class MicroCacheTmp
         }
 
       public:
-        virtual void synchronize(){};
-
-        template <typename MicroCacheToSync>
-        void sync_with(MicroCacheToSync& ref)
-        {
-            container_.sync_with(ref.get_container());
-        }
-
-      public:
         template <typename FunctionClass, typename... Args>
         void call(Args&&... args)
         {
@@ -54,15 +44,18 @@ class MicroCacheTmp
 
             container_.call(functions_class, std::forward<Args>(args)...);
 
-            constexpr bool has_member_call_handler = requires(FunctionClass functions_class)
+            constexpr bool has_member_call_on_cache = requires(FunctionClass functions_class)
             {
-                functions_class.template call_handler(*this);
+                functions_class.template call_on_cache(*this);
             };
-            if constexpr (has_member_call_handler) functions_class.template call_handler(*this);
+            if constexpr (has_member_call_on_cache) functions_class.template call_on_cache(*this);
 
             if constexpr (requires { typename FunctionClass::AfterMethods; })
                 call<typename FunctionClass::AfterMethods>();
         }
+
+      public:
+        virtual void synchronize() {}
 
       public:
         const MapKeyParams& get_map_key() const { return key_container_; }
@@ -71,18 +64,6 @@ class MicroCacheTmp
         StaticContainer<Params...>& get_container() { return container_; }
 
       public:
-        template <typename T>
-        const T& get_type() const
-        {
-            return container_.template get<T>();
-        }
-
-        template <typename T>
-        T& get_type()
-        {
-            return container_.template get<T>();
-        }
-
         template <typename T>
         typename T::TransfertType get_value() const
         {
@@ -100,16 +81,33 @@ class MicroCacheTmp
         {
             return StaticContainer<Params...>::template has<T>();
         }
+
+      protected:
+        template <typename T>
+        T& get_type()
+        {
+            return container_.template get<T>();
+        }
     };
+
+  public:
+    class Ref;
 
   public:
     class Cache : public BasicMicroCache
     {
       public:
-        Cache()
-            : BasicMicroCache()
-            , change_pool{}
+        friend Ref;
+
+      public:
+        Cache();
+        ~Cache();
+
+      protected:
+        template <typename MicroCacheToSync>
+        void sync_with(MicroCacheToSync& ref)
         {
+            this->container_.sync_with(ref.get_container());
         }
 
         template <typename T>
@@ -145,6 +143,9 @@ class MicroCacheTmp
     class Ref : public BasicMicroCache
     {
       public:
+        friend Cache;
+
+      public:
         Ref()
             : BasicMicroCache()
             , caches_to_sync_{}
@@ -155,8 +156,6 @@ class MicroCacheTmp
         template <typename T>
         void trigger_params()
         {
-            if (caches_to_sync_.size() == 0)
-                return;
             IParameter* ref = &this->template get_type<T>();
             for (auto cache : caches_to_sync_)
                 cache->template trigger_param<T>(ref);
@@ -177,21 +176,38 @@ class MicroCacheTmp
                 set_value<T>(value);
         }
 
-      public:
+      protected:
         void add_cache_to_synchronize(Cache& cache)
         {
-            caches_to_sync_.push_back(&cache);
+            caches_to_sync_.insert(&cache);
             cache.sync_with(*this);
         }
 
         void remove_cache_to_synchronize(Cache& cache)
         {
-            if (caches_to_sync_.remove(&cache) != 1)
+            if (caches_to_sync_.erase(&cache) != 1)
                 LOG_ERROR(main, "Maybe a problem here...");
         }
 
       private:
-        std::list<Cache*> caches_to_sync_;
+        std::set<Cache*> caches_to_sync_;
+
+      private:
+        static inline Ref* instance;
+
+      public:
+        static void set_ref(Ref& ref) { instance = &ref; }
+        static Ref& get_ref()
+        {
+            if (instance == nullptr)
+                throw std::runtime_error("No Ref has been set for this cache");
+            return *instance;
+        }
+        static void remove_ref(Ref& ref)
+        {
+            if (instance == &ref)
+                instance = nullptr;
+        }
     };
 
   public:
@@ -201,4 +217,19 @@ class MicroCacheTmp
         return BasicMicroCache::template has<T>();
     }
 };
+
+template <typename... Params>
+MicroCacheTmp<Params...>::Cache::Cache()
+    : BasicMicroCache()
+    , change_pool{}
+{
+    MicroCacheTmp<Params...>::Ref::get_ref().add_cache_to_synchronize(*this);
+}
+
+template <typename... Params>
+MicroCacheTmp<Params...>::Cache::~Cache()
+{
+    MicroCacheTmp<Params...>::Ref::get_ref().remove_cache_to_synchronize(*this);
+}
+
 } // namespace holovibes
