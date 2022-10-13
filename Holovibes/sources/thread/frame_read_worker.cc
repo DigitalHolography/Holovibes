@@ -1,4 +1,5 @@
 #include "frame_read_worker.hh"
+#include "chrono.hh"
 #include "holovibes.hh"
 #include "API.hh"
 
@@ -15,8 +16,10 @@ FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& 
 
 void FrameReadWorker::compute_fps()
 {
-    auto tick = std::chrono::high_resolution_clock::now();
-    auto waited_time = std::chrono::duration_cast<std::chrono::milliseconds>(tick - start_).count();
+    chrono_.stop();
+    // auto tick = std::chrono::high_resolution_clock::now();
+    auto waited_time = chrono_.get_milliseconds();
+    // auto waited_time = std::chrono::duration_cast<std::chrono::milliseconds>(tick - start_).count();
 
     if (waited_time > time_to_wait)
     {
@@ -28,7 +31,8 @@ void FrameReadWorker::compute_fps()
 
         *current_fps_ = (processed_frames_ * (1000.f / waited_time));
         processed_frames_ = 0;
-        start_ = std::chrono::high_resolution_clock::now();
+        chrono_.start();
+        // start_ = std::chrono::high_resolution_clock::now();
     }
 }
 } // namespace holovibes::worker
