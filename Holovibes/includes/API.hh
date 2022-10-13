@@ -7,6 +7,8 @@
 
 #include "compute_settings_struct.hh"
 #include "APIdetail.hh"
+#include "AdvancedCacheAPI.hh"
+#include "ComputeCacheAPI.hh"
 
 namespace holovibes::api
 {
@@ -440,12 +442,6 @@ void set_auto_refresh_contrast(bool value);
  */
 void set_log_scale(const bool value);
 
-/*! \brief Set value of raw bit shift
- *
- * \param value to set
- */
-void set_raw_bitshift(unsigned int value);
-
 /*! \name	Setter of the overlay positions.
  * \{
  */
@@ -455,13 +451,6 @@ void set_composite_zone(const units::RectFd& rect);
 void set_zoomed_zone(const units::RectFd& rect);
 void set_reticle_zone(const units::RectFd& rect);
 /*! \} */
-
-/*!
- * \brief Gets the raw bit shift
- *
- * \return int the raw bit shift
- */
-unsigned int get_raw_bitshift();
 
 /*!
  * \brief Gets the contrast min of a given window

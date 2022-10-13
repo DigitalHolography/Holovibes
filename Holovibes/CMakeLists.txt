@@ -64,6 +64,7 @@ set(INTERNAL_INCLUDES
     includes/state/
     includes/state/parameter
     includes/state/parameter/detail
+    includes/API
 
     includes/compute/
     includes/core/

@@ -6,17 +6,24 @@
 namespace holovibes
 {
 
-//   (uint, output_buffer_size, 256),
-//                            (uint, record_buffer_size, 1024),
-//                            (float, contrast_lower_threshold, 0.5f),
-//                            (int, raw_bitshift, 0),
-//                            (float, contrast_upper_threshold, 99.5f),
-//                            (unsigned, renorm_constant, 5),
-//                            (uint, cuts_contrast_p_offset, 2));
-
 using DisplayRate = FloatParameter<30, "display_rate">;
 using InputBufferSize = UIntParameter<512, "input_buffer_size">;
+using OutputBufferSize = UIntParameter<256, "output_buffer_size">;
+using RecordBufferSize = UIntParameter<1024, "record_buffer_size">;
+using ContrastLowerThreshold = FloatParameter<0.5f, "contrast_lower_threshold">;
+using ContrastUpperThreshold = FloatParameter<99.5f, "contrast_upper_threshold">;
+using RawBitshift = IntParameter<0, "raw_bitshift">;
+using RenormConstant = UIntParameter<5, "renorm_constant">;
+using CutsContrastPOffset = UIntParameter<2, "cuts_contrast_p_offset">;
 
-using AdvancedCacheTmp = MicroCacheTmp<DisplayRate, InputBufferSize>;
+using AdvancedCache = MicroCacheTmp<DisplayRate,
+                                    InputBufferSize,
+                                    OutputBufferSize,
+                                    RecordBufferSize,
+                                    ContrastLowerThreshold,
+                                    ContrastUpperThreshold,
+                                    RawBitshift,
+                                    RenormConstant,
+                                    CutsContrastPOffset>;
 
 } // namespace holovibes

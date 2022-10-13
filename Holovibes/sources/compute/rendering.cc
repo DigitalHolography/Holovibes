@@ -22,9 +22,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const camera::FrameDescriptor& output_fd,
                      const cudaStream_t& stream,
                      AdvancedCache::Cache& advanced_cache,
-                     AdvancedCacheTmp::Cache& advanced_cache_tmp,
                      ComputeCache::Cache& compute_cache,
-                     ComputeCacheTmp::Cache& compute_cache_tmp,
                      ExportCache::Cache& export_cache,
                      ViewCache::Cache& view_cache,
                      ZoneCache::Cache& zone_cache)
@@ -37,9 +35,7 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , fd_(output_fd)
     , stream_(stream)
     , advanced_cache_(advanced_cache)
-    , advanced_cache_tmp_(advanced_cache_tmp)
     , compute_cache_(compute_cache)
-    , compute_cache_tmp_(compute_cache_tmp)
     , export_cache_(export_cache)
     , view_cache_(view_cache)
     , zone_cache_(zone_cache)
@@ -173,7 +169,7 @@ void Rendering::insert_slice_log()
             {
                 map_log10(buffers_.gpu_postprocess_frame_xz.get(),
                           buffers_.gpu_postprocess_frame_xz.get(),
-                          fd_.width * compute_cache_.get_time_transformation_size(),
+                          fd_.width * compute_cache_.get_value<TimeTransformationSize>(),
                           stream_);
             });
     }
@@ -184,7 +180,7 @@ void Rendering::insert_slice_log()
             {
                 map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                           buffers_.gpu_postprocess_frame_yz.get(),
-                          fd_.height * compute_cache_.get_time_transformation_size(),
+                          fd_.height * compute_cache_.get_value<TimeTransformationSize>(),
                           stream_);
             });
     }
@@ -231,12 +227,12 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 break;
             case WindowKind::YZview:
                 input = buffers_.gpu_postprocess_frame_yz.get();
-                size = fd_.height * compute_cache_.get_time_transformation_size();
+                size = fd_.height * compute_cache_.get_value<TimeTransformationSize>();
                 wind = view_cache_.get_yz();
                 break;
             case WindowKind::XZview:
                 input = buffers_.gpu_postprocess_frame_xz.get();
-                size = fd_.width * compute_cache_.get_time_transformation_size();
+                size = fd_.width * compute_cache_.get_value<TimeTransformationSize>();
                 wind = view_cache_.get_xz();
                 break;
             case WindowKind::Filter2D:
@@ -289,8 +285,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
-                                compute_cache_.get_time_transformation_size(),
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                compute_cache_.get_value<TimeTransformationSize>(),
+                                advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
         }
@@ -298,9 +294,9 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
-                                compute_cache_.get_time_transformation_size(),
+                                compute_cache_.get_value<TimeTransformationSize>(),
                                 fd_.height,
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
         }
@@ -327,8 +323,8 @@ void Rendering::autocontrast_caller(
 
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),
-                                            advanced_cache_.get_contrast_upper_threshold()};
+    const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastLowerThreshold>(),
+                                            advanced_cache_.get_value<ContrastUpperThreshold>()};
     switch (view)
     {
     case WindowKind::XYview:

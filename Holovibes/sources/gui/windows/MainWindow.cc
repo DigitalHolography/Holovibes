@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api::get_value<BatchSize>());
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
     catch (const std::exception&)
     {
@@ -299,7 +299,7 @@ void MainWindow::reload_ini(const std::string& filename)
     api::load_compute_settings(filename);
 
     // Set values not set by notify
-    ui_->BatchSizeSpinBox->setValue(api::get_value<BatchSize>());
+    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
@@ -355,7 +355,7 @@ void MainWindow::load_gui()
     auxiliary_window_max_size =
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
-    api::set_value<DisplayRate>(json_get_or_default(j_us, api::get_value<DisplayRate>(), "display", "refresh rate"));
+    api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
 
     ui_->ExportPanel->set_record_frame_step(
@@ -405,7 +405,7 @@ void MainWindow::save_gui()
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
 
-    j_us["display"]["refresh rate"] = api::get_value<DisplayRate>();
+    j_us["display"]["refresh rate"] = api::get_display_rate();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;

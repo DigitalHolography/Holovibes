@@ -42,7 +42,6 @@ class Converts
              const camera::FrameDescriptor& input_fd,
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
-             ComputeCacheTmp::Cache& compute_cache_tmp,
              CompositeCache::Cache& composite_cache,
              ViewCache::Cache& view_cache,
              ZoneCache::Cache& zone_cache);
@@ -109,7 +108,6 @@ class Converts
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
-    [[maybe_unused]] ComputeCacheTmp::Cache& compute_cache_tmp_;
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     CompositeCache::Cache& composite_cache_;

@@ -164,7 +164,7 @@ void RawWindow::initializeGL()
     Program->release();
     Vao.release();
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_value<DisplayRate>());
+    startTimer(1000 / api::get_display_rate());
 }
 
 /* This part of code makes a resizing of the window displaying image to
@@ -268,7 +268,7 @@ void RawWindow::paintGL()
     }
     else
     {
-        // int bitshift = kView == KindOfView::Raw ? GSH::instance().get_raw_bitshift() : 0;
+        // int bitshift = kView == KindOfView::Raw ? GSH::instance().get_value<RawBitshift>() : 0;
         convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, 0, cuStream);
     }
 

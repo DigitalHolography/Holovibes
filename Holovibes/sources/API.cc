@@ -321,10 +321,10 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 // FIXME: Same function as under
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
 {
-    if (batch_size == api::get_value<BatchSize>())
+    if (batch_size == api::get_batch_size())
         return;
 
-    api::set_value<BatchSize>(batch_size);
+    api::set_batch_size(batch_size);
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
@@ -757,14 +757,10 @@ bool slide_update_threshold(
 
 void set_z_distance(const double value)
 {
-    GSH::instance().set_z_distance(static_cast<float>(value));
+    GSH::instance().set_value<ZDistance>(static_cast<float>(value));
 
     pipe_refresh();
 }
-
-void set_space_transformation(const SpaceTransformation value) { GSH::instance().set_space_transformation(value); }
-
-void set_time_transformation(const TimeTransformation value) { GSH::instance().set_time_transformation(value); }
 
 void set_unwrapping_2d(const bool value)
 {
@@ -958,10 +954,6 @@ void set_log_scale(const bool value)
 
     pipe_refresh();
 }
-
-void set_raw_bitshift(unsigned int value) { GSH::instance().set_raw_bitshift(value); }
-
-unsigned int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
 
 float get_contrast_min() { return GSH::instance().get_contrast_min(); }
 
@@ -1236,7 +1228,7 @@ bool import_start(
     {
 
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_value<InputBufferSize>());
+                                               api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read(file_path,
                                                     true,
                                                     fps,

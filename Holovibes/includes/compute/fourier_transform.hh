@@ -41,7 +41,6 @@ class FourierTransform
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
                      ComputeCache::Cache& compute_cache,
-                     ComputeCacheTmp::Cache& compute_cache_tmp,
                      ViewCache::Cache& view_cache,
                      Filter2DCache::Cache& filter2d_cache);
 
@@ -117,7 +116,6 @@ class FourierTransform
     const cudaStream_t& stream_;
 
     ComputeCache::Cache& compute_cache_;
-    ComputeCacheTmp::Cache& compute_cache_tmp_;
     ViewCache::Cache& view_cache_;
     Filter2DCache::Cache& filter2d_cache_;
 };

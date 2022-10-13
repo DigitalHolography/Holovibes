@@ -59,17 +59,17 @@ double ConversionData::fd_to_real(int val, Axis axis) const
     float pix_size;
 
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
-        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_value<ZDistance>()) /
+                   (fd.width * GSH::instance().get_value<PixelSize>() * 1e-6);
     else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
-        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_value<ZDistance>()) /
+                   (fd.width * GSH::instance().get_value<PixelSize>() * 1e-6);
     }
     else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
-        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_z_distance()) /
-                   (fd.height * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (GSH::instance().get_value<Lambda>() * GSH::instance().get_value<ZDistance>()) /
+                   (fd.height * GSH::instance().get_value<PixelSize>() * 1e-6);
     }
     else
     {

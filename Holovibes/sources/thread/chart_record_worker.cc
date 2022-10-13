@@ -19,9 +19,9 @@ void ChartRecordWorker::run()
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << GSH::instance().get_p_index()
-       << ", lambda : " << GSH::instance().get_value<Lambda>() << ", z : " << GSH::instance().get_z_distance() << "]"
-       << std::endl;
+    of << "[#img : " << GSH::instance().get_value<TimeTransformationSize>() << ", p : " << GSH::instance().get_p_index()
+       << ", lambda : " << GSH::instance().get_value<Lambda>() << ", z : " << GSH::instance().get_value<ZDistance>()
+       << "]" << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "

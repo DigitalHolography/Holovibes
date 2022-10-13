@@ -11,7 +11,6 @@
 
 #include "fast_updates_holder.hh"
 #include "caches.hh"
-#include "micro_cache_tmp.hh"
 #include "entities.hh"
 #include "view_struct.hh"
 #include "rendering_struct.hh"
@@ -70,23 +69,23 @@ class GSH
 
   public:
     template <typename T>
-    typename T::ValueType get_value()
+    typename T::ValueConstRef get_value()
     {
-        if constexpr (AdvancedCacheTmp::has<T>())
-            return advanced_cache_tmp_.get_value<T>();
-        if constexpr (ComputeCacheTmp::has<T>())
-            return compute_cache_tmp_.get_value<T>();
+        if constexpr (AdvancedCache::has<T>())
+            return advanced_cache_.get_value<T>();
+        if constexpr (ComputeCache::has<T>())
+            return compute_cache_.get_value<T>();
     }
 
     template <typename T>
     void set_value(typename T::ValueConstRef value)
     {
-        advanced_cache_tmp_.set_value_safe<T>(value);
-        compute_cache_tmp_.set_value_safe<T>(value);
+        advanced_cache_.set_value_safe<T>(value);
+        compute_cache_.set_value_safe<T>(value);
     }
 
-    AdvancedCacheTmp::Ref& get_advanced_cache_tmp() { return advanced_cache_tmp_; }
-    ComputeCacheTmp::Ref& get_compute_cache_tmp() { return compute_cache_tmp_; }
+    AdvancedCache::Ref& get_advanced_cache() { return advanced_cache_; }
+    ComputeCache::Ref& get_compute_cache() { return compute_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -94,24 +93,6 @@ class GSH
     static inline FastUpdatesHolder<T> fast_updates_map;
 
 #pragma region(collapsed) GETTERS
-
-    inline SpaceTransformation get_space_transformation() const noexcept
-    {
-        return compute_cache_.get_space_transformation();
-    }
-
-    inline TimeTransformation get_time_transformation() const noexcept
-    {
-        return compute_cache_.get_time_transformation();
-    };
-
-    inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
-    inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
-    inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
-    inline const std::vector<float>& get_convo_matrix_const_ref()
-    {
-        return compute_cache_.get_convo_matrix_const_ref();
-    };
 
     inline int get_filter2d_n1() const noexcept { return filter2d_cache_.get_filter2d_n1(); }
     inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
@@ -198,15 +179,11 @@ class GSH
 
     inline bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
 
-    inline uint get_input_fps() const { return compute_cache_.get_input_fps(); };
-
     inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
     inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
     inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
-
-    inline Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
 
     inline bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
 
@@ -226,16 +203,6 @@ class GSH
     inline bool get_cuts_view_enabled() const noexcept { return view_cache_.get_cuts_view_enabled(); }
 
     inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
-
-    inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
-
-    inline uint get_output_buffer_size() const noexcept { return advanced_cache_.get_output_buffer_size(); }
-
-    inline float get_pixel_size() const noexcept { return compute_cache_.get_pixel_size(); }
-
-    inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
-
-    inline bool get_is_computation_stopped() const noexcept { return compute_cache_.get_is_computation_stopped(); }
 
     inline bool get_renorm_enabled() const noexcept { return view_cache_.get_renorm_enabled(); }
 
@@ -260,7 +227,6 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold.max;
     }
-    inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.min; }
     inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.max; }
@@ -295,28 +261,9 @@ class GSH
 
     inline float get_reticle_scale() const noexcept { return view_cache_.get_reticle_scale(); }
 
-    inline uint get_time_transformation_cuts_output_buffer_size() const noexcept
-    {
-        return compute_cache_.get_time_transformation_cuts_output_buffer_size();
-    }
-
     inline int get_filter2d_smooth_low() const noexcept { return filter2d_cache_.get_filter2d_smooth_low(); }
 
     inline int get_filter2d_smooth_high() const noexcept { return filter2d_cache_.get_filter2d_smooth_high(); }
-
-    inline float get_contrast_lower_threshold() const noexcept
-    {
-        return advanced_cache_.get_contrast_lower_threshold();
-    }
-
-    inline float get_contrast_upper_threshold() const noexcept
-    {
-        return advanced_cache_.get_contrast_upper_threshold();
-    }
-
-    inline unsigned get_renorm_constant() const noexcept { return advanced_cache_.get_renorm_constant(); }
-
-    inline uint get_cuts_contrast_p_offset() const noexcept { return advanced_cache_.get_cuts_contrast_p_offset(); }
 
     inline bool get_reticle_display_enabled() const noexcept { return view_cache_.get_reticle_display_enabled(); }
 
@@ -333,18 +280,6 @@ class GSH
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
-
-    inline void set_space_transformation(const SpaceTransformation value) noexcept
-    {
-        compute_cache_.set_space_transformation(value);
-    }
-
-    inline void set_time_transformation(const TimeTransformation value) noexcept
-    {
-        compute_cache_.set_time_transformation(value);
-    }
-
-    inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
 
     inline void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
     inline void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
@@ -458,15 +393,11 @@ class GSH
 
     inline void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
 
-    inline void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
-
     inline void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
 
     inline void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
 
     inline void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
-
-    inline void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
 
     inline void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
 
@@ -487,20 +418,6 @@ class GSH
     inline void set_cuts_view_enabled(bool value) { view_cache_.set_cuts_view_enabled(value); }
 
     inline void set_file_buffer_size(uint value) { file_read_cache_.set_file_buffer_size(value); }
-
-    inline void set_record_buffer_size(uint value) { advanced_cache_.set_record_buffer_size(value); }
-
-    inline void set_output_buffer_size(uint value) { advanced_cache_.set_output_buffer_size(value); }
-
-    inline void set_pixel_size(float value)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        compute_cache_.set_pixel_size(value);
-    }
-
-    inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
-
-    inline void set_is_computation_stopped(bool value) { compute_cache_.set_is_computation_stopped(value); }
 
     inline void set_renorm_enabled(bool value) { view_cache_.set_renorm_enabled(value); }
 
@@ -562,26 +479,11 @@ class GSH
 
     inline void set_reticle_scale(float value) { view_cache_.set_reticle_scale(value); }
 
-    inline void set_time_transformation_cuts_output_buffer_size(uint value)
-    {
-        compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
-    }
-
     inline void set_filter2d_smooth_low(int value) { filter2d_cache_.set_filter2d_smooth_low(value); }
 
     inline void set_filter2d_smooth_high(int value) { filter2d_cache_.set_filter2d_smooth_high(value); }
 
-    inline void set_contrast_lower_threshold(float value) { advanced_cache_.set_contrast_lower_threshold(value); }
-
-    inline void set_contrast_upper_threshold(float value) { advanced_cache_.set_contrast_upper_threshold(value); }
-
-    inline void set_renorm_constant(unsigned value) { advanced_cache_.set_renorm_constant(value); }
-
-    inline void set_cuts_contrast_p_offset(uint value) { advanced_cache_.set_cuts_contrast_p_offset(value); }
-
     inline void set_reticle_display_enabled(bool value) { view_cache_.set_reticle_display_enabled(value); }
-
-    inline void set_raw_bitshift(unsigned int value) { advanced_cache_.set_raw_bitshift(value); }
 
     inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
     inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }
@@ -625,9 +527,6 @@ class GSH
     FileReadCache::Ref file_read_cache_;
 
     mutable std::mutex mutex_;
-
-    AdvancedCacheTmp::Ref advanced_cache_tmp_;
-    ComputeCacheTmp::Ref compute_cache_tmp_;
 };
 
 } // namespace holovibes

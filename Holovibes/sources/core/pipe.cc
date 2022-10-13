@@ -45,7 +45,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
 {
 
     ConditionType batch_condition = [&]() -> bool
-    { return batch_env_.batch_index == compute_cache_tmp_.get_value<TimeStride>(); };
+    { return batch_env_.batch_index == compute_cache_.get_value<TimeStride>(); };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
     fn_end_vect_ = FunctionVector(batch_condition);
@@ -63,7 +63,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                       time_transformation_env_,
                                                                       stream_,
                                                                       compute_cache_,
-                                                                      compute_cache_tmp_,
                                                                       view_cache_,
                                                                       filter2d_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
@@ -75,9 +74,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                       output.get_fd(),
                                                       stream_,
                                                       advanced_cache_,
-                                                      advanced_cache_tmp_,
                                                       compute_cache_,
-                                                      compute_cache_tmp_,
                                                       export_cache_,
                                                       view_cache_,
                                                       zone_cache_);
@@ -88,7 +85,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                     input.get_fd(),
                                                     stream_,
                                                     compute_cache_,
-                                                    compute_cache_tmp_,
                                                     composite_cache_,
                                                     view_cache_,
                                                     zone_cache_);
@@ -97,9 +93,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              input.get_fd(),
                                                              stream_,
                                                              advanced_cache_,
-                                                             advanced_cache_tmp_,
                                                              compute_cache_,
-                                                             compute_cache_tmp_,
                                                              view_cache_);
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
@@ -134,8 +128,8 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 bool Pipe::make_requests()
 {
-    advanced_cache_tmp_.call<PipeRequestFunctions>(*this);
-    compute_cache_tmp_.call<PipeRequestFunctions>(*this);
+    advanced_cache_.call<PipeRequestFunctions>(*this);
+    compute_cache_.call<PipeRequestFunctions>(*this);
 
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
@@ -238,7 +232,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG(compute_worker, "update_time_transformation_size_requested");
 
-        if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
+        if (!update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
         {
             success_allocation = false;
             GSH::instance().set_p_index(0);
@@ -280,7 +274,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "raw_view_requested");
 
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
         GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -290,7 +284,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "filter2d_view_requested");
 
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
         GSH::instance().set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
@@ -320,7 +314,7 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+            new Queue(record_fd, advanced_cache_.get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
@@ -330,8 +324,9 @@ bool Pipe::make_requests()
     if (raw_record_requested_)
     {
         LOG_DEBUG(compute_worker, "Raw Record Request Processing");
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+        frame_record_env_.gpu_frame_record_queue_.reset(new Queue(gpu_input_queue_.get_fd(),
+                                                                  advanced_cache_.get_value<RecordBufferSize>(),
+                                                                  QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
@@ -347,12 +342,12 @@ bool Pipe::make_requests()
 
         fd_xyz.depth = sizeof(ushort);
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
-            fd_xyz.height = compute_cache_.get_time_transformation_size();
+            fd_xyz.height = compute_cache_.get_value<TimeTransformationSize>();
         else
-            fd_xyz.width = compute_cache_.get_time_transformation_size();
+            fd_xyz.width = compute_cache_.get_value<TimeTransformationSize>();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+            new Queue(fd_xyz, GSH::instance().get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
         GSH::instance().set_frame_record_enabled(true);
         cuts_record_requested_ = false;
@@ -412,7 +407,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (compute_cache_.get_compute_mode() == Computation::Raw)
+    if (compute_cache_.get_value<ComputeMode>() == Computation::Raw)
     {
         insert_dequeue_input();
         return;
@@ -506,7 +501,7 @@ void Pipe::insert_transfer_for_time_transformation()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
                 buffers_.gpu_spatial_transformation_buffer.get(),
-                compute_cache_tmp_.get_value<BatchSize>(),
+                compute_cache_.get_value<BatchSize>(),
                 stream_);
         });
 }
@@ -516,8 +511,8 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [&]()
         {
-            batch_env_.batch_index += compute_cache_tmp_.get_value<BatchSize>();
-            CHECK(batch_env_.batch_index <= compute_cache_tmp_.get_value<TimeStride>(),
+            batch_env_.batch_index += compute_cache_.get_value<BatchSize>();
+            CHECK(batch_env_.batch_index <= compute_cache_.get_value<TimeStride>(),
                   "batch_index = {}",
                   batch_env_.batch_index);
         });
@@ -534,7 +529,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            *processed_output_fps_ += compute_cache_tmp_.get_value<BatchSize>();
+            *processed_output_fps_ += compute_cache_.get_value<BatchSize>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -635,13 +630,12 @@ void Pipe::insert_raw_record()
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_tmp_.get_value<BatchSize>()); });
+            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
 
         fn_compute_vect_.push_back(
-            [&]()
-            {
+            [&]() {
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
-                                               compute_cache_tmp_.get_value<BatchSize>());
+                                               compute_cache_.get_value<BatchSize>());
             });
     }
 }
@@ -741,23 +735,18 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    advanced_cache_tmp_.synchronize();
+    advanced_cache_.synchronize();
     compute_cache_.synchronize();
-    compute_cache_tmp_.synchronize();
     export_cache_.synchronize();
     filter2d_cache_.synchronize();
     view_cache_.synchronize();
     zone_cache_.synchronize();
     composite_cache_.synchronize();
-
-    // never updated during the life time of the app
-    // all updated params will be catched on json file when the app will load
-    // advanced_cache_.synchronize();
 }
 
 bool Pipe::caches_has_change_requested()
 {
-    return advanced_cache_tmp_.has_change_requested() || compute_cache_tmp_.has_change_requested();
+    return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested();
 }
 
 } // namespace holovibes

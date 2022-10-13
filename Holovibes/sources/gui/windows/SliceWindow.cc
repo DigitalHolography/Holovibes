@@ -146,7 +146,7 @@ void SliceWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_value<DisplayRate>());
+    startTimer(1000 / api::get_display_rate());
 }
 
 void SliceWindow::paintGL()

@@ -77,7 +77,7 @@ void GSH::set_time_transformation_size(uint value)
 {
     // FIXME: temporary fix due to ttsize change in pipe.make_request
     // std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_transformation_size(value);
+    compute_cache_.set_value<TimeTransformationSize>(value);
 }
 
 void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast_enabled = contrast_enabled; }
@@ -154,7 +154,7 @@ void GSH::set_weight_rgb(int r, int g, int b)
     set_weight_b(b);
 }
 
-static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_matrix, const std::string& file)
+static void load_convolution_matrix(std::vector<float>& convo_matrix, const std::string& file)
 {
     auto& holo = Holovibes::instance();
 
@@ -217,41 +217,41 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        convo_matrix->resize(size, 0.0f);
+        convo_matrix.resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)
         {
             for (uint j = first_col; j < last_col; j++)
             {
-                (*convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+                convo_matrix[i * output_width + j] = matrix[kernel_indice];
                 kernel_indice++;
             }
         }
     }
     catch (std::exception& e)
     {
-        convo_matrix->clear();
+        convo_matrix.clear();
         LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
     }
 }
 
 void GSH::enable_convolution(std::optional<std::string> file)
 {
-    compute_cache_.set_convolution_enabled(true);
-    compute_cache_.get_convo_matrix_ref()->clear();
+    compute_cache_.set_value<ConvolutionEnabled>(true);
+    compute_cache_.get_value<ConvolutionMatrix>().clear();
 
     // There is no file None.txt for convolution
     if (file && file.value() != "None")
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
-void GSH::set_convolution_enabled(bool value) { compute_cache_.set_convolution_enabled(value); }
+void GSH::set_convolution_enabled(bool value) { compute_cache_.set_value<ConvolutionEnabled>(value); }
 
 void GSH::disable_convolution()
 {
-    compute_cache_.get_convo_matrix_ref()->clear();
-    compute_cache_.set_convolution_enabled(false);
+    compute_cache_.get_value<ConvolutionMatrix>().clear();
+    compute_cache_.set_value<ConvolutionEnabled>(false);
 }
 
 #pragma endregion

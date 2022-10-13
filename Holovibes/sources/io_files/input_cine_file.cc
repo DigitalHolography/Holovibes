@@ -48,7 +48,7 @@ void InputCineFile::import_compute_settings() {}
 
 void InputCineFile::import_info() const
 {
-    GSH::instance().set_pixel_size(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
+    GSH::instance().set_value<PixelSize>(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
 }
 
 void InputCineFile::set_pos_to_frame(size_t frame_id)

@@ -12,16 +12,14 @@
 #include "user_interface_descriptor.hh"
 #include "global_state_holder.hh"
 
-#include "micro_cache_tmp.hh"
-
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;
 
-namespace holovibes::api
+namespace holovibes::api::detail
 {
 
 template <typename T>
-typename T::ValueType get_value()
+typename T::ValueConstRef get_value()
 {
     return GSH::instance().get_value<T>();
 }
@@ -68,4 +66,4 @@ inline void set_value<TimeStride>(int value)
     if (value % get_value<BatchSize>() != 0)
         return set_value<TimeStride>(value - value % get_value<BatchSize>());
 }
-} // namespace holovibes::api
+} // namespace holovibes::api::detail

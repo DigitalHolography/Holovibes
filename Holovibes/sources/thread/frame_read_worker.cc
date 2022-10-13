@@ -21,9 +21,9 @@ void FrameReadWorker::compute_fps()
 
     if (waited_time > time_to_wait)
     {
-        if (abs(api::get_value<DisplayRate>() - current_display_rate) >= 0.001f)
+        if (abs(api::get_display_rate() - current_display_rate) >= 0.001f)
         {
-            current_display_rate = api::get_value<DisplayRate>();
+            current_display_rate = api::get_display_rate();
             time_to_wait = (1000 / (current_display_rate == 0 ? 1 : current_display_rate));
         }
 

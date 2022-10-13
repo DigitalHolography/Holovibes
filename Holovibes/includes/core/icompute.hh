@@ -19,8 +19,8 @@
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 
-#include "compute.hh"
 #include "advanced.hh"
+#include "compute.hh"
 
 namespace holovibes
 {
@@ -201,9 +201,7 @@ class ICompute
     ChartEnv& get_chart_env() { return chart_env_; }
     ImageAccEnv& get_image_acc_env() { return image_acc_env_; }
     AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
-    AdvancedCacheTmp::Cache& get_advanced_cache_tmp() { return advanced_cache_tmp_; }
     ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
-    ComputeCacheTmp::Cache& get_compute_cache_tmp() { return compute_cache_tmp_; }
     ExportCache::Cache& get_export_cache() { return export_cache_; }
     CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
@@ -213,17 +211,17 @@ class ICompute
     template <typename T>
     typename T::ValueType get_value()
     {
-        if constexpr (AdvancedCacheTmp::has<T>())
-            return advanced_cache_tmp_.get_value<T>();
-        if constexpr (ComputeCacheTmp::has<T>())
-            return compute_cache_tmp_.get_value<T>();
+        if constexpr (AdvancedCache::has<T>())
+            return advanced_cache_.get_value<T>();
+        if constexpr (ComputeCache::has<T>())
+            return compute_cache_.get_value<T>();
     }
 
     template <typename T>
     void set_value(typename T::ValueConstRef value)
     {
-        advanced_cache_tmp_.set_value_safe<T>(value);
-        compute_cache_tmp_.set_value_safe<T>(value);
+        advanced_cache_.set_value_safe<T>(value);
+        compute_cache_.set_value_safe<T>(value);
     }
 
   public:
@@ -401,9 +399,7 @@ class ICompute
     std::atomic<bool> disable_convolution_requested_{false};
 
     AdvancedCache::Cache advanced_cache_;
-    AdvancedCacheTmp::Cache advanced_cache_tmp_;
     ComputeCache::Cache compute_cache_;
-    ComputeCacheTmp::Cache compute_cache_tmp_;
     ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;

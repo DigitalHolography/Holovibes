@@ -17,11 +17,17 @@ struct StringLiteral
 
 struct FloatLiteral
 {
-    constexpr FloatLiteral(float f) { value = f; }
-    constexpr FloatLiteral(int f) { value = f; }
-
+    constexpr FloatLiteral(float a) { value = a; }
+    constexpr FloatLiteral(int a) { value = a; }
     constexpr operator float() const { return value; }
     float value;
+};
+
+template <typename T>
+struct VectorLiteral
+{
+    constexpr operator std::vector<T>() const { return std::vector<T>{}; }
+    static constexpr VectorLiteral instance() { return VectorLiteral(); }
 };
 
 template <typename T, auto DefaultValue, StringLiteral Key, typename TConstRef = const T&>
@@ -48,6 +54,8 @@ class CustomParameter : public IParameter
     }
 
     virtual ~CustomParameter() override {}
+
+    operator ValueConstRef() const { return value_; }
 
   public:
     ValueConstRef get_value() const { return value_; }
@@ -93,6 +101,9 @@ using FloatParameter = CustomParameter<float, DefaultValue, Key, float>;
 
 template <StringLiteral DefaultValue, StringLiteral Key>
 using StringParameter = CustomParameter<std::string, DefaultValue, Key>;
+
+template <typename T, StringLiteral Key>
+using VectorParameter = CustomParameter<std::vector<T>, VectorLiteral<T>::instance(), Key>;
 
 // using pomme = FloatParameter<1, "pomme">;
 

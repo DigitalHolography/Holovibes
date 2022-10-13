@@ -45,15 +45,15 @@ void ImageRenderingPanel::on_notify()
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
-    ui_->TimeStrideSpinBox->setValue(api::get_value<TimeStride>());
-    ui_->TimeStrideSpinBox->setSingleStep(api::get_value<BatchSize>());
-    ui_->TimeStrideSpinBox->setMinimum(api::get_value<BatchSize>());
+    ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
+    ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
+    ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
-    ui_->BatchSizeSpinBox->setMaximum(api::get_value<InputBufferSize>());
+    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
@@ -67,7 +67,7 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_value<Lambda>() * 1.0e9f);
+    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -86,7 +86,7 @@ void ImageRenderingPanel::on_notify()
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_value<DivideConvolutionEnable>());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
@@ -177,12 +177,12 @@ void ImageRenderingPanel::update_time_stride()
 
     uint time_stride = ui_->TimeStrideSpinBox->value();
 
-    if (time_stride == api::get_value<TimeStride>())
+    if (time_stride == api::get_time_stride())
         return;
 
     auto callback = [=]()
     {
-        api::set_value<TimeStride>(time_stride);
+        api::set_time_stride(time_stride);
         Holovibes::instance().get_compute_pipe()->request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
@@ -310,7 +310,7 @@ void ImageRenderingPanel::set_wavelength(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_value<Lambda>(value * 1.0e-9f);
+    api::set_lambda(value * 1.0e-9f);
 }
 
 void ImageRenderingPanel::set_z(const double value)
@@ -371,7 +371,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    api::set_value<DivideConvolutionEnable>(value);
+    api::set_divide_convolution_enabled(value);
 
     parent_->notify();
 }
