@@ -262,7 +262,7 @@ void RawWindow::paintGL()
 
     // Put the frame inside the cuda ressrouce
 
-    if (GSH::instance().get_img_type() == ImgType::Composite)
+    if (GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }

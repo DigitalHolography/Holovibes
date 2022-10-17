@@ -11,5 +11,5 @@ namespace cli
 {
 #define DEFAULT_CLI_FPS INT_MAX
 
-int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts);
+int start_cli(const holovibes::OptionsDescriptor& opts);
 } // namespace cli

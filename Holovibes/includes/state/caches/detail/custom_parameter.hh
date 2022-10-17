@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <utility>
 
 #include "parameter.hh"
 
@@ -24,27 +25,27 @@ struct FloatLiteral
 };
 
 template <typename T>
-struct VectorLiteral
+struct DefaultLiteral
 {
-    constexpr operator std::vector<T>() const { return std::vector<T>{}; }
-    static constexpr VectorLiteral instance() { return VectorLiteral(); }
+    constexpr DefaultLiteral() {}
+    constexpr operator T() const { return T{}; }
 };
 
-template <typename T, auto DefaultValue, StringLiteral Key, typename TConstRef = const T&>
+template <typename T, auto DefaultValue, StringLiteral Key, typename TRef = const T&>
 class CustomParameter : public IParameter
 {
   public:
     using ValueType = T;
-    using ValueConstRef = TConstRef;
+    using ConstRefType = TRef;
 
   public:
     CustomParameter()
-        : value_(std::forward<ValueType>(DefaultValue))
+        : value_(DefaultValue)
     {
     }
 
-    CustomParameter(ValueConstRef value)
-        : value_(std::forward<ValueType>(value))
+    CustomParameter(ConstRefType value)
+        : value_(value)
     {
     }
 
@@ -55,15 +56,14 @@ class CustomParameter : public IParameter
 
     virtual ~CustomParameter() override {}
 
-    operator ValueConstRef() const { return value_; }
+    operator ConstRefType() const { return value_; }
 
   public:
-    ValueConstRef get_value() const { return value_; }
+    ConstRefType get_value() const { return value_; }
     ValueType& get_value() { return value_; }
-    void set_value(ValueConstRef value) { value_ = value; }
+    void set_value(ConstRefType value) { value_ = value; }
 
-    static const char* static_key() { return Key; }
-    const char* get_key() const override { return static_key(); }
+    const char* get_key() const override { return Key; }
 
   public:
     virtual void sync_with(IParameter* ref) override
@@ -75,11 +75,21 @@ class CustomParameter : public IParameter
             return;
         }
 
-        const ValueType& new_value = ref_cast->get_value();
-        if (value_ != new_value)
+        constexpr bool has_op_plus = requires(ValueType lhs, ValueType rhs) { lhs.operator+(rhs); };
+
+        ValueType& new_value = ref_cast->get_value();
+        if constexpr (has_op_plus)
         {
+            if (value_ != new_value)
+            {
+                value_ = new_value;
+                set_has_been_synchronized(true);
+            }
+        }
+        else
+        {
+            LOG_WARN(main, "Couldn't check if the value has been changed");
             value_ = new_value;
-            set_has_been_synchronized(true);
         }
     };
 
@@ -103,8 +113,13 @@ template <StringLiteral DefaultValue, StringLiteral Key>
 using StringParameter = CustomParameter<std::string, DefaultValue, Key>;
 
 template <typename T, StringLiteral Key>
-using VectorParameter = CustomParameter<std::vector<T>, VectorLiteral<T>::instance(), Key>;
+using VectorParameter = CustomParameter<std::vector<T>, DefaultLiteral<std::vector<T>>{}, Key>;
 
-// using pomme = FloatParameter<1, "pomme">;
+struct TriggerRequest
+{
+};
+
+template <StringLiteral Key>
+using TriggerParameter = CustomParameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerParameter>;
 
 } // namespace holovibes

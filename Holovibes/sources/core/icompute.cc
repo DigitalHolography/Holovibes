@@ -72,13 +72,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
-    if (view_cache_.get_img_type() == ImgType::Composite)
+    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-    if (view_cache_.get_img_type() == ImgType::Composite)
+    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
@@ -163,7 +163,9 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
     catch (const std::exception& e)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
+
         request_time_transformation_cuts_ = false;
+
         request_delete_time_transformation_cuts_ = true;
         dispose_cuts();
         LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
@@ -248,20 +250,6 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
 
 std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.gpu_frame_record_queue_; }
 
-void ICompute::delete_stft_slice_queue()
-{
-    request_delete_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-void ICompute::create_stft_slice_queue()
-{
-    request_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-bool ICompute::get_cuts_request() { return request_time_transformation_cuts_; }
-
 bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
 
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
@@ -284,137 +272,18 @@ void ICompute::request_refresh() { refresh_requested_ = true; }
 
 void ICompute::request_termination() { termination_requested_ = true; }
 
-void ICompute::request_output_resize(unsigned int new_output_size)
-{
-    output_resize_requested_ = new_output_size;
-    request_refresh();
-}
-
-void ICompute::request_disable_raw_view()
-{
-    disable_raw_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_view()
-{
-    raw_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_filter2d_view()
-{
-    disable_filter2d_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_filter2d_view()
-{
-    filter2d_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_hologram_record()
-{
-    hologram_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_record()
-{
-    raw_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_cuts_record(RecordMode rm)
-{
-    cuts_record_requested_ = true;
-
-    // Setted here to not store the value anywhere else while it can already be stored here.
-    frame_record_env_.record_mode_ = rm;
-    request_refresh();
-}
-
-void ICompute::request_disable_frame_record()
-{
-    disable_frame_record_requested_ = true;
-    request_refresh();
-}
-
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    if (kind == WindowKind::XYview && view_cache_.get_xy().contrast.enabled)
-        autocontrast_requested_ = true;
-    else if (kind == WindowKind::XZview && view_cache_.get_xz().contrast.enabled && view_cache_.get_cuts_view_enabled())
-        autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && view_cache_.get_yz().contrast.enabled && view_cache_.get_cuts_view_enabled())
-        autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D && view_cache_.get_filter2d().contrast.enabled &&
-             view_cache_.get_filter2d_enabled())
-        autocontrast_filter2d_requested_ = true;
-}
-
-void ICompute::request_update_time_transformation_size()
-{
-    update_time_transformation_size_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
-
-void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
-
-void ICompute::request_display_chart()
-{
-    chart_display_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_display_chart()
-{
-    disable_chart_display_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
-{
-    chart_record_requested_ = nb_chart_points_to_record;
-    request_refresh();
-}
-
-void ICompute::request_disable_record_chart()
-{
-    disable_chart_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_update_time_stride()
-{
-    request_update_time_stride_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_lens_view()
-{
-    request_disable_lens_view_ = true;
-    request_refresh();
-}
-
-void ICompute::request_clear_img_acc()
-{
-    request_clear_img_accu = true;
-    request_refresh();
-}
-
-void ICompute::request_convolution()
-{
-    convolution_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_convolution()
-{
-    disable_convolution_requested_ = true;
-    request_refresh();
+    if (kind == WindowKind::XYview && view_cache_.get_value<ViewXY>().contrast.enabled)
+        view_cache_.get_value<ViewXY>().request_exec_auto_contrast();
+    else if (kind == WindowKind::XZview && view_cache_.get_value<ViewXZ>().contrast.enabled &&
+             view_cache_.get_value<CutsViewEnabled>())
+        view_cache_.get_value<ViewXZ>().request_exec_auto_contrast();
+    else if (kind == WindowKind::YZview && view_cache_.get_value<ViewYZ>().contrast.enabled &&
+             view_cache_.get_value<CutsViewEnabled>())
+        view_cache_.get_value<ViewYZ>().request_exec_auto_contrast();
+    else if (kind == WindowKind::Filter2D && view_cache_.get_value<Filter2D>().contrast.enabled &&
+             view_cache_.get_value<Filter2DEnabled>())
+        view_cache_.get_value<Filter2D>().request_exec_auto_contrast();
 }
 } // namespace holovibes

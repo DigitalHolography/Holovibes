@@ -7,8 +7,6 @@
 namespace holovibes
 {
 
-using MapKeyParams = std::unordered_map<std::string_view, IParameter*>;
-
 template <typename... T>
 class StaticContainer;
 
@@ -16,7 +14,7 @@ template <>
 class StaticContainer<>
 {
   public:
-    StaticContainer(MapKeyParams&) {}
+    StaticContainer() {}
 
   public:
     template <typename StaticContainerRef>
@@ -31,7 +29,7 @@ class StaticContainer<>
     }
 
     template <typename FunctionClass, typename... Args>
-    void call(FunctionClass functions_class, Args&&... args)
+    void operator()(FunctionClass functions_class, Args&&... args)
     {
     }
 
@@ -55,11 +53,10 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
     TParameter value_;
 
   public:
-    StaticContainer(MapKeyParams& map_key_params)
-        : StaticContainer<R...>(map_key_params)
+    StaticContainer()
+        : StaticContainer<R...>()
         , value_()
     {
-        map_key_params[TParameter::static_key()] = &value_;
     }
 
   public:
@@ -80,17 +77,17 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
     }
 
     template <typename FunctionClass, typename... Args>
-    void call(FunctionClass& functions_class, Args&&... args)
+    void operator()(FunctionClass& functions_class, Args&&... args)
     {
-        StaticContainer<R...>::template call<FunctionClass>(functions_class, std::forward<Args>(args)...);
-
-        constexpr bool has_member_test = requires(FunctionClass functions_class)
-        {
-            functions_class.template test<TParameter>(value_);
-        };
-        if constexpr (has_member_test) if (!functions_class.template test<TParameter>(value_)) return;
-
         functions_class.template operator()<TParameter>(value_, std::forward<Args>(args)...);
+        StaticContainer<R...>::template operator()<FunctionClass>(functions_class, std::forward<Args>(args)...);
+    }
+
+    template <typename FunctionClass, typename... Args>
+    void call(Args&&... args)
+    {
+        FunctionClass functions_class;
+        this->operator()(functions_class, std::forward<Args>(args)...);
     }
 
   public:

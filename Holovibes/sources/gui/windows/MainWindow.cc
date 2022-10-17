@@ -149,7 +149,8 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    api::start_information_display();
+    // FIXME : api::start_information_display();
+    Holovibes::instance().start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
@@ -158,7 +159,7 @@ MainWindow::~MainWindow()
 {
     api::close_windows();
     api::close_critical_compute();
-    api::stop_all_worker_controller();
+    Holovibes::instance().stop_all_worker_controller();
     api::camera_none();
 
     delete ui_;
@@ -213,7 +214,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_img_accu_xy_level(1); }
+static void handle_accumulation_exception() { api::change_view_xy()->set_img_accu_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -226,7 +227,9 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::handle_update_exception();
+                api::change_view_accu_p()->set_index(0);
+                api::set_time_transformation_size(1);
+                api::disable_convolution();
                 api::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
@@ -282,7 +285,10 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 /* ------------ */
 #pragma region Json
 
-void MainWindow::write_compute_settings() { api::save_compute_settings(); }
+void MainWindow::write_compute_settings()
+{
+    api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+}
 
 void MainWindow::browse_export_ini()
 {
@@ -567,7 +573,10 @@ void MainWindow::set_view_image_type(const QString& value)
 
     // Force cuts views autocontrast if needed
     if (api::get_cuts_view_enabled())
-        api::set_auto_contrast_cuts();
+    {
+        api::get_view_xz().request_exec_auto_contrast();
+        api::get_view_yz().request_exec_auto_contrast();
+    }
 }
 
 #pragma endregion
@@ -576,7 +585,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
 void MainWindow::change_window(int index)
 {
-    api::change_window(index);
+    api::change_current_window_kind(static_cast<WindowKind>(index));
 
     notify();
 }

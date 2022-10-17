@@ -23,6 +23,25 @@ class OverlayManager
     /*! \brief Create an overlay depending on the value passed to the template. */
     template <KindOfOverlay ko>
     void create_overlay();
+    template <>
+    void create_overlay<Zoom>();
+    template <>
+    void create_overlay<Noise>();
+    template <>
+    void create_overlay<Signal>();
+    template <>
+    void create_overlay<Cross>();
+    template <>
+    void create_overlay<SliceCross>();
+    template <>
+    void create_overlay<KindOfOverlay::CompositeArea>();
+    template <>
+    void create_overlay<Rainbow>();
+    template <>
+    void create_overlay<Reticle>();
+    template <>
+    void create_overlay<Filter2DReticle>();
+
     /*! \brief Create the default overlay in the view. Zoom for Raw/Holo, Cross for Slices. */
     void create_default();
 

@@ -134,7 +134,7 @@ void Postprocessing::insert_convolution()
     if (!compute_cache_.get_value<ConvolutionEnabled>() || compute_cache_.get_value<ConvolutionMatrix>().empty())
         return;
 
-    if (view_cache_.get_img_type() != ImgType::Composite)
+    if (view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -160,14 +160,14 @@ void Postprocessing::insert_renormalize()
 {
     LOG_FUNC();
 
-    if (!view_cache_.get_renorm_enabled())
+    if (!view_cache_.get_value<RenormEnabled>())
         return;
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_img_type() == ImgType::Composite)
+            if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

@@ -34,7 +34,7 @@ void SliceWindow::initShaders()
     Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
     Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
-    if (GSH::instance().get_img_type() == ImgType::Composite)
+    if (GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite)
         overlay_manager_.create_overlay<Rainbow>();
     else
         overlay_manager_.create_default();
@@ -193,6 +193,6 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_window(static_cast<int>((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview));
+    api::change_current_window_kind((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview);
 }
 } // namespace holovibes::gui

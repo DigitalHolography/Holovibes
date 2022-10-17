@@ -1,4 +1,5 @@
 #include "holovibes.hh"
+#include "API.hh"
 #include "icompute.hh"
 #include "tools.hh"
 #include "chrono.hh"
@@ -63,7 +64,7 @@ void InformationWorker::run()
             std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe_nothrow();
             if (pipe != nullptr)
             {
-                std::unique_ptr<Queue>& gpu_frame_record_queue = pipe->get_frame_record_queue();
+                std::unique_ptr<Queue>& gpu_frame_record_queue = api::get_compute_pipe().get_frame_record_queue();
                 if (gpu_frame_record_queue)
                     record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
