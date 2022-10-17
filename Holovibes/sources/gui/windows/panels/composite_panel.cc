@@ -43,8 +43,8 @@ void CompositePanel::on_notify()
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_weight_b());
     ui_->CompositePanel->actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_hsv().get_h().get_p_min());
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_composite_hsv().get_h().get_p_max());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_CompositeHsv().get_h().get_p_min());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_CompositeHsv().get_h().get_p_max());
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
                          static_cast<int>(api::get_slider_h_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_min();
@@ -175,7 +175,7 @@ void CompositePanel::click_composite_rgb_or_hsv()
     }
     else
     {
-        api::select_composite_hsv();
+        api::select_CompositeHsv();
         ui_->SpinBox_hue_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
         ui_->SpinBox_hue_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
         ui_->SpinBox_saturation_freq_min->setValue(ui_->PRedSpinBox_Composite->value());

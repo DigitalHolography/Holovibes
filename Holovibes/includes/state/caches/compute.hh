@@ -8,6 +8,10 @@
 #include "custom_parameter.hh"
 #include "micro_cache.hh"
 
+#include "enum_computation.hh"
+#include "enum_time_transformation.hh"
+#include "enum_space_transformation.hh"
+
 namespace holovibes
 {
 

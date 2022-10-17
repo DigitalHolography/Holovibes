@@ -3,39 +3,36 @@
  * \brief #TODO Add a description for this file
  */
 
-/*! \brief Construct a new micro cache object
- *
- * \param signal_zone The zone for the nsignal chart
- * \param noise_zone The zone for the noise chart
- * \param composite_zone The area on which we'll normalize the colors
- * \param zoomed_zone The area used to limit the stft computations
- * \param reitcle_zone The zone of the reticle area
- */
-NEW_INITIALIZED_MICRO_CACHE(ZoneCache,
-                            (units::RectFd, signal_zone, units::RectFd{}),
-                            (units::RectFd, noise_zone, units::RectFd{}),
-                            (units::RectFd, composite_zone, units::RectFd{}),
-                            (units::RectFd, zoomed_zone, units::RectFd{}),
-                            (units::RectFd, reticle_zone, units::RectFd{}))
-
 #pragma once
 
 #include "custom_parameter.hh"
 #include "micro_cache.hh"
 
+#include "rect.hh"
+
 namespace holovibes
 {
 
+// For non constexpr type, we need to do this in order to get a default value
+struct RectFdLiteral
+{
+    constexpr operator units::RectFd() const { return units::RectFd{}; }
+    static constexpr RectFdLiteral instance() { return RectFdLiteral(); }
+};
+
+template <StringLiteral Key>
+using RectFdParameter = CustomParameter<units::RectFd, RectFdLiteral::instance(), Key>;
+
 //! \brief The zone for the nsignal chart
-using SignalZone = CustomParameter<units::RectFd, units::RectFd{}, "signal_zone">;
+using SignalZone = RectFdParameter<"signal_zone">;
 //! \brief The zone for the noise chart
-using NoiseZone = CustomParameter<units::RectFd, units::RectFd{}, "noise_zone">;
+using NoiseZone = RectFdParameter<"noise_zone">;
 //! \brief The area on which we'll normalize the colors
-using CompositeZone = CustomParameter<units::RectFd, units::RectFd{}, "composite_zone">;
+using CompositeZone = RectFdParameter<"composite_zone">;
 //! \brief The area used to limit the stft computations
-using ZoomedZone = CustomParameter<units::RectFd, units::RectFd{}, "zoomed_zone">;
+using ZoomedZone = RectFdParameter<"zoomed_zone">;
 //! \brief The zone of the reticle area
-using ReticleZone = CustomParameter<units::RectFd, units::RectFd{}, "reticle_zone">;
+using ReticleZone = RectFdParameter<"reticle_zone">;
 
 using ZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
 

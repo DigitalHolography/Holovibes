@@ -43,7 +43,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
     ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
@@ -80,7 +80,7 @@ void ViewPanel::on_notify()
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
     ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
@@ -436,7 +436,7 @@ void ViewPanel::invert_contrast(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_contrast_enabled())
+    if (!api::get_current_window().contrast_enabled)
         return;
 
     api::invert_contrast(value);
@@ -447,7 +447,7 @@ void ViewPanel::set_contrast_min(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_contrast_enabled())
+    if (!api::get_current_window().contrast_enabled)
         return;
 
     api::set_contrast_min(value);
@@ -458,7 +458,7 @@ void ViewPanel::set_contrast_max(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_contrast_enabled())
+    if (!api::get_current_window().contrast_enabled)
         return;
 
     api::set_contrast_max(value);

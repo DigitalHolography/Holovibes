@@ -7,7 +7,10 @@
 
 #include "custom_parameter.hh"
 #include "micro_cache.hh"
+
 #include "view_struct.hh"
+#include "enum_img_type.hh"
+#include "enum_window_kind.hh"
 
 namespace holovibes
 {
