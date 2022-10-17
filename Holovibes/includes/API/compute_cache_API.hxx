@@ -10,7 +10,7 @@ inline void set_batch_size(int value)
 {
     GSH::instance().set_value<BatchSize>(value);
 
-    // FIXME : need all vars on MicroCacheTmp
+    // FIXME : need all vars on MicroCache
     if (value > get_input_buffer_size())
         GSH::instance().set_value<BatchSize>(value);
 

@@ -2,7 +2,7 @@
 
 #include "pipe.hh"
 #include "logger.hh"
-#include "micro_cache_tmp.hh"
+#include "micro_cache.hh"
 #include "on_synchronize_functions.hh"
 
 namespace holovibes

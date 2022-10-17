@@ -1,6 +1,6 @@
 #pragma once
 
-#include "micro_cache_tmp.hh"
+#include "micro_cache.hh"
 #include "logger.hh"
 
 namespace holovibes
@@ -15,8 +15,8 @@ class OnSynchronizeFunctions
         value.set_has_been_synchronized(false);
     }
 
-    template <typename MicroCacheTmp>
-    void call_on_cache(MicroCacheTmp& params)
+    template <typename MicroCache>
+    void call_on_cache(MicroCache& params)
     {
         params.synchronize();
     }

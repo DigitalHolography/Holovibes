@@ -1,30 +1,22 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 #pragma once
 
 #include "custom_parameter.hh"
-#include "micro_cache_tmp.hh"
-
-NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
-                            (CompositeKind, composite_kind, CompositeKind::RGB),
-                            (bool, composite_auto_weights, false),
-                            (Composite_RGB, rgb, Composite_RGB{}),
-                            (Composite_HSV, hsv, Composite_HSV{}));
+#include "micro_cache.hh"
+#include "view_struct.hh"
 
 namespace holovibes
 {
 
-using DisplayRate = FloatParameter<30, "display_rate">;
-using InputBufferSize = UIntParameter<512, "input_buffer_size">;
-using OutputBufferSize = UIntParameter<256, "output_buffer_size">;
-using RecordBufferSize = UIntParameter<1024, "record_buffer_size">;
+using CompositeKindParam = CustomParameter<CompositeKind, CompositeKind::RGB, "composite_kind", CompositeKind>;
+using CompositeAutoWeights = BoolParameter<false, "composite_auto_weights">;
+using CompositeRGBParam = CustomParameter<CompositeRGB, CompositeRGB{}, "composite_rgb">;
+using CompositeHSVParam = CustomParameter<CompositeHSV, Composite_HSV{}, "composite_hsv">;
 
-using CompositeCache = MicroCacheTmp<DisplayRate,
-                                     InputBufferSize,
-                                     OutputBufferSize,
-                                     RecordBufferSize,
-                                     ContrastLowerThreshold,
-                                     ContrastUpperThreshold,
-                                     RawBitshift,
-                                     RenormConstant,
-                                     CutsContrastPOffset>;
+using CompositeCache = MicroCache<CompositeKindParam, CompositeAutoWeights, CompositeRGBParam, CompositeHSVParam>;
 
 } // namespace holovibes

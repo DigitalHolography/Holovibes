@@ -9,6 +9,7 @@
 #include "advanced_cache_API.hh"
 #include "compute_cache_API.hh"
 #include "compute_settings_struct.hh"
+#include "composite_cache_API.hh"
 
 namespace holovibes::api
 {

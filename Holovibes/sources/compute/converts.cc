@@ -143,16 +143,16 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            CompositeRGB rgb_struct = composite_cache_.get_rgb();
+            CompositeRGB rgb_struct = composite_cache_.get_value<CompositeRGBParam>();
             if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
                 !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_value<TimeTransformationSize>()))
                 return;
 
-            if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
+            if (composite_cache_.get_value<CompositeKindParam>() == CompositeKind::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    composite_cache_.get_composite_auto_weights(),
+                    composite_cache_.get_value<CompositeAutoWeights>(),
                     rgb_struct.p.min,
                     rgb_struct.p.max,
                     rgb_struct.weight.r,
@@ -168,7 +168,7 @@ void Converts::insert_to_composite()
                     compute_cache_.get_value<TimeTransformationSize>(),
                     composite_cache_.get_hsv_const_ref());
 
-            if (composite_cache_.get_composite_auto_weights())
+            if (composite_cache_.get_value<CompositeAutoWeights>())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,

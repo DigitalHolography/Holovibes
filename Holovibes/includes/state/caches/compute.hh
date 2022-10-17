@@ -1,7 +1,12 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 #pragma once
 
 #include "custom_parameter.hh"
-#include "micro_cache_tmp.hh"
+#include "micro_cache.hh"
 
 namespace holovibes
 {
@@ -25,25 +30,25 @@ using TimeStride = IntParameter<1, "time_stride">;
 using DivideConvolutionEnable = BoolParameter<false, "divide_convolution_enabled">;
 using Lambda = FloatParameter<852e-9f, "lambda">;
 
-using ComputeCache = MicroCacheTmp<BatchSize,
-                                   TimeStride,
-                                   DivideConvolutionEnable,
-                                   Lambda,
-                                   TimeTransformationSize,
-                                   SpaceTransformationParam,
-                                   TimeTransformationParam,
-                                   ZDistance,
-                                   ConvolutionEnabled,
-                                   ConvolutionMatrix,
-                                   InputFps,
-                                   ComputeMode,
-                                   PixelSize,
-                                   UnwrapHistorySize,
-                                   IsComputationStopped,
-                                   TimeTransformationCutsOutputBufferSize,
-                                   BatchSize,
-                                   TimeStride,
-                                   DivideConvolutionEnable,
-                                   Lambda>;
+using ComputeCache = MicroCache<BatchSize,
+                                TimeStride,
+                                DivideConvolutionEnable,
+                                Lambda,
+                                TimeTransformationSize,
+                                SpaceTransformationParam,
+                                TimeTransformationParam,
+                                ZDistance,
+                                ConvolutionEnabled,
+                                ConvolutionMatrix,
+                                InputFps,
+                                ComputeMode,
+                                PixelSize,
+                                UnwrapHistorySize,
+                                IsComputationStopped,
+                                TimeTransformationCutsOutputBufferSize,
+                                BatchSize,
+                                TimeStride,
+                                DivideConvolutionEnable,
+                                Lambda>;
 
 } // namespace holovibes

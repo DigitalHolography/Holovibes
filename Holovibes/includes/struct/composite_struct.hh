@@ -5,6 +5,10 @@
  */
 
 #pragma once
+
+#include <atomic>
+
+#include "types.hh"
 #include "all_struct.hh"
 #include "enum_composite_kind.hh"
 

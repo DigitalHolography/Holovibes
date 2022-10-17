@@ -36,15 +36,15 @@ void CompositePanel::on_notify()
 
     ui_->RenormalizationCheckBox->setChecked(api::get_composite_auto_weights());
 
-    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_p_red());
-    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_p_blue());
+    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_rgb().get_red());
+    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_rgb().get_blue());
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_weight_r());
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_weight_g());
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_weight_b());
     ui_->CompositePanel->actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_p_min_h());
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_composite_p_max_h());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_hsv().get_h().get_p_min());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_composite_hsv().get_h().get_p_max());
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
                          static_cast<int>(api::get_slider_h_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_min();

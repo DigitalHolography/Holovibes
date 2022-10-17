@@ -17,7 +17,7 @@ namespace holovibes
 {
 
 template <typename... Params>
-class MicroCacheTmp
+class MicroCache
 {
   protected:
     class BasicMicroCache
@@ -134,6 +134,9 @@ class MicroCacheTmp
         }
 
       private:
+        std::mutex get_change_pool_mutex() { return change_pool_mutex; }
+
+      private:
         // first is param_to_change ; second is ref
         std::map<IParameter*, IParameter*> change_pool;
         std::mutex change_pool_mutex;
@@ -169,11 +172,12 @@ class MicroCacheTmp
             trigger_params<T>();
         }
 
+      public:
         template <typename T>
-        void set_value_safe(typename T::ValueConstRef value)
+        typename T::ValueType& change_value()
         {
-            if constexpr (BasicMicroCache::template has<T>())
-                set_value<T>(value);
+            trigger_params<T>();
+            return BasicMicroCache::template get_value<T>();
         }
 
       protected:
@@ -192,6 +196,7 @@ class MicroCacheTmp
       private:
         std::set<Cache*> caches_to_sync_;
 
+        // Singleton
       private:
         static inline Ref* instance;
 
@@ -219,17 +224,17 @@ class MicroCacheTmp
 };
 
 template <typename... Params>
-MicroCacheTmp<Params...>::Cache::Cache()
+MicroCache<Params...>::Cache::Cache()
     : BasicMicroCache()
     , change_pool{}
 {
-    MicroCacheTmp<Params...>::Ref::get_ref().add_cache_to_synchronize(*this);
+    MicroCache<Params...>::Ref::get_ref().add_cache_to_synchronize(*this);
 }
 
 template <typename... Params>
-MicroCacheTmp<Params...>::Cache::~Cache()
+MicroCache<Params...>::Cache::~Cache()
 {
-    MicroCacheTmp<Params...>::Ref::get_ref().remove_cache_to_synchronize(*this);
+    MicroCache<Params...>::Ref::get_ref().remove_cache_to_synchronize(*this);
 }
 
 } // namespace holovibes
