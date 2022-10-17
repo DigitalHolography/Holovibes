@@ -40,6 +40,11 @@ struct ViewWindow
     bool log_enabled = false;
 
     ViewContrast contrast;
+    
+    bool exec_auto_contrast_ = false;
+    bool get_exec_auto_contrast() { return exec_auto_contrast_; }
+    void request_exec_auto_contrast() { exec_auto_contrast_ = true; }
+    void reset_exec_auto_contrast() { exec_auto_contrast_ = false; }
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 };
@@ -50,9 +55,16 @@ struct ViewWindow
  */
 struct ViewXYZ : public ViewWindow
 {
+    bool log_enabled = false;
     bool horizontal_flip = false;
     float rotation = 0;
     unsigned output_image_accumulation = 1;
+
+    bool operator!=(const ViewXYZ& rhs)
+    {
+        return View_Window::operator!=(rhs) || horizontal_flip != rhs.horizontal_flip || rotation != rhs.rotation ||
+               output_image_accumulation != rhs.output_image_accumulation;
+    }
 
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 };
@@ -76,6 +88,8 @@ struct View_PQ : public ViewAccu
 {
     unsigned start = 0;
 
+    bool operator!=(const View_PQ& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
+
     SERIALIZE_JSON_STRUCT(View_PQ, width, start)
 };
 
@@ -86,6 +100,8 @@ struct View_PQ : public ViewAccu
 struct View_XY : public ViewAccu
 {
     unsigned start = 0;
+
+    bool operator!=(const View_XY& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
 
     SERIALIZE_JSON_STRUCT(View_XY, width, start)
 };

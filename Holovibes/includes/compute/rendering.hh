@@ -59,10 +59,7 @@ class Rendering
     /*! \brief insert the functions relative to the log10. */
     void insert_log();
     /*! \brief insert the functions relative to the contrast. */
-    void insert_contrast(std::atomic<bool>& autocontrast_request,
-                         std::atomic<bool>& autocontrast_slice_xz_request,
-                         std::atomic<bool>& autocontrast_slice_yz_request,
-                         std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_contrast();
 
   private:
     /*! \brief insert the log10 on the XY window */
@@ -73,10 +70,7 @@ class Rendering
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */
-    void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                     std::atomic<bool>& autocontrast_slice_xz_request,
-                                     std::atomic<bool>& autocontrast_slice_yz_request,
-                                     std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_compute_autocontrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);

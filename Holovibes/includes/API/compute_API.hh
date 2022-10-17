@@ -6,10 +6,10 @@ namespace holovibes::api
 {
 
 inline int get_batch_size() { return api::detail::get_value<BatchSize>(); }
-inline void set_batch_size(int value);
+void set_batch_size(int value);
 
 inline int get_time_stride() { return api::detail::get_value<TimeStride>(); }
-inline void set_time_stride(int value);
+void set_time_stride(int value);
 
 inline bool get_divide_convolution_enabled() { return api::detail::get_value<DivideConvolutionEnable>(); }
 inline void set_divide_convolution_enabled(bool value) { api::detail::set_value<DivideConvolutionEnable>(value); }
@@ -35,14 +35,8 @@ inline void set_time_transformation(TimeTransformation value)
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline bool get_convolution_enabled() { return api::detail::get_value<ConvolutionEnabled>(); }
-inline void set_convolution_enabled(bool value) { api::detail::set_value<ConvolutionEnabled>(value); }
-
-inline const std::vector<float>& get_convolution_matrix() { return api::detail::get_value<ConvolutionMatrix>(); }
-inline void set_convolution_matrix(const std::vector<float>& value)
-{
-    api::detail::set_value<ConvolutionMatrix>(value);
-}
+inline bool get_convolution() { return api::detail::get_value<Convolution>(); }
+inline TriggerChangeValue<Convolution> change_convolution() { return api::detail::change_value<Convolution>(); }
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
 inline void set_input_fps(uint value) { api::detail::set_value<InputFps>(value); }
@@ -68,6 +62,15 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
     api::detail::set_value<TimeTransformationCutsOutputBufferSize>(value);
 }
 
-} // namespace holovibes::api
+// other
+void close_critical_compute();
+void set_raw_mode(uint window_max_size);
 
-#include "compute_cache_API.hxx"
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size);
+void update_time_stride(std::function<void()> callback, const uint time_stride);
+
+void set_time_transformation_size(std::function<void()> callback);
+
+void toggle_renormalize(bool value);
+
+} // namespace holovibes::api

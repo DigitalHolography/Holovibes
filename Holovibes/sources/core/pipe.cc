@@ -24,6 +24,8 @@
 
 #include "all_pipe_functions.hh"
 
+#include "API.hh"
+
 namespace holovibes
 {
 
@@ -96,7 +98,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              compute_cache_,
                                                              view_cache_);
     *processed_output_fps_ = 0;
-    update_time_transformation_size_requested_ = true;
+
+    GSH::instance().change_value<TimeTransformationSize>();
 
     try
     {
@@ -133,187 +136,23 @@ bool Pipe::make_requests()
 
     bool success_allocation = true;
     /* Free buffers */
-    if (disable_convolution_requested_)
-    {
-        LOG_DEBUG("disable_convolution_requested");
-
-        postprocess_->dispose();
-        disable_convolution_requested_ = false;
-    }
-
-    if (request_disable_lens_view_)
-    {
-        LOG_DEBUG("request_disable_lens_view");
-
-        fourier_transforms_->get_lens_queue().reset(nullptr);
-
-        request_disable_lens_view_ = false;
-    }
-
-    if (disable_raw_view_requested_)
-    {
-        LOG_DEBUG("disable_raw_view_requested");
-
-        gpu_raw_view_queue_.reset(nullptr);
-        GSH::instance().set_raw_view_enabled(false);
-        disable_raw_view_requested_ = false;
-    }
-
-    if (disable_filter2d_view_requested_)
-    {
-        LOG_DEBUG("disable_filter2D_view_requested");
-
-        gpu_filter2d_view_queue_.reset(nullptr);
-        GSH::instance().set_filter2d_view_enabled(false);
-        disable_filter2d_view_requested_ = false;
-    }
-
-    if (request_delete_time_transformation_cuts_)
-    {
-        LOG_DEBUG("request_delete_time_transformation_cuts");
-
-        dispose_cuts();
-        request_delete_time_transformation_cuts_ = false;
-    }
-
-    if (disable_chart_display_requested_)
-    {
-        LOG_DEBUG("disable_chart_display_requested");
-
-        chart_env_.chart_display_queue_.reset(nullptr);
-        GSH::instance().set_chart_display_enabled(false);
-        disable_chart_display_requested_ = false;
-    }
-
-    if (disable_chart_record_requested_)
-    {
-        LOG_DEBUG("disable_chart_record_requested");
-
-        chart_env_.chart_record_queue_.reset(nullptr);
-        GSH::instance().set_chart_record_enabled(false);
-        chart_env_.nb_chart_points_to_record_ = 0;
-        disable_chart_record_requested_ = false;
-    }
-
-    if (disable_frame_record_requested_)
-    {
-        LOG_DEBUG("disable_frame_record_requested");
-
-        frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
-        frame_record_env_.record_mode_ = RecordMode::NONE;
-        GSH::instance().set_frame_record_enabled(false);
-        disable_frame_record_requested_ = false;
-    }
 
     image_accumulation_->dispose(); // done only if requested
-
-    /* Allocate buffer */
-    if (convolution_requested_)
-    {
-        LOG_DEBUG("convolution_requested");
-
-        postprocess_->init();
-        convolution_requested_ = false;
-    }
-
-    if (output_resize_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG("output_resize_requested");
-
-        gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
-        output_resize_requested_ = std::nullopt;
-    }
-
-    // Updating number of images
-    if (update_time_transformation_size_requested_)
-    {
-        LOG_DEBUG("update_time_transformation_size_requested");
-
-        if (!update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
-        {
-            success_allocation = false;
-            GSH::instance().set_p_index(0);
-            GSH::instance().set_time_transformation_size(1);
-            update_time_transformation_size(1);
-            LOG_WARN("Updating #img failed; #img updated to 1");
-        }
-        update_time_transformation_size_requested_ = false;
-    }
-
-    if (request_update_time_stride_)
-    {
-        LOG_DEBUG("request_update_time_stride");
-
-        batch_env_.batch_index = 0;
-        request_update_time_stride_ = false;
-    }
-
-    if (request_time_transformation_cuts_)
-    {
-        LOG_DEBUG("request_time_transformation_cuts");
-
-        init_cuts();
-        request_time_transformation_cuts_ = false;
-    }
-
-    image_accumulation_->init(); // done only if requested
-
-    if (request_clear_img_accu)
-    {
-        LOG_DEBUG("request_clear_img_accu");
-
-        image_accumulation_->clear();
-        request_clear_img_accu = false;
-    }
-
-    if (raw_view_requested_)
-    {
-        LOG_DEBUG("raw_view_requested");
-
-        auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_raw_view_enabled(true);
-        raw_view_requested_ = false;
-    }
-
-    if (filter2d_view_requested_)
-    {
-        LOG_DEBUG("filter2d_view_requested");
-
-        auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_filter2d_view_enabled(true);
-        filter2d_view_requested_ = false;
-    }
-
-    if (chart_display_requested_)
-    {
-        LOG_DEBUG("chart_display_requested");
-
-        chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_display_enabled(true);
-        chart_display_requested_ = false;
-    }
-
-    if (chart_record_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG("chart_record_requested");
-
-        chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_record_enabled(true);
-        chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
-        chart_record_requested_ = std::nullopt;
-    }
+    image_accumulation_->init();    // done only if requested
+    // EXEC HERE THE UNKNOWN CACHE AFTER image_accumulation_->init();
 
     if (hologram_record_requested_)
     {
         LOG_DEBUG("Hologram Record Request Processing");
+
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(record_fd, advanced_cache_.get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
-        GSH::instance().set_frame_record_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
+
         hologram_record_requested_ = false;
         LOG_DEBUG("Hologram Record Request Processed");
     }
@@ -325,7 +164,8 @@ bool Pipe::make_requests()
                                                                   advanced_cache_.get_value<RecordBufferSize>(),
                                                                   QueueType::RECORD_QUEUE));
 
-        GSH::instance().set_frame_record_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = false;
         LOG_DEBUG("Raw Record Request Processed");
@@ -333,21 +173,7 @@ bool Pipe::make_requests()
 
     if (cuts_record_requested_)
     {
-        LOG_DEBUG("cuts_record_requested");
-
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-
-        fd_xyz.depth = sizeof(ushort);
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
-            fd_xyz.height = compute_cache_.get_value<TimeTransformationSize>();
-        else
-            fd_xyz.width = compute_cache_.get_value<TimeTransformationSize>();
-
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
-
-        GSH::instance().set_frame_record_enabled(true);
-        cuts_record_requested_ = false;
+        LOG_DEBUG(compute_worker, "cuts_record_requested");
     }
 
     return success_allocation;
@@ -436,7 +262,7 @@ void Pipe::refresh()
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(unwrap_2d_requested_);
+    converts_->insert_to_float(GSH::instance().get_value<Unwrap2DRequested>());
 
     insert_filter2d_view();
 
@@ -448,12 +274,7 @@ void Pipe::refresh()
     rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
-
-    insert_request_autocontrast();
-    rendering_->insert_contrast(autocontrast_requested_,
-                                autocontrast_slice_xz_requested_,
-                                autocontrast_slice_yz_requested_,
-                                autocontrast_filter2d_requested_);
+    rendering_->insert_contrast();
 
     converts_->insert_to_ushort();
 
@@ -553,7 +374,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (view_cache_.get_cuts_view_enabled())
+            if (view_cache_.get_value<CutsViewEnabled>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -564,7 +385,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (view_cache_.get_filter2d_view_enabled())
+            if (view_cache_.get_value<Filter2DViewEnabled>())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -576,7 +397,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_filter2d_enabled() && view_cache_.get_filter2d_view_enabled())
+    if (view_cache_.get_value<Filter2DEnabled>() && view_cache_.get_value<Filter2DViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -607,7 +428,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (view_cache_.get_raw_view_enabled())
+    if (view_cache_.get_value<RawViewEnabled>())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
@@ -624,7 +445,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -639,7 +460,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -658,7 +479,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_frame_record_enabled())
+    if (GSH::instance().get_value<FrameRecordEnable>())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -673,12 +494,6 @@ void Pipe::insert_cuts_record()
                 { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
         }
     }
-}
-
-void Pipe::insert_request_autocontrast()
-{
-    if (GSH::instance().get_contrast_enabled() && GSH::instance().get_contrast_auto_refresh())
-        request_autocontrast(view_cache_.get_current_window());
 }
 
 void Pipe::exec()
@@ -732,6 +547,8 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
+    AdvancedCache::REF::sycn fuinc;
+
     advanced_cache_.call<AdvancedPipeRequest>(*this);
     compute_cache_.call<ComputePipeRequest>(*this);
     export_cache_.synchronize();

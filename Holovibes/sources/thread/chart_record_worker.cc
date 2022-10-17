@@ -2,6 +2,7 @@
 #include "chart_point.hh"
 
 #include "holovibes.hh"
+#include "API.hh"
 #include "icompute.hh"
 #include "tools.hh"
 
@@ -19,7 +20,8 @@ void ChartRecordWorker::run()
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[#img : " << GSH::instance().get_value<TimeTransformationSize>() << ", p : " << GSH::instance().get_p_index()
+    of << "[#img : " << GSH::instance().get_value<TimeTransformationSize>()
+       << ", p : " << GSH::instance().get_value<ViewAccuP>().get_index()
        << ", lambda : " << GSH::instance().get_value<Lambda>() << ", z : " << GSH::instance().get_value<ZDistance>()
        << "]" << std::endl;
 
@@ -33,12 +35,12 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_record_chart(nb_frames_to_record_);
-    while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
+    api::get_compute_pipe().request_record_chart(nb_frames_to_record_);
+
+    while (api::get_compute_pipe().get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;
 
-    auto& chart_queue = *pipe->get_chart_record_queue();
+    auto& chart_queue = *api::get_compute_pipe().get_chart_record_queue();
 
     auto entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
 
@@ -61,8 +63,8 @@ void ChartRecordWorker::run()
            << std::endl;
     }
 
-    pipe->request_disable_record_chart();
-    while (pipe->get_disable_chart_record_requested() && !stop_requested_)
+    GSH::instance().set_value<ChartRecordEnabled>(false);
+    while (api::get_compute_pipe().get_disable_chart_record_requested() && !stop_requested_)
         continue;
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);

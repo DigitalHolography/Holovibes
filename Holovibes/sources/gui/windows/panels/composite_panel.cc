@@ -36,38 +36,40 @@ void CompositePanel::on_notify()
 
     ui_->RenormalizationCheckBox->setChecked(api::get_composite_auto_weights());
 
-    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_p_red());
-    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_p_blue());
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_weight_r());
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_weight_g());
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_weight_b());
+    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_rgb().get_red());
+    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_rgb().get_blue());
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_composite_rgb().get_weight_r());
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_composite_rgb().get_weight_g());
+    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_composite_rgb().get_weight_b());
     ui_->CompositePanel->actualize_frequency_channel_v();
 
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_p_min_h());
-    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_composite_p_max_h());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_hsv().get_h().get_p_min());
+    QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_max, api::get_composite_hsv().get_h().get_p_max());
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_min,
-                         static_cast<int>(api::get_slider_h_threshold_min() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_h().get_slider_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_min();
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
-                         static_cast<int>(api::get_slider_h_threshold_max() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_h().get_slider_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
 
-    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, api::get_composite_p_min_s());
-    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, api::get_composite_p_max_s());
+    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min,
+                          api::get_composite_hsv().get_s().get_slider_threshold_min());
+    QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max,
+                          api::get_composite_hsv().get_s().get_slider_threshold_max());
     QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_min,
-                         static_cast<int>(api::get_slider_s_threshold_min() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_s().get_slider_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_s_min();
     QSliderQuietSetValue(ui_->horizontalSlider_saturation_threshold_max,
-                         static_cast<int>(api::get_slider_s_threshold_max() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_s().get_slider_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_s_max();
 
-    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_min, api::get_composite_p_min_v());
-    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_max, api::get_composite_p_max_v());
+    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_min, api::get_composite_hsv().get_v().get_p_min());
+    QSpinBoxQuietSetValue(ui_->SpinBox_value_freq_max, api::get_composite_hsv().get_v().get_p_max());
     QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_min,
-                         static_cast<int>(api::get_slider_v_threshold_min() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_v().get_slider_threshold_min() * 1000));
     ui_->CompositePanel->slide_update_threshold_v_min();
     QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_max,
-                         static_cast<int>(api::get_slider_v_threshold_max() * 1000));
+                         static_cast<int>(api::get_composite_hsv().get_v().get_slider_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_v_max();
 
     bool rgbMode = ui_->radioButton_rgb->isChecked();
@@ -103,59 +105,52 @@ void CompositePanel::set_composite_intervals()
     ui_->PRedSpinBox_Composite->setValue(
         std::min(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value()));
 
-    api::set_composite_intervals(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value());
-
+    api::change_composite_rgb()->set_red(ui_->PRedSpinBox_Composite->value());
+    api::change_composite_rgb()->set_blue(ui_->PBlueSpinBox_Composite->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_min()
 {
-    api::set_composite_intervals_hsv_h_min(ui_->SpinBox_hue_freq_min->value());
-
+    api::change_composite_hsv()->get_h().set_p_min(ui_->SpinBox_hue_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_max()
 {
-    api::set_composite_intervals_hsv_h_max(ui_->SpinBox_hue_freq_max->value());
-
+    api::change_composite_hsv()->get_h().set_p_max(ui_->SpinBox_hue_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_min()
 {
-    api::set_composite_intervals_hsv_s_min(ui_->SpinBox_saturation_freq_min->value());
-
+    api::change_composite_hsv()->get_s().set_p_min(ui_->SpinBox_saturation_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_max()
 {
-    api::set_composite_intervals_hsv_s_max(ui_->SpinBox_saturation_freq_max->value());
-
+    api::change_composite_hsv()->get_s().set_p_max(ui_->SpinBox_saturation_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_min()
 {
-    api::set_composite_intervals_hsv_v_min(ui_->SpinBox_value_freq_min->value());
-
+    api::change_composite_hsv()->get_v().set_p_min(ui_->SpinBox_value_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_max()
 {
-    api::set_composite_intervals_hsv_v_max(ui_->SpinBox_value_freq_max->value());
-
+    api::change_composite_hsv()->get_v().set_p_max(ui_->SpinBox_value_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_weights()
 {
-    api::set_composite_weights(ui_->WeightSpinBox_R->value(),
-                               ui_->WeightSpinBox_G->value(),
-                               ui_->WeightSpinBox_B->value());
-
+    api::change_composite_rgb()->set_weights_rgb(ui_->WeightSpinBox_R->value(),
+                                                 ui_->WeightSpinBox_G->value(),
+                                                 ui_->WeightSpinBox_B->value());
     parent_->notify();
 }
 
@@ -169,13 +164,13 @@ void CompositePanel::click_composite_rgb_or_hsv()
 {
     if (ui_->radioButton_rgb->isChecked())
     {
-        api::select_composite_rgb();
+        api::set_composite_kind(CompositeKind::RGB);
         ui_->PRedSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_min->value());
         ui_->PBlueSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_max->value());
     }
     else
     {
-        api::select_composite_hsv();
+        api::set_composite_kind(CompositeKind::HSV);
         ui_->SpinBox_hue_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
         ui_->SpinBox_hue_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
         ui_->SpinBox_saturation_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
@@ -227,114 +222,114 @@ void CompositePanel::slide_update_threshold_h_min()
 {
 
     // Avoid modification from panel instead of API
-    float receiver = api::get_slider_h_threshold_min();
-    float bound_to_update = api::get_slider_h_threshold_max();
+    float receiver = api::get_composite_hsv().get_h().get_slider_threshold_min();
+    float bound_to_update = api::get_composite_hsv().get_h().get_slider_threshold_max();
 
     slide_update_threshold(*ui_->horizontalSlider_hue_threshold_min,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_hue_threshold_max,
                            *ui_->label_hue_threshold_min,
-                           api::get_slider_h_threshold_min(),
-                           api::get_slider_h_threshold_max());
+                           api::get_composite_hsv().get_h().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_h().get_slider_threshold_max());
 
-    api::set_slider_h_threshold_min(receiver);
-    api::set_slider_h_threshold_max(bound_to_update);
+    api::change_composite_hsv()->get_h().set_slider_threshold_min(receiver);
+    api::change_composite_hsv()->get_h().set_slider_threshold_max(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_h_max()
 {
 
-    float receiver = api::get_slider_h_threshold_max();
-    float bound_to_update = api::get_slider_h_threshold_min();
+    float receiver = api::get_composite_hsv().get_h().get_slider_threshold_max();
+    float bound_to_update = api::get_composite_hsv().get_h().get_slider_threshold_min();
 
     slide_update_threshold(*ui_->horizontalSlider_hue_threshold_max,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_hue_threshold_min,
                            *ui_->label_hue_threshold_max,
-                           api::get_slider_h_threshold_min(),
-                           api::get_slider_h_threshold_max());
+                           api::get_composite_hsv().get_h().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_h().get_slider_threshold_max());
 
-    api::set_slider_h_threshold_max(receiver);
-    api::set_slider_h_threshold_min(bound_to_update);
+    api::change_composite_hsv()->get_h().set_slider_threshold_max(receiver);
+    api::change_composite_hsv()->get_h().set_slider_threshold_min(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_s_min()
 {
 
-    float receiver = api::get_slider_s_threshold_min();
-    float bound_to_update = api::get_slider_s_threshold_max();
+    float receiver = api::get_composite_hsv().get_s().get_slider_threshold_min();
+    float bound_to_update = api::get_composite_hsv().get_s().get_slider_threshold_max();
 
     slide_update_threshold(*ui_->horizontalSlider_saturation_threshold_min,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_saturation_threshold_max,
                            *ui_->label_saturation_threshold_min,
-                           api::get_slider_s_threshold_min(),
-                           api::get_slider_s_threshold_max());
+                           api::get_composite_hsv().get_s().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_s().get_slider_threshold_max());
 
-    api::set_slider_s_threshold_min(receiver);
-    api::set_slider_s_threshold_max(bound_to_update);
+    api::change_composite_hsv()->get_s().set_slider_threshold_min(receiver);
+    api::change_composite_hsv()->get_s().set_slider_threshold_max(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_s_max()
 {
 
-    float receiver = api::get_slider_s_threshold_max();
-    float bound_to_update = api::get_slider_s_threshold_min();
+    float receiver = api::get_composite_hsv().get_s().get_slider_threshold_max();
+    float bound_to_update = api::get_composite_hsv().get_s().get_slider_threshold_min();
 
     slide_update_threshold(*ui_->horizontalSlider_saturation_threshold_max,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_saturation_threshold_min,
                            *ui_->label_saturation_threshold_max,
-                           api::get_slider_s_threshold_min(),
-                           api::get_slider_s_threshold_max());
+                           api::get_composite_hsv().get_s().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_s().get_slider_threshold_max());
 
-    api::set_slider_s_threshold_max(receiver);
-    api::set_slider_s_threshold_min(bound_to_update);
+    api::change_composite_hsv()->get_s().set_slider_threshold_max(receiver);
+    api::change_composite_hsv()->get_s().set_slider_threshold_min(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_v_min()
 {
 
-    float receiver = api::get_slider_v_threshold_min();
-    float bound_to_update = api::get_slider_v_threshold_max();
+    float receiver = api::get_composite_hsv().get_v().get_slider_threshold_min();
+    float bound_to_update = api::get_composite_hsv().get_v().get_slider_threshold_max();
 
     slide_update_threshold(*ui_->horizontalSlider_value_threshold_min,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_value_threshold_max,
                            *ui_->label_value_threshold_min,
-                           api::get_slider_v_threshold_min(),
-                           api::get_slider_v_threshold_max());
+                           api::get_composite_hsv().get_v().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_v().get_slider_threshold_max());
 
-    api::set_slider_v_threshold_min(receiver);
-    api::set_slider_v_threshold_max(bound_to_update);
+    api::change_composite_hsv()->get_v().set_slider_threshold_min(receiver);
+    api::change_composite_hsv()->get_v().set_slider_threshold_max(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_v_max()
 {
 
-    float receiver = api::get_slider_v_threshold_max();
-    float bound_to_update = api::get_slider_v_threshold_min();
+    float receiver = api::get_composite_hsv().get_v().get_slider_threshold_max();
+    float bound_to_update = api::get_composite_hsv().get_v().get_slider_threshold_min();
 
     slide_update_threshold(*ui_->horizontalSlider_value_threshold_max,
                            receiver,
                            bound_to_update,
                            *ui_->horizontalSlider_value_threshold_min,
                            *ui_->label_value_threshold_max,
-                           api::get_slider_v_threshold_min(),
-                           api::get_slider_v_threshold_max());
+                           api::get_composite_hsv().get_v().get_slider_threshold_min(),
+                           api::get_composite_hsv().get_v().get_slider_threshold_max());
 
-    api::set_slider_v_threshold_max(receiver);
-    api::set_slider_v_threshold_min(bound_to_update);
+    api::change_composite_hsv()->get_v().set_slider_threshold_max(receiver);
+    api::change_composite_hsv()->get_v().set_slider_threshold_min(bound_to_update);
 }
 
 void CompositePanel::actualize_frequency_channel_s()
 {
-    api::actualize_frequency_channel_s(ui_->checkBox_saturation_freq->isChecked());
+    api::change_composite_hsv()->get_s().set_p_activated(ui_->checkBox_saturation_freq->isChecked());
 
     ui_->SpinBox_saturation_freq_min->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
     ui_->SpinBox_saturation_freq_max->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
@@ -342,7 +337,7 @@ void CompositePanel::actualize_frequency_channel_s()
 
 void CompositePanel::actualize_frequency_channel_v()
 {
-    api::actualize_frequency_channel_v(ui_->checkBox_value_freq->isChecked());
+    api::change_composite_hsv()->get_v().set_p_activated(ui_->checkBox_value_freq->isChecked());
 
     ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
     ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
@@ -350,14 +345,14 @@ void CompositePanel::actualize_frequency_channel_v()
 
 void CompositePanel::actualize_checkbox_h_gaussian_blur()
 {
-    api::actualize_selection_h_gaussian_blur(ui_->checkBox_h_gaussian_blur->isChecked());
+    api::change_composite_hsv()->get_h().set_blur_enabled(ui_->checkBox_h_gaussian_blur->isChecked());
 
     ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
 }
 
 void CompositePanel::actualize_kernel_size_blur()
 {
-    api::actualize_kernel_size_blur(ui_->SpinBox_hue_blur_kernel_size->value());
+    api::change_composite_hsv()->get_h().set_blur_kernel_size(ui_->SpinBox_hue_blur_kernel_size->value());
 }
 
 void CompositePanel::set_composite_area() { api::set_composite_area(); }

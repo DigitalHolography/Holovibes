@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 #include "logger.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
@@ -19,16 +17,21 @@ namespace holovibes::api::detail
 {
 
 template <typename T>
-typename T::ValueConstRef get_value()
+typename T::ConstRefType get_value()
 {
     return GSH::instance().get_value<T>();
 }
 
-// Setters
 template <typename T>
-void set_value(typename T::ValueConstRef value)
+void set_value(typename T::ConstRefType value)
 {
     GSH::instance().set_value<T>(value);
+}
+
+template <typename T>
+TriggerChangeValue<typename T::ValueType> change_value()
+{
+    return GSH::instance().change_value<T>();
 }
 
 } // namespace holovibes::api::detail

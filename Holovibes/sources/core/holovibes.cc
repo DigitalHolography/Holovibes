@@ -189,7 +189,7 @@ void Holovibes::init_pipe()
     if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
     {
         output_fd.depth = 2;
-        if (GSH::instance().get_img_type() == ImgType::Composite)
+        if (GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite)
             output_fd.depth = 6;
     }
 
