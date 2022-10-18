@@ -8,11 +8,11 @@ namespace holovibes::api
 
 inline void set_batch_size(int value)
 {
-    GSH::instance().set_value<BatchSize>(value);
+    api::detail::set_value<BatchSize>(value);
 
     // FIXME : need all vars on MicroCache
     if (value > get_input_buffer_size())
-        GSH::instance().set_value<BatchSize>(value);
+        api::detail::set_value<BatchSize>(value);
 
     if (get_time_stride() < value)
         set_time_stride(value);
@@ -25,7 +25,7 @@ inline void set_time_stride(int value)
 {
     // FIXME: temporary fix due to ttstride change in pipe.make_request
     // std::lock_guard<std::mutex> lock(mutex_);
-    GSH::instance().set_value<TimeStride>(value);
+    api::detail::set_value<TimeStride>(value);
 
     if (get_batch_size() > value)
         return set_time_stride(get_batch_size());

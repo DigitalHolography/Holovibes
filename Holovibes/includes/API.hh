@@ -16,10 +16,25 @@
 #include "filter2d_cache_API.hh"
 #include "view_cache_API.hh"
 #include "zone_cache_API.hh"
+#include "record_API.hh"
+#include "display_API.hh"
+#include "cuts_API.hh"
+#include "contrast_API.hh"
 
 namespace holovibes::api
 {
 
-const View_Window& get_current_window() const { return GSH::instance().get_current_window(); }
+void check_q_limits()
+{
+    int upper_bound = get_time_transformation_size() - 1;
+
+    if (get_q_accu_level() > upper_bound)
+        api::set_q_accu_level(upper_bound);
+
+    upper_bound -= get_q_accu_level();
+
+    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
+        api::set_q_index(upper_bound);
+}
 
 } // namespace holovibes::api

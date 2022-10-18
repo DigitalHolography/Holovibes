@@ -16,7 +16,7 @@ namespace holovibes
 // For non constexpr type, we need to do this in order to get a default value
 struct RectFdLiteral
 {
-    constexpr operator units::RectFd() const { return units::RectFd{}; }
+    operator units::RectFd() const { return units::RectFd{}; }
     static constexpr RectFdLiteral instance() { return RectFdLiteral(); }
 };
 

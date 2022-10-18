@@ -608,17 +608,6 @@ void set_y_accu_level(uint y_value)
     pipe_refresh();
 }
 
-void set_y_cuts(uint value)
-{
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
-    if (value < fd.height)
-    {
-        GSH::instance().set_y_cuts(value);
-        pipe_refresh();
-    }
-}
-
 void set_x_y(uint x, uint y)
 {
 
@@ -807,24 +796,6 @@ bool set_auto_contrast()
     }
 
     return false;
-}
-
-void set_auto_contrast_all()
-{
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XYview);
-    if (api::get_cuts_view_enabled())
-    {
-        pipe->request_autocontrast(WindowKind::XZview);
-        pipe->request_autocontrast(WindowKind::YZview);
-    }
-    if (get_filter2d_view_enabled())
-        pipe->request_autocontrast(WindowKind::Filter2D);
-
-    pipe_refresh();
 }
 
 void set_contrast_min(const double value)
@@ -1035,25 +1006,6 @@ const std::string browse_record_output_file(std::string& std_filepath)
     return file_ext;
 }
 
-void set_record_mode(const std::string& text)
-{
-    LOG_FUNC(main, text);
-
-    // TODO: Dictionnary
-    if (text == "Chart")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
-    else if (text == "Processed Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
-    else if (text == "Raw Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
-    else if (text == "3D Cuts XZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
-    else if (text == "3D Cuts YZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
-    else
-        throw std::exception("Record mode not handled");
-}
-
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,
@@ -1231,11 +1183,6 @@ std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz() { return UserInte
 std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window()
 {
     return UserInterfaceDescriptor::instance().lens_window;
-}
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
-{
-    return UserInterfaceDescriptor::instance().raw_window;
 }
 
 std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window()

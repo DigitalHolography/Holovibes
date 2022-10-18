@@ -7,7 +7,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     function_vector.cc
     queue.cc
     batch_input_queue.cc
-    API.cc
 
     tools/logger.cc
     compute/compute_bundles.cc

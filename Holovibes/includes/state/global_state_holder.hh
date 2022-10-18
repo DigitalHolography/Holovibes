@@ -166,6 +166,11 @@ class GSH
 
     const ViewWindow& get_current_window() const;
     const ViewWindow& get_window(WindowKind kind) const;
+    ViewWindow& get_current_window();
+    ViewWindow& get_window(WindowKind kind);
+
+    std::shared_ptr<holovibes::ViewWindow> get_window_ptr(WindowKind kind);
+    std::shared_ptr<holovibes::ViewWindow> get_current_window_ptr();
 
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
     void notify() { notify_callback_(); }
@@ -174,9 +179,6 @@ class GSH
     void update_contrast(WindowKind kind, float min, float max);
 
   private:
-    std::shared_ptr<holovibes::View_Window> get_window(WindowKind kind);
-    std::shared_ptr<holovibes::View_Window> get_current_window();
-
     std::function<void()> notify_callback_ = []() {};
 
     AdvancedCache::Ref advanced_cache_;

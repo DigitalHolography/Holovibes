@@ -127,8 +127,8 @@ void RainbowOverlay::setBuffer()
     }
     else
     {
-        red = api::get_CompositeHsv().get_h().get_p_min();
-        blue = api::get_CompositeHsv().get_h().get_p_max();
+        red = api::get_composite_hsv().get_h().get_p_min();
+        blue = api::get_composite_hsv().get_h().get_p_max();
     }
     int green = (red + blue) / 2;
     units::PointFd red1;

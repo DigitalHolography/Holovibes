@@ -21,7 +21,7 @@ HoloWindow::HoloWindow(QPoint p,
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    if (api::get_contrast_auto_refresh())
+    if (api::get_current_window().contrast_auto_refresh)
         Ic->request_autocontrast(WindowKind::XYview);
 }
 

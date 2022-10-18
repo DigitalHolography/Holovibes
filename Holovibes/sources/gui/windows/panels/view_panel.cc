@@ -45,11 +45,11 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
 
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
     ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
@@ -82,11 +82,11 @@ void ViewPanel::on_notify()
     // Contrast
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
     ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
@@ -156,8 +156,8 @@ void ViewPanel::on_notify()
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
 
     // XY accu
-    ui_->XAccSpinBox->setValue(api::get_x_accu_level());
-    ui_->YAccSpinBox->setValue(api::get_y_accu_level());
+    ui_->XAccSpinBox->setValue(api::get_accu_x().accu_level);
+    ui_->YAccSpinBox->setValue(api::get_accu_y().accu_level);
 
     int max_width = 0;
     int max_height = 0;
@@ -323,13 +323,13 @@ void ViewPanel::increment_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_p_index() >= api::get_time_transformation_size())
+    if (api::get_accu_p().index >= api::get_time_transformation_size())
     {
         LOG_ERROR(main, "p param has to be between 1 and #img");
         return;
     }
 
-    set_p(api::get_p_index() + 1);
+    set_p(api::get_accu_p().index + 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -341,13 +341,13 @@ void ViewPanel::decrement_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_p_index() <= 0)
+    if (api::get_accu_p().index <= 0)
     {
         LOG_ERROR(main, "p param has to be between 1 and #img");
         return;
     }
 
-    set_p(api::get_p_index() - 1);
+    set_p(api::get_accu_p().index - 1);
     set_auto_contrast();
 
     parent_->notify();

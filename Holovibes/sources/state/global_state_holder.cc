@@ -52,35 +52,8 @@ float GSH::get_contrast_max() const
                                             : log10(get_current_window().contrast.max);
 }
 
-double GSH::get_rotation() const
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
+bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_scale_slice_enabled; }
 
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.rot;
-}
-
-bool GSH::get_flip_enabled() const
-{
-
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.flip_enabled;
-}
-
-bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_enabled; }
-
-unsigned GSH::get_img_accu_level() const
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.img_accu_level;
-}
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
