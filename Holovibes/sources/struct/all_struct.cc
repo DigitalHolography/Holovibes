@@ -66,10 +66,10 @@ void Rendering::Update()
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->input = GSH::instance().get_file_buffer_size();
-    this->file = GSH::instance().get_input_buffer_size();
-    this->record = GSH::instance().get_output_buffer_size();
-    this->output = GSH::instance().get_record_buffer_size();
+    this->file = GSH::instance().get_file_buffer_size();
+    this->input = GSH::instance().get_input_buffer_size();
+    this->output = GSH::instance().get_output_buffer_size();
+    this->record = GSH::instance().get_record_buffer_size();
     this->time_transformation_cuts = GSH::instance().get_time_transformation_cuts_output_buffer_size();
 }
 
@@ -113,10 +113,10 @@ void ComputeSettings::Update()
 
 void AdvancedSettings::BufferSizes::Load()
 {
-    GSH::instance().set_file_buffer_size(this->input);
-    GSH::instance().set_input_buffer_size(this->file);
-    GSH::instance().set_output_buffer_size(this->record);
-    GSH::instance().set_record_buffer_size(this->output);
+    GSH::instance().set_file_buffer_size(this->file);
+    GSH::instance().set_input_buffer_size(this->input);
+    GSH::instance().set_output_buffer_size(this->output);
+    GSH::instance().set_record_buffer_size(this->record);
     GSH::instance().set_time_transformation_cuts_output_buffer_size(this->time_transformation_cuts);
 }
 

@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "view_panel.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
@@ -113,8 +115,9 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setText(("Flip " + std::to_string(api::get_flip_enabled())).c_str());
     }
 
-    ui_->PSpinBox->setMaximum(api::get_time_transformation_size());
-    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size());
+    // Deactivate previous maximum (chetor)
+    ui_->PSpinBox->setMaximum(INT_MAX);
+    ui_->PAccSpinBox->setMaximum(INT_MAX);
     // p accu
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
@@ -122,6 +125,7 @@ void ViewPanel::on_notify()
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
+    // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
     ui_->PSpinBox->setEnabled(!is_raw);
@@ -133,14 +137,16 @@ void ViewPanel::on_notify()
     ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
     ui_->QaccLabel->setVisible(is_ssa_stft && !is_raw);
 
-    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size());
-    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size());
+    // Deactivate previous maximum (chetor + unused)
+    ui_->Q_SpinBox->setMaximum(INT_MAX);
+    ui_->Q_AccSpinBox->setMaximum(INT_MAX);
 
     ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
 
     api::check_q_limits(); // FIXME: May be moved in setters
 
+    // Enforce maximum value for p_index and p_accu_level
     ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
 

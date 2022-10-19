@@ -114,26 +114,11 @@ void InputHoloFile::load_footer()
             LOG_WARN(main, "An error occurred while retrieving the meta data. Meta data skipped");
         }
     }
+    else
+    {
+        meta_data_ = json::parse(R"({"invalid": true})");
+    }
     LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
-}
-
-template <typename T>
-T get_value(const json& json, const std::string& key, const T& default_value)
-{
-    if (!json.contains(key) || json[key].is_null())
-    {
-        return default_value;
-    }
-    return json[key];
-}
-
-template <typename T>
-void convert_value(json& json, const std::string& key_json, const T& default_value)
-{
-    if (!json.contains(key) || json[key].is_null())
-    {
-        json[key] = default_value;
-    }
 }
 
 void import_holo_v5(const json& meta_data)
@@ -147,6 +132,13 @@ void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC(main);
     this->load_footer();
+    if (meta_data_.contains("invalid"))
+    {
+        raw_footer_.Update();
+        to_json(meta_data_, raw_footer_);
+        return;
+    }
+
     if (holo_file_header_.version < 4)
     {
         apply_json_patch(meta_data_, "patch_v2-3_to_v5.json");
@@ -159,6 +151,15 @@ void InputHoloFile::import_compute_settings()
     }
     else if (holo_file_header_.version == 4)
     {
+        // V4 footer not standardize
+        // Have "file info" or just "info"
+        // Patch json suppose it is "info"
+        if (meta_data_.contains("file info"))
+        {
+            meta_data_["info"] = meta_data_["file info"];
+            meta_data_["info"]["input fps"] = 1;
+            meta_data_["info"]["contiguous"] = 1;
+        }
         apply_json_patch(meta_data_, "patch_v4_to_v5.json");
     }
     else
@@ -172,22 +173,8 @@ void InputHoloFile::import_info() const
 {
     if (holo_file_header_.version == 4)
     {
-        if (meta_data_.contains("info"))
-        {
-            const json& file_info_data = meta_data_["info"];
-            GSH::instance().set_raw_bitshift(
-                get_value(file_info_data, "raw bitshift", GSH::instance().get_raw_bitshift()));
-
-            if (file_info_data.contains("pixel size"))
-            {
-                const json& pixel_size_data = file_info_data["pixel size"];
-                GSH::instance().set_pixel_size(get_value(pixel_size_data, "x", GSH::instance().get_pixel_size()));
-            }
-        }
-    }
-    else if (holo_file_header_.version < 4)
-    {
-        GSH::instance().set_pixel_size(get_value(meta_data_, "pixel_size", GSH::instance().get_pixel_size()));
+        // Pixel are considered square
+        GSH::instance().set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
     }
     else
     {
