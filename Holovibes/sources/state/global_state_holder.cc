@@ -267,9 +267,9 @@ std::shared_ptr<ViewWindow> GSH::get_window(WindowKind kind)
 const ViewWindow& GSH::get_window(WindowKind kind) const
 {
     const std::map<WindowKind, const ViewWindow*> kind_window = {
-        {WindowKind::XYview, &view_cache_.get_xy_const_ref()},
-        {WindowKind::XZview, &view_cache_.get_xz_const_ref()},
-        {WindowKind::YZview, &view_cache_.get_yz_const_ref()},
+        {WindowKind::XYview, &view_cache_.get_value<ViewXY>()},
+        {WindowKind::XZview, &view_cache_.get_value<ViewXZ>()},
+        {WindowKind::YZview, &view_cache_.get_value<ViewYZ>()},
         {WindowKind::Filter2D, &view_cache_.get_filter2d_const_ref()},
     };
 

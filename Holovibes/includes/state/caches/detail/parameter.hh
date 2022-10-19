@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include "core/types.hh"
+#include "logger.hh"
 
 namespace holovibes
 {

@@ -1,6 +1,4 @@
-#pragma once
-
-#include "API_detail.hh"
+#include "API.hh"
 
 namespace holovibes::api
 {
@@ -94,6 +92,20 @@ void set_record_mode(const std::string& text)
         UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
     else
         throw std::exception("Record mode not handled");
+}
+
+const std::string browse_record_output_file(std::string& std_filepath)
+{
+    // FIXME: path separator should depend from system
+    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
+    std::filesystem::path path = std::filesystem::path(std_filepath);
+
+    // FIXME Opti: we could be all these 3 operations below on a single string processing
+    UserInterfaceDescriptor::instance().record_output_directory_ = path.parent_path().string();
+    const std::string file_ext = path.extension().string();
+    UserInterfaceDescriptor::instance().default_output_filename_ = path.stem().string();
+
+    return file_ext;
 }
 
 } // namespace holovibes::api

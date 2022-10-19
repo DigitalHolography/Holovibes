@@ -22,6 +22,6 @@ void set_record_mode(const std::string& text);
 
 void stop_record();
 
-} // namespace holovibes::api
+const std::string browse_record_output_file(std::string& std_filepath);
 
-#include "record_API.hxx"
+} // namespace holovibes::api

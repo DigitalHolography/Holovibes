@@ -46,19 +46,19 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     LOG_FUNC(compute_worker, unwrap_2d_requested);
 
     insert_compute_p_accu();
-    if (view_cache_.get_img_type() == ImgType::Composite)
+    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
         insert_to_composite();
-    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
+    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (view_cache_.get_img_type() == ImgType::Argument)
+    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
+    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
     if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA &&
-        view_cache_.get_img_type() != ImgType::Composite)
+        view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -78,9 +78,9 @@ void Converts::insert_to_ushort()
     LOG_FUNC(compute_worker);
 
     insert_main_ushort();
-    if (view_cache_.get_cuts_view_enabled())
+    if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_ushort();
-    if (view_cache_.get_filter2d_view_enabled())
+    if (view_cache_.get_value<Filter2DViewEnabled>())
         insert_filter2d_ushort();
 }
 
@@ -91,7 +91,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            View_PQ p = view_cache_.get_p();
+            View_PQ p = view_cache_.get_value<ViewAccuP>();
             pmin_ = p.index;
             if (p.accu_level != 0)
                 pmax_ = std::max(0,
@@ -166,13 +166,13 @@ void Converts::insert_to_composite()
                     fd_.height,
                     stream_,
                     compute_cache_.get_value<TimeTransformationSize>(),
-                    composite_cache_.get_hsv_const_ref());
+                    composite_cache_.get_value<CompositeHSVParam>());
 
             if (composite_cache_.get_value<CompositeAutoWeights>())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,
-                                    zone_cache_.get_composite_zone(),
+                                    zone_cache_.get_value<CompositeZone>(),
                                     rgb_struct.weight.r,
                                     rgb_struct.weight.g,
                                     rgb_struct.weight.b,

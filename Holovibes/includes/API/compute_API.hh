@@ -6,10 +6,10 @@ namespace holovibes::api
 {
 
 inline int get_batch_size() { return api::detail::get_value<BatchSize>(); }
-inline void set_batch_size(int value);
+void set_batch_size(int value);
 
 inline int get_time_stride() { return api::detail::get_value<TimeStride>(); }
-inline void set_time_stride(int value);
+void set_time_stride(int value);
 
 inline bool get_divide_convolution_enabled() { return api::detail::get_value<DivideConvolutionEnable>(); }
 inline void set_divide_convolution_enabled(bool value) { api::detail::set_value<DivideConvolutionEnable>(value); }
@@ -68,6 +68,14 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
     api::detail::set_value<TimeTransformationCutsOutputBufferSize>(value);
 }
 
-} // namespace holovibes::api
+// other
+void close_critical_compute();
+void cancel_time_transformation_cuts(std::function<void()> callback);
+void set_raw_mode(uint window_max_size);
 
-#include "compute_cache_API.hxx"
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size);
+void update_time_stride(std::function<void()> callback, const uint time_stride);
+
+void set_time_transformation_size(std::function<void()> callback);
+
+} // namespace holovibes::api

@@ -65,7 +65,7 @@ class MicroCache
 
       public:
         template <typename T>
-        typename T::TransfertType get_value() const
+        typename T::ValueConstRef get_value() const
         {
             return container_.template get<T>().get_value();
         }

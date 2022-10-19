@@ -74,13 +74,13 @@ void ImageRenderingPanel::on_notify()
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(api::get_filter2d_enabled());
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2D->setChecked(api::get_filter2d_view_enabled());
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
-    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
 
     // Convolution
@@ -136,7 +136,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         if (res)
         {
             /* Filter2D */
-            camera::FrameDescriptor fd = api::get_fd();
+            camera::FrameDescriptor fd = api::get_gpu_input_queue().get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
             /* Record Frame Calculation. Only in file mode */
@@ -183,7 +183,7 @@ void ImageRenderingPanel::update_time_stride()
     auto callback = [=]()
     {
         api::set_time_stride(time_stride);
-        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+        api::get_compute_pipe().request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.
@@ -207,7 +207,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = api::get_fd();
+        const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
     else
@@ -295,7 +295,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     auto callback = [=]()
     {
         api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe()->request_update_time_transformation_size();
+        api::get_compute_pipe().request_update_time_transformation_size();
         ui_->ViewPanel->set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.

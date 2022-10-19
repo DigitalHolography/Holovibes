@@ -41,6 +41,13 @@ struct ViewWindow
 
     ViewContrast contrast;
 
+    bool operator!=(const ViewWindow& rhs)
+    {
+        return log_scale_slice_enabled != rhs.log_scale_slice_enabled || contrast_enabled != rhs.contrast_enabled ||
+               contrast_auto_refresh != rhs.contrast_auto_refresh || contrast_invert != rhs.contrast_invert ||
+               contrast_min != rhs.contrast_min || contrast_max != rhs.contrast_max;
+    }
+
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 };
 
@@ -50,9 +57,17 @@ struct ViewWindow
  */
 struct ViewXYZ : public ViewWindow
 {
+    bool log_enabled = false;
     bool flip_enabled = false;
     float rot = 0;
     unsigned img_accu_level = 1;
+
+    bool operator!=(const ViewXYZ& rhs) {
+        return View_Window::operator!=(rhs)
+            || flip_enabled != rhs.flip_enabled
+            || rot != rhs.rot
+            || img_accu_level != rhs.img_accu_level;
+    }
 
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 };
@@ -76,6 +91,10 @@ struct View_PQ : public ViewAccu
 {
     unsigned index = 0;
 
+    bool operator!=(const View_PQ& rhs) {
+            return ViewAccu::operator!=(rhs) || index != rhs.index;
+    }
+
     SERIALIZE_JSON_STRUCT(View_PQ, accu_level, index)
 };
 
@@ -86,6 +105,10 @@ struct View_PQ : public ViewAccu
 struct View_XY : public ViewAccu
 {
     unsigned cuts = 0;
+
+    bool operator!=(const View_XY& rhs) {
+            return ViewAccu::operator!=(rhs) || cuts != rhs.cuts;
+    }
 
     SERIALIZE_JSON_STRUCT(View_XY, accu_level, cuts)
 };

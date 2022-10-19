@@ -55,15 +55,15 @@ void FourierTransform::insert_fft()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_filter2d_enabled())
+    if (view_cache_.get_value<Filter2DEnabled>())
     {
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
-                                     filter2d_cache_.get_filter2d_n1(),
-                                     filter2d_cache_.get_filter2d_n2(),
-                                     filter2d_cache_.get_filter2d_smooth_low(),
-                                     filter2d_cache_.get_filter2d_smooth_high(),
+                                     filter2d_cache_.get_value<Filter2DN1>(),
+                                     filter2d_cache_.get_value<Filter2DN2>(),
+                                     filter2d_cache_.get_value<Filter2DSmoothLow>(),
+                                     filter2d_cache_.get_value<Filter2DSmoothHigh>(),
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
@@ -144,7 +144,7 @@ void FourierTransform::insert_fft2()
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
-    if (view_cache_.get_filter2d_enabled())
+    if (view_cache_.get_value<Filter2DEnabled>())
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
@@ -313,7 +313,7 @@ void FourierTransform::insert_ssa_stft()
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            View_PQ q_struct = view_cache_.get_q();
+            View_PQ q_struct = view_cache_.get_value<ViewAccuQ>();
             int q = q_struct.accu_level != 0 ? q_struct.index : 0;
             int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
             int q_index = q * time_transformation_size;
@@ -359,7 +359,7 @@ void FourierTransform::insert_store_p_frame()
              * with respect to the host but never overlap with kernel execution*/
             cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
                              (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                                 view_cache_.get_p().index * frame_res,
+                                 view_cache_.get_value<ViewAccuP>().index * frame_res,
                              sizeof(cuComplex) * frame_res,
                              cudaMemcpyDeviceToDevice,
                              stream_);
@@ -373,7 +373,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (view_cache_.get_cuts_view_enabled())
+            if (view_cache_.get_value<CutsViewEnabled>())
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;
@@ -383,8 +383,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                 const ushort width = fd_.width;
                 const ushort height = fd_.height;
 
-                View_XY x = view_cache_.get_x();
-                View_XY y = view_cache_.get_y();
+                View_XY x = view_cache_.get_value<ViewAccuX>();
+                View_XY y = view_cache_.get_value<ViewAccuY>();
                 if (x.cuts < width && y.cuts < height)
                 {
                     {
@@ -402,9 +402,9 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_value<TimeTransformationSize>(),
-                                                   view_cache_.get_xz_const_ref().img_accu_level,
-                                                   view_cache_.get_yz_const_ref().img_accu_level,
-                                                   view_cache_.get_img_type(),
+                                                   view_cache_.get_value<ViewXZ>().get_img_accu_level(),
+                                                   view_cache_.get_value<ViewYZ>().get_img_accu_level(),
+                                                   view_cache_.get_value<ImgTypeParam>(),
                                                    stream_);
                 }
             }

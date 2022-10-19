@@ -8,6 +8,16 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     queue.cc
     batch_input_queue.cc
 
+    API/camera_API.cc
+    API/compute_API.cc
+    API/contrast_API.cc
+    API/display_API.cc
+    API/filter2d_API.cc
+    API/pipe_API.cc
+    API/record_API.cc
+    API/unknown_API.cc
+    API/view_cache_API.cc
+
     tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc

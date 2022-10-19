@@ -162,8 +162,7 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
+    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(4, stream_);
 
@@ -173,29 +172,28 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
 
     if (record_mode_ == RecordMode::RAW)
     {
-        pipe->request_raw_record();
-        while (pipe->get_raw_record_requested() && !stop_requested_)
+        api::get_compute_pipe().request_raw_record();
+        while (api::get_compute_pipe().get_raw_record_requested() && !stop_requested_)
             continue;
     }
     else if (record_mode_ == RecordMode::HOLOGRAM)
     {
-        pipe->request_hologram_record();
-        while (pipe->get_hologram_record_requested() && !stop_requested_)
+        api::get_compute_pipe().request_hologram_record();
+        while (api::get_compute_pipe().get_hologram_record_requested() && !stop_requested_)
             continue;
     }
     else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
     {
-        pipe->request_cuts_record(record_mode_);
-        while (pipe->get_cuts_record_requested() && !stop_requested_)
+        api::get_compute_pipe().request_cuts_record(record_mode_);
+        while (api::get_compute_pipe().get_cuts_record_requested() && !stop_requested_)
             continue;
     }
 
-    return *pipe->get_frame_record_queue();
+    return *api::get_compute_pipe().get_frame_record_queue();
 }
 
 void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
         if (record_queue.get_size() != 0)
@@ -205,10 +203,9 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 
 void FrameRecordWorker::reset_gpu_record_queue()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_disable_frame_record();
+    api::get_compute_pipe().request_disable_frame_record();
 
-    std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
+    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue();
     if (raw_view_queue)
         raw_view_queue->resize(output_buffer_size_, stream_);
 

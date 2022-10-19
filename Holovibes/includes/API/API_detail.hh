@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-
 #include "logger.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
@@ -37,10 +35,3 @@ typename T::ValueType& change_value()
 }
 
 } // namespace holovibes::api::detail
-
-namespace holovibes::api
-{
-
-inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };
-
-} // namespace holovibes::api

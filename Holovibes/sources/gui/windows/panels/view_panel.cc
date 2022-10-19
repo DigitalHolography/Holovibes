@@ -124,15 +124,16 @@ void ViewPanel::on_notify()
     ui_->PAccSpinBox->setMaximum(INT_MAX);
 
     // p accu
-    ui_->PAccSpinBox->setValue(api::get_p_accu_level());
-    ui_->PSpinBox->setValue(api::get_p_index());
+
+    ui_->PAccSpinBox->setValue(api::get_view_accu_p().accu_level);
+    ui_->PSpinBox->setValue(api::get_view_accu_p().index);
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
     // Enforce maximum value for p_index and p_accu_level
-    ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
-    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
+    ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_view_accu_p() - 1);
+    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_view_accu_p() - 1);
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
@@ -146,18 +147,16 @@ void ViewPanel::on_notify()
     ui_->Q_SpinBox->setMaximum(INT_MAX);
     ui_->Q_AccSpinBox->setMaximum(INT_MAX);
 
-    ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
-    ui_->Q_SpinBox->setValue(api::get_q_index());
+    ui_->Q_AccSpinBox->setValue(api::get_view_accu_q().accu_level);
+    ui_->Q_SpinBox->setValue(api::get_view_accu_q().index);
 
     api::check_q_limits(); // FIXME: May be moved in setters
-
-    // Enforce maximum value for p_index and p_accu_level
-    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);
-    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
+    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_view_accu_q().accu_level - 1);
+    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_view_accu_q().index - 1);
 
     // XY accu
-    ui_->XAccSpinBox->setValue(api::get_accu_x().accu_level);
-    ui_->YAccSpinBox->setValue(api::get_accu_y().accu_level);
+    ui_->XAccSpinBox->setValue(api::get_view_accu_x().accu_level);
+    ui_->YAccSpinBox->setValue(api::get_view_accu_y().accu_level);
 
     int max_width = 0;
     int max_height = 0;
@@ -244,7 +243,7 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
+        api::get_compute_pipe().delete_stft_slice_queue();
         parent_->notify();
     });
 
@@ -289,14 +288,14 @@ void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->
 
 void ViewPanel::set_x_accu()
 {
-    api::set_x_accu_level(ui_->XAccSpinBox->value());
+    api::change_view_accu_x().set_accu_level(ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::set_y_accu_level(ui_->YAccSpinBox->value());
+    api::change_view_accu_y().set_accu_level(ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
@@ -312,7 +311,7 @@ void ViewPanel::set_p(int value)
         return;
     }
 
-    api::set_p_index(value);
+    api::change_view_accu_p().set_index(value);
 
     parent_->notify();
 }
@@ -323,13 +322,13 @@ void ViewPanel::increment_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_accu_p().index >= api::get_time_transformation_size())
+    if (api::get_view_accu_p().index >= api::get_time_transformation_size())
     {
         LOG_ERROR(main, "p param has to be between 1 and #img");
         return;
     }
 
-    set_p(api::get_accu_p().index + 1);
+    set_p(api::get_view_accu_p().index + 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -341,13 +340,13 @@ void ViewPanel::decrement_p()
         return;
 
     // FIXME: Cannot append
-    if (api::get_accu_p().index <= 0)
+    if (api::get_view_accu_p().index <= 0)
     {
         LOG_ERROR(main, "p param has to be between 1 and #img");
         return;
     }
 
-    set_p(api::get_accu_p().index - 1);
+    set_p(api::get_view_accu_p().index - 1);
     set_auto_contrast();
 
     parent_->notify();
@@ -355,21 +354,21 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::set_p_accu_level(ui_->PAccSpinBox->value());
+    api::change_view_accu_p().set_accu_level(ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    api::set_q_index(value);
+    api::change_view_accu_q().set_index(value);
 
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    api::set_q_accu_level(ui_->Q_AccSpinBox->value());
+    api::change_view_accu_q().set_accu_level(ui_->Q_AccSpinBox->value());
 
     parent_->notify();
 }
@@ -403,7 +402,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_accumulation_level(value);
+    api::set_view_accumulation_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)
@@ -411,7 +410,7 @@ void ViewPanel::set_contrast_mode(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_contrast_mode(value);
+    GSH::instance().set_value<ContrastEnabled>(value);
 
     parent_->notify();
 }

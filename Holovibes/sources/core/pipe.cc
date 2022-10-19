@@ -24,6 +24,8 @@
 
 #include "all_pipe_functions.hh"
 
+#include "API.hh"
+
 namespace holovibes
 {
 
@@ -155,7 +157,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
-        GSH::instance().set_raw_view_enabled(false);
+        GSH::instance().set_value<RawViewEnabled>(false);
         disable_raw_view_requested_ = false;
     }
 
@@ -164,7 +166,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "disable_filter2D_view_requested");
 
         gpu_filter2d_view_queue_.reset(nullptr);
-        GSH::instance().set_filter2d_view_enabled(false);
+        GSH::instance().set_value<FrameRecordEnable>(false);
         disable_filter2d_view_requested_ = false;
     }
 
@@ -181,7 +183,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "disable_chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(nullptr);
-        GSH::instance().set_chart_display_enabled(false);
+        GSH::instance().set_value<ChartDisplayEnabled>(false);
         disable_chart_display_requested_ = false;
     }
 
@@ -190,7 +192,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "disable_chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(nullptr);
-        GSH::instance().set_chart_record_enabled(false);
+        GSH::instance().set_value<ChartRecordEnabled>(false);
         chart_env_.nb_chart_points_to_record_ = 0;
         disable_chart_record_requested_ = false;
     }
@@ -201,7 +203,7 @@ bool Pipe::make_requests()
 
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
-        GSH::instance().set_frame_record_enabled(false);
+        GSH::instance().set_value<FrameRecordEnable>(false);
         disable_frame_record_requested_ = false;
     }
 
@@ -232,8 +234,8 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
         {
             success_allocation = false;
-            GSH::instance().set_p_index(0);
-            GSH::instance().set_time_transformation_size(1);
+            GSH::instance().change_value<ViewAccuP>().set_index(0);
+            GSH::instance().set_value<TimeTransformationSize>(1);
             update_time_transformation_size(1);
             LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
         }
@@ -272,7 +274,7 @@ bool Pipe::make_requests()
 
         auto fd = gpu_input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_raw_view_enabled(true);
+        GSH::instance().set_value<RawViewEnabled>(true);
         raw_view_requested_ = false;
     }
 
@@ -282,7 +284,8 @@ bool Pipe::make_requests()
 
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_filter2d_view_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         filter2d_view_requested_ = false;
     }
 
@@ -291,7 +294,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_display_enabled(true);
+        GSH::instance().set_value<ChartDisplayEnabled>(true);
         chart_display_requested_ = false;
     }
 
@@ -300,7 +303,7 @@ bool Pipe::make_requests()
         LOG_DEBUG(compute_worker, "chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_record_enabled(true);
+        GSH::instance().set_value<ChartRecordEnabled>(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
         chart_record_requested_ = std::nullopt;
     }
@@ -312,7 +315,8 @@ bool Pipe::make_requests()
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(record_fd, advanced_cache_.get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
-        GSH::instance().set_frame_record_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
         LOG_DEBUG(compute_worker, "Hologram Record Request Processed");
@@ -325,7 +329,8 @@ bool Pipe::make_requests()
                                                                   advanced_cache_.get_value<RecordBufferSize>(),
                                                                   QueueType::RECORD_QUEUE));
 
-        GSH::instance().set_frame_record_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = false;
         LOG_DEBUG(compute_worker, "Raw Record Request Processed");
@@ -346,7 +351,8 @@ bool Pipe::make_requests()
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, GSH::instance().get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
-        GSH::instance().set_frame_record_enabled(true);
+        GSH::instance().set_value<FrameRecordEnable>(false);
+        ;
         cuts_record_requested_ = false;
     }
 
@@ -553,7 +559,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (view_cache_.get_cuts_view_enabled())
+            if (view_cache_.get_value<CutsViewEnabled>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -564,7 +570,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (view_cache_.get_filter2d_view_enabled())
+            if (view_cache_.get_value<Filter2DViewEnabled>())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -576,7 +582,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_filter2d_enabled() && view_cache_.get_filter2d_view_enabled())
+    if (view_cache_.get_value<Filter2DEnabled>() && view_cache_.get_value<Filter2DViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -607,7 +613,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (view_cache_.get_raw_view_enabled())
+    if (view_cache_.get_value<RawViewEnabled>())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
@@ -624,7 +630,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -639,7 +645,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -658,7 +664,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_frame_record_enabled())
+    if (GSH::instance().get_value<FrameRecordEnable>())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -677,8 +683,8 @@ void Pipe::insert_cuts_record()
 
 void Pipe::insert_request_autocontrast()
 {
-    if (GSH::instance().get_contrast_enabled() && GSH::instance().get_current_window().contrast_auto_refresh)
-        request_autocontrast(view_cache_.get_current_window());
+    if (api::get_current_window().contrast_enabled && GSH::instance().get_current_window().contrast_auto_refresh)
+        request_autocontrast(view_cache_.get_value<CurrentWindowKind>());
 }
 
 void Pipe::exec()

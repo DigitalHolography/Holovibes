@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <utility>
 
 #include "parameter.hh"
 
@@ -39,12 +40,12 @@ class CustomParameter : public IParameter
 
   public:
     CustomParameter()
-        : value_(std::forward<ValueType>(DefaultValue))
+        : value_(DefaultValue)
     {
     }
 
     CustomParameter(ValueConstRef value)
-        : value_(std::forward<ValueType>(value))
+        : value_(value)
     {
     }
 
@@ -75,11 +76,21 @@ class CustomParameter : public IParameter
             return;
         }
 
-        const ValueType& new_value = ref_cast->get_value();
-        if (value_ != new_value)
+        constexpr bool has_op_plus = requires(ValueType lhs, ValueType rhs) { lhs.operator+(rhs); };
+
+        ValueType& new_value = ref_cast->get_value();
+        if constexpr (has_op_plus)
         {
+            if (value_ != new_value)
+            {
+                value_ = new_value;
+                set_has_been_synchronized(true);
+            }
+        }
+        else
+        {
+            LOG_WARN(main, "Couldn't check if the value has been changed");
             value_ = new_value;
-            set_has_been_synchronized(true);
         }
     };
 

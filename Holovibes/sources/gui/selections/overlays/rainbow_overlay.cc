@@ -193,11 +193,17 @@ void RainbowOverlay::move(QMouseEvent* e)
     zone_.setDst(getMousePos(e->pos()));
     if (parent_->getKindOfView() == KindOfView::SliceYZ)
     {
-        api::change_composite_p().set_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
+        if (api::get_composite_kind() == CompositeKind::RGB)
+            api::change_composite_rgb().set_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
+        else
+            api::change_composite_hsv().get_h().set_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
     }
     else
     {
-        api::change_composite_p().set_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
+        if (api::get_composite_kind() == CompositeKind::RGB)
+            api::change_composite_rgb().set_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
+        else
+            api::change_composite_hsv().get_h().set_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
     }
 }
 
