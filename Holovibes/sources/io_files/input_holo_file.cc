@@ -19,10 +19,6 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     , HoloFile()
 {
 
-    // fd_.width = holo_file_header_.img_width;
-    // fd_.height = holo_file_header_.img_height;
-    // fd_.depth = holo_file_header_.bits_per_pixel / 8;
-    // fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
     LOG_FUNC(main, file_path);
 
     InputHoloFile::load_header();
@@ -140,12 +136,6 @@ void convert_value(json& json, const std::string& key_json, const T& default_val
     }
 }
 
-void import_holo_v4(const json& meta_data)
-{
-    if (meta_data.contains("compute settings"))
-        api::json_to_compute_settings(meta_data["compute settings"]);
-}
-
 void import_holo_v5(const json& meta_data)
 {
     auto compute_settings = ComputeSettings();
@@ -153,47 +143,10 @@ void import_holo_v5(const json& meta_data)
     compute_settings.Load();
 }
 
-// This is done for retrocompatibility
-void import_holo_v2_v3(const json& meta_data)
-{
-    GSH::instance().set_space_transformation(
-        get_value(meta_data, "algorithm", GSH::instance().get_space_transformation()));
-    GSH::instance().set_time_transformation(
-        get_value(meta_data, "time_filter", GSH::instance().get_time_transformation()));
-    GSH::instance().set_time_transformation_size(
-        get_value(meta_data, "#img", GSH::instance().get_time_transformation_size()));
-    GSH::instance().set_p_index(get_value(meta_data, "p", GSH::instance().get_p_index()));
-    GSH::instance().set_lambda(get_value(meta_data, "lambda", GSH::instance().get_lambda()));
-    GSH::instance().set_z_distance(get_value(meta_data, "z", GSH::instance().get_z_distance()));
-    GSH::instance().set_xy_log_scale_slice_enabled(
-        get_value(meta_data, "log_scale", GSH::instance().get_xy_log_scale_slice_enabled()));
-    GSH::instance().set_xy_contrast_min(get_value(meta_data, "contrast_min", GSH::instance().get_xy_contrast_min()));
-    GSH::instance().set_xy_contrast_max(get_value(meta_data, "contrast_max", GSH::instance().get_xy_contrast_max()));
-    GSH::instance().set_x_accu_level(get_value(meta_data, "x_acc_level", GSH::instance().get_x_accu_level()));
-    GSH::instance().set_y_accu_level(get_value(meta_data, "y_acc_level", GSH::instance().get_y_accu_level()));
-    GSH::instance().set_p_accu_level(get_value(meta_data, "p_acc_level", GSH::instance().get_p_accu_level()));
-    GSH::instance().set_xy_img_accu_level(
-        get_value(meta_data, "img_acc_slice_xy_level", GSH::instance().get_xy_img_accu_level()));
-    GSH::instance().set_xz_img_accu_level(
-        get_value(meta_data, "img_acc_slice_xz_level", GSH::instance().get_xz_img_accu_level()));
-    GSH::instance().set_yz_img_accu_level(
-        get_value(meta_data, "img_acc_slice_yz_level", GSH::instance().get_yz_img_accu_level()));
-
-    if (meta_data.contains("mode"))
-    {
-        GSH::instance().set_compute_mode(meta_data["mode"]);
-        GSH::instance().set_compute_mode(
-            static_cast<Computation>(static_cast<int>(GSH::instance().get_compute_mode()) - 1));
-    }
-
-    GSH::instance().set_fft_shift_enabled(
-        get_value(meta_data, "fft_shift_enabled", GSH::instance().get_fft_shift_enabled()));
-    GSH::instance().set_renorm_enabled(get_value(meta_data, "renorm_enabled", GSH::instance().get_renorm_enabled()));
-}
-
 void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC(main);
+    this->load_footer();
     if (holo_file_header_.version < 4)
     {
         apply_json_patch(meta_data_, "patch_v2-3_to_v5.json");
@@ -240,47 +193,6 @@ void InputHoloFile::import_info() const
     {
         LOG_ERROR(main, "HOLO file version not supported!");
     }
-}
-
-void InputHoloFile::convert_holo_footer_to_v4(json& meta_data)
-{
-    LOG_FUNC(main, meta_data);
-    raw_footer_.image_rendering.time_transformation_size = meta_data["#img"];
-    raw_footer_.image_rendering.space_transformation =
-        static_cast<SpaceTransformation>(static_cast<int>(meta_data["algorithm"]));
-
-    raw_footer_.view.window.xy.contrast.max = meta_data["contrast_max"];
-    raw_footer_.view.window.xy.contrast.min = meta_data["contrast_min"];
-
-    raw_footer_.view.fft_shift = meta_data["fft_shift_enabled"];
-    raw_footer_.view.window.xy.img_accu_level = meta_data["img_acc_slice_xy_level"];
-    raw_footer_.view.window.xz.img_accu_level = meta_data["img_acc_slice_xz_level"];
-    raw_footer_.view.window.yz.img_accu_level = meta_data["img_acc_slice_yz_level"];
-
-    raw_footer_.image_rendering.lambda = meta_data["lambda"];
-    raw_footer_.view.window.xy.log_enabled = meta_data["log_scale"];
-
-    if (meta_data.contains("mode"))
-    {
-        raw_footer_.image_rendering.image_mode = static_cast<Computation>(static_cast<int>(meta_data["mode"]) - 1);
-    }
-    raw_footer_.view.p.index = meta_data["p"];
-
-    raw_footer_.view.p.accu_level = meta_data["p_acc_level"];
-
-    raw_footer_.view.renorm = meta_data["renorm_enabled"];
-    raw_footer_.image_rendering.time_transformation =
-        static_cast<TimeTransformation>(static_cast<int>(meta_data["time_filter"]));
-
-    raw_footer_.view.x.accu_level = meta_data["x_acc_level"];
-    raw_footer_.view.y.accu_level = meta_data["y_acc_level"];
-    raw_footer_.image_rendering.z_distance = meta_data["z"];
-
-    raw_footer_.image_rendering.convolution.type = "None";
-
-    meta_data.clear();
-    to_json(meta_data, raw_footer_);
-    std::cerr << std::setw(1) << meta_data;
 }
 
 void InputHoloFile::apply_json_patch(json& meta_data, const std::string& json_patch_path)

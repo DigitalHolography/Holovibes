@@ -264,7 +264,8 @@ void GSH::enable_convolution(std::optional<std::string> file)
     compute_cache_.set_convolution_enabled(true);
     compute_cache_.get_convo_matrix_ref()->clear();
 
-    if (file)
+    // There is no file None.txt for convolution
+    if (file && file.value() != "None")
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 

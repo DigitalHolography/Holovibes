@@ -17,6 +17,7 @@ struct ComputeSettings
 
     void Update();
     void Load();
+    void Dump(const std::string& filename);
 
     SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
 };

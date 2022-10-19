@@ -33,9 +33,6 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;
 
-    /*! \brief Update holo_file_footer from version before 4.0 to 4.0 */
-    void convert_holo_footer_to_v4(json& meta_data);
-
     /*! \brief Load json patch and apply it to meta_data */
     void apply_json_patch(json& meta_data, const std::string& json_patch_path);
 

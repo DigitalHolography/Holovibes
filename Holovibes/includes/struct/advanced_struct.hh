@@ -48,11 +48,12 @@ struct AdvancedSettings
     Filter2DSmooth filter2d_smooth;
     ContrastThreshold contrast;
     unsigned renorm_constant = 5;
+    unsigned int raw_bitshift = 0;
 
     void Update();
     void Load();
 
-    SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant)
+    SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant, raw_bitshift)
 };
 
 } // namespace holovibes

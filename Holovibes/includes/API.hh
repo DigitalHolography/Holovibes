@@ -699,18 +699,6 @@ json compute_settings_to_json();
  */
 void load_compute_settings(const std::string& path);
 
-/*! \brief Setups program from .json file (holo footer version 4)
- *
- * \param path the path where the .json file is
- */
-void json_to_compute_settings(const json& data);
-
-/*! \brief Setups program from .json file (holo footer version 5 inter FIXME)
- *
- * \param path the path where the .json file is
- */
-void json_to_compute_settings_v5(const json& data);
-
 /*! \brief Gets the documentation url
  *
  * \return const QUrl& url

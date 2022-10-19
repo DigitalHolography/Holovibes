@@ -113,13 +113,14 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setText(("Flip " + std::to_string(api::get_flip_enabled())).c_str());
     }
 
+    ui_->PSpinBox->setMaximum(api::get_time_transformation_size());
+    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size());
     // p accu
-    ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
-
-    api::check_p_limits(); // FIXME: May be moved in setters
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
+
+    api::check_p_limits(); // FIXME: May be moved in setters
 
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
@@ -132,11 +133,14 @@ void ViewPanel::on_notify()
     ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
     ui_->QaccLabel->setVisible(is_ssa_stft && !is_raw);
 
-    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - 1);
+    ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size());
+    ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size());
 
-    api::check_q_limits(); // FIXME: May be moved in setters
     ui_->Q_AccSpinBox->setValue(api::get_q_accu_level());
     ui_->Q_SpinBox->setValue(api::get_q_index());
+
+    api::check_q_limits(); // FIXME: May be moved in setters
+
     ui_->Q_SpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_accu_level() - 1);
     ui_->Q_AccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_q_index() - 1);
 

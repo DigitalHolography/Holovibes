@@ -611,13 +611,14 @@ class GSH
 
     void update_contrast(WindowKind kind, float min, float max);
 
+    void notify() { notify_callback_(); }
+
   private:
     GSH() noexcept {}
 
     std::shared_ptr<holovibes::ViewWindow> get_window(WindowKind kind);
     std::shared_ptr<holovibes::ViewWindow> get_current_window();
 
-    void notify() { notify_callback_(); }
     std::function<void()> notify_callback_ = []() {};
 
     ComputeCache::Ref compute_cache_;

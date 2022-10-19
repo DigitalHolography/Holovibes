@@ -82,7 +82,8 @@ TEST(TestMicroCache, register_truth_works) { TestCache1::Ref x; }
 
 TEST(TestMicroCache, assert_not_truth_found)
 {
-    ASSERT_DEATH({ TestCache1::Cache x; }, "You must register a truth cache for class: TestCache1");
+    // Error message caught by logger and not std::cerr
+    ASSERT_DEATH({ TestCache1::Cache x; }, "");
 }
 
 TEST(TestMicroCache, basic_types_simple)

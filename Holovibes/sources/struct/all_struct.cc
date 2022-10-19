@@ -1,5 +1,10 @@
+#include <iomanip>
+#include <filesystem>
+#include <fstream>
+
 #include "compute_settings_struct.hh"
 #include "API.hh"
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -87,6 +92,7 @@ void AdvancedSettings::Update()
     this->filter2d_smooth.Update();
     this->contrast.Update();
     this->renorm_constant = GSH::instance().get_renorm_constant();
+    this->raw_bitshift = GSH::instance().get_raw_bitshift();
 }
 
 void Composite::Update()
@@ -133,6 +139,7 @@ void AdvancedSettings::Load()
     this->filter2d_smooth.Load();
     this->contrast.Load();
     GSH::instance().set_renorm_constant(this->renorm_constant);
+    GSH::instance().set_raw_bitshift(this->raw_bitshift);
 }
 
 void Composite::Load()
@@ -146,9 +153,9 @@ void Composite::Load()
 void ComputeSettings::Load()
 {
     this->image_rendering.Load();
-    this->view.Load();
     this->composite.Load();
     this->advanced.Load();
+    this->view.Load();
 }
 
 void Windows::Load()
@@ -173,9 +180,9 @@ void Views::Load()
     GSH::instance().set_y(this->y);
     GSH::instance().set_p(this->p);
     GSH::instance().set_q(this->q);
-    this->window.Update();
+    this->window.Load();
     GSH::instance().set_renorm_enabled(this->renorm);
-    this->reticle.Update();
+    this->reticle.Load();
 }
 
 void Rendering::Convolution::Load()
@@ -194,9 +201,9 @@ void Rendering::Filter2D::Load()
 
 void Rendering::Load()
 {
+    GSH::instance().set_time_stride(this->time_transformation_stride);
     GSH::instance().set_compute_mode(this->image_mode);
     GSH::instance().set_batch_size(this->batch_size);
-    GSH::instance().set_time_stride(this->time_transformation_stride);
     this->filter2d.Load();
     GSH::instance().set_space_transformation(this->space_transformation);
     GSH::instance().set_time_transformation(this->time_transformation);
@@ -204,6 +211,17 @@ void Rendering::Load()
     GSH::instance().set_lambda(this->lambda);
     GSH::instance().set_z_distance(this->z_distance);
     this->convolution.Load();
+}
+
+void ComputeSettings::Dump(const std::string& filename)
+{
+    json compute_json;
+    this->Update();
+    to_json(compute_json, *this);
+
+    auto path_path = std::filesystem::path(holovibes::settings::patch_dirpath) / (filename + ".json");
+    auto file_content = std::ofstream(path_path, std::ifstream::out);
+    file_content << std::setw(1) << compute_json;
 }
 
 } // namespace holovibes
