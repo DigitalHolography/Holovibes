@@ -152,7 +152,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    CHECK(size_ > 0);
+    CHECK(size_ > 0, "");
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -180,7 +180,7 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
 
 void BatchInputQueue::dequeue()
 {
-    CHECK(size_ > 0);
+    CHECK(size_ > 0, "");
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -227,7 +227,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
           "Copy multiple: the destination queue must have a size at least greater than number of elements to copy.");
-    CHECK(fd_.get_frame_size() == dest.fd_.get_frame_size());
+    CHECK(fd_.get_frame_size() == dest.fd_.get_frame_size(), "");
     CHECK(nb_elts <= batch_size_, "Copy multiple: cannot copy more than a batch of frames");
 
     // Order cannot be guaranteed because of the try lock because a producer

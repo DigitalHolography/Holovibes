@@ -46,7 +46,7 @@
 #define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::log(), __VA_ARGS__)
 #define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::log(), __VA_ARGS__)
 
-constexpr const char* const get_file_name(const char* path)
+constexpr const char* get_file_name(const char* path)
 {
     const char* file = path;
     while (*path)

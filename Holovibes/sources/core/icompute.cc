@@ -149,7 +149,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         time_transformation_env_.pca_dev_info.resize(1);
     }
     else // Should not happend or be handled (if add more time transformation)
-        CHECK(false);
+        CHECK(false, "");
 
     try
     {

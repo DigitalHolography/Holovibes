@@ -188,7 +188,7 @@ LOG_ERROR << "File named config.json could not be found";
 
 Assertions are under the same banners as the logs, but here you should use the CHECK macro function as follows:
 ```cpp
-CHECK(condition) << "An error occured";
+CHECK(condition, "An error occured" [,args]);
 ```
 
 #### Known issues

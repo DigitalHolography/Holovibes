@@ -51,7 +51,7 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
 {
-    CHECK(gpu_input_queue_.load() != nullptr);
+    CHECK(gpu_input_queue_.load() != nullptr, "");
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_error_callback(error_callback_);

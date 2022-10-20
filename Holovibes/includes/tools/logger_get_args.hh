@@ -1,3 +1,4 @@
+#pragma once
 /*! \file
  * macros to get all but the first argument
  */

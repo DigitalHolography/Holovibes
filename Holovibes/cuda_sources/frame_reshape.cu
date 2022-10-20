@@ -15,8 +15,8 @@ cudaError_t embedded_frame_cpy(const char* input,
                                cudaMemcpyKind kind,
                                const cudaStream_t stream)
 {
-    CHECK(input_width + output_startx <= output_width);
-    CHECK(input_height + output_starty <= output_height);
+    CHECK(input_width + output_startx <= output_width, "");
+    CHECK(input_height + output_starty <= output_height, "");
 
     char* output_write_start = output + elm_size * (output_starty * output_width + output_startx);
     return cudaMemcpy2DAsync(output_write_start,
@@ -154,8 +154,8 @@ cudaError_t crop_frame(const char* input,
                        cudaMemcpyKind kind,
                        const cudaStream_t stream)
 {
-    CHECK(crop_start_x + crop_width <= input_width);
-    CHECK(crop_start_y + crop_height <= input_height);
+    CHECK(crop_start_x + crop_width <= input_width, "");
+    CHECK(crop_start_y + crop_height <= input_height, "");
 
     const char* crop_start = input + elm_size * (crop_start_y * input_width + crop_start_x);
     return cudaMemcpy2DAsync(output,
@@ -311,8 +311,8 @@ void subsample_frame(const char* input,
                      const uint elm_size,
                      const cudaStream_t stream)
 {
-    CHECK(input_width % sample_step == 0);
-    CHECK(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0, "");
+    CHECK(input_height % sample_step == 0, "");
 
     uint output_width = input_width / sample_step;
     uint output_height = input_height / sample_step;
@@ -367,11 +367,11 @@ void subsample_frame_complex_batched(const cuComplex* input,
                                      const uint batch_size,
                                      const cudaStream_t stream)
 {
-    CHECK(input_width % sample_step == 0);
-    CHECK(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0, "");
+    CHECK(input_height % sample_step == 0, "");
 
-    CHECK(input_width % sample_step == 0);
-    CHECK(input_height % sample_step == 0);
+    CHECK(input_width % sample_step == 0, "");
+    CHECK(input_height % sample_step == 0, "");
 
     uint output_width = input_width / sample_step;
     uint output_height = input_height / sample_step;
