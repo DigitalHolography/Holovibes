@@ -101,4 +101,14 @@ void set_time_transformation_size(std::function<void()> callback)
     api::get_compute_pipe().insert_fn_end_vect(callback);
 }
 
+void toggle_renormalize(bool value)
+{
+    set_renorm_enabled(value);
+
+    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+        get_compute_pipe().request_clear_img_acc();
+
+    pipe_refresh();
+}
+
 } // namespace holovibes::api

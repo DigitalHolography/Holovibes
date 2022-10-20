@@ -120,7 +120,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
-        GSH::instance().change_value<Filter2D>().set_log_scale_slice_enabled(log_scale_filter2d_enabled);
+        GSH::instance().change_value<Filter2D>().set_log_scale_slice_enabled(true);
         get_compute_pipe().request_autocontrast(WindowKind::Filter2D);
     }
     else
@@ -138,6 +138,14 @@ void set_filter2d(bool checked)
 {
     set_filter2d_view_enabled(checked);
     set_auto_contrast_all();
+}
+
+void set_accumulation_level(int value)
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    reinterpret_cast<View_XYZ*>(api::get_current_window_ptr().get())->img_accu_level = value;
 }
 
 } // namespace holovibes::api

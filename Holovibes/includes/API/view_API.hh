@@ -8,6 +8,7 @@ inline ImgType get_img_type() { return api::detail::get_value<ImgTypeParam>(); }
 inline void set_img_type(ImgType _img_type) { return api::detail::set_value<ImgTypeParam>(_img_type); }
 
 inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnabled>(); }
+inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }
 
 inline bool get_filter2d_enabled() { return api::detail::get_value<Filter2DEnabled>(); }
 
@@ -50,7 +51,7 @@ inline View_XYZ& change_view_yx() noexcept { return api::detail::change_value<Vi
 inline View_Window get_filter2d() { return api::detail::get_value<Filter2D>(); }
 inline View_Window change_filter2d() { return api::detail::change_value<Filter2D>(); }
 
-inline WindowKind get_current_window_type() noexcept { return api::detail::get_value<CurrentWindowKind>(); }
+inline WindowKind get_current_window_kind() noexcept { return api::detail::get_value<CurrentWindowKind>(); }
 
 inline float get_reticle_scale() { return api::detail::get_value<ReticleScale>(); }
 inline void set_reticle_scale(float value) { api::detail::set_value<ReticleScale>(value); }
@@ -66,5 +67,10 @@ void set_view_mode(const std::string& value, std::function<void()> callback);
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size);
 void set_filter2d(bool checked);
+
+inline bool get_renorm_enabled() { return GSH::instance().get_value<RenormEnabled>(); }
+inline void set_renorm_enabled(bool value) { GSH::instance().set_value<RenormEnabled>(value); }
+
+void set_accumulation_level(int value);
 
 } // namespace holovibes::api

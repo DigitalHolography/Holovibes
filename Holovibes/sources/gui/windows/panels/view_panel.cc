@@ -46,7 +46,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_current_window().get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
@@ -55,7 +55,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
 }
 
 void ViewPanel::on_notify()
@@ -83,7 +83,7 @@ void ViewPanel::on_notify()
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_current_window().get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
@@ -92,11 +92,11 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_current_window().log_scale_slice_enabled);
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val)
@@ -107,7 +107,7 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window_type() == WindowKind::Filter2D)
+    if (api::get_current_window_kind() == WindowKind::Filter2D)
         set_xyzf_visibility(false);
     else
     {
@@ -160,20 +160,21 @@ void ViewPanel::on_notify()
 
     int max_width = 0;
     int max_height = 0;
-    if (api::get_gpu_input_queue() != nullptr)
+    if (api::get_gpu_input_queue_ptr() != nullptr)
     {
-        max_width = api::get_gpu_input_queue_fd_width() - 1;
-        max_height = api::get_gpu_input_queue_fd_height() - 1;
+        max_width = api::get_gpu_input_queue().get_fd().width - 1;
+        max_height = api::get_gpu_input_queue().get_fd().height - 1;
     }
     else
     {
-        api::set_x_y(0, 0);
+        api::change_view_accu_x().set_cuts(0);
+        api::change_view_accu_y().set_cuts(0);
     }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
-    QSpinBoxQuietSetValue(ui_->XSpinBox, api::get_x_cuts());
-    QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_y_cuts());
+    QSpinBoxQuietSetValue(ui_->XSpinBox, api::get_view_accu_x().get_cuts());
+    QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_view_accu_y().get_cuts());
 
     ui_->RenormalizeCheckBox->setChecked(api::get_renorm_enabled());
     ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
@@ -204,7 +205,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_unwrapping_2d(value);
+    api::get_compute_pipe().request_unwrapping_2d(value);
 
     parent_->notify();
 }
@@ -284,7 +285,11 @@ void ViewPanel::update_raw_view(bool checked)
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
+void ViewPanel::set_x_y()
+{
+    api::set_x_cuts(ui_->XSpinBox->value());
+    api::set_y_cuts(ui_->YSpinBox->value());
+}
 
 void ViewPanel::set_x_accu()
 {
@@ -402,7 +407,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_view_accumulation_level(value);
+    api::set_accumulation_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)
@@ -410,7 +415,7 @@ void ViewPanel::set_contrast_mode(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    GSH::instance().set_value<ContrastEnabled>(value);
+    api::get_current_window().set_contrast_enabled(value);
 
     parent_->notify();
 }
@@ -425,7 +430,7 @@ void ViewPanel::set_auto_contrast()
 
 void ViewPanel::set_auto_refresh_contrast(bool value)
 {
-    api::set_auto_refresh_contrast(value);
+    api::get_current_window().set_contrast_auto_refresh(value);
 
     parent_->notify();
 }
@@ -438,7 +443,7 @@ void ViewPanel::invert_contrast(bool value)
     if (!api::get_current_window().contrast_enabled)
         return;
 
-    api::invert_contrast(value);
+    api::get_current_window().set_contrast_invert(value);
 }
 
 void ViewPanel::set_contrast_min(const double value)

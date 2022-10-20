@@ -288,7 +288,6 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 
 void MainWindow::write_compute_settings()
 {
-    // FIXME holovibes::settings::compute_settings_filepath wasn't present
     api::save_compute_settings(holovibes::settings::compute_settings_filepath);
 }
 

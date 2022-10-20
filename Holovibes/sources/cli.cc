@@ -192,7 +192,7 @@ static void main_loop()
                 // end up with black images ...
                 if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && !requested_autocontrast)
                 {
-                    holovibes::api::get_compute_pipe().request_autocontrast(holovibes::api::get_current_window_type());
+                    holovibes::api::get_compute_pipe().request_autocontrast(holovibes::api::get_current_window_kind());
                     requested_autocontrast = true;
                 }
             }

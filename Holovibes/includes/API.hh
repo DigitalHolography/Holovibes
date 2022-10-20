@@ -27,6 +27,7 @@
 #include "compute_settings_struct.hh"
 #include "convolution_API.hh"
 #include "unknown_API.hh"
+#include "texture_API.hh"
 
 namespace holovibes::api
 {

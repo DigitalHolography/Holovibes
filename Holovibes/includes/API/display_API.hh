@@ -5,7 +5,9 @@
 namespace holovibes::api
 {
 
-const View_Window& get_current_window() { return GSH::instance().get_current_window(); }
+View_Window& get_current_window() { return GSH::instance().get_current_window(); }
+std::shared_ptr<holovibes::View_Window> get_current_window_ptr() { return GSH::instance().get_current_window_ptr(); }
+
 void change_window(const int index) { GSH::instance().change_window(index); }
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
@@ -25,7 +27,12 @@ void start_information_display(const std::function<void()>& callback)
 bool is_current_window_xyz_type()
 {
     static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
-    return types.contains(api::get_current_window_type());
+    return types.contains(api::get_current_window_kind());
+}
+
+void set_composite_area()
+{
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
 }
 
 } // namespace holovibes::api

@@ -33,4 +33,7 @@ void set_auto_contrast_cuts()
     get_compute_pipe().request_autocontrast(WindowKind::YZview);
 }
 
+bool set_3d_cuts_view(uint time_transformation_size);
+void cancel_time_transformation_cuts(std::function<void()> callback);
+
 } // namespace holovibes::api

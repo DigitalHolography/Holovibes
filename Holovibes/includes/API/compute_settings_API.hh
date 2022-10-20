@@ -13,6 +13,6 @@ void json_to_compute_settings(const json& data);
 void after_load_checks();
 void load_compute_settings(const std::string& json_path);
 json compute_settings_to_json();
-void save_compute_settings(const std::string& json_path);
+void save_compute_settings(const std::string& json_path = holovibes::settings::compute_settings_filepath);
 
 } // namespace holovibes::api

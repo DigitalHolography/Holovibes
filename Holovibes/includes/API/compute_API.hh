@@ -78,4 +78,6 @@ void update_time_stride(std::function<void()> callback, const uint time_stride);
 
 void set_time_transformation_size(std::function<void()> callback);
 
+void toggle_renormalize(bool value);
+
 } // namespace holovibes::api

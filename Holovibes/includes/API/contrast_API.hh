@@ -17,8 +17,11 @@ float get_contrast_max()
                                                              : log10(api::get_current_window().contrast_max);
 }
 
-bool get_contrast_invert_enabled() { return api::get_current_window().contrast_invert; }
-
 void set_auto_contrast_all();
+
+bool set_auto_contrast();
+
+void set_contrast_min(const double value);
+void set_contrast_max(const double value);
 
 } // namespace holovibes::api
