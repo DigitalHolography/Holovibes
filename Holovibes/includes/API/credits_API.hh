@@ -2,7 +2,7 @@
 
 namespace holovibes::api
 {
-const std::string get_credits()
+inline const std::string get_credits()
 {
     return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
            "\n\n"

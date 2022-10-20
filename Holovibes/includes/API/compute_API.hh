@@ -70,7 +70,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 
 // other
 void close_critical_compute();
-void cancel_time_transformation_cuts(std::function<void()> callback);
 void set_raw_mode(uint window_max_size);
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size);

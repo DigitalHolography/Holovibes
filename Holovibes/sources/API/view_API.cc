@@ -46,8 +46,9 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().get_rotation());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(
+            api::get_current_window_as_view_xyz().get_flip_enabled());
     }
     catch (const std::runtime_error& e)
     {
@@ -120,7 +121,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
-        GSH::instance().change_value<Filter2D>().set_log_scale_slice_enabled(true);
+        GSH::instance().change_value<Filter2D>()->set_log_scale_slice_enabled(true);
         get_compute_pipe().request_autocontrast(WindowKind::Filter2D);
     }
     else
@@ -138,14 +139,6 @@ void set_filter2d(bool checked)
 {
     set_filter2d_view_enabled(checked);
     set_auto_contrast_all();
-}
-
-void set_accumulation_level(int value)
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    reinterpret_cast<View_XYZ*>(api::get_current_window_ptr().get())->img_accu_level = value;
 }
 
 } // namespace holovibes::api

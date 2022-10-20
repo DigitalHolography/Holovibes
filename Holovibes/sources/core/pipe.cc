@@ -234,7 +234,7 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
         {
             success_allocation = false;
-            GSH::instance().change_value<ViewAccuP>().set_index(0);
+            GSH::instance().change_value<ViewAccuP>()->set_index(0);
             GSH::instance().set_value<TimeTransformationSize>(1);
             update_time_transformation_size(1);
             LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");

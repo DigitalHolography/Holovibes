@@ -33,34 +33,6 @@ void stop_chart_display()
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
-double get_rotation()
-{
-    if (!api::is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
-    return w.rot;
-}
-
-bool get_flip_enabled()
-{
-
-    if (!api::is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
-    return w.flip_enabled;
-}
-
-unsigned int get_img_accu_level()
-{
-    if (!api::is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
-    return w.img_accu_level;
-}
-
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display()
 {
     return UserInterfaceDescriptor::instance().mainDisplay;

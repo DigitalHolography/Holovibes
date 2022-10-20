@@ -6,10 +6,10 @@ namespace holovibes::api
 void enable_convolution(const std::string& filename)
 {
     api::detail::set_value<ConvolutionEnabled>(true);
-    api::detail::change_value<ConvolutionMatrix>().clear();
+    api::detail::change_value<ConvolutionMatrix>()->clear();
 
     if (filename != UID_CONVOLUTION_TYPE_DEFAULT)
-        load_convolution_matrix(api::detail::get_value<ConvolutionMatrix>(), filename);
+        load_convolution_matrix(filename);
     else if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
     {
         // FIXME : WHY
@@ -35,7 +35,7 @@ void enable_convolution(const std::string& filename)
 void disable_convolution()
 {
 
-    api::detail::change_value<ConvolutionMatrix>().clear();
+    api::detail::change_value<ConvolutionMatrix>()->clear();
     api::detail::set_value<ConvolutionEnabled>(false);
     try
     {
@@ -113,7 +113,7 @@ void load_convolution_matrix(std::vector<float>& convo_matrix, const std::string
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        convo_matrix.resize(size, 0.0f);
+        api::detail::change_value<ConvolutionMatrix>()->resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)

@@ -20,6 +20,7 @@
 #include "cache_gsh.hh"
 
 #include "all_caches.hh"
+#include "cache_dispatcher.hh"
 
 namespace holovibes
 {
@@ -51,10 +52,20 @@ using entities::Span;
  * FastUpdateHolder : the fastUpdateHolder is a templated map which is used by the informationWorker to access and
  * display information (like fps and queue occupancy) at a high rate, since this needs to be updated continuously.
  */
+
+//! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
+using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref,
+                                           ComputeCache::Ref,
+                                           ExportCache::Ref,
+                                           CompositeCache::Ref,
+                                           Filter2DCache::Ref,
+                                           ViewCache::Ref,
+                                           ZoneCache::Ref,
+                                           ImportCache::Ref,
+                                           FileReadCache::Ref>;
+
 class GSH
 {
-    static GSH* instance_;
-
   private:
     GSH();
     ~GSH();
@@ -68,72 +79,21 @@ class GSH
 
   public:
     template <typename T>
-    const typename T::ValueConstRef get_value()
+    const typename T::RefType get_value()
     {
-        if constexpr (AdvancedCache::has<T>())
-            return advanced_cache_.get_value<T>();
-        if constexpr (ComputeCache::has<T>())
-            return compute_cache_.get_value<T>();
-        if constexpr (ExportCache::has<T>())
-            return export_cache_.get_value<T>();
-        if constexpr (CompositeCache::has<T>())
-            return composite_cache_.get_value<T>();
-        if constexpr (Filter2DCache::has<T>())
-            return filter2d_cache_.get_value<T>();
-        if constexpr (ViewCache::has<T>())
-            return view_cache_.get_value<T>();
-        if constexpr (ZoneCache::has<T>())
-            return zone_cache_.get_value<T>();
-        if constexpr (ImportCache::has<T>())
-            return import_cache_.get_value<T>();
-        if constexpr (FileReadCache::has<T>())
-            return file_read_cache_.get_value<T>();
+        return cache_dispatcher_.template get<T>().template get_value<T>();
     }
 
     template <typename T>
-    void set_value(typename T::ValueConstRef value)
+    void set_value(typename T::RefType value)
     {
-        if constexpr (AdvancedCache::has<T>())
-            return advanced_cache_.set_value<T>(value);
-        if constexpr (ComputeCache::has<T>())
-            return compute_cache_.set_value<T>(value);
-        if constexpr (ExportCache::has<T>())
-            return export_cache_.set_value<T>(value);
-        if constexpr (CompositeCache::has<T>())
-            return composite_cache_.set_value<T>(value);
-        if constexpr (Filter2DCache::has<T>())
-            return filter2d_cache_.set_value<T>(value);
-        if constexpr (ViewCache::has<T>())
-            return view_cache_.set_value<T>(value);
-        if constexpr (ZoneCache::has<T>())
-            return zone_cache_.set_value<T>(value);
-        if constexpr (ImportCache::has<T>())
-            return import_cache_.set_value<T>(value);
-        if constexpr (FileReadCache::has<T>())
-            return file_read_cache_.set_value<T>(value);
+        return cache_dispatcher_.template get<T>().template set_value<T>(value);
     }
 
     template <typename T>
-    typename T::ValueType& change_value()
+    TriggerChangeValue<typename T::ValueType> change_value()
     {
-        if constexpr (AdvancedCache::has<T>())
-            return advanced_cache_.change_value<T>();
-        if constexpr (ComputeCache::has<T>())
-            return compute_cache_.change_value<T>();
-        if constexpr (ExportCache::has<T>())
-            return export_cache_.change_value<T>();
-        if constexpr (CompositeCache::has<T>())
-            return composite_cache_.change_value<T>();
-        if constexpr (Filter2DCache::has<T>())
-            return filter2d_cache_.change_value<T>();
-        if constexpr (ViewCache::has<T>())
-            return view_cache_.change_value<T>();
-        if constexpr (ZoneCache::has<T>())
-            return zone_cache_.change_value<T>();
-        if constexpr (ImportCache::has<T>())
-            return import_cache_.change_value<T>();
-        if constexpr (FileReadCache::has<T>())
-            return file_read_cache_.change_value<T>();
+        return cache_dispatcher_.template get<T>().template change_value<T>();
     }
 
     AdvancedCache::Ref& get_advanced_cache() { return advanced_cache_; }
@@ -151,6 +111,22 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
+  private:
+    View_Window* get_window_internal(WindowKind kind)
+    {
+        if (kind == WindowKind::XYview)
+            return &view_cache_.get_value<ViewXY>();
+        else if (kind == WindowKind::XZview)
+            return &view_cache_.get_value<ViewXZ>();
+        else if (kind == WindowKind::YZview)
+            return &view_cache_.get_value<ViewYZ>();
+        else if (kind == WindowKind::Filter2D)
+            return &view_cache_.get_value<Filter2D>();
+
+        throw std::runtime_error("Unexpected WindowKind");
+        return nullptr;
+    }
+
   public:
 
     enum class ComputeSettingsVersion
@@ -161,22 +137,25 @@ class GSH
         V5
     };
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
+      
+    void change_window(WindowKind kind) { view_cache_.set_value<CurrentWindowKind>(kind); }
 
-    void change_window(uint index);
+    View_Window& get_window(WindowKind kind) { return *get_window_internal(kind); }
+    View_Window& get_current_window() { return *get_window_internal(view_cache_.get_value<CurrentWindowKind>()); }
 
-    const ViewWindow& get_current_window() const;
-    const ViewWindow& get_window(WindowKind kind) const;
-    ViewWindow& get_current_window();
-    ViewWindow& get_window(WindowKind kind);
-
-    std::shared_ptr<holovibes::ViewWindow> get_window_ptr(WindowKind kind);
-    std::shared_ptr<holovibes::ViewWindow> get_current_window_ptr();
 
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
     void notify() { notify_callback_(); }
 
     // FIXME
-    void update_contrast(WindowKind kind, float min, float max);
+    void update_contrast(WindowKind kind, float min, float max)
+    {
+        View_Window& window = get_window(kind);
+        window.set_contrast_min(min);
+        window.set_contrast_max(max);
+
+        notify();
+    }
 
   private:
     std::function<void()> notify_callback_ = []() {};
@@ -190,6 +169,8 @@ class GSH
     ZoneCache::Ref zone_cache_;
     ImportCache::Ref import_cache_;
     FileReadCache::Ref file_read_cache_;
+
+    GSHCacheDispatcher cache_dispatcher_;
 
     mutable std::mutex mutex_;
 };

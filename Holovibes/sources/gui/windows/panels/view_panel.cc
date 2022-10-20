@@ -43,13 +43,13 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().get_contrast_auto_refresh());
     ui_->InvertContrastCheckBox->setChecked(api::get_current_window().get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().get_contrast_auto_refresh());
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
@@ -80,13 +80,13 @@ void ViewPanel::on_notify()
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast_enabled);
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast_auto_refresh);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().get_contrast_auto_refresh());
     ui_->InvertContrastCheckBox->setChecked(api::get_current_window().get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast_auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().get_contrast_auto_refresh());
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
@@ -113,10 +113,12 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().get_img_accu_level());
 
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(api::get_rotation()))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(api::get_flip_enabled())).c_str());
+        ui_->RotatePushButton->setText(
+            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().get_rotation()))).c_str());
+        ui_->FlipPushButton->setText(
+            ("Flip " + std::to_string(api::get_current_window_as_view_xyz().get_flip_enabled())).c_str());
     }
 
     // Deactivate previous maximum (chetor)
@@ -407,7 +409,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_accumulation_level(value);
+    api::get_current_window_as_view_xyz().set_img_accu_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)

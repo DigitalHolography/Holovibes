@@ -17,19 +17,19 @@ namespace holovibes::api::detail
 {
 
 template <typename T>
-const typename T::ValueConstRef get_value()
+const typename T::RefType get_value()
 {
     return GSH::instance().get_value<T>();
 }
 
 template <typename T>
-void set_value(typename T::ValueConstRef value)
+void set_value(typename T::RefType value)
 {
     GSH::instance().set_value<T>(value);
 }
 
 template <typename T>
-typename T::ValueType& change_value()
+auto& change_value()
 {
     return GSH::instance().change_value<T>();
 }

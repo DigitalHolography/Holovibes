@@ -1,45 +1,41 @@
 #include "API.hh"
-#include "view_API.hh"
-#include "display_API.hh"
 
 namespace holovibes::api
 {
 
 void change_angle()
 {
-    double rot = GSH::instance().get_rotation();
+    double rot = api::get_current_window_as_view_xyz().get_rotation();
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
-
-    GSH::instance().set_rotation(new_rot);
+    api::get_current_window_as_view_xyz().set_rotation(new_rot);
 }
 
 void rotateTexture()
 {
     change_angle();
 
-    if (GSH::instance().get_value<CurrentWindowKind>() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_xy_rot());
-    else if (UserInterfaceDescriptor::instance().sliceXZ &&
-             GSH::instance().get_value<CurrentWindowKind>() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(GSH::instance().get_xz_rot());
-    else if (UserInterfaceDescriptor::instance().sliceYZ &&
-             GSH::instance().get_value<CurrentWindowKind>() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
+    if (api::get_current_window_kind() == WindowKind::XYview)
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_view_xy().get_rotation());
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::XZview)
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(api::get_view_xz().get_rotation());
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::YZview)
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().get_rotation());
 }
 
-void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
+void change_flip()
+{
+    api::get_current_window_as_view_xyz().set_flip_enabled(!api::get_current_window_as_view_xyz().get_flip_enabled());
+}
 
 void flipTexture()
 {
     change_flip();
 
-    if (GSH::instance().get_value<CurrentWindowKind>() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_xy_flip_enabled());
-    else if (UserInterfaceDescriptor::instance().sliceXZ &&
-             GSH::instance().get_value<CurrentWindowKind>() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(GSH::instance().get_xz_flip_enabled());
-    else if (UserInterfaceDescriptor::instance().sliceYZ &&
-             GSH::instance().get_value<CurrentWindowKind>() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(GSH::instance().get_yz_flip_enabled());
+    if (api::get_current_window_kind() == WindowKind::XYview)
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_view_xy().get_flip_enabled());
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::XZview)
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(api::get_view_xz().get_flip_enabled());
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::YZview)
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().get_flip_enabled());
 }
 } // namespace holovibes::api

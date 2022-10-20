@@ -21,7 +21,7 @@ HoloWindow::HoloWindow(QPoint p,
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    if (api::get_current_window().contrast_auto_refresh)
+    if (api::get_current_window().get_contrast_auto_refresh())
         Ic->request_autocontrast(WindowKind::XYview);
 }
 
@@ -41,7 +41,7 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    api::change_window(static_cast<int>(WindowKind::XYview));
+    api::change_window(WindowKind::XYview);
 }
 
 void HoloWindow::update_slice_transforms()

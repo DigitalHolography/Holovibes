@@ -26,8 +26,10 @@
 #include "compute_settings_API.hh"
 #include "compute_settings_struct.hh"
 #include "convolution_API.hh"
-#include "unknown_API.hh"
 #include "texture_API.hh"
+#include "unknown_API.hh"
+
+// FIXME check if get_filter2d_enabled has not been inverted with get_filter2d_view_enabled
 
 namespace holovibes::api
 {

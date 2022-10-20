@@ -31,12 +31,12 @@ struct VectorLiteral
     static constexpr VectorLiteral instance() { return VectorLiteral(); }
 };
 
-template <typename T, auto DefaultValue, StringLiteral Key, typename TConstRef = const T&>
+template <typename T, auto DefaultValue, StringLiteral Key, typename TRef = const T&>
 class CustomParameter : public IParameter
 {
   public:
     using ValueType = T;
-    using ValueConstRef = TConstRef;
+    using RefType = TRef;
 
   public:
     CustomParameter()
@@ -44,7 +44,7 @@ class CustomParameter : public IParameter
     {
     }
 
-    CustomParameter(ValueConstRef value)
+    CustomParameter(RefType value)
         : value_(value)
     {
     }
@@ -56,12 +56,12 @@ class CustomParameter : public IParameter
 
     virtual ~CustomParameter() override {}
 
-    operator ValueConstRef() const { return value_; }
+    operator RefType() const { return value_; }
 
   public:
-    ValueConstRef get_value() const { return value_; }
+    RefType get_value() const { return value_; }
     ValueType& get_value() { return value_; }
-    void set_value(ValueConstRef value) { value_ = value; }
+    void set_value(RefType value) { value_ = value; }
 
     static const char* static_key() { return Key; }
     const char* get_key() const override { return static_key(); }

@@ -36,20 +36,20 @@ inline const View_XY& get_view_accu_x() noexcept { return api::detail::get_value
 inline const View_XY& get_view_accu_y() noexcept { return api::detail::get_value<ViewAccuY>(); }
 inline const View_PQ& get_view_accu_p() noexcept { return api::detail::get_value<ViewAccuP>(); }
 inline const View_PQ& get_view_accu_q() noexcept { return api::detail::get_value<ViewAccuQ>(); }
-inline View_XY& change_view_accu_x() noexcept { return api::detail::change_value<ViewAccuX>(); }
-inline View_XY& change_view_accu_y() noexcept { return api::detail::change_value<ViewAccuY>(); }
-inline View_PQ& change_view_accu_p() noexcept { return api::detail::change_value<ViewAccuP>(); }
-inline View_PQ& change_view_accu_q() noexcept { return api::detail::change_value<ViewAccuQ>(); }
+inline TriggerChangeValue<View_XY> change_view_accu_x() noexcept { return api::detail::change_value<ViewAccuX>(); }
+inline TriggerChangeValue<View_XY> change_view_accu_y() noexcept { return api::detail::change_value<ViewAccuY>(); }
+inline TriggerChangeValue<View_PQ> change_view_accu_p() noexcept { return api::detail::change_value<ViewAccuP>(); }
+inline TriggerChangeValue<View_PQ> change_view_accu_q() noexcept { return api::detail::change_value<ViewAccuQ>(); }
 
 inline const View_XYZ& get_view_xy() noexcept { return api::detail::get_value<ViewXY>(); }
 inline const View_XYZ& get_view_xz() noexcept { return api::detail::get_value<ViewXZ>(); }
-inline const View_XYZ& get_view_yx() noexcept { return api::detail::get_value<ViewYZ>(); }
-inline View_XYZ& change_view_xy() noexcept { return api::detail::change_value<ViewXY>(); }
-inline View_XYZ& change_view_xz() noexcept { return api::detail::change_value<ViewXZ>(); }
-inline View_XYZ& change_view_yx() noexcept { return api::detail::change_value<ViewYZ>(); }
+inline const View_XYZ& get_view_yz() noexcept { return api::detail::get_value<ViewYZ>(); }
+inline TriggerChangeValue<View_XYZ> change_view_xy() noexcept { return api::detail::change_value<ViewXY>(); }
+inline TriggerChangeValue<View_XYZ> change_view_xz() noexcept { return api::detail::change_value<ViewXZ>(); }
+inline TriggerChangeValue<View_XYZ> change_view_yz() noexcept { return api::detail::change_value<ViewYZ>(); }
 
 inline View_Window get_filter2d() { return api::detail::get_value<Filter2D>(); }
-inline View_Window change_filter2d() { return api::detail::change_value<Filter2D>(); }
+inline TriggerChangeValue<View_Window> change_filter2d() { return api::detail::change_value<Filter2D>(); }
 
 inline WindowKind get_current_window_kind() noexcept { return api::detail::get_value<CurrentWindowKind>(); }
 
@@ -70,7 +70,5 @@ void set_filter2d(bool checked);
 
 inline bool get_renorm_enabled() { return GSH::instance().get_value<RenormEnabled>(); }
 inline void set_renorm_enabled(bool value) { GSH::instance().set_value<RenormEnabled>(value); }
-
-void set_accumulation_level(int value);
 
 } // namespace holovibes::api

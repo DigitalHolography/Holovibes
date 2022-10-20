@@ -10,8 +10,10 @@
 #include <mutex>
 #include <thread>
 #include "parameter.hh"
-#include "static_container.hh"
 #include "logger.hh"
+
+#include "static_container.hh"
+#include "micro_cache_trigger.hh"
 
 namespace holovibes
 {
@@ -65,13 +67,7 @@ class MicroCache
 
       public:
         template <typename T>
-        typename T::ValueConstRef get_value() const
-        {
-            return container_.template get<T>().get_value();
-        }
-
-        template <typename T>
-        typename T::ValueType& get_value()
+        const typename T::RefType get_value() const
         {
             return container_.template get<T>().get_value();
         }
@@ -157,7 +153,7 @@ class MicroCache
 
       private:
         template <typename T>
-        void trigger_params()
+        void trigger_param()
         {
             IParameter* ref = &this->template get_type<T>();
             for (auto cache : caches_to_sync_)
@@ -166,18 +162,33 @@ class MicroCache
 
       public:
         template <typename T>
-        void set_value(typename T::ValueConstRef value)
+        void set_value(typename T::RefType value)
         {
             this->container_.template get<T>().set_value(value);
-            trigger_params<T>();
+            trigger_param<T>();
+        }
+
+        void callback_trigger_change_value() { trigger_param<T>(); }
+
+        template <typename T>
+        typename TriggerChangeValue<typename T::ValueType> change_value()
+        {
+            return TriggerChangeValue<typename T::ValueType>([this]() { this->callback_trigger_change_value(); },
+                                                             BasicMicroCache::template get_value<T>());
         }
 
       public:
+        //! this function must be handle with care (hence the W, may_be we can change this...)
         template <typename T>
-        typename T::ValueType& change_value()
+        typename T::RefType get_value_ref_W()
         {
-            trigger_params<T>();
-            return BasicMicroCache::template get_value<T>();
+            return container_.template get<T>().get_value();
+        }
+
+        template <typename T>
+        void force_trigger_param_W()
+        {
+            trigger_param<T>();
         }
 
       protected:

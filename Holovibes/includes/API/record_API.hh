@@ -5,7 +5,7 @@
 namespace holovibes::api
 {
 
-void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
+inline void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
 
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,

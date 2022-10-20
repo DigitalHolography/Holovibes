@@ -17,12 +17,12 @@ inline void set_composite_zone(const units::RectFd& rect) { api::detail::set_val
 inline void set_zoomed_zone(const units::RectFd& rect) { api::detail::set_value<ZoomedZone>(rect); };
 inline void set_reticle_zone(const units::RectFd& rect) { api::detail::set_value<ReticleZone>(rect); };
 
-void active_noise_zone()
+inline void active_noise_zone()
 {
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
 }
 
-void active_signal_zone()
+inline void active_signal_zone()
 {
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
 }
