@@ -61,7 +61,6 @@ constexpr const char* const get_file_name(const char* path)
               get_file_name(__FILE__),                                                                                 \
               __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
 
-
 #define CHECK(cond, ...)                                                                                               \
     {                                                                                                                  \
         if (!(cond))                                                                                                   \

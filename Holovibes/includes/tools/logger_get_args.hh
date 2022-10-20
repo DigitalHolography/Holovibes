@@ -1,3 +1,14 @@
+/*! \file
+ * macros to get all but the first argument
+ */
+
+/*
+ * TODO: the day __VA_OPT__ is usable, this file can be replaced by 2 lines:
+ *
+ * #define INTERNAL_CHECK_GET_ARGS_(fmt, ...) __VA_OPT__(, ) __VA_ARGS__
+ * #define INTERNAL_CHECK_GET_ARGS(...) __VA_OPT__(INTERNAL_CHECK_GET_ARGS_(__VA_ARGS__))
+ */
+
 #define INTERNAL_CHECK_GET_ARGS_EXPAND(x) x
 #define INTERNAL_CHECK_GET_ARGS_GET_MACRO(_1,                                                                          \
                                           _2,                                                                          \
@@ -18,6 +29,11 @@
                                           NAME,                                                                        \
                                           ...)                                                                         \
     NAME
+
+/*! \brief
+ * macro to be used
+ * at most 16 arguments
+ */
 #define INTERNAL_CHECK_GET_ARGS(...)                                                                                   \
     INTERNAL_CHECK_GET_ARGS_EXPAND(INTERNAL_CHECK_GET_ARGS_GET_MACRO(__VA_ARGS__,                                      \
                                                                      INTERNAL_CHECK_GET_ARGS_16,                       \
