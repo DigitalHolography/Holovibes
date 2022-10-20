@@ -166,7 +166,12 @@ If you want to use a custom widget, you can change its class in the `mainwindow.
 Logs are as follows:
 
 ```
-${datetime} <${time from start}> [${Thread ID}] ${filename}:${line_in_file} ${log_level}| ${message}
+[${log_level}] [${timestamp}] [${Thread ID}] ${logger_name} >> ${message}
+```
+
+Check logs are as follows:
+```
+[${log_level}] [${timestamp}] [${Thread ID}] ${logger_name} >> ${filename}:${line} ${message}
 ```
 
 ##### Usage
@@ -178,17 +183,26 @@ We have 5 levels of log:
 * Warnings (LOG_WARN)
 * Errors (LOG_ERROR)
 
-They are usable as std:cout and any C++ Stream.
-For instance, if a file named `config.json` is not found, you could write:
+We have 7 loggers:
+* main
+* setup
+* cuda
+* information_worker
+* record_worker
+* compute_worker
+* frame_read_worker
+
+They log on std::cerr and a log file in appdata
+
 ```cpp
-LOG_ERROR << "File named config.json could not be found";
+LOG_ERROR(logger_name, formated_string [,args]);
 ```
 
 ##### Assertions
 
 Assertions are under the same banners as the logs, but here you should use the CHECK macro function as follows:
 ```cpp
-CHECK(condition, "An error occured" [,args]);
+CHECK(condition, formated_string [,args]);
 ```
 
 #### Known issues
