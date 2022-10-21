@@ -16,8 +16,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include "logger_get_args.hh"
-#include "logger_get_fmt.hh"
+#include "check.hh"
 
 // FROM : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 #define PARENS ()
@@ -60,18 +59,6 @@ constexpr const char* get_file_name(const char* path)
               "{}:{} -> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")",                                            \
               get_file_name(__FILE__),                                                                                 \
               __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
-
-#define CHECK(cond, ...)                                                                                               \
-    {                                                                                                                  \
-        if (!(cond))                                                                                                   \
-        {                                                                                                              \
-            LOG_CRITICAL(main,                                                                                         \
-                         "{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                                 \
-                         __FILE__,                                                                                     \
-                         __LINE__ INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                               \
-            abort();                                                                                                   \
-        }                                                                                                              \
-    }
 
 #define CUDA_FATAL(file, line, fmt, ...)                                                                               \
     {                                                                                                                  \
