@@ -7,8 +7,7 @@ namespace holovibes
 {
 static inline const std::filesystem::path dir(get_exe_dir());
 GSH::GSH()
-    :
-    , cache_dispatcher_(advanced_cache_,
+    : cache_dispatcher_(advanced_cache_,
                         compute_cache_,
                         export_cache_,
                         composite_cache_,
@@ -18,6 +17,20 @@ GSH::GSH()
                         import_cache_,
                         file_read_cache_)
 {
+    set_caches_as_refs();
+}
+
+void GSH::set_caches_as_refs()
+{
+    advanced_cache_.set_as_ref();
+    compute_cache_.set_as_ref();
+    export_cache_.set_as_ref();
+    composite_cache_.set_as_ref();
+    filter2d_cache_.set_as_ref();
+    view_cache_.set_as_ref();
+    zone_cache_.set_as_ref();
+    import_cache_.set_as_ref();
+    file_read_cache_.set_as_ref();
 }
 
 GSH::~GSH() {}

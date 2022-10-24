@@ -218,7 +218,7 @@ class ICompute
     }
 
     template <typename T>
-    void set_value(typename T::RefType value)
+    void set_value(typename T::ConstRefType value)
     {
         advanced_cache_.set_value_safe<T>(value);
         compute_cache_.set_value_safe<T>(value);

@@ -5,7 +5,8 @@
 namespace holovibes::api
 {
 
-inline View_Window& get_current_window() { return GSH::instance().get_current_window(); }
+inline WindowKind get_current_window_kind() { return api::detail::get_value<CurrentWindowKind>(); }
+inline void change_current_window_kind(WindowKind index) { api::detail::change_value<CurrentWindowKind>(); }
 
 inline bool is_current_window_xyz_type()
 {
@@ -13,15 +14,23 @@ inline bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_kind());
 }
 
-inline View_XYZ& get_current_window_as_view_xyz()
+const View_Window& get_window(WindowKind kind);
+inline const View_Window& get_current_window() { return get_window(get_current_window_kind()); }
+inline const View_XYZ& get_current_window_as_view_xyz()
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-
-    return reinterpret_cast<View_XYZ&>(api::get_current_window());
+    return reinterpret_cast<const View_XYZ&>(api::get_current_window());
 }
 
-inline void change_window(WindowKind index) { GSH::instance().change_window(index); }
+TriggerChangeValue<View_Window> change_window(WindowKind kind);
+inline TriggerChangeValue<View_Window> change_current_window() { return change_window(get_current_window_kind()); }
+inline TriggerChangeValue<View_XYZ> change_current_window_as_view_xyz()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+    return TriggerChangeValue<View_XYZ>(api::change_current_window());
+}
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();

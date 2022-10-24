@@ -36,7 +36,7 @@ class CustomParameter : public IParameter
 {
   public:
     using ValueType = T;
-    using RefType = TRef;
+    using ConstRefType = TRef;
 
   public:
     CustomParameter()
@@ -44,7 +44,7 @@ class CustomParameter : public IParameter
     {
     }
 
-    CustomParameter(RefType value)
+    CustomParameter(ConstRefType value)
         : value_(value)
     {
     }
@@ -56,12 +56,12 @@ class CustomParameter : public IParameter
 
     virtual ~CustomParameter() override {}
 
-    operator RefType() const { return value_; }
+    operator ConstRefType() const { return value_; }
 
   public:
-    RefType get_value() const { return value_; }
+    ConstRefType get_value() const { return value_; }
     ValueType& get_value() { return value_; }
-    void set_value(RefType value) { value_ = value; }
+    void set_value(ConstRefType value) { value_ = value; }
 
     static const char* static_key() { return Key; }
     const char* get_key() const override { return static_key(); }

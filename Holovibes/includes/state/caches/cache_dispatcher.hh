@@ -14,7 +14,7 @@ class CacheDispatcher<CacheHandle, CacheOthers...> : public CacheDispatcher<Cach
 
   public:
     CacheDispatcher<CacheHandle, CacheOthers...>(CacheHandle& handle, CacheOthers&... others)
-        : CacheDispatcher<CacheOthers...>(std::forward<CacheOthers>(others)...)
+        : CacheDispatcher<CacheOthers...>(others...)
         , cache_(handle)
     {
     }

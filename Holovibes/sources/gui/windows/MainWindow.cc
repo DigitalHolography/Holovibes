@@ -215,7 +215,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::change_view_xy().set_img_accu_level(1); }
+static void handle_accumulation_exception() { api::change_view_xy()->set_img_accu_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -228,7 +228,7 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::change_view_accu_p().set_index(0);
+                api::change_view_accu_p()->set_index(0);
                 api::set_time_transformation_size(1);
                 api::disable_convolution();
                 api::close_windows();
@@ -583,7 +583,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
 void MainWindow::change_window(int index)
 {
-    api::change_window(static_cast<WindowKind>(index));
+    api::change_current_window_kind(static_cast<WindowKind>(index));
 
     notify();
 }

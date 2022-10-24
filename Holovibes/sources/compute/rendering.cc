@@ -10,6 +10,7 @@
 #include "map.cuh"
 #include "cuda_memory.cuh"
 #include "logger.hh"
+#include "API.hh"
 
 namespace holovibes::compute
 {
@@ -342,7 +343,7 @@ void Rendering::autocontrast_caller(
                                    (view == WindowKind::Filter2D) ? false
                                                                   : view_cache_.get_value<ReticleDisplayEnabled>(),
                                    stream_);
-        GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -355,7 +356,7 @@ void Rendering::autocontrast_caller(
                                    zone_cache_.get_value<ReticleZone>(),
                                    view_cache_.get_value<ReticleDisplayEnabled>(),
                                    stream_);
-        GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
         break;
     }
 }

@@ -79,13 +79,13 @@ class GSH
 
   public:
     template <typename T>
-    const typename T::RefType get_value()
+    typename T::ConstRefType get_value()
     {
         return cache_dispatcher_.template get<T>().template get_value<T>();
     }
 
     template <typename T>
-    void set_value(typename T::RefType value)
+    void set_value(typename T::ConstRefType value)
     {
         return cache_dispatcher_.template get<T>().template set_value<T>(value);
     }
@@ -111,22 +111,6 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-  private:
-    View_Window* get_window_internal(WindowKind kind)
-    {
-        if (kind == WindowKind::XYview)
-            return &view_cache_.get_value<ViewXY>();
-        else if (kind == WindowKind::XZview)
-            return &view_cache_.get_value<ViewXZ>();
-        else if (kind == WindowKind::YZview)
-            return &view_cache_.get_value<ViewYZ>();
-        else if (kind == WindowKind::Filter2D)
-            return &view_cache_.get_value<Filter2D>();
-
-        throw std::runtime_error("Unexpected WindowKind");
-        return nullptr;
-    }
-
   public:
 
     enum class ComputeSettingsVersion
@@ -138,24 +122,12 @@ class GSH
     };
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
       
-    void change_window(WindowKind kind) { view_cache_.set_value<CurrentWindowKind>(kind); }
-
-    View_Window& get_window(WindowKind kind) { return *get_window_internal(kind); }
-    View_Window& get_current_window() { return *get_window_internal(view_cache_.get_value<CurrentWindowKind>()); }
 
 
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
     void notify() { notify_callback_(); }
 
-    // FIXME
-    void update_contrast(WindowKind kind, float min, float max)
-    {
-        View_Window& window = get_window(kind);
-        window.set_contrast_min(min);
-        window.set_contrast_max(max);
-
-        notify();
-    }
+    void set_caches_as_refs();
 
   private:
     std::function<void()> notify_callback_ = []() {};

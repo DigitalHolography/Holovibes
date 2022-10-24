@@ -7,7 +7,7 @@ void change_angle()
 {
     double rot = api::get_current_window_as_view_xyz().get_rotation();
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
-    api::get_current_window_as_view_xyz().set_rotation(new_rot);
+    api::change_current_window_as_view_xyz()->set_rotation(new_rot);
 }
 
 void rotateTexture()
@@ -24,7 +24,8 @@ void rotateTexture()
 
 void change_flip()
 {
-    api::get_current_window_as_view_xyz().set_flip_enabled(!api::get_current_window_as_view_xyz().get_flip_enabled());
+    api::change_current_window_as_view_xyz()->set_flip_enabled(
+        !api::get_current_window_as_view_xyz().get_flip_enabled());
 }
 
 void flipTexture()

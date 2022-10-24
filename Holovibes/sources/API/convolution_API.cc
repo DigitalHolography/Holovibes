@@ -49,7 +49,7 @@ void disable_convolution()
     }
 }
 
-void load_convolution_matrix(std::vector<float>& convo_matrix, const std::string& file)
+void load_convolution_matrix(const std::string& file)
 {
     auto& holo = Holovibes::instance();
 
@@ -113,23 +113,25 @@ void load_convolution_matrix(std::vector<float>& convo_matrix, const std::string
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        api::detail::change_value<ConvolutionMatrix>()->resize(size, 0.0f);
+        GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>().resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)
         {
             for (uint j = first_col; j < last_col; j++)
             {
-                convo_matrix[i * output_width + j] = matrix[kernel_indice];
+                GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>()[i * output_width + j] =
+                    matrix[kernel_indice];
                 kernel_indice++;
             }
         }
     }
     catch (std::exception& e)
     {
-        convo_matrix.clear();
+        GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>().clear();
         LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
     }
+    GSH::instance().get_compute_cache().force_trigger_param_W<ConvolutionMatrix>();
 }
 
 } // namespace holovibes::api

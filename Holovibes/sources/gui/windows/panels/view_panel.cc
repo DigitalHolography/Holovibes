@@ -169,8 +169,8 @@ void ViewPanel::on_notify()
     }
     else
     {
-        api::change_view_accu_x().set_cuts(0);
-        api::change_view_accu_y().set_cuts(0);
+        api::change_view_accu_x()->set_cuts(0);
+        api::change_view_accu_y()->set_cuts(0);
     }
 
     ui_->XSpinBox->setMaximum(max_width);
@@ -295,14 +295,14 @@ void ViewPanel::set_x_y()
 
 void ViewPanel::set_x_accu()
 {
-    api::change_view_accu_x().set_accu_level(ui_->XAccSpinBox->value());
+    api::change_view_accu_x()->set_accu_level(ui_->XAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_y_accu()
 {
-    api::change_view_accu_y().set_accu_level(ui_->YAccSpinBox->value());
+    api::change_view_accu_y()->set_accu_level(ui_->YAccSpinBox->value());
 
     parent_->notify();
 }
@@ -318,7 +318,7 @@ void ViewPanel::set_p(int value)
         return;
     }
 
-    api::change_view_accu_p().set_index(value);
+    api::change_view_accu_p()->set_index(value);
 
     parent_->notify();
 }
@@ -361,21 +361,21 @@ void ViewPanel::decrement_p()
 
 void ViewPanel::set_p_accu()
 {
-    api::change_view_accu_p().set_accu_level(ui_->PAccSpinBox->value());
+    api::change_view_accu_p()->set_accu_level(ui_->PAccSpinBox->value());
 
     parent_->notify();
 }
 
 void ViewPanel::set_q(int value)
 {
-    api::change_view_accu_q().set_index(value);
+    api::change_view_accu_q()->set_index(value);
 
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
-    api::change_view_accu_q().set_accu_level(ui_->Q_AccSpinBox->value());
+    api::change_view_accu_q()->set_accu_level(ui_->Q_AccSpinBox->value());
 
     parent_->notify();
 }
@@ -409,7 +409,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::get_current_window_as_view_xyz().set_img_accu_level(value);
+    api::change_current_window_as_view_xyz()->set_img_accu_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)
@@ -417,7 +417,7 @@ void ViewPanel::set_contrast_mode(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::get_current_window().set_contrast_enabled(value);
+    api::change_current_window()->set_contrast_enabled(value);
 
     parent_->notify();
 }
@@ -432,7 +432,7 @@ void ViewPanel::set_auto_contrast()
 
 void ViewPanel::set_auto_refresh_contrast(bool value)
 {
-    api::get_current_window().set_contrast_auto_refresh(value);
+    api::change_current_window()->set_contrast_auto_refresh(value);
 
     parent_->notify();
 }
@@ -445,7 +445,7 @@ void ViewPanel::invert_contrast(bool value)
     if (!api::get_current_window().contrast_enabled)
         return;
 
-    api::get_current_window().set_contrast_invert(value);
+    api::change_current_window()->set_contrast_invert(value);
 }
 
 void ViewPanel::set_contrast_min(const double value)
@@ -456,7 +456,7 @@ void ViewPanel::set_contrast_min(const double value)
     if (!api::get_current_window().contrast_enabled)
         return;
 
-    api::set_contrast_min(value);
+    api::set_current_window_contrast_min(value);
 }
 
 void ViewPanel::set_contrast_max(const double value)
@@ -467,7 +467,7 @@ void ViewPanel::set_contrast_max(const double value)
     if (!api::get_current_window().contrast_enabled)
         return;
 
-    api::set_contrast_max(value);
+    api::set_current_window_contrast_max(value);
 }
 
 void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }

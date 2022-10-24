@@ -22,7 +22,7 @@ void set_auto_contrast_all();
 
 bool set_auto_contrast();
 
-void set_contrast_min(const double value);
-void set_contrast_max(const double value);
+void set_current_window_contrast_min(const double value);
+void set_current_window_contrast_max(const double value);
 
 } // namespace holovibes::api
