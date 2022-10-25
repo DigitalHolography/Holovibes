@@ -617,11 +617,11 @@ void MainWindow::reset_settings()
     if (std::remove(to_remove.c_str()) == 0)
     {
         save_cs = false;
-        LOG_INFO << to_remove << " has been removed!";
-        LOG_INFO << "Please, restart Holovibes!";
+        LOG_INFO(main, "{} has been removed!", to_remove);
+        LOG_INFO(main, "Please, restart Holovibes!");
     }
     else
-        LOG_WARN << "Could not remove " << to_remove << "!";
+        LOG_WARN(main, "Could not remove {}!", to_remove);
     
     close();
 }
