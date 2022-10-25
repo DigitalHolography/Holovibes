@@ -71,6 +71,7 @@ void AdvancedSettingsWindow::set_ui_values()
         specific_panel_->set_ui_values();
 
     UserInterfaceDescriptor::instance().has_been_updated = true;
+    this->close();
 }
 
 void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
