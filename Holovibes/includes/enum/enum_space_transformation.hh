@@ -28,6 +28,7 @@ SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::FFT2, "FFT2"},
     {SpaceTransformation::FFT1, "1FFT"}, // Compat
     {SpaceTransformation::FFT2, "2FFT"}, // Compat
+    {SpaceTransformation::NONE, "None"}, // Compat
 })
 // clang-format on
 } // namespace holovibes
