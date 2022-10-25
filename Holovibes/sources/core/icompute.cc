@@ -163,7 +163,9 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
     catch (const std::exception& e)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
+
         request_time_transformation_cuts_ = false;
+
         request_delete_time_transformation_cuts_ = true;
         dispose_cuts();
         LOG_ERROR(compute_worker,
@@ -262,8 +264,6 @@ void ICompute::create_stft_slice_queue()
     request_refresh();
 }
 
-bool ICompute::get_cuts_request() { return request_time_transformation_cuts_; }
-
 bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
 
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
@@ -289,18 +289,6 @@ void ICompute::request_termination() { termination_requested_ = true; }
 void ICompute::request_output_resize(unsigned int new_output_size)
 {
     output_resize_requested_ = new_output_size;
-    request_refresh();
-}
-
-void ICompute::request_disable_raw_view()
-{
-    disable_raw_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_view()
-{
-    raw_view_requested_ = true;
     request_refresh();
 }
 
@@ -337,12 +325,6 @@ void ICompute::request_cuts_record(RecordMode rm)
     request_refresh();
 }
 
-void ICompute::request_disable_frame_record()
-{
-    disable_frame_record_requested_ = true;
-    request_refresh();
-}
-
 void ICompute::request_autocontrast(WindowKind kind)
 {
     if (kind == WindowKind::XYview && view_cache_.get_value<ViewXY>().contrast.enabled)
@@ -356,12 +338,6 @@ void ICompute::request_autocontrast(WindowKind kind)
     else if (kind == WindowKind::Filter2D && view_cache_.get_value<Filter2D>().contrast.enabled &&
              view_cache_.get_value<Filter2DEnabled>())
         autocontrast_filter2d_requested_ = true;
-}
-
-void ICompute::request_update_time_transformation_size()
-{
-    update_time_transformation_size_requested_ = true;
-    request_refresh();
 }
 
 void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
@@ -401,24 +377,6 @@ void ICompute::request_update_time_stride()
 void ICompute::request_disable_lens_view()
 {
     request_disable_lens_view_ = true;
-    request_refresh();
-}
-
-void ICompute::request_clear_img_acc()
-{
-    request_clear_img_accu = true;
-    request_refresh();
-}
-
-void ICompute::request_convolution()
-{
-    convolution_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_convolution()
-{
-    disable_convolution_requested_ = true;
     request_refresh();
 }
 } // namespace holovibes

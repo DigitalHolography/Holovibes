@@ -35,14 +35,8 @@ inline void set_time_transformation(TimeTransformation value)
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline bool get_convolution_enabled() { return api::detail::get_value<ConvolutionEnabled>(); }
-inline void set_convolution_enabled(bool value) { api::detail::set_value<ConvolutionEnabled>(value); }
-
-inline const std::vector<float>& get_convolution_matrix() { return api::detail::get_value<ConvolutionMatrix>(); }
-inline void set_convolution_matrix(const std::vector<float>& value)
-{
-    api::detail::set_value<ConvolutionMatrix>(value);
-}
+inline bool get_convolution() { return api::detail::get_value<Convolution>(); }
+inline TriggerChangeValue<Convolution> change_convolution() { return api::detail::change_value<Convolution>(); }
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
 inline void set_input_fps(uint value) { api::detail::set_value<InputFps>(value); }

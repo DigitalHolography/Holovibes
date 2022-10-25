@@ -1,16 +1,18 @@
 #pragma once
 
-#include "detail.hh"
 #include "pipe.hh"
+#include "logger.hh"
+#include "micro_cache.hh"
 
 namespace holovibes
 {
-class CompositePipeRequest : public PipeRequestFunctions
+class CompositePipeRequest
 {
   public:
     template <typename T>
-    void operator()(const T&, Pipe& pipe)
+    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
     {
     }
+
 };
 } // namespace holovibes

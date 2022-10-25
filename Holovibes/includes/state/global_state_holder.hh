@@ -62,7 +62,8 @@ using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref,
                                            ViewCache::Ref,
                                            ZoneCache::Ref,
                                            ImportCache::Ref,
-                                           FileReadCache::Ref>;
+                                           FileReadCache::Ref,
+                                           RequestCache::Ref>;
 
 class GSH
 {
@@ -105,6 +106,7 @@ class GSH
     ZoneCache::Ref& get_zone_cache() { return zone_cache_; }
     ImportCache::Ref& get_import_cache() { return import_cache_; }
     FileReadCache::Ref& get_file_read_cache() { return file_read_cache_; }
+    RequestCache::Ref& get_unknown_cache() { return unknown_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -128,6 +130,7 @@ class GSH
     void notify() { notify_callback_(); }
 
     void set_caches_as_refs();
+    void remove_caches_as_refs();
 
   private:
     std::function<void()> notify_callback_ = []() {};
@@ -141,6 +144,7 @@ class GSH
     ZoneCache::Ref zone_cache_;
     ImportCache::Ref import_cache_;
     FileReadCache::Ref file_read_cache_;
+    RequestCache::Ref unknown_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <set>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -17,6 +18,58 @@
 
 namespace holovibes
 {
+template <bool value>
+class SetHasBeenSynchronized
+{
+  public:
+    template <typename T>
+    void operator()(T& value)
+    {
+        value.set_has_been_synchronized(value);
+    }
+};
+
+using MapKeyParams = std::unordered_map<std::string_view, IParameter*>;
+class FillMapKeyParams
+{
+  public:
+    template <typename T>
+    void operator()(T& value, MapKeyParams& map)
+    {
+        map[value.get_key()] = &value;
+    }
+};
+
+using MapDuplicatedParameter = std::unordered_map<std::IParameter*, DuplicatedParameter*>;
+template <typename RefContainer>
+class FillDuplicatedContainer
+{
+  public:
+    template <typename T>
+    void operator()(T& value, RefContainer& ref_container, MapDuplicatedParameter& map)
+    {
+        auto& ref_container_type = ref_container.template get<T>();
+        value.set_value(ref_container_type.get_value());
+        map[&ref_container_type] = &value;
+    }
+};
+
+//! <param_to_change, <ref_new_value, ref_old_value>>
+using ChangePool = std::map<IParameter*, std::pair<IParameter*, DuplicatedParameter*>>;
+template <typename FunctionClass, typename... Args>
+class OnSync
+{
+  public:
+    template <typename T>
+    void operator()(T& value, FunctionClass& functions_to_call, ChangePool& pool, Args&&... args)
+    {
+        if (value.get_has_been_synchronized() == true)
+        {
+            DuplicatedParameter<T>& old_value = pool[&value].second;
+            functions_to_call.operator<T>()(value, old_value.get_value(), std::forward<Args>(args)...);
+        }
+    }
+};
 
 template <typename... Params>
 class MicroCache
@@ -24,15 +77,12 @@ class MicroCache
   protected:
     class BasicMicroCache
     {
-      protected:
-        MapKeyParams key_container_;
-        StaticContainer<Params...> container_;
-
       public:
         BasicMicroCache()
-            : key_container_()
-            , container_(key_container_)
+            : key_container_
+            , container_
         {
+            container_.call<FillMapKeyParams>(key_container_);
         }
 
       public:
@@ -40,24 +90,8 @@ class MicroCache
         void call(Args&&... args)
         {
             FunctionClass functions_class;
-
-            if constexpr (requires { typename FunctionClass::BeforeMethods; })
-                call<typename FunctionClass::BeforeMethods>();
-
             container_.call(functions_class, std::forward<Args>(args)...);
-
-            constexpr bool has_member_call_on_cache = requires(FunctionClass functions_class)
-            {
-                functions_class.template call_on_cache(*this);
-            };
-            if constexpr (has_member_call_on_cache) functions_class.template call_on_cache(*this);
-
-            if constexpr (requires { typename FunctionClass::AfterMethods; })
-                call<typename FunctionClass::AfterMethods>();
         }
-
-      public:
-        virtual void synchronize() {}
 
       public:
         const MapKeyParams& get_map_key() const { return key_container_; }
@@ -84,6 +118,10 @@ class MicroCache
         {
             return container_.template get<T>();
         }
+
+      protected:
+        MapKeyParams key_container_;
+        StaticContainer<Params...> container_;
     };
 
   public:
@@ -107,35 +145,39 @@ class MicroCache
         }
 
         template <typename T>
-        void trigger_param(IParameter* ref)
+        void trigger_param(IParameter* ref, IParameter* old_value)
         {
-            std::lock_guard<std::mutex> guard(change_pool_mutex);
             IParameter* param_to_change = static_cast<IParameter*>(&BasicMicroCache::template get_type<T>());
-            change_pool[param_to_change] = ref;
+
+            std::lock_guard<std::mutex>(lock_);
+            change_pool_[param_to_change] = std::pair{ref, old_value};
         }
 
       public:
-        void synchronize() override
+        template <typename FunctionClass, typename... Args>
+        void synchronize(Args&&... args)
         {
-            std::lock_guard<std::mutex> guard(change_pool_mutex);
-            for (auto change : change_pool)
-                change.first->sync_with(change.second);
-            change_pool.clear();
+            call<SetHasBeenSynchronized<false>>();
+
+            std::lock_guard<std::mutex>(lock_);
+            for (auto change : change_pool_)
+            {
+                IParameter* param_to_change = change.first;
+                IParameter* ref_param = change.second.first;
+                param_to_change->sync_with(ref_param);
+            }
+
+            FunctionClass function_class;
+            call<OnSync<FunctionClass>>(function_class, change_pool_, std::forward<Args>(args)...);
+
+            change_pool_.clear();
         }
 
-        bool has_change_requested()
-        {
-            std::lock_guard<std::mutex> guard(change_pool_mutex);
-            return change_pool.size() > 0;
-        }
+        bool has_change_requested() { return change_pool_.size() > 0; }
 
       private:
-        std::mutex get_change_pool_mutex() { return change_pool_mutex; }
-
-      private:
-        // first is param_to_change ; second is ref
-        std::map<IParameter*, IParameter*> change_pool;
-        std::mutex change_pool_mutex;
+        ChangePool change_pool_;
+        std::mutex lock_;
     };
 
   public:
@@ -148,22 +190,36 @@ class MicroCache
         Ref()
             : BasicMicroCache()
             , caches_to_sync_{}
+            , lock{}
+            , duplicate_container_{}
+            , duplicate_container_lut_{}
+            , change_pool_{}
         {
+            duplicate_container_.call<FillDuplicatedContainer<StaticContainer<Params...>>>(container_,
+                                                                                           duplicate_container_lut_);
         }
 
       private:
         template <typename T>
         void trigger_param()
         {
+            std::lock_guard<std::mutex>(mutex);
+
             IParameter* ref = &this->BasicMicroCache::template get_type<T>();
+            IDuplicatedParameter* old_value = duplicate_container_lut_[ref];
+
             for (auto cache : caches_to_sync_)
-                cache->template trigger_param<T>(ref);
+                cache->template trigger_param<T>(ref, old_value);
+
+            change_pool_.insert(ref);
         }
 
       public:
         template <typename T>
         void set_value(typename T::ConstRefType value)
         {
+            std::lock_guard<std::mutex>(mutex);
+
             this->BasicMicroCache::template get_type<T>().set_value(value);
             trigger_param<T>();
         }
@@ -171,12 +227,16 @@ class MicroCache
         template <typename T>
         void callback_trigger_change_value()
         {
+            std::lock_guard<std::mutex>(mutex);
+
             trigger_param<T>();
         }
 
         template <typename T>
         TriggerChangeValue<typename T::ValueType> change_value()
         {
+            std::lock_guard<std::mutex>(mutex);
+
             return TriggerChangeValue<typename T::ValueType>([this]() { this->callback_trigger_change_value<T>(); },
                                                              &BasicMicroCache::template get_type<T>().get_value());
         }
@@ -186,6 +246,8 @@ class MicroCache
         template <typename T>
         typename T::ValueType& get_value_ref_W()
         {
+            std::lock_guard<std::mutex>(mutex);
+
             // Only way to get the value as reference, for safe reason, the get_value non-const ref has not been
             // declared.
             return BasicMicroCache::template get_type<T>().get_value();
@@ -195,7 +257,17 @@ class MicroCache
         template <typename T>
         void force_trigger_param_W()
         {
+            std::lock_guard<std::mutex>(mutex);
+
             trigger_param<T>();
+        }
+
+      public:
+        void save_ref_for_next_sync()
+        {
+            for (IParameter* param_to_save : change_pool_)
+                duplicate_container_lut_[param_to_save].save_current_value(param_to_save);
+            change_pool_.clear();
         }
 
       protected:
@@ -211,26 +283,40 @@ class MicroCache
                 LOG_ERROR(main, "Maybe a problem here...");
         }
 
+      public:
+        std::mutex& get_lock() { return mutex_; }
+
       private:
         std::set<Cache*> caches_to_sync_;
+        std::mutex lock_;
+        StaticContainer<DuplicatedParameter<Params>...> duplicate_container_;
+        MapDuplicatedParameter duplicate_container_lut_;
+        std::set<IParameter*> change_pool_;
+    };
 
-        // Singleton
-      private:
-        static inline Ref* instance;
-
+    class RefSingleton
+    {
       public:
-        void set_as_ref() { instance = this; }
-        static Ref& get_ref()
+        static Ref& get()
         {
             if (instance == nullptr)
                 throw std::runtime_error("No Ref has been set for this cache");
             return *instance;
         }
-        static void remove_ref(Ref& ref)
+
+      public:
+        void set_main_ref(Ref& ref) { instance = &ref; }
+        static void remove_main_ref(Ref& ref)
         {
             if (instance == &ref)
                 instance = nullptr;
         }
+
+      public:
+        static bool has_change() { return get().change_pool_.size() > 0; }
+
+      private:
+        static inline Ref* instance;
     };
 
   public:

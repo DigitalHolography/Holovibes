@@ -98,7 +98,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              compute_cache_,
                                                              view_cache_);
     *processed_output_fps_ = 0;
-    update_time_transformation_size_requested_ = true;
+
+    GSH::instance().change_value<TimeTransformationSize>();
 
     try
     {
@@ -135,13 +136,6 @@ bool Pipe::make_requests()
 
     bool success_allocation = true;
     /* Free buffers */
-    if (disable_convolution_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_convolution_requested");
-
-        postprocess_->dispose();
-        disable_convolution_requested_ = false;
-    }
 
     if (request_disable_lens_view_)
     {
@@ -152,15 +146,6 @@ bool Pipe::make_requests()
         request_disable_lens_view_ = false;
     }
 
-    if (disable_raw_view_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_raw_view_requested");
-
-        gpu_raw_view_queue_.reset(nullptr);
-        GSH::instance().set_value<RawViewEnabled>(false);
-        disable_raw_view_requested_ = false;
-    }
-
     if (disable_filter2d_view_requested_)
     {
         LOG_DEBUG(compute_worker, "disable_filter2D_view_requested");
@@ -168,14 +153,6 @@ bool Pipe::make_requests()
         gpu_filter2d_view_queue_.reset(nullptr);
         GSH::instance().set_value<FrameRecordEnable>(false);
         disable_filter2d_view_requested_ = false;
-    }
-
-    if (request_delete_time_transformation_cuts_)
-    {
-        LOG_DEBUG(compute_worker, "request_delete_time_transformation_cuts");
-
-        dispose_cuts();
-        request_delete_time_transformation_cuts_ = false;
     }
 
     if (disable_chart_display_requested_)
@@ -197,26 +174,7 @@ bool Pipe::make_requests()
         disable_chart_record_requested_ = false;
     }
 
-    if (disable_frame_record_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_frame_record_requested");
-
-        frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
-        frame_record_env_.record_mode_ = RecordMode::NONE;
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        disable_frame_record_requested_ = false;
-    }
-
     image_accumulation_->dispose(); // done only if requested
-
-    /* Allocate buffer */
-    if (convolution_requested_)
-    {
-        LOG_DEBUG(compute_worker, "convolution_requested");
-
-        postprocess_->init();
-        convolution_requested_ = false;
-    }
 
     if (output_resize_requested_.load() != std::nullopt)
     {
@@ -224,22 +182,6 @@ bool Pipe::make_requests()
 
         gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
         output_resize_requested_ = std::nullopt;
-    }
-
-    // Updating number of images
-    if (update_time_transformation_size_requested_)
-    {
-        LOG_DEBUG(compute_worker, "update_time_transformation_size_requested");
-
-        if (!update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
-        {
-            success_allocation = false;
-            GSH::instance().change_value<ViewAccuP>()->set_index(0);
-            GSH::instance().set_value<TimeTransformationSize>(1);
-            update_time_transformation_size(1);
-            LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
-        }
-        update_time_transformation_size_requested_ = false;
     }
 
     if (request_update_time_stride_)
@@ -250,33 +192,8 @@ bool Pipe::make_requests()
         request_update_time_stride_ = false;
     }
 
-    if (request_time_transformation_cuts_)
-    {
-        LOG_DEBUG(compute_worker, "request_time_transformation_cuts");
-
-        init_cuts();
-        request_time_transformation_cuts_ = false;
-    }
-
     image_accumulation_->init(); // done only if requested
-
-    if (request_clear_img_accu)
-    {
-        LOG_DEBUG(compute_worker, "request_clear_img_accu");
-
-        image_accumulation_->clear();
-        request_clear_img_accu = false;
-    }
-
-    if (raw_view_requested_)
-    {
-        LOG_DEBUG(compute_worker, "raw_view_requested");
-
-        auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_value<RawViewEnabled>(true);
-        raw_view_requested_ = false;
-    }
+    // EXEC HERE THE UNKNOWN CACHE AFTER image_accumulation_->init();
 
     if (filter2d_view_requested_)
     {
@@ -738,6 +655,8 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
+    AdvancedCache::REF::sycn fuinc;
+
     advanced_cache_.call<AdvancedPipeRequest>(*this);
     compute_cache_.call<ComputePipeRequest>(*this);
     export_cache_.synchronize();

@@ -25,10 +25,10 @@ struct FloatLiteral
 };
 
 template <typename T>
-struct VectorLiteral
+struct DefaultLiteral
 {
-    constexpr operator std::vector<T>() const { return std::vector<T>{}; }
-    static constexpr VectorLiteral instance() { return VectorLiteral(); }
+    constexpr DefaultLiteral() {}
+    constexpr operator T() const { return T{}; }
 };
 
 template <typename T, auto DefaultValue, StringLiteral Key, typename TRef = const T&>
@@ -63,8 +63,7 @@ class CustomParameter : public IParameter
     ValueType& get_value() { return value_; }
     void set_value(ConstRefType value) { value_ = value; }
 
-    static const char* static_key() { return Key; }
-    const char* get_key() const override { return static_key(); }
+    const char* get_key() const override { return Key; }
 
   public:
     virtual void sync_with(IParameter* ref) override
@@ -114,8 +113,14 @@ template <StringLiteral DefaultValue, StringLiteral Key>
 using StringParameter = CustomParameter<std::string, DefaultValue, Key>;
 
 template <typename T, StringLiteral Key>
-using VectorParameter = CustomParameter<std::vector<T>, VectorLiteral<T>::instance(), Key>;
+using VectorParameter = CustomParameter<std::vector<T>, DefaultLiteral<std::vector<T>>{}, Key>;
 
-// using pomme = FloatParameter<1, "pomme">;
+struct TriggerRequest
+{
+    volatile void trigger() {}
+};
+
+template <StringLiteral Key>
+using TriggerParameter = CustomParameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerParameter>;
 
 } // namespace holovibes

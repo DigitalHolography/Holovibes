@@ -21,8 +21,7 @@ using SpaceTransformationParam =
 using TimeTransformationParam =
     CustomParameter<TimeTransformation, TimeTransformation::NONE, "time_transformation", TimeTransformation>;
 using ZDistance = FloatParameter<1.50f, "z_distance">;
-using ConvolutionEnabled = BoolParameter<false, "convolution_enabled">;
-using ConvolutionMatrix = VectorParameter<float, "convolution_matrix">;
+using Convolution = CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution_enabled">;
 using InputFps = UIntParameter<60, "input_fps">;
 using ComputeMode = CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>;
 using PixelSize = FloatParameter<12.0f, "pixel_size">;

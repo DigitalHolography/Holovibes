@@ -87,7 +87,7 @@ void toggle_renormalize(bool value)
     set_renorm_enabled(value);
 
     if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
-        get_compute_pipe().request_clear_img_acc();
+        GSH::instance().change_value<RequestClearImgAccu>()->trigger();
 
     pipe_refresh();
 }

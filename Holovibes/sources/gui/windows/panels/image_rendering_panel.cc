@@ -85,8 +85,9 @@ void ImageRenderingPanel::on_notify()
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
+    ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled()());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled()() &&
+                                         api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
@@ -295,7 +296,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     auto callback = [=]()
     {
         api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe().request_update_time_transformation_size();
+
         ui_->ViewPanel->set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.
@@ -357,7 +358,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (!api::get_convolution_enabled())
+    if (!api::get_convolution().get_is_enabled()())
         return;
 
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();

@@ -33,7 +33,7 @@ using ChartDisplayEnabled = BoolParameter<false, "chart_display_enabled">;
 using Filter2DEnabled = BoolParameter<false, "filter2d_enabled">;
 //! \brief Enables filter 2D View
 using Filter2DViewEnabled = BoolParameter<false, "filter2d_view_enabled">;
-//! \brief Is shift fft enabled (switching representation diagram)
+//! \brief Is shift fft enabled (switching representation diagram) --- check for timetranformation size
 using FftShiftEnabled = BoolParameter<false, "fft_shift_enabled">;
 //! \brief Display the raw interferogram when we are in hologram mode.
 using RawViewEnabled = BoolParameter<false, "raw_view_enabled">;

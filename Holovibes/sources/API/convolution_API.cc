@@ -5,48 +5,35 @@ namespace holovibes::api
 
 void enable_convolution(const std::string& filename)
 {
-    api::detail::set_value<ConvolutionEnabled>(true);
-    api::detail::change_value<ConvolutionMatrix>()->clear();
+    {
+        api::change_convolution()->set_is_enabled(true);
+        api::change_convolution()->get_matrix_ref().clear();
 
-    if (filename != UID_CONVOLUTION_TYPE_DEFAULT)
-        load_convolution_matrix(filename);
-    else if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
-    {
-        // FIXME : WHY
-        // Refresh because the current convolution might have change.
-        pipe_refresh();
-        return;
+        if (filename != UID_CONVOLUTION_TYPE_DEFAULT)
+            load_convolution_matrix(filename);
+        else if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+        {
+            // FIXME : WHY
+            // Refresh because the current convolution might have change.
+            pipe_refresh();
+            return;
+        }
     }
 
-    try
-    {
-        get_compute_pipe().request_convolution();
-        // Wait for the convolution to be enabled for notify
-        while (get_compute_pipe().get_convolution_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        disable_convolution();
-        LOG_ERROR(main, "Catch {}", e.what());
-    }
+    // Wait for the convolution to be enabled for notify
+    while (ComputeCache::RefSingleton::has_change())
+        continue;
 }
 
 void disable_convolution()
 {
+    {
+        api::change_convolution()->set_is_enabled(false);
+        api::change_convolution()->get_matrix_ref().clear();
+    }
 
-    api::detail::change_value<ConvolutionMatrix>()->clear();
-    api::detail::set_value<ConvolutionEnabled>(false);
-    try
-    {
-        get_compute_pipe().request_disable_convolution();
-        while (get_compute_pipe().get_disable_convolution_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR(main, "Catch {}", e.what());
-    }
+    while (ComputeCache::RefSingleton::has_change())
+        continue;
 }
 
 void load_convolution_matrix(const std::string& file)

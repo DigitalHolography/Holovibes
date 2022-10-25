@@ -152,14 +152,11 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     }
 
     if (holovibes::GSH::instance().get_value<holovibes::ConvolutionEnabled>())
-    {
-        // FIXME : Check, may be the new version using api::enable_convolution is doing to much stuff
         holovibes::api::enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
-        holovibes::api::get_compute_pipe().request_convolution();
-    }
 
     holovibes::api::get_compute_pipe().request_update_time_stride();
-    holovibes::api::get_compute_pipe().request_update_time_transformation_size();
+    // WHY Trigger ?
+    holovibes::api::detail::change_value<timeTransformationSize>();
 
     delete input_frame_file;
 

@@ -33,7 +33,6 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
 {
     current_nb_frames_read_ = 0;
     total_nb_frames_to_read_ = total_nb_frames_to_read;
-    file_read_cache_.synchronize();
 }
 
 void FileFrameReadWorker::run()

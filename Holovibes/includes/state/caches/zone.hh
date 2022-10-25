@@ -12,16 +12,8 @@
 
 namespace holovibes
 {
-
-// For non constexpr type, we need to do this in order to get a default value
-struct RectFdLiteral
-{
-    operator units::RectFd() const { return units::RectFd{}; }
-    static constexpr RectFdLiteral instance() { return RectFdLiteral(); }
-};
-
 template <StringLiteral Key>
-using RectFdParameter = CustomParameter<units::RectFd, RectFdLiteral::instance(), Key>;
+using RectFdParameter = CustomParameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
 
 //! \brief The zone for the nsignal chart
 using SignalZone = RectFdParameter<"signal_zone">;

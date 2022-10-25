@@ -81,8 +81,10 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
 
     if (checked)
     {
-        get_compute_pipe().request_raw_view();
-        while (get_compute_pipe().get_raw_view_requested())
+        {
+            GSH::instance().set_value<RawViewEnabled>(true);
+        }
+        while (ViewCache::RefSingleton::has_change())
             continue;
 
         const ::camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
@@ -105,8 +107,10 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     {
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-        get_compute_pipe().request_disable_raw_view();
-        while (get_compute_pipe().get_disable_raw_view_requested())
+        {
+            GSH::instance().set_value<RawViewEnabled>(false);
+        }
+        while (ViewCache::RefSingleton::has_change())
             continue;
     }
 

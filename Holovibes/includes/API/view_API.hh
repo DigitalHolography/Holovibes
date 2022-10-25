@@ -11,7 +11,6 @@ inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnab
 inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }
 
 inline bool get_filter2d_enabled() { return api::detail::get_value<Filter2DEnabled>(); }
-
 inline bool get_cuts_view_enabled() { return api::detail::get_value<CutsViewEnabled>(); }
 inline void set_cuts_view_enabled(bool value) { api::detail::set_value<CutsViewEnabled>(value); }
 
@@ -47,6 +46,8 @@ inline const View_XYZ& get_view_yz() noexcept { return api::detail::get_value<Vi
 inline TriggerChangeValue<View_XYZ> change_view_xy() noexcept { return api::detail::change_value<ViewXY>(); }
 inline TriggerChangeValue<View_XYZ> change_view_xz() noexcept { return api::detail::change_value<ViewXZ>(); }
 inline TriggerChangeValue<View_XYZ> change_view_yz() noexcept { return api::detail::change_value<ViewYZ>(); }
+
+change_view_xy()->set_log_scale_slice_enabled();
 
 inline View_Window get_filter2d() { return api::detail::get_value<Filter2D>(); }
 inline TriggerChangeValue<View_Window> change_filter2d() { return api::detail::change_value<Filter2D>(); }
