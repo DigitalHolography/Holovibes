@@ -1,7 +1,9 @@
+#include <iostream>
 #include "global_state_holder.hh"
 
 #include "holovibes.hh"
 #include "API.hh"
+
 namespace holovibes
 {
 
@@ -14,8 +16,6 @@ GSH& GSH::instance()
     return *instance_;
 }
 
-// GSH* GSH::instance_ = new GSH();
-
 #pragma region(collapsed) GETTERS
 
 bool GSH::is_current_window_xyz_type() const
@@ -26,14 +26,14 @@ bool GSH::is_current_window_xyz_type() const
 
 float GSH::get_contrast_min() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast_min
-                                                        : log10(get_current_window().contrast_min);
+    return get_current_window().log_enabled ? get_current_window().contrast.min
+                                            : log10(get_current_window().contrast.min);
 }
 
 float GSH::get_contrast_max() const
 {
-    return get_current_window().log_scale_slice_enabled ? get_current_window().contrast_max
-                                                        : log10(get_current_window().contrast_max);
+    return get_current_window().log_enabled ? get_current_window().contrast.max
+                                            : log10(get_current_window().contrast.max);
 }
 
 double GSH::get_rotation() const
@@ -41,7 +41,7 @@ double GSH::get_rotation() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.rot;
 }
 
@@ -51,18 +51,18 @@ bool GSH::get_flip_enabled() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.flip_enabled;
 }
 
-bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_scale_slice_enabled; }
+bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_enabled; }
 
 unsigned GSH::get_img_accu_level() const
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const View_XYZ&>(get_current_window());
+    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
     return w.img_accu_level;
 }
 #pragma endregion
@@ -103,33 +103,33 @@ void GSH::set_time_stride(uint value)
         compute_cache_.set_time_stride(value - value % compute_cache_.get_batch_size());
 }
 
-void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast_enabled = contrast_enabled; }
+void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast.enabled = contrast_enabled; }
 
 void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
 {
-    get_current_window()->contrast_auto_refresh = contrast_auto_refresh;
+    get_current_window()->contrast.auto_refresh = contrast_auto_refresh;
 }
 
-void GSH::set_contrast_invert(bool contrast_invert) { get_current_window()->contrast_invert = contrast_invert; }
+void GSH::set_contrast_invert(bool contrast_invert) { get_current_window()->contrast.invert = contrast_invert; }
 
 void GSH::set_contrast_min(float value)
 {
-    get_current_window()->contrast_min = get_current_window()->log_scale_slice_enabled ? value : pow(10, value);
+    get_current_window()->contrast.min = get_current_window()->log_enabled ? value : pow(10, value);
 }
 
 void GSH::set_contrast_max(float value)
 {
-    get_current_window()->contrast_max = get_current_window()->log_scale_slice_enabled ? value : pow(10, value);
+    get_current_window()->contrast.max = get_current_window()->log_enabled ? value : pow(10, value);
 }
 
-void GSH::set_log_scale_slice_enabled(bool value) { get_current_window()->log_scale_slice_enabled = value; }
+void GSH::set_log_scale_slice_enabled(bool value) { get_current_window()->log_enabled = value; }
 
 void GSH::set_accumulation_level(int value)
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->img_accu_level = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->img_accu_level = value;
 }
 
 void GSH::set_rotation(double value)
@@ -137,7 +137,7 @@ void GSH::set_rotation(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->rot = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->rot = value;
 }
 
 void GSH::set_flip_enabled(double value)
@@ -145,7 +145,7 @@ void GSH::set_flip_enabled(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<View_XYZ*>(get_current_window().get())->flip_enabled = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->flip_enabled = value;
 }
 
 void GSH::set_fft_shift_enabled(bool value)
@@ -156,16 +156,16 @@ void GSH::set_fft_shift_enabled(bool value)
 
 void GSH::set_composite_p_h(Span<uint> span, bool notify)
 {
-    composite_cache_.get_hsv_ref()->h.p_max = span.min;
-    composite_cache_.get_hsv_ref()->h.p_max = span.max;
+    composite_cache_.get_hsv_ref()->h.p.max = span.min;
+    composite_cache_.get_hsv_ref()->h.p.max = span.max;
     if (notify)
         this->notify();
 }
 
 void GSH::set_rgb_p(Span<int> span, bool notify)
 {
-    composite_cache_.get_rgb_ref()->p_min = span.min;
-    composite_cache_.get_rgb_ref()->p_max = span.max;
+    composite_cache_.get_rgb_ref()->p.min = span.min;
+    composite_cache_.get_rgb_ref()->p.max = span.max;
     if (notify)
         this->notify();
 }
@@ -265,7 +265,8 @@ void GSH::enable_convolution(std::optional<std::string> file)
     compute_cache_.set_convolution_enabled(true);
     compute_cache_.get_convo_matrix_ref()->clear();
 
-    if (file)
+    // There is no file None.txt for convolution
+    if (file && file.value() != "None")
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
@@ -284,16 +285,16 @@ void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast
 
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {
-    std::shared_ptr<View_Window> window = get_window(kind);
-    window->contrast_min = min;
-    window->contrast_max = max;
+    std::shared_ptr<ViewWindow> window = get_window(kind);
+    window->contrast.min = min;
+    window->contrast.max = max;
 
     notify();
 }
 
-std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)
+std::shared_ptr<ViewWindow> GSH::get_window(WindowKind kind)
 {
-    const std::map<WindowKind, std::shared_ptr<View_Window>> kind_window = {
+    const std::map<WindowKind, std::shared_ptr<ViewWindow>> kind_window = {
         {WindowKind::XYview, view_cache_.get_xy_ref()},
         {WindowKind::XZview, view_cache_.get_xz_ref()},
         {WindowKind::YZview, view_cache_.get_yz_ref()},
@@ -303,9 +304,9 @@ std::shared_ptr<View_Window> GSH::get_window(WindowKind kind)
     return kind_window.at(kind);
 }
 
-const View_Window& GSH::get_window(WindowKind kind) const
+const ViewWindow& GSH::get_window(WindowKind kind) const
 {
-    const std::map<WindowKind, const View_Window*> kind_window = {
+    const std::map<WindowKind, const ViewWindow*> kind_window = {
         {WindowKind::XYview, &view_cache_.get_xy_const_ref()},
         {WindowKind::XZview, &view_cache_.get_xz_const_ref()},
         {WindowKind::YZview, &view_cache_.get_yz_const_ref()},
@@ -315,9 +316,99 @@ const View_Window& GSH::get_window(WindowKind kind) const
     return *kind_window.at(kind);
 }
 
-const View_Window& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
+const ViewWindow& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
 
 /* private */
-std::shared_ptr<View_Window> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
+std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
+
+struct JsonSettings
+{
+    struct ComputeSettings
+    {
+        Rendering image_rendering;
+        Views view;
+        Composite composite;
+        AdvancedSettings advanced;
+
+        SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
+    };
+
+    inline static const auto latest_version = GSH::ComputeSettingsVersion::V5;
+    inline static const auto patches_folder = std::filesystem::path{"resources"} / "json_patches_holofile";
+    static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }
+
+    static void convert_v3_to_v4(json& data, const json& json_patch)
+    {
+        convert_default(data, json_patch);
+
+        data["compute settings"]["image rendering"]["space transformation"] = static_cast<SpaceTransformation>(
+            static_cast<int>(data["compute settings"]["image rendering"]["space transformation"]));
+        data["compute settings"]["image rendering"]["image mode"] =
+            static_cast<Computation>(static_cast<int>(data["compute settings"]["image rendering"]["image mode"]) - 1);
+        data["compute settings"]["image rendering"]["time transformation"] = static_cast<TimeTransformation>(
+            static_cast<int>(data["compute settings"]["image rendering"]["time transformation"]));
+    }
+
+    static void convert_v4_to_v5(json& data, const json& json_patch)
+    {
+        if (data.contains("file info"))
+        {
+            data["info"] = data["file info"];
+            data["info"]["input fps"] = 1;
+            data["info"]["contiguous"] = 1;
+        }
+
+        convert_default(data, json_patch);
+    }
+
+    struct ComputeSettingsConverter
+    {
+        ComputeSettingsConverter(GSH::ComputeSettingsVersion from,
+                                 GSH::ComputeSettingsVersion to,
+                                 std::string patch_file,
+                                 std::function<void(json&, const json&)> converter = convert_default)
+            : from(from)
+            , to(to)
+            , patch_file(patch_file)
+            , converter(converter)
+        {
+        }
+
+        GSH::ComputeSettingsVersion from;
+        GSH::ComputeSettingsVersion to;
+        std::string patch_file;
+        std::function<void(json&, const json&)> converter;
+    };
+
+    inline static const std::vector<ComputeSettingsConverter> converters = {
+        {GSH::ComputeSettingsVersion::V2, GSH::ComputeSettingsVersion::V3, "patch_v2_to_v3.json", convert_default},
+        {GSH::ComputeSettingsVersion::V3, GSH::ComputeSettingsVersion::V4, "patch_v3_to_v4.json", convert_v3_to_v4},
+        {GSH::ComputeSettingsVersion::V4, GSH::ComputeSettingsVersion::V5, "patch_v4_to_v5.json", convert_v4_to_v5},
+    };
+};
+
+void GSH::convert_json(json& data, GSH::ComputeSettingsVersion from)
+{
+    auto it = std::find_if(JsonSettings::converters.begin(),
+                           JsonSettings::converters.end(),
+                           [=](auto converter) -> bool { return converter.from == from; });
+
+    if (it == JsonSettings::converters.end())
+        throw std::out_of_range("No converter found");
+
+    std::for_each(it,
+                  JsonSettings::converters.end(),
+                  [&data](const JsonSettings::ComputeSettingsConverter& converter)
+                  {
+                      LOG_TRACE(main, "Applying patch version v{}", static_cast<int>(converter.to) + 2);
+                      std::ifstream patch_file{JsonSettings::patches_folder / converter.patch_file};
+                      try
+                      {
+                          converter.converter(data, json::parse(patch_file));
+                      }
+                      catch (const std::exception&)
+                      {}
+                  });
+}
 
 } // namespace holovibes

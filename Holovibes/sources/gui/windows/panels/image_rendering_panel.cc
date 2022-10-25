@@ -45,6 +45,8 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
+    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+
     ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
@@ -113,9 +115,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
             return;
 
         api::set_raw_mode(parent_->window_max_size);
-
-        // Because batch size is not set in on_notify() the value will not change on GUI.
-        api::update_batch_size([]() {}, 1);
 
         parent_->notify();
         parent_->layout_toggled();
@@ -239,7 +238,9 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
 
     try
     {
-        st = space_transformation_from_string(value.toStdString());
+        // json{} return an array
+        st = json{value.toStdString()}[0].get<SpaceTransformation>();
+        LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     }
     catch (std::out_of_range& e)
     {
@@ -262,7 +263,8 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    TimeTransformation tt = time_transformation_from_string(value.toStdString());
+    // json{} return an array
+    TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
     LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)

@@ -10,6 +10,8 @@ InputCineFile::InputCineFile(const std::string& file_path)
     , CineFile()
 {
 
+    has_footer = false;
+
     // read the cine file and bitmap info headers
     size_t bytes_read = std::fread(&cine_file_header_, sizeof(char), sizeof(CineFileHeader), file_);
     bytes_read += std::fread(&bitmap_info_header_, sizeof(char), sizeof(BitmapInfoHeader), file_);
@@ -38,7 +40,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
 }
 
-void InputCineFile::import_compute_settings() const {}
+void InputCineFile::import_compute_settings() {}
 
 void InputCineFile::import_info() const
 {
@@ -86,4 +88,6 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag
 
     return frames_read;
 }
+
+void InputCineFile::load_footer() {}
 } // namespace holovibes::io_files

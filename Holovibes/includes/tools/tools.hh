@@ -135,46 +135,14 @@ QString create_absolute_qt_path(const std::string& relative_path);
 std::string create_absolute_path(const std::string& relative_path);
 /*! \brief Returns the absolute path to the user Documents folder */
 std::filesystem::path get_user_documents_path();
-} // namespace holovibes
 
 // Json tools
-namespace holovibes
-{
-/*template <typename T>
-void json_get(const json& data, const std::string& key, std::function<void(T)> setter)
-{
-    auto it = data.find(key);
-    if (it != data.end())
-        setter(*it);
-}
 
-template <typename T>
-void json_get(const json& data, const std::string& key, void (GSH::*setter)(T))
-{
-    auto it = data.find(key);
-    if (it != data.end())
-        (GSH::instance().*setter)(*it);
-}
-
-template <typename T>
-void json_get(const json& data, const std::string& key, T& placeholder)
-{
-    auto it = data.find(key);
-    if (it != data.end())
-        placeholder = *it;
-}
-*/
+/*! \brief Recursive get_or_default function for json*/
 template <typename T>
 T json_get_or_default(const json& data, T default_value, const char* key)
 {
-    try
-    {
-        return data[key];
-    }
-    catch (json::exception)
-    {
-        return default_value;
-    }
+    return data.value(key, default_value);
 }
 
 template <typename T>
@@ -182,10 +150,11 @@ T json_get_or_default(const json& data, T default_value, const char* key, const 
 {
     try
     {
-        return json_get_or_default<T>(data[key], default_value, keys);
+        return json_get_or_default<T>(data.at(key), default_value, keys);
     }
-    catch (json::exception)
+    catch (const json::exception& e)
     {
+        LOG_DEBUG(main, "Missing key in json: {}", key);
         return default_value;
     }
 }

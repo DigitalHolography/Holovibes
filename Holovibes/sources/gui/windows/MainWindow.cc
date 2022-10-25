@@ -172,7 +172,7 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 {
     // We can't update gui values from a different thread
     // so we pass it to the right one using a signal
-    // (This whole notify thing needs to be cleaned up / removed)
+    // FIXME - (This whole notify thing needs to be cleaned up / removed)
     if (QThread::currentThread() != this->thread())
         emit synchronize_thread_signal(f);
     else
@@ -349,10 +349,11 @@ void MainWindow::load_gui()
         return;
     }
 
-    set_theme(string_to_theme[json_get_or_default<std::string>(j_us, "DARK", "display", "theme")]);
+    set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
 
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
-    auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
+    auxiliary_window_max_size =
+        json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
@@ -399,7 +400,7 @@ void MainWindow::save_gui()
 
     json j_us;
 
-    j_us["display"]["theme"] = theme_to_string[theme_];
+    j_us["display"]["theme"] = theme_;
 
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;

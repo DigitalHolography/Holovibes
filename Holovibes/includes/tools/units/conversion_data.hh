@@ -39,6 +39,8 @@ class ConversionData
     void transform_from_fd(float& x, float& y) const;
     void transform_to_fd(float& x, float& y) const;
 
+    const gui::BasicOpenGLWindow* get_opengl() const noexcept { return window_; }
+
   private:
     int get_window_size(Axis axis) const;
     int get_fd_size(Axis axis) const;

@@ -28,12 +28,17 @@ class InputHoloFile : public InputFrameFile, public HoloFile
     void set_pos_to_frame(size_t frame_id) override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() const override;
+    void import_compute_settings() override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;
 
+    /*! \brief Load json patch and apply it to meta_data */
+    void apply_json_patch(json& meta_data, const std::string& json_patch_path);
+
+
   private:
+
     // Give access to private members to the factory
     friend class InputFrameFileFactory;
 
@@ -45,5 +50,17 @@ class InputHoloFile : public InputFrameFile, public HoloFile
      * \throw FileException if an error occurred while opening or reading the file
      */
     InputHoloFile(const std::string& file_path);
+
+    /*! \brief Open file to initialize holo_file_header_
+     */
+    void load_header();
+
+    /*! \brief Open file to initialize holo_file_header_
+     */
+    void load_fd();
+
+    /*! \brief Open file to initialize raw_rooter_
+     */
+    void load_footer() override;
 };
 } // namespace holovibes::io_files

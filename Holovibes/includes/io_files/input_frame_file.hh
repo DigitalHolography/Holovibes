@@ -16,7 +16,7 @@ class InputFrameFile : public FrameFile
 {
   public:
     /*! \brief Update Global State Holder with the settings present in the file */
-    virtual void import_compute_settings() const = 0;
+    virtual void import_compute_settings() = 0;
 
     /*! \brief Update Global State Holder with the info settings present in the file */
     virtual void import_info() const = 0;
@@ -39,7 +39,14 @@ class InputFrameFile : public FrameFile
      */
     virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
+    virtual void load_footer() = 0;
+
+    bool get_has_footer();
+
   protected:
+
+    bool has_footer;
+
     // Give access to protected members to the handler
     friend class InputFrameFileFactory;
 
@@ -61,4 +68,6 @@ class InputFrameFile : public FrameFile
     /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...) */
     size_t packed_frame_size_;
 };
+
+inline bool InputFrameFile::get_has_footer() { return has_footer; }
 } // namespace holovibes::io_files

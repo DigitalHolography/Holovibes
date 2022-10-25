@@ -105,11 +105,11 @@ void Rendering::insert_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_xy().log_scale_slice_enabled)
+    if (view_cache_.get_xy().log_enabled)
         insert_main_log();
     if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
-    if (view_cache_.get_filter2d().log_scale_slice_enabled)
+    if (view_cache_.get_filter2d().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -127,20 +127,20 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 autocontrast_filter2d_request);
 
     // Apply contrast on the main view
-    if (view_cache_.get_xy().contrast_enabled)
+    if (view_cache_.get_xy().contrast.enabled)
         insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
     if (view_cache_.get_cuts_view_enabled())
     {
-        if (view_cache_.get_xz().contrast_enabled)
+        if (view_cache_.get_xz().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
-        if (view_cache_.get_yz().contrast_enabled)
+        if (view_cache_.get_yz().contrast.enabled)
 
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast_enabled)
+    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast.enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -161,7 +161,7 @@ void Rendering::insert_slice_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_xz().log_scale_slice_enabled)
+    if (view_cache_.get_xz().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -172,7 +172,7 @@ void Rendering::insert_slice_log()
                           stream_);
             });
     }
-    if (view_cache_.get_yz().log_scale_slice_enabled)
+    if (view_cache_.get_yz().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -216,7 +216,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
             float min = 0;
             float max = 0;
 
-            View_Window wind;
+            ViewWindow wind;
             switch (view)
             {
             case WindowKind::XYview:
@@ -241,15 +241,15 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 break;
             }
 
-            if (wind.contrast_invert)
+            if (wind.contrast.invert)
             {
-                min = wind.contrast_max;
-                max = wind.contrast_min;
+                min = wind.contrast.max;
+                max = wind.contrast.min;
             }
             else
             {
-                min = wind.contrast_min;
-                max = wind.contrast_max;
+                min = wind.contrast.min;
+                max = wind.contrast.max;
             }
 
             apply_contrast_correction(input, size, dynamic_range, min, max, stream_);

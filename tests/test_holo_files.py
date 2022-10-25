@@ -17,6 +17,7 @@ DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
     os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Release", RUN_BINARY_FILE)
+
 if not os.path.isfile(HOLOVIBES_BIN):
     HOLOVIBES_BIN = os.path.join(
         os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Debug", RUN_BINARY_FILE)

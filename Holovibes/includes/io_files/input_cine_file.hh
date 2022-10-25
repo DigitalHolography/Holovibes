@@ -26,7 +26,7 @@ class InputCineFile : public InputFrameFile, public CineFile
     size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
     /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() const override;
+    void import_compute_settings() override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;
@@ -49,6 +49,11 @@ class InputCineFile : public InputFrameFile, public CineFile
      *  \throw FileException if an error occurred while reading the file
      */
     size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
+
+    /*! \brief Needed for InputHoloFile
+     *  Does not do anything
+     */
+    void load_footer() override;
 
   private:
     // Give access to private members to the factory

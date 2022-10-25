@@ -45,7 +45,6 @@ static void progress_bar(int current, int total, int length)
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO(main, "Config:");
-    LOG_INFO(main, "{}", holovibes::api::compute_settings_to_json().dump(1));
 
     LOG_INFO(main, "Input file: {}", opts.input_path.value());
     LOG_INFO(main, "Output file: {}", opts.output_path.value());
@@ -109,6 +108,17 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
+    bool load = false;
+    if (input_frame_file->get_has_footer())
+    {
+        LOG_DEBUG(main, "loading pixel size");
+        // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
+        // the footer and then import info
+        input_frame_file->import_compute_settings();
+        input_frame_file->import_info();
+        load = true;
+    }
+
     if (opts.compute_settings_path)
     {
         try
@@ -121,11 +131,8 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
             return 1;
         }
     }
-    else
+    else if (!load)
         input_frame_file->import_compute_settings();
-
-    // Pixel size is set with info section of input file
-    input_frame_file->import_info();
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 

@@ -94,12 +94,16 @@ void ImportPanel::import_file(const QString& filename)
     if (input_file_opt)
     {
         auto input_file = input_file_opt.value();
+
+        // Import Compute Settings there before init_pipe to
+        // Allocate correctly buffer
+        input_file->import_compute_settings();
+
+        parent_->notify();
+
         // Gather data from the newly opened file
         size_t nb_frames = input_file->get_total_nb_frames();
         UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
-
-        input_file->import_compute_settings();
-        input_file->import_info();
 
         // Don't need the input file anymore
         delete input_file;

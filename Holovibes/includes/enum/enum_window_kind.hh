@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "all_struct.hh"
+
 namespace holovibes
 {
 /*! \enum WindowKind
@@ -18,15 +20,12 @@ enum class WindowKind
     Filter2D,   /*!< Filter2D view */
 };
 
-// for some reasons clang-format goes bruh here
 // clang-format off
-const std::map<WindowKind, std::string> window_kind_to_string{
-    { WindowKind::XYview, "XYview", },
-    { WindowKind::XZview, "XZview", },
-    { WindowKind::YZview, "YZview", },
-    { WindowKind::Filter2D, "Filter2D", }
-};
+SERIALIZE_JSON_ENUM(WindowKind, {
+    { WindowKind::XYview, "XYview"},
+    { WindowKind::XZview, "XZview"},
+    { WindowKind::YZview, "YZview"},
+    { WindowKind::Filter2D, "Filter2D"}
+})
 // clang-format on
-
-inline std::ostream& operator<<(std::ostream& os, WindowKind obj) { return os << window_kind_to_string.at(obj); }
 } // namespace holovibes
