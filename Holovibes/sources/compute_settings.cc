@@ -43,7 +43,6 @@ void load_compute_settings(const std::string& json_path)
     {
         LOG_ERROR(main, "{} is an invalid compute settings", json_path);
         return;
-        abort();
     }
 
     compute_settings.Load();
