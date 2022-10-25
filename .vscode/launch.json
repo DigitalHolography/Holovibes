@@ -11,7 +11,7 @@
             "program": "./Holovibes.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileWorkspaceFolder}/bin/Ninja/Debug",
+            "cwd": "${workspaceFolder}/bin/Ninja/Debug",
             "environment": [],
             "externalConsole": false,
             "preLaunchTask": "Build"
