@@ -6,7 +6,7 @@
 
 #include "worker.hh"
 #include "queue.hh"
-#include <chrono>
+#include "chrono.hh"
 
 namespace holovibes::worker
 {
@@ -38,7 +38,8 @@ class FrameReadWorker : public Worker
     std::atomic<unsigned int> processed_frames_;
 
     /*! \brief Useful for Input fps value. */
-    std::chrono::time_point<std::chrono::steady_clock> start_;
+
+    Chrono chrono_;
 
     float current_display_rate = 30.0f;
     float time_to_wait = 33.0f;

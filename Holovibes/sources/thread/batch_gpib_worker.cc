@@ -8,6 +8,7 @@
 #include "chart_record_worker.hh"
 #include "logger.hh"
 #include "gpib_exceptions.hh"
+#include "chrono.hh"
 
 namespace holovibes::worker
 {
@@ -85,13 +86,11 @@ void BatchGPIBWorker::run()
             else if (cmd.type == gpib::BatchCommand::WAIT)
             {
                 auto waiting_time = cmd.wait;
+                Chrono chrono;
 
-                auto starting_time = std::chrono::high_resolution_clock::now();
                 while (!stop_requested_)
                 {
-                    if (std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::high_resolution_clock::now() - starting_time)
-                            .count() >= waiting_time)
+                    if (chrono.get_milliseconds() >= waiting_time)
                         break;
                 }
             }
