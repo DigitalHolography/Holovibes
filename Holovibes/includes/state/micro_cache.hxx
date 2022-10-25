@@ -193,8 +193,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
           public:                                                                                                      \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_reference<ref_t> != nullptr)                                                               \
-                    << "You must register a reference cache for class: " << #name;                                     \
+                CHECK(cache_reference<ref_t> != nullptr, "You must register a reference cache for class: {}", #name)   \
                 MAP(_SYNC_VAR, __VA_ARGS__);                                                                           \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \

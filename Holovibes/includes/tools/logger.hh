@@ -16,6 +16,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "check.hh"
 
 // FROM : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 #define PARENS ()
@@ -44,7 +45,7 @@
 #define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::log(), __VA_ARGS__)
 #define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::log(), __VA_ARGS__)
 
-constexpr const char* const get_file_name(const char* path)
+constexpr const char* get_file_name(const char* path)
 {
     const char* file = path;
     while (*path)
@@ -58,26 +59,6 @@ constexpr const char* const get_file_name(const char* path)
               "{}:{} -> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")",                                            \
               get_file_name(__FILE__),                                                                                 \
               __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
-
-#define INTERNAL_CHECK_GET_FMT()
-#define INTERNAL_CHECK_GET_FMT(fmt) fmt
-#define INTERNAL_CHECK_GET_FMT(fmt, ...) fmt
-
-#define INTERNAL_CHECK_GET_ARGS()
-#define INTERNAL_CHECK_GET_ARGS(fmt)
-#define INTERNAL_CHECK_GET_ARGS(fmt, ...) , __VA_ARGS__
-
-#define CHECK(cond, ...)                                                                                               \
-    {                                                                                                                  \
-        if (!(cond))                                                                                                   \
-        {                                                                                                              \
-            LOG_CRITICAL(main,                                                                                         \
-                         "{}:{} " INTERNAL_CHECK_GET_FMT(__VA_ARGS__),                                                 \
-                         __FILE__,                                                                                     \
-                         __LINE__ INTERNAL_CHECK_GET_ARGS(__VA_ARGS__));                                               \
-            abort();                                                                                                   \
-        }                                                                                                              \
-    }
 
 #define CUDA_FATAL(file, line, fmt, ...)                                                                               \
     {                                                                                                                  \
