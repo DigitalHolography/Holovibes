@@ -252,18 +252,6 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
 
 std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.gpu_frame_record_queue_; }
 
-void ICompute::delete_stft_slice_queue()
-{
-    request_delete_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-void ICompute::create_stft_slice_queue()
-{
-    request_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
 bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
 
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
@@ -289,18 +277,6 @@ void ICompute::request_termination() { termination_requested_ = true; }
 void ICompute::request_output_resize(unsigned int new_output_size)
 {
     output_resize_requested_ = new_output_size;
-    request_refresh();
-}
-
-void ICompute::request_disable_filter2d_view()
-{
-    disable_filter2d_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_filter2d_view()
-{
-    filter2d_view_requested_ = true;
     request_refresh();
 }
 
@@ -344,18 +320,6 @@ void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = 
 
 void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
 
-void ICompute::request_display_chart()
-{
-    chart_display_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_display_chart()
-{
-    disable_chart_display_requested_ = true;
-    request_refresh();
-}
-
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
 {
     chart_record_requested_ = nb_chart_points_to_record;
@@ -371,12 +335,6 @@ void ICompute::request_disable_record_chart()
 void ICompute::request_update_time_stride()
 {
     request_update_time_stride_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_lens_view()
-{
-    request_disable_lens_view_ = true;
     request_refresh();
 }
 } // namespace holovibes

@@ -21,16 +21,5 @@ class RequestPipeRequest
 
         image_accumulation_->clear();
     }
-
-    template <>
-    void operator()<RequestTimeTransformationCuts>(bool new_value, bool old_value, Pipe& pipe)
-    {
-        LOG_DEBUG(compute_worker, "UPDATE RequestTimeTransformationCuts");
-
-        if (new_value == false)
-            dispose_cuts();
-        else
-            init_cuts();
-    }
 };
 } // namespace holovibes

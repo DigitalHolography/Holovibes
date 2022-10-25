@@ -137,33 +137,6 @@ bool Pipe::make_requests()
     bool success_allocation = true;
     /* Free buffers */
 
-    if (request_disable_lens_view_)
-    {
-        LOG_DEBUG(compute_worker, "request_disable_lens_view");
-
-        fourier_transforms_->get_lens_queue().reset(nullptr);
-
-        request_disable_lens_view_ = false;
-    }
-
-    if (disable_filter2d_view_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_filter2D_view_requested");
-
-        gpu_filter2d_view_queue_.reset(nullptr);
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        disable_filter2d_view_requested_ = false;
-    }
-
-    if (disable_chart_display_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_chart_display_requested");
-
-        chart_env_.chart_display_queue_.reset(nullptr);
-        GSH::instance().set_value<ChartDisplayEnabled>(false);
-        disable_chart_display_requested_ = false;
-    }
-
     if (disable_chart_record_requested_)
     {
         LOG_DEBUG(compute_worker, "disable_chart_record_requested");
@@ -194,26 +167,6 @@ bool Pipe::make_requests()
 
     image_accumulation_->init(); // done only if requested
     // EXEC HERE THE UNKNOWN CACHE AFTER image_accumulation_->init();
-
-    if (filter2d_view_requested_)
-    {
-        LOG_DEBUG(compute_worker, "filter2d_view_requested");
-
-        auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        ;
-        filter2d_view_requested_ = false;
-    }
-
-    if (chart_display_requested_)
-    {
-        LOG_DEBUG(compute_worker, "chart_display_requested");
-
-        chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_value<ChartDisplayEnabled>(true);
-        chart_display_requested_ = false;
-    }
 
     if (chart_record_requested_.load() != std::nullopt)
     {

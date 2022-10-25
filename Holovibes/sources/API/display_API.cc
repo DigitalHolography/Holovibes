@@ -36,9 +36,9 @@ TriggerChangeValue<View_Window> change_window(WindowKind kind)
 
 void start_chart_display()
 {
-    api::get_compute_pipe().request_display_chart();
+    GSH::instance().set_value<ChartDisplayEnabled>(true);
     // Wait for the chart display to be enabled for notify
-    while (api::get_compute_pipe().get_chart_display_requested())
+    while (ViewCache::RefSingleton::has_change())
         continue;
 
     UserInterfaceDescriptor::instance().plot_window_ =
@@ -51,9 +51,9 @@ void stop_chart_display()
 {
     try
     {
-        api::get_compute_pipe().request_disable_display_chart();
+        GSH::instance().set_value<ChartDisplayEnabled>(false);
         // Wait for the chart display to be disabled for notify
-        while (api::get_compute_pipe().get_disable_chart_display_requested())
+        while (ViewCache::RefSingleton::has_change())
             continue;
     }
     catch (const std::exception& e)
@@ -157,8 +157,8 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     {
         UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
 
-        get_compute_pipe().request_disable_lens_view();
-        while (get_compute_pipe().get_disable_lens_view_requested())
+        GSH::instance().set_value<LensViewEnabled>(false);
+        while (ViewCache::RefSingleton::has_change())
             continue;
 
         pipe_refresh();

@@ -53,23 +53,6 @@ class ICompute
   public:
     void request_refresh();
 
-    void request_output_resize(unsigned int new_output_size);
-    void request_autocontrast(WindowKind kind);
-    void request_unwrapping_1d(const bool value);
-    void request_unwrapping_2d(const bool value);
-    void request_display_chart();
-    void request_disable_display_chart();
-    void request_record_chart(unsigned int nb_chart_points_to_record);
-    void request_disable_record_chart();
-    void request_termination();
-    void request_update_time_stride();
-    void request_disable_lens_view();
-    void request_filter2d_view();
-    void request_disable_filter2d_view();
-    void request_hologram_record();
-    void request_raw_record();
-    void request_cuts_record(RecordMode rm);
-
     /*! \brief Execute one iteration of the ICompute.
      *
      * Checks the number of frames in input queue that must at least time_transformation_size.
@@ -85,30 +68,6 @@ class ICompute
     void create_stft_slice_queue();
     void delete_stft_slice_queue();
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
-
-    bool get_cuts_request();
-    bool get_cuts_delete_request();
-
-    bool get_unwrap_1d_request() const { return unwrap_1d_requested_; }
-    bool get_unwrap_2d_request() const { return unwrap_2d_requested_; }
-    bool get_autocontrast_request() const { return autocontrast_requested_; }
-    bool get_autocontrast_slice_xz_request() const { return autocontrast_slice_xz_requested_; }
-    bool get_autocontrast_slice_yz_request() const { return autocontrast_slice_yz_requested_; }
-    bool get_refresh_request() const { return refresh_requested_; }
-    bool get_stft_update_roi_request() const { return stft_update_roi_requested_; }
-    bool get_termination_request() const { return termination_requested_; }
-
-    std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
-    bool get_disable_lens_view_requested() const { return request_disable_lens_view_; }
-    bool get_filter2d_view_requested() const { return filter2d_view_requested_; }
-    bool get_disable_filter2d_view_requested() const { return disable_filter2d_view_requested_; }
-    bool get_chart_display_requested() const { return chart_display_requested_; }
-    std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
-    bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
-    bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
-    bool get_hologram_record_requested() const { return hologram_record_requested_; }
-    bool get_raw_record_requested() const { return raw_record_requested_; }
-    bool get_cuts_record_requested() const { return cuts_record_requested_; }
 
   public:
     bool update_time_transformation_size(const unsigned short time_transformation_size);
@@ -170,28 +129,6 @@ class ICompute
 
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};
-
-    std::atomic<bool> unwrap_1d_requested_{false};
-    std::atomic<bool> unwrap_2d_requested_{false};
-    std::atomic<bool> autocontrast_requested_{false};
-    std::atomic<bool> autocontrast_slice_xz_requested_{false};
-    std::atomic<bool> autocontrast_slice_yz_requested_{false};
-    std::atomic<bool> autocontrast_filter2d_requested_{false};
-    std::atomic<bool> refresh_requested_{false};
-    std::atomic<bool> stft_update_roi_requested_{false};
-    std::atomic<bool> chart_display_requested_{false};
-    std::atomic<bool> disable_chart_display_requested_{false};
-    std::atomic<std::optional<unsigned int>> chart_record_requested_{std::nullopt};
-    std::atomic<bool> disable_chart_record_requested_{false};
-    std::atomic<std::optional<unsigned int>> output_resize_requested_{std::nullopt};
-    std::atomic<bool> filter2d_view_requested_{false};
-    std::atomic<bool> disable_filter2d_view_requested_{false};
-    std::atomic<bool> termination_requested_{false};
-    std::atomic<bool> request_update_time_stride_{false};
-    std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<bool> hologram_record_requested_{false};
-    std::atomic<bool> raw_record_requested_{false};
-    std::atomic<bool> cuts_record_requested_{false};
 
     AdvancedCache::Cache advanced_cache_;
     ComputeCache::Cache compute_cache_;
