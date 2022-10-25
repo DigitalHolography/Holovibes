@@ -690,7 +690,7 @@ void init_image_mode(QPoint& position, QSize& size);
  * \param path The location of the .json file saved
  */
 void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
-// FIXME - TO DELETE
+
 json compute_settings_to_json();
 
 /*! \brief Setups program from .json file

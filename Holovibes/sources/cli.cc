@@ -45,7 +45,6 @@ static void progress_bar(int current, int total, int length)
 static void print_verbose(const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO(main, "Config:");
-    //  LOG_INFO(main, "{}", holovibes::api::compute_settings_to_json().dump(1));
 
     LOG_INFO(main, "Input file: {}", opts.input_path.value());
     LOG_INFO(main, "Output file: {}", opts.output_path.value());
