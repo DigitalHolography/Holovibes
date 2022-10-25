@@ -124,8 +124,13 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     else
         input_frame_file->import_compute_settings();
 
-    // Pixel size is set with info section of input file
-    input_frame_file->import_info();
+    if (input_frame_file->get_has_footer())
+    {
+        // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
+        // the footer and then import info
+        input_frame_file->import_compute_settings();
+        input_frame_file->import_info();
+    }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 

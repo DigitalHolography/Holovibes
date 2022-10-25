@@ -27,6 +27,10 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
 
     frame_size_ = fd_.get_frame_size();
 
+    uintmax_t meta_data_size = std::filesystem::file_size(file_path) - (sizeof(HoloFileHeader) + holo_file_header_.total_data_size);
+
+    has_footer = meta_data_size > 0 ? true : false;
+
     // perform a checksum
     if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
     {
@@ -114,81 +118,51 @@ void InputHoloFile::load_footer()
             LOG_WARN(main, "An error occurred while retrieving the meta data. Meta data skipped");
         }
     }
-    else
-    {
-        meta_data_ = json::parse(R"({"invalid": true})");
-    }
-    LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
-}
 
-void import_holo_v5(const json& meta_data)
-{
-    auto compute_settings = ComputeSettings();
-    from_json(meta_data["compute_settings"], compute_settings);
-    compute_settings.Load();
+    LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
 }
 
 void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC(main);
-    this->load_footer();
-    if (meta_data_.contains("invalid"))
+
+    if (!has_footer)
     {
         raw_footer_.Update();
         to_json(meta_data_, raw_footer_);
         return;
     }
 
-    if (holo_file_header_.version < 4)
-    {
-        apply_json_patch(meta_data_, "patch_v2-3_to_v5.json");
-        meta_data_["compute_settings"]["image_rendering"]["space_transformation"] = static_cast<SpaceTransformation>(
-            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["space_transformation"]));
-        meta_data_["compute_settings"]["image_rendering"]["image_mode"] = static_cast<Computation>(
-            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["image_mode"]) - 1);
-        meta_data_["compute_settings"]["image_rendering"]["time_transformation"] = static_cast<TimeTransformation>(
-            static_cast<int>(meta_data_["compute_settings"]["image_rendering"]["time_transformation"]));
-    }
+    this->load_footer();
+
+    if (holo_file_header_.version < 3)
+        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V2);
+    else if (holo_file_header_.version < 4)
+        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V3);
     else if (holo_file_header_.version == 4)
-    {
-        // V4 footer not standardize
-        // Have "file info" or just "info"
-        // Patch json suppose it is "info"
-        if (meta_data_.contains("file info"))
-        {
-            meta_data_["info"] = meta_data_["file info"];
-            meta_data_["info"]["input fps"] = 1;
-            meta_data_["info"]["contiguous"] = 1;
-        }
-        apply_json_patch(meta_data_, "patch_v4_to_v5.json");
-    }
+        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V4);
+    else if (holo_file_header_.version == 5)
+        ;
     else
-    {
         LOG_ERROR(main, "HOLO file version not supported!");
-    }
-    import_holo_v5(meta_data_);
+
+    from_json(meta_data_["compute_settings"], raw_footer_);
+    raw_footer_.Load();
 }
 
 void InputHoloFile::import_info() const
 {
-    if (holo_file_header_.version == 4)
+    LOG_FUNC(main);
+    if (!has_footer)
+        return;
+
+    try
     {
         // Pixel are considered square
         GSH::instance().set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
     }
-    else
-    {
-        LOG_ERROR(main, "HOLO file version not supported!");
-    }
-}
-
-void InputHoloFile::apply_json_patch(json& meta_data, const std::string& json_patch_path)
-{
-    auto path_path = std::filesystem::path(holovibes::settings::patch_dirpath) / json_patch_path;
-    auto file_content = std::ifstream(path_path, std::ifstream::in);
-    auto patch = nlohmann::json::parse(file_content);
-
-    meta_data = meta_data.patch(patch);
+    catch(std::exception&)
+    {}
 }
 
 } // namespace holovibes::io_files

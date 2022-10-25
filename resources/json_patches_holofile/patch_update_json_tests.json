@@ -1,0 +1,242 @@
+[
+	{
+		"op": "move",
+		"from": "/advanced/buffer size",
+		"path": "/advanced/buffer_size"
+	},
+	{
+		"op": "move",
+		"from": "/advanced/filter2d smooth",
+		"path": "/advanced/filter2d_smooth"
+	},
+	{
+		"op": "move",
+		"from": "/advanced/renorm constant",
+		"path": "/advanced/renorm_constant"
+	},
+	{
+		"op": "move",
+		"from": "/advanced/contrast/cuts p offset",
+		"path": "/advanced/contrast/cuts_p_offset"
+	},
+	{
+		"op": "move",
+		"from": "/advanced/buffer_size/time transformation cuts",
+		"path": "/advanced/buffer_size/time_transformation_cuts"
+	},
+	{
+		"op": "move",
+		"from": "/composite/auto weight",
+		"path": "/composite/auto_weight"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/h/blur/kernel size",
+		"path": "/composite/hsv/h/blur/kernel_size"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/h/slider threshold",
+		"path": "/composite/hsv/h/slider_threshold"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/s/slider threshold",
+		"path": "/composite/hsv/s/slider_threshold"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/v/slider threshold",
+		"path": "/composite/hsv/v/slider_threshold"
+	},
+	{
+		"op": "move",
+		"from": "/image rendering",
+		"path": "/image_rendering"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/batch size",
+		"path": "/image_rendering/batch_size"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/image mode",
+		"path": "/image_rendering/image_mode"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/space transformation",
+		"path": "/image_rendering/space_transformation"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/time transformation",
+		"path": "/image_rendering/time_transformation"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/time transformation size",
+		"path": "/image_rendering/time_transformation_size"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/time transformation stride",
+		"path": "/image_rendering/time_transformation_stride"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/z distance",
+		"path": "/image_rendering/z_distance"
+	},
+	{
+		"op": "move",
+		"from": "/view/fft shift",
+		"path": "/view/fft_shift"
+	},
+	{
+		"op": "move",
+		"from": "/view/p/accu level",
+		"path": "/view/p/accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/q/accu level",
+		"path": "/view/q/accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/reticle/display enabled",
+		"path": "/view/reticle/display_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/filter2d/contrast/auto refresh",
+		"path": "/view/window/filter2d/contrast/auto_refresh"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/filter2d/log enabled",
+		"path": "/view/window/filter2d/log_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xy/log enabled",
+		"path": "/view/window/xy/log_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xz/log enabled",
+		"path": "/view/window/xz/log_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/yz/log enabled",
+		"path": "/view/window/yz/log_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xy/img accu level",
+		"path": "/view/window/xy/img_accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xz/img accu level",
+		"path": "/view/window/xz/img_accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/yz/contrast/auto refresh",
+		"path": "/view/window/yz/contrast/auto_refresh"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xy/contrast/auto refresh",
+		"path": "/view/window/xy/contrast/auto_refresh"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xz/contrast/auto refresh",
+		"path": "/view/window/xz/contrast/auto_refresh"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/yz/img accu level",
+		"path": "/view/window/yz/img_accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/x/accu level",
+		"path": "/view/x/accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/view/y/accu level",
+		"path": "/view/y/accu_level"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/h/threshold/high",
+		"path": "/composite/hsv/h/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/h/threshold/low",
+		"path": "/composite/hsv/h/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/s/threshold/high",
+		"path": "/composite/hsv/s/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/s/threshold/low",
+		"path": "/composite/hsv/s/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/v/threshold/high",
+		"path": "/composite/hsv/v/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/composite/hsv/v/threshold/low",
+		"path": "/composite/hsv/v/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/view/type",
+		"path": "/view/img_type"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xy/flip",
+		"path": "/view/window/xy/flip_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/xz/flip",
+		"path": "/view/window/xz/flip_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/yz/flip",
+		"path": "/view/window/yz/flip_enabled"
+	},
+	{
+		"op": "move",
+		"from": "/view/reticle/scale",
+		"path": "/view/reticle/reticle_scale"
+	},
+	{
+		"op": "move",
+		"from": "/composite/auto_weight",
+		"path": "/composite/composite_auto_weights"
+	},
+	{
+		"op": "add",
+		"path": "/advanced/raw_bitshift",
+        "value": 0
+	}
+]

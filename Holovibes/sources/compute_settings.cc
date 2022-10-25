@@ -2,6 +2,7 @@
 #include "API.hh"
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
+#include "global_state_holder.hh"
 #include <iomanip>
 
 #include "logger.hh"
@@ -34,7 +35,17 @@ void load_compute_settings(const std::string& json_path)
     auto j_cs = json::parse(ifs);
 
     auto compute_settings = ComputeSettings();
-    from_json(j_cs, compute_settings);
+    try
+    {
+        from_json(j_cs, compute_settings);
+    }
+    catch(const std::exception&)
+    {
+        LOG_ERROR(main, "{} is an invalid compute settings", json_path);
+        return;
+        abort();
+    }
+    
     compute_settings.Load();
 
     LOG_INFO(main, "Compute settings loaded from : {}", json_path);

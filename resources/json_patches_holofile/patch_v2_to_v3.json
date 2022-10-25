@@ -1,0 +1,30 @@
+[
+    {
+        "op": "remove",
+        "path": "/y_acc_enabled"
+    },
+    {
+        "op": "remove",
+        "path": "/x_acc_enabled"
+    },
+    {
+        "op": "remove",
+        "path": "/renorm_constant"
+    },
+    {
+        "op": "remove",
+        "path": "/p_acc_enabled"
+    },
+    {
+        "op": "remove",
+        "path": "/img_acc_slice_yz_enabled"
+    },
+    {
+        "op": "remove",
+        "path": "/img_acc_slice_xz_enabled"
+    },
+    {
+        "op": "remove",
+        "path": "/img_acc_slice_xy_enabled"
+    }
+]

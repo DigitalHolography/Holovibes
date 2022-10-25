@@ -10,6 +10,8 @@ InputCineFile::InputCineFile(const std::string& file_path)
     , CineFile()
 {
 
+    has_footer = false;
+
     // read the cine file and bitmap info headers
     size_t bytes_read = std::fread(&cine_file_header_, sizeof(char), sizeof(CineFileHeader), file_);
     bytes_read += std::fread(&bitmap_info_header_, sizeof(char), sizeof(BitmapInfoHeader), file_);

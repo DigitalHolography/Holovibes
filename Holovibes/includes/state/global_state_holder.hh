@@ -591,15 +591,12 @@ class GSH
 
     enum class ComputeSettingsVersion
     {
+        V2,
+        V3,
         V4,
-        InternalV4
+        V5
     };
-
-    void load_compute_settings(const std::string& settings_path);
-    void load_compute_settings(const std::string& settings_path, ComputeSettingsVersion ver, bool no_converter = false);
-
-    void save_compute_settings(const std::string& settings_path);
-    void save_compute_settings(const std::string& settings_path, ComputeSettingsVersion ver, bool no_converter = false);
+    static void convert_json(json& data, GSH::ComputeSettingsVersion from);
 
 #pragma endregion
     void change_window(uint index);
