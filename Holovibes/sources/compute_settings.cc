@@ -39,14 +39,15 @@ void load_compute_settings(const std::string& json_path)
     {
         from_json(j_cs, compute_settings);
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         LOG_ERROR(main, "{} is an invalid compute settings", json_path);
         return;
         abort();
     }
-    
+
     compute_settings.Load();
+    compute_settings.Dump("cli_load_compute_settings");
 
     LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 

@@ -109,6 +109,17 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
+    bool load = false;
+    if (input_frame_file->get_has_footer())
+    {
+        LOG_DEBUG(main, "loading pixel size");
+        // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
+        // the footer and then import info
+        input_frame_file->import_compute_settings();
+        input_frame_file->import_info();
+        load = true;
+    }
+
     if (opts.compute_settings_path)
     {
         try
@@ -121,16 +132,8 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
             return 1;
         }
     }
-    else
+    else if (!load)
         input_frame_file->import_compute_settings();
-
-    if (input_frame_file->get_has_footer())
-    {
-        // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
-        // the footer and then import info
-        input_frame_file->import_compute_settings();
-        input_frame_file->import_info();
-    }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
