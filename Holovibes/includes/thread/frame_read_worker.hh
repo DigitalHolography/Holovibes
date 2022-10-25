@@ -7,7 +7,6 @@
 #include "worker.hh"
 #include "queue.hh"
 #include "chrono.hh"
-//#include <chrono>
 
 namespace holovibes::worker
 {
