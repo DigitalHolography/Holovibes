@@ -614,16 +614,35 @@ void MainWindow::close_advanced_settings()
 void MainWindow::reset_settings()
 {
     std::string to_remove = holovibes::settings::compute_settings_filepath;
-    if (std::remove(to_remove.c_str()) == 0)
+
+    std::stringstream tmp;
+    tmp << "\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
+
+    QMessageBox msgBox;
+    msgBox.setText("Reset settings and quit");
+    msgBox.setInformativeText(tmp.str().c_str());
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+
+    int ret = msgBox.exec();
+    switch (ret)
     {
-        save_cs = false;
-        LOG_INFO(main, "{} has been removed!", to_remove);
-        LOG_INFO(main, "Please, restart Holovibes!");
+    case QMessageBox::Cancel:
+        break;
+    case QMessageBox::Ok:
+        if (std::remove(to_remove.c_str()) == 0)
+        {
+            save_cs = false;
+            LOG_INFO(main, "{} has been removed!", to_remove);
+            LOG_INFO(main, "Please, restart Holovibes!");
+        }
+        else
+            LOG_WARN(main, "Could not remove {}!", to_remove);
+
+        close();
+        break;
     }
-    else
-        LOG_WARN(main, "Could not remove {}!", to_remove);
-    
-    close();
 }
 
 void MainWindow::open_advanced_settings()
