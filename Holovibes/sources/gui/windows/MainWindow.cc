@@ -7,8 +7,6 @@
 #include <QShortcut>
 #include <QStyleFactory>
 
-#include <cstdio>
-
 #include "MainWindow.hh"
 #include "logger.hh"
 #include "holovibes_config.hh"
