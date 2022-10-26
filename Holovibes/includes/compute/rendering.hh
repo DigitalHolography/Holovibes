@@ -13,9 +13,6 @@
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
 
-#include "advanced.hh"
-#include "compute.hh"
-
 namespace holovibes
 {
 class ICompute;
@@ -61,12 +58,24 @@ class Rendering
     /*! \brief insert the functions relative to the contrast. */
     void insert_contrast();
 
+  public:
+    void request_view_xy_exec_contrast() { view_xy_exec_contrast_ = true; }
+    void request_view_xz_exec_contrast() { view_xz_exec_contrast_ = true; }
+    void request_view_yz_exec_contrast() { view_yz_exec_contrast_ = true; }
+    void request_view_filter2d_exec_contrast() { view_filter2d_exec_contrast_ = true; }
+
+  private:
+    std::atomic_bool view_xy_exec_contrast_{false};
+    std::atomic_bool view_xz_exec_contrast_{false};
+    std::atomic_bool view_yz_exec_contrast_{false};
+    std::atomic_bool view_filter2d_exec_contrast_{false};
+
   private:
     /*! \brief insert the log10 on the XY window */
     void insert_main_log();
     /*! \brief insert the log10 on the slices */
     void insert_slice_log();
-    /*! \brief insert the log10 on the Filter2D view */
+    /*! \brief insert the log10 on the ViewFilter2D view */
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */

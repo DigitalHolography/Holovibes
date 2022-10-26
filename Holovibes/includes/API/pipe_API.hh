@@ -16,8 +16,6 @@ inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue_ptr()
 };
 inline std::shared_ptr<Queue> get_gpu_output_queue_ptr() { return Holovibes::instance().get_gpu_output_queue(); };
 
-void pipe_refresh();
-
 void create_pipe();
 
 } // namespace holovibes::api

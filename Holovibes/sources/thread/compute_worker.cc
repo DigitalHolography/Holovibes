@@ -23,7 +23,6 @@ ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe, std::atom
 void ComputeWorker::stop()
 {
     Worker::stop();
-
     pipe_.load()->request_termination();
 }
 

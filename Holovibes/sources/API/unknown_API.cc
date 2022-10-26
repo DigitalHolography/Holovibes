@@ -7,26 +7,26 @@ void check_p_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
 
-    if (api::get_view_accu_p().get_accu_level() > upper_bound)
-        api::change_view_accu_p()->set_accu_level(upper_bound);
+    if (api::get_view_accu_p().accu_level > upper_bound)
+        api::change_view_accu_p()->accu_level = upper_bound;
 
-    upper_bound -= api::get_view_accu_p().get_accu_level();
+    upper_bound -= api::get_view_accu_p().accu_level;
 
-    if (upper_bound >= 0 && api::get_view_accu_p().get_index() > static_cast<uint>(upper_bound))
-        api::change_view_accu_p()->set_index(upper_bound);
+    if (upper_bound >= 0 && api::get_view_accu_p().index > static_cast<uint>(upper_bound))
+        api::change_view_accu_p()->index = upper_bound;
 }
 
 void check_q_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
 
-    if (api::get_view_accu_q().get_accu_level() > upper_bound)
-        api::change_view_accu_q()->set_accu_level(upper_bound);
+    if (api::get_view_accu_q().accu_level > upper_bound)
+        api::change_view_accu_q()->accu_level = upper_bound;
 
-    upper_bound -= api::get_view_accu_q().get_accu_level();
+    upper_bound -= api::get_view_accu_q().accu_level;
 
-    if (upper_bound >= 0 && api::get_view_accu_q().get_index() > static_cast<uint>(upper_bound))
-        api::change_view_accu_q()->set_index(upper_bound);
+    if (upper_bound >= 0 && api::get_view_accu_q().index > static_cast<uint>(upper_bound))
+        api::change_view_accu_q()->index = upper_bound;
 }
 
 void init_image_mode(QPoint& position, QSize& size)
@@ -53,7 +53,7 @@ bool set_holographic_mode(ushort window_size)
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
-        api::change_current_window()->set_contrast_enabled(true);
+        api::change_current_window()->contrast.enabled = true;
 
         return true;
     }
@@ -67,7 +67,7 @@ bool set_holographic_mode(ushort window_size)
 
 void close_critical_compute()
 {
-    if (get_convolution().get_is_enabled()())
+    if (api::get_convolution().enabled)
         api::disable_convolution();
 
     if (api::get_cuts_view_enabled())
@@ -101,11 +101,9 @@ bool slide_update_threshold(
 
 void set_log_scale(const bool value)
 {
-    api::change_current_window()->set_log_scale_slice_enabled(value);
-    if (value && api::get_current_window().get_contrast_enabled())
+    api::change_current_window()->log_enabled = value;
+    if (value && api::get_current_window().contrast.enabled)
         set_auto_contrast();
-
-    pipe_refresh();
 }
 
 } // namespace holovibes::api

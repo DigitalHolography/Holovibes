@@ -11,16 +11,9 @@
 
 #include "fast_updates_holder.hh"
 #include "entities.hh"
-#include "view_struct.hh"
-#include "rendering_struct.hh"
-#include "composite_struct.hh"
-#include "internals_struct.hh"
-#include "advanced_struct.hh"
-#include "gsh_parameters_handler.hh"
-#include "cache_gsh.hh"
-
 #include "all_caches.hh"
 #include "cache_dispatcher.hh"
+#include "all_pipe_requests_on_sync_functions.hh"
 
 namespace holovibes
 {
@@ -56,14 +49,11 @@ using entities::Span;
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
 using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref,
                                            ComputeCache::Ref,
+                                           ImportCache::Ref,
                                            ExportCache::Ref,
                                            CompositeCache::Ref,
-                                           Filter2DCache::Ref,
                                            ViewCache::Ref,
-                                           ZoneCache::Ref,
-                                           ImportCache::Ref,
-                                           FileReadCache::Ref,
-                                           RequestCache::Ref>;
+                                           ZoneCache::Ref>;
 
 class GSH
 {
@@ -99,14 +89,11 @@ class GSH
 
     AdvancedCache::Ref& get_advanced_cache() { return advanced_cache_; }
     ComputeCache::Ref& get_compute_cache() { return compute_cache_; }
+    ImportCache::Ref& get_import_cache() { return import_cache_; }
     ExportCache::Ref& get_export_cache() { return export_cache_; }
     CompositeCache::Ref& get_composite_cache() { return composite_cache_; }
-    Filter2DCache::Ref& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Ref& get_view_cache() { return view_cache_; }
     ZoneCache::Ref& get_zone_cache() { return zone_cache_; }
-    ImportCache::Ref& get_import_cache() { return import_cache_; }
-    FileReadCache::Ref& get_file_read_cache() { return file_read_cache_; }
-    RequestCache::Ref& get_unknown_cache() { return unknown_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -114,7 +101,6 @@ class GSH
     static inline FastUpdatesHolder<T> fast_updates_map;
 
   public:
-
     enum class ComputeSettingsVersion
     {
         V2,
@@ -123,8 +109,6 @@ class GSH
         V5
     };
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
-      
-
 
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
     void notify() { notify_callback_(); }
@@ -137,14 +121,11 @@ class GSH
 
     AdvancedCache::Ref advanced_cache_;
     ComputeCache::Ref compute_cache_;
+    ImportCache::Ref import_cache_;
     ExportCache::Ref export_cache_;
     CompositeCache::Ref composite_cache_;
-    Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
     ZoneCache::Ref zone_cache_;
-    ImportCache::Ref import_cache_;
-    FileReadCache::Ref file_read_cache_;
-    RequestCache::Ref unknown_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 

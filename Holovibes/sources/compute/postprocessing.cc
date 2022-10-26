@@ -53,7 +53,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_value<ConvolutionMatrix>().data(),
+                                   GSH::instance().get_value<Convolution>().matrix.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -97,7 +97,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().enabled,
                        true,
                        stream_);
 
@@ -107,7 +107,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().enabled,
                        true,
                        stream_);
 
@@ -117,7 +117,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().enabled,
                        true,
                        stream_);
 
@@ -131,10 +131,11 @@ void Postprocessing::insert_convolution()
 {
     LOG_FUNC();
 
-    if (!compute_cache_.get_value<ConvolutionEnabled>() || compute_cache_.get_value<ConvolutionMatrix>().empty())
+    if (compute_cache_.get_value<Convolution>().enabled == false ||
+        compute_cache_.get_value<Convolution>().matrix.empty())
         return;
 
-    if (view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)
+    if (view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -145,7 +146,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_value<DivideConvolutionEnable>(),
+                                   compute_cache_.get_value<Convolution>().enabled,
                                    true,
                                    stream_);
             });
@@ -167,7 +168,7 @@ void Postprocessing::insert_renormalize()
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+            if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

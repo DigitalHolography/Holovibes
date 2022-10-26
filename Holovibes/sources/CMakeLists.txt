@@ -16,7 +16,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/convolution_API.cc
     API/cuts_API.cc
     API/display_API.cc
-    API/filter2d_API.cc
     API/import_API.cc
     API/pipe_API.cc
     API/record_API.cc
@@ -25,6 +24,11 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/view_API.cc
 
 
+    core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc
+
+    tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/converts.cc

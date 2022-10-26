@@ -11,8 +11,6 @@
 #include "composite_API.hh"
 #include "export_API.hh"
 #include "import_API.hh"
-#include "file_read_API.hh"
-#include "filter2d_API.hh"
 #include "view_API.hh"
 #include "zone_API.hh"
 #include "record_API.hh"
@@ -29,7 +27,7 @@
 #include "texture_API.hh"
 #include "unknown_API.hh"
 
-// FIXME check if get_filter2d_enabled has not been inverted with get_filter2d_view_enabled
+// FIXME restore pipe refresh
 
 namespace holovibes::api
 {

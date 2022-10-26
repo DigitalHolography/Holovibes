@@ -54,7 +54,7 @@ void Rendering::insert_fft_shift()
 
     if (view_cache_.get_value<FftShiftEnabled>())
     {
-        if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+        if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
@@ -73,7 +73,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecordEnabled>())
+    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecord>().is_enable())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -94,10 +94,11 @@ void Rendering::insert_chart()
 
                 if (view_cache_.get_value<ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_value<ChartRecordEnabled>() && chart_env_.nb_chart_points_to_record_ != 0)
+                if (export_cache_.get_value<ChartRecord>().is_enable() &&
+                    chart_env_.current_nb_point_to_record_left > 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
-                    --chart_env_.nb_chart_points_to_record_;
+                    --chart_env_.current_nb_point_to_record_left;
                 }
             });
     }
@@ -111,7 +112,7 @@ void Rendering::insert_log()
         insert_main_log();
     if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_log();
-    if (view_cache_.get_value<Filter2D>().log_enabled)
+    if (view_cache_.get_value<ViewFilter2D>().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -136,8 +137,8 @@ void Rendering::insert_contrast()
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_value<Filter2DViewEnabled>() && GSH::instance().get_value<Filter2D>().contrast.enabled)
-        insert_apply_contrast(WindowKind::Filter2D);
+    if (GSH::instance().get_value<Filter2DViewEnabled>() && GSH::instance().get_value<ViewFilter2D>().contrast.enabled)
+        insert_apply_contrast(WindowKind::ViewFilter2D);
 }
 
 void Rendering::insert_main_log()
@@ -230,10 +231,10 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 size = fd_.width * compute_cache_.get_value<TimeTransformationSize>();
                 wind = view_cache_.get_value<ViewXZ>();
                 break;
-            case WindowKind::Filter2D:
+            case WindowKind::ViewFilter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = GSH::instance().get_value<Filter2D>();
+                wind = view_cache_.get_value<ViewFilter2D>();
                 break;
             }
 
@@ -264,45 +265,46 @@ void Rendering::insert_compute_autocontrast()
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (view_cache_.get_value<ViewXY>().get_exec_auto_contrast() &&
+        if (view_xy_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            view_cache_.get_value<ViewXY>().reset_exec_auto_contrast();
+            view_xy_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<ViewXZ>().get_exec_auto_contrast() &&
+        if (view_xz_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 compute_cache_.get_value<TimeTransformationSize>(),
-                                advanced_cache_.get_value<CutsContrastPOffset>(),
+                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                 WindowKind::XZview);
-            view_cache_.get_value<ViewXZ>().reset_exec_auto_contrast();
+            view_xz_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<ViewYZ>().get_exec_auto_contrast() &&
+        if (view_yz_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 compute_cache_.get_value<TimeTransformationSize>(),
                                 fd_.height,
-                                advanced_cache_.get_value<CutsContrastPOffset>(),
+                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                 WindowKind::YZview);
-            view_cache_.get_value<ViewYZ>().reset_exec_auto_contrast();
+            view_yz_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<Filter2D>().get_exec_auto_contrast())
+        if (view_filter2d_exec_contrast_)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
-                                WindowKind::Filter2D);
-            view_cache_.get_value<Filter2D>().reset_exec_auto_contrast();
+                                WindowKind::ViewFilter2D);
+            view_filter2d_exec_contrast_ = false;
         }
 
-        view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe
+        // FIXME: gsh should not be modified in the pipe
+        view_cache_.synchronize<ViewPipeRequestOnSync>(api::get_compute_pipe());
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);
@@ -315,26 +317,27 @@ void Rendering::autocontrast_caller(
 
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastLowerThreshold>(),
-                                            advanced_cache_.get_value<ContrastUpperThreshold>()};
+    const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastThreshold>().lower,
+                                            advanced_cache_.get_value<ContrastThreshold>().upper};
     switch (view)
     {
     case WindowKind::XYview:
     case WindowKind::XZview:
-    case WindowKind::Filter2D:
+    case WindowKind::ViewFilter2D:
         // No offset
-        compute_percentile_xy_view(input,
-                                   width,
-                                   height,
-                                   (view == WindowKind::XYview) ? 0 : offset,
-                                   percent_in,
-                                   percent_min_max_,
-                                   percent_size,
-                                   zone_cache_.get_value<ReticleZone>(),
-                                   (view == WindowKind::Filter2D) ? false
-                                                                  : view_cache_.get_value<ReticleDisplayEnabled>(),
-                                   stream_);
-        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
+        compute_percentile_xy_view(
+            input,
+            width,
+            height,
+            (view == WindowKind::XYview) ? 0 : offset,
+            percent_in,
+            percent_min_max_,
+            percent_size,
+            zone_cache_.get_value<ReticleZone>(),
+            (view == WindowKind::ViewFilter2D) ? false : view_cache_.get_value<Reticle>().display_enabled,
+            stream_);
+        api::change_window(view)->contrast.min = percent_min_max_[0];
+        api::change_window(view)->contrast.max = percent_min_max_[1];
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -345,9 +348,10 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    zone_cache_.get_value<ReticleZone>(),
-                                   view_cache_.get_value<ReticleDisplayEnabled>(),
+                                   view_cache_.get_value<Reticle>().display_enabled,
                                    stream_);
-        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
+        api::change_window(view)->contrast.min = percent_min_max_[0];
+        api::change_window(view)->contrast.max = percent_min_max_[1];
         break;
     }
 }

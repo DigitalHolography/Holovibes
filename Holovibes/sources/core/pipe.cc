@@ -22,7 +22,7 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-#include "all_pipe_functions.hh"
+#include "all_pipe_requests_on_sync_functions.hh"
 
 #include "API.hh"
 
@@ -45,7 +45,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
-
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_value<TimeStride>(); };
 
@@ -64,9 +63,9 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                       spatial_transformation_plan_,
                                                                       time_transformation_env_,
                                                                       stream_,
+                                                                      advanced_cache_,
                                                                       compute_cache_,
-                                                                      view_cache_,
-                                                                      filter2d_cache_);
+                                                                      view_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -99,109 +98,93 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              view_cache_);
     *processed_output_fps_ = 0;
 
-    GSH::instance().change_value<TimeTransformationSize>();
-
-    try
-    {
-        refresh();
-    }
-    catch (const holovibes::CustomException& e)
-    {
-        // If refresh() fails the compute descriptor settings will be
-        // changed to something that should make refresh() work
-        // (ex: lowering the GPU memory usage)
-        LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-        LOG_WARN("Exception: {}", e.what());
-        try
-        {
-            refresh();
-        }
-        catch (const holovibes::CustomException& e)
-        {
-            // If it still didn't work holovibes is probably going to freeze
-            // and the only thing you can do is restart it manually
-            LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-            LOG_ERROR("Exception: {}", e.what());
-            throw e;
-        }
-    }
+    call_reload_function_caches();
+    refresh();
 }
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
-bool Pipe::make_requests()
+void Pipe::call_reload_function_caches()
 {
-    // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
-    // the ressources that need to beallocated in second
+    PipeRequestOnSync::begin_requests();
+    advanced_cache_.synchronize_force<AdvancedPipeRequestOnSync>(*this);
+    compute_cache_.synchronize_force<ComputePipeRequestOnSync>(*this);
+    import_cache_.synchronize_force<ImportPipeRequestOnSync>(*this);
+    export_cache_.synchronize_force<ExportPipeRequestOnSync>(*this);
+    composite_cache_.synchronize_force<CompositePipeRequestOnSync>(*this);
+    view_cache_.synchronize_force<ViewPipeRequestOnSync>(*this);
+    zone_cache_.synchronize_force<DefaultPipeRequestOnSync>(*this);
 
-    bool success_allocation = true;
-    /* Free buffers */
-
-    image_accumulation_->dispose(); // done only if requested
-    image_accumulation_->init();    // done only if requested
-    // EXEC HERE THE UNKNOWN CACHE AFTER image_accumulation_->init();
-
-    if (hologram_record_requested_)
+    if (PipeRequestOnSync::has_requests_fail())
     {
-        LOG_DEBUG("Hologram Record Request Processing");
+        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        // FIXME : handle pipe requests on sync failure
+        return;
+    }
+}
 
-        auto record_fd = gpu_output_queue_.get_fd();
-        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, advanced_cache_.get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        ;
-        frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
+void Pipe::synchronize_caches_and_make_requests()
+{
+    PipeRequestOnSync::begin_requests();
+    advanced_cache_.synchronize<AdvancedPipeRequestOnSync>(*this);
+    compute_cache_.synchronize<ComputePipeRequestOnSync>(*this);
+    import_cache_.synchronize<ImportPipeRequestOnSync>(*this);
+    export_cache_.synchronize<ExportPipeRequestOnSync>(*this);
+    composite_cache_.synchronize<CompositePipeRequestOnSync>(*this);
+    view_cache_.synchronize<ViewPipeRequestOnSync>(*this);
+    zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
 
-        hologram_record_requested_ = false;
-        LOG_DEBUG("Hologram Record Request Processed");
+    if (PipeRequestOnSync::has_requests_fail())
+    {
+        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        // FIXME : handle pipe requests on sync failure
+        return;
+    }
+}
+
+bool Pipe::caches_has_change_requested()
+{
+    return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested() ||
+           export_cache_.has_change_requested() || import_cache_.has_change_requested() ||
+           view_cache_.has_change_requested() || zone_cache_.has_change_requested() ||
+           composite_cache_.has_change_requested();
+}
+
+#ifndef DISABLE_LOG_PIPE
+#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
+#else
+#define LOG_PIPE(...)
+#endif
+
+void Pipe::sync_and_refresh()
+{
+    if (!caches_has_change_requested())
+    {
+        // LOG_PIPE("Pipe refresh doesn't need refresh : caches already syncs");
+        return;
     }
 
-    if (raw_record_requested_)
-    {
-        LOG_DEBUG("Raw Record Request Processing");
-        frame_record_env_.gpu_frame_record_queue_.reset(new Queue(gpu_input_queue_.get_fd(),
-                                                                  advanced_cache_.get_value<RecordBufferSize>(),
-                                                                  QueueType::RECORD_QUEUE));
+    LOG_PIPE("Pipe refresh : Call caches ...");
+    synchronize_caches_and_make_requests();
 
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        ;
-        frame_record_env_.record_mode_ = RecordMode::RAW;
-        raw_record_requested_ = false;
-        LOG_DEBUG("Raw Record Request Processed");
+    if (api::get_import_type() == ImportTypeEnum::None)
+    {
+        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
+        return;
     }
 
-    if (cuts_record_requested_)
+    if (!PipeRequestOnSync::do_need_pipe_refresh())
     {
-        LOG_DEBUG(compute_worker, "cuts_record_requested");
+        LOG_PIPE(
+            "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
+        return;
     }
 
-    return success_allocation;
+    refresh();
 }
 
 void Pipe::refresh()
 {
-    // This call has to be before make_requests() because this method needs
-    // to get updated values during exec_all() call
-    // This call could be removed if make_requests() only gets value through
-    // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
-
-    synchronize_caches();
-    refresh_requested_ = false;
-
-    fn_compute_vect_.clear();
-
-    // Aborting if allocation failed
-    if (!make_requests())
-    {
-        refresh_requested_ = false;
-        return;
-    }
-
-    // This call has to be after make_requests() because this method needs
-    // to honor cache modifications
-    synchronize_caches();
-
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
      * calls/operations on its own default stream. Cuda calls/operations ran on
@@ -223,10 +206,12 @@ void Pipe::refresh()
      * cuda calls forces the default stream usage.
      */
 
+    fn_compute_vect_.clear();
+
     /* Begin insertions */
 
+    // Wait for a batch of frame to be ready
     insert_wait_frames();
-    // A batch of frame is ready
 
     insert_raw_record();
 
@@ -295,6 +280,38 @@ void Pipe::refresh()
     // Must be the last inserted function
     insert_reset_batch_index();
 }
+
+void Pipe::run_all()
+{
+    sync_and_refresh();
+
+    for (FnType& f : fn_compute_vect_)
+        f();
+    {
+        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
+        for (FnType& f : fn_end_vect_)
+            f();
+        fn_end_vect_.clear();
+    }
+}
+
+void Pipe::exec()
+{
+    while (!termination_requested_)
+    {
+        try
+        {
+            run_all();
+        }
+        catch (CustomException& e)
+        {
+            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
+            throw;
+        }
+    }
+}
+
+// Insert functions
 
 void Pipe::insert_wait_frames()
 {
@@ -397,7 +414,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_value<Filter2DEnabled>() && view_cache_.get_value<Filter2DViewEnabled>())
+    if (compute_cache_.get_value<Filter2D>().enabled && view_cache_.get_value<Filter2DViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -438,14 +455,14 @@ void Pipe::insert_raw_view()
             {
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
-                gpu_input_queue_.copy_multiple(*get_raw_view_queue());
+                gpu_input_queue_.copy_multiple(*get_raw_view_queue_ptr());
             });
     }
 }
 
 void Pipe::insert_raw_record()
 {
-    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -460,7 +477,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -479,15 +496,15 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_value<FrameRecordEnable>())
+    if (GSH::instance().get_value<FrameRecordMode>().is_enable())
     {
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_XZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
                 { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
         }
-        else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
+        else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
@@ -496,71 +513,10 @@ void Pipe::insert_cuts_record()
     }
 }
 
-void Pipe::exec()
-{
-    if (refresh_requested_ || caches_has_change_requested())
-        refresh();
-    synchronize_caches();
-
-    while (!termination_requested_)
-    {
-        try
-        {
-            // Run the entire pipeline of calculation
-            run_all();
-
-            if (refresh_requested_ || caches_has_change_requested())
-            {
-                refresh();
-                synchronize_caches();
-            }
-        }
-        catch (CustomException& e)
-        {
-            LOG_ERROR("Pipe error: message: {}", e.what());
-            throw;
-        }
-    }
-}
-
-std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
-
 void Pipe::insert_fn_end_vect(std::function<void()> function)
 {
     std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
     fn_end_vect_.push_back(function);
-}
-
-void Pipe::run_all()
-{
-    synchronize_caches();
-
-    for (FnType& f : fn_compute_vect_)
-        f();
-    {
-        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-        for (FnType& f : fn_end_vect_)
-            f();
-        fn_end_vect_.clear();
-    }
-}
-
-void Pipe::synchronize_caches()
-{
-    AdvancedCache::REF::sycn fuinc;
-
-    advanced_cache_.call<AdvancedPipeRequest>(*this);
-    compute_cache_.call<ComputePipeRequest>(*this);
-    export_cache_.synchronize();
-    filter2d_cache_.synchronize();
-    view_cache_.synchronize();
-    zone_cache_.synchronize();
-    composite_cache_.synchronize();
-}
-
-bool Pipe::caches_has_change_requested()
-{
-    return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested();
 }
 
 } // namespace holovibes

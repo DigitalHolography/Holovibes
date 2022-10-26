@@ -4,8 +4,9 @@ namespace holovibes::api
 {
 void display_reticle(bool value)
 {
-    set_reticle_display_enabled(value);
+    change_reticle()->display_enabled = value;
 
+    // FIXME API -> GUI
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
@@ -13,14 +14,6 @@ void display_reticle(bool value)
     }
     else
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
-
-    pipe_refresh();
-}
-
-void reticle_scale(float value)
-{
-    set_reticle_scale(value);
-    pipe_refresh();
 }
 
 void create_holo_window(ushort window_size)
@@ -39,16 +32,14 @@ void create_holo_window(ushort window_size)
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue_ptr().get(),
-                                get_compute_pipe_ptr(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(
-            api::get_current_window_as_view_xyz().get_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().rot);
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_current_window_as_view_xyz().flip_enabled);
     }
     catch (const std::runtime_error& e)
     {
@@ -69,7 +60,7 @@ void refresh_view_mode(ushort window_size, uint index)
     api::close_windows();
     api::close_critical_compute();
 
-    set_img_type(static_cast<ImgType>(index));
+    set_image_type(static_cast<ImageTypeEnum>(index));
 
     try
     {
@@ -87,22 +78,17 @@ void refresh_view_mode(ushort window_size, uint index)
 
 void set_view_mode(const std::string& value, std::function<void()> callback)
 {
-    UserInterfaceDescriptor::instance().last_img_type_ = value;
-
+    api::detail::set_value<LastImageType>(value);
     get_compute_pipe().insert_fn_end_vect(callback);
-    pipe_refresh();
-
-    // Force XYview autocontrast
-    get_compute_pipe().request_autocontrast(WindowKind::XYview);
-    // Force cuts views autocontrast if needed
+    api::get_compute_pipe().get_rendering().request_view_xy_exec_contrast();
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
     if (checked)
     {
-        get_compute_pipe().request_filter2d_view();
-        while (get_compute_pipe().get_filter2d_view_requested())
+        api::detail::set_value<Filter2DViewEnabled>(true);
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
 
         const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
@@ -117,24 +103,24 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window.reset(
             new gui::Filter2DWindow(pos,
                                     QSize(filter2d_window_width, filter2d_window_height),
-                                    get_compute_pipe().get_filter2d_view_queue().get()));
+                                    get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+        UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
 
-        GSH::instance().change_value<Filter2D>()->set_log_scale_slice_enabled(true);
-        get_compute_pipe().request_autocontrast(WindowKind::Filter2D);
+        GSH::instance().set_value<Filter2DViewEnabled>(true);
+        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
     }
     else
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-        get_compute_pipe().request_disable_filter2d_view();
-        while (get_compute_pipe().get_disable_filter2d_view_requested())
+
+        api::detail::set_value<Filter2DViewEnabled>(false);
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
     }
-
-    pipe_refresh();
 }
 
+/// FIXME USELESS
 void set_filter2d(bool checked)
 {
     set_filter2d_view_enabled(checked);

@@ -14,8 +14,6 @@
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
-#include "compute.hh"
-
 namespace holovibes
 {
 struct CoreBuffersEnv;
@@ -80,7 +78,7 @@ class Converts
     /*! \brief Insert the convertion Float => Unsigned Short in slices. */
     void insert_slice_ushort();
 
-    /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
+    /*! \brief Insert the convertion Float => Unsigned Short of ViewFilter2D View. */
     void insert_filter2d_ushort();
 
     /*! \brief p_index */

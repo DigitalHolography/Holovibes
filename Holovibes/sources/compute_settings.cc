@@ -18,17 +18,20 @@ namespace holovibes::api
 
 void after_load_checks()
 {
-    if (GSH::instance().get_value<Filter2DN1>() >= GSH::instance().get_value<Filter2DN2>())
-        GSH::instance().set_value<Filter2DN1>(GSH::instance().get_value<Filter2DN1>() - 1);
+    if (GSH::instance().get_value<Filter2D>().n1 >= GSH::instance().get_value<Filter2D>().n2)
+        GSH::instance().change_value<Filter2D>()->n1 = GSH::instance().get_value<Filter2D>().n1 - 1;
     if (GSH::instance().get_value<TimeTransformationSize>() < 1)
         GSH::instance().set_value<TimeTransformationSize>(1);
+
     // TODO: Check convolution type if it  exists (when it will be added to cd)
     if (GSH::instance().get_value<ViewAccuP>().start >= GSH::instance().get_value<TimeTransformationSize>())
-        GSH::instance().change_value<ViewAccuP>()->set_index(0);
+        GSH::instance().change_value<ViewAccuP>()->start = 0;
     if (GSH::instance().get_value<ViewAccuQ>().start >= GSH::instance().get_value<TimeTransformationSize>())
-        GSH::instance().change_value<ViewAccuQ>()->set_index(0);
-    if (GSH::instance().get_value<CutsContrastPOffset>() > GSH::instance().get_value<TimeTransformationSize>() - 1)
-        GSH::instance().set_value<CutsContrastPOffset>(GSH::instance().get_value<TimeTransformationSize>() - 1);
+        GSH::instance().change_value<ViewAccuQ>()->start = 0;
+    if (GSH::instance().get_value<ContrastThreshold>().frame_index_offset >
+        GSH::instance().get_value<TimeTransformationSize>() - 1)
+        GSH::instance().change_value<ContrastThreshold>()->frame_index_offset =
+            (GSH::instance().get_value<TimeTransformationSize>() - 1);
 }
 
 void load_compute_settings(const std::string& json_path)
@@ -57,7 +60,6 @@ void load_compute_settings(const std::string& json_path)
     LOG_INFO("Compute settings loaded from : {}", json_path);
 
     after_load_checks();
-    pipe_refresh();
 }
 
 // clang-format off

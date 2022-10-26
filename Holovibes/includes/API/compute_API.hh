@@ -11,32 +11,29 @@ void set_batch_size(int value);
 inline int get_time_stride() { return api::detail::get_value<TimeStride>(); }
 void set_time_stride(int value);
 
-inline bool get_divide_convolution_enabled() { return api::detail::get_value<DivideConvolutionEnable>(); }
-inline void set_divide_convolution_enabled(bool value) { api::detail::set_value<DivideConvolutionEnable>(value); }
+inline const Filter2DStruct& get_filter2d() { return api::detail::get_value<Filter2D>(); }
+inline TriggerChangeValue<Filter2DStruct> change_filter2d() { return api::detail::change_value<Filter2D>(); }
 
-inline float get_lambda() { return api::detail::get_value<Lambda>(); }
-inline void set_lambda(float value) { api::detail::set_value<Lambda>(value); }
+inline SpaceTransformationEnum get_space_transformation() { return api::detail::get_value<SpaceTransformation>(); }
+inline void set_space_transformation(SpaceTransformationEnum value)
+{
+    api::detail::set_value<SpaceTransformation>(value);
+}
+
+inline TimeTransformationEnum get_time_transformation() { return api::detail::get_value<TimeTransformation>(); }
+inline void set_time_transformation(TimeTransformationEnum value) { api::detail::set_value<TimeTransformation>(value); }
 
 inline float get_time_transformation_size() { return api::detail::get_value<TimeTransformationSize>(); }
 inline void set_time_transformation_size(float value) { api::detail::set_value<TimeTransformationSize>(value); }
 
-inline SpaceTransformation get_space_transformation() { return api::detail::get_value<SpaceTransformationParam>(); }
-inline void set_space_transformation(SpaceTransformation value)
-{
-    api::detail::set_value<SpaceTransformationParam>(value);
-}
-
-inline TimeTransformation get_time_transformation() { return api::detail::get_value<TimeTransformationParam>(); }
-inline void set_time_transformation(TimeTransformation value)
-{
-    api::detail::set_value<TimeTransformationParam>(value);
-}
+inline float get_lambda() { return api::detail::get_value<Lambda>(); }
+inline void set_lambda(float value) { api::detail::set_value<Lambda>(value); }
 
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline bool get_convolution() { return api::detail::get_value<Convolution>(); }
-inline TriggerChangeValue<Convolution> change_convolution() { return api::detail::change_value<Convolution>(); }
+inline ConvolutionStruct get_convolution() { return api::detail::get_value<Convolution>(); }
+inline TriggerChangeValue<ConvolutionStruct> change_convolution() { return api::detail::change_value<Convolution>(); }
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
 inline void set_input_fps(uint value) { api::detail::set_value<InputFps>(value); }
@@ -55,11 +52,11 @@ inline void set_is_computation_stopped(bool value) { api::detail::set_value<IsCo
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
-    return api::detail::get_value<TimeTransformationCutsOutputBufferSize>();
+    return api::detail::get_value<TimeTransformationCutsBufferSize>();
 }
 inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
-    api::detail::set_value<TimeTransformationCutsOutputBufferSize>(value);
+    api::detail::set_value<TimeTransformationCutsBufferSize>(value);
 }
 
 // other

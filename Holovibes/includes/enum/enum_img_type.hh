@@ -9,11 +9,11 @@
 
 namespace holovibes
 {
-/*! \enum ImgType
+/*! \enum ImageTypeEnum
  *
  * \brief Displaying type of the image
  */
-enum class ImgType
+enum class ImageTypeEnum
 {
     Modulus = 0,    /*!< Modulus of the complex data */
     SquaredModulus, /*!<  Modulus taken to its square value */
@@ -23,13 +23,12 @@ enum class ImgType
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(ImgType, {
-    {ImgType::Modulus, "MODULUS"},
-    {ImgType::SquaredModulus, "SQUARED_MODULUS"},
-    {ImgType::Argument, "ARGUMENT"},
-    {ImgType::PhaseIncrease, "PHASE_INCREASE"},
-    {ImgType::Composite, "COMPOSITE"},
+SERIALIZE_JSON_ENUM(ImageTypeEnum, {
+    {ImageTypeEnum::Modulus, "MODULUS"},
+    {ImageTypeEnum::SquaredModulus, "SQUARED_MODULUS"},
+    {ImageTypeEnum::Argument, "ARGUMENT"},
+    {ImageTypeEnum::PhaseIncrease, "PHASE_INCREASE"},
+    {ImageTypeEnum::Composite, "COMPOSITE"},
 })
-// clang-format on
 
 } // namespace holovibes

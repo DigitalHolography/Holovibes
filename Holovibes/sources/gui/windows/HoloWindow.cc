@@ -9,25 +9,19 @@
 
 namespace holovibes::gui
 {
-HoloWindow::HoloWindow(QPoint p,
-                       QSize s,
-                       DisplayQueue* q,
-                       SharedPipe ic,
-                       std::unique_ptr<SliceWindow>& xz,
-                       std::unique_ptr<SliceWindow>& yz,
-                       float ratio)
+HoloWindow::HoloWindow(
+    QPoint p, QSize s, DisplayQueue* q, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, float ratio)
     : RawWindow(p, s, q, ratio, KindOfView::Hologram)
-    , Ic(ic)
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    if (api::get_current_window().get_contrast_auto_refresh())
-        Ic->request_autocontrast(WindowKind::XYview);
+    // FIXME COMPILE WHY
+    // if (api::get_current_window().contrast.auto_refresh)
+    //     api::get_view_xy().request_exec_auto_contrast();
+    api::set_auto_contrast_all();
 }
 
 HoloWindow::~HoloWindow() {}
-
-std::shared_ptr<ICompute> HoloWindow::getPipe() { return Ic; }
 
 void HoloWindow::initShaders()
 {
