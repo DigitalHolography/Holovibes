@@ -36,6 +36,7 @@ void ChartRecordWorker::run()
        << "]" << std::endl;
 
     api::get_compute_pipe().request_record_chart(nb_frames_to_record_);
+
     while (api::get_compute_pipe().get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;
 
@@ -62,7 +63,7 @@ void ChartRecordWorker::run()
            << std::endl;
     }
 
-    api::get_compute_pipe().request_disable_record_chart();
+    GSH::instance().set_value<ChartRecordEnabled>(false);
     while (api::get_compute_pipe().get_disable_chart_record_requested() && !stop_requested_)
         continue;
 

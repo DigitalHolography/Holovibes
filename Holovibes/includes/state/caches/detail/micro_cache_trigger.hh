@@ -50,6 +50,9 @@ class TriggerChangeValue
     }
 
   public:
+    void trigger() {}
+
+  public:
     //! this function must be handle with care (hence the W, may_be we can change this...)
     void dont_call_callback_W() { call_callback_ = false; }
 

@@ -170,25 +170,18 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
     if (output_queue)
         output_queue->resize(4, stream_);
 
-    if (record_mode_ == RecordMode::RAW)
+    if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
     {
-        api::get_compute_pipe().request_raw_record();
-        while (api::get_compute_pipe().get_raw_record_requested() && !stop_requested_)
+        api::detail::change_value<FrameRecordMode>().set_record_mode(record_mode_);
+        while (ExportCache::RefSingleton::has_change())
             continue;
     }
-    else if (record_mode_ == RecordMode::HOLOGRAM)
+    else if (record_mode_ == RecordMode::CUTS_XZ || record_mode_ == RecordMode::CUTS_YZ)
     {
-        api::get_compute_pipe().request_hologram_record();
-        while (api::get_compute_pipe().get_hologram_record_requested() && !stop_requested_)
+        api::detail::change_value<FrameRecordMode>().set_record_mode(record_mode_);
+        while (ExportCache::RefSingleton::has_change() && !stop_requested_)
             continue;
     }
-    else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
-    {
-        api::get_compute_pipe().request_cuts_record(record_mode_);
-        while (api::get_compute_pipe().get_cuts_record_requested() && !stop_requested_)
-            continue;
-    }
-
     return *api::get_compute_pipe().get_frame_record_queue();
 }
 

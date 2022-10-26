@@ -1,10 +1,9 @@
 #pragma once
 
-#include "pipe.hh"
-#include "logger.hh"
 #include "micro_cache.hh"
-
+#include "pipe.hh"
 #include "compute_struct.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -19,16 +18,24 @@ class ComputePipeRequest
     template <>
     void operator()<BatchSize>(int new_value, int old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE BatchSize");
+        LOG_TRACE(compute_worker, "UPDATE BatchSize");
 
         pipe.update_spatial_transformation_parameters();
         pipe.get_gpu_input_queue().resize(new_value.get_value());
     }
 
     template <>
+    void operator()<TimeStride>(int new_value, int old_value, Pipe& pipe)
+    {
+        LOG_TRACE(compute_worker, "UPDATE TimeStride");
+
+        batch_env_.batch_index = 0;
+    }
+
+    template <>
     void operator()<TimeTransformationSize>(uint new_value, uint old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE TimeTransformationSize");
+        LOG_TRACE(compute_worker, "UPDATE TimeTransformationSize");
 
         if (!pipe.update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
         {
@@ -45,22 +52,15 @@ class ComputePipeRequest
     template <>
     void operator()<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE Convolution");
+
         if (new_value.get_is_enabled() == old_value.get_is_enabled())
-        {
-            LOG_TRACE(compute_worker, "UPDATE Convolution : Nothing to do");
             return;
-        }
 
         if (new_value.get_is_enabled() == false)
-        {
-            LOG_DEBUG(compute_worker, "UPDATE Convolution : disable ");
             postprocess_->dispose();
-        }
         else if (new_value.get_is_enabled() == true)
-        {
-            LOG_DEBUG(compute_worker, "UPDATE Convolution : enable");
             postprocess_->init();
-        }
     }
 };
 } // namespace holovibes

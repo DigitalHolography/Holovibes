@@ -117,7 +117,6 @@ using VectorParameter = CustomParameter<std::vector<T>, DefaultLiteral<std::vect
 
 struct TriggerRequest
 {
-    volatile void trigger() {}
 };
 
 template <StringLiteral Key>

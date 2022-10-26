@@ -115,18 +115,12 @@ void Rendering::insert_log()
         insert_filter2d_view_log();
 }
 
-void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
-                                std::atomic<bool>& autocontrast_slice_xz_request,
-                                std::atomic<bool>& autocontrast_slice_yz_request,
-                                std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::insert_contrast()
 {
     LOG_FUNC(compute_worker);
 
     // Compute min and max pixel values if requested
-    insert_compute_autocontrast(autocontrast_request,
-                                autocontrast_slice_xz_request,
-                                autocontrast_slice_yz_request,
-                                autocontrast_filter2d_request);
+    insert_compute_autocontrast();
 
     // Apply contrast on the main view
     if (view_cache_.get_value<ViewXY>().contrast.enabled)
@@ -258,10 +252,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
-void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                            std::atomic<bool>& autocontrast_slice_xz_request,
-                                            std::atomic<bool>& autocontrast_slice_yz_request,
-                                            std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::insert_compute_autocontrast()
 {
     LOG_FUNC(compute_worker);
 
@@ -273,15 +264,15 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (autocontrast_request &&
+        if (view_cache_.get_value<ViewXY>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            autocontrast_request = false;
+            view_cache_.get_value<ViewXY>().reset_exec_auto_contrast();
         }
-        if (autocontrast_slice_xz_request &&
+        if (view_cache_.get_value<ViewXZ>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
@@ -289,9 +280,9 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 compute_cache_.get_value<TimeTransformationSize>(),
                                 advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::XZview);
-            autocontrast_slice_xz_request = false;
+            view_cache_.get_value<ViewXZ>().reset_exec_auto_contrast();
         }
-        if (autocontrast_slice_yz_request &&
+        if (view_cache_.get_value<ViewYZ>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
@@ -299,16 +290,16 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 fd_.height,
                                 advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::YZview);
-            autocontrast_slice_yz_request = false;
+            view_cache_.get_value<ViewYZ>().reset_exec_auto_contrast();
         }
-        if (autocontrast_filter2d_request)
+        if (view_cache_.get_value<Filter2D>().get_exec_auto_contrast())
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
                                 WindowKind::Filter2D);
-            autocontrast_filter2d_request = false;
+            view_cache_.get_value<Filter2D>().reset_exec_auto_contrast();
         }
 
         view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe

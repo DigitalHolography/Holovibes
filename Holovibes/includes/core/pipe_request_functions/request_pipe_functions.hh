@@ -1,8 +1,8 @@
 #pragma once
 
+#include "micro_cache.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "micro_cache.hh"
 
 namespace holovibes
 {
@@ -17,7 +17,7 @@ class RequestPipeRequest
     template <>
     void operator()<RequestClearImgAccu>(TriggerParameter new_value, TriggerParameter old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE RequestClearImgAccu");
+        LOG_TRACE(compute_worker, "UPDATE RequestClearImgAccu");
 
         image_accumulation_->clear();
     }

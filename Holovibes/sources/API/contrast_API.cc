@@ -8,14 +8,14 @@ void set_auto_contrast_all()
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    get_compute_pipe().request_autocontrast(WindowKind::XYview);
+    api::get_view_xy().request_exec_auto_contrast();
     if (api::get_cuts_view_enabled())
     {
-        get_compute_pipe().request_autocontrast(WindowKind::XZview);
-        get_compute_pipe().request_autocontrast(WindowKind::YZview);
+        api::get_view_xz().request_exec_auto_contrast();
+        api::get_view_yz().request_exec_auto_contrast();
     }
     if (api::get_filter2d_view_enabled())
-        get_compute_pipe().request_autocontrast(WindowKind::Filter2D);
+        api::get_view_filter2d().request_exec_auto_contrast();
 
     pipe_refresh();
 }

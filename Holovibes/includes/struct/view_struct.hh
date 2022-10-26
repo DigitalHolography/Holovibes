@@ -40,6 +40,11 @@ struct ViewWindow
     bool log_enabled = false;
 
     ViewContrast contrast;
+    
+    bool exec_auto_contrast_ = false;
+    bool get_exec_auto_contrast() { return exec_auto_contrast_; }
+    void request_exec_auto_contrast() { exec_auto_contrast_ = true; }
+    void reset_exec_auto_contrast() { exec_auto_contrast_ = false; }
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 };

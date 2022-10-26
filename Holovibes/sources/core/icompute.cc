@@ -274,67 +274,18 @@ void ICompute::request_refresh() { refresh_requested_ = true; }
 
 void ICompute::request_termination() { termination_requested_ = true; }
 
-void ICompute::request_output_resize(unsigned int new_output_size)
-{
-    output_resize_requested_ = new_output_size;
-    request_refresh();
-}
-
-void ICompute::request_hologram_record()
-{
-    hologram_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_record()
-{
-    raw_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_cuts_record(RecordMode rm)
-{
-    cuts_record_requested_ = true;
-
-    // Setted here to not store the value anywhere else while it can already be stored here.
-    frame_record_env_.record_mode_ = rm;
-    request_refresh();
-}
-
 void ICompute::request_autocontrast(WindowKind kind)
 {
     if (kind == WindowKind::XYview && view_cache_.get_value<ViewXY>().contrast.enabled)
-        autocontrast_requested_ = true;
+        view_cache_.get_value<ViewXY>().request_exec_auto_contrast();
     else if (kind == WindowKind::XZview && view_cache_.get_value<ViewXZ>().contrast.enabled &&
              view_cache_.get_value<CutsViewEnabled>())
-        autocontrast_slice_xz_requested_ = true;
+        view_cache_.get_value<ViewXZ>().request_exec_auto_contrast();
     else if (kind == WindowKind::YZview && view_cache_.get_value<ViewYZ>().contrast.enabled &&
              view_cache_.get_value<CutsViewEnabled>())
-        autocontrast_slice_yz_requested_ = true;
+        view_cache_.get_value<ViewYZ>().request_exec_auto_contrast();
     else if (kind == WindowKind::Filter2D && view_cache_.get_value<Filter2D>().contrast.enabled &&
              view_cache_.get_value<Filter2DEnabled>())
-        autocontrast_filter2d_requested_ = true;
-}
-
-void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
-
-void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
-
-void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
-{
-    chart_record_requested_ = nb_chart_points_to_record;
-    request_refresh();
-}
-
-void ICompute::request_disable_record_chart()
-{
-    disable_chart_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_update_time_stride()
-{
-    request_update_time_stride_ = true;
-    request_refresh();
+        view_cache_.get_value<Filter2D>().request_exec_auto_contrast();
 }
 } // namespace holovibes

@@ -137,50 +137,14 @@ bool Pipe::make_requests()
     bool success_allocation = true;
     /* Free buffers */
 
-    if (disable_chart_record_requested_)
-    {
-        LOG_DEBUG(compute_worker, "disable_chart_record_requested");
-
-        chart_env_.chart_record_queue_.reset(nullptr);
-        GSH::instance().set_value<ChartRecordEnabled>(false);
-        chart_env_.nb_chart_points_to_record_ = 0;
-        disable_chart_record_requested_ = false;
-    }
-
     image_accumulation_->dispose(); // done only if requested
-
-    if (output_resize_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG(compute_worker, "output_resize_requested");
-
-        gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
-        output_resize_requested_ = std::nullopt;
-    }
-
-    if (request_update_time_stride_)
-    {
-        LOG_DEBUG(compute_worker, "request_update_time_stride");
-
-        batch_env_.batch_index = 0;
-        request_update_time_stride_ = false;
-    }
-
-    image_accumulation_->init(); // done only if requested
+    image_accumulation_->init();    // done only if requested
     // EXEC HERE THE UNKNOWN CACHE AFTER image_accumulation_->init();
-
-    if (chart_record_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG(compute_worker, "chart_record_requested");
-
-        chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_value<ChartRecordEnabled>(true);
-        chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
-        chart_record_requested_ = std::nullopt;
-    }
 
     if (hologram_record_requested_)
     {
         LOG_DEBUG(compute_worker, "Hologram Record Request Processing");
+
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
@@ -188,6 +152,7 @@ bool Pipe::make_requests()
         GSH::instance().set_value<FrameRecordEnable>(false);
         ;
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
+
         hologram_record_requested_ = false;
         LOG_DEBUG(compute_worker, "Hologram Record Request Processed");
     }
@@ -209,21 +174,6 @@ bool Pipe::make_requests()
     if (cuts_record_requested_)
     {
         LOG_DEBUG(compute_worker, "cuts_record_requested");
-
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-
-        fd_xyz.depth = sizeof(ushort);
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
-            fd_xyz.height = compute_cache_.get_value<TimeTransformationSize>();
-        else
-            fd_xyz.width = compute_cache_.get_value<TimeTransformationSize>();
-
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
-
-        GSH::instance().set_value<FrameRecordEnable>(false);
-        ;
-        cuts_record_requested_ = false;
     }
 
     return success_allocation;
@@ -312,7 +262,7 @@ void Pipe::refresh()
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(unwrap_2d_requested_);
+    converts_->insert_to_float(GSH::instance().get_value<Unwrap2DRequested>());
 
     insert_filter2d_view();
 
@@ -324,12 +274,7 @@ void Pipe::refresh()
     rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
-
-    insert_request_autocontrast();
-    rendering_->insert_contrast(autocontrast_requested_,
-                                autocontrast_slice_xz_requested_,
-                                autocontrast_slice_yz_requested_,
-                                autocontrast_filter2d_requested_);
+    rendering_->insert_contrast();
 
     converts_->insert_to_ushort();
 
@@ -549,12 +494,6 @@ void Pipe::insert_cuts_record()
                 { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
         }
     }
-}
-
-void Pipe::insert_request_autocontrast()
-{
-    if (api::get_current_window().contrast_enabled && api::get_current_window().contrast_auto_refresh)
-        request_autocontrast(view_cache_.get_value<CurrentWindowKind>());
 }
 
 void Pipe::exec()

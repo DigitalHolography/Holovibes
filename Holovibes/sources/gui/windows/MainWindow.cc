@@ -574,7 +574,10 @@ void MainWindow::set_view_image_type(const QString& value)
 
     // Force cuts views autocontrast if needed
     if (api::get_cuts_view_enabled())
-        api::set_auto_contrast_cuts();
+    {
+        api::get_view_xz().request_exec_auto_contrast();
+        api::get_view_yz().request_exec_auto_contrast();
+    }
 }
 
 #pragma endregion

@@ -206,8 +206,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
-
-    api::get_compute_pipe().request_unwrapping_2d(value);
+    GSH::instance().set_value<Unwrap2DRequested>(value);
 
     parent_->notify();
 }
@@ -229,7 +228,8 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
         if (res)
         {
-            set_auto_contrast_cuts();
+            api::get_view_xz().request_exec_auto_contrast();
+            api::get_view_yz().request_exec_auto_contrast();
             parent_->notify();
         }
         else
@@ -253,7 +253,11 @@ void ViewPanel::cancel_time_transformation_cuts()
     api::cancel_time_transformation_cuts(callback);
 }
 
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
+void ViewPanel::set_auto_contrast_cuts()
+{
+    api::get_view_xz().request_exec_auto_contrast();
+    api::get_view_yz().request_exec_auto_contrast();
+}
 
 void ViewPanel::set_fft_shift(const bool value)
 {

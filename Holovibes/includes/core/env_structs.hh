@@ -138,7 +138,6 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    std::atomic<RecordMode> record_mode_{RecordMode::NONE};
 };
 
 /*! \struct ChartEnv
@@ -150,7 +149,6 @@ struct ChartEnv
 {
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_record_queue_ = nullptr;
-    unsigned int nb_chart_points_to_record_ = 0;
 };
 
 /*! \struct ImageAccEnv

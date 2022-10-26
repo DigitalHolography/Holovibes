@@ -47,10 +47,8 @@ inline TriggerChangeValue<View_XYZ> change_view_xy() noexcept { return api::deta
 inline TriggerChangeValue<View_XYZ> change_view_xz() noexcept { return api::detail::change_value<ViewXZ>(); }
 inline TriggerChangeValue<View_XYZ> change_view_yz() noexcept { return api::detail::change_value<ViewYZ>(); }
 
-change_view_xy()->set_log_scale_slice_enabled();
-
-inline View_Window get_filter2d() { return api::detail::get_value<Filter2D>(); }
-inline TriggerChangeValue<View_Window> change_filter2d() { return api::detail::change_value<Filter2D>(); }
+inline View_Window get_view_filter2d() { return api::detail::get_value<Filter2D>(); }
+inline TriggerChangeValue<View_Window> change_view_filter2d() { return api::detail::change_value<Filter2D>(); }
 
 inline float get_reticle_scale() { return api::detail::get_value<ReticleScale>(); }
 inline void set_reticle_scale(float value) { api::detail::set_value<ReticleScale>(value); }

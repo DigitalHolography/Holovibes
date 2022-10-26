@@ -1,8 +1,8 @@
 #pragma once
 
+#include "micro_cache.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "micro_cache.hh"
 
 namespace holovibes
 {
@@ -17,7 +17,7 @@ class ViewPipeRequest
     template <>
     void operator()<RawViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE RawViewEnabled");
+        LOG_TRACE(compute_worker, "UPDATE RawViewEnabled");
 
         if (new_value == false)
             pipe.get_gpu_raw_view_queue().reset(nullptr);
@@ -31,7 +31,7 @@ class ViewPipeRequest
     template <>
     void operator()<ChartDisplayEnabled>(bool new_value, bool old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE ChartDisplayEnabled");
+        LOG_TRACE(compute_worker, "UPDATE ChartDisplayEnabled");
 
         if (new_value == false)
             chart_env_.chart_display_queue_.reset(nullptr);
@@ -42,7 +42,7 @@ class ViewPipeRequest
     template <>
     void operator()<Filter2DViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE Filter2DViewEnabled");
+        LOG_TRACE(compute_worker, "UPDATE Filter2DViewEnabled");
 
         if (new_value == false)
             gpu_filter2d_view_queue_.reset(nullptr);
@@ -56,7 +56,7 @@ class ViewPipeRequest
     template <>
     void operator()<LensViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
     {
-        LOG_DEBUG(compute_worker, "UPDATE LensViewEnabled");
+        LOG_TRACE(compute_worker, "UPDATE LensViewEnabled");
 
         if (new_value == false)
             fourier_transforms_->get_lens_queue().reset(nullptr);

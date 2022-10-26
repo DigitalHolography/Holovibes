@@ -7,15 +7,16 @@
 
 #include "custom_parameter.hh"
 #include "micro_cache.hh"
+#include "export_struct.hh"
 
 namespace holovibes
 {
 
 //! \brief Is holovibes currently recording
-using FrameRecordEnable = BoolParameter<false, "frame_record_enabled">;
+using FrameRecordMode = CustomParameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_enabled">;
 //! \brief Enables the signal and noise chart record
-using ChartRecordEnabled = BoolParameter<false, "chart_record_enabled">;
+using ChartRecord = CustomParameter<ExportChartStruct, DefaultLiteral<ExportChartStruct>{}, "chart_record">;
 
-using ExportCache = MicroCache<FrameRecordEnable, ChartRecordEnabled>;
+using ExportCache = MicroCache<FrameRecordMode, ChartRecord>;
 
 } // namespace holovibes

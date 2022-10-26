@@ -154,9 +154,9 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     if (holovibes::GSH::instance().get_value<holovibes::ConvolutionEnabled>())
         holovibes::api::enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
 
-    holovibes::api::get_compute_pipe().request_update_time_stride();
     // WHY Trigger ?
-    holovibes::api::detail::change_value<timeTransformationSize>();
+    holovibes::api::detail::change_value<TimeStride>().trigger();
+    holovibes::api::detail::change_value<timeTransformationSize>().trigger();
 
     delete input_frame_file;
 
@@ -169,8 +169,7 @@ static void main_loop()
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast =
-        !holovibes::GSH::instance().get_value<holovibes::ViewXY>().get_contrast_auto_refresh();
+    bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().get_contrast_auto_refresh();
 
     while (holovibes::GSH::instance().get_value<holovibes::FrameRecordEnable>())
     {
@@ -183,14 +182,16 @@ static void main_loop()
             {
                 progress_bar(progress->first, progress->second, 40);
 
+                // FIXME : WTF why it is in the cli.cc
                 // Very dirty hack
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && !requested_autocontrast)
+                if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && requested_autocontrast)
                 {
-                    holovibes::api::get_compute_pipe().request_autocontrast(holovibes::api::get_current_window_kind());
-                    requested_autocontrast = true;
+                    if (is_current_window_xyz_type())
+                        api::get_current_window_as_view_xyz().request_exec_auto_contrast();
+                    requested_autocontrast = false;
                 }
             }
         }

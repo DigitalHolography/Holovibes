@@ -184,7 +184,6 @@ void ImageRenderingPanel::update_time_stride()
     auto callback = [=]()
     {
         api::set_time_stride(time_stride);
-        api::get_compute_pipe().request_update_time_stride();
 
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.

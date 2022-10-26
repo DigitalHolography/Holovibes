@@ -6,3 +6,4 @@
 #include "composite_pipe_functions.hh"
 #include "request_pipe_functions.hh"
 #include "view_pipe_functions.hh"
+#include "export_pipe_functions.hh"

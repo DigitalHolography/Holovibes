@@ -1,12 +1,12 @@
 #pragma once
 
+#include "micro_cache.hh"
 #include "pipe.hh"
 #include "logger.hh"
-#include "micro_cache.hh"
 
 namespace holovibes
 {
-class AdvancedPipeRequest
+class DefaultPipeRequest
 {
   public:
     template <typename T>
