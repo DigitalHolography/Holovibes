@@ -7,7 +7,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
 {
     try
     {
-        api::get_compute_pipe().create_stft_slice_queue();
+        api::detail::set_value<TimeTransformationCuts>(true);
         // set positions of new windows according to the position of the
         // main GL window
         QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
@@ -15,9 +15,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
 
-        while (api::get_compute_pipe().get_update_time_transformation_size_request())
-            continue;
-        while (api::get_compute_pipe().get_cuts_request())
+        while (ComputeCache::RefSingleton::has_change())
             continue;
 
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(

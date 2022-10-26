@@ -24,7 +24,8 @@ bool set_auto_contrast()
 {
     try
     {
-        get_compute_pipe().request_autocontrast(GSH::instance().get_value<CurrentWindowKind>());
+        if (api::is_current_window_xyz_type())
+            api::get_current_window_as_view_xyz().request_exec_auto_contrast();
         return true;
     }
     catch (const std::runtime_error& e)

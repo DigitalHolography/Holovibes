@@ -8,6 +8,7 @@
 #include "custom_parameter.hh"
 #include "micro_cache.hh"
 
+#include "compute_struct.hh"
 #include "enum_computation.hh"
 #include "enum_time_transformation.hh"
 #include "enum_space_transformation.hh"
@@ -33,6 +34,7 @@ using UnwrapHistorySize = UIntParameter<1, "unwrap_history_stopped">;
 using Unwrap2DRequested = BoolParameter<false, "unwrap_2d_requested">;
 using IsComputationStopped = BoolParameter<true, "is_computation_stopped">;
 using TimeTransformationCutsOutputBufferSize = UIntParameter<512, "time_transformation_cuts_output_buffer_size">;
+using TimeTransformationCuts = BoolParameter<false, "time_transformation_cuts">;
 
 using ComputeCache = MicroCache<BatchSize,
                                 TimeStride,
@@ -49,6 +51,7 @@ using ComputeCache = MicroCache<BatchSize,
                                 UnwrapHistorySize,
                                 Unwrap2DRequested,
                                 IsComputationStopped,
-                                TimeTransformationCutsOutputBufferSize>;
+                                TimeTransformationCutsOutputBufferSize,
+                                TimeTransformationCuts>;
 
 } // namespace holovibes

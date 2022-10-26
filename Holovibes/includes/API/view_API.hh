@@ -18,7 +18,6 @@ inline bool get_lens_view_enabled() { return api::detail::get_value<LensViewEnab
 inline void set_lens_view_enabled(bool value) { api::detail::set_value<LensViewEnabled>(value); }
 
 inline bool get_chart_display_enabled() { return api::detail::get_value<ChartDisplayEnabled>(); }
-inline bool get_chart_record_enabled() { return api::detail::get_value<ChartRecordEnabled>(); }
 
 inline bool get_raw_view_enabled() { return api::detail::get_value<RawViewEnabled>(); }
 

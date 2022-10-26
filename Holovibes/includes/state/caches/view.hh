@@ -17,14 +17,14 @@ namespace holovibes
 
 //! \brief Type of the image displayed
 using ImgTypeParam = CustomParameter<ImgType, ImgType::Modulus, "img_type", ImgType>;
-using ViewAccuX = CustomParameter<View_XY, View_XY{}, "view_accu_x">;
-using ViewAccuY = CustomParameter<View_XY, View_XY{}, "view_accu_y">;
-using ViewAccuP = CustomParameter<View_PQ, View_PQ{}, "view_accu_p">;
-using ViewAccuQ = CustomParameter<View_PQ, View_PQ{}, "view_accu_q">;
-using ViewXY = CustomParameter<View_XYZ, View_XYZ{}, "view_xy">;
-using ViewXZ = CustomParameter<View_XYZ, View_XYZ{}, "view_xz">;
-using ViewYZ = CustomParameter<View_XYZ, View_XYZ{}, "view_yz">;
-using Filter2D = CustomParameter<View_Window, View_Window{}, "filter2d">;
+using ViewAccuX = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_x">;
+using ViewAccuY = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_y">;
+using ViewAccuP = CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_p">;
+using ViewAccuQ = CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_q">;
+using ViewXY = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xy">;
+using ViewXZ = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xz">;
+using ViewYZ = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_yz">;
+using Filter2D = CustomParameter<View_Window, DefaultLiteral<View_Window>{}, "filter2d">;
 using CurrentWindowKind = CustomParameter<WindowKind, WindowKind::XYview, "current_window">;
 using LensViewEnabled = BoolParameter<false, "lens_view_enabled">;
 //! \brief Enables the signal and noise chart display

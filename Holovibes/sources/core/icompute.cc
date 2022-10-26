@@ -236,22 +236,6 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-std::unique_ptr<Queue>& ICompute::get_raw_view_queue() { return gpu_raw_view_queue_; }
-
-std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue() { return gpu_filter2d_view_queue_; }
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
-{
-    return chart_env_.chart_display_queue_;
-}
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
-{
-    return chart_env_.chart_record_queue_;
-}
-
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.gpu_frame_record_queue_; }
-
 bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
 
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
@@ -273,19 +257,4 @@ void ICompute::pipe_error(const int& err_count, const std::exception& e)
 void ICompute::request_refresh() { refresh_requested_ = true; }
 
 void ICompute::request_termination() { termination_requested_ = true; }
-
-void ICompute::request_autocontrast(WindowKind kind)
-{
-    if (kind == WindowKind::XYview && view_cache_.get_value<ViewXY>().contrast.enabled)
-        view_cache_.get_value<ViewXY>().request_exec_auto_contrast();
-    else if (kind == WindowKind::XZview && view_cache_.get_value<ViewXZ>().contrast.enabled &&
-             view_cache_.get_value<CutsViewEnabled>())
-        view_cache_.get_value<ViewXZ>().request_exec_auto_contrast();
-    else if (kind == WindowKind::YZview && view_cache_.get_value<ViewYZ>().contrast.enabled &&
-             view_cache_.get_value<CutsViewEnabled>())
-        view_cache_.get_value<ViewYZ>().request_exec_auto_contrast();
-    else if (kind == WindowKind::Filter2D && view_cache_.get_value<Filter2D>().contrast.enabled &&
-             view_cache_.get_value<Filter2DEnabled>())
-        view_cache_.get_value<Filter2D>().request_exec_auto_contrast();
-}
 } // namespace holovibes

@@ -15,7 +15,7 @@ namespace holovibes
 //! \brief Is holovibes currently recording
 using FrameRecordMode = CustomParameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_enabled">;
 //! \brief Enables the signal and noise chart record
-using ChartRecord = CustomParameter<ExportChartStruct, DefaultLiteral<ExportChartStruct>{}, "chart_record">;
+using ChartRecord = CustomParameter<ChartRecordStruct, DefaultLiteral<ChartRecordStruct>{}, "chart_record">;
 
 using ExportCache = MicroCache<FrameRecordMode, ChartRecord>;
 

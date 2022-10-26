@@ -97,13 +97,13 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
     const U& get() const { return value_; }
 
     template <typename U>
-    requires std::is_same_v<TParameter, U> U& get() { return value_; }
-
-    template <typename U>
     requires(false == std::is_same_v<TParameter, U>) const U& get() const
     {
         return StaticContainer<R...>::template get<U>();
     }
+
+    template <typename U>
+    requires std::is_same_v<TParameter, U> U& get() { return value_; }
 
     template <typename U>
     requires(false == std::is_same_v<TParameter, U>) U& get() { return StaticContainer<R...>::template get<U>(); }

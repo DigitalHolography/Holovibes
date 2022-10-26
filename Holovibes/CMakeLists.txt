@@ -68,7 +68,7 @@ set(INTERNAL_INCLUDES
 
     includes/compute/
     includes/core/
-    includes/core/pipe_request_functions
+    includes/core/pipe_request_on_sync_functions
     includes/enum/
     includes/struct/
     includes/gui/other/

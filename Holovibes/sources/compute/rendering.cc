@@ -73,7 +73,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecordEnabled>())
+    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecord>().is_enable())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -94,10 +94,11 @@ void Rendering::insert_chart()
 
                 if (view_cache_.get_value<ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_value<ChartRecordEnabled>() && chart_env_.nb_chart_points_to_record_ != 0)
+                if (export_cache_.get_value<ChartRecord>().is_enable() &&
+                    chart_env_.current_nb_point_to_record_left > 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
-                    --chart_env_.nb_chart_points_to_record_;
+                    --chart_env_.current_nb_point_to_record_left;
                 }
             });
     }
@@ -302,7 +303,7 @@ void Rendering::insert_compute_autocontrast()
             view_cache_.get_value<Filter2D>().reset_exec_auto_contrast();
         }
 
-        view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe
+        view_cache_.synchronize<ViewPipeRequestOnSync>(); // FIXME: gsh should not be modified in the pipe
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);

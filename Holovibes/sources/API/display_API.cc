@@ -49,17 +49,10 @@ void start_chart_display()
 
 void stop_chart_display()
 {
-    try
-    {
-        GSH::instance().set_value<ChartDisplayEnabled>(false);
-        // Wait for the chart display to be disabled for notify
-        while (ViewCache::RefSingleton::has_change())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR(main, "Catch {}", e.what());
-    }
+    GSH::instance().set_value<ChartDisplayEnabled>(false);
+    // Wait for the chart display to be disabled for notify
+    while (ViewCache::RefSingleton::has_change())
+        continue;
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
@@ -81,9 +74,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
 
     if (checked)
     {
-        {
-            GSH::instance().set_value<RawViewEnabled>(true);
-        }
+        GSH::instance().set_value<RawViewEnabled>(true);
         while (ViewCache::RefSingleton::has_change())
             continue;
 
@@ -107,9 +98,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     {
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-        {
-            GSH::instance().set_value<RawViewEnabled>(false);
-        }
+        GSH::instance().set_value<RawViewEnabled>(false);
         while (ViewCache::RefSingleton::has_change())
             continue;
     }
@@ -142,7 +131,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
             UserInterfaceDescriptor::instance().lens_window.reset(
                 new gui::RawWindow(pos,
                                    QSize(lens_window_width, lens_window_height),
-                                   get_compute_pipe().get_lens_queue().get(),
+                                   get_compute_pipe().get_fourier_transforms().get_lens_queue().get(),
                                    0.f,
                                    gui::KindOfView::Lens));
 

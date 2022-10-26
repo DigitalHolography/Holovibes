@@ -120,6 +120,6 @@ struct TriggerRequest
 };
 
 template <StringLiteral Key>
-using TriggerParameter = CustomParameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerParameter>;
+using TriggerParameter = CustomParameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerRequest>;
 
 } // namespace holovibes

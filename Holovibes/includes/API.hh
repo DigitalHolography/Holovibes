@@ -29,7 +29,7 @@
 #include "texture_API.hh"
 #include "unknown_API.hh"
 
-// FIXME check if get_filter2d_enabled has not been inverted with get_filter2d_view_enabled
+// FIXME restore pipe refresh
 
 namespace holovibes::api
 {

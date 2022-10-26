@@ -21,6 +21,7 @@
 
 #include "all_caches.hh"
 #include "cache_dispatcher.hh"
+#include "all_pipe_requests_on_sync_functions.hh"
 
 namespace holovibes
 {
@@ -106,7 +107,7 @@ class GSH
     ZoneCache::Ref& get_zone_cache() { return zone_cache_; }
     ImportCache::Ref& get_import_cache() { return import_cache_; }
     FileReadCache::Ref& get_file_read_cache() { return file_read_cache_; }
-    RequestCache::Ref& get_unknown_cache() { return unknown_cache_; }
+    RequestCache::Ref& get_unknown_cache() { return request_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -144,7 +145,7 @@ class GSH
     ZoneCache::Ref zone_cache_;
     ImportCache::Ref import_cache_;
     FileReadCache::Ref file_read_cache_;
-    RequestCache::Ref unknown_cache_;
+    RequestCache::Ref request_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 

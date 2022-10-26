@@ -5,7 +5,6 @@
 #pragma once
 
 #include "env_structs.hh"
-
 namespace holovibes
 {
 
@@ -42,13 +41,19 @@ class ICompute
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
-    RequestCache::Cache& get_unknown_cache() { return unknown_cache_; }
+    RequestCache::Cache& get_unknown_cache() { return request_cache_; }
 
-    std::unique_ptr<Queue>& get_raw_view_queue();
-    std::unique_ptr<Queue>& get_filter2d_view_queue();
-    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
-    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
-    std::unique_ptr<Queue>& get_frame_record_queue();
+    std::unique_ptr<Queue>& get_raw_view_queue_ptr() { return gpu_raw_view_queue_; }
+    std::unique_ptr<Queue>& get_filter2d_view_queue_ptr() { return gpu_filter2d_view_queue_; }
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue_ptr()
+    {
+        return chart_env_.chart_display_queue_;
+    }
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue_ptr()
+    {
+        return chart_env_.chart_record_queue_;
+    }
+    std::unique_ptr<Queue>& get_frame_record_queue_ptr() { return frame_record_env_.gpu_frame_record_queue_; }
 
   public:
     void request_refresh();
@@ -137,6 +142,6 @@ class ICompute
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
-    RequestCache::Cache unknown_cache_;
+    RequestCache::Cache request_cache_;
 };
 } // namespace holovibes

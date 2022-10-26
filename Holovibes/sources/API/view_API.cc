@@ -39,7 +39,6 @@ void create_holo_window(ushort window_size)
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue_ptr().get(),
-                                get_compute_pipe_ptr(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
@@ -93,7 +92,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
     pipe_refresh();
 
     // Force XYview autocontrast
-    get_compute_pipe().request_autocontrast(WindowKind::XYview);
+    api::get_view_xy().request_exec_auto_contrast();
     // Force cuts views autocontrast if needed
 }
 
@@ -122,7 +121,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         GSH::instance().change_value<Filter2D>()->set_log_scale_slice_enabled(true);
-        get_compute_pipe().request_autocontrast(WindowKind::Filter2D);
+        api::get_view_filter_2d().request_exec_auto_contrast();
     }
     else
     {

@@ -64,9 +64,14 @@ class Pipe : public ICompute
 
     ~Pipe() override;
 
-    /*! \brief Get the lens queue to display it. */
-    std::unique_ptr<Queue>& get_lens_queue();
+  public:
+    compute::ImageAccumulation& get_image_accumulation() { return *image_accumulation_; }
+    compute::FourierTransform& get_fourier_transforms() { return *fourier_transforms_; }
+    compute::Rendering& get_rendering() { return *rendering_; }
+    compute::Converts& get_converts() { return *converts_; }
+    compute::Postprocessing& get_postprocess() { return *postprocess_; }
 
+  public:
     /*! \brief Runs a function after the current pipe iteration ends */
     void insert_fn_end_vect(std::function<void()> function);
 
@@ -91,8 +96,24 @@ class Pipe : public ICompute
      *
      * \return return false if an allocation failed.
      */
-    bool make_requests();
+    bool synchronize_caches_and_make_requests();
 
+  private:
+    /*! \brief Iterates and executes function of the pipe.
+     *
+     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
+     */
+    void run_all();
+
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
+
+    bool caches_has_change_requested();
+
+  public:
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
@@ -153,21 +174,5 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Postprocessing> postprocess_;
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
-    /*! \brief Iterates and executes function of the pipe.
-     *
-     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
-     */
-    void run_all();
-
-    /*! \brief Force contiguity on record queue when cli is active.
-     *
-     * \param nb_elm_to_add the number of elements that might be added in the record queue
-     */
-    void keep_contiguous(int nb_elm_to_add) const;
-
-    /*! \brief Updates all attribute caches with the reference held by GSH */
-    void synchronize_caches();
-    bool caches_has_change_requested();
 };
 } // namespace holovibes

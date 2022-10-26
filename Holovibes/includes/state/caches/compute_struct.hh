@@ -16,7 +16,7 @@ struct ConvolutionStruct
     std::vector<float> matrix = {};
 
   public:
-    bool get_is_enabled() { return is_enabled; }
+    bool get_is_enabled() const { return is_enabled; }
     ConvolutionStruct& set_is_enabled(bool value)
     {
         is_enabled = value;
@@ -24,5 +24,6 @@ struct ConvolutionStruct
     }
 
     std::vector<float>& get_matrix_ref() { return matrix; }
+    const std::vector<float>& get_matrix_ref() const { return matrix; }
 };
 } // namespace holovibes

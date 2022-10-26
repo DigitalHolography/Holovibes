@@ -149,6 +149,8 @@ struct ChartEnv
 {
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_record_queue_ = nullptr;
+
+    uint current_nb_point_to_record_left = 0;
 };
 
 /*! \struct ImageAccEnv

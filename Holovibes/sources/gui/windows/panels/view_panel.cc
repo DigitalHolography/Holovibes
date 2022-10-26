@@ -246,7 +246,7 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        api::get_compute_pipe().delete_stft_slice_queue();
+        api::detail::set_value<TimeTransformationCuts>(false);
         parent_->notify();
     });
 

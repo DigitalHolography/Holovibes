@@ -11,6 +11,10 @@ template <typename T>
 class TriggerChangeValue
 {
   public:
+    template <typename K>
+    friend class TriggerChangeValue;
+
+  public:
     T* value_;
     std::function<void(void)> callback_;
 
@@ -24,15 +28,12 @@ class TriggerChangeValue
     {
     }
 
-    TriggerChangeValue(const TriggerChangeValue&) = delete;
-    TriggerChangeValue& operator=(const TriggerChangeValue&) = delete;
-
     template <typename Ref>
-    TriggerChangeValue(TriggerChangeValue<Ref>&& ref)
+    explicit TriggerChangeValue(TriggerChangeValue<Ref>&& ref)
         : value_(static_cast<T*>(ref.value_))
         , callback_(ref.callback_)
     {
-        ref.dont_call_callback_W();
+        take_ownership(ref);
     }
 
     template <typename Ref>
@@ -40,7 +41,7 @@ class TriggerChangeValue
     {
         callback_ = ref.callback_;
         value_ = static_cast<T*>(ref.value_);
-        ref.dont_call_callback_W();
+        take_ownership(ref);
     }
 
     ~TriggerChangeValue()
@@ -52,7 +53,16 @@ class TriggerChangeValue
   public:
     void trigger() {}
 
-  public:
+  private:
+    template <typename Parent>
+    void take_ownership(Parent&& parent)
+    {
+        if (parent.call_callback_)
+            parent.dont_call_callback_W();
+        else
+            dont_call_callback_W();
+    }
+
     //! this function must be handle with care (hence the W, may_be we can change this...)
     void dont_call_callback_W() { call_callback_ = false; }
 

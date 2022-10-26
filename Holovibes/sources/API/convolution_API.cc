@@ -100,7 +100,7 @@ void load_convolution_matrix(const std::string& file)
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>().resize(size, 0.0f);
+        GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref().resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)
@@ -115,10 +115,10 @@ void load_convolution_matrix(const std::string& file)
     }
     catch (std::exception& e)
     {
-        GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>().clear();
+        GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref().clear();
         LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
     }
-    GSH::instance().get_compute_cache().force_trigger_param_W<ConvolutionMatrix>();
+    GSH::instance().get_compute_cache().force_trigger_param_W<Convolution>();
 }
 
 } // namespace holovibes::api

@@ -22,7 +22,6 @@ class HoloWindow : public RawWindow
     HoloWindow(QPoint p,
                QSize s,
                DisplayQueue* q,
-               SharedPipe ic,
                std::unique_ptr<SliceWindow>& xz,
                std::unique_ptr<SliceWindow>& yz,
                float ratio);
@@ -30,14 +29,10 @@ class HoloWindow : public RawWindow
 
     void update_slice_transforms();
 
-    SharedPipe getPipe();
-
     void resetTransform() override;
     void setTransform() override;
 
   protected:
-    SharedPipe Ic;
-
     void initShaders() override;
 
     void focusInEvent(QFocusEvent* e) override;

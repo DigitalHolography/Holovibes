@@ -25,6 +25,11 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/view_API.cc
 
 
+    core/pipe_request_on_sync_functions/request_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc
+
     tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc

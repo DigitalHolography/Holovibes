@@ -151,12 +151,12 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         return 1;
     }
 
-    if (holovibes::GSH::instance().get_value<holovibes::ConvolutionEnabled>())
+    if (holovibes::GSH::instance().get_value<holovibes::Convolution>().get_is_enabled())
         holovibes::api::enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
 
     // WHY Trigger ?
-    holovibes::api::detail::change_value<TimeStride>().trigger();
-    holovibes::api::detail::change_value<timeTransformationSize>().trigger();
+    holovibes::api::detail::change_value<holovibes::TimeStride>().trigger();
+    holovibes::api::detail::change_value<holovibes::TimeTransformationSize>().trigger();
 
     delete input_frame_file;
 
@@ -171,7 +171,7 @@ static void main_loop()
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().get_contrast_auto_refresh();
 
-    while (holovibes::GSH::instance().get_value<holovibes::FrameRecordEnable>())
+    while (holovibes::GSH::instance().get_value<holovibes::FrameRecordMode>())
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
@@ -189,8 +189,8 @@ static void main_loop()
                 // end up with black images ...
                 if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && requested_autocontrast)
                 {
-                    if (is_current_window_xyz_type())
-                        api::get_current_window_as_view_xyz().request_exec_auto_contrast();
+                    if (holovibes::api::is_current_window_xyz_type())
+                        holovibes::api::change_current_window_as_view_xyz().request_exec_auto_contrast();
                     requested_autocontrast = false;
                 }
             }
@@ -209,7 +209,8 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     // FIXME check for better getters
     // Force some values
     holovibes::Holovibes::instance().is_cli = true;
-    holovibes::api::set_frame_record_enabled(true);
+    holovibes::api::set_frame_record_mode(opts.record_raw ? holovibes::RecordMode::RAW
+                                                          : holovibes::RecordMode::HOLOGRAM);
     holovibes::GSH::instance().set_value<holovibes::ComputeMode>(opts.record_raw ? holovibes::Computation::Raw
                                                                                  : holovibes::Computation::Hologram);
 
@@ -234,9 +235,9 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
                                                                         : holovibes::RecordMode::HOLOGRAM,
                                                         nb_frames_skip);
 
+    // FIXME : this is a dangerous hack need to be changed
     // The following while ensure the record has been requested by the thread previously launched.
-    while ((!holovibes::api::get_compute_pipe().get_hologram_record_requested()) &&
-           (!holovibes::api::get_compute_pipe().get_raw_record_requested()))
+    while (!holovibes::ExportCache::RefSingleton::has_change())
         continue;
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
