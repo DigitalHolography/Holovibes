@@ -1,5 +1,14 @@
 ## Changelog
 
+### 11.1.0
+
+* Update and clean loading of holo file using nlhomann
+* Fix loading of holo file and gui
+* Advanced window close on save
+* Reset ComputeSettings in gui
+* Refacto logging macro  -> delete warning
+* Add wrapper to std::chrono
+
 ### 11.0.1
 
 * Add OpenCV compatibility
