@@ -245,10 +245,12 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES
 # ---------------------------------------------------------------------
 
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
-    # Copy shaders and convolution kernels
+    # Copy shaders and convolution kernels and json patch
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/"
                                                "${BUILD_DIR}/convolution_kernels/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
+                                               "${BUILD_DIR}/json_patches_holofile/"
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"

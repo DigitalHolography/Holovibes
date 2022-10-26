@@ -10,6 +10,7 @@
 
 namespace holovibes
 {
+static inline const std::filesystem::path dir(get_exe_dir());
 
 GSH& GSH::instance()
 {
@@ -187,9 +188,8 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
 
     try
     {
-        std::filesystem::path dir(get_exe_dir());
-        dir = dir / "convolution_kernels" / file;
-        std::string path = dir.string();
+        auto path_file = dir / "convolution_kernels" / file;
+        std::string path = path_file.string();
 
         std::vector<float> matrix;
         uint matrix_width = 0;
@@ -325,7 +325,6 @@ const ViewWindow& GSH::get_current_window() const { return get_window(view_cache
 /* private */
 std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
-
 /*! \class JsonSettings
  *
  * \brief Struct that help with Json convertion
@@ -334,12 +333,11 @@ std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_c
 struct JsonSettings
 {
 
-
     /*! \brief latest version of holo file version */
     inline static const auto latest_version = GSH::ComputeSettingsVersion::V5;
 
     /*! \brief path to json patch directories  */
-    inline static const auto patches_folder = std::filesystem::path{"resources"} / "json_patches_holofile";
+    inline static const auto patches_folder = dir / "json_patches_holofile";
 
     /*! \brief default convertion function */
     static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }
@@ -371,10 +369,10 @@ struct JsonSettings
     }
 
     /*! \class ComputeSettingsConverter
-    *
-    * \brief Struct that contains all information to perform a convertion
-    *
-    */
+     *
+     * \brief Struct that contains all information to perform a convertion
+     *
+     */
     struct ComputeSettingsConverter
     {
         ComputeSettingsConverter(GSH::ComputeSettingsVersion from,
@@ -387,7 +385,6 @@ struct JsonSettings
             , converter(converter)
         {
         }
-
 
         /*! \brief source version */
         GSH::ComputeSettingsVersion from;
@@ -436,7 +433,8 @@ void GSH::convert_json(json& data, GSH::ComputeSettingsVersion from)
                           converter.converter(data, json::parse(patch_file));
                       }
                       catch (const std::exception&)
-                      {}
+                      {
+                      }
                   });
 }
 
