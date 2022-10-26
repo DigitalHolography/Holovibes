@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include <limits>
 
 #include "view_panel.hh"
@@ -118,6 +122,7 @@ void ViewPanel::on_notify()
     // Deactivate previous maximum (chetor)
     ui_->PSpinBox->setMaximum(INT_MAX);
     ui_->PAccSpinBox->setMaximum(INT_MAX);
+
     // p accu
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());

@@ -1,6 +1,8 @@
+/*! \file
+ *
+ */
+
 #include <filesystem>
-#include <iomanip>
-#include <fstream>
 
 #include "input_holo_file.hh"
 #include "file_exception.hh"
@@ -126,6 +128,7 @@ void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC(main);
 
+    // if there is no footer we use the state of the GSH
     if (!has_footer)
     {
         raw_footer_.Update();
@@ -135,6 +138,7 @@ void InputHoloFile::import_compute_settings()
 
     this->load_footer();
 
+    // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
         GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V2);
     else if (holo_file_header_.version < 4)
@@ -147,6 +151,8 @@ void InputHoloFile::import_compute_settings()
         LOG_ERROR(main, "HOLO file version not supported!");
 
     from_json(meta_data_["compute_settings"], raw_footer_);
+
+    // update GSH with the footer values
     raw_footer_.Load();
 }
 

@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include <filesystem>
 
 #include "composite_panel.hh"

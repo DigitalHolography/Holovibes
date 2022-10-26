@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Handle loading of .holo files
  */
 #pragma once
 
@@ -11,7 +11,7 @@ namespace holovibes::io_files
 {
 /*! \class InputHoloFile
  *
- * \brief #TODO Add a description for this class
+ * \brief Class that represents an holo file
  */
 class InputHoloFile : public InputFrameFile, public HoloFile
 {
@@ -61,6 +61,6 @@ class InputHoloFile : public InputFrameFile, public HoloFile
 
     /*! \brief Open file to initialize raw_rooter_
      */
-    void load_footer() override;
+    void load_footer();
 };
 } // namespace holovibes::io_files

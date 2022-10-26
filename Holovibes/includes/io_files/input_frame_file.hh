@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Super class to handle loading of file into Holovibes
  */
 #pragma once
 
@@ -39,12 +39,12 @@ class InputFrameFile : public FrameFile
      */
     virtual size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed);
 
-    virtual void load_footer() = 0;
-
+    /*! \brief getter of has_footer */
     bool get_has_footer();
 
   protected:
 
+    /*! \brief Indicates if the file has a footer */
     bool has_footer;
 
     // Give access to protected members to the handler

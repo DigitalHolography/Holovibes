@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief Rendering  Struct
+ *
+ */
+
 #pragma once
 
 #include "enum_space_transformation.hh"
@@ -8,9 +14,17 @@
 namespace holovibes
 {
 
+/*! \class Rendering
+ *
+ * \brief Class that represents the rendering cache
+ */
 struct Rendering
 {
 
+/*! \class Filter2D
+ *
+ * \brief Class that represents Filter2D
+ */
     struct Filter2D
     {
         bool enabled = false;
@@ -23,6 +37,10 @@ struct Rendering
         SERIALIZE_JSON_STRUCT(Filter2D, enabled, n1, n2)
     };
 
+/*! \class Convolution
+ *
+ * \brief Class that represents Convolution
+ */
     struct Convolution
     {
         bool enabled = false;

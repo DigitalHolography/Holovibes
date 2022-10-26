@@ -1,3 +1,10 @@
+/*! \file
+ *
+ * \brief Global State Holder Class
+ *
+ *  Holds the state of the entire application
+ */
+
 #pragma once
 
 #include <mutex>

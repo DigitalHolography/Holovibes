@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief View structure
+ *
+ */
+
 #pragma once
 
 #include "logger.hh"
@@ -10,6 +16,10 @@ typedef unsigned int uint;
 
 namespace holovibes
 {
+/*! \class ViewContrast
+ *
+ * \brief Class that represents ViewContrast
+ */
 struct ViewContrast
 {
     bool enabled = false;
@@ -21,6 +31,10 @@ struct ViewContrast
     SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
 };
 
+/*! \class ViewWindow
+ *
+ * \brief Class that represents ViewWindow
+ */
 struct ViewWindow
 {
     bool log_enabled = false;
@@ -30,6 +44,10 @@ struct ViewWindow
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 };
 
+/*! \class ViewXYZ
+ *
+ * \brief Class that represents ViewXYZ
+ */
 struct ViewXYZ : public ViewWindow
 {
     bool flip_enabled = false;
@@ -39,6 +57,10 @@ struct ViewXYZ : public ViewWindow
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 };
 
+/*! \class ViewAccu
+ *
+ * \brief Class that represents ViewAccu
+ */
 struct ViewAccu
 {
     int accu_level = 0;
@@ -46,6 +68,10 @@ struct ViewAccu
     SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
 };
 
+/*! \class ViewPQ
+ *
+ * \brief Class that represents ViewPQ
+ */
 struct ViewPQ : public ViewAccu
 {
     unsigned index = 0;
@@ -53,6 +79,10 @@ struct ViewPQ : public ViewAccu
     SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
 };
 
+/*! \class ViewXY
+ *
+ * \brief Class that represents ViewXY
+ */
 struct ViewXY : public ViewAccu
 {
     unsigned cuts = 0;
@@ -60,6 +90,10 @@ struct ViewXY : public ViewAccu
     SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
 };
 
+/*! \class Windows
+ *
+ * \brief Class that represents the Windows
+ */
 struct Windows
 {
     ViewXYZ xy;
@@ -73,6 +107,10 @@ struct Windows
     void Load();
 };
 
+/*! \class Reticle
+ *
+ * \brief Class that represents the Reticle
+ */
 struct Reticle
 {
     bool display_enabled = false;
@@ -84,6 +122,10 @@ struct Reticle
     void Load();
 };
 
+/*! \class View
+ *
+ * \brief Class that represents the view cache
+ */
 struct Views
 {
     ImgType img_type = ImgType::Modulus;

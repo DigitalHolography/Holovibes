@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include "info_panel.hh"
 #include "MainWindow.hh"
 #include "logger.hh"

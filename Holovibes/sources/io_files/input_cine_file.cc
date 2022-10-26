@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include "input_cine_file.hh"
 #include "file_exception.hh"
 
@@ -89,5 +93,4 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag
     return frames_read;
 }
 
-void InputCineFile::load_footer() {}
 } // namespace holovibes::io_files

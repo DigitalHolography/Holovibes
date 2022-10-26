@@ -1,9 +1,19 @@
+/*! \file
+ *
+ * \brief Composite Struct
+ *
+ */
+
 #pragma once
 #include "all_struct.hh"
 #include "enum_composite_kind.hh"
 
 namespace holovibes
 {
+/*! \class CompositeP
+ *
+ * \brief Class that represents CompositeP
+ */
 struct CompositeP
 {
     int min = 0;
@@ -12,6 +22,10 @@ struct CompositeP
     SERIALIZE_JSON_STRUCT(CompositeP, min, max)
 };
 
+/*! \class ActivableCompositeP
+ *
+ * \brief Class that represents ActivableCompositeP
+ */
 struct ActivableCompositeP : public CompositeP
 {
     bool activated = false;
@@ -19,6 +33,10 @@ struct ActivableCompositeP : public CompositeP
     SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
 
+/*! \class RGBWeights 
+ *
+ * \brief Class that represents RGBWeights
+ */
 struct RGBWeights
 {
     float r;
@@ -28,6 +46,10 @@ struct RGBWeights
     SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 };
 
+/*! \class CompositeRGB
+ *
+ * \brief Class that represents CompositeRGB
+ */
 struct CompositeRGB
 {
     CompositeP p;
@@ -36,6 +58,10 @@ struct CompositeRGB
     SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
 };
 
+/*! \class Threshold
+ *
+ * \brief Class that represents Threshold
+ */
 struct Threshold
 {
     float min;
@@ -44,6 +70,10 @@ struct Threshold
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
+/*! \class  Blur 
+ *
+ * \brief Class that represents Blur
+ */
 struct Blur
 {
     bool enabled = false;
@@ -52,6 +82,10 @@ struct Blur
     SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
 };
 
+/*! \class CompositeH
+ *
+ * \brief Class that represents CompositeH
+ */
 struct CompositeH
 {
     CompositeP p;
@@ -62,6 +96,10 @@ struct CompositeH
     SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
 };
 
+/*! \class CompositeSV
+ *
+ * \brief Class that represents CompositeSV
+ */
 struct CompositeSV
 {
     ActivableCompositeP p;
@@ -71,6 +109,10 @@ struct CompositeSV
     SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
 };
 
+/*! \class CompositeHSV
+ *
+ * \brief Class that represents CompositeHSV
+ */
 struct CompositeHSV
 {
     CompositeH h{};
@@ -80,6 +122,10 @@ struct CompositeHSV
     SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
 };
 
+/*! \class Composite
+ *
+ * \brief Class that represents the composite cache
+ */
 struct Composite
 {
     CompositeKind mode = CompositeKind::RGB;

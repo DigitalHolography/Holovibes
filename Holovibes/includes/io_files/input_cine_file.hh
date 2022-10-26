@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Handle loading of .cine files
  */
 #pragma once
 
@@ -11,10 +11,9 @@ namespace holovibes::io_files
 {
 /*! \class InputCineFile
  *
- * \brief #TODO Add a description for this class
- */
-
-/* FIXME: this class could and should be improved.
+ * \brief Class that represents an cine file
+ * 
+ * FIXME: this class could and should be improved.
  * It handles the cine files like the previous versions of Holovibes,
  * but it does not handle all the specificities of the cine files (see link in
  * cine_file.hh).
@@ -49,11 +48,6 @@ class InputCineFile : public InputFrameFile, public CineFile
      *  \throw FileException if an error occurred while reading the file
      */
     size_t read_frames(char* buffer, size_t frames_to_read, int* flag_packed) override;
-
-    /*! \brief Needed for InputHoloFile
-     *  Does not do anything
-     */
-    void load_footer() override;
 
   private:
     // Give access to private members to the factory

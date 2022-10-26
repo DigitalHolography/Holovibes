@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief Advanced Struct
+ *
+ */
+
 #pragma once
 
 #include "all_struct.hh"
@@ -5,8 +11,16 @@
 namespace holovibes
 {
 
+/*! \class AdvancedSettings
+ *
+ * \brief Class that represents the advanced cache
+ */
 struct AdvancedSettings
 {
+    /*! \class BufferSizes
+     *
+     * \brief Class that represents BufferSizes
+     */
     struct BufferSizes
     {
         unsigned input = 512;
@@ -21,6 +35,10 @@ struct AdvancedSettings
         SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
     };
 
+    /*! \class Filter2DSmooth
+     *
+     * \brief Class that represents Filter2DSmooth
+     */
     struct Filter2DSmooth
     {
         int low = 0;
@@ -32,6 +50,10 @@ struct AdvancedSettings
         SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
     };
 
+    /*! \class ContrastThreshold
+     *
+     * \brief Class that represents ContrastThreshold
+     */
     struct ContrastThreshold
     {
         float lower = 0.5f;

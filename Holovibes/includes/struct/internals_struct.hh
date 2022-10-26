@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief Internals Struct
+ *
+ */
+
 #pragma once
 
 #include "all_struct.hh"
@@ -7,8 +13,16 @@
 namespace holovibes
 {
 
+/*! \class Internals
+ *
+ * \brief Class that represents the internals cache
+ */
 struct Internals
 {
+    /*! \class Zones
+     *
+     * \brief Class that represents Zones
+     */
     struct Zones
     {
         units::RectFd signal_zone;
@@ -20,6 +34,10 @@ struct Internals
         SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
     };
 
+    /*! \class Record
+     *
+     * \brief Class that represents Record
+     */
     struct Record
     {
         float input_fps = 60.0f;
@@ -32,8 +50,16 @@ struct Internals
             Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
     };
 
+    /*! \class Enabled
+     *
+     * \brief Class that represents Enabled
+     */
     struct Enabled
     {
+    /*! \class ViewEnabled
+     *
+     * \brief Class that represents ViewEnabled
+     */
         struct ViewEnabled
         {
             bool lens = false;
@@ -52,6 +78,10 @@ struct Internals
         SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, views)
     };
 
+    /*! \class Misc
+     *
+     * \brief Class that represents Misc
+     */
     struct Misc
     {
         float pixel_size = 12.0f;

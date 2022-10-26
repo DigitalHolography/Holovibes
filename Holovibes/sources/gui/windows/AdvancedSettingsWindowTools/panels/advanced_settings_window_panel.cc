@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include "advanced_settings_window_panel.hh"
 
 namespace holovibes::gui

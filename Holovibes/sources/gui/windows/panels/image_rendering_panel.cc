@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include <filesystem>
 
 #include "image_rendering_panel.hh"

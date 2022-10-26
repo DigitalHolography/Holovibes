@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include "asw_mainwindow_panel.hh"
 
 namespace holovibes::gui

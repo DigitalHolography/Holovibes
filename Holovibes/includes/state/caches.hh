@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief declaration of all micro caches
+ * 
+ */
+
 #pragma once
 
 #include "micro_cache.hh"

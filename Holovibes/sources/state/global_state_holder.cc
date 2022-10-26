@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include <iostream>
 #include "global_state_holder.hh"
 
@@ -321,22 +325,26 @@ const ViewWindow& GSH::get_current_window() const { return get_window(view_cache
 /* private */
 std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
+
+/*! \class JsonSettings
+ *
+ * \brief Struct that help with Json convertion
+ *
+ */
 struct JsonSettings
 {
-    struct ComputeSettings
-    {
-        Rendering image_rendering;
-        Views view;
-        Composite composite;
-        AdvancedSettings advanced;
 
-        SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
-    };
 
+    /*! \brief latest version of holo file version */
     inline static const auto latest_version = GSH::ComputeSettingsVersion::V5;
+
+    /*! \brief path to json patch directories  */
     inline static const auto patches_folder = std::filesystem::path{"resources"} / "json_patches_holofile";
+
+    /*! \brief default convertion function */
     static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }
 
+    /*! \brief convert holo file footer from version 3 to 4 */
     static void convert_v3_to_v4(json& data, const json& json_patch)
     {
         convert_default(data, json_patch);
@@ -349,6 +357,7 @@ struct JsonSettings
             static_cast<int>(data["compute settings"]["image rendering"]["time transformation"]));
     }
 
+    /*! \brief convert holo file footer from version 4 to 5 */
     static void convert_v4_to_v5(json& data, const json& json_patch)
     {
         if (data.contains("file info"))
@@ -361,6 +370,11 @@ struct JsonSettings
         convert_default(data, json_patch);
     }
 
+    /*! \class ComputeSettingsConverter
+    *
+    * \brief Struct that contains all information to perform a convertion
+    *
+    */
     struct ComputeSettingsConverter
     {
         ComputeSettingsConverter(GSH::ComputeSettingsVersion from,
@@ -374,12 +388,21 @@ struct JsonSettings
         {
         }
 
+
+        /*! \brief source version */
         GSH::ComputeSettingsVersion from;
+
+        /*! \brief destination version */
         GSH::ComputeSettingsVersion to;
+
+        /*! \brief patch file name */
         std::string patch_file;
+
+        /*! \brief convertion function */
         std::function<void(json&, const json&)> converter;
     };
 
+    /*! \brief vector that contains all available converters */
     inline static const std::vector<ComputeSettingsConverter> converters = {
         {GSH::ComputeSettingsVersion::V2, GSH::ComputeSettingsVersion::V3, "patch_v2_to_v3.json", convert_default},
         {GSH::ComputeSettingsVersion::V3, GSH::ComputeSettingsVersion::V4, "patch_v3_to_v4.json", convert_v3_to_v4},
@@ -387,6 +410,12 @@ struct JsonSettings
     };
 };
 
+/*! \brief convert a json based on the source version
+ *
+ *
+ * \param data: json footer
+ * \param from: source version
+ */
 void GSH::convert_json(json& data, GSH::ComputeSettingsVersion from)
 {
     auto it = std::find_if(JsonSettings::converters.begin(),
