@@ -41,7 +41,7 @@ void ReticleOverlay::setBuffer()
 {
     Program_->bind();
     Vao_.bind();
-    float scale = api::get_reticle_scale();
+    float scale = api::get_reticle().reticle_scale;
     float w = parent_->size().width();
     float h = parent_->size().height();
     float w_2 = w / 2;

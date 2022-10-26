@@ -133,8 +133,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     char* gpu_frame_buffer_;
     /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
     char* gpu_packed_buffer_;
-
-    FileReadCache::Cache file_read_cache_;
 };
 } // namespace holovibes::worker
 

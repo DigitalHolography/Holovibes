@@ -126,7 +126,7 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     api::import_stop();
@@ -190,7 +190,7 @@ void ImportPanel::import_start()
 
         // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
         // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
-        api::display_reticle(api::get_reticle_display_enabled());
+        api::display_reticle(api::get_reticle().display_enabled);
     }
     else
     {

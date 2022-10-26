@@ -181,7 +181,7 @@ void RawWindow::resizeGL(int w, int h)
     auto point = this->position();
 
     if ((api::get_compute_mode() == Computation::Hologram &&
-         api::get_space_transformation() == SpaceTransformation::NONE) ||
+         api::get_space_transformation() == SpaceTransformationEnum::NONE) ||
         api::get_compute_mode() == Computation::Raw)
     {
         if (w != old_width)
@@ -262,7 +262,7 @@ void RawWindow::paintGL()
 
     // Put the frame inside the cuda ressrouce
 
-    if (GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite)
+    if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }

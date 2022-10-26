@@ -98,7 +98,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     if (load_file_in_gpu_)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
-        buffer_nb_frames = file_read_cache_.get_value<FileBufferSize>();
+        buffer_nb_frames = GSH::instance().get_value<FileBufferSize>();
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
@@ -170,7 +170,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = file_read_cache_.get_value<FileBufferSize>();
+    const unsigned int batch_size = GSH::instance().get_value<FileBufferSize>();
 
     fps_handler_.begin();
 

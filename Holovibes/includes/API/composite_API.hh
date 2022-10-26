@@ -7,19 +7,37 @@ namespace holovibes::api
 
 // notify()
 
-inline CompositeKind get_composite_kind() { return api::detail::get_value<CompositeKindParam>(); }
-inline void set_composite_kind(CompositeKind value) { api::detail::set_value<CompositeKindParam>(value); }
+inline CompositeKindEnum get_composite_kind() { return api::detail::get_value<CompositeKind>(); }
+inline void set_composite_kind(CompositeKindEnum value) { api::detail::set_value<CompositeKind>(value); }
 
-inline const CompositeRGB get_composite_rgb() { return api::detail::get_value<CompositeRGBParam>(); }
-inline const CompositeHSV get_composite_hsv() { return api::detail::get_value<CompositeHSVParam>(); }
+inline const CompositeRGBStruct get_composite_rgb() { return api::detail::get_value<CompositeRGB>(); }
+inline const CompositeHSVStruct get_composite_hsv() { return api::detail::get_value<CompositeHSV>(); }
 
-inline TriggerChangeValue<CompositeRGB> change_composite_rgb()
+inline TriggerChangeValue<CompositeRGBStruct> change_composite_rgb()
 {
-    return api::detail::change_value<CompositeRGBParam>();
+    return api::detail::change_value<CompositeRGB>();
+    // FIXME COMPILE
+    // TriggerChangeValue<CompositeRGBStruct> res = api::detail::change_value<CompositeRGB>();
+    // auto callback = res.callback_;
+    // res.callback_ = [callback]()
+    // {
+    //     callback();
+    //     GSH::instance().notify();
+    // };
+    // return TriggerChangeValue<CompositeRGBStruct>{res};
 }
-inline TriggerChangeValue<CompositeHSV> change_composite_hsv()
+inline TriggerChangeValue<CompositeHSVStruct> change_composite_hsv()
 {
-    return api::detail::change_value<CompositeHSVParam>();
+    return api::detail::change_value<CompositeHSV>();
+    // FIXME COMPILE
+    // TriggerChangeValue<CompositeHSVStruct> res = api::detail::change_value<CompositeHSV>();
+    // auto callback = res.callback_;
+    // res.callback_ = [callback]()
+    // {
+    //     callback();
+    //     GSH::instance().notify();
+    // };
+    // return TriggerChangeValue<CompositeHSVStruct>{res};
 }
 
 inline bool get_composite_auto_weights() { return api::detail::get_value<CompositeAutoWeights>(); }

@@ -13,8 +13,7 @@ bool start_record_preconditions(const bool batch_enabled,
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
-        nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || api::get_record_mode() == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
     {
         LOG_ERROR(main, "Number of frames must be activated");
         return false;
@@ -40,12 +39,12 @@ void start_record(const bool batch_enabled,
         Holovibes::instance().start_batch_gpib(batch_input_path,
                                                output_path,
                                                nb_frames_to_record.value(),
-                                               UserInterfaceDescriptor::instance().record_mode_,
+                                               api::get_record_mode(),
                                                callback);
     }
     else
     {
-        if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+        if (api::get_record_mode() == RecordMode::CHART)
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
@@ -53,7 +52,7 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_frame_record(output_path,
                                                      nb_frames_to_record,
-                                                     UserInterfaceDescriptor::instance().record_mode_,
+                                                     api::get_record_mode(),
                                                      0,
                                                      callback);
         }
@@ -66,36 +65,18 @@ void stop_record()
 
     Holovibes::instance().stop_batch_gpib();
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+
+    else if (api::get_record_mode() == RecordMode::HOLOGRAM || api::get_record_mode() == RecordMode::RAW ||
+             api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
-}
-
-void set_record_mode(const std::string& text)
-{
-    LOG_FUNC(main, text);
-
-    // TODO: Dictionnary
-    if (text == "Chart")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
-    else if (text == "Processed Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
-    else if (text == "Raw Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
-    else if (text == "3D Cuts XZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
-    else if (text == "3D Cuts YZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
-    else
-        throw std::exception("Record mode not handled");
 }
 
 const std::string browse_record_output_file(std::string& std_filepath)
 {
+    // FIXME API : This has to be in GUI
+
     // FIXME: path separator should depend from system
     std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
     std::filesystem::path path = std::filesystem::path(std_filepath);

@@ -55,7 +55,7 @@ enum class QueueType
 
 /*! \} */
 
-namespace holovibes::_internal
+namespace holovibes::internal
 {
 
 template <typename T>
@@ -93,7 +93,7 @@ struct TypeValue<QueueType>
     using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
 };
 
-} // namespace holovibes::_internal
+} // namespace holovibes::internal
 namespace holovibes
 {
 
@@ -104,7 +104,7 @@ namespace holovibes
  *  please do not use before checking is_fast_update_key_type
  */
 template <typename T>
-using FastUpdateTypeValue = typename _internal::TypeValue<T>::value;
+using FastUpdateTypeValue = typename internal::TypeValue<T>::value;
 
 /*!
  * \brief compile time boolean to check if the type T matches a key type of the FastUpdateHolder map class

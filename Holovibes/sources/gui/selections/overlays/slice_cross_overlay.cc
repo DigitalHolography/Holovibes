@@ -83,7 +83,7 @@ void SliceCrossOverlay::move(QMouseEvent* e)
         pIndex_ = getMousePos(e->pos());
 
         uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
-        api::change_view_accu_p()->set_index(p);
+        api::change_view_accu_p()->index = p;
     }
 }
 
@@ -95,7 +95,7 @@ void SliceCrossOverlay::setBuffer()
     units::PointFd bottomRight;
     auto kView = parent_->getKindOfView();
 
-    View_PQ p = api::get_view_accu_p();
+    ViewAccuPQ p = api::get_view_accu_p();
 
     uint pmin = p.start;
     uint pmax = pmin + p.width;

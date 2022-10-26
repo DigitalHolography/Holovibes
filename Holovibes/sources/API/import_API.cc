@@ -14,7 +14,7 @@ void import_stop()
     Holovibes::instance().stop_all_worker_controller();
     Holovibes::instance().start_information_display();
 
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+    api::set_import_type(ImportTypeEnum::None);
 
     set_is_computation_stopped(true);
 }
@@ -51,7 +51,7 @@ bool import_start(
     }
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+    api::set_import_type(ImportTypeEnum::File);
 
     return true;
 }

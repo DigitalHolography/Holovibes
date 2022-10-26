@@ -117,9 +117,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Display default values
     api::set_compute_mode(Computation::Raw);
-    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
-                                                             ? "Composite image"
-                                                             : UserInterfaceDescriptor::instance().last_img_type_;
+    api::set_last_image_type(api::get_image_type() == ImageTypeEnum::Composite ? "Composite image"
+                                                                               : api::get_last_image_type());
     notify();
 
     setFocusPolicy(Qt::StrongFocus);
@@ -209,12 +208,12 @@ void MainWindow::on_notify()
     }
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
-                                   (api::get_img_type() != ImgType::Composite));
+                                   (api::get_image_type() != ImageTypeEnum::Composite));
     resize(baseSize());
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::change_view_xy()->set_img_accu_level(1); }
+static void handle_accumulation_exception() { api::change_view_xy()->img_accu_level = 1; }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -227,7 +226,7 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::change_view_accu_p()->set_index(0);
+                api::change_view_accu_p()->index = 0;
                 api::set_time_transformation_size(1);
                 api::disable_convolution();
                 api::close_windows();
@@ -298,7 +297,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = UserInterfaceDescriptor::instance().import_type_;
+    ImportTypeEnum it = api::get_import_type();
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
@@ -306,11 +305,11 @@ void MainWindow::reload_ini(const std::string& filename)
     // Set values not set by notify
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    if (it == ImportType::File)
+    if (it == ImportTypeEnum::File)
         ui_->ImportPanel->import_start();
-    else if (it == ImportType::Camera)
-        change_camera(UserInterfaceDescriptor::instance().kCamera);
-    else // if (it == ImportType::None)
+    else if (it == ImportTypeEnum::Camera)
+        change_camera(api::get_current_camera_kind());
+    else if (it == ImportTypeEnum::None)
         notify();
 }
 
@@ -467,7 +466,7 @@ void MainWindow::change_camera(CameraKind c)
 
 void MainWindow::camera_none()
 {
-    change_camera(CameraKind::NONE);
+    change_camera(CameraKind::None);
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
@@ -541,10 +540,10 @@ void MainWindow::set_view_image_type(const QString& value)
 
     const std::string& str = value.toStdString();
 
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
+    if (need_refresh(api::get_last_image_type(), str))
     {
         refresh_view_mode();
-        if (api::get_img_type() == ImgType::Composite)
+        if (api::get_image_type() == ImageTypeEnum::Composite)
         {
             set_composite_values();
         }
@@ -563,7 +562,7 @@ void MainWindow::set_view_image_type(const QString& value)
     // On peut demander aux autres
 
     auto callback = ([=]() {
-        api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
+        api::set_image_type(static_cast<ImageTypeEnum>(ui_->ViewModeComboBox->currentIndex()));
         notify();
         layout_toggled();
     });
@@ -574,8 +573,8 @@ void MainWindow::set_view_image_type(const QString& value)
     // Force cuts views autocontrast if needed
     if (api::get_cuts_view_enabled())
     {
-        api::get_view_xz().request_exec_auto_contrast();
-        api::get_view_yz().request_exec_auto_contrast();
+        api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
+        api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
     }
 }
 
@@ -606,13 +605,13 @@ void MainWindow::close_advanced_settings()
 {
     if (UserInterfaceDescriptor::instance().has_been_updated)
     {
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ImportTypeEnum it = api::get_import_type();
         ui_->ImportPanel->import_stop();
 
-        if (it == ImportType::File)
+        if (it == ImportTypeEnum::File)
             ui_->ImportPanel->import_start();
-        else if (it == ImportType::Camera)
-            change_camera(UserInterfaceDescriptor::instance().kCamera);
+        else if (it == ImportTypeEnum::Camera)
+            change_camera(api::get_current_camera_kind());
     }
 
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;

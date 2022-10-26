@@ -51,12 +51,12 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
 
     api::set_display_rate(ui.DisplayRateSpinBox->value());
-    api::set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
-    api::set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
-    api::set_contrast_lower_threshold(ui.ContrastLowerSpinBox->value());
-    api::set_contrast_upper_threshold(ui.ContrastUpperSpinBox->value());
+    api::change_filter2d_smooth()->low = ui.Filter2DLowSpinBox->value();
+    api::change_filter2d_smooth()->high = ui.Filter2DHighSpinBox->value();
+    api::change_current_window_as_view_xyz()->contrast.min = ui.ContrastLowerSpinBox->value();
+    api::change_current_window_as_view_xyz()->contrast.max = ui.ContrastUpperSpinBox->value();
     api::set_renorm_constant(ui.RenormConstantSpinBox->value());
-    api::set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
+    api::change_contrast_threshold()->cuts_p_offset = ui.CutsContrastSpinBox->value();
 
     UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
@@ -103,12 +103,12 @@ void AdvancedSettingsWindow::set_current_values()
     ui.Cuts3DBSSpinBox->setValue(api::get_time_transformation_cuts_output_buffer_size());
 
     ui.DisplayRateSpinBox->setValue(api::get_display_rate());
-    ui.Filter2DLowSpinBox->setValue(api::get_filter2d_smooth_low());
-    ui.Filter2DHighSpinBox->setValue(api::get_filter2d_smooth_high());
-    ui.ContrastLowerSpinBox->setValue(api::get_contrast_lower_threshold());
-    ui.ContrastUpperSpinBox->setValue(api::get_contrast_upper_threshold());
+    ui.Filter2DLowSpinBox->setValue(api::get_filter2d_smooth().low);
+    ui.Filter2DHighSpinBox->setValue(api::get_filter2d_smooth().high);
+    ui.ContrastLowerSpinBox->setValue(api::get_contrast_threshold().lower);
+    ui.ContrastUpperSpinBox->setValue(api::get_contrast_threshold().upper);
     ui.RenormConstantSpinBox->setValue(api::get_renorm_constant());
-    ui.CutsContrastSpinBox->setValue(api::get_cuts_contrast_p_offset());
+    ui.CutsContrastSpinBox->setValue(api::get_contrast_threshold().cuts_p_offset);
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());

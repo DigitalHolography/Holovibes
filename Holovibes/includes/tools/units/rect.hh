@@ -200,6 +200,9 @@ class Rect
   private:
     Point<T> src_;
     Point<T> dst_;
+
+  public:
+    bool operator!=(const Rect& rhs) { return false; }
 };
 
 /*! \brief Rectangle in the OpenGL coordinates [-1;1] */

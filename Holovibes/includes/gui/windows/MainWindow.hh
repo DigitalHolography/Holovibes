@@ -10,7 +10,7 @@
 // namespace camera
 #include "camera_exception.hh"
 
-#include "enum_camera_kind.hh"
+#include "import_struct.hh"
 #include "enum_theme.hh"
 
 // namespace holovibes

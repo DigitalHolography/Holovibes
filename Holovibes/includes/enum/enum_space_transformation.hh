@@ -10,25 +10,24 @@
 
 namespace holovibes
 {
-/*! \enum SpaceTransformation
+/*! \enum SpaceTransformationEnum
  *
  * \brief Rendering mode for Hologram (Space transformation)
  */
-enum class SpaceTransformation
+enum class SpaceTransformationEnum
 {
     NONE = 0, /*!< Nothing Applied */
     FFT1,     /*!< Fresnel Transform */
     FFT2      /*!< Angular spectrum propagation */
 };
 
-// clang-format off
-SERIALIZE_JSON_ENUM(SpaceTransformation, {
-    {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FFT1, "FFT1"},
-    {SpaceTransformation::FFT2, "FFT2"},
-    {SpaceTransformation::FFT1, "1FFT"}, // Compat
-    {SpaceTransformation::FFT2, "2FFT"}, // Compat
-    {SpaceTransformation::NONE, "None"}, // Compat
-})
-// clang-format on
+SERIALIZE_JSON_ENUM(SpaceTransformationEnum,
+                    {
+                        {SpaceTransformationEnum::NONE, "NONE"},
+                        {SpaceTransformationEnum::FFT1, "FFT1"},
+                        {SpaceTransformationEnum::FFT2, "FFT2"},
+                        {SpaceTransformationEnum::FFT1, "1FFT"}, // Compat
+                        {SpaceTransformationEnum::FFT2, "2FFT"}, // Compat
+                        {SpaceTransformationEnum::NONE, "None"}, // Compat
+                    })
 } // namespace holovibes

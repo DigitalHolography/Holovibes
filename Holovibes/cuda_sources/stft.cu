@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-using holovibes::ImgType;
+using holovibes::ImageTypeEnum;
 
 // Short-Time Fourier Transform
 void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
@@ -27,7 +27,7 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
                                          const uint height,
                                          const uint acc_level_xz,
                                          const uint acc_level_yz,
-                                         const holovibes::ImgType img_type,
+                                         const holovibes::ImageTypeEnum img_type,
                                          const uint time_transformation_size)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -39,14 +39,14 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
             float pixel_float = 0;
             cuComplex pixel =
                 input[x + (id / time_transformation_size) * width + (id % time_transformation_size) * frame_size];
-            if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
+            if (img_type == ImageTypeEnum::Modulus || img_type == ImageTypeEnum::PhaseIncrease || img_type == ImageTypeEnum::Composite)
                 pixel_float = hypotf(pixel.x, pixel.y);
-            else if (img_type == ImgType::SquaredModulus)
+            else if (img_type == ImageTypeEnum::SquaredModulus)
             {
                 pixel_float = hypotf(pixel.x, pixel.y);
                 pixel_float *= pixel_float;
             }
-            else if (img_type == ImgType::Argument)
+            else if (img_type == ImageTypeEnum::Argument)
                 pixel_float = (atanf(pixel.y / pixel.x) + M_PI_2);
             sum += pixel_float;
         }
@@ -60,14 +60,14 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
         {
             float pixel_float = 0;
             cuComplex pixel = input[(y * width) + (id / width) * frame_size + id % width];
-            if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
+            if (img_type == ImageTypeEnum::Modulus || img_type == ImageTypeEnum::PhaseIncrease || img_type == ImageTypeEnum::Composite)
                 pixel_float = hypotf(pixel.x, pixel.y);
-            else if (img_type == ImgType::SquaredModulus)
+            else if (img_type == ImageTypeEnum::SquaredModulus)
             {
                 pixel_float = hypotf(pixel.x, pixel.y);
                 pixel_float *= pixel_float;
             }
-            else if (img_type == ImgType::Argument)
+            else if (img_type == ImageTypeEnum::Argument)
                 pixel_float = (atanf(pixel.y / pixel.x) + M_PI_2);
             sum += pixel_float;
         }
@@ -87,7 +87,7 @@ void time_transformation_cuts_begin(const cuComplex* input,
                                     const ushort time_transformation_size,
                                     const uint acc_level_xz,
                                     const uint acc_level_yz,
-                                    const holovibes::ImgType img_type,
+                                    const holovibes::ImageTypeEnum img_type,
                                     const cudaStream_t stream)
 {
     const uint frame_size = width * height;

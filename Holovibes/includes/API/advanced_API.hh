@@ -17,11 +17,8 @@ inline void set_output_buffer_size(uint value) { api::detail::set_value<OutputBu
 inline uint get_record_buffer_size() { return api::detail::get_value<RecordBufferSize>(); }
 inline void set_record_buffer_size(uint value) { api::detail::set_value<RecordBufferSize>(value); }
 
-inline float get_contrast_lower_threshold() { return api::detail::get_value<ContrastLowerThreshold>(); }
-inline void set_contrast_lower_threshold(float value) { api::detail::set_value<ContrastLowerThreshold>(value); }
-
-inline float get_contrast_upper_threshold() { return api::detail::get_value<ContrastUpperThreshold>(); }
-inline void set_contrast_upper_threshold(float value) { api::detail::set_value<ContrastUpperThreshold>(value); }
+inline uint get_file_buffer_size() { return api::detail::get_value<FileBufferSize>(); }
+inline void set_file_buffer_size(uint value) { api::detail::set_value<FileBufferSize>(value); }
 
 inline int get_raw_bitshift() { return api::detail::get_value<RawBitshift>(); }
 inline void set_raw_bitshift(int value) { api::detail::set_value<RawBitshift>(value); }
@@ -29,7 +26,15 @@ inline void set_raw_bitshift(int value) { api::detail::set_value<RawBitshift>(va
 inline uint get_renorm_constant() { return api::detail::get_value<RenormConstant>(); }
 inline void set_renorm_constant(uint value) { api::detail::set_value<RenormConstant>(value); }
 
-inline uint get_cuts_contrast_p_offset() { return api::detail::get_value<CutsContrastPOffset>(); }
-inline void set_cuts_contrast_p_offset(uint value) { api::detail::set_value<CutsContrastPOffset>(value); }
+inline const Filter2DSmoothStruct& get_filter2d_smooth() { return api::detail::get_value<Filter2DSmooth>(); }
+inline TriggerChangeValue<Filter2DSmoothStruct> change_filter2d_smooth()
+{
+    return api::detail::change_value<Filter2DSmooth>();
+}
 
+inline const ContrastThresholdStruct& get_contrast_threshold() { return api::detail::get_value<ContrastThreshold>(); }
+inline TriggerChangeValue<ContrastThresholdStruct> change_contrast_threshold()
+{
+    return api::detail::change_value<ContrastThreshold>();
+}
 } // namespace holovibes::api

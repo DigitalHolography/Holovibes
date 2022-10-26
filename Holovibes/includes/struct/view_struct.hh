@@ -6,13 +6,12 @@
 
 #pragma once
 
+#include "types.hh"
 #include "logger.hh"
 #include "all_struct.hh"
 #include "enum_img_type.hh"
 
 #define CONSTRUCTOR(name, arg_name)
-
-typedef unsigned int uint;
 
 namespace holovibes
 {
@@ -29,6 +28,12 @@ struct ViewContrast
     float max = 65535.f;
 
     SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
+
+    bool operator!=(const ViewContrast& rhs)
+    {
+        return enabled != rhs.enabled || auto_refresh != rhs.auto_refresh || invert != rhs.invert || min != rhs.min ||
+               max != rhs.max;
+    }
 };
 
 /*! \class ViewWindow
@@ -40,13 +45,10 @@ struct ViewWindow
     bool log_enabled = false;
 
     ViewContrast contrast;
-    
-    bool exec_auto_contrast_ = false;
-    bool get_exec_auto_contrast() { return exec_auto_contrast_; }
-    void request_exec_auto_contrast() { exec_auto_contrast_ = true; }
-    void reset_exec_auto_contrast() { exec_auto_contrast_ = false; }
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
+
+    bool operator!=(const ViewWindow& rhs) { return contrast != rhs.contrast || log_enabled != rhs.log_enabled; }
 };
 
 /*! \class ViewXYZ
@@ -58,15 +60,27 @@ struct ViewXYZ : public ViewWindow
     bool log_enabled = false;
     bool horizontal_flip = false;
     float rotation = 0;
-    unsigned output_image_accumulation = 1;
+    uint output_image_accumulation = 1;
+
+    bool is_image_accumulation_enabled() const { return output_image_accumulation > 1; }
+
+    // FIXME COMPILE : CHECK THIS TO TRIGGER
+  private:
+    bool request_clear_image_accumulation_ = false;
+
+  public:
+    bool get_request_clear_image_accumulation() const { return request_clear_image_accumulation_; }
+    void request_clear_image_accumulation() { request_clear_image_accumulation_ = true; }
+    void reset_request_clear_image_accumulation() { request_clear_image_accumulation_ = false; }
+
+  public:
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 
     bool operator!=(const ViewXYZ& rhs)
     {
-        return View_Window::operator!=(rhs) || horizontal_flip != rhs.horizontal_flip || rotation != rhs.rotation ||
-               output_image_accumulation != rhs.output_image_accumulation;
+        return ViewWindow::operator!=(rhs) || log_enabled != rhs.log_enabled || horizontal_flip != rhs.horizontal_flip ||
+               rotation != rhs.rotation || output_image_accumulation != rhs.output_image_accumulation;
     }
-
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 };
 
 /*! \class ViewAccu
@@ -78,32 +92,34 @@ struct ViewAccu
     int width = 0;
 
     SERIALIZE_JSON_STRUCT(ViewAccu, width)
+
+    bool operator!=(const ViewAccu& rhs) { return width != rhs.width; }
 };
 
 /*! \class ViewPQ
  *
  * \brief Class that represents ViewPQ
  */
-struct View_PQ : public ViewAccu
+struct ViewAccuPQ : public ViewAccu
 {
     unsigned start = 0;
 
-    bool operator!=(const View_PQ& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
+    SERIALIZE_JSON_STRUCT(ViewAccuPQ, width, start)
 
-    SERIALIZE_JSON_STRUCT(View_PQ, width, start)
+    bool operator!=(const ViewAccuPQ& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
 };
 
 /*! \class ViewXY
  *
  * \brief Class that represents ViewXY
  */
-struct View_XY : public ViewAccu
+struct ViewAccuXY : public ViewAccu
 {
     unsigned start = 0;
 
-    bool operator!=(const View_XY& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
+    SERIALIZE_JSON_STRUCT(ViewAccuXY, width, start)
 
-    SERIALIZE_JSON_STRUCT(View_XY, width, start)
+    bool operator!=(const ViewAccuXY& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
 };
 
 /*! \class Windows
@@ -127,15 +143,17 @@ struct Windows
  *
  * \brief Class that represents the Reticle
  */
-struct Reticle
+struct ReticleStruct
 {
     bool display_enabled = false;
     float scale = 0.5f;
 
-    SERIALIZE_JSON_STRUCT(Reticle, display_enabled, scale);
+    SERIALIZE_JSON_STRUCT(ReticleStruct, display_enabled, scale);
 
-    void Update();
-    void Load();
+    bool operator!=(const ReticleStruct& rhs)
+    {
+        return display_enabled != rhs.display_enabled || scale != rhs.scale;
+    }
 };
 
 /*! \class View
@@ -144,15 +162,15 @@ struct Reticle
  */
 struct Views
 {
-    ImgType image_type = ImgType::Modulus;
+    ImageTypeEnum image_type = ImageTypeEnum::Modulus;
     bool fft_shift = false;
-    View_Accu_XY x;
-    View_Accu_XY y;
-    View_Accu_PQ z;
-    View_Accu_PQ z2;
+    ViewAccuXY x;
+    ViewAccuXY y;
+    ViewAccuPQ z;
+    ViewAccuPQ z2;
     Windows window;
     bool renorm = false;
-    Reticle reticle;
+    ReticleStruct reticle;
 
     SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, x, y, z, z2, window, renorm, reticle);
 

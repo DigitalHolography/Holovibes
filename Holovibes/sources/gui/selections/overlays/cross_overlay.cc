@@ -177,9 +177,8 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    mouse_position_ = units::PointFd(units::ConversionData(parent_),
-                                     api::get_view_accu_x().get_cuts(),
-                                     api::get_view_accu_y().get_cuts());
+    mouse_position_ =
+        units::PointFd(units::ConversionData(parent_), api::get_view_accu_x().cuts, api::get_view_accu_y().cuts);
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -213,8 +212,8 @@ void CrossOverlay::computeZone()
     units::PointFd bottomRight;
 
     // Computing min/max coordinates in function of the frame_descriptor
-    View_XY x = api::get_view_accu_x();
-    View_XY y = api::get_view_accu_y();
+    ViewAccuXY x = api::get_view_accu_x();
+    ViewAccuXY y = api::get_view_accu_y();
     int x_min = x.start;
     int x_max = x.start;
     int y_min = y.start;

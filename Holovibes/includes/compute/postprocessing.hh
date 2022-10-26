@@ -12,9 +12,6 @@
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
 
-#include "advanced.hh"
-#include "compute.hh"
-
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes

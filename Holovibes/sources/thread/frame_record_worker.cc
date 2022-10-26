@@ -162,7 +162,8 @@ void FrameRecordWorker::run()
 
 Queue& FrameRecordWorker::init_gpu_record_queue()
 {
-    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue();
+    // FIXME : Magic value
+    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue_ptr();
     if (raw_view_queue)
         raw_view_queue->resize(4, stream_);
 
@@ -172,17 +173,17 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
 
     if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
     {
-        api::detail::change_value<FrameRecordMode>().set_record_mode(record_mode_);
-        while (ExportCache::RefSingleton::has_change())
+        api::set_record_mode(record_mode_);
+        while (api::get_compute_pipe().get_export_cache().has_change_requested())
             continue;
     }
     else if (record_mode_ == RecordMode::CUTS_XZ || record_mode_ == RecordMode::CUTS_YZ)
     {
-        api::detail::change_value<FrameRecordMode>().set_record_mode(record_mode_);
-        while (ExportCache::RefSingleton::has_change() && !stop_requested_)
+        api::set_record_mode(record_mode_);
+        while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
             continue;
     }
-    return *api::get_compute_pipe().get_frame_record_queue();
+    return *api::get_compute_pipe().get_frame_record_queue_ptr();
 }
 
 void FrameRecordWorker::wait_for_frames(Queue& record_queue)
@@ -196,9 +197,9 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 
 void FrameRecordWorker::reset_gpu_record_queue()
 {
-    api::get_compute_pipe().request_disable_frame_record();
+    api::detail::change_value<FrameRecordMode>()->disable();
 
-    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue();
+    std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue_ptr();
     if (raw_view_queue)
         raw_view_queue->resize(output_buffer_size_, stream_);
 

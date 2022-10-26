@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Qt window containing the Filter2D view of the hologram.
+ * \brief Qt window containing the ViewFilter2D view of the hologram.
  */
 #pragma once
 
