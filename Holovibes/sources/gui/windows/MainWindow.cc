@@ -616,11 +616,10 @@ void MainWindow::reset_settings()
     std::string to_remove = holovibes::settings::compute_settings_filepath;
 
     std::stringstream tmp;
-    tmp << "\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
+    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
 
     QMessageBox msgBox;
-    msgBox.setText("Reset settings and quit");
-    msgBox.setInformativeText(tmp.str().c_str());
+    msgBox.setText(QString::fromUtf8(tmp.str().c_str()));
     msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setDefaultButton(QMessageBox::Cancel);
