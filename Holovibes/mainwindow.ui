@@ -3060,6 +3060,7 @@ p, li { white-space: pre-wrap; }
     </widget>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
+    <addaction name="actionReset"/>
     <addaction name="separator"/>
     <addaction name="actionAdvanced"/>
     <addaction name="separator"/>
@@ -3322,6 +3323,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionOpenCV">
    <property name="text">
     <string>OpenCV Camera</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset settings and quit</string>
    </property>
   </action>
  </widget>
@@ -5118,6 +5124,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actionReset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reset_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionAdvanced</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5280,6 +5302,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
   <slot>close_advanced_settings()</slot>
+  <slot>reset_settings()</slot>
   <slot>on_input_fps_change(int)</slot>
  </slots>
 </ui>

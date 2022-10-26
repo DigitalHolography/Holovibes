@@ -91,6 +91,7 @@ class MainWindow : public QMainWindow, public Observer
     void reload_ini(const std::string& filename);
     void write_compute_settings();
     void open_advanced_settings();
+    void reset_settings();
     void close_advanced_settings();
 
     void configure_camera();
@@ -177,5 +178,6 @@ class MainWindow : public QMainWindow, public Observer
 
     // Additional attributes
     Theme theme_ = Theme::Dark;
+    bool save_cs = true;
 };
 } // namespace holovibes::gui
