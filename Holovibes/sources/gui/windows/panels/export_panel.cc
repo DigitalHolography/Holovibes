@@ -1,3 +1,7 @@
+/*! \file
+ *
+ */
+
 #include <filesystem>
 
 #include "export_panel.hh"

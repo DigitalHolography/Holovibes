@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief #TODO Add a description for this file
+ */
+
 #pragma once
 
 #include <optional>
@@ -11,8 +16,9 @@
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 #include "global_state_holder.hh"
+#include "compute_settings_struct.hh"
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
 
 namespace holovibes::api
@@ -509,25 +515,25 @@ bool get_img_log_scale_slice_enabled();
  *
  * \return x
  */
-View_XY get_x(void);
+ViewXY get_x(void);
 
 /*! \brief get y
  *
  * \return y
  */
-View_XY get_y(void);
+ViewXY get_y(void);
 
 /*! \brief get p
  *
  * \return p
  */
-View_PQ get_p(void);
+ViewPQ get_p(void);
 
 /*! \brief get q
  *
  * \return q
  */
-View_PQ get_q(void);
+ViewPQ get_q(void);
 
 /*! \name	Getter of the overlay positions.
  * \{
@@ -684,6 +690,7 @@ void init_image_mode(QPoint& position, QSize& size);
  * \param path The location of the .json file saved
  */
 void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
+
 json compute_settings_to_json();
 
 /*! \brief Setups program from .json file
@@ -691,7 +698,6 @@ json compute_settings_to_json();
  * \param path the path where the .json file is
  */
 void load_compute_settings(const std::string& path);
-void json_to_compute_settings(const json& data);
 
 /*! \brief Gets the documentation url
  *

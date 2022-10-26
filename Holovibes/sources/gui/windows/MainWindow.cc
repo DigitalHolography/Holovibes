@@ -172,7 +172,7 @@ void MainWindow::synchronize_thread(std::function<void()> f)
 {
     // We can't update gui values from a different thread
     // so we pass it to the right one using a signal
-    // (This whole notify thing needs to be cleaned up / removed)
+    // FIXME - (This whole notify thing needs to be cleaned up / removed)
     if (QThread::currentThread() != this->thread())
         emit synchronize_thread_signal(f);
     else
@@ -349,10 +349,11 @@ void MainWindow::load_gui()
         return;
     }
 
-    set_theme(string_to_theme[json_get_or_default<std::string>(j_us, "DARK", "display", "theme")]);
+    set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
 
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
-    auxiliary_window_max_size = json_get_or_default(j_us, 512, "windows", "auxiliary window max size");
+    auxiliary_window_max_size =
+        json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
@@ -399,7 +400,7 @@ void MainWindow::save_gui()
 
     json j_us;
 
-    j_us["display"]["theme"] = theme_to_string[theme_];
+    j_us["display"]["theme"] = theme_;
 
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
@@ -432,7 +433,8 @@ void MainWindow::closeEvent(QCloseEvent*)
     api::camera_none();
 
     save_gui();
-    api::save_compute_settings();
+    if (save_cs)
+        api::save_compute_settings();
 }
 
 #pragma endregion
@@ -606,6 +608,39 @@ void MainWindow::close_advanced_settings()
     }
 
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+}
+
+void MainWindow::reset_settings()
+{
+    std::string to_remove = holovibes::settings::compute_settings_filepath;
+
+    std::stringstream tmp;
+    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
+
+    QMessageBox msgBox;
+    msgBox.setText(QString::fromUtf8(tmp.str().c_str()));
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+
+    int ret = msgBox.exec();
+    switch (ret)
+    {
+    case QMessageBox::Cancel:
+        break;
+    case QMessageBox::Ok:
+        if (std::remove(to_remove.c_str()) == 0)
+        {
+            save_cs = false;
+            LOG_INFO(main, "{} has been removed!", to_remove);
+            LOG_INFO(main, "Please, restart Holovibes!");
+        }
+        else
+            LOG_WARN(main, "Could not remove {}!", to_remove);
+
+        close();
+        break;
+    }
 }
 
 void MainWindow::open_advanced_settings()

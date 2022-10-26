@@ -5,7 +5,7 @@
 #pragma once
 
 #include <map>
-#include <ostream>
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -20,43 +20,15 @@ enum class TimeTransformation
     NONE,     /*!< No transformation */
     SSA_STFT  /*!< Self-adaptive Spectrum Analysis Short-time Fourier transformation */
 };
-} // namespace holovibes
 
-namespace holovibes::_internal
-{
-
-const std::map<TimeTransformation, std::string> time_transform_to_string = {
+// clang-format off
+SERIALIZE_JSON_ENUM(TimeTransformation, {
     {TimeTransformation::STFT, "STFT"},
     {TimeTransformation::PCA, "PCA"},
     {TimeTransformation::NONE, "NONE"},
     {TimeTransformation::SSA_STFT, "SSA_STFT"},
-};
+    {TimeTransformation::NONE, "None"}, // Compat
 
-const std::map<std::string, TimeTransformation> string_to_time_transform = {
-    {"STFT", TimeTransformation::STFT},
-    {"PCA", TimeTransformation::PCA},
-    {"NONE", TimeTransformation::NONE},
-    {"None", TimeTransformation::NONE}, // for retrocompatibility
-    {"SSA_STFT", TimeTransformation::SSA_STFT},
-};
-
-} // namespace holovibes::_internal
-
-namespace holovibes
-{
-inline std::string time_transformation_to_string(TimeTransformation value)
-{
-    return _internal::time_transform_to_string.at(value);
-}
-
-inline TimeTransformation time_transformation_from_string(const std::string& in)
-{
-    return _internal::string_to_time_transform.at(in);
-}
-
-inline std::ostream& operator<<(std::ostream& os, holovibes::TimeTransformation value)
-{
-    return os << time_transformation_to_string(value);
-}
-
+})
+// clang-format on
 } // namespace holovibes

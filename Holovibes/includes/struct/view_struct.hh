@@ -1,146 +1,147 @@
-#pragma once
+/*! \file
+ *
+ * \brief View structure
+ *
+ */
 
-#include <atomic>
-// #include <boost/pfr/core.hpp>
+#pragma once
 
 #include "logger.hh"
 #include "all_struct.hh"
+#include "enum_img_type.hh"
+
+#define CONSTRUCTOR(name, arg_name)
 
 typedef unsigned int uint;
 
 namespace holovibes
 {
-// clang-format off
-struct View_Window // : public json_struct
+/*! \class ViewContrast
+ *
+ * \brief Class that represents ViewContrast
+ */
+struct ViewContrast
 {
-    // FIXME: remove slice in attr name
-    bool log_scale_slice_enabled = false;
-    bool contrast_enabled = false;
-    bool contrast_auto_refresh = true;
-    bool contrast_invert = false;
-    float contrast_min = 1.f;
-    float contrast_max = 65535.f;
+    bool enabled = false;
+    bool auto_refresh = true;
+    bool invert = false;
+    float min = 1.f;
+    float max = 65535.f;
 
-    operator json() const
-    {
-        return json{
-            {"log enabled", log_scale_slice_enabled},
-            {"contrast", {
-                    {"enabled", contrast_enabled},
-                    {"auto refresh", contrast_auto_refresh},
-                    {"invert", contrast_invert},
-                    {"min", contrast_min},
-                    {"max", contrast_max}
-                }
-            }
-        };
-    }
-
-    View_Window() = default;
-
-    explicit View_Window(const json& data)
-        : log_scale_slice_enabled(data["log enabled"])
-        , contrast_enabled(data["contrast"]["enabled"])
-        , contrast_auto_refresh(data["contrast"]["auto refresh"])
-        , contrast_invert(data["contrast"]["invert"])
-        , contrast_min(data["contrast"]["min"])
-        , contrast_max(data["contrast"]["max"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
 };
 
-struct View_XYZ : public View_Window
+/*! \class ViewWindow
+ *
+ * \brief Class that represents ViewWindow
+ */
+struct ViewWindow
+{
+    bool log_enabled = false;
+
+    ViewContrast contrast;
+
+    SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
+};
+
+/*! \class ViewXYZ
+ *
+ * \brief Class that represents ViewXYZ
+ */
+struct ViewXYZ : public ViewWindow
 {
     bool flip_enabled = false;
     float rot = 0;
+    unsigned img_accu_level = 1;
 
-    uint img_accu_level = 1;
-
-    operator json() const
-    {
-        json j = static_cast<View_Window>(*this);
-        j["flip"] = flip_enabled;
-        j["rot"] = rot;
-        j["img accu level"] = img_accu_level;
-
-        return j;
-    }
-
-    View_XYZ() = default;
-
-    explicit View_XYZ(const json& data)
-        : View_Window(data)
-        , flip_enabled(data["flip"])
-        , rot(data["rot"])
-        , img_accu_level(data["img accu level"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 };
 
-struct View_Accu // : public json_struct
+/*! \class ViewAccu
+ *
+ * \brief Class that represents ViewAccu
+ */
+struct ViewAccu
 {
     int accu_level = 0;
 
-    operator json() const { return json{{"accu level", accu_level}}; }
-
-    View_Accu() = default;
-
-    explicit View_Accu(const json& data)
-        : accu_level(data["accu level"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
 };
 
-struct View_PQ : public View_Accu
+/*! \class ViewPQ
+ *
+ * \brief Class that represents ViewPQ
+ */
+struct ViewPQ : public ViewAccu
 {
-    uint index = 0;
+    unsigned index = 0;
 
-    operator json() const
-    {
-        json j = static_cast<View_Accu>(*this);
-        j["index"] = index;
-        return j;
-    }
-
-    View_PQ() = default;
-
-    explicit View_PQ(const json& data)
-        : View_Accu(data)
-        , index(data["index"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
 };
 
-struct View_XY : public View_Accu
+/*! \class ViewXY
+ *
+ * \brief Class that represents ViewXY
+ */
+struct ViewXY : public ViewAccu
 {
-    uint cuts = 0;
+    unsigned cuts = 0;
 
-    operator json() const
-    {
-        json j = static_cast<View_Accu>(*this);
-        j["cuts"] = cuts;
-        return j;
-    }
-
-    View_XY() = default;
-
-    explicit View_XY(const json& data)
-        : View_Accu(data)
-        , cuts(data["cuts"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
 };
 
-// clang-format on
+/*! \class Windows
+ *
+ * \brief Class that represents the Windows
+ */
+struct Windows
+{
+    ViewXYZ xy;
+    ViewXYZ yz;
+    ViewXYZ xz;
+    ViewWindow filter2d;
 
-inline std::ostream& operator<<(std::ostream& os, View_Window obj) { return os << json{obj}; }
+    SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
 
-inline std::ostream& operator<<(std::ostream& os, View_XYZ obj) { return os << json{obj}; }
+    void Update();
+    void Load();
+};
 
-inline std::ostream& operator<<(std::ostream& os, View_Accu obj) { return os << json{obj}; }
+/*! \class Reticle
+ *
+ * \brief Class that represents the Reticle
+ */
+struct Reticle
+{
+    bool display_enabled = false;
+    float reticle_scale = 0.5f;
 
-inline std::ostream& operator<<(std::ostream& os, View_XY obj) { return os << json{obj}; }
+    SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
 
-inline std::ostream& operator<<(std::ostream& os, View_PQ obj) { return os << json{obj}; }
+    void Update();
+    void Load();
+};
+
+/*! \class View
+ *
+ * \brief Class that represents the view cache
+ */
+struct Views
+{
+    ImgType img_type = ImgType::Modulus;
+    bool fft_shift = false;
+    ViewXY x;
+    ViewXY y;
+    ViewPQ p;
+    ViewPQ q;
+    Windows window;
+    bool renorm = false;
+    Reticle reticle;
+
+    SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, window, renorm, reticle);
+
+    void Update();
+    void Load();
+};
 
 } // namespace holovibes

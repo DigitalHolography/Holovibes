@@ -1,180 +1,142 @@
+/*! \file
+ *
+ * \brief Composite Struct
+ *
+ */
+
 #pragma once
-
-#include <atomic>
-
 #include "all_struct.hh"
-
-typedef unsigned int uint;
+#include "enum_composite_kind.hh"
 
 namespace holovibes
 {
-// clang-format off
-struct Composite_P // : public json_struct
+/*! \class CompositeP
+ *
+ * \brief Class that represents CompositeP
+ */
+struct CompositeP
 {
-    int p_min = 0;
-    int p_max = 0;
+    int min = 0;
+    int max = 0;
 
-    operator json() const { return json{{"min", p_min}, {"max", p_max}}; }
-    Composite_P() = default;
-
-    explicit Composite_P(const json& data)
-    {
-        const json& p_data = data["p"];
-        p_min = p_data["min"];
-        p_max = p_data["max"];
-    }
-};
-struct Composite_RGB: public Composite_P
-{
-    float weight_r = 1;
-    float weight_g = 1;
-    float weight_b = 1;
-
-    operator json() const
-    {
-        return json{
-            {"p", static_cast<Composite_P>(*this)},
-            {"weight", {
-                    {"r", weight_r},
-                    {"g", weight_g},
-                    {"b", weight_b}
-                }
-            }
-        };
-    }
-
-    Composite_RGB() = default;
-
-    explicit Composite_RGB(const json& data)
-        : Composite_P(data)
-    {
-        auto weight_data = data["weight"];
-        weight_r = weight_data["r"];
-        weight_g = weight_data["g"];
-        weight_b = weight_data["b"];
-    }
+    SERIALIZE_JSON_STRUCT(CompositeP, min, max)
 };
 
-struct Composite_hsv : public Composite_P
+/*! \class ActivableCompositeP
+ *
+ * \brief Class that represents ActivableCompositeP
+ */
+struct ActivableCompositeP : public CompositeP
 {
-    float slider_threshold_min{0.01f};
-    float slider_threshold_max{1.0f};
-    float low_threshold{0.2f};
-    float high_threshold{99.8f};
+    bool activated = false;
 
-    operator json() const
-    {
-        return json{
-            {"p", static_cast<Composite_P>(*this)},
-            {"slider threshold", {
-                    {"min", slider_threshold_min},
-                    {"max", slider_threshold_max}
-                }
-            },
-            {"threshold", {
-                    {"low", low_threshold},
-                    {"high", high_threshold}
-                }
-            }
-        };
-    }
-
-    Composite_hsv() = default;
-
-    explicit Composite_hsv(const json& data)
-        : Composite_P(data)
-    {
-        const json& slider_data = data["slider threshold"];
-        slider_threshold_min = slider_data["min"];
-        slider_threshold_max = slider_data["max"];
-
-        const json& threshold_data = data["threshold"];
-        low_threshold = threshold_data["low"];
-        high_threshold = threshold_data["high"];
-    }
+    SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
 
-struct Composite_H : public Composite_hsv
+/*! \class RGBWeights 
+ *
+ * \brief Class that represents RGBWeights
+ */
+struct RGBWeights
 {
-    bool blur_enabled = false;
-    uint blur_kernel_size = 1;
+    float r;
+    float g;
+    float b;
 
-    operator json() const
-    {
-        json j = static_cast<Composite_hsv>(*this);
-        j["blur"] = json{
-            {"enabled", blur_enabled},
-            {"kernel size", blur_kernel_size}
-        };
-        return j;
-    }
-
-    Composite_H() = default;
-
-    explicit Composite_H(const json& data)
-        : Composite_hsv(data)
-    {
-        const json& blur_data = data["blur"];
-        blur_enabled = blur_data["enabled"];
-        blur_kernel_size = blur_data["kernel size"];
-    }
+    SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 };
 
-struct Composite_SV : public Composite_hsv
+/*! \class CompositeRGB
+ *
+ * \brief Class that represents CompositeRGB
+ */
+struct CompositeRGB
 {
-    bool p_activated = false;
+    CompositeP p;
+    RGBWeights weight;
 
-    operator json() const
-    {
-        json j = static_cast<Composite_hsv>(*this);
-        j["p"]["activated"] = p_activated;
-        return j;
-    }
-
-    Composite_SV() = default;
-
-    explicit Composite_SV(const json& data)
-        : Composite_hsv(data)
-        , p_activated(data["p"]["activated"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
 };
 
-struct Composite_HSV // : public json_struct
+/*! \class Threshold
+ *
+ * \brief Class that represents Threshold
+ */
+struct Threshold
 {
-    Composite_H h{};
-    Composite_SV s{};
-    Composite_SV v{};
+    float min;
+    float max;
 
-    operator json() const { return json{{"h", h}, {"s", s}, {"v", v}}; }
-
-    Composite_HSV() = default;
-
-    explicit Composite_HSV(const json& data)
-        : h(data["h"])
-        , s(data["s"])
-        , v(data["v"])
-    {
-    }
+    SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
-// clang-format on
 
-inline std::ostream& operator<<(std::ostream& os, Composite_P obj)
+/*! \class  Blur 
+ *
+ * \brief Class that represents Blur
+ */
+struct Blur
 {
-    return os << "obj.pmin : " << obj.p_min << " - obj.pmax : " << obj.p_max;
-}
+    bool enabled = false;
+    unsigned kernel_size = 1;
 
-inline std::ostream& operator<<(std::ostream& os, Composite_RGB obj)
+    SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
+};
+
+/*! \class CompositeH
+ *
+ * \brief Class that represents CompositeH
+ */
+struct CompositeH
 {
-    return os << "obj.weight_r : " << obj.weight_g << " - obj.weight_g" << obj.weight_b << " - obj.weight_b"
-              << static_cast<Composite_P>(obj);
-}
+    CompositeP p;
+    Threshold slider_threshold;
+    Threshold threshold;
+    Blur blur;
 
-inline std::ostream& operator<<(std::ostream& os, Composite_hsv obj) { return os; }
+    SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
+};
 
-inline std::ostream& operator<<(std::ostream& os, Composite_H obj) { return os; }
+/*! \class CompositeSV
+ *
+ * \brief Class that represents CompositeSV
+ */
+struct CompositeSV
+{
+    ActivableCompositeP p;
+    Threshold slider_threshold;
+    Threshold threshold;
 
-inline std::ostream& operator<<(std::ostream& os, Composite_SV obj) { return os; }
+    SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
+};
 
-inline std::ostream& operator<<(std::ostream& os, Composite_HSV obj) { return os; }
+/*! \class CompositeHSV
+ *
+ * \brief Class that represents CompositeHSV
+ */
+struct CompositeHSV
+{
+    CompositeH h{};
+    CompositeSV s{};
+    CompositeSV v{};
+
+    SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
+};
+
+/*! \class Composite
+ *
+ * \brief Class that represents the composite cache
+ */
+struct Composite
+{
+    CompositeKind mode = CompositeKind::RGB;
+    bool composite_auto_weights = false;
+    CompositeRGB rgb;
+    CompositeHSV hsv;
+
+    void Load();
+    void Update();
+
+    SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
+};
+
 } // namespace holovibes

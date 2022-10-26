@@ -67,8 +67,8 @@ inline void set_filter2d_smooth_high(int value) { GSH::instance().set_filter2d_s
 inline float get_display_rate() { return GSH::instance().get_display_rate(); }
 inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
 
-inline View_XY get_x(void) { return GSH::instance().get_x(); }
-inline View_XY get_y(void) { return GSH::instance().get_y(); }
+inline ViewXY get_x(void) { return GSH::instance().get_x(); }
+inline ViewXY get_y(void) { return GSH::instance().get_y(); }
 
 inline uint get_img_accu_xy_level() { return GSH::instance().get_xy_img_accu_level(); }
 inline void set_img_accu_xy_level(uint value) { GSH::instance().set_xy_img_accu_level(value); }
@@ -79,8 +79,8 @@ inline uint get_img_accu_yz_level() { return GSH::instance().get_yz_img_accu_lev
 
 inline uint get_p_index() { return GSH::instance().get_p_index(); }
 
-inline View_PQ get_p(void) { return GSH::instance().get_p(); }
-inline View_PQ get_q(void) { return GSH::instance().get_q(); }
+inline ViewPQ get_p(void) { return GSH::instance().get_p(); }
+inline ViewPQ get_q(void) { return GSH::instance().get_q(); }
 
 inline int get_p_accu_level() { return GSH::instance().get_p_accu_level(); }
 

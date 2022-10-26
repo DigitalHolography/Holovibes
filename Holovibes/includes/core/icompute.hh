@@ -330,6 +330,7 @@ class ICompute
      *
      * Taking into account steps, since it is executing at the end of pipe.
      */
+    /* FIXME: not used anywhere */
     std::chrono::time_point<std::chrono::steady_clock> past_time_;
 
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */

@@ -140,7 +140,7 @@ class HoloFile:
         ddiff = DeepDiff(ref.footer, chal.footer,
                          ignore_order=True,
                          significant_digits=5,
-                         exclude_paths=["root['info']['input fps']", ]
+                         exclude_paths=["root['info']['input_fps']", ]
                          )
 
         if 'values_changed' in ddiff:

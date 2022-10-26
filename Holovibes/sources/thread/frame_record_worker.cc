@@ -5,6 +5,7 @@
 #include "icompute.hh"
 #include "global_state_holder.hh"
 #include "API.hh"
+#include "logger.hh"
 
 namespace holovibes::worker
 {
@@ -38,6 +39,8 @@ void FrameRecordWorker::integrate_fps_average()
 
 size_t FrameRecordWorker::compute_fps_average() const
 {
+    LOG_FUNC(record_worker);
+
     if (fps_current_index_ == 0)
         return 0;
 

@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <map>
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -18,14 +18,11 @@ enum class Theme
     Dark
 };
 
-static std::map<std::string, Theme> string_to_theme = {
-    {"CLASSIC", Theme::Classic},
-    {"DARK", Theme::Dark},
-};
-
-static std::map<Theme, std::string> theme_to_string = {
+// clang-format off
+SERIALIZE_JSON_ENUM(Theme, {
     {Theme::Classic, "CLASSIC"},
     {Theme::Dark, "DARK"},
-};
+})
+// clang-format on
 
 } // namespace holovibes

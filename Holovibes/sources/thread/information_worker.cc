@@ -1,6 +1,7 @@
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
+#include "chrono.hh"
 #include <cuda_runtime.h>
 #include <chrono>
 #include "global_state_holder.hh"
@@ -39,13 +40,13 @@ void InformationWorker::run()
     unsigned int record_frame_size = 0;
 
     // Init start
-    auto start = std::chrono::high_resolution_clock::now();
+    Chrono chrono;
 
     while (!stop_requested_)
     {
-        auto tick = std::chrono::high_resolution_clock::now();
+        chrono.stop();
 
-        auto waited_time = std::chrono::duration_cast<std::chrono::milliseconds>(tick - start).count();
+        auto waited_time = chrono.get_milliseconds();
         if (waited_time >= 1000)
         {
             compute_fps(waited_time);
@@ -73,7 +74,7 @@ void InformationWorker::run()
 
             compute_throughput(output_frame_res, input_frame_size, record_frame_size);
 
-            start = std::chrono::high_resolution_clock::now();
+            chrono.start();
         }
 
         display_gui_information();

@@ -27,6 +27,7 @@
 #include <sstream>
 
 #include <nlohmann/json.hpp>
+#include "compute_settings_struct.hh"
 using json = ::nlohmann::json;
 
 /*! \brief #TODO Add a description for this namespace */
@@ -82,11 +83,14 @@ class HoloFile
     /*! \brief Default copy operator */
     HoloFile& operator=(const HoloFile&) = default;
 
+
     /*! \brief Header of the holo file */
     HoloFileHeader holo_file_header_;
     /*! \brief The json meta data present in the footer */
     json meta_data_;
+    /*! \brief The json meta data present in the footer */
+    ComputeSettings raw_footer_;
     /*! \brief Current version of the holo file, update it when changing version */
-    static constexpr uint16_t current_version_ = 4;
+    static constexpr uint16_t current_version_ = 5;
 };
 } // namespace holovibes::io_files

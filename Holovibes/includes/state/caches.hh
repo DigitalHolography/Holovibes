@@ -1,3 +1,9 @@
+/*! \file
+ *
+ * \brief declaration of all micro caches
+ * 
+ */
+
 #pragma once
 
 #include "micro_cache.hh"
@@ -82,8 +88,8 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
 NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
                             (CompositeKind, composite_kind, CompositeKind::RGB),
                             (bool, composite_auto_weights, false),
-                            (Composite_RGB, rgb, Composite_RGB{}),
-                            (Composite_HSV, hsv, Composite_HSV{}));
+                            (CompositeRGB, rgb, CompositeRGB{}),
+                            (CompositeHSV, hsv, CompositeHSV{}));
 
 /*! \brief Construct a new new micro cache object
  * \param frame_record_enabled Is holovibes currently recording
@@ -121,14 +127,14 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
 
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (ImgType, img_type, ImgType::Modulus),
-                            (View_XY, x, View_XY{}),
-                            (View_XY, y, View_XY{}),
-                            (View_PQ, p, View_PQ{}),
-                            (View_PQ, q, View_PQ{}),
-                            (View_XYZ, xy, View_XYZ{}),
-                            (View_XYZ, xz, View_XYZ{}),
-                            (View_XYZ, yz, View_XYZ{}),
-                            (View_Window, filter2d, View_Window{}),
+                            (ViewXY, x, ViewXY{}),
+                            (ViewXY, y, ViewXY{}),
+                            (ViewPQ, p, ViewPQ{}),
+                            (ViewPQ, q, ViewPQ{}),
+                            (ViewXYZ, xy, ViewXYZ{}),
+                            (ViewXYZ, xz, ViewXYZ{}),
+                            (ViewXYZ, yz, ViewXYZ{}),
+                            (ViewWindow, filter2d, ViewWindow{}),
                             (WindowKind, current_window, WindowKind::XYview),
                             (bool, lens_view_enabled, false),
                             (bool, chart_display_enabled, false),

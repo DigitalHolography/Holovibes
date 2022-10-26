@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Handle loading of .cine files
  */
 #pragma once
 
@@ -11,10 +11,9 @@ namespace holovibes::io_files
 {
 /*! \class InputCineFile
  *
- * \brief #TODO Add a description for this class
- */
-
-/* FIXME: this class could and should be improved.
+ * \brief Class that represents an cine file
+ * 
+ * FIXME: this class could and should be improved.
  * It handles the cine files like the previous versions of Holovibes,
  * but it does not handle all the specificities of the cine files (see link in
  * cine_file.hh).
@@ -26,7 +25,7 @@ class InputCineFile : public InputFrameFile, public CineFile
     size_t get_total_nb_frames() const override { return CineFile::get_total_nb_frames(); }
 
     /*! \brief Update Global State Holder with the settings present in the file */
-    void import_compute_settings() const override;
+    void import_compute_settings() override;
 
     /*! \brief Update Global State Holder with the settings present in the file */
     void import_info() const override;

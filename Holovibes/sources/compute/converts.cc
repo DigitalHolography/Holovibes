@@ -91,7 +91,7 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            View_PQ p = view_cache_.get_p();
+            ViewPQ p = view_cache_.get_p();
             pmin_ = p.index;
             if (p.accu_level != 0)
                 pmax_ = std::max(0,
@@ -143,9 +143,9 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            Composite_RGB rgb_struct = composite_cache_.get_rgb();
-            if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_time_transformation_size()))
+            CompositeRGB rgb_struct = composite_cache_.get_rgb();
+            if (!is_between<ushort>(rgb_struct.p.min, 0, compute_cache_.get_time_transformation_size()) ||
+                !is_between<ushort>(rgb_struct.p.max, 0, compute_cache_.get_time_transformation_size()))
                 return;
 
             if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
@@ -153,11 +153,11 @@ void Converts::insert_to_composite()
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
                     composite_cache_.get_composite_auto_weights(),
-                    rgb_struct.p_min,
-                    rgb_struct.p_max,
-                    rgb_struct.weight_r,
-                    rgb_struct.weight_g,
-                    rgb_struct.weight_b,
+                    rgb_struct.p.min,
+                    rgb_struct.p.max,
+                    rgb_struct.weight.r,
+                    rgb_struct.weight.g,
+                    rgb_struct.weight.b,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -173,9 +173,9 @@ void Converts::insert_to_composite()
                                     fd_.get_frame_res(),
                                     fd_.width,
                                     zone_cache_.get_composite_zone(),
-                                    rgb_struct.weight_r,
-                                    rgb_struct.weight_g,
-                                    rgb_struct.weight_b,
+                                    rgb_struct.weight.r,
+                                    rgb_struct.weight.g,
+                                    rgb_struct.weight.b,
                                     stream_);
         });
 }
