@@ -107,8 +107,8 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     }
     catch (const holovibes::CustomException& e)
     {
-        // If refresh() fails the compute descriptor settings will be
-        // changed to something that should make refresh() work
+        // If refresh fails the compute descriptor settings will be
+        // changed to something that should make refresh work
         // (ex: lowering the GPU memory usage)
         LOG_WARN(compute_worker, "Pipe refresh failed, trying one more time with updated compute descriptor");
         LOG_WARN(compute_worker, "Exception: {}", e.what());
@@ -131,6 +131,7 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 void Pipe::synchronize_caches_and_make_requests()
 {
+    PipeRequestOnSync::begin_requests();
     advanced_cache_.synchronize<AdvancedPipeRequestOnSync>(*this);
     compute_cache_.synchronize<ComputePipeRequestOnSync>(*this);
     import_cache_.synchronize<ImportPipeRequestOnSync>(*this);
@@ -158,19 +159,30 @@ bool Pipe::caches_has_change_requested()
 
 void Pipe::refresh()
 {
-    if (!caches_has_change_requested())
-        return;
+    // LOG_FUNC(main);
 
+    if (!caches_has_change_requested())
+    {
+        // LOG_TRACE(main, "Pipe refresh doesn't need refresh : caches already syncs");
+        return;
+    }
+
+    LOG_TRACE(main, "Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
 
-    if (GSH::instance().get_value<ComputeMode>() == Computation::Raw)
-        return;
-
     if (api::get_import_type() == ImportTypeEnum::None)
+    {
+        LOG_DEBUG(main, "Pipe refresh doesn't need refresh : no import set");
         return;
+    }
 
     if (!PipeRequestOnSync::do_need_pipe_refresh())
+    {
+        LOG_DEBUG(
+            main,
+            "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
         return;
+    }
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -267,6 +279,38 @@ void Pipe::refresh()
     // Must be the last inserted function
     insert_reset_batch_index();
 }
+
+void Pipe::run_all()
+{
+    refresh();
+
+    for (FnType& f : fn_compute_vect_)
+        f();
+    {
+        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
+        for (FnType& f : fn_end_vect_)
+            f();
+        fn_end_vect_.clear();
+    }
+}
+
+void Pipe::exec()
+{
+    while (!termination_requested_)
+    {
+        try
+        {
+            run_all();
+        }
+        catch (CustomException& e)
+        {
+            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
+            throw;
+        }
+    }
+}
+
+// Insert functions
 
 void Pipe::insert_wait_frames()
 {
@@ -468,45 +512,10 @@ void Pipe::insert_cuts_record()
     }
 }
 
-void Pipe::exec()
-{
-    if (caches_has_change_requested())
-        refresh();
-
-    while (!termination_requested_)
-    {
-        try
-        {
-            // Run the entire pipeline of calculation
-            run_all();
-
-            if (caches_has_change_requested())
-                refresh();
-        }
-        catch (CustomException& e)
-        {
-            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
-            throw;
-        }
-    }
-}
-
 void Pipe::insert_fn_end_vect(std::function<void()> function)
 {
     std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
     fn_end_vect_.push_back(function);
-}
-
-void Pipe::run_all()
-{
-    for (FnType& f : fn_compute_vect_)
-        f();
-    {
-        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-        for (FnType& f : fn_end_vect_)
-            f();
-        fn_end_vect_.clear();
-    }
 }
 
 } // namespace holovibes

@@ -88,7 +88,9 @@ class CustomParameter : public IParameter
         }
         else
         {
-            LOG_WARN(main, "Couldn't check if the value has been changed");
+            LOG_WARN(main,
+                     "Couldn't check if the value has been changed while triggering {} in a cache",
+                     typeid(T).name());
             value_ = new_value;
         }
     };

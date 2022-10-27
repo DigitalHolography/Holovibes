@@ -14,8 +14,16 @@ class PipeRequestOnSync
     inline static bool pipe_need_to_refresh = false;
 
   protected:
-    static void request_fail() { requests_fail = true; }
-    static void request_pipe_refresh() { pipe_need_to_refresh = true; }
+    static void request_fail()
+    {
+        LOG_ERROR(main, "Got a request fail in a pipe request");
+        requests_fail = true;
+    }
+    static void request_pipe_refresh()
+    {
+        LOG_DEBUG(main, "Need a pipe refresh");
+        pipe_need_to_refresh = true;
+    }
 
   public:
     static void begin_requests()
