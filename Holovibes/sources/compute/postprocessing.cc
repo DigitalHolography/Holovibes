@@ -97,7 +97,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -107,7 +107,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -117,7 +117,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_value<DivideConvolutionEnable>(),
+                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -135,7 +135,7 @@ void Postprocessing::insert_convolution()
         compute_cache_.get_value<Convolution>().get_matrix_ref().empty())
         return;
 
-    if (view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)
+    if (view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -146,7 +146,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_value<DivideConvolutionEnable>(),
+                                   compute_cache_.get_value<Convolution>().get_divide_enabled(),
                                    true,
                                    stream_);
             });
@@ -168,7 +168,7 @@ void Postprocessing::insert_renormalize()
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+            if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

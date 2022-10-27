@@ -29,7 +29,8 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
 
     frame_size_ = fd_.get_frame_size();
 
-    uintmax_t meta_data_size = std::filesystem::file_size(file_path) - (sizeof(HoloFileHeader) + holo_file_header_.total_data_size);
+    uintmax_t meta_data_size =
+        std::filesystem::file_size(file_path) - (sizeof(HoloFileHeader) + holo_file_header_.total_data_size);
 
     has_footer = meta_data_size > 0 ? true : false;
 
@@ -167,8 +168,9 @@ void InputHoloFile::import_info() const
         // Pixel are considered square
         GSH::instance().set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
     }
-    catch(std::exception&)
-    {}
+    catch (std::exception&)
+    {
+    }
 }
 
 } // namespace holovibes::io_files

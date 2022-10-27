@@ -59,6 +59,12 @@ struct CompositeRGB
     CompositeP p;
     RGBWeights weight;
 
+    uint get_red() const { return p.min; }
+    uint get_blue() const { return p.max; }
+
+    void set_red(uint _red) { p.min = _red; }
+    void set_blue(uint _blue) { p.max = _blue};
+
     SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
 };
 

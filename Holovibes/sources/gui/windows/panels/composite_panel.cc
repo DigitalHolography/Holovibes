@@ -164,13 +164,13 @@ void CompositePanel::click_composite_rgb_or_hsv()
 {
     if (ui_->radioButton_rgb->isChecked())
     {
-        api::set_composite_kind(CompositeKind::RGB);
+        api::set_composite_kind(CompositeKindEnum::RGB);
         ui_->PRedSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_min->value());
         ui_->PBlueSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_max->value());
     }
     else
     {
-        api::set_composite_kind(CompositeKind::HSV);
+        api::set_composite_kind(CompositeKindEnum::HSV);
         ui_->SpinBox_hue_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
         ui_->SpinBox_hue_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
         ui_->SpinBox_saturation_freq_min->setValue(ui_->PRedSpinBox_Composite->value());

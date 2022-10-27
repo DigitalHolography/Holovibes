@@ -1,7 +1,5 @@
 #pragma once
 
-#define UID_CONVOLUTION_TYPE_DEFAULT "None"
-
 // without namespace
 #include "tools.hh"
 

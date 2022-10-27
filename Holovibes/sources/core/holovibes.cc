@@ -87,7 +87,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         GSH::instance().set_value<PixelSize>(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
+        api::set_import_type(ImportTypeEnum::Camera);
         init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
@@ -192,7 +192,7 @@ void Holovibes::init_pipe()
     if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
     {
         output_fd.depth = 2;
-        if (GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite)
+        if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
             output_fd.depth = 6;
     }
 

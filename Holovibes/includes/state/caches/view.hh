@@ -16,7 +16,7 @@ namespace holovibes
 {
 
 //! \brief Type of the image displayed
-using ImgTypeParam = CustomParameter<ImgType, ImgType::Modulus, "img_type", ImgType>;
+using ImageType = CustomParameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>;
 using ViewAccuX = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_x">;
 using ViewAccuY = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_y">;
 using ViewAccuP = CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_p">;
@@ -45,7 +45,7 @@ using ReticleDisplayEnabled = BoolParameter<false, "reticle_display_enabled">;
 //! \brief Reticle border scale
 using ReticleScale = FloatParameter<0.5f, "reticle_scale">;
 
-using ViewCache = MicroCache<ImgTypeParam,
+using ViewCache = MicroCache<ImageType,
                              ViewAccuX,
                              ViewAccuY,
                              ViewAccuP,

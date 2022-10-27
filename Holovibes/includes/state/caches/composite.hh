@@ -14,11 +14,11 @@
 namespace holovibes
 {
 
-using CompositeKindParam = CustomParameter<CompositeKind, CompositeKind::RGB, "composite_kind", CompositeKind>;
+using CompositeKind = CustomParameter<CompositeKindEnum, CompositeKindEnum::RGB, "composite_kind", CompositeKindEnum>;
 using CompositeAutoWeights = BoolParameter<false, "composite_auto_weights">;
-using CompositeRGBParam = CustomParameter<CompositeRGB, CompositeRGB{}, "composite_rgb">;
-using CompositeHSVParam = CustomParameter<CompositeHSV, CompositeHSV{}, "CompositeHsv">;
+using CompositeRGB = CustomParameter<CompositeRGBStruct, CompositeRGBStruct{}, "composite_rgb">;
+using CompositeHSV = CustomParameter<CompositeHSVStruct, CompositeHSVStruct{}, "CompositeHsv">;
 
-using CompositeCache = MicroCache<CompositeKindParam, CompositeAutoWeights, CompositeRGBParam, CompositeHSVParam>;
+using CompositeCache = MicroCache<CompositeKind, CompositeAutoWeights, CompositeRGB, CompositeHSV>;
 
 } // namespace holovibes

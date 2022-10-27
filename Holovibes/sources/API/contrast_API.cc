@@ -6,9 +6,10 @@ namespace holovibes::api
 void set_auto_contrast_all()
 {
     // FIXME API : Need to move this outside this
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
+    // FIXME API : this code stay here
     api::get_view_xy().request_exec_auto_contrast();
     if (api::get_cuts_view_enabled())
     {

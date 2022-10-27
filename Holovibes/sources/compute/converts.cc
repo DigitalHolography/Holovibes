@@ -46,19 +46,19 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     LOG_FUNC(compute_worker, unwrap_2d_requested);
 
     insert_compute_p_accu();
-    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         insert_to_composite();
-    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::Modulus) // img type in ui : magnitude
+    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::Argument)
+    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (view_cache_.get_value<ImgTypeParam>() == ImgType::PhaseIncrease)
+    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA &&
-        view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::PCA &&
+        view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -143,12 +143,12 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            CompositeRGB rgb_struct = composite_cache_.get_value<CompositeRGBParam>();
+            CompositeRGBStruct rgb_struct = composite_cache_.get_value<CompositeRGB>();
             if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
                 !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_value<TimeTransformationSize>()))
                 return;
 
-            if (composite_cache_.get_value<CompositeKindParam>() == CompositeKind::RGB)
+            if (composite_cache_.get_value<CompositeKind>() == CompositeKindEnum::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
@@ -166,7 +166,7 @@ void Converts::insert_to_composite()
                     fd_.height,
                     stream_,
                     compute_cache_.get_value<TimeTransformationSize>(),
-                    composite_cache_.get_value<CompositeHSVParam>());
+                    composite_cache_.get_value<CompositeHSV>());
 
             if (composite_cache_.get_value<CompositeAutoWeights>())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,

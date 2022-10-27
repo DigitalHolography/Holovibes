@@ -8,21 +8,34 @@
 
 namespace holovibes
 {
-/*! \enum CompositeKind
+/*! \enum CompositeKindEnum
  *
  * \brief Represents the kind of composite image
  */
-enum class CompositeKind
+enum class CompositeKindEnum
 {
     RGB = 0, /*!< Composite in RGB */
     HSV      /*!< Composite in HSV */
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(CompositeKind, {
-    {CompositeKind::RGB, "RGB"},
-    {CompositeKind::HSV, "HSV"},
+SERIALIZE_JSON_ENUM(CompositeKindEnum, {
+    {CompositeKindEnum::RGB, "RGB"},
+    {CompositeKindEnum::HSV, "HSV"},
 })
-// clang-format on
+inline std::string composite_kind_to_string(const CompositeKindEnum in)
+{
+    return _internal::composite_kind_to_string.at(in);
+}
+
+inline CompositeKindEnum composite_kind_from_string(const std::string& in)
+{
+    return _internal::string_to_composite_kind.at(in);
+}
+
+inline std::ostream& operator<<(std::ostream& os, holovibes::CompositeKindEnum value)
+{
+    return os << _internal::composite_kind_to_string.at(value);
+}
 
 } // namespace holovibes

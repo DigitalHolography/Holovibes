@@ -3,6 +3,25 @@
 namespace holovibes
 {
 
+static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
+                                        cuda_tools::UniquePtr<float>& gpu_average_frame,
+                                        const unsigned int accumulation_level,
+                                        const camera::FrameDescriptor fd)
+{
+    // If the queue is null or the level has changed
+    if (!gpu_accumulation_queue || accumulation_level != gpu_accumulation_queue->get_max_size())
+    {
+        gpu_accumulation_queue.reset(new Queue(fd, accumulation_level));
+
+        // accumulation queue successfully allocated
+        if (!gpu_average_frame)
+        {
+            auto frame_size = gpu_accumulation_queue->get_fd().get_frame_size();
+            gpu_average_frame.resize(frame_size);
+        }
+    }
+}
+
 // FIXME API : these 3 function need to use the same function
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXY>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
@@ -10,76 +29,76 @@ void ViewPipeRequestOnSync::operator()<ViewXY>(const View_XYZ& new_value, const 
     if (new_value.get_request_clear_image_accumulation() == true)
     {
         if (new_value.is_image_accumulation_enabled())
-            image_acc_env_.gpu_accumulation_xy_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
+            pipe.get_image_acc_env().gpu_accumulation_xy_queue->clear();
+        new_value.reset_clear_image_accumulation();
     }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         if (new_value.is_image_accumulation_enabled() == false)
-            image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
+            pipe.get_image_acc_env().gpu_accumulation_xy_queue.reset(nullptr);
         else
         {
             auto new_fd = api::get_gpu_input_queue().get_fd();
             new_fd.depth =
-                GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
-            allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
-                                        image_acc_env_.gpu_float_average_xy_frame,
-                                        GSH::instance().get_value<ViewXY>().get_img_accu_level(),
+                GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
+            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
+                                        pipe.get_image_acc_env().gpu_float_average_xy_frame,
+                                        GSH::instance().get_value<ViewXY>().get_image_accumulation_level(),
                                         new_fd);
         }
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewXZ>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
 {
     if (new_value.get_request_clear_image_accumulation() == true)
     {
         if (new_value.is_image_accumulation_enabled())
-            image_acc_env_.gpu_accumulation_xz_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
+            pipe.get_image_acc_env().gpu_accumulation_xz_queue->clear();
+        new_value.reset_clear_image_accumulation();
     }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         if (new_value.is_image_accumulation_enabled() == false)
-            image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
+            pipe.get_image_acc_env().gpu_accumulation_xz_queue.reset(nullptr);
         else
         {
             auto new_fd = api::get_gpu_input_queue().get_fd();
             new_fd.depth = sizeof(float);
             new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
-            allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
-                                        image_acc_env_.gpu_float_average_xz_frame,
-                                        GSH::instance().get_value<ViewXZ>().get_img_accu_level(),
+            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
+                                        pipe.get_image_acc_env().gpu_float_average_xz_frame,
+                                        GSH::instance().get_value<ViewXZ>().get_image_accumulation_level(),
                                         new_fd);
         }
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewYZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewYZ>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
 {
     if (new_value.get_request_clear_image_accumulation() == true)
     {
         if (new_value.is_image_accumulation_enabled())
-            image_acc_env_.gpu_accumulation_yz_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
+            pipe.get_image_acc_env().gpu_accumulation_yz_queue->clear();
+        new_value.reset_clear_image_accumulation();
     }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         if (new_value.is_image_accumulation_enabled() == false)
-            image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
+            pipe.get_image_acc_env().gpu_accumulation_yz_queue.reset(nullptr);
         else
         {
             auto new_fd = api::get_gpu_input_queue().get_fd();
             new_fd.depth = sizeof(float);
             new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
-            allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
-                                        image_acc_env_.gpu_float_average_yz_frame,
-                                        GSH::instance().get_value<ViewYZ>().get_img_accu_level(),
+            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
+                                        pipe.get_image_acc_env().gpu_float_average_yz_frame,
+                                        GSH::instance().get_value<ViewYZ>().get_image_accumulation_level(),
                                         new_fd);
         }
     }

@@ -72,13 +72,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
-    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-    if (view_cache_.get_value<ImgTypeParam>() == ImgType::Composite)
+    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
@@ -111,11 +111,11 @@ void ICompute::update_time_transformation_size_resize(uint time_transformation_s
     time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::NONE)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::NONE)
         return;
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::STFT ||
-        compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::STFT ||
+        compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
     {
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {static_cast<int>(time_transformation_size)};
@@ -126,8 +126,8 @@ void ICompute::update_time_transformation_size_resize(uint time_transformation_s
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
     }
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA ||
-        compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::PCA ||
+        compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
     {
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
         time_transformation_env_.pca_cov.resize(time_transformation_size * time_transformation_size);

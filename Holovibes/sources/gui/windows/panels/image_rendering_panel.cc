@@ -87,9 +87,9 @@ void ImageRenderingPanel::on_notify()
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled() &&
-                                         api::get_divide_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
-        QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
+                                         api::get_convolution().get_divide_enabled());
+    ui_->KernelQuickSelectComboBox->setCurrentIndex(
+        ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().get_name())));
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -108,7 +108,7 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_image_mode(int mode)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (mode == static_cast<int>(Computation::Raw))
@@ -141,7 +141,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
             /* Record Frame Calculation. Only in file mode */
-            if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            if (api::get_import_type() == ImportTypeEnum::File)
                 ui_->NumberOfFramesSpinBox->setValue(
                     ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                          (float)ui_->TimeStrideSpinBox->value()));
@@ -158,8 +158,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -172,8 +171,7 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_stride()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
     uint time_stride = ui_->TimeStrideSpinBox->value();
@@ -187,7 +185,7 @@ void ImageRenderingPanel::update_time_stride()
 
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        if (api::get_import_type() == ImportTypeEnum::File)
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeStrideSpinBox->value()));
@@ -226,8 +224,7 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
@@ -238,7 +235,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    SpaceTransformation st;
+    SpaceTransformationEnum st;
 
     try
     {
@@ -282,8 +279,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
     int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
@@ -341,11 +337,11 @@ void ImageRenderingPanel::decrement_z()
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (value)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+        api::enable_convolution(api::get_convolution().get_name());
     else
         api::disable_convolution();
 
@@ -354,24 +350,24 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (!api::get_convolution().get_is_enabled())
         return;
 
-    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-
-    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    api::get_convolution().set_name(value.toStdString());
+    api::enable_convolution(api::get_convolution().get_name());
 
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
-    api::set_divide_convolution_enabled(value);
+
+    api::change_convolution()->set_divide_enabled(value);
 
     parent_->notify();
 }

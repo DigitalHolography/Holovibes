@@ -74,8 +74,8 @@ struct ViewXYZ : public ViewWindow
 
     bool operator!=(const ViewXYZ& rhs)
     {
-        return View_Window::operator!=(rhs) || flip_enabled != rhs.flip_enabled || rotation != rhs.rotation ||
-               img_accu_level != rhs.img_accu_level;
+        return View_Window::operator!=(rhs) || flip_enabled_ != rhs.flip_enabled_ || rotation_ != rhs.rotation_ ||
+               image_accumulation_level_ != rhs.image_accumulation_level_;
     }
 
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)

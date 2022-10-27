@@ -9,11 +9,11 @@
 
 namespace holovibes
 {
-/*! \enum ImgType
+/*! \enum ImageTypeEnum
  *
  * \brief Displaying type of the image
  */
-enum class ImgType
+enum class ImageTypeEnum
 {
     Modulus = 0,    /*!< Modulus of the complex data */
     SquaredModulus, /*!<  Modulus taken to its square value */
@@ -23,13 +23,20 @@ enum class ImgType
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(ImgType, {
-    {ImgType::Modulus, "MODULUS"},
-    {ImgType::SquaredModulus, "SQUAREDMODULUS"},
-    {ImgType::Argument, "ARGUMENT"},
-    {ImgType::PhaseIncrease, "PHASEINCREASE"},
-    {ImgType::Composite, "COMPOSITE"},
+SERIALIZE_JSON_ENUM(ImgTypeEnum, {
+    {ImgTypeEnum::Modulus, "MODULUS"},
+    {ImgTypeEnum::SquaredModulus, "SQUAREDMODULUS"},
+    {ImgTypeEnum::Argument, "ARGUMENT"},
+    {ImgTypeEnum::PhaseIncrease, "PHASEINCREASE"},
+    {ImgTypeEnum::Composite, "COMPOSITE"},
 })
-// clang-format on
+inline std::string img_type_to_string(ImageTypeEnum value) { return _internal::img_type_to_string.at(value); }
+
+inline ImageTypeEnum img_type_from_string(const std::string& in) { return _internal::string_to_img_type.at(in); }
+
+inline std::ostream& operator<<(std::ostream& os, holovibes::ImageTypeEnum value)
+{
+    return os << img_type_to_string(value);
+}
 
 } // namespace holovibes

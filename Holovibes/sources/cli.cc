@@ -152,7 +152,7 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     }
 
     if (holovibes::GSH::instance().get_value<holovibes::Convolution>().get_is_enabled())
-        holovibes::api::enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
+        holovibes::api::enable_convolution(holovibes::api::detail::get_value<holovibes::Convolution>().get_name());
 
     // WHY Trigger ?
     holovibes::api::detail::change_value<holovibes::TimeStride>().trigger();
@@ -187,7 +187,8 @@ static void main_loop()
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && requested_autocontrast)
+                if (progress->first >= holovibes::api::get_view_xy().get_image_accumulation_level() &&
+                    requested_autocontrast)
                 {
                     if (holovibes::api::is_current_window_xyz_type())
                         holovibes::api::change_current_window_as_view_xyz()->request_exec_auto_contrast();
@@ -209,8 +210,7 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     // FIXME check for better getters
     // Force some values
     holovibes::Holovibes::instance().is_cli = true;
-    holovibes::api::set_frame_record_mode(opts.record_raw ? holovibes::RecordMode::RAW
-                                                          : holovibes::RecordMode::HOLOGRAM);
+    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
     holovibes::GSH::instance().set_value<holovibes::ComputeMode>(opts.record_raw ? holovibes::Computation::Raw
                                                                                  : holovibes::Computation::Hologram);
 
@@ -226,8 +226,8 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && holovibes::api::get_view_xy().is_img_accu_enabled())
-        nb_frames_skip = holovibes::api::get_view_xy().get_img_accu_level();
+    if (!opts.noskip_acc && holovibes::api::get_view_xy().is_image_accumulation_enabled())
+        nb_frames_skip = holovibes::api::get_view_xy().get_image_accumulation_level();
 
     holovibes::Holovibes::instance().start_frame_record(opts.output_path.value(),
                                                         record_nb_frames,

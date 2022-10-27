@@ -14,13 +14,13 @@ class CompositePipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<CompositeRGBParam>(const CompositeRGB&, const CompositeRGB&, Pipe& pipe)
+    void operator()<CompositeRGB>(const CompositeRGBStruct&, const CompositeRGBStruct&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<CompositeHSVParam>(const CompositeHSV&, const CompositeHSV&, Pipe& pipe)
+    void operator()<CompositeHSV>(const CompositeHSVStruct&, const CompositeHSVStruct&, Pipe& pipe)
     {
         request_pipe_refresh();
     }

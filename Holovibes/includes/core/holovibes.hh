@@ -20,7 +20,7 @@
 #include "common.cuh"
 
 // Enum
-#include "enum_camera_kind.hh"
+#include "import_struct.hh"
 #include "enum_record_mode.hh"
 
 // Threads priority

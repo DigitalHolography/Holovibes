@@ -4,8 +4,8 @@
 
 namespace holovibes::api
 {
-inline ImgType get_img_type() { return api::detail::get_value<ImgTypeParam>(); }
-inline void set_img_type(ImgType _img_type) { return api::detail::set_value<ImgTypeParam>(_img_type); }
+inline ImageTypeEnum get_image_type() { return api::detail::get_value<ImageType>(); }
+inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<ImageType>(value); }
 
 inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnabled>(); }
 inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }

@@ -120,7 +120,7 @@ void RainbowOverlay::setBuffer()
 
     int red;
     int blue;
-    if (api::get_composite_kind() == CompositeKind::RGB)
+    if (api::get_composite_kind() == CompositeKindEnum::RGB)
     {
         red = api::get_composite_rgb().get_red();
         blue = api::get_composite_rgb().get_blue();
@@ -193,17 +193,19 @@ void RainbowOverlay::move(QMouseEvent* e)
     zone_.setDst(getMousePos(e->pos()));
     if (parent_->getKindOfView() == KindOfView::SliceYZ)
     {
-        if (api::get_composite_kind() == CompositeKind::RGB)
+        if (api::get_composite_kind() == CompositeKindEnum::RGB)
             api::change_composite_rgb()->set_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
         else
-            api::change_composite_hsv()->get_h().set_p(check_interval(zone_.src().x()), check_interval(zone_.dst().x()));
+            api::change_composite_hsv()->get_h().set_p(check_interval(zone_.src().x()),
+                                                       check_interval(zone_.dst().x()));
     }
     else
     {
-        if (api::get_composite_kind() == CompositeKind::RGB)
+        if (api::get_composite_kind() == CompositeKindEnum::RGB)
             api::change_composite_rgb()->set_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
         else
-            api::change_composite_hsv()->get_h().set_p(check_interval(zone_.src().y()), check_interval(zone_.dst().y()));
+            api::change_composite_hsv()->get_h().set_p(check_interval(zone_.src().y()),
+                                                       check_interval(zone_.dst().y()));
     }
 }
 

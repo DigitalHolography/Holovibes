@@ -68,16 +68,16 @@ void FourierTransform::insert_fft()
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation
-        if (compute_cache_.get_value<SpaceTransformationParam>() != SpaceTransformation::FFT2)
+        if (compute_cache_.get_value<SpaceTransformation>() != SpaceTransformationEnum::FFT2)
             insert_filter2d();
     }
 
-    if (compute_cache_.get_value<SpaceTransformationParam>() == SpaceTransformation::FFT1)
+    if (compute_cache_.get_value<SpaceTransformation>() == SpaceTransformationEnum::FFT1)
         insert_fft1();
-    else if (compute_cache_.get_value<SpaceTransformationParam>() == SpaceTransformation::FFT2)
+    else if (compute_cache_.get_value<SpaceTransformation>() == SpaceTransformationEnum::FFT2)
         insert_fft2();
-    if (compute_cache_.get_value<SpaceTransformationParam>() == SpaceTransformation::FFT1 ||
-        compute_cache_.get_value<SpaceTransformationParam>() == SpaceTransformation::FFT2)
+    if (compute_cache_.get_value<SpaceTransformation>() == SpaceTransformationEnum::FFT1 ||
+        compute_cache_.get_value<SpaceTransformation>() == SpaceTransformationEnum::FFT2)
         fn_compute_vect_.push_back([=]() { enqueue_lens(); });
 }
 
@@ -189,7 +189,7 @@ void FourierTransform::enqueue_lens()
 
         // For optimisation purposes, when FFT2 is activated, lens is shifted
         // We have to shift it again to ensure a good display
-        if (compute_cache_.get_value<SpaceTransformationParam>() == SpaceTransformation::FFT2)
+        if (compute_cache_.get_value<SpaceTransformation>() == SpaceTransformationEnum::FFT2)
             shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.get_frame_res(), stream_);
@@ -200,19 +200,19 @@ void FourierTransform::insert_time_transform()
 {
     LOG_FUNC(compute_worker);
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::STFT)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::STFT)
     {
         insert_stft();
     }
-    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA)
+    else if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::PCA)
     {
         insert_pca();
     }
-    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
+    else if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
     {
         insert_ssa_stft();
     }
-    else // TimeTransformation::None
+    else // TimeTransformationEnum::None
     {
         // Just copy data to the next buffer
         fn_compute_vect_.conditional_push_back(
@@ -403,9 +403,9 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_value<TimeTransformationSize>(),
-                                                   view_cache_.get_value<ViewXZ>().get_img_accu_level(),
-                                                   view_cache_.get_value<ViewYZ>().get_img_accu_level(),
-                                                   view_cache_.get_value<ImgTypeParam>(),
+                                                   view_cache_.get_value<ViewXZ>().get_image_accumulation_level(),
+                                                   view_cache_.get_value<ViewYZ>().get_image_accumulation_level(),
+                                                   view_cache_.get_value<ImageType>(),
                                                    stream_);
                 }
             }

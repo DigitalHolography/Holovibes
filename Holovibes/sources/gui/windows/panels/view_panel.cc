@@ -62,10 +62,10 @@ void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
+    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_image_type()));
 
-    ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
-                                           api::get_img_type() == ImgType::Argument);
+    ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_image_type() == ImageTypeEnum::PhaseIncrease ||
+                                           api::get_image_type() == ImageTypeEnum::Argument);
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
@@ -113,7 +113,7 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().get_img_accu_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().get_image_accumulation_level());
 
         ui_->RotatePushButton->setText(
             ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().get_rotation()))).c_str());
@@ -129,7 +129,7 @@ void ViewPanel::on_notify()
 
     ui_->PAccSpinBox->setValue(api::get_view_accu_p().accu_level);
     ui_->PSpinBox->setValue(api::get_view_accu_p().index);
-    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
+    ui_->PAccSpinBox->setEnabled(api::get_image_type() != ImageTypeEnum::PhaseIncrease);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
@@ -139,7 +139,7 @@ void ViewPanel::on_notify()
     ui_->PSpinBox->setEnabled(!is_raw);
 
     // q accu
-    bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
+    bool is_ssa_stft = api::get_time_transformation() == TimeTransformationEnum::SSA_STFT;
     ui_->Q_AccSpinBox->setVisible(is_ssa_stft && !is_raw);
     ui_->Q_SpinBox->setVisible(is_ssa_stft && !is_raw);
     ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
@@ -213,7 +213,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (checked)
@@ -269,7 +269,7 @@ void ViewPanel::set_fft_shift(const bool value)
 
 void ViewPanel::update_lens_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     api::set_lens_view(checked, parent_->auxiliary_window_max_size);
@@ -277,7 +277,7 @@ void ViewPanel::update_lens_view(bool checked)
 
 void ViewPanel::update_raw_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (checked && api::get_batch_size() > api::get_output_buffer_size())
@@ -411,7 +411,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::change_current_window_as_view_xyz()->set_img_accu_level(value);
+    api::change_current_window_as_view_xyz()->set_image_accumulation_level(value);
 }
 
 void ViewPanel::set_contrast_mode(bool value)

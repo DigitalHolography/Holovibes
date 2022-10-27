@@ -93,29 +93,28 @@ void ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+    else if (api::get_record_mode() == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -153,18 +152,37 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->insert(filename);
 }
 
+static void set_record_mode_in_api_from_text(const std::string& text)
+{
+    LOG_FUNC(main, text);
+
+    // FIXME API : Maybe a map
+
+    // TODO: Dictionnary
+    if (text == "Chart")
+        api::set_record_mode(RecordMode::CHART);
+    else if (text == "Processed Image")
+        api::set_record_mode(RecordMode::HOLOGRAM);
+    else if (text == "Raw Image")
+        api::set_record_mode(RecordMode::RAW);
+    else if (text == "3D Cuts XZ")
+        api::set_record_mode(RecordMode::CUTS_XZ);
+    else if (text == "3D Cuts YZ")
+        api::set_record_mode(RecordMode::CUTS_YZ);
+    else
+        throw std::exception("Record mode not handled");
+}
+
 void ExportPanel::set_record_mode(const QString& value)
 {
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
     stop_record();
 
-    const std::string text = value.toStdString();
+    set_record_mode_in_api_from_text(value.toStdString());
 
-    api::set_record_mode(text);
-
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
     {
         ui_->RecordExtComboBox->clear();
         ui_->RecordExtComboBox->insertItem(0, ".csv");
@@ -183,20 +201,19 @@ void ExportPanel::set_record_mode(const QString& value)
     }
     else
     {
-        if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+        if (api::get_record_mode() == RecordMode::RAW)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ ||
-                 UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ)
+        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
@@ -275,7 +292,7 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]()
+    auto callback = [record_mode = api::get_record_mode(), this]()
     { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
     api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);

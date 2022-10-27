@@ -20,10 +20,14 @@ using BatchSize = IntParameter<1, "batch_size">;
 using TimeStride = IntParameter<1, "time_stride">;
 using Lambda = FloatParameter<852e-9f, "lambda">;
 using TimeTransformationSize = UIntParameter<1, "time_transformation_size">;
-using SpaceTransformationParam =
-    CustomParameter<SpaceTransformation, SpaceTransformation::NONE, "space_transformation", SpaceTransformation>;
-using TimeTransformationParam =
-    CustomParameter<TimeTransformation, TimeTransformation::NONE, "time_transformation", TimeTransformation>;
+using SpaceTransformation = CustomParameter<SpaceTransformationEnum,
+                                            SpaceTransformationEnum::NONE,
+                                            "space_transformation",
+                                            SpaceTransformationEnum>;
+using TimeTransformation = CustomParameter<TimeTransformationEnum,
+                                           TimeTransformationEnum::NONE,
+                                           "time_transformation",
+                                           TimeTransformationEnum>;
 using ZDistance = FloatParameter<1.50f, "z_distance">;
 using Convolution = CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">;
 using InputFps = UIntParameter<60, "input_fps">;
@@ -39,8 +43,8 @@ using ComputeCache = MicroCache<BatchSize,
                                 TimeStride,
                                 Lambda,
                                 TimeTransformationSize,
-                                SpaceTransformationParam,
-                                TimeTransformationParam,
+                                SpaceTransformation,
+                                TimeTransformation,
                                 ZDistance,
                                 Convolution,
                                 InputFps,

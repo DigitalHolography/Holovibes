@@ -173,13 +173,13 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
 
     if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
     {
-        api::set_frame_record_mode(record_mode_);
+        api::set_record_mode(record_mode_);
         while (api::get_compute_pipe().get_export_cache().has_change_requested())
             continue;
     }
     else if (record_mode_ == RecordMode::CUTS_XZ || record_mode_ == RecordMode::CUTS_YZ)
     {
-        api::set_frame_record_mode(record_mode_);
+        api::set_record_mode(record_mode_);
         while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
             continue;
     }

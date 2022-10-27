@@ -4,7 +4,7 @@
 
 namespace holovibes
 {
-class ComputePipeRequestOnSync : public PipeRequestOnSync
+class ImportPipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>

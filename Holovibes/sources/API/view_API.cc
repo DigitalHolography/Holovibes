@@ -60,7 +60,7 @@ void refresh_view_mode(ushort window_size, uint index)
     api::close_windows();
     api::close_critical_compute();
 
-    set_img_type(static_cast<ImgType>(index));
+    set_image_type(static_cast<ImageTypeEnum>(index));
 
     try
     {
@@ -78,7 +78,7 @@ void refresh_view_mode(ushort window_size, uint index)
 
 void set_view_mode(const std::string& value, std::function<void()> callback)
 {
-    UserInterfaceDescriptor::instance().last_img_type_ = value;
+    api::detail::set_value<LastImageType>(value);
     get_compute_pipe().insert_fn_end_vect(callback);
     api::get_view_xy().request_exec_auto_contrast();
 }

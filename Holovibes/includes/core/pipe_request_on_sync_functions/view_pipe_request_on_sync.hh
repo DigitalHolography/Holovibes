@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pipe_request_on_sync.hh"
+#include "view_struct.hh"
 
 namespace holovibes
 {
@@ -41,25 +42,25 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     }
 
     template <>
-    void operator()<ViewAccuX>(const View_Accu_XY&, const View_Accu_XY&, Pipe& pipe)
+    void operator()<ViewAccuX>(const View_XY&, const View_XY&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuY>(const View_Accu_XY&, const View_Accu_XY&, Pipe& pipe)
+    void operator()<ViewAccuY>(const View_XY&, const View_XY&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuP>(const View_Accu_PQ&, const View_Accu_PQ&, Pipe& pipe)
+    void operator()<ViewAccuP>(const View_PQ&, const View_PQ&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuQ>(const View_Accu_PQ&, const View_Accu_PQ&, Pipe& pipe)
+    void operator()<ViewAccuQ>(const View_PQ&, const View_PQ&, Pipe& pipe)
     {
         request_pipe_refresh();
     }

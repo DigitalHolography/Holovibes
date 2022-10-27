@@ -9,11 +9,11 @@
 
 namespace holovibes
 {
-/*! \enum TimeTransformation
+/*! \enum TimeTransformationEnum
  *
  * \brief Time transformation algorithm to apply
  */
-enum class TimeTransformation
+enum class TimeTransformationEnum
 {
     STFT = 0, /*!< Short-time Fourier transformation */
     PCA,      /*!< Principal component analysis */
@@ -22,13 +22,28 @@ enum class TimeTransformation
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(TimeTransformation, {
-    {TimeTransformation::STFT, "STFT"},
-    {TimeTransformation::PCA, "PCA"},
-    {TimeTransformation::NONE, "NONE"},
-    {TimeTransformation::SSA_STFT, "SSA_STFT"},
+SERIALIZE_JSON_ENUM(TimeTransformationEnum, {
+    {TimeTransformationEnum::STFT, "STFT"},
+    {TimeTransformationEnum::PCA, "PCA"},
+    {TimeTransformationEnum::NONE, "NONE"},
+    {TimeTransformationEnum::SSA_STFT, "SSA_STFT"},
     {TimeTransformation::NONE, "None"}, // Compat
 
-})
-// clang-format on
+});
+
+inline std::string time_transformation_to_string(TimeTransformationEnum value)
+{
+    return _internal::time_transform_to_string.at(value);
+}
+
+inline TimeTransformationEnum time_transformation_from_string(const std::string& in)
+{
+    return _internal::string_to_time_transform.at(in);
+}
+
+inline std::ostream& operator<<(std::ostream& os, holovibes::TimeTransformationEnum value)
+{
+    return os << time_transformation_to_string(value);
+}
+
 } // namespace holovibes

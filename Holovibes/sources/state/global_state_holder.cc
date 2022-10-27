@@ -15,8 +15,7 @@ GSH::GSH()
                         filter2d_cache_,
                         view_cache_,
                         zone_cache_,
-                        file_read_cache_,
-                        request_cache_)
+                        file_read_cache_)
 {
     set_caches_as_refs();
 }

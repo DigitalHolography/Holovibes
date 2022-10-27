@@ -43,27 +43,6 @@ void ImageAccumulation::insert_image_accumulation()
     insert_copy_accumulation_result();
 }
 
-void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
-                                                    cuda_tools::UniquePtr<float>& gpu_average_frame,
-                                                    const unsigned int accumulation_level,
-                                                    const camera::FrameDescriptor fd)
-{
-    LOG_FUNC(compute_worker, accumulation_level);
-
-    // If the queue is null or the level has changed
-    if (!gpu_accumulation_queue || accumulation_level != gpu_accumulation_queue->get_max_size())
-    {
-        gpu_accumulation_queue.reset(new Queue(fd, accumulation_level));
-
-        // accumulation queue successfully allocated
-        if (!gpu_average_frame)
-        {
-            auto frame_size = gpu_accumulation_queue->get_fd().get_frame_size();
-            gpu_average_frame.resize(frame_size);
-        }
-    }
-}
-
 void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation_queue,
                                         float* gpu_input_frame,
                                         float* gpu_ouput_average_frame,
@@ -95,27 +74,27 @@ void ImageAccumulation::insert_compute_average()
     auto compute_average_lambda = [&]()
     {
         // XY view
-        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_value<ViewXY>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_value<ViewXY>().is_image_accumulation_enabled())
             compute_average(image_acc_env_.gpu_accumulation_xy_queue,
                             buffers_.gpu_postprocess_frame.get(),
                             image_acc_env_.gpu_float_average_xy_frame.get(),
-                            view_cache_.get_value<ViewXY>().img_accu_level,
+                            view_cache_.get_value<ViewXY>().get_image_accumulation_level(),
                             buffers_.gpu_postprocess_frame_size);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_value<ViewXZ>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_value<ViewXZ>().is_image_accumulation_enabled())
             compute_average(image_acc_env_.gpu_accumulation_xz_queue,
                             buffers_.gpu_postprocess_frame_xz.get(),
                             image_acc_env_.gpu_float_average_xz_frame,
-                            view_cache_.get_value<ViewXZ>().img_accu_level,
+                            view_cache_.get_value<ViewXZ>().get_image_accumulation_level(),
                             image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_res());
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_value<ViewYZ>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_value<ViewYZ>().is_image_accumulation_enabled())
             compute_average(image_acc_env_.gpu_accumulation_yz_queue,
                             buffers_.gpu_postprocess_frame_yz.get(),
                             image_acc_env_.gpu_float_average_yz_frame,
-                            view_cache_.get_value<ViewYZ>().img_accu_level,
+                            view_cache_.get_value<ViewYZ>().get_image_accumulation_level(),
                             image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_res());
     };
 
@@ -129,7 +108,7 @@ void ImageAccumulation::insert_copy_accumulation_result()
     auto copy_accumulation_result = [&]()
     {
         // XY view
-        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_value<ViewXY>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_value<ViewXY>().is_image_accumulation_enabled())
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                              image_acc_env_.gpu_float_average_xy_frame,
                              image_acc_env_.gpu_accumulation_xy_queue->get_fd().get_frame_size(),
@@ -137,7 +116,7 @@ void ImageAccumulation::insert_copy_accumulation_result()
                              stream_);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_value<ViewXZ>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_value<ViewXZ>().is_image_accumulation_enabled())
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz,
                              image_acc_env_.gpu_float_average_xz_frame,
                              image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_size(),
@@ -145,7 +124,7 @@ void ImageAccumulation::insert_copy_accumulation_result()
                              stream_);
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_value<ViewYZ>().img_accu_level > 1)
+        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_value<ViewYZ>().is_image_accumulation_enabled())
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz,
                              image_acc_env_.gpu_float_average_yz_frame,
                              image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_size(),

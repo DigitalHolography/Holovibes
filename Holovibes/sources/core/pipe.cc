@@ -139,7 +139,6 @@ void Pipe::synchronize_caches_and_make_requests()
     filter2d_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
     view_cache_.synchronize<ViewPipeRequestOnSync>(*this);
     zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
-    request_cache_.synchronize<RequestPipeRequestOnSync>(*this);
 
     if (PipeRequestOnSync::has_requests_fail())
     {
@@ -154,8 +153,7 @@ bool Pipe::caches_has_change_requested()
     return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested() ||
            export_cache_.has_change_requested() || import_cache_.has_change_requested() ||
            filter2d_cache_.has_change_requested() || view_cache_.has_change_requested() ||
-           zone_cache_.has_change_requested() || composite_cache_.has_change_requested() ||
-           request_cache_.has_change_requested();
+           zone_cache_.has_change_requested() || composite_cache_.has_change_requested();
 }
 
 void Pipe::refresh()
@@ -165,10 +163,10 @@ void Pipe::refresh()
 
     synchronize_caches_and_make_requests();
 
-    if (GSH::get_value<ComputeMode> == Computation::Raw)
+    if (GSH::instance().get_value<ComputeMode>() == Computation::Raw)
         return;
 
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     if (!PipeRequestOnSync::do_need_pipe_refresh())

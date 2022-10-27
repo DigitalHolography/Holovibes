@@ -18,8 +18,6 @@ void start_record(const bool batch_enabled,
                   std::string& batch_input_path,
                   std::function<void()> callback);
 
-void set_record_mode(const std::string& text);
-
 void stop_record();
 
 const std::string browse_record_output_file(std::string& std_filepath);
