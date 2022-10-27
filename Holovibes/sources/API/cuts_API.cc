@@ -7,7 +7,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
 {
     try
     {
-        api::detail::set_value<TimeTransformationCuts>(true);
+        api::detail::set_value<TimeTransformationCutsEnable>(true);
         // set positions of new windows according to the position of the
         // main GL window
         QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
@@ -15,7 +15,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
 
-        while (ComputeCache::RefSingleton::has_change())
+        while (api::get_compute_pipe().get_composite_cache().has_change_requested())
             continue;
 
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
@@ -41,9 +41,6 @@ bool set_3d_cuts_view(uint time_transformation_size)
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
-
-        pipe_refresh();
-
         return true;
     }
     catch (const std::logic_error& e)
@@ -68,8 +65,6 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
     api::get_compute_pipe().insert_fn_end_vect(callback);
 
-    // Refresh pipe to remove cuts linked lambda from pipe
-    pipe_refresh();
     api::set_cuts_view_enabled(false);
 }
 

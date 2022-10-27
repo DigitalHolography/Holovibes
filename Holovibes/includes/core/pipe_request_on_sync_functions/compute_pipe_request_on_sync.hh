@@ -26,6 +26,6 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     void operator()<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
 
     template <>
-    void operator()<TimeTransformationCuts>(bool new_value, bool old_value, Pipe& pipe);
+    void operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe);
 };
 } // namespace holovibes

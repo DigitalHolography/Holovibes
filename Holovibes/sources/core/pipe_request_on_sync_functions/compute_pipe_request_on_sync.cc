@@ -1,5 +1,3 @@
-#pragma once
-
 #include "API.hh"
 
 namespace holovibes
@@ -10,7 +8,7 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, int old_valu
     LOG_TRACE(compute_worker, "UPDATE BatchSize");
 
     pipe.update_spatial_transformation_parameters();
-    pipe.get_gpu_input_queue().resize(new_value.get_value());
+    pipe.get_gpu_input_queue().resize(new_value);
 }
 
 template <>
@@ -18,7 +16,7 @@ void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, int old_val
 {
     LOG_TRACE(compute_worker, "UPDATE TimeStride");
 
-    batch_env_.batch_index = 0;
+    pipe.get_batch_env().batch_index = 0;
 }
 
 template <>
@@ -26,14 +24,13 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 {
     LOG_TRACE(compute_worker, "UPDATE TimeTransformationSize");
 
-    if (!pipe.update_time_transformation_size(compute_cache_.get_value<TimeTransformationSize>()))
+    if (!pipe.update_time_transformation_size(pipe.get_compute_cache().get_value<TimeTransformationSize>()))
     {
-        // WTF
-        success_allocation = false;
+        request_fail();
 
         GSH::instance().change_value<ViewAccuP>()->set_index(0);
         GSH::instance().set_value<TimeTransformationSize>(1);
-        update_time_transformation_size(1);
+        pipe.update_time_transformation_size(1);
         LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
     }
 }
@@ -49,13 +46,13 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
         return;
 
     if (new_value.get_is_enabled() == false)
-        postprocess_->dispose();
+        pipe.get_postprocess().dispose();
     else if (new_value.get_is_enabled() == true)
-        postprocess_->init();
+        pipe.get_postprocess().init();
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<TimeTransformationCuts>(bool new_value, bool old_value, Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE Convolution");
 

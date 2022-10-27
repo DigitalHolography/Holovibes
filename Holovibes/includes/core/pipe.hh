@@ -90,13 +90,7 @@ class Pipe : public ICompute
     void refresh();
 
   protected:
-    /*! \brief Make requests at the beginning of the refresh.
-     *
-     * Make the allocation of buffers when it is requested.
-     *
-     * \return return false if an allocation failed.
-     */
-    bool synchronize_caches_and_make_requests();
+    void synchronize_caches_and_make_requests();
 
   private:
     /*! \brief Iterates and executes function of the pipe.

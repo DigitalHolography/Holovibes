@@ -53,7 +53,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_value<ConvolutionMatrix>().data(),
+                                   GSH::instance().get_value<Convolution>().get_matrix_ref().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -131,7 +131,8 @@ void Postprocessing::insert_convolution()
 {
     LOG_FUNC(compute_worker);
 
-    if (!compute_cache_.get_value<ConvolutionEnabled>() || compute_cache_.get_value<ConvolutionMatrix>().empty())
+    if (compute_cache_.get_value<Convolution>().get_is_enabled() == false ||
+        compute_cache_.get_value<Convolution>().get_matrix_ref().empty())
         return;
 
     if (view_cache_.get_value<ImgTypeParam>() != ImgType::Composite)

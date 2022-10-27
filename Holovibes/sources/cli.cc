@@ -171,7 +171,7 @@ static void main_loop()
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().get_contrast_auto_refresh();
 
-    while (holovibes::GSH::instance().get_value<holovibes::FrameRecordMode>())
+    while (holovibes::GSH::instance().get_value<holovibes::FrameRecordMode>().is_enable())
     {
         if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
@@ -190,7 +190,7 @@ static void main_loop()
                 if (progress->first >= holovibes::api::get_view_xy().get_img_accu_level() && requested_autocontrast)
                 {
                     if (holovibes::api::is_current_window_xyz_type())
-                        holovibes::api::change_current_window_as_view_xyz().request_exec_auto_contrast();
+                        holovibes::api::change_current_window_as_view_xyz()->request_exec_auto_contrast();
                     requested_autocontrast = false;
                 }
             }
@@ -237,7 +237,7 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
 
     // FIXME : this is a dangerous hack need to be changed
     // The following while ensure the record has been requested by the thread previously launched.
-    while (!holovibes::ExportCache::RefSingleton::has_change())
+    while (!holovibes::api::get_compute_pipe().get_export_cache().has_change_requested())
         continue;
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.

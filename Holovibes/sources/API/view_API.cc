@@ -13,14 +13,6 @@ void display_reticle(bool value)
     }
     else
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
-
-    pipe_refresh();
-}
-
-void reticle_scale(float value)
-{
-    set_reticle_scale(value);
-    pipe_refresh();
 }
 
 void create_holo_window(ushort window_size)
@@ -87,21 +79,16 @@ void refresh_view_mode(ushort window_size, uint index)
 void set_view_mode(const std::string& value, std::function<void()> callback)
 {
     UserInterfaceDescriptor::instance().last_img_type_ = value;
-
     get_compute_pipe().insert_fn_end_vect(callback);
-    pipe_refresh();
-
-    // Force XYview autocontrast
     api::get_view_xy().request_exec_auto_contrast();
-    // Force cuts views autocontrast if needed
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
     if (checked)
     {
-        get_compute_pipe().request_filter2d_view();
-        while (get_compute_pipe().get_filter2d_view_requested())
+        api::detail::set_value<Filter2DViewEnabled>(true);
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
 
         const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
@@ -116,22 +103,21 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window.reset(
             new gui::Filter2DWindow(pos,
                                     QSize(filter2d_window_width, filter2d_window_height),
-                                    get_compute_pipe().get_filter2d_view_queue().get()));
+                                    get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         GSH::instance().change_value<Filter2D>()->set_log_scale_slice_enabled(true);
-        api::get_view_filter_2d().request_exec_auto_contrast();
+        api::get_view_filter2d().request_exec_auto_contrast();
     }
     else
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-        get_compute_pipe().request_disable_filter2d_view();
-        while (get_compute_pipe().get_disable_filter2d_view_requested())
+
+        api::detail::set_value<Filter2DViewEnabled>(false);
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
     }
-
-    pipe_refresh();
 }
 
 void set_filter2d(bool checked)

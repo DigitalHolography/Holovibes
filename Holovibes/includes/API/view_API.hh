@@ -53,7 +53,6 @@ inline float get_reticle_scale() { return api::detail::get_value<ReticleScale>()
 inline void set_reticle_scale(float value) { api::detail::set_value<ReticleScale>(value); }
 
 void display_reticle(bool value);
-void reticle_scale(float value);
 
 void create_holo_window(ushort window_size);
 // TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like

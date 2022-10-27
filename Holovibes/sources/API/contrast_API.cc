@@ -16,8 +16,6 @@ void set_auto_contrast_all()
     }
     if (api::get_filter2d_view_enabled())
         api::get_view_filter2d().request_exec_auto_contrast();
-
-    pipe_refresh();
 }
 
 bool set_auto_contrast()
@@ -43,18 +41,13 @@ static float get_truncate_contrast_min(const int precision = 2)
     return std::round(value * multiplier) / multiplier;
 }
 
-void set_current_window_contrast_min(const double value)
+void set_current_window_contrast_min(const float value)
 {
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
-    if (old_val != val)
-    {
+    if (old_val != value)
         api::change_current_window()->set_contrast_min(get_current_window().log_scale_slice_enabled ? value
                                                                                                     : pow(10, value));
-        pipe_refresh();
-    }
 }
 
 static float get_truncate_contrast_max(const int precision = 2)
@@ -64,18 +57,13 @@ static float get_truncate_contrast_max(const int precision = 2)
     return std::round(value * multiplier) / multiplier;
 }
 
-void set_current_window_contrast_max(const double value)
+void set_current_window_contrast_max(const float value)
 {
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
-    if (old_val != val)
-    {
+    if (old_val != value)
         api::change_current_window()->set_contrast_max(get_current_window().log_scale_slice_enabled ? value
                                                                                                     : pow(10, value));
-        pipe_refresh();
-    }
 }
 
 } // namespace holovibes::api

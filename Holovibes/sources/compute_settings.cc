@@ -57,7 +57,6 @@ void load_compute_settings(const std::string& json_path)
     LOG_INFO(main, "Compute settings loaded from : {}", json_path);
 
     after_load_checks();
-    pipe_refresh();
 }
 
 // clang-format off

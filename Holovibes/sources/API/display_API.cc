@@ -22,13 +22,13 @@ const View_Window& get_window(WindowKind kind)
 TriggerChangeValue<View_Window> change_window(WindowKind kind)
 {
     if (kind == WindowKind::XYview)
-        return GSH::instance().get_view_cache().change_value<ViewXY>();
+        return static_cast<TriggerChangeValue<View_Window>>(GSH::instance().get_view_cache().change_value<ViewXY>());
     else if (kind == WindowKind::XZview)
-        return GSH::instance().get_view_cache().change_value<ViewXZ>();
+        return static_cast<TriggerChangeValue<View_Window>>(GSH::instance().get_view_cache().change_value<ViewXZ>());
     else if (kind == WindowKind::YZview)
-        return GSH::instance().get_view_cache().change_value<ViewYZ>();
+        return static_cast<TriggerChangeValue<View_Window>>(GSH::instance().get_view_cache().change_value<ViewYZ>());
     else if (kind == WindowKind::Filter2D)
-        return GSH::instance().get_view_cache().change_value<Filter2D>();
+        return static_cast<TriggerChangeValue<View_Window>>(GSH::instance().get_view_cache().change_value<Filter2D>());
 
     throw std::runtime_error("Unexpected WindowKind");
     return TriggerChangeValue<View_Window>([]() {}, nullptr);
@@ -38,11 +38,11 @@ void start_chart_display()
 {
     GSH::instance().set_value<ChartDisplayEnabled>(true);
     // Wait for the chart display to be enabled for notify
-    while (ViewCache::RefSingleton::has_change())
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
         continue;
 
     UserInterfaceDescriptor::instance().plot_window_ =
-        std::make_unique<gui::PlotWindow>(*api::get_compute_pipe().get_chart_display_queue(),
+        std::make_unique<gui::PlotWindow>(*api::get_compute_pipe().get_chart_display_queue_ptr(),
                                           UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
                                           "Chart");
 }
@@ -51,7 +51,7 @@ void stop_chart_display()
 {
     GSH::instance().set_value<ChartDisplayEnabled>(false);
     // Wait for the chart display to be disabled for notify
-    while (ViewCache::RefSingleton::has_change())
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
         continue;
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
@@ -75,7 +75,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     if (checked)
     {
         GSH::instance().set_value<RawViewEnabled>(true);
-        while (ViewCache::RefSingleton::has_change())
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
 
         const ::camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
@@ -90,7 +90,7 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().raw_window.reset(
             new gui::RawWindow(pos,
                                QSize(raw_window_width, raw_window_height),
-                               get_compute_pipe().get_raw_view_queue().get()));
+                               get_compute_pipe().get_raw_view_queue_ptr().get()));
 
         UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
     }
@@ -99,11 +99,9 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
         GSH::instance().set_value<RawViewEnabled>(false);
-        while (ViewCache::RefSingleton::has_change())
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
     }
-
-    pipe_refresh();
 }
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
@@ -147,10 +145,8 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
 
         GSH::instance().set_value<LensViewEnabled>(false);
-        while (ViewCache::RefSingleton::has_change())
+        while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
-
-        pipe_refresh();
     }
 }
 

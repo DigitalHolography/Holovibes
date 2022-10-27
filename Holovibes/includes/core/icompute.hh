@@ -25,15 +25,6 @@ class ICompute
     virtual ~ICompute();
 
   public:
-    BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
-    Queue& gpu_output_queue() { return gpu_output_queue_; }
-    CoreBuffersEnv& get_buffers() { return buffers_; }
-    BatchEnv& get_batch_env() { return batch_env_; }
-    TimeTransformationEnv& get_time_transformation_env() { return time_transformation_env_; }
-    FrameRecordEnv& get_frame_record_env() { return frame_record_env_; }
-    ChartEnv& get_chart_env() { return chart_env_; }
-    ImageAccEnv& get_image_acc_env() { return image_acc_env_; }
-
     AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
     ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
     ExportCache::Cache& get_export_cache() { return export_cache_; }
@@ -42,6 +33,15 @@ class ICompute
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
     RequestCache::Cache& get_unknown_cache() { return request_cache_; }
+
+    BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
+    Queue& get_gpu_output_queue() { return gpu_output_queue_; }
+    CoreBuffersEnv& get_buffers() { return buffers_; }
+    BatchEnv& get_batch_env() { return batch_env_; }
+    TimeTransformationEnv& get_time_transformation_env() { return time_transformation_env_; }
+    FrameRecordEnv& get_frame_record_env() { return frame_record_env_; }
+    ChartEnv& get_chart_env() { return chart_env_; }
+    ImageAccEnv& get_image_acc_env() { return image_acc_env_; }
 
     std::unique_ptr<Queue>& get_raw_view_queue_ptr() { return gpu_raw_view_queue_; }
     std::unique_ptr<Queue>& get_filter2d_view_queue_ptr() { return gpu_filter2d_view_queue_; }
@@ -55,9 +55,9 @@ class ICompute
     }
     std::unique_ptr<Queue>& get_frame_record_queue_ptr() { return frame_record_env_.gpu_frame_record_queue_; }
 
-  public:
-    void request_refresh();
+    void request_termination() { termination_requested_ = true; }
 
+  public:
     /*! \brief Execute one iteration of the ICompute.
      *
      * Checks the number of frames in input queue that must at least time_transformation_size.
@@ -70,13 +70,15 @@ class ICompute
      */
     virtual void exec() = 0;
 
-    void create_stft_slice_queue();
-    void delete_stft_slice_queue();
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
 
   public:
-    bool update_time_transformation_size(const unsigned short time_transformation_size);
+    bool update_time_transformation_size(uint time_transformation_size);
 
+  private:
+    void update_time_transformation_size_resize(uint time_transformation_size);
+
+  public:
     /*! \name Resources management
      * \{
      */
@@ -134,6 +136,8 @@ class ICompute
 
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};
+
+    std::atomic<bool> termination_requested_{false};
 
     AdvancedCache::Cache advanced_cache_;
     ComputeCache::Cache compute_cache_;

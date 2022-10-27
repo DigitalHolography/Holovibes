@@ -35,12 +35,13 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    api::get_compute_pipe().request_record_chart(nb_frames_to_record_);
-
-    while (api::get_compute_pipe().get_chart_record_requested() != std::nullopt && !stop_requested_)
+    {
+        api::detail::change_value<ChartRecord>()->set_nb_points_to_record(nb_frames_to_record_);
+    }
+    while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
         continue;
 
-    auto& chart_queue = *api::get_compute_pipe().get_chart_record_queue();
+    auto& chart_queue = *api::get_compute_pipe().get_chart_record_queue_ptr();
 
     auto entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
 
@@ -63,8 +64,10 @@ void ChartRecordWorker::run()
            << std::endl;
     }
 
-    GSH::instance().set_value<ChartRecordEnabled>(false);
-    while (api::get_compute_pipe().get_disable_chart_record_requested() && !stop_requested_)
+    {
+        GSH::instance().change_value<ChartRecord>()->disable();
+    }
+    while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
         continue;
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);

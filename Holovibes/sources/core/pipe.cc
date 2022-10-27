@@ -22,7 +22,7 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
-#include "all_pipe_functions.hh"
+#include "all_pipe_requests_on_sync_functions.hh"
 
 #include "API.hh"
 
@@ -135,16 +135,6 @@ void Pipe::synchronize_caches_and_make_requests()
     image_accumulation_->dispose(); // done only if requested
     image_accumulation_->init();    // done only if requested
 
-    // refacto
-    AdvancedCache::RefSingleton::lock();
-    ComputeCache::RefSingleton::lock();
-    ExportCache::RefSingleton::lock();
-    CompositeCache::RefSingleton::lock();
-    Filter2DCache::RefSingleton::lock();
-    ViewCache::RefSingleton::lock();
-    ZoneCache::RefSingleton::lock();
-    RequestCache::RefSingleton::lock();
-
     advanced_cache_.synchronize<AdvancedPipeRequestOnSync>(*this);
     compute_cache_.synchronize<ComputePipeRequestOnSync>(*this);
     export_cache_.synchronize<ExportPipeRequestOnSync>(*this);
@@ -154,23 +144,12 @@ void Pipe::synchronize_caches_and_make_requests()
     zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
     request_cache_.synchronize<RequestPipeRequestOnSync>(*this);
 
-    AdvancedCache::RefSingleton::end_synchronize();
-    ComputeCache::RefSingleton::end_synchronize();
-    ExportCache::RefSingleton::end_synchronize();
-    CompositeCache::RefSingleton::end_synchronize();
-    Filter2DCache::RefSingleton::end_synchronize();
-    ViewCache::RefSingleton::end_synchronize();
-    ZoneCache::RefSingleton::end_synchronize();
-    RequestCache::RefSingleton::end_synchronize();
-
-    RequestCache::RefSingleton::unlock();
-    ZoneCache::RefSingleton::unlock();
-    ViewCache::RefSingleton::unlock();
-    Filter2DCache::RefSingleton::unlock();
-    CompositeCache::RefSingleton::unlock();
-    ExportCache::RefSingleton::unlock();
-    ComputeCache::RefSingleton::unlock();
-    AdvancedCache::RefSingleton::unlock();
+    if (PipeRequestOnSync::has_requests_fail())
+    {
+        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        // FIXME : handle pipe requests on sync failure
+        return;
+    }
 }
 
 bool Pipe::caches_has_change_requested()
@@ -187,9 +166,6 @@ void Pipe::refresh()
         return;
 
     synchronize_caches_and_make_requests();
-
-    if (PipeRequestOnSync::has_requests_fail())
-        return;
 
     if (!PipeRequestOnSync::need_pipe_refresh())
         return;
@@ -437,14 +413,14 @@ void Pipe::insert_raw_view()
             {
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
-                gpu_input_queue_.copy_multiple(*get_raw_view_queue());
+                gpu_input_queue_.copy_multiple(*get_raw_view_queue_ptr());
             });
     }
 }
 
 void Pipe::insert_raw_record()
 {
-    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -459,7 +435,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (export_cache_.get_value<FrameRecordEnable>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -478,15 +454,15 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_value<FrameRecordEnable>())
+    if (GSH::instance().get_value<FrameRecordMode>().is_enable())
     {
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_XZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
                 { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
         }
-        else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
+        else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()

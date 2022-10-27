@@ -15,8 +15,8 @@
 #include "compute_bundles.hh"
 #include "update_exception.hh"
 #include "unique_ptr.hh"
-#include "pipe.hh"
 #include "logger.hh"
+#include "API.hh"
 
 #include "holovibes.hh"
 
@@ -106,54 +106,39 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
 ICompute::~ICompute() {}
 
-bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
+void ICompute::update_time_transformation_size_resize(uint time_transformation_size)
 {
     time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
-    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::STFT)
+    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::NONE)
+        return;
+
+    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::STFT ||
+        compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
     {
         /* CUFFT plan1d realloc */
-        int inembed_stft[1] = {time_transformation_size};
+        int inembed_stft[1] = {static_cast<int>(time_transformation_size)};
 
         int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
     }
-    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA)
+
+    if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::PCA ||
+        compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
     {
         // Pre allocate all the buffer only when n changes to avoid 1 allocation
-        // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
-                                                time_transformation_size);
+        time_transformation_env_.pca_cov.resize(time_transformation_size * time_transformation_size);
         time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
         time_transformation_env_.pca_dev_info.resize(1);
     }
-    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::NONE)
-    {
-        // Nothing to do
-    }
-    else if (compute_cache_.get_value<TimeTransformationParam>() == TimeTransformation::SSA_STFT)
-    {
-        /* CUFFT plan1d realloc */
-        int inembed_stft[1] = {time_transformation_size};
+}
 
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
-
-        time_transformation_env_.stft_plan
-            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
-
-        // Pre allocate all the buffer only when n changes to avoid 1 allocation
-        // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
-                                                time_transformation_size);
-        time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
-        time_transformation_env_.pca_dev_info.resize(1);
-    }
-    else // Should not happend or be handled (if add more time transformation)
-        CHECK(false);
-
+bool ICompute::update_time_transformation_size(uint time_transformation_size)
+{
+    update_time_transformation_size_resize(time_transformation_size);
     try
     {
         /* This will resize cuts buffers: Some modifications are to be applied
@@ -163,10 +148,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
     catch (const std::exception& e)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
-
-        request_time_transformation_cuts_ = false;
-
-        request_delete_time_transformation_cuts_ = true;
+        api::detail::set_value<TimeTransformationCutsEnable>(false);
         dispose_cuts();
         LOG_ERROR(compute_worker,
                   "error in update_time_transformation_size(time_transformation_size) message: {}",
@@ -236,25 +218,9 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
-
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
 
-/*
-    FIXME: Need to delete because of merge ?
-void ICompute::pipe_error(const int& err_count, const std::exception& e)
-{
-    LOG_ERROR(compute_worker, "Pipe error: ");
-    LOG_ERROR(compute_worker, "  message: {}", e.what());
-    LOG_ERROR(compute_worker, "  err_count: {}", err_count);
-    notify_error_observers(e);
-}
-*/
-
-void ICompute::request_refresh() { refresh_requested_ = true; }
-
-void ICompute::request_termination() { termination_requested_ = true; }
 } // namespace holovibes

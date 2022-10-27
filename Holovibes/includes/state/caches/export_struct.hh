@@ -16,6 +16,7 @@ struct ChartRecordStruct
     uint nb_points_to_record_ = 0;
 
   public:
+    void disable() { nb_points_to_record_ = 0; }
     bool is_enable() const { return nb_points_to_record_ != 0; }
     uint get_nb_points_to_record() const { return nb_points_to_record_; }
     void set_nb_points_to_record(uint value) { nb_points_to_record_ = value; }
@@ -27,6 +28,7 @@ struct FrameRecordStruct
     RecordMode record_mode_ = RecordMode::NONE;
 
   public:
+    void disable() { record_mode_ = RecordMode::NONE; }
     bool is_enable() const { return record_mode_ != RecordMode::NONE; }
     RecordMode get_record_mode() const { return record_mode_; }
     void set_record_mode(RecordMode value) { record_mode_ = value; }

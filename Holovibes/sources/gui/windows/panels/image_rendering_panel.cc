@@ -85,8 +85,8 @@ void ImageRenderingPanel::on_notify()
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled()());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled()() &&
+    ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled() &&
                                          api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
@@ -357,7 +357,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    if (!api::get_convolution().get_is_enabled()())
+    if (!api::get_convolution().get_is_enabled())
         return;
 
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();

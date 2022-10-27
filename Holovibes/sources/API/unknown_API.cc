@@ -67,7 +67,7 @@ bool set_holographic_mode(ushort window_size)
 
 void close_critical_compute()
 {
-    if (get_convolution().get_is_enabled()())
+    if (api::get_convolution().get_is_enabled())
         api::disable_convolution();
 
     if (api::get_cuts_view_enabled())
@@ -104,8 +104,6 @@ void set_log_scale(const bool value)
     api::change_current_window()->set_log_scale_slice_enabled(value);
     if (value && api::get_current_window().get_contrast_enabled())
         set_auto_contrast();
-
-    pipe_refresh();
 }
 
 } // namespace holovibes::api

@@ -246,7 +246,7 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        api::detail::set_value<TimeTransformationCuts>(false);
+        api::detail::set_value<TimeTransformationCutsEnable>(false);
         parent_->notify();
     });
 
@@ -265,8 +265,6 @@ void ViewPanel::set_fft_shift(const bool value)
         return;
 
     api::set_fft_shift_enabled(value);
-
-    api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)
@@ -489,6 +487,6 @@ void ViewPanel::reticle_scale(double value)
     if (!is_between(value, 0., 1.))
         return;
 
-    api::reticle_scale(value);
+    api::set_reticle_scale(value);
 }
 } // namespace holovibes::gui

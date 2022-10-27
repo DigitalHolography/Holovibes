@@ -11,17 +11,10 @@ void enable_convolution(const std::string& filename)
 
         if (filename != UID_CONVOLUTION_TYPE_DEFAULT)
             load_convolution_matrix(filename);
-        else if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
-        {
-            // FIXME : WHY
-            // Refresh because the current convolution might have change.
-            pipe_refresh();
-            return;
-        }
     }
 
     // Wait for the convolution to be enabled for notify
-    while (ComputeCache::RefSingleton::has_change())
+    while (api::get_compute_pipe().get_composite_cache().has_change_requested())
         continue;
 }
 
@@ -32,7 +25,7 @@ void disable_convolution()
         api::change_convolution()->get_matrix_ref().clear();
     }
 
-    while (ComputeCache::RefSingleton::has_change())
+    while (api::get_compute_pipe().get_composite_cache().has_change_requested())
         continue;
 }
 
@@ -107,7 +100,8 @@ void load_convolution_matrix(const std::string& file)
         {
             for (uint j = first_col; j < last_col; j++)
             {
-                GSH::instance().get_compute_cache().get_value_ref_W<ConvolutionMatrix>()[i * output_width + j] =
+                GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref()[i * output_width +
+                                                                                                    j] =
                     matrix[kernel_indice];
                 kernel_indice++;
             }

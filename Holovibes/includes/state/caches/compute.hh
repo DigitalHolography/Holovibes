@@ -34,7 +34,7 @@ using UnwrapHistorySize = UIntParameter<1, "unwrap_history_stopped">;
 using Unwrap2DRequested = BoolParameter<false, "unwrap_2d_requested">;
 using IsComputationStopped = BoolParameter<true, "is_computation_stopped">;
 using TimeTransformationCutsOutputBufferSize = UIntParameter<512, "time_transformation_cuts_output_buffer_size">;
-using TimeTransformationCuts = BoolParameter<false, "time_transformation_cuts">;
+using TimeTransformationCutsEnable = BoolParameter<false, "time_transformation_cuts_enable">;
 
 using ComputeCache = MicroCache<BatchSize,
                                 TimeStride,
@@ -52,6 +52,6 @@ using ComputeCache = MicroCache<BatchSize,
                                 Unwrap2DRequested,
                                 IsComputationStopped,
                                 TimeTransformationCutsOutputBufferSize,
-                                TimeTransformationCuts>;
+                                TimeTransformationCutsEnable>;
 
 } // namespace holovibes

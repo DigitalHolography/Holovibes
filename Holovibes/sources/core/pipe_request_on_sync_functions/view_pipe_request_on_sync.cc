@@ -1,5 +1,3 @@
-#pragma once
-
 #include "API.hh"
 
 namespace holovibes
@@ -10,11 +8,11 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, bool old_
     LOG_TRACE(compute_worker, "UPDATE RawViewEnabled");
 
     if (new_value == false)
-        pipe.get_gpu_raw_view_queue().reset(nullptr);
+        pipe.get_raw_view_queue_ptr().reset(nullptr);
     else
     {
         auto fd = pipe.get_gpu_input_queue().get_fd();
-        pipe.get_gpu_raw_view_queue().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
+        pipe.get_raw_view_queue_ptr().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
     }
 }
 
@@ -35,11 +33,11 @@ void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, bool
     LOG_TRACE(compute_worker, "UPDATE Filter2DViewEnabled");
 
     if (new_value == false)
-        pipe.get_gpu_filter2d_view_queue().reset(nullptr);
+        pipe.get_filter2d_view_queue_ptr().reset(nullptr);
     else
     {
         auto fd = pipe.get_gpu_output_queue().get_fd();
-        pipe.gpu_filter2d_view_queue().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
+        pipe.get_filter2d_view_queue_ptr().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
     }
 }
 

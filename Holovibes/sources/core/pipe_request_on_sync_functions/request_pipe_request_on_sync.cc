@@ -1,5 +1,3 @@
-#pragma once
-
 #include "API.hh"
 
 namespace holovibes
@@ -11,6 +9,6 @@ void RequestPipeRequestOnSync::operator()<RequestClearImgAccu>(TriggerRequest ne
 {
     LOG_TRACE(compute_worker, "UPDATE RequestClearImgAccu");
 
-    image_accumulation_->clear();
+    pipe.get_image_accumulation().clear();
 }
 } // namespace holovibes

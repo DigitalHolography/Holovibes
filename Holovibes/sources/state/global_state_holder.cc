@@ -27,7 +27,7 @@ void GSH::set_caches_as_refs()
     ComputeCache::RefSingleton::set_main_ref(compute_cache_);
     ExportCache::RefSingleton::set_main_ref(export_cache_);
     CompositeCache::RefSingleton::set_main_ref(composite_cache_);
-    Filter2DCache::RefSingleton::set_main_ref(filter2D_cache_);
+    Filter2DCache::RefSingleton::set_main_ref(filter2d_cache_);
     ViewCache::RefSingleton::set_main_ref(view_cache_);
     ZoneCache::RefSingleton::set_main_ref(zone_cache_);
     ImportCache::RefSingleton::set_main_ref(import_cache_);

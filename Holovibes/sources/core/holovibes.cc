@@ -224,16 +224,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
      */
     CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
 
-    try
-    {
-        init_pipe();
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR(main, "Catch {}", e.what());
-        return;
-    }
-
+    init_pipe();
     start_compute_worker(callback);
 
     while (!compute_pipe_.load())
