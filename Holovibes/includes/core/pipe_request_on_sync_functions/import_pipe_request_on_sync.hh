@@ -4,7 +4,7 @@
 
 namespace holovibes
 {
-class RequestPipeRequestOnSync : public PipeRequestOnSync
+class ComputePipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
@@ -12,7 +12,11 @@ class RequestPipeRequestOnSync : public PipeRequestOnSync
     {
     }
 
+  public:
     template <>
-    void operator()<RequestClearImgAccu>(TriggerRequest new_value, TriggerRequest old_value, Pipe& pipe);
+    void operator()<LastImageType>(const std::string&, const std::string&, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
 };
 } // namespace holovibes

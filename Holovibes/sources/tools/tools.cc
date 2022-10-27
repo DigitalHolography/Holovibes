@@ -11,14 +11,10 @@
 
 namespace holovibes
 {
-unsigned short upper_window_size(ushort width, ushort height) { return std::max(width, height); }
-
 void get_good_size(ushort& width, ushort& height, ushort window_size)
 {
     if (window_size == 0)
-    {
         return;
-    }
 
     if (width > height)
     {
@@ -109,12 +105,10 @@ std::filesystem::path get_user_documents_path()
 std::string engineering_notation(double value, int nb_significant_figures)
 {
 
-    static std::string prefix[] = {"y", "z", "a", "f", "p", "n", "�", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y"};
+    static std::string prefix[] = {"y", "z", "a", "f", "p", "n", "u", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y"};
 
     if (value == 0.)
-    {
         return "0";
-    }
 
     std::string res;
 

@@ -27,5 +27,24 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
 
     template <>
     void operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe);
+
+  public:
+    template <>
+    void operator()<Lambda>(float, float, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<ZDistance>(float, float, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<Unwrap2DRequested>(bool, bool, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
 };
 } // namespace holovibes

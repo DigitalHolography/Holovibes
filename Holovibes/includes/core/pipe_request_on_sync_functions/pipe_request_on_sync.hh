@@ -24,7 +24,7 @@ class PipeRequestOnSync
         pipe_need_to_refresh = false;
     }
     static bool has_requests_fail() { return requests_fail; }
-    static bool need_pipe_refresh() { return pipe_need_to_refresh; }
+    static bool do_need_pipe_refresh() { return pipe_need_to_refresh; }
 
   public:
     template <typename T>

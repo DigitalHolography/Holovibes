@@ -64,67 +64,6 @@ void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_
     }
 }
 
-void ImageAccumulation::init()
-{
-    // XY view
-    if (GSH::instance().get_value<ViewXY>().is_img_accu_enabled())
-    {
-        auto new_fd = fd_;
-        new_fd.depth =
-            GSH::instance().get_value<ImgTypeParam>() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
-        allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
-                                    image_acc_env_.gpu_float_average_xy_frame,
-                                    GSH::instance().get_value<ViewXY>().get_img_accu_level(),
-                                    new_fd);
-    }
-
-    // XZ view
-    if (GSH::instance().get_value<ViewXZ>().is_img_accu_enabled())
-    {
-        auto new_fd = fd_;
-        new_fd.depth = sizeof(float);
-        new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
-        allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
-                                    image_acc_env_.gpu_float_average_xz_frame,
-                                    GSH::instance().get_value<ViewXZ>().get_img_accu_level(),
-                                    new_fd);
-    }
-
-    // YZ view
-    if (GSH::instance().get_value<ViewYZ>().is_img_accu_enabled())
-    {
-        auto new_fd = fd_;
-        new_fd.depth = sizeof(float);
-        new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
-        allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
-                                    image_acc_env_.gpu_float_average_yz_frame,
-                                    GSH::instance().get_value<ViewYZ>().get_img_accu_level(),
-                                    new_fd);
-    }
-}
-
-void ImageAccumulation::dispose()
-{
-    if (!GSH::instance().get_value<ViewXY>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
-    if (!GSH::instance().get_value<ViewXZ>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
-    if (!GSH::instance().get_value<ViewYZ>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
-}
-
-void ImageAccumulation::clear()
-{
-    LOG_FUNC(compute_worker);
-
-    if (GSH::instance().get_value<ViewXY>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_xy_queue->clear();
-    if (GSH::instance().get_value<ViewXZ>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_xz_queue->clear();
-    if (GSH::instance().get_value<ViewYZ>().is_img_accu_enabled())
-        image_acc_env_.gpu_accumulation_yz_queue->clear();
-}
-
 void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation_queue,
                                         float* gpu_input_frame,
                                         float* gpu_ouput_average_frame,

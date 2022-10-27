@@ -5,18 +5,19 @@ namespace holovibes::api
 
 bool set_3d_cuts_view(uint time_transformation_size)
 {
+    api::detail::set_value<TimeTransformationCutsEnable>(true);
+    while (api::get_compute_pipe().get_composite_cache().has_change_requested())
+        continue;
+
+    // FIXME API : Need to move this outside this (and this function must be useless)
     try
     {
-        api::detail::set_value<TimeTransformationCutsEnable>(true);
         // set positions of new windows according to the position of the
         // main GL window
         QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(0, UserInterfaceDescriptor::instance().mainDisplay->height() + 42);
         QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
-
-        while (api::get_compute_pipe().get_composite_cache().has_change_requested())
-            continue;
 
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
             xzPos,
@@ -53,6 +54,10 @@ bool set_3d_cuts_view(uint time_transformation_size)
 
 void cancel_time_transformation_cuts(std::function<void()> callback)
 {
+    api::get_compute_pipe().insert_fn_end_vect(callback);
+    api::set_cuts_view_enabled(false);
+
+    // FIXME API : Need to move this outside this (and this function must be useless)
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -62,10 +67,6 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
-
-    api::get_compute_pipe().insert_fn_end_vect(callback);
-
-    api::set_cuts_view_enabled(false);
 }
 
 } // namespace holovibes::api

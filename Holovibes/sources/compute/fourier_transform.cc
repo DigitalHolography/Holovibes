@@ -166,6 +166,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
     LOG_FUNC(compute_worker);
 
+    // FIXME WTF
     if (!gpu_lens_queue_)
     {
         auto fd = fd_;

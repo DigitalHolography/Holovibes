@@ -13,7 +13,6 @@ void enable_convolution(const std::string& filename)
             load_convolution_matrix(filename);
     }
 
-    // Wait for the convolution to be enabled for notify
     while (api::get_compute_pipe().get_composite_cache().has_change_requested())
         continue;
 }

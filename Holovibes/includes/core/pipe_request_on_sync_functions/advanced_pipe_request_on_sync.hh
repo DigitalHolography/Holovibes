@@ -18,5 +18,11 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
         // FIXME : Not used
         // pipe.get_gpu_output_queue().resize(new_value, stream_);
     }
+
+  public:
+    template <>
+    void operator()<RenormConstant>(uint, uint, Pipe& pipe)
+    {
+    }
 };
 } // namespace holovibes

@@ -58,7 +58,19 @@ struct ViewXYZ : public ViewWindow
     bool log_enabled = false;
     bool flip_enabled = false;
     float rotation = 0;
-    unsigned img_accu_level = 1;
+    uint image_accumulation_level = 1;
+    mutable bool request_clear_image_accumulation = false;
+
+     bool is_image_accumulation_enabled() const { return image_accumulation_level > 1; }
+
+    bool get_request_clear_image_accumulation() const { return request_clear_image_accumulation; }
+    void request_clear_image_accumulation()
+    {
+        request_clear_image_accumulation = true;
+    }
+
+    // FIXME : this have to change
+    void reset_request_clear_image_accumulation() const { request_clear_image_accumulation = false; }
 
     bool operator!=(const ViewXYZ& rhs)
     {

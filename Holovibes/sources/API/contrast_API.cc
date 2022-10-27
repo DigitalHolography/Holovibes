@@ -5,6 +5,7 @@ namespace holovibes::api
 
 void set_auto_contrast_all()
 {
+    // FIXME API : Need to move this outside this
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 

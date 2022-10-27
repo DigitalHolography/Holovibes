@@ -131,14 +131,11 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 void Pipe::synchronize_caches_and_make_requests()
 {
-    // WTF
-    image_accumulation_->dispose(); // done only if requested
-    image_accumulation_->init();    // done only if requested
-
     advanced_cache_.synchronize<AdvancedPipeRequestOnSync>(*this);
     compute_cache_.synchronize<ComputePipeRequestOnSync>(*this);
+    import_cache_.synchronize<ImportPipeRequestOnSync>(*this);
     export_cache_.synchronize<ExportPipeRequestOnSync>(*this);
-    composite_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
+    composite_cache_.synchronize<CompositePipeRequestOnSync>(*this);
     filter2d_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
     view_cache_.synchronize<ViewPipeRequestOnSync>(*this);
     zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
@@ -155,9 +152,10 @@ void Pipe::synchronize_caches_and_make_requests()
 bool Pipe::caches_has_change_requested()
 {
     return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested() ||
-           export_cache_.has_change_requested() || filter2d_cache_.has_change_requested() ||
-           view_cache_.has_change_requested() || zone_cache_.has_change_requested() ||
-           composite_cache_.has_change_requested() || request_cache_.has_change_requested();
+           export_cache_.has_change_requested() || import_cache_.has_change_requested() ||
+           filter2d_cache_.has_change_requested() || view_cache_.has_change_requested() ||
+           zone_cache_.has_change_requested() || composite_cache_.has_change_requested() ||
+           request_cache_.has_change_requested();
 }
 
 void Pipe::refresh()
@@ -167,15 +165,14 @@ void Pipe::refresh()
 
     synchronize_caches_and_make_requests();
 
-    if (!PipeRequestOnSync::need_pipe_refresh())
+    if (GSH::get_value<ComputeMode> == Computation::Raw)
         return;
 
-    // This call has to be before make_requests() because this method needs
-    // to get updated values during exec_all() call
-    // This call could be removed if make_requests() only gets value through
-    // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    fn_compute_vect_.clear();
+    if (!PipeRequestOnSync::do_need_pipe_refresh())
+        return;
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -198,10 +195,12 @@ void Pipe::refresh()
      * cuda calls forces the default stream usage.
      */
 
+    fn_compute_vect_.clear();
+
     /* Begin insertions */
 
+    // Wait for a batch of frame to be ready
     insert_wait_frames();
-    // A batch of frame is ready
 
     insert_raw_record();
 

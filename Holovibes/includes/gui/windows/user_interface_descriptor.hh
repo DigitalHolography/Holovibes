@@ -24,18 +24,6 @@
 
 namespace holovibes
 {
-/*! \struct ImportType
- *
- * \brief How the data is imported. Either by camera, file or none
- *
- * This should be declared inside UserInterfaceDescriptor but it needs to be used inside another class
- */
-enum ImportType
-{
-    None,
-    Camera,
-    File,
-};
 
 class UserInterfaceDescriptor
 {
@@ -65,25 +53,17 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::PlotWindow> plot_window_ = nullptr;
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
-    bool is_recording_ = false;
-    RecordMode record_mode_ = RecordMode::RAW;
-
-    bool is_enabled_camera_ = false;
-    bool is_advanced_settings_displayed = false;
-    bool has_been_updated = false;
-
-    std::string last_img_type_ = "Magnitude";
-    ImportType import_type_ = ImportType::None;
-
-    size_t auto_scale_point_threshold_ = 100;
-
     std::string default_output_filename_{"capture"};
     std::string record_output_directory_;
     std::string file_input_directory_{"C:\\"};
     std::string batch_input_directory_{"C:\\"};
 
-    std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
+    // FIXME API : all of this need to not be here
+    bool is_recording_ = false;
+    bool is_enabled_camera_ = false;
+    bool is_advanced_settings_displayed = false;
+    bool has_been_updated = false;
 
-    CameraKind kCamera = CameraKind::NONE;
+    size_t auto_scale_point_threshold_ = 100;
 };
 } // namespace holovibes

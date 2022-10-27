@@ -27,12 +27,12 @@ class ICompute
   public:
     AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
     ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
+    ImportCache::Cache& get_import_cache() { return import_cache_; }
     ExportCache::Cache& get_export_cache() { return export_cache_; }
     CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
     Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
-    RequestCache::Cache& get_unknown_cache() { return request_cache_; }
 
     BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
     Queue& get_gpu_output_queue() { return gpu_output_queue_; }
@@ -141,11 +141,11 @@ class ICompute
 
     AdvancedCache::Cache advanced_cache_;
     ComputeCache::Cache compute_cache_;
+    ImportCache::Cache import_cache_;
     ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
     Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
-    RequestCache::Cache request_cache_;
 };
 } // namespace holovibes

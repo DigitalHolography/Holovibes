@@ -42,13 +42,15 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 {
     LOG_TRACE(compute_worker, "UPDATE Convolution");
 
-    if (new_value.get_is_enabled() == old_value.get_is_enabled())
-        return;
+    if (new_value.get_is_enabled() != old_value.get_is_enabled())
+    {
+        if (new_value.get_is_enabled() == false)
+            pipe.get_postprocess().dispose();
+        else if (new_value.get_is_enabled() == true)
+            pipe.get_postprocess().init();
+    }
 
-    if (new_value.get_is_enabled() == false)
-        pipe.get_postprocess().dispose();
-    else if (new_value.get_is_enabled() == true)
-        pipe.get_postprocess().init();
+    request_pipe_refresh();
 }
 
 template <>

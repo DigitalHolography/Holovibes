@@ -37,10 +37,10 @@ TriggerChangeValue<View_Window> change_window(WindowKind kind)
 void start_chart_display()
 {
     GSH::instance().set_value<ChartDisplayEnabled>(true);
-    // Wait for the chart display to be enabled for notify
     while (api::get_compute_pipe().get_view_cache().has_change_requested())
         continue;
 
+    // FIXME API : Need to move this outside this (and this function must be useless)
     UserInterfaceDescriptor::instance().plot_window_ =
         std::make_unique<gui::PlotWindow>(*api::get_compute_pipe().get_chart_display_queue_ptr(),
                                           UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
@@ -50,20 +50,22 @@ void start_chart_display()
 void stop_chart_display()
 {
     GSH::instance().set_value<ChartDisplayEnabled>(false);
-    // Wait for the chart display to be disabled for notify
     while (api::get_compute_pipe().get_view_cache().has_change_requested())
         continue;
 
+    // FIXME API : Need to move this outside this (and this function must be useless)
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display()
 {
+    // FIXME API : Need to move this outside this (and this function must be useless)
     return UserInterfaceDescriptor::instance().mainDisplay;
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
 {
+    // FIXME API : Need to move this outside this (and this function must be useless)
     return UserInterfaceDescriptor::instance().raw_window;
 }
 
@@ -72,12 +74,13 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     if (get_compute_mode() == Computation::Raw)
         return;
 
+    GSH::instance().set_value<RawViewEnabled>(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
+
+    // FIXME API : Need to move this outside this (and this function must be useless)
     if (checked)
     {
-        GSH::instance().set_value<RawViewEnabled>(true);
-        while (api::get_compute_pipe().get_view_cache().has_change_requested())
-            continue;
-
         const ::camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
         ushort raw_window_width = fd.width;
         ushort raw_window_height = fd.height;
@@ -97,10 +100,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     else
     {
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-        GSH::instance().set_value<RawViewEnabled>(false);
-        while (api::get_compute_pipe().get_view_cache().has_change_requested())
-            continue;
     }
 }
 
@@ -109,8 +108,11 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     if (get_compute_mode() == Computation::Raw)
         return;
 
-    set_lens_view_enabled(checked);
+    api::set_lens_view_enabled(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
 
+    // FIXME API : Need to move this outside this (and this function must be useless)
     if (checked)
     {
         try
@@ -123,7 +125,6 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
             const ::camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
             ushort lens_window_width = fd.width;
             ushort lens_window_height = fd.height;
-
             get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
             UserInterfaceDescriptor::instance().lens_window.reset(
@@ -143,10 +144,6 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     else
     {
         UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-
-        GSH::instance().set_value<LensViewEnabled>(false);
-        while (api::get_compute_pipe().get_view_cache().has_change_requested())
-            continue;
     }
 }
 

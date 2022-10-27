@@ -57,14 +57,13 @@ using entities::Span;
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
 using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref,
                                            ComputeCache::Ref,
+                                           ImportCache::Ref,
                                            ExportCache::Ref,
                                            CompositeCache::Ref,
                                            Filter2DCache::Ref,
                                            ViewCache::Ref,
                                            ZoneCache::Ref,
-                                           ImportCache::Ref,
-                                           FileReadCache::Ref,
-                                           RequestCache::Ref>;
+                                           FileReadCache::Ref>;
 
 class GSH
 {
@@ -100,14 +99,13 @@ class GSH
 
     AdvancedCache::Ref& get_advanced_cache() { return advanced_cache_; }
     ComputeCache::Ref& get_compute_cache() { return compute_cache_; }
+    ImportCache::Ref& get_import_cache() { return import_cache_; }
     ExportCache::Ref& get_export_cache() { return export_cache_; }
     CompositeCache::Ref& get_composite_cache() { return composite_cache_; }
     Filter2DCache::Ref& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Ref& get_view_cache() { return view_cache_; }
     ZoneCache::Ref& get_zone_cache() { return zone_cache_; }
-    ImportCache::Ref& get_import_cache() { return import_cache_; }
     FileReadCache::Ref& get_file_read_cache() { return file_read_cache_; }
-    RequestCache::Ref& get_unknown_cache() { return request_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -138,14 +136,13 @@ class GSH
 
     AdvancedCache::Ref advanced_cache_;
     ComputeCache::Ref compute_cache_;
+    ImportCache::Ref import_cache_;
     ExportCache::Ref export_cache_;
     CompositeCache::Ref composite_cache_;
     Filter2DCache::Ref filter2d_cache_;
     ViewCache::Ref view_cache_;
     ZoneCache::Ref zone_cache_;
-    ImportCache::Ref import_cache_;
     FileReadCache::Ref file_read_cache_;
-    RequestCache::Ref request_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 

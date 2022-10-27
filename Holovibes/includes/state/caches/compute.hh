@@ -18,7 +18,6 @@ namespace holovibes
 
 using BatchSize = IntParameter<1, "batch_size">;
 using TimeStride = IntParameter<1, "time_stride">;
-using DivideConvolutionEnable = BoolParameter<false, "divide_convolution_enabled">;
 using Lambda = FloatParameter<852e-9f, "lambda">;
 using TimeTransformationSize = UIntParameter<1, "time_transformation_size">;
 using SpaceTransformationParam =
@@ -26,7 +25,7 @@ using SpaceTransformationParam =
 using TimeTransformationParam =
     CustomParameter<TimeTransformation, TimeTransformation::NONE, "time_transformation", TimeTransformation>;
 using ZDistance = FloatParameter<1.50f, "z_distance">;
-using Convolution = CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution_enabled">;
+using Convolution = CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">;
 using InputFps = UIntParameter<60, "input_fps">;
 using ComputeMode = CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>;
 using PixelSize = FloatParameter<12.0f, "pixel_size">;
@@ -38,7 +37,6 @@ using TimeTransformationCutsEnable = BoolParameter<false, "time_transformation_c
 
 using ComputeCache = MicroCache<BatchSize,
                                 TimeStride,
-                                DivideConvolutionEnable,
                                 Lambda,
                                 TimeTransformationSize,
                                 SpaceTransformationParam,

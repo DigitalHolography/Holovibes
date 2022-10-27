@@ -86,8 +86,8 @@ void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
 
-    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
-        GSH::instance().change_value<RequestClearImgAccu>().trigger();
+    if (GSH::instance().get_value<ImportType>() != ImportType::None)
+        GSH::instance().change_value<ImageAccumulation>()->request_clear();
 }
 
 } // namespace holovibes::api

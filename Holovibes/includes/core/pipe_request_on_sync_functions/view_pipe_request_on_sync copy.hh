@@ -24,16 +24,25 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<LensViewEnabled>(bool new_value, bool old_value, Pipe& pipe);
 
-    template <>
-    void operator()<ViewXY>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
-
-    template <>
-    void operator()<ViewXZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
-
-    template <>
-    void operator()<ViewYZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
-
   public:
+    template <>
+    void operator()<ViewXY>(const View_XYZ&, const View_XYZ&, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<ViewXZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<ViewYZ>(const View_XYZ&, const View_XYZ&, Pipe& pipe)
+    {
+        request_pipe_refresh();
+    }
+
     template <>
     void operator()<Filter2D>(const View_Window&, const View_Window&, Pipe& pipe)
     {
