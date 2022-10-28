@@ -11,16 +11,21 @@
 
 namespace holovibes
 {
+// clang-format off
 
 //! \brief First frame read
-using StartFrame = UIntParameter<0, "start_frame">;
+class StartFrame : public UIntParameter<0, "start_frame">{};
 //! \brief Last frame read
-using EndFrame = UIntParameter<0, "end_frame">;
-using ImportType = CustomParameter<ImportTypeEnum, ImportTypeEnum::None, "import_type", ImportTypeEnum>;
+class EndFrame : public UIntParameter<0, "end_frame">{};
+class ImportType : public CustomParameter<ImportTypeEnum, ImportTypeEnum::None, "import_type", ImportTypeEnum>{};
 // FIXME : check diff with ImageType of view ; maybe the same
-using LastImageType = StringParameter<"Magnitude", "last_img_type">;
-using CurrentCameraKind = CustomParameter<CameraKind, CameraKind::None, "current_camera_kind", CameraKind>;
+class LastImageType : public StringParameter<"Magnitude", "last_img_type">{};
+class CurrentCameraKind : public CustomParameter<CameraKind, CameraKind::None, "current_camera_kind", CameraKind>{};
 
-using ImportCache = MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>;
+// clang-format on
+
+class ImportCache : public MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>
+{
+};
 
 } // namespace holovibes

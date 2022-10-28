@@ -10,27 +10,32 @@
 
 namespace holovibes
 {
+// clang-format off
 
-using DisplayRate = FloatParameter<30, "display_rate">;
-using InputBufferSize = UIntParameter<512, "input_buffer_size">;
+class DisplayRate : public FloatParameter<30, "display_rate">{};
+class InputBufferSize : public UIntParameter<512, "input_buffer_size">{};
 //! \brief Max size of output queue in number of images.
-using OutputBufferSize = UIntParameter<256, "output_buffer_size">;
+class OutputBufferSize : public UIntParameter<256, "output_buffer_size">{};
 //! \brief Max size of frame record queue in number of images.
-using RecordBufferSize = UIntParameter<1024, "record_buffer_size">;
-using ContrastLowerThreshold = FloatParameter<0.5f, "contrast_lower_threshold">;
-using ContrastUpperThreshold = FloatParameter<99.5f, "contrast_upper_threshold">;
-using RawBitshift = IntParameter<0, "raw_bitshift">;
-using RenormConstant = UIntParameter<5, "renorm_constant">;
-using CutsContrastPOffset = UIntParameter<2, "cuts_contrast_p_offset">;
+class RecordBufferSize : public UIntParameter<1024, "record_buffer_size">{};
+class ContrastLowerThreshold : public FloatParameter<0.5f, "contrast_lower_threshold">{};
+class ContrastUpperThreshold : public FloatParameter<99.5f, "contrast_upper_threshold">{};
+class RawBitshift : public IntParameter<0, "raw_bitshift">{};
+class RenormConstant : public UIntParameter<5, "renorm_constant">{};
+class CutsContrastPOffset : public UIntParameter<2, "cuts_contrast_p_offset">{};
 
-using AdvancedCache = MicroCache<DisplayRate,
-                                 InputBufferSize,
-                                 OutputBufferSize,
-                                 RecordBufferSize,
-                                 ContrastLowerThreshold,
-                                 ContrastUpperThreshold,
-                                 RawBitshift,
-                                 RenormConstant,
-                                 CutsContrastPOffset>;
+// clang-format on
+
+class AdvancedCache : public MicroCache<DisplayRate,
+                                        InputBufferSize,
+                                        OutputBufferSize,
+                                        RecordBufferSize,
+                                        ContrastLowerThreshold,
+                                        ContrastUpperThreshold,
+                                        RawBitshift,
+                                        RenormConstant,
+                                        CutsContrastPOffset>
+{
+};
 
 } // namespace holovibes

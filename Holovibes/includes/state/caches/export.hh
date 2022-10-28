@@ -11,12 +11,17 @@
 
 namespace holovibes
 {
+// clang-format off
 
 //! \brief Is holovibes currently recording
-using FrameRecordMode = CustomParameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_enabled">;
+class FrameRecordMode : public CustomParameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_enabled">{};
 //! \brief Enables the signal and noise chart record
-using ChartRecord = CustomParameter<ChartRecordStruct, DefaultLiteral<ChartRecordStruct>{}, "chart_record">;
+class ChartRecord : public CustomParameter<ChartRecordStruct, DefaultLiteral<ChartRecordStruct>{}, "chart_record">{};
 
-using ExportCache = MicroCache<FrameRecordMode, ChartRecord>;
+// clang-format on
+
+class ExportCache : public MicroCache<FrameRecordMode, ChartRecord>
+{
+};
 
 } // namespace holovibes

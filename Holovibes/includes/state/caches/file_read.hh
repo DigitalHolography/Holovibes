@@ -11,9 +11,15 @@
 namespace holovibes
 {
 
-//! \brief Max file buffer size
-using FileBufferSize = UIntParameter<512, "file_buffer_size">;
+// clang-format off
 
-using FileReadCache = MicroCache<FileBufferSize>;
+//! \brief Max file buffer size
+class FileBufferSize : public UIntParameter<512, "file_buffer_size">{};
+
+// clang-format on
+
+class FileReadCache : public MicroCache<FileBufferSize>
+{
+};
 
 } // namespace holovibes

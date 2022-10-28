@@ -153,6 +153,10 @@ class MicroCache
         template <typename FunctionClass, typename... Args>
         void synchronize(Args&&... args)
         {
+            if (change_pool_.size() == 0)
+                return;
+
+            LOG_TRACE(main, "Cache sync {} elements", change_pool_.size());
             std::lock_guard<std::mutex> guard(lock_);
 
             this->container_.template call<SetHasBeenSynchronized<false>>();

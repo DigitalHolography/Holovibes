@@ -15,45 +15,44 @@
 
 namespace holovibes
 {
+// clang-format off
 
-using BatchSize = IntParameter<1, "batch_size">;
-using TimeStride = IntParameter<1, "time_stride">;
-using Lambda = FloatParameter<852e-9f, "lambda">;
-using TimeTransformationSize = UIntParameter<1, "time_transformation_size">;
-using SpaceTransformation = CustomParameter<SpaceTransformationEnum,
-                                            SpaceTransformationEnum::NONE,
-                                            "space_transformation",
-                                            SpaceTransformationEnum>;
-using TimeTransformation = CustomParameter<TimeTransformationEnum,
-                                           TimeTransformationEnum::NONE,
-                                           "time_transformation",
-                                           TimeTransformationEnum>;
-using ZDistance = FloatParameter<1.50f, "z_distance">;
-using Convolution = CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">;
-using InputFps = UIntParameter<60, "input_fps">;
-using ComputeMode = CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>;
-using PixelSize = FloatParameter<12.0f, "pixel_size">;
-using UnwrapHistorySize = UIntParameter<1, "unwrap_history_stopped">;
-using Unwrap2DRequested = BoolParameter<false, "unwrap_2d_requested">;
-using IsComputationStopped = BoolParameter<true, "is_computation_stopped">;
-using TimeTransformationCutsOutputBufferSize = UIntParameter<512, "time_transformation_cuts_output_buffer_size">;
-using TimeTransformationCutsEnable = BoolParameter<false, "time_transformation_cuts_enable">;
+class BatchSize : public IntParameter<1, "batch_size">{};
+class TimeStride : public IntParameter<1, "time_stride">{};
+class Lambda : public FloatParameter<852e-9f, "lambda">{};
+class TimeTransformationSize : public UIntParameter<1, "time_transformation_size">{};
+class SpaceTransformation : public CustomParameter<SpaceTransformationEnum, SpaceTransformationEnum::NONE, "space_transformation", SpaceTransformationEnum>{};
+class TimeTransformation : public CustomParameter<TimeTransformationEnum, TimeTransformationEnum::NONE, "time_transformation", TimeTransformationEnum>{};
+class ZDistance : public FloatParameter<1.50f, "z_distance">{};
+class Convolution : public CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">{};
+class InputFps : public UIntParameter<60, "input_fps">{};
+class ComputeMode : public CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>{};
+class PixelSize : public FloatParameter<12.0f, "pixel_size">{};
+class UnwrapHistorySize : public UIntParameter<1, "unwrap_history_stopped">{};
+class Unwrap2DRequested : public BoolParameter<false, "unwrap_2d_requested">{};
+class IsComputationStopped : public BoolParameter<true, "is_computation_stopped">{};
+class TimeTransformationCutsOutputBufferSize : public UIntParameter<512, "time_transformation_cuts_output_buffer_size">{};
+class TimeTransformationCutsEnable : public BoolParameter<false, "time_transformation_cuts_enable">{};
 
-using ComputeCache = MicroCache<BatchSize,
-                                TimeStride,
-                                Lambda,
-                                TimeTransformationSize,
-                                SpaceTransformation,
-                                TimeTransformation,
-                                ZDistance,
-                                Convolution,
-                                InputFps,
-                                ComputeMode,
-                                PixelSize,
-                                UnwrapHistorySize,
-                                Unwrap2DRequested,
-                                IsComputationStopped,
-                                TimeTransformationCutsOutputBufferSize,
-                                TimeTransformationCutsEnable>;
+// clang-format on
+
+class ComputeCache : public MicroCache<BatchSize,
+                                       TimeStride,
+                                       Lambda,
+                                       TimeTransformationSize,
+                                       SpaceTransformation,
+                                       TimeTransformation,
+                                       ZDistance,
+                                       Convolution,
+                                       InputFps,
+                                       ComputeMode,
+                                       PixelSize,
+                                       UnwrapHistorySize,
+                                       Unwrap2DRequested,
+                                       IsComputationStopped,
+                                       TimeTransformationCutsOutputBufferSize,
+                                       TimeTransformationCutsEnable>
+{
+};
 
 } // namespace holovibes

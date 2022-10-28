@@ -75,10 +75,10 @@ class CustomParameter : public IParameter
             return;
         }
 
-        constexpr bool has_op_plus = requires(ValueType lhs, ValueType rhs) { lhs.operator+(rhs); };
+        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs) { lhs.operator!=(rhs); };
 
         ValueType& new_value = ref_cast->get_value();
-        if constexpr (has_op_plus)
+        if constexpr (has_op_neq)
         {
             if (value_ != new_value)
             {
@@ -92,6 +92,7 @@ class CustomParameter : public IParameter
                      "Couldn't check if the value has been changed while triggering {} in a cache",
                      typeid(T).name());
             value_ = new_value;
+            set_has_been_synchronized(true);
         }
     };
 

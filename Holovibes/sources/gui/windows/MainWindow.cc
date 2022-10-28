@@ -298,7 +298,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = api::get_import_type();
+    ImportTypeEnum it = api::get_import_type();
     ui_->ImportPanel->import_stop();
 
     api::load_compute_settings(filename);
@@ -310,7 +310,7 @@ void MainWindow::reload_ini(const std::string& filename)
         ui_->ImportPanel->import_start();
     else if (it == ImportTypeEnum::Camera)
         change_camera(api::get_current_camera_kind());
-    else // if (it == ImportTypeEnum::None)
+    else if (it == ImportTypeEnum::None)
         notify();
 }
 
@@ -606,7 +606,7 @@ void MainWindow::close_advanced_settings()
 {
     if (UserInterfaceDescriptor::instance().has_been_updated)
     {
-        ImportType it = api::get_import_type();
+        ImportTypeEnum it = api::get_import_type();
         ui_->ImportPanel->import_stop();
 
         if (it == ImportTypeEnum::File)

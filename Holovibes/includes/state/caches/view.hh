@@ -15,55 +15,61 @@
 namespace holovibes
 {
 
-//! \brief Type of the image displayed
-using ImageType = CustomParameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>;
-using ViewAccuX = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_x">;
-using ViewAccuY = CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_y">;
-using ViewAccuP = CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_p">;
-using ViewAccuQ = CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_q">;
-using ViewXY = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xy">;
-using ViewXZ = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xz">;
-using ViewYZ = CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_yz">;
-using Filter2D = CustomParameter<View_Window, DefaultLiteral<View_Window>{}, "filter2d">;
-using CurrentWindowKind = CustomParameter<WindowKind, WindowKind::XYview, "current_window">;
-using LensViewEnabled = BoolParameter<false, "lens_view_enabled">;
-//! \brief Enables the signal and noise chart display
-using ChartDisplayEnabled = BoolParameter<false, "chart_display_enabled">;
-//! \brief Enables filter 2D
-using Filter2DEnabled = BoolParameter<false, "filter2d_enabled">;
-//! \brief Enables filter 2D View
-using Filter2DViewEnabled = BoolParameter<false, "filter2d_view_enabled">;
-//! \brief Is shift fft enabled (switching representation diagram) --- check for timetranformation size
-using FftShiftEnabled = BoolParameter<false, "fft_shift_enabled">;
-//! \brief Display the raw interferogram when we are in hologram mode.
-using RawViewEnabled = BoolParameter<false, "raw_view_enabled">;
-//! \brief Are slices YZ and XZ enabled
-using CutsViewEnabled = BoolParameter<false, "cuts_view_enabled">;
-using RenormEnabled = BoolParameter<true, "renorm_enabled">;
-//! \brief Is the reticle overlay enabled
-using ReticleDisplayEnabled = BoolParameter<false, "reticle_display_enabled">;
-//! \brief Reticle border scale
-using ReticleScale = FloatParameter<0.5f, "reticle_scale">;
+// clang-format off
 
-using ViewCache = MicroCache<ImageType,
-                             ViewAccuX,
-                             ViewAccuY,
-                             ViewAccuP,
-                             ViewAccuQ,
-                             ViewXY,
-                             ViewXZ,
-                             ViewYZ,
-                             Filter2D,
-                             CurrentWindowKind,
-                             LensViewEnabled,
-                             ChartDisplayEnabled,
-                             Filter2DEnabled,
-                             Filter2DViewEnabled,
-                             FftShiftEnabled,
-                             RawViewEnabled,
-                             CutsViewEnabled,
-                             RenormEnabled,
-                             ReticleDisplayEnabled,
-                             ReticleScale>;
+//! \brief Type of the image displayed
+class ImageType : public CustomParameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>{};
+class ViewAccuX : public CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_x">{};
+class ViewAccuY : public CustomParameter<View_XY, DefaultLiteral<View_XY>{}, "view_accu_y">{};
+class ViewAccuP : public CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_p">{};
+class ViewAccuQ : public CustomParameter<View_PQ, DefaultLiteral<View_PQ>{}, "view_accu_q">{};
+class ViewXY : public CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xy">{};
+class ViewXZ : public CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_xz">{};
+class ViewYZ : public CustomParameter<View_XYZ, DefaultLiteral<View_XYZ>{}, "view_yz">{};
+class Filter2D : public CustomParameter<View_Window, DefaultLiteral<View_Window>{}, "filter2d">{};
+class CurrentWindowKind : public CustomParameter<WindowKind, WindowKind::XYview, "current_window">{};
+class LensViewEnabled : public BoolParameter<false, "lens_view_enabled">{};
+//! \brief Enables the signal and noise chart display
+class ChartDisplayEnabled : public BoolParameter<false, "chart_display_enabled">{};
+//! \brief Enables filter 2D
+class Filter2DEnabled : public BoolParameter<false, "filter2d_enabled">{};
+//! \brief Enables filter 2D View
+class Filter2DViewEnabled : public BoolParameter<false, "filter2d_view_enabled">{};
+//! \brief Is shift fft enabled (switching representation diagram) --- check for timetranformation size
+class FftShiftEnabled : public BoolParameter<false, "fft_shift_enabled">{};
+//! \brief Display the raw interferogram when we are in hologram mode.
+class RawViewEnabled : public BoolParameter<false, "raw_view_enabled">{};
+//! \brief Are slices YZ and XZ enabled
+class CutsViewEnabled : public BoolParameter<false, "cuts_view_enabled">{};
+class RenormEnabled : public BoolParameter<true, "renorm_enabled">{};
+//! \brief Is the reticle overlay enabled
+class ReticleDisplayEnabled : public BoolParameter<false, "reticle_display_enabled">{};
+//! \brief Reticle border scale
+class ReticleScale : public FloatParameter<0.5f, "reticle_scale">{};
+
+// clang-format on
+
+class ViewCache : public MicroCache<ImageType,
+                                    ViewAccuX,
+                                    ViewAccuY,
+                                    ViewAccuP,
+                                    ViewAccuQ,
+                                    ViewXY,
+                                    ViewXZ,
+                                    ViewYZ,
+                                    Filter2D,
+                                    CurrentWindowKind,
+                                    LensViewEnabled,
+                                    ChartDisplayEnabled,
+                                    Filter2DEnabled,
+                                    Filter2DViewEnabled,
+                                    FftShiftEnabled,
+                                    RawViewEnabled,
+                                    CutsViewEnabled,
+                                    RenormEnabled,
+                                    ReticleDisplayEnabled,
+                                    ReticleScale>
+{
+};
 
 } // namespace holovibes

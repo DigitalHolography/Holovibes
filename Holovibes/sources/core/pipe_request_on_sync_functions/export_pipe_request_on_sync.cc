@@ -8,7 +8,7 @@ void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruc
                                                           const FrameRecordStruct& old_value,
                                                           Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE FrameRecord");
+    LOG_TRACE(compute_worker, "UPDATE FrameRecordMode");
 
     if (new_value.get_record_mode() == RecordMode::NONE)
     {

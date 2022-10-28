@@ -15,17 +15,23 @@ namespace holovibes
 template <StringLiteral Key>
 using RectFdParameter = CustomParameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
 
-//! \brief The zone for the nsignal chart
-using SignalZone = RectFdParameter<"signal_zone">;
-//! \brief The zone for the noise chart
-using NoiseZone = RectFdParameter<"noise_zone">;
-//! \brief The area on which we'll normalize the colors
-using CompositeZone = RectFdParameter<"composite_zone">;
-//! \brief The area used to limit the stft computations
-using ZoomedZone = RectFdParameter<"zoomed_zone">;
-//! \brief The zone of the reticle area
-using ReticleZone = RectFdParameter<"reticle_zone">;
+// clang-format off
 
-using ZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
+//! \brief The zone for the nsignal chart
+class SignalZone : public RectFdParameter<"signal_zone">{};
+//! \brief The zone for the noise chart
+class NoiseZone : public RectFdParameter<"noise_zone">{};
+//! \brief The area on which we'll normalize the colors
+class CompositeZone : public RectFdParameter<"composite_zone">{};
+//! \brief The area used to limit the stft computations
+class ZoomedZone : public RectFdParameter<"zoomed_zone">{};
+//! \brief The zone of the reticle area
+class ReticleZone : public RectFdParameter<"reticle_zone">{};
+
+// clang-format on
+
+class ZoneCache : public MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>
+{
+};
 
 } // namespace holovibes
