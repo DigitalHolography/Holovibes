@@ -81,6 +81,7 @@ set(INTERNAL_INCLUDES
     includes/tools/units/
     includes/tools/check/
     includes/tools/exception/
+    includes/tools/logger/
 
 
     "${CMAKE_SOURCE_DIR}/GPIB/"

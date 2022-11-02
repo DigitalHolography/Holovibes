@@ -10,6 +10,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <thread>
+#include <shared_mutex>
 
 #include "holovibes_config.hh"
 #include "spdlog/fmt/ostr.h"
@@ -33,17 +36,15 @@
 #define INTERNAL_LOGGER_GET_ARGS_(fmt, ...) __VA_OPT__(, __VA_ARGS__)
 #define INTERNAL_LOGGER_GET_ARGS(...) __VA_OPT__(INTERNAL_LOGGER_GET_ARGS_(__VA_ARGS__))
 
-#define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [thread %t]%$ %n >> %v"
-
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
-#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(holovibes::Logger::log(), __VA_ARGS__)
-#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::log(), __VA_ARGS__)
-#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(holovibes::Logger::log(), __VA_ARGS__)
-#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(holovibes::Logger::log(), __VA_ARGS__)
-#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::log(), __VA_ARGS__)
-#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::log(), __VA_ARGS__)
+#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::logger(), __VA_ARGS__)
 
 constexpr const char* get_file_name(const char* path)
 {
@@ -66,34 +67,38 @@ constexpr const char* get_file_name(const char* path)
         abort();                                                                                                       \
     }
 
+#define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [%t]%$ %v"
+
 namespace holovibes
 {
+enum class State
+{
+    free,
+    read,
+    write
+};
 
 class Logger
 {
-  public:
-    static std::shared_ptr<spdlog::logger> frame_read_worker();
-    static std::shared_ptr<spdlog::logger> compute_worker();
-    static std::shared_ptr<spdlog::logger> record_worker();
-    static std::shared_ptr<spdlog::logger> information_worker();
 
-    static std::shared_ptr<spdlog::logger> cuda();
-    static std::shared_ptr<spdlog::logger> setup();
-    static std::shared_ptr<spdlog::logger> main();
+  public:
+    static std::shared_ptr<spdlog::logger> logger();
+    static bool add_thread(std::thread::id thread_id, std::string thread_name);
+    static std::pair<std::string, bool> get_thread_name(size_t thread_id);
+    static std::shared_mutex map_mutex_;
 
   private:
     static std::shared_ptr<spdlog::logger> init_logger(std::string name, spdlog::level::level_enum);
     static void init_sinks();
+    static void init_formatter();
 
-    static std::shared_ptr<spdlog::logger> frame_read_worker_;
-    static std::shared_ptr<spdlog::logger> compute_worker_;
-    static std::shared_ptr<spdlog::logger> record_worker_;
-    static std::shared_ptr<spdlog::logger> information_worker_;
-    static std::shared_ptr<spdlog::logger> cuda_;
-    static std::shared_ptr<spdlog::logger> setup_;
-    static std::shared_ptr<spdlog::logger> main_;
+    static std::shared_ptr<spdlog::logger> logger_;
+
+    static std::unique_ptr<spdlog::pattern_formatter> formatter_;
 
     static std::vector<spdlog::sink_ptr> sinks_;
+
+    static std::map<size_t, std::string> thread_map_;
 };
 
 } // namespace holovibes

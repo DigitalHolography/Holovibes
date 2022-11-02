@@ -9,7 +9,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     batch_input_queue.cc
     API.cc
 
-    tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/converts.cc
@@ -96,6 +95,8 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     tools/units/real_position.cc
     tools/units/window_pixel.cc
     tools/tools_debug.cc
+    tools/logger/logger.cc
+    tools/logger/thread_name_flag.cc
 
     state/global_state_holder.cc
 

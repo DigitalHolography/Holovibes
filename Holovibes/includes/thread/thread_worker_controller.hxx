@@ -1,8 +1,9 @@
 #pragma once
 
-#include "thread_worker_controller.hh"
+#include <map>
 
 #include "logger.hh"
+#include "thread_worker_controller.hh"
 
 namespace holovibes::worker
 {
@@ -42,8 +43,12 @@ void ThreadWorkerController<T>::start(Args&&... args)
 
     LOG_DEBUG(main, "Starting Worker of type {}", typeid(T).name());
 
-    worker_ = std::make_unique<T>(args...);
-    thread_ = std::thread(&ThreadWorkerController::run, this);
+    {
+        std::unique_lock lock(Logger::map_mutex_);
+        worker_ = std::make_unique<T>(args...);
+        thread_ = std::thread(&ThreadWorkerController::run, this);
+        Logger::add_thread(thread_.get_id(), typeid(T).name());
+    }
 
     LOG_INFO(main, "Worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
 }

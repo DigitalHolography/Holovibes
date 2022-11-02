@@ -108,6 +108,10 @@ static void print_help(holovibes::OptionsParser parser)
 
 int main(int argc, char* argv[])
 {
+    {
+        std::unique_lock lock(holovibes::Logger::map_mutex_);
+        holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
+    }
 
     LOG_INFO(main, "Start Holovibes");
 
