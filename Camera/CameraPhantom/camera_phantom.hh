@@ -79,7 +79,7 @@ class EHoloGrabber
         // full height is two times the height of the first grabber.
 
         width_ = grabbers_[0]->getWidth();
-        height_ = grabbers_[0]->getHeight() * 2;
+        height_ = grabbers_[0]->getHeight() * grabbers_.length();
         std::string pixel_format = grabbers_[0]->getPixelFormat();
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
     }

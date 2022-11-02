@@ -8,13 +8,10 @@ add_library("${PROJECT_NAME}" SHARED
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
-
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
 )
-
-# find_library(CUDART_LIBRARY cudart ${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES})
 
 target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/BFD.lib"
