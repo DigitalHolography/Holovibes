@@ -21,7 +21,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     , HoloFile()
 {
 
-    LOG_FUNC(main, file_path);
+    LOG_FUNC(file_path);
 
     InputHoloFile::load_header();
 
@@ -29,7 +29,8 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
 
     frame_size_ = fd_.get_frame_size();
 
-    uintmax_t meta_data_size = std::filesystem::file_size(file_path) - (sizeof(HoloFileHeader) + holo_file_header_.total_data_size);
+    uintmax_t meta_data_size =
+        std::filesystem::file_size(file_path) - (sizeof(HoloFileHeader) + holo_file_header_.total_data_size);
 
     has_footer = meta_data_size > 0 ? true : false;
 
@@ -51,7 +52,7 @@ void InputHoloFile::set_pos_to_frame(size_t frame_id)
 
 void InputHoloFile::load_header()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
     // read the file header
     size_t bytes_read = std::fread(&holo_file_header_, sizeof(char), sizeof(HoloFileHeader), file_);
 
@@ -68,21 +69,21 @@ void InputHoloFile::load_header()
         std::fclose(file_);
         throw FileException("Invalid holo file", false);
     }
-    LOG_TRACE(main, "Exiting InputHoloFile::load_header");
+    LOG_TRACE("Exiting InputHoloFile::load_header");
 }
 
 void InputHoloFile::load_fd()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
     fd_.width = holo_file_header_.img_width;
     fd_.height = holo_file_header_.img_height;
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
-    LOG_TRACE(main, "Exiting InputHoloFile::load_fd");
+    LOG_TRACE("Exiting InputHoloFile::load_fd");
 }
 void InputHoloFile::load_footer()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
     // compute the meta data offset to retrieve the meta data
     uintmax_t meta_data_offset = sizeof(HoloFileHeader) + holo_file_header_.total_data_size;
     uintmax_t file_size = std::filesystem::file_size(file_path_);
@@ -117,16 +118,16 @@ void InputHoloFile::load_footer()
         {
             // does not throw an error if the meta data are not parsed
             // because they are not essential
-            LOG_WARN(main, "An error occurred while retrieving the meta data. Meta data skipped");
+            LOG_WARN("An error occurred while retrieving the meta data. Meta data skipped");
         }
     }
 
-    LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
+    LOG_TRACE("Exiting InputHoloFile::load_footer");
 }
 
 void InputHoloFile::import_compute_settings()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     // if there is no footer we use the state of the GSH
     if (!has_footer)
@@ -148,7 +149,7 @@ void InputHoloFile::import_compute_settings()
     else if (holo_file_header_.version == 5)
         ;
     else
-        LOG_ERROR(main, "HOLO file version not supported!");
+        LOG_ERROR("HOLO file version not supported!");
 
     from_json(meta_data_["compute_settings"], raw_footer_);
 
@@ -158,7 +159,7 @@ void InputHoloFile::import_compute_settings()
 
 void InputHoloFile::import_info() const
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
     if (!has_footer)
         return;
 
@@ -167,8 +168,9 @@ void InputHoloFile::import_info() const
         // Pixel are considered square
         GSH::instance().set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
     }
-    catch(std::exception&)
-    {}
+    catch (std::exception&)
+    {
+    }
 }
 
 } // namespace holovibes::io_files

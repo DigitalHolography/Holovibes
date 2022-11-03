@@ -233,7 +233,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     if (ui_->BatchGroupBox->isChecked())
         info = "Batch " + info;
 
-    LOG_INFO(main, "[RECORDER] {}", info);
+    LOG_INFO("[RECORDER] {}", info);
 
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);

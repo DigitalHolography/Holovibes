@@ -48,7 +48,7 @@ Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (view_cache_.get_fft_shift_enabled())
     {
@@ -69,7 +69,7 @@ void Rendering::insert_fft_shift()
 
 void Rendering::insert_chart()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
     {
@@ -103,7 +103,7 @@ void Rendering::insert_chart()
 
 void Rendering::insert_log()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (view_cache_.get_xy().log_enabled)
         insert_main_log();
@@ -118,7 +118,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 std::atomic<bool>& autocontrast_slice_yz_request,
                                 std::atomic<bool>& autocontrast_filter2d_request)
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
@@ -146,7 +146,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
 
 void Rendering::insert_main_log()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -159,7 +159,7 @@ void Rendering::insert_main_log()
 }
 void Rendering::insert_slice_log()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (view_cache_.get_xz().log_enabled)
     {
@@ -187,7 +187,7 @@ void Rendering::insert_slice_log()
 
 void Rendering::insert_filter2d_view_log()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (GSH::instance().get_filter2d_view_enabled())
     {
@@ -204,7 +204,7 @@ void Rendering::insert_filter2d_view_log()
 
 void Rendering::insert_apply_contrast(WindowKind view)
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -261,7 +261,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                             std::atomic<bool>& autocontrast_slice_yz_request,
                                             std::atomic<bool>& autocontrast_filter2d_request)
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     // requested check are inside the lambda so that we don't need to
     // refresh the pipe at each autocontrast
@@ -318,7 +318,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
 void Rendering::autocontrast_caller(
     float* input, const uint width, const uint height, const uint offset, WindowKind view)
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     constexpr uint percent_size = 2;
 

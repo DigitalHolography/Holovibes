@@ -36,7 +36,7 @@ ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
 
 void ImageAccumulation::insert_image_accumulation()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     insert_compute_average();
     insert_copy_accumulation_result();
@@ -47,7 +47,7 @@ void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_
                                                     const unsigned int accumulation_level,
                                                     const camera::FrameDescriptor fd)
 {
-    LOG_FUNC(compute_worker, accumulation_level);
+    LOG_FUNC(accumulation_level);
 
     // If the queue is null or the level has changed
     if (!gpu_accumulation_queue || accumulation_level != gpu_accumulation_queue->get_max_size())
@@ -65,7 +65,7 @@ void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_
 
 void ImageAccumulation::init()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     // XY view
     if (GSH::instance().get_xy_img_accu_enabled())
@@ -105,7 +105,7 @@ void ImageAccumulation::init()
 
 void ImageAccumulation::dispose()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (!GSH::instance().get_xy_img_accu_enabled())
         image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
@@ -117,7 +117,7 @@ void ImageAccumulation::dispose()
 
 void ImageAccumulation::clear()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (GSH::instance().get_xy_img_accu_enabled())
         image_acc_env_.gpu_accumulation_xy_queue->clear();
@@ -133,7 +133,7 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
                                         const unsigned int image_acc_level,
                                         const size_t frame_res)
 {
-    // LOG-USELESS LOG_FUNC(compute_worker, image_acc_level, frame_res);
+    // LOG-USELESS LOG_FUNC(image_acc_level, frame_res);
 
     if (gpu_accumulation_queue)
     {
@@ -153,7 +153,7 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
 
 void ImageAccumulation::insert_compute_average()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     auto compute_average_lambda = [&]()
     {
@@ -187,7 +187,7 @@ void ImageAccumulation::insert_compute_average()
 
 void ImageAccumulation::insert_copy_accumulation_result()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     auto copy_accumulation_result = [&]()
     {

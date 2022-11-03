@@ -244,11 +244,11 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     {
         // json{} return an array
         st = json{value.toStdString()}[0].get<SpaceTransformation>();
-        LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
+        LOG_DEBUG("value.toStdString() : {}", value.toStdString());
     }
     catch (std::out_of_range& e)
     {
-        LOG_ERROR(main, "Catch {}", e.what());
+        LOG_ERROR("Catch {}", e.what());
         throw;
     }
 
@@ -269,7 +269,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
-    LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
+    LOG_DEBUG("value.toStdString() : {}", value.toStdString());
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)
         return;

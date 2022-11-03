@@ -78,7 +78,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR(main, "Camera library cannot be loaded. (Exception: {})", e.what());
+        LOG_ERROR("Camera library cannot be loaded. (Exception: {})", e.what());
         throw;
     }
 
@@ -97,7 +97,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (std::exception& e)
     {
-        LOG_ERROR(main, "Error at camera frame read start worker. (Exception: {})", e.what());
+        LOG_ERROR("Error at camera frame read start worker. (Exception: {})", e.what());
         stop_frame_read();
         throw;
     }
@@ -105,7 +105,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
 void Holovibes::stop_frame_read()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();
@@ -127,7 +127,7 @@ void Holovibes::start_frame_record(const std::string& path,
 {
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
-        LOG_ERROR(main, "[RECORDER] Batch size must be lower than record queue size");
+        LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
         return;
     }
 
@@ -186,7 +186,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::init_pipe()
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
@@ -230,7 +230,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     }
     catch (std::exception& e)
     {
-        LOG_ERROR(main, "Catch {}", e.what());
+        LOG_ERROR("Catch {}", e.what());
         return;
     }
 

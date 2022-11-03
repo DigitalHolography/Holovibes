@@ -6,7 +6,7 @@ namespace holovibes::gui
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : Overlay(overlay, parent)
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 }
 
 void RectOverlay::init()

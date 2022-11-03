@@ -54,7 +54,7 @@ static void check_cuda_graphic_card(bool gui)
     }
     else
     {
-        LOG_CRITICAL(setup, "{}", error_message);
+        LOG_CRITICAL("{}", error_message);
     }
     std::exit(1);
 }
@@ -88,7 +88,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     if (!filename.empty())
     {
         window.start_import(QString(filename.c_str()));
-        LOG_INFO(main, "Imported file {}", filename.c_str());
+        LOG_INFO("Imported file {}", filename.c_str());
     }
 
     // Resizing horizontally the window before starting
@@ -108,8 +108,10 @@ static void print_help(holovibes::OptionsParser parser)
 
 int main(int argc, char* argv[])
 {
+    holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
 
-    LOG_INFO(main, "Start Holovibes");
+    LOG_INFO("Start Holovibes");
+    LOG_TRACE("hello");
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);
@@ -147,7 +149,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR(main, "Uncaught exception: {}", e.what());
+        LOG_ERROR("Uncaught exception: {}", e.what());
         ret = 1;
     }
 

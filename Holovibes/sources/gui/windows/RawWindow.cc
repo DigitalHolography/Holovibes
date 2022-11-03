@@ -30,7 +30,7 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView
     , texDepth(0)
     , texType(0)
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     this->ratio = ratio;
     show();

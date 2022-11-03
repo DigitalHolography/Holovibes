@@ -17,7 +17,7 @@ SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     , cuArray(nullptr)
     , cuSurface(0)
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     setMinimumSize(s);
     show();

@@ -278,7 +278,7 @@ void ViewPanel::update_raw_view(bool checked)
 
     if (checked && api::get_batch_size() > api::get_output_buffer_size())
     {
-        LOG_ERROR(main, "[RAW VIEW] Batch size must be lower than output queue size");
+        LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
         return;
     }
 
@@ -308,7 +308,7 @@ void ViewPanel::set_p(int value)
 
     if (value >= static_cast<int>(api::get_time_transformation_size()))
     {
-        LOG_ERROR(main, "p param has to be between 1 and #img");
+        LOG_ERROR("p param has to be between 1 and #img");
         return;
     }
 
@@ -325,7 +325,7 @@ void ViewPanel::increment_p()
     // FIXME: Cannot append
     if (api::get_p_index() >= api::get_time_transformation_size())
     {
-        LOG_ERROR(main, "p param has to be between 1 and #img");
+        LOG_ERROR("p param has to be between 1 and #img");
         return;
     }
 
@@ -343,7 +343,7 @@ void ViewPanel::decrement_p()
     // FIXME: Cannot append
     if (api::get_p_index() <= 0)
     {
-        LOG_ERROR(main, "p param has to be between 1 and #img");
+        LOG_ERROR("p param has to be between 1 and #img");
         return;
     }
 

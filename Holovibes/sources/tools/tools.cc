@@ -47,7 +47,7 @@ std::string get_exe_dir()
         return p.parent_path().string();
     }
 
-    LOG_ERROR(main, "Failed to find executable dir");
+    LOG_ERROR("Failed to find executable dir");
     throw std::runtime_error("Failed to find executable dir");
 }
 

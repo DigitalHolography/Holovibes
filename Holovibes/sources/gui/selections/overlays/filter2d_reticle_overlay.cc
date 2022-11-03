@@ -8,7 +8,7 @@ namespace holovibes::gui
 Filter2DReticleOverlay::Filter2DReticleOverlay(BasicOpenGLWindow* parent)
     : Overlay(Filter2DReticle, parent)
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     display_ = true;
     alpha_ = 1.0f;
