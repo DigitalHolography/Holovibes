@@ -43,7 +43,7 @@ void CameraOpenCV::load_ini_params()
     fd_.width = pt.get<unsigned short>("opencv.width", fd_.width);
     fd_.height = pt.get<unsigned short>("opencv.height", fd_.height);
     fps_ = pt.get<unsigned int>("opencv.fps", fps_);
-    pixel_size_ = pt.get<unsigned int>("opencv.pixel_size", pixel_size_);
+    pixel_size_ = pt.get<float>("opencv.pixel_size", pixel_size_);
 }
 
 double CameraOpenCV::get_and_check(int param, double value, std::string param_str)
