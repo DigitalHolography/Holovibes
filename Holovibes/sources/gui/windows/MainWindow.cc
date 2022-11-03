@@ -110,8 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO(main,
-                 "{}: Compute settings file not found. Initialization with default values.",
+        LOG_INFO("{}: Compute settings file not found. Initialization with default values.",
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
@@ -230,7 +229,7 @@ void MainWindow::notify_error(const std::exception& e)
                 api::handle_update_exception();
                 api::close_windows();
                 api::close_critical_compute();
-                LOG_ERROR(main, "GPU computing error occured. : {}", e.what());
+                LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
             };
             synchronize_thread(lambda);
@@ -244,14 +243,14 @@ void MainWindow::notify_error(const std::exception& e)
             }
             api::close_critical_compute();
 
-            LOG_ERROR(main, "GPU computing error occured. : {}", e.what());
+            LOG_ERROR("GPU computing error occured. : {}", e.what());
             notify();
         };
         synchronize_thread(lambda);
     }
     else
     {
-        LOG_ERROR(main, "Unknown error occured. : {}", e.what());
+        LOG_ERROR("Unknown error occured. : {}", e.what());
     }
 }
 
@@ -342,8 +341,7 @@ void MainWindow::load_gui()
     }
     catch (json::parse_error)
     {
-        LOG_INFO(main,
-                 "{} : User settings file not found. Initialization with default values.",
+        LOG_INFO("{} : User settings file not found. Initialization with default values.",
                  ::holovibes::settings::user_settings_filepath);
         save_gui();
         return;
@@ -421,7 +419,7 @@ void MainWindow::save_gui()
     std::ofstream file(path);
     file << j_us.dump(1);
 
-    LOG_INFO(main, "user settings overwritten at {}", path);
+    LOG_INFO("user settings overwritten at {}", path);
 }
 
 #pragma endregion
@@ -530,7 +528,7 @@ void MainWindow::set_view_image_type(const QString& value)
 {
     if (api::get_compute_mode() == Computation::Raw)
     {
-        LOG_ERROR(main, "Cannot set view image type in raw mode");
+        LOG_ERROR("Cannot set view image type in raw mode");
         return;
     }
 
@@ -615,7 +613,8 @@ void MainWindow::reset_settings()
     std::string to_remove = holovibes::settings::compute_settings_filepath;
 
     std::stringstream tmp;
-    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
+    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove
+        << " and Holovibe will close";
 
     QMessageBox msgBox;
     msgBox.setText(QString::fromUtf8(tmp.str().c_str()));
@@ -632,11 +631,11 @@ void MainWindow::reset_settings()
         if (std::remove(to_remove.c_str()) == 0)
         {
             save_cs = false;
-            LOG_INFO(main, "{} has been removed!", to_remove);
-            LOG_INFO(main, "Please, restart Holovibes!");
+            LOG_INFO("{} has been removed!", to_remove);
+            LOG_INFO("Please, restart Holovibes!");
         }
         else
-            LOG_WARN(main, "Could not remove {}!", to_remove);
+            LOG_WARN("Could not remove {}!", to_remove);
 
         close();
         break;

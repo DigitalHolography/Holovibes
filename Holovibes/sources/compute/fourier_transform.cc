@@ -53,7 +53,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
 
 void FourierTransform::insert_fft()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (view_cache_.get_filter2d_enabled())
     {
@@ -83,7 +83,7 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.push_back(
         [=]()
@@ -99,7 +99,7 @@ void FourierTransform::insert_filter2d()
 
 void FourierTransform::insert_fft1()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     const float z = compute_cache_.get_z_distance();
 
@@ -129,7 +129,7 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     const float z = compute_cache_.get_z_distance();
 
@@ -164,7 +164,7 @@ void FourierTransform::insert_fft2()
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (!gpu_lens_queue_)
     {
@@ -178,7 +178,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 // Inserted
 void FourierTransform::enqueue_lens()
 {
-    // LOG-USELESS LOG_FUNC(compute_worker);
+    // LOG-USELESS LOG_FUNC();
 
     if (gpu_lens_queue_)
     {
@@ -197,7 +197,7 @@ void FourierTransform::enqueue_lens()
 
 void FourierTransform::insert_time_transform()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
     {
@@ -228,7 +228,7 @@ void FourierTransform::insert_time_transform()
 
 void FourierTransform::insert_stft()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -241,7 +241,7 @@ void FourierTransform::insert_stft()
 
 void FourierTransform::insert_pca()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     uint time_transformation_size = compute_cache_.get_time_transformation_size();
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
@@ -280,7 +280,7 @@ void FourierTransform::insert_pca()
 
 void FourierTransform::insert_ssa_stft()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     uint time_transformation_size = compute_cache_.get_time_transformation_size();
 
@@ -347,7 +347,7 @@ void FourierTransform::insert_ssa_stft()
 
 void FourierTransform::insert_store_p_frame()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -367,7 +367,7 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_time_transformation_cuts_view()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()

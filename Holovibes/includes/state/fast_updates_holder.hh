@@ -37,7 +37,7 @@ class FastUpdatesHolder
 
         map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
 
-        LOG_DEBUG(main, "New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_[key]);
+        LOG_DEBUG("New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_[key]);
 
         return map_[key];
     }

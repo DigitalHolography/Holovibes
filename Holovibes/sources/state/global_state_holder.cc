@@ -260,7 +260,7 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
     catch (std::exception& e)
     {
         convo_matrix->clear();
-        LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
+        LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
     }
 }
 
@@ -325,7 +325,6 @@ const ViewWindow& GSH::get_current_window() const { return get_window(view_cache
 /* private */
 std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
-
 /*! \class JsonSettings
  *
  * \brief Struct that help with Json convertion
@@ -333,7 +332,6 @@ std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_c
  */
 struct JsonSettings
 {
-
 
     /*! \brief latest version of holo file version */
     inline static const auto latest_version = GSH::ComputeSettingsVersion::V5;
@@ -371,10 +369,10 @@ struct JsonSettings
     }
 
     /*! \class ComputeSettingsConverter
-    *
-    * \brief Struct that contains all information to perform a convertion
-    *
-    */
+     *
+     * \brief Struct that contains all information to perform a convertion
+     *
+     */
     struct ComputeSettingsConverter
     {
         ComputeSettingsConverter(GSH::ComputeSettingsVersion from,
@@ -387,7 +385,6 @@ struct JsonSettings
             , converter(converter)
         {
         }
-
 
         /*! \brief source version */
         GSH::ComputeSettingsVersion from;
@@ -429,14 +426,15 @@ void GSH::convert_json(json& data, GSH::ComputeSettingsVersion from)
                   JsonSettings::converters.end(),
                   [&data](const JsonSettings::ComputeSettingsConverter& converter)
                   {
-                      LOG_TRACE(main, "Applying patch version v{}", static_cast<int>(converter.to) + 2);
+                      LOG_TRACE("Applying patch version v{}", static_cast<int>(converter.to) + 2);
                       std::ifstream patch_file{JsonSettings::patches_folder / converter.patch_file};
                       try
                       {
                           converter.converter(data, json::parse(patch_file));
                       }
                       catch (const std::exception&)
-                      {}
+                      {
+                      }
                   });
 }
 

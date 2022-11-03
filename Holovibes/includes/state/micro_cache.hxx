@@ -111,7 +111,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 }
 
 #ifdef _DEBUG
-#define LOG_UPDATE(var) LOG_DEBUG(main, "Update {} : {} -> {}", #var, var.obj, cache_truth<ref_t>->var);
+#define LOG_UPDATE(var) LOG_DEBUG("Update {} : {} -> {}", #var, var.obj, cache_truth<ref_t>->var);
 #else
 #define LOG_UPDATE(var)
 #endif

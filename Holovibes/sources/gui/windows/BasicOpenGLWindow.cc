@@ -46,7 +46,7 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
 {
-    LOG_FUNC(main);
+    LOG_FUNC();
 
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
     resize(s);
@@ -162,7 +162,7 @@ float BasicOpenGLWindow::getScale() const { return scale_; }
 
 void BasicOpenGLWindow::setTransform()
 {
-    LOG_FUNC(main, angle_, flip_, bitshift_);
+    LOG_FUNC(angle_, flip_, bitshift_);
 
     const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (flip_ == 1)), glm::vec3(0.f, 1.f, 0.f));
     const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));

@@ -6,20 +6,46 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <map>
 #include <thread>
-#include <shared_mutex>
+#include <vector>
 
+#include "check.hh"
 #include "holovibes_config.hh"
 #include "spdlog/fmt/ostr.h"
-#include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include "check.hh"
+#include "spdlog/spdlog.h"
+
+#define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [%t] [%N] %$ %v"
+
+#define LOG_TRACE(fmt, ...)                                                                                            \
+    SPDLOG_LOGGER_TRACE(holovibes::Logger::logger(), "{}:{} " fmt, get_file_name(__FILE__), __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_INFO(...) SPDLOG_LOGGER_INFO(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_WARN(...) SPDLOG_LOGGER_WARN(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_LOGGER_ERROR(holovibes::Logger::logger(), __VA_ARGS__)
+#define LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::logger(), __VA_ARGS__)
+
+#define CUDA_FATAL(file, line, fmt, ...)                                                                               \
+    {                                                                                                                  \
+        LOG_CRITICAL("{}:{} " fmt, file, line, __VA_ARGS__);                                                           \
+        abort();                                                                                                       \
+    }
+
+#define LOG_FUNC(...) LOG_TRACE("-> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")", __FUNCTION__, __VA_ARGS__)
+
+constexpr const char* get_file_name(const char* path)
+{
+    const char* file = path;
+    while (*path)
+        if (*path++ == '\\')
+            file = path;
+    return file;
+}
 
 // FROM : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 #define PARENS ()
@@ -33,41 +59,8 @@
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 // STOP : https://www.scs.stanford.edu/~dm/blog/va-opt.html
 
-#define INTERNAL_LOGGER_GET_ARGS_(fmt, ...) __VA_OPT__(, __VA_ARGS__)
-#define INTERNAL_LOGGER_GET_ARGS(...) __VA_OPT__(INTERNAL_LOGGER_GET_ARGS_(__VA_ARGS__))
-
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
-
-#define LOG_TRACE(log, ...) SPDLOG_LOGGER_TRACE(holovibes::Logger::logger(), __VA_ARGS__)
-#define LOG_DEBUG(log, ...) SPDLOG_LOGGER_DEBUG(holovibes::Logger::logger(), __VA_ARGS__)
-#define LOG_INFO(log, ...) SPDLOG_LOGGER_INFO(holovibes::Logger::logger(), __VA_ARGS__)
-#define LOG_WARN(log, ...) SPDLOG_LOGGER_WARN(holovibes::Logger::logger(), __VA_ARGS__)
-#define LOG_ERROR(log, ...) SPDLOG_LOGGER_ERROR(holovibes::Logger::logger(), __VA_ARGS__)
-#define LOG_CRITICAL(log, ...) SPDLOG_LOGGER_CRITICAL(holovibes::Logger::logger(), __VA_ARGS__)
-
-constexpr const char* get_file_name(const char* path)
-{
-    const char* file = path;
-    while (*path)
-        if (*path++ == '\\')
-            file = path;
-    return file;
-}
-
-#define LOG_FUNC(log, ...)                                                                                             \
-    LOG_TRACE(log,                                                                                                     \
-              "{}:{} -> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")",                                            \
-              get_file_name(__FILE__),                                                                                 \
-              __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
-
-#define CUDA_FATAL(file, line, fmt, ...)                                                                               \
-    {                                                                                                                  \
-        LOG_CRITICAL(cuda, "{}:{} " fmt, file, line, __VA_ARGS__);                                                     \
-        abort();                                                                                                       \
-    }
-
-#define LOGGER_PATTERN "%^[%=5l] [%H:%M:%S.%e] [%t]%$ %v"
 
 namespace holovibes
 {
@@ -85,7 +78,6 @@ class Logger
     static std::shared_ptr<spdlog::logger> logger();
     static bool add_thread(std::thread::id thread_id, std::string thread_name);
     static std::pair<std::string, bool> get_thread_name(size_t thread_id);
-    static std::shared_mutex map_mutex_;
 
   private:
     static std::shared_ptr<spdlog::logger> init_logger(std::string name, spdlog::level::level_enum);

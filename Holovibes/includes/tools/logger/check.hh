@@ -38,7 +38,7 @@
     {                                                                                                                  \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            LOG_CRITICAL(main, "{}:{} ", __FILE__, __LINE__);                                                          \
+            LOG_CRITICAL("{}:{} ", __FILE__, __LINE__);                                                                \
             abort();                                                                                                   \
         }                                                                                                              \
     }
@@ -46,7 +46,7 @@
     {                                                                                                                  \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            LOG_CRITICAL(main, "{}:{} " fmt, __FILE__, __LINE__);                                                      \
+            LOG_CRITICAL("{}:{} " fmt, __FILE__, __LINE__);                                                            \
             abort();                                                                                                   \
         }                                                                                                              \
     }
@@ -55,7 +55,7 @@
     {                                                                                                                  \
         if (!(cond))                                                                                                   \
         {                                                                                                              \
-            LOG_CRITICAL(main, "{}:{} " fmt, __FILE__, __LINE__, __VA_ARGS__);                                         \
+            LOG_CRITICAL("{}:{} " fmt, __FILE__, __LINE__, __VA_ARGS__);                                               \
             abort();                                                                                                   \
         }                                                                                                              \
     }

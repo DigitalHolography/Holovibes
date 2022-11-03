@@ -43,7 +43,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
 
 void Converts::insert_to_float(bool unwrap_2d_requested)
 {
-    LOG_FUNC(compute_worker, unwrap_2d_requested);
+    LOG_FUNC(unwrap_2d_requested);
 
     insert_compute_p_accu();
     if (view_cache_.get_img_type() == ImgType::Composite)
@@ -75,7 +75,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
 
 void Converts::insert_to_ushort()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     insert_main_ushort();
     if (view_cache_.get_cuts_view_enabled())
@@ -86,7 +86,7 @@ void Converts::insert_to_ushort()
 
 void Converts::insert_compute_p_accu()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -106,7 +106,7 @@ void Converts::insert_compute_p_accu()
 // gpu_p_acc_buffer is not used.
 void Converts::insert_to_modulus()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -122,7 +122,7 @@ void Converts::insert_to_modulus()
 
 void Converts::insert_to_squaredmodulus()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -138,7 +138,7 @@ void Converts::insert_to_squaredmodulus()
 
 void Converts::insert_to_composite()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -182,7 +182,7 @@ void Converts::insert_to_composite()
 
 void Converts::insert_to_argument(bool unwrap_2d_requested)
 {
-    LOG_FUNC(compute_worker, unwrap_2d_requested);
+    LOG_FUNC(unwrap_2d_requested);
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -228,14 +228,14 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
         }
         catch (std::exception& e)
         {
-            LOG_ERROR(compute_worker, "Error while trying to convert to float in Argument : {}", e.what());
+            LOG_ERROR("Error while trying to convert to float in Argument : {}", e.what());
         }
     }
 }
 
 void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
 {
-    LOG_FUNC(compute_worker, unwrap_2d_requested);
+    LOG_FUNC(unwrap_2d_requested);
 
     try
     {
@@ -289,13 +289,13 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     }
     catch (std::exception& e)
     {
-        LOG_ERROR(compute_worker, "Error while trying to convert to float in Phase increase : {}", e.what());
+        LOG_ERROR("Error while trying to convert to float in Phase increase : {}", e.what());
     }
 }
 
 void Converts::insert_main_ushort()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -309,7 +309,7 @@ void Converts::insert_main_ushort()
 
 void Converts::insert_slice_ushort()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -331,7 +331,7 @@ void Converts::insert_slice_ushort()
 
 void Converts::insert_filter2d_ushort()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
@@ -345,7 +345,7 @@ void Converts::insert_filter2d_ushort()
 
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
-    LOG_FUNC(compute_worker, fd_.depth);
+    LOG_FUNC(fd_.depth);
 
     fn_compute_vect_.push_back(
         [&]()

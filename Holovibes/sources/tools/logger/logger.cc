@@ -6,11 +6,8 @@ namespace holovibes
 {
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 std::unique_ptr<spdlog::pattern_formatter> Logger::formatter_ = nullptr;
-
 std::vector<spdlog::sink_ptr> Logger::sinks_;
-
 std::map<size_t, std::string> Logger::thread_map_;
-std::shared_mutex Logger::map_mutex_;
 
 std::shared_ptr<spdlog::logger> Logger::logger()
 {
@@ -31,7 +28,7 @@ std::shared_ptr<spdlog::logger> Logger::logger()
 void Logger::init_formatter()
 {
     formatter_ = std::make_unique<spdlog::pattern_formatter>();
-    formatter_->add_flag<ThreadNameFlag>('t').set_pattern(LOGGER_PATTERN);
+    formatter_->add_flag<ThreadNameFlag>('N').set_pattern(LOGGER_PATTERN);
 }
 
 void Logger::init_sinks()
@@ -83,7 +80,6 @@ bool Logger::add_thread(std::thread::id thread_id, std::string thread_name)
 
 std::pair<std::string, bool> Logger::get_thread_name(size_t thread_id)
 {
-    std::shared_lock lock(map_mutex_);
     std::map<size_t, std::string>::iterator search = thread_map_.find(thread_id);
     if (search == thread_map_.end())
     {

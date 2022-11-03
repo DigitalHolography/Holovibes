@@ -38,14 +38,14 @@ FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
 
 void FileFrameReadWorker::run()
 {
-    LOG_FUNC(frame_read_worker);
+    LOG_FUNC();
     try
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
     }
     catch (const io_files::FileException& e)
     {
-        LOG_ERROR(frame_read_worker, "{}", e.what());
+        LOG_ERROR("{}", e.what());
         return;
     }
 
@@ -76,7 +76,7 @@ void FileFrameReadWorker::run()
     }
     catch (const io_files::FileException& e)
     {
-        LOG_ERROR(frame_read_worker, "{}", e.what());
+        LOG_ERROR("{}", e.what());
     }
 
     // No more enqueue, thus release the producer ressources
@@ -112,7 +112,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        LOG_ERROR(frame_read_worker, "{}", error_message);
+        LOG_ERROR("{}", error_message);
 
         return false;
     }
@@ -126,7 +126,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        LOG_ERROR(frame_read_worker, "{}", error_message);
+        LOG_ERROR("{}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         return false;
@@ -141,7 +141,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         if (load_file_in_gpu_)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
-        LOG_ERROR(frame_read_worker, "{}", error_message);
+        LOG_ERROR("{}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         cudaXFree(gpu_frame_buffer_);
@@ -252,7 +252,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
     }
     catch (const io_files::FileException& e)
     {
-        LOG_ERROR(frame_read_worker, "{}", e.what());
+        LOG_ERROR("{}", e.what());
     }
 
     return frames_read;
