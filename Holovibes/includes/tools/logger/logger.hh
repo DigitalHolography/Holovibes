@@ -64,13 +64,6 @@ constexpr const char* get_file_name(const char* path)
 
 namespace holovibes
 {
-enum class State
-{
-    free,
-    read,
-    write
-};
-
 class Logger
 {
 
