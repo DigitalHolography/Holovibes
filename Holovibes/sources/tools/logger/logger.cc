@@ -1,6 +1,7 @@
 #include "logger.hh"
 #include "thread_name_flag.hh"
 #include "spdlog/pattern_formatter.h"
+#include "spdlog/sinks/dup_filter_sink.h"
 
 namespace holovibes
 {
@@ -46,14 +47,18 @@ void Logger::init_sinks()
         std::filesystem::rename(log_path, old_log_path);
     }
 
+    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_mt>(std::chrono::seconds(15));
+
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path.string(), true);
     file_sink->set_level(spdlog::level::trace);
 
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::trace);
 
-    sinks_.push_back(file_sink);
-    sinks_.push_back(console_sink);
+    dup_filter->add_sink(file_sink);
+    dup_filter->add_sink(console_sink);
+
+    sinks_.push_back(dup_filter);
 }
 
 std::shared_ptr<spdlog::logger> Logger::init_logger(std::string name, spdlog::level::level_enum level)
