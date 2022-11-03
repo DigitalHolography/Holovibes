@@ -24,7 +24,7 @@ static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation
 
 // FIXME API : these 3 function need to use the same function
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXY>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewXY_PARAM>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
 {
     if (new_value.get_request_clear_image_accumulation() == true)
     {
@@ -40,18 +40,18 @@ void ViewPipeRequestOnSync::operator()<ViewXY>(const View_XYZ& new_value, const 
         else
         {
             auto new_fd = api::get_gpu_input_queue().get_fd();
-            new_fd.depth =
-                GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
+            new_fd.depth = GSH::instance().get_value<ImageType_PARAM>() == ImageTypeEnum::Composite ? 3 * sizeof(float)
+                                                                                                    : sizeof(float);
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
                                         pipe.get_image_acc_env().gpu_float_average_xy_frame,
-                                        GSH::instance().get_value<ViewXY>().get_image_accumulation_level(),
+                                        GSH::instance().get_value<ViewXY_PARAM>().get_image_accumulation_level(),
                                         new_fd);
         }
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXZ>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewXZ_PARAM>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
 {
     if (new_value.get_request_clear_image_accumulation() == true)
     {
@@ -71,14 +71,14 @@ void ViewPipeRequestOnSync::operator()<ViewXZ>(const View_XYZ& new_value, const 
             new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
                                         pipe.get_image_acc_env().gpu_float_average_xz_frame,
-                                        GSH::instance().get_value<ViewXZ>().get_image_accumulation_level(),
+                                        GSH::instance().get_value<ViewXZ_PARAM>().get_image_accumulation_level(),
                                         new_fd);
         }
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewYZ>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewYZ_PARAM>(const View_XYZ& new_value, const View_XYZ& old_value, Pipe& pipe)
 {
     if (new_value.get_request_clear_image_accumulation() == true)
     {
@@ -98,7 +98,7 @@ void ViewPipeRequestOnSync::operator()<ViewYZ>(const View_XYZ& new_value, const 
             new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
                                         pipe.get_image_acc_env().gpu_float_average_yz_frame,
-                                        GSH::instance().get_value<ViewYZ>().get_image_accumulation_level(),
+                                        GSH::instance().get_value<ViewYZ_PARAM>().get_image_accumulation_level(),
                                         new_fd);
         }
     }

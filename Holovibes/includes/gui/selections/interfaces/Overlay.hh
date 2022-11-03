@@ -32,7 +32,7 @@ enum KindOfOverlay
     // Cross
     Cross,
     SliceCross,
-    // Filter2D
+    // Filter2D_PARAM
     Filter2DReticle,
     // Composite overlays
     CompositeArea,

@@ -54,7 +54,7 @@ void Rendering::insert_fft_shift()
 
     if (view_cache_.get_value<FftShiftEnabled>())
     {
-        if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+        if (view_cache_.get_value<ImageType_PARAM>() == ImageTypeEnum::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
@@ -108,11 +108,11 @@ void Rendering::insert_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_value<ViewXY>().log_enabled)
+    if (view_cache_.get_value<ViewXY_PARAM>().log_enabled)
         insert_main_log();
     if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_log();
-    if (view_cache_.get_value<Filter2D>().log_enabled)
+    if (view_cache_.get_value<Filter2D_PARAM>().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -124,21 +124,22 @@ void Rendering::insert_contrast()
     insert_compute_autocontrast();
 
     // Apply contrast on the main view
-    if (view_cache_.get_value<ViewXY>().contrast.enabled)
+    if (view_cache_.get_value<ViewXY_PARAM>().contrast.enabled)
         insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
     if (view_cache_.get_value<CutsViewEnabled>())
     {
-        if (view_cache_.get_value<ViewXZ>().contrast.enabled)
+        if (view_cache_.get_value<ViewXZ_PARAM>().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
-        if (view_cache_.get_value<ViewYZ>().contrast.enabled)
+        if (view_cache_.get_value<ViewYZ_PARAM>().contrast.enabled)
 
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_value<Filter2DViewEnabled>() && GSH::instance().get_value<Filter2D>().contrast.enabled)
-        insert_apply_contrast(WindowKind::Filter2D);
+    if (GSH::instance().get_value<Filter2DViewEnabled>() &&
+        GSH::instance().get_value<Filter2D_PARAM>().contrast.enabled)
+        insert_apply_contrast(WindowKind::Filter2D_PARAM);
 }
 
 void Rendering::insert_main_log()
@@ -158,7 +159,7 @@ void Rendering::insert_slice_log()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_value<ViewXZ>().log_enabled)
+    if (view_cache_.get_value<ViewXZ_PARAM>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -169,7 +170,7 @@ void Rendering::insert_slice_log()
                           stream_);
             });
     }
-    if (view_cache_.get_value<ViewYZ>().log_enabled)
+    if (view_cache_.get_value<ViewYZ_PARAM>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -219,22 +220,22 @@ void Rendering::insert_apply_contrast(WindowKind view)
             case WindowKind::XYview:
                 input = buffers_.gpu_postprocess_frame;
                 size = buffers_.gpu_postprocess_frame_size;
-                wind = view_cache_.get_value<ViewXY>();
+                wind = view_cache_.get_value<ViewXY_PARAM>();
                 break;
             case WindowKind::YZview:
                 input = buffers_.gpu_postprocess_frame_yz.get();
                 size = fd_.height * compute_cache_.get_value<TimeTransformationSize>();
-                wind = view_cache_.get_value<ViewYZ>();
+                wind = view_cache_.get_value<ViewYZ_PARAM>();
                 break;
             case WindowKind::XZview:
                 input = buffers_.gpu_postprocess_frame_xz.get();
                 size = fd_.width * compute_cache_.get_value<TimeTransformationSize>();
-                wind = view_cache_.get_value<ViewXZ>();
+                wind = view_cache_.get_value<ViewXZ_PARAM>();
                 break;
-            case WindowKind::Filter2D:
+            case WindowKind::Filter2D_PARAM:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = GSH::instance().get_value<Filter2D>();
+                wind = GSH::instance().get_value<Filter2D_PARAM>();
                 break;
             }
 
@@ -265,15 +266,15 @@ void Rendering::insert_compute_autocontrast()
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (view_cache_.get_value<ViewXY>().get_exec_auto_contrast() &&
+        if (view_cache_.get_value<ViewXY_PARAM>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            view_cache_.get_value<ViewXY>().reset_exec_auto_contrast();
+            view_cache_.get_value<ViewXY_PARAM>().reset_exec_auto_contrast();
         }
-        if (view_cache_.get_value<ViewXZ>().get_exec_auto_contrast() &&
+        if (view_cache_.get_value<ViewXZ_PARAM>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
@@ -281,9 +282,9 @@ void Rendering::insert_compute_autocontrast()
                                 compute_cache_.get_value<TimeTransformationSize>(),
                                 advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::XZview);
-            view_cache_.get_value<ViewXZ>().reset_exec_auto_contrast();
+            view_cache_.get_value<ViewXZ_PARAM>().reset_exec_auto_contrast();
         }
-        if (view_cache_.get_value<ViewYZ>().get_exec_auto_contrast() &&
+        if (view_cache_.get_value<ViewYZ_PARAM>().get_exec_auto_contrast() &&
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
@@ -291,16 +292,16 @@ void Rendering::insert_compute_autocontrast()
                                 fd_.height,
                                 advanced_cache_.get_value<CutsContrastPOffset>(),
                                 WindowKind::YZview);
-            view_cache_.get_value<ViewYZ>().reset_exec_auto_contrast();
+            view_cache_.get_value<ViewYZ_PARAM>().reset_exec_auto_contrast();
         }
-        if (view_cache_.get_value<Filter2D>().get_exec_auto_contrast())
+        if (view_cache_.get_value<Filter2D_PARAM>().get_exec_auto_contrast())
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
-                                WindowKind::Filter2D);
-            view_cache_.get_value<Filter2D>().reset_exec_auto_contrast();
+                                WindowKind::Filter2D_PARAM);
+            view_cache_.get_value<Filter2D_PARAM>().reset_exec_auto_contrast();
         }
 
         // FIXME: gsh should not be modified in the pipe
@@ -323,19 +324,19 @@ void Rendering::autocontrast_caller(
     {
     case WindowKind::XYview:
     case WindowKind::XZview:
-    case WindowKind::Filter2D:
+    case WindowKind::Filter2D_PARAM:
         // No offset
-        compute_percentile_xy_view(input,
-                                   width,
-                                   height,
-                                   (view == WindowKind::XYview) ? 0 : offset,
-                                   percent_in,
-                                   percent_min_max_,
-                                   percent_size,
-                                   zone_cache_.get_value<ReticleZone>(),
-                                   (view == WindowKind::Filter2D) ? false
-                                                                  : view_cache_.get_value<ReticleDisplayEnabled>(),
-                                   stream_);
+        compute_percentile_xy_view(
+            input,
+            width,
+            height,
+            (view == WindowKind::XYview) ? 0 : offset,
+            percent_in,
+            percent_min_max_,
+            percent_size,
+            zone_cache_.get_value<ReticleZone>(),
+            (view == WindowKind::Filter2D_PARAM) ? false : view_cache_.get_value<ReticleDisplayEnabled>(),
+            stream_);
         api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch

@@ -72,13 +72,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
-    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+    if (view_cache_.get_value<ImageType_PARAM>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+    if (view_cache_.get_value<ImageType_PARAM>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))

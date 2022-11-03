@@ -36,11 +36,11 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value,
-                                                       const ConvolutionStruct& old_value,
-                                                       Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<Convolution_PARAM>(const ConvolutionStruct& new_value,
+                                                             const ConvolutionStruct& old_value,
+                                                             Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Convolution");
+    LOG_TRACE(compute_worker, "UPDATE Convolution_PARAM");
 
     if (new_value.get_is_enabled() != old_value.get_is_enabled())
     {
@@ -56,7 +56,7 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Convolution");
+    LOG_TRACE(compute_worker, "UPDATE Convolution_PARAM");
 
     if (new_value == false)
         pipe.dispose_cuts();

@@ -107,7 +107,7 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window_kind() == WindowKind::Filter2D)
+    if (api::get_current_window_kind() == WindowKind::Filter2D_PARAM)
         set_xyzf_visibility(false);
     else
     {

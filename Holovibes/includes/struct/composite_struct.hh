@@ -125,9 +125,9 @@ struct CompositeSV
  */
 struct CompositeHSV
 {
-    CompositeH h{};
-    CompositeSV s{};
-    CompositeSV v{};
+    CompositeH_OLD h{};
+    CompositeSV_OLD s{};
+    CompositeSV_OLD v{};
 
     SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
 };

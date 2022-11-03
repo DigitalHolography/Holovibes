@@ -189,10 +189,10 @@ void Holovibes::init_pipe()
     LOG_FUNC(main);
 
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
+    if (GSH::instance().get_value<ComputeMode_PARAM>() == Computation::Hologram)
     {
         output_fd.depth = 2;
-        if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
+        if (GSH::instance().get_value<ImageType_PARAM>() == ImageTypeEnum::Composite)
             output_fd.depth = 6;
     }
 

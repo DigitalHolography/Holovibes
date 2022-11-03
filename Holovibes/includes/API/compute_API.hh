@@ -29,14 +29,17 @@ inline void set_time_transformation(TimeTransformationEnum value) { api::detail:
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline ConvolutionStruct get_convolution() { return api::detail::get_value<Convolution>(); }
-inline TriggerChangeValue<ConvolutionStruct> change_convolution() { return api::detail::change_value<Convolution>(); }
+inline ConvolutionStruct get_convolution() { return api::detail::get_value<Convolution_PARAM>(); }
+inline TriggerChangeValue<ConvolutionStruct> change_convolution()
+{
+    return api::detail::change_value<Convolution_PARAM>();
+}
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
 inline void set_input_fps(uint value) { api::detail::set_value<InputFps>(value); }
 
-inline Computation get_compute_mode() { return api::detail::get_value<ComputeMode>(); }
-inline void set_compute_mode(Computation value) { api::detail::set_value<ComputeMode>(value); }
+inline Computation get_compute_mode() { return api::detail::get_value<ComputeMode_PARAM>(); }
+inline void set_compute_mode(Computation value) { api::detail::set_value<ComputeMode_PARAM>(value); }
 
 inline float get_pixel_size() { return api::detail::get_value<PixelSize>(); }
 inline void set_pixel_size(float value) { api::detail::set_value<PixelSize>(value); }

@@ -18,7 +18,7 @@ class StartFrame : public UIntParameter<0, "start_frame">{};
 //! \brief Last frame read
 class EndFrame : public UIntParameter<0, "end_frame">{};
 class ImportType : public CustomParameter<ImportTypeEnum, ImportTypeEnum::None, "import_type", ImportTypeEnum>{};
-// FIXME : check diff with ImageType of view ; maybe the same
+// FIXME : check diff with ImageType_PARAM of view ; maybe the same
 class LastImageType : public StringParameter<"Magnitude", "last_img_type">{};
 class CurrentCameraKind : public CustomParameter<CameraKind, CameraKind::None, "current_camera_kind", CameraKind>{};
 

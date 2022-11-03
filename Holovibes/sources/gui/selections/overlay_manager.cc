@@ -221,7 +221,7 @@ void OverlayManager::create_default()
 {
     switch (parent_->getKindOfView())
     {
-    case KindOfView::Filter2D:
+    case KindOfView::Filter2D_PARAM:
         create_overlay<Filter2DReticle>();
     case KindOfView::Raw:
     case KindOfView::Hologram:

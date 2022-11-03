@@ -24,9 +24,9 @@ class TimeTransformationSize : public UIntParameter<1, "time_transformation_size
 class SpaceTransformation : public CustomParameter<SpaceTransformationEnum, SpaceTransformationEnum::NONE, "space_transformation", SpaceTransformationEnum>{};
 class TimeTransformation : public CustomParameter<TimeTransformationEnum, TimeTransformationEnum::NONE, "time_transformation", TimeTransformationEnum>{};
 class ZDistance : public FloatParameter<1.50f, "z_distance">{};
-class Convolution : public CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">{};
+class Convolution_PARAM : public CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">{};
 class InputFps : public UIntParameter<60, "input_fps">{};
-class ComputeMode : public CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>{};
+class ComputeMode_PARAM : public CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>{};
 class PixelSize : public FloatParameter<12.0f, "pixel_size">{};
 class UnwrapHistorySize : public UIntParameter<1, "unwrap_history_stopped">{};
 class Unwrap2DRequested : public BoolParameter<false, "unwrap_2d_requested">{};
@@ -43,9 +43,9 @@ class ComputeCache : public MicroCache<BatchSize,
                                        SpaceTransformation,
                                        TimeTransformation,
                                        ZDistance,
-                                       Convolution,
+                                       Convolution_PARAM,
                                        InputFps,
-                                       ComputeMode,
+                                       ComputeMode_PARAM,
                                        PixelSize,
                                        UnwrapHistorySize,
                                        Unwrap2DRequested,

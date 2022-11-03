@@ -23,7 +23,8 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     void operator()<TimeTransformationSize>(uint new_value, uint old_value, Pipe& pipe);
 
     template <>
-    void operator()<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
+    void
+    operator()<Convolution_PARAM>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
 
     template <>
     void operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe);

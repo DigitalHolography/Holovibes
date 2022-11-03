@@ -92,26 +92,27 @@ void load_convolution_matrix(const std::string& file)
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref().resize(size, 0.0f);
+        GSH::instance().get_compute_cache().get_value_ref_W<Convolution_PARAM>().get_matrix_ref().resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)
         {
             for (uint j = first_col; j < last_col; j++)
             {
-                GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref()[i * output_width +
-                                                                                                    j] =
-                    matrix[kernel_indice];
+                GSH::instance()
+                    .get_compute_cache()
+                    .get_value_ref_W<Convolution_PARAM>()
+                    .get_matrix_ref()[i * output_width + j] = matrix[kernel_indice];
                 kernel_indice++;
             }
         }
     }
     catch (std::exception& e)
     {
-        GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().get_matrix_ref().clear();
+        GSH::instance().get_compute_cache().get_value_ref_W<Convolution_PARAM>().get_matrix_ref().clear();
         LOG_ERROR(main, "Couldn't load convolution matrix : {}", e.what());
     }
-    GSH::instance().get_compute_cache().force_trigger_param_W<Convolution>();
+    GSH::instance().get_compute_cache().force_trigger_param_W<Convolution_PARAM>();
 }
 
 } // namespace holovibes::api

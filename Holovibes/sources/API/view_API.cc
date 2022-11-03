@@ -105,9 +105,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
                                     QSize(filter2d_window_width, filter2d_window_height),
                                     get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
+        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D_PARAM view");
 
-        GSH::instance().change_value<Filter2D>()->set_log_scale_slice_enabled(true);
+        GSH::instance().change_value<Filter2D_PARAM>()->set_log_scale_slice_enabled(true);
         api::get_view_filter2d().request_exec_auto_contrast();
     }
     else

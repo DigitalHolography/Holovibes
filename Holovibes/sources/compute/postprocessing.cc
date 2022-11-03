@@ -53,7 +53,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_value<Convolution>().get_matrix_ref().data(),
+                                   GSH::instance().get_value<Convolution_PARAM>().get_matrix_ref().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -97,7 +97,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
+                       compute_cache_.get_value<Convolution_PARAM>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -107,7 +107,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
+                       compute_cache_.get_value<Convolution_PARAM>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -117,7 +117,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_value<Convolution>().get_divide_enabled(),
+                       compute_cache_.get_value<Convolution_PARAM>().get_divide_enabled(),
                        true,
                        stream_);
 
@@ -131,11 +131,11 @@ void Postprocessing::insert_convolution()
 {
     LOG_FUNC(compute_worker);
 
-    if (compute_cache_.get_value<Convolution>().get_is_enabled() == false ||
-        compute_cache_.get_value<Convolution>().get_matrix_ref().empty())
+    if (compute_cache_.get_value<Convolution_PARAM>().get_is_enabled() == false ||
+        compute_cache_.get_value<Convolution_PARAM>().get_matrix_ref().empty())
         return;
 
-    if (view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
+    if (view_cache_.get_value<ImageType_PARAM>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -146,7 +146,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_value<Convolution>().get_divide_enabled(),
+                                   compute_cache_.get_value<Convolution_PARAM>().get_divide_enabled(),
                                    true,
                                    stream_);
             });
@@ -168,7 +168,7 @@ void Postprocessing::insert_renormalize()
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+            if (view_cache_.get_value<ImageType_PARAM>() == ImageTypeEnum::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

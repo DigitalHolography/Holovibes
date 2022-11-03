@@ -403,9 +403,9 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_value<TimeTransformationSize>(),
-                                                   view_cache_.get_value<ViewXZ>().get_image_accumulation_level(),
-                                                   view_cache_.get_value<ViewYZ>().get_image_accumulation_level(),
-                                                   view_cache_.get_value<ImageType>(),
+                                                   view_cache_.get_value<ViewXZ_PARAM>().get_image_accumulation_level(),
+                                                   view_cache_.get_value<ViewYZ_PARAM>().get_image_accumulation_level(),
+                                                   view_cache_.get_value<ImageType_PARAM>(),
                                                    stream_);
                 }
             }

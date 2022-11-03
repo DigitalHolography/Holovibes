@@ -15,14 +15,15 @@ namespace holovibes
 {
 // clang-format off
 
-class CompositeKind : public CustomParameter<CompositeKindEnum, CompositeKindEnum::RGB, "composite_kind", CompositeKindEnum>{};
+class CompositeKind_PARAM : public CustomParameter<CompositeKindEnum, CompositeKindEnum::RGB, "composite_kind", CompositeKindEnum>{};
 class CompositeAutoWeights : public BoolParameter<false, "composite_auto_weights">{};
-class CompositeRGB : public CustomParameter<CompositeRGBStruct, CompositeRGBStruct{}, "composite_rgb">{};
-class CompositeHSV : public CustomParameter<CompositeHSVStruct, CompositeHSVStruct{}, "CompositeHsv">{};
+class CompositeRGB_PARAM : public CustomParameter<CompositeRGBStruct, CompositeRGBStruct{}, "composite_rgb">{};
+class CompositeHSV_PARAM : public CustomParameter<CompositeHSVStruct, CompositeHSVStruct{}, "CompositeHsv">{};
 
 // clang-format on
 
-class CompositeCache : public MicroCache<CompositeKind, CompositeAutoWeights, CompositeRGB, CompositeHSV>
+class CompositeCache
+    : public MicroCache<CompositeKind_PARAM, CompositeAutoWeights, CompositeRGB_PARAM, CompositeHSV_PARAM>
 {
 };
 

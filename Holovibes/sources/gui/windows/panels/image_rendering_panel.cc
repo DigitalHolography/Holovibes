@@ -72,7 +72,7 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
-    // Filter2D
+    // Filter2D_PARAM
     ui_->Filter2D->setEnabled(!is_raw);
     ui_->Filter2D->setChecked(api::get_filter2d_enabled());
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
@@ -83,7 +83,7 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
 
-    // Convolution
+    // Convolution_PARAM
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled() &&
@@ -136,7 +136,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
         if (res)
         {
-            /* Filter2D */
+            /* Filter2D_PARAM */
             camera::FrameDescriptor fd = api::get_gpu_input_queue().get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 

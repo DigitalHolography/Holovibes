@@ -4,8 +4,8 @@
 
 namespace holovibes::api
 {
-inline ImageTypeEnum get_image_type() { return api::detail::get_value<ImageType>(); }
-inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<ImageType>(value); }
+inline ImageTypeEnum get_image_type() { return api::detail::get_value<ImageType_PARAM>(); }
+inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<ImageType_PARAM>(value); }
 
 inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnabled>(); }
 inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }
@@ -39,15 +39,15 @@ inline TriggerChangeValue<View_XY> change_view_accu_y() noexcept { return api::d
 inline TriggerChangeValue<View_PQ> change_view_accu_p() noexcept { return api::detail::change_value<ViewAccuP>(); }
 inline TriggerChangeValue<View_PQ> change_view_accu_q() noexcept { return api::detail::change_value<ViewAccuQ>(); }
 
-inline const View_XYZ& get_view_xy() noexcept { return api::detail::get_value<ViewXY>(); }
-inline const View_XYZ& get_view_xz() noexcept { return api::detail::get_value<ViewXZ>(); }
-inline const View_XYZ& get_view_yz() noexcept { return api::detail::get_value<ViewYZ>(); }
-inline TriggerChangeValue<View_XYZ> change_view_xy() noexcept { return api::detail::change_value<ViewXY>(); }
-inline TriggerChangeValue<View_XYZ> change_view_xz() noexcept { return api::detail::change_value<ViewXZ>(); }
-inline TriggerChangeValue<View_XYZ> change_view_yz() noexcept { return api::detail::change_value<ViewYZ>(); }
+inline const View_XYZ& get_view_xy() noexcept { return api::detail::get_value<ViewXY_PARAM>(); }
+inline const View_XYZ& get_view_xz() noexcept { return api::detail::get_value<ViewXZ_PARAM>(); }
+inline const View_XYZ& get_view_yz() noexcept { return api::detail::get_value<ViewYZ_PARAM>(); }
+inline TriggerChangeValue<View_XYZ> change_view_xy() noexcept { return api::detail::change_value<ViewXY_PARAM>(); }
+inline TriggerChangeValue<View_XYZ> change_view_xz() noexcept { return api::detail::change_value<ViewXZ_PARAM>(); }
+inline TriggerChangeValue<View_XYZ> change_view_yz() noexcept { return api::detail::change_value<ViewYZ_PARAM>(); }
 
-inline View_Window get_view_filter2d() { return api::detail::get_value<Filter2D>(); }
-inline TriggerChangeValue<View_Window> change_view_filter2d() { return api::detail::change_value<Filter2D>(); }
+inline View_Window get_view_filter2d() { return api::detail::get_value<Filter2D_PARAM>(); }
+inline TriggerChangeValue<View_Window> change_view_filter2d() { return api::detail::change_value<Filter2D_PARAM>(); }
 
 inline float get_reticle_scale() { return api::detail::get_value<ReticleScale>(); }
 inline void set_reticle_scale(float value) { api::detail::set_value<ReticleScale>(value); }

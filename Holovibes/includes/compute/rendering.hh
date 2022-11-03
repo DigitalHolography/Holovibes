@@ -66,7 +66,7 @@ class Rendering
     void insert_main_log();
     /*! \brief insert the log10 on the slices */
     void insert_slice_log();
-    /*! \brief insert the log10 on the Filter2D view */
+    /*! \brief insert the log10 on the Filter2D_PARAM view */
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */
