@@ -72,7 +72,7 @@ void VisaInterface::initialize_instrument(const unsigned address)
                              &(pimpl_->sessions_.back().first));
     if (pimpl_->status_ != VI_SUCCESS)
     {
-        spdlog::get("Setup")->error("[GPIB] Could not set up connection with instrument {}", address);
+        spdlog::get("logger")->error("[GPIB] Could not set up connection with instrument {}", address);
         throw GpibInstrError(boost::lexical_cast<std::string>(address));
     }
 
@@ -155,7 +155,7 @@ void VisaInterface::close_line()
      */
     if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
     {
-        spdlog::get("Setup")->error("[GPIB] Could not close connection to VISA driver");
+        spdlog::get("logger")->error("[GPIB] Could not close connection to VISA driver");
     }
 }
 

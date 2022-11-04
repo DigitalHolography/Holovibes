@@ -6,7 +6,8 @@
 #include "camera.hh"
 #include "camera_exception.hh"
 
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
+#include "camera_logger.hh"
 
 namespace camera
 {
@@ -116,7 +117,7 @@ class EHoloGrabber
             cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr, 0);
 
             if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-                spdlog::get("Setup")->error("Could not allocate buffers.");
+                Logger::camera()->error("Could not allocate buffers.");
 
             buffers_.push_back(ptr);
             for (size_t ix = 0; ix < grabber_count; ix++)

@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 #include "bitflow_cyton.hh"
+#include "camera_logger.hh"
 
 namespace camera
 {
@@ -22,7 +23,7 @@ static void print_BiError(Bd board, BFRC status)
     char error_text[const_error_text_size];
     BiErrorTextGet(board, status, error_text, &error_text_size);
 
-    spdlog::get("Setup")->error("{}", std::string(error_text, error_text_size));
+    Logger::camera()->error("{}", std::string(error_text, error_text_size));
 }
 
 CameraPhantomBitflow::CameraPhantomBitflow()
@@ -37,7 +38,7 @@ CameraPhantomBitflow::CameraPhantomBitflow()
     }
     else
     {
-        spdlog::get("Setup")->error("Could not open bitflow.ini config file");
+        Logger::camera()->error("Could not open bitflow.ini config file");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
     load_default_params();
@@ -73,7 +74,7 @@ void CameraPhantomBitflow::create_buffers()
     frames = (PBFU32*)malloc(nb_buffers * sizeof(BFUPTR));
     if (frames == NULL)
     {
-        spdlog::get("Setup")->error("Could not allocate pointers buffer");
+        Logger::camera()->error("Could not allocate pointers buffer");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -81,7 +82,7 @@ void CameraPhantomBitflow::create_buffers()
     cudaError_t status = cudaMallocHost(&data, total_mem_size);
     if (status != cudaSuccess || data == NULL)
     {
-        spdlog::get("Setup")->error("Could not allocate data buffer");
+        Logger::camera()->error("Could not allocate data buffer");
         free(frames);
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
@@ -248,7 +249,7 @@ void CameraPhantomBitflow::load_ini_params()
 
     if (nb_boards != 1 && nb_boards != 2 && nb_boards != 4)
     {
-        spdlog::get("Setup")->error("bitflow.ini: number_of_boards should be 1, 2 or 4");
+        Logger::camera()->error("bitflow.ini: number_of_boards should be 1, 2 or 4");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 
@@ -258,7 +259,7 @@ void CameraPhantomBitflow::load_ini_params()
 
         if (board_nums[i] == -1)
         {
-            spdlog::get("Setup")->error("bitflow.ini: board {} has an invalid value", i);
+            Logger::camera()->error("bitflow.ini: board {} has an invalid value", i);
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
@@ -279,7 +280,7 @@ void CameraPhantomBitflow::bind_params()
 
     if (rc != BI_OK)
     {
-        spdlog::get("Setup")->error("Could not read frame description");
+        Logger::camera()->error("Could not read frame description");
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 

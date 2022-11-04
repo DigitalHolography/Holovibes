@@ -67,7 +67,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
-        spdlog::get("Setup")->error(
+        holovibes::Logger::logger()->error(
             "{} ({}) value: {} is not valid. The valid condition is: 1 <= {} <= nb_frame. For this file nb_frame = ",
             option,
             name,
@@ -94,7 +94,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
     if (start_frame > end_frame)
     {
-        spdlog::get("Setup")->error("-s (start_frame) must be lower or equal than -e (end_frame).");
+        holovibes::Logger::logger()->error("-s (start_frame) must be lower or equal than -e (end_frame).");
         return 2;
     }
 

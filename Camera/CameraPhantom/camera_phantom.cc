@@ -6,6 +6,7 @@
 #include <cuda_runtime.h>
 
 #include "camera_phantom.hh"
+#include "camera_logger.hh"
 
 namespace camera
 {
