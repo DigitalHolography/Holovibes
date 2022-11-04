@@ -8,14 +8,14 @@ namespace holovibes::api
 
 inline float get_contrast_min()
 {
-    return api::get_current_window().log_scale_slice_enabled ? api::get_current_window().contrast_min
-                                                             : log10(api::get_current_window().contrast_min);
+    return api::get_current_window().log_enabled ? api::get_current_window().contrast.min
+                                                 : log10(api::get_current_window().contrast.min);
 }
 
 inline float get_contrast_max()
 {
-    return api::get_current_window().log_scale_slice_enabled ? api::get_current_window().contrast_max
-                                                             : log10(api::get_current_window().contrast_max);
+    return api::get_current_window().log_enabled ? api::get_current_window().contrast.max
+                                                 : log10(api::get_current_window().contrast.max);
 }
 
 void set_auto_contrast_all();

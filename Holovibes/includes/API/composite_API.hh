@@ -7,15 +7,15 @@ namespace holovibes::api
 
 // notify()
 
-inline CompositeKindEnum get_composite_kind() { return api::detail::get_value<CompositeKind_PARAM>(); }
-inline void set_composite_kind(CompositeKindEnum value) { api::detail::set_value<CompositeKind_PARAM>(value); }
+inline CompositeKindEnum get_composite_kind() { return api::detail::get_value<CompositeKind>(); }
+inline void set_composite_kind(CompositeKindEnum value) { api::detail::set_value<CompositeKind>(value); }
 
-inline const CompositeRGBStruct get_composite_rgb() { return api::detail::get_value<CompositeRGB_PARAM>(); }
-inline const CompositeHSVStruct get_composite_hsv() { return api::detail::get_value<CompositeHSV_PARAM>(); }
+inline const CompositeRGBStruct get_composite_rgb() { return api::detail::get_value<CompositeRGB>(); }
+inline const CompositeHSVStruct get_composite_hsv() { return api::detail::get_value<CompositeHSV>(); }
 
 inline TriggerChangeValue<CompositeRGBStruct> change_composite_rgb()
 {
-    TriggerChangeValue<CompositeRGBStruct> res = api::detail::change_value<CompositeRGB_PARAM>();
+    TriggerChangeValue<CompositeRGBStruct> res = api::detail::change_value<CompositeRGB>();
     auto callback = res.callback_;
     res.callback_ = [callback]()
     {
@@ -26,7 +26,7 @@ inline TriggerChangeValue<CompositeRGBStruct> change_composite_rgb()
 }
 inline TriggerChangeValue<CompositeHSVStruct> change_composite_hsv()
 {
-    TriggerChangeValue<CompositeHSVStruct> res = api::detail::change_value<CompositeHSV_PARAM>();
+    TriggerChangeValue<CompositeHSVStruct> res = api::detail::change_value<CompositeHSV>();
     auto callback = res.callback_;
     res.callback_ = [callback]()
     {

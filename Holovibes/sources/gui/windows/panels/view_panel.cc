@@ -107,18 +107,18 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window_kind() == WindowKind::Filter2D_PARAM)
+    if (api::get_current_window_kind() == WindowKind::ViewFilter2D)
         set_xyzf_visibility(false);
     else
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().get_image_accumulation_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().image_accumulation_level);
 
         ui_->RotatePushButton->setText(
-            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().get_rotation()))).c_str());
+            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().rotation))).c_str());
         ui_->FlipPushButton->setText(
-            ("Flip " + std::to_string(api::get_current_window_as_view_xyz().get_flip_enabled())).c_str());
+            ("Flip " + std::to_string(api::get_current_window_as_view_xyz().flip_enabled)).c_str());
     }
 
     // Deactivate previous maximum (chetor)

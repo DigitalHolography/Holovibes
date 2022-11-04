@@ -235,8 +235,8 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().rotation);
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().flip_enabled);
     }
     catch (const std::runtime_error& e)
     {
@@ -679,7 +679,7 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 static void change_angle()
 {
-    double rot = GSH::instance().get_rotation();
+    double rot = GSH::instance().rotation;
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
 
     GSH::instance().set_rotation(new_rot);
@@ -699,7 +699,7 @@ void rotateTexture()
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
 }
 
-static void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
+static void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().flip_enabled); }
 
 void flipTexture()
 {

@@ -213,8 +213,8 @@ void CrossOverlay::computeZone()
     units::PointFd bottomRight;
 
     // Computing min/max coordinates in function of the frame_descriptor
-    View_XY x = api::get_view_accu_x();
-    View_XY y = api::get_view_accu_y();
+    ViewAccuXY x = api::get_view_accu_x();
+    ViewAccuXY y = api::get_view_accu_y();
     int x_min = x.cuts;
     int x_max = x.cuts;
     int y_min = y.cuts;

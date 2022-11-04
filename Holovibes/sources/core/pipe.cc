@@ -214,7 +214,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (compute_cache_.get_value<ComputeMode_PARAM>() == Computation::Raw)
+    if (compute_cache_.get_value<ComputeMode>() == Computation::Raw)
     {
         insert_dequeue_input();
         return;

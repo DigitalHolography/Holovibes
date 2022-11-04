@@ -19,9 +19,6 @@
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 
-#include "advanced.hh"
-#include "compute.hh"
-
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv

@@ -11,17 +11,42 @@
 namespace holovibes
 {
 
+/*! \class Filter2DSmooth
+ *
+ * \brief Class that represents Filter2DSmooth
+ */
+struct Filter2DSmoothStruct
+{
+    int low = 0;
+    int high = 0;
+
+    SERIALIZE_JSON_STRUCT(Filter2DSmoothStruct, low, high)
+};
+
+/*! \class ContrastThreshold
+ *
+ * \brief Class that represents ContrastThreshold
+ */
+struct ContrastThresholdStruct
+{
+    float lower = 0.5f;
+    float upper = 99.5f;
+    unsigned cuts_p_offset = 2;
+
+    SERIALIZE_JSON_STRUCT(ContrastThresholdStruct, lower, upper, cuts_p_offset)
+};
+
 /*! \class AdvancedSettings
  *
  * \brief Class that represents the advanced cache
  */
 struct AdvancedSettings
 {
-    /*! \class BufferSizes
+    /*! \class BufferSize
      *
-     * \brief Class that represents BufferSizes
+     * \brief Class that represents BufferSize
      */
-    struct BufferSizes
+    struct BufferSize
     {
         unsigned input = 512;
         unsigned file = 512;
@@ -32,43 +57,12 @@ struct AdvancedSettings
         void Load();
         void Update();
 
-        SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
+        SERIALIZE_JSON_STRUCT(BufferSize, input, file, record, output, time_transformation_cuts)
     };
 
-    /*! \class Filter2DSmooth
-     *
-     * \brief Class that represents Filter2DSmooth
-     */
-    struct Filter2DSmooth
-    {
-        int low = 0;
-        int high = 0;
-
-        void Load();
-        void Update();
-
-        SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
-    };
-
-    /*! \class ContrastThreshold
-     *
-     * \brief Class that represents ContrastThreshold
-     */
-    struct ContrastThreshold
-    {
-        float lower = 0.5f;
-        float upper = 99.5f;
-        unsigned cuts_p_offset = 2;
-
-        void Load();
-        void Update();
-
-        SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
-    };
-
-    BufferSizes buffer_size;
-    Filter2DSmooth filter2d_smooth;
-    ContrastThreshold contrast;
+    BufferSize buffer_size;
+    Filter2DSmoothStruct filter2d_smooth;
+    ContrastThresholdStruct contrast;
     unsigned renorm_constant = 5;
     unsigned int raw_bitshift = 0;
 

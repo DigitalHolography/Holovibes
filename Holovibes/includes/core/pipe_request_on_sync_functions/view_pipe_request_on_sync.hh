@@ -26,41 +26,41 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     void operator()<LensViewEnabled>(bool new_value, bool old_value, Pipe& pipe);
 
     template <>
-    void operator()<ViewXY_PARAM>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
+    void operator()<ViewXY>(const ViewXYZ&, const ViewXYZ&, Pipe& pipe);
 
     template <>
-    void operator()<ViewXZ_PARAM>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
+    void operator()<ViewXZ>(const ViewXYZ&, const ViewXYZ&, Pipe& pipe);
 
     template <>
-    void operator()<ViewYZ_PARAM>(const View_XYZ&, const View_XYZ&, Pipe& pipe);
+    void operator()<ViewYZ>(const ViewXYZ&, const ViewXYZ&, Pipe& pipe);
 
   public:
     template <>
-    void operator()<Filter2D_PARAM>(const View_Window&, const View_Window&, Pipe& pipe)
+    void operator()<ViewFilter2D>(const ViewWindow&, const ViewWindow&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuX>(const View_XY&, const View_XY&, Pipe& pipe)
+    void operator()<ViewAccuX>(const ViewAccuXY&, const ViewAccuXY&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuY>(const View_XY&, const View_XY&, Pipe& pipe)
+    void operator()<ViewAccuY>(const ViewAccuXY&, const ViewAccuXY&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuP>(const View_PQ&, const View_PQ&, Pipe& pipe)
+    void operator()<ViewAccuP>(const ViewAccuPQ&, const ViewAccuPQ&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ViewAccuQ>(const View_PQ&, const View_PQ&, Pipe& pipe)
+    void operator()<ViewAccuQ>(const ViewAccuPQ&, const ViewAccuPQ&, Pipe& pipe)
     {
         request_pipe_refresh();
     }
@@ -72,13 +72,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     }
 
     template <>
-    void operator()<ReticleDisplayEnabled>(bool, bool, Pipe& pipe)
-    {
-        request_pipe_refresh();
-    }
-
-    template <>
-    void operator()<ReticleScale>(float, float, Pipe& pipe)
+    void operator()<Reticle>(const ReticleStruct&, const ReticleStruct&, Pipe& pipe)
     {
         request_pipe_refresh();
     }

@@ -27,23 +27,7 @@ SERIALIZE_JSON_ENUM(TimeTransformationEnum, {
     {TimeTransformationEnum::PCA, "PCA"},
     {TimeTransformationEnum::NONE, "NONE"},
     {TimeTransformationEnum::SSA_STFT, "SSA_STFT"},
-    {TimeTransformation::NONE, "None"}, // Compat
+    {TimeTransformationEnum::NONE, "None"}, // Compat
 
 });
-
-inline std::string time_transformation_to_string(TimeTransformationEnum value)
-{
-    return _internal::time_transform_to_string.at(value);
-}
-
-inline TimeTransformationEnum time_transformation_from_string(const std::string& in)
-{
-    return _internal::string_to_time_transform.at(in);
-}
-
-inline std::ostream& operator<<(std::ostream& os, holovibes::TimeTransformationEnum value)
-{
-    return os << time_transformation_to_string(value);
-}
-
 } // namespace holovibes

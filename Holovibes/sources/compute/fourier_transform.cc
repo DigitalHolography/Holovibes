@@ -33,8 +33,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
                                    ComputeCache::Cache& compute_cache,
-                                   ViewCache::Cache& view_cache,
-                                   Filter2DCache::Cache& filter2d_cache)
+                                   ViewCache::Cache& view_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -46,7 +45,6 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , stream_(stream)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
-    , filter2d_cache_(filter2d_cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
@@ -60,8 +58,8 @@ void FourierTransform::insert_fft()
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
-                                     filter2d_cache_.get_value<Filter2DN1>(),
-                                     filter2d_cache_.get_value<Filter2DN2>(),
+                                     filter2d_cache_.get_value<Filter2D>().n1,
+                                     filter2d_cache_.get_value<Filter2D>().n2,
                                      filter2d_cache_.get_value<Filter2DSmoothLow>(),
                                      filter2d_cache_.get_value<Filter2DSmoothHigh>(),
                                      stream_);
@@ -314,7 +312,7 @@ void FourierTransform::insert_ssa_stft()
 
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
-            View_PQ q_struct = view_cache_.get_value<ViewAccuQ>();
+            ViewAccuPQ q_struct = view_cache_.get_value<ViewAccuQ>();
             int q = q_struct.accu_level != 0 ? q_struct.index : 0;
             int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
             int q_index = q * time_transformation_size;
@@ -384,8 +382,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                 const ushort width = fd_.width;
                 const ushort height = fd_.height;
 
-                View_XY x = view_cache_.get_value<ViewAccuX>();
-                View_XY y = view_cache_.get_value<ViewAccuY>();
+                ViewAccuXY x = view_cache_.get_value<ViewAccuX>();
+                ViewAccuXY y = view_cache_.get_value<ViewAccuY>();
                 if (x.cuts < width && y.cuts < height)
                 {
                     {
@@ -403,9 +401,9 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_value<TimeTransformationSize>(),
-                                                   view_cache_.get_value<ViewXZ_PARAM>().get_image_accumulation_level(),
-                                                   view_cache_.get_value<ViewYZ_PARAM>().get_image_accumulation_level(),
-                                                   view_cache_.get_value<ImageType_PARAM>(),
+                                                   view_cache_.get_value<ViewXZ>().image_accumulation_level,
+                                                   view_cache_.get_value<ViewYZ>().image_accumulation_level,
+                                                   view_cache_.get_value<ImageType>(),
                                                    stream_);
                 }
             }

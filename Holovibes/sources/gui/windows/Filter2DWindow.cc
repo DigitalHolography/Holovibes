@@ -14,7 +14,7 @@
 namespace holovibes::gui
 {
 Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
-    : BasicOpenGLWindow(p, s, q, KindOfView::Filter2D_PARAM)
+    : BasicOpenGLWindow(p, s, q, KindOfView::ViewFilter2D)
 {
     LOG_FUNC(main);
 
@@ -178,6 +178,6 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_current_window_kind(WindowKind::Filter2D_PARAM);
+    api::change_current_window_kind(WindowKind::ViewFilter2D);
 }
 } // namespace holovibes::gui

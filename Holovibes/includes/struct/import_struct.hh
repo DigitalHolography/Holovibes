@@ -33,38 +33,10 @@ enum ImportTypeEnum
     File,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const CameraKind& value)
-{
-    if (value == CameraKind::None)
-        return os << "None";
-    if (value == CameraKind::Adimec)
-        return os << "Adimec";
-    if (value == CameraKind::IDS)
-        return os << "IDS";
-    if (value == CameraKind::Phantom)
-        return os << "Phantom";
-    if (value == CameraKind::BitflowCyton)
-        return os << "BitflowCyton";
-    if (value == CameraKind::Hamamatsu)
-        return os << "Hamamatsu";
-    if (value == CameraKind::xiQ)
-        return os << "xiQ";
-    if (value == CameraKind::xiB)
-        return os << "xiB";
+// FIXME : TODO
+inline std::ostream& operator<<(std::ostream& os, const CameraKind& value) { return os; }
 
-    return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const ImportTypeEnum& value)
-{
-    if (value == ImportTypeEnum::None)
-        return os << "None";
-    if (value == ImportTypeEnum::Camera)
-        return os << "Camera";
-    if (value == ImportTypeEnum::File)
-        return os << "File";
-
-    return os;
-}
+// FIXME : TODO
+inline std::ostream& operator<<(std::ostream& os, const ImportTypeEnum& value) { return os; }
 
 } // namespace holovibes

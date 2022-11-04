@@ -3,39 +3,36 @@
 namespace holovibes::api
 {
 
-const View_Window& get_window(WindowKind kind)
+const ViewWindow& get_window(WindowKind kind)
 {
     if (kind == WindowKind::XYview)
-        return static_cast<const View_Window&>(GSH::instance().get_view_cache().get_value<ViewXY_PARAM>());
+        return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewXY>());
     else if (kind == WindowKind::XZview)
-        return static_cast<const View_Window&>(GSH::instance().get_view_cache().get_value<ViewXZ_PARAM>());
+        return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewXZ>());
     else if (kind == WindowKind::YZview)
-        return static_cast<const View_Window&>(GSH::instance().get_view_cache().get_value<ViewYZ_PARAM>());
-    else if (kind == WindowKind::Filter2D_PARAM)
-        return static_cast<const View_Window&>(GSH::instance().get_view_cache().get_value<Filter2D_PARAM>());
+        return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewYZ>());
+    else if (kind == WindowKind::ViewFilter2D)
+        return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewFilter2D>());
 
     throw std::runtime_error("Unexpected WindowKind");
     // default case
-    return static_cast<const View_Window&>(GSH::instance().get_view_cache().get_value<ViewXY_PARAM>());
+    return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewXY>());
 }
 
-TriggerChangeValue<View_Window> change_window(WindowKind kind)
+TriggerChangeValue<ViewWindow> change_window(WindowKind kind)
 {
     if (kind == WindowKind::XYview)
-        return static_cast<TriggerChangeValue<View_Window>>(
-            GSH::instance().get_view_cache().change_value<ViewXY_PARAM>());
+        return static_cast<TriggerChangeValue<ViewWindow>>(GSH::instance().get_view_cache().change_value<ViewXY>());
     else if (kind == WindowKind::XZview)
-        return static_cast<TriggerChangeValue<View_Window>>(
-            GSH::instance().get_view_cache().change_value<ViewXZ_PARAM>());
+        return static_cast<TriggerChangeValue<ViewWindow>>(GSH::instance().get_view_cache().change_value<ViewXZ>());
     else if (kind == WindowKind::YZview)
-        return static_cast<TriggerChangeValue<View_Window>>(
-            GSH::instance().get_view_cache().change_value<ViewYZ_PARAM>());
-    else if (kind == WindowKind::Filter2D_PARAM)
-        return static_cast<TriggerChangeValue<View_Window>>(
-            GSH::instance().get_view_cache().change_value<Filter2D_PARAM>());
+        return static_cast<TriggerChangeValue<ViewWindow>>(GSH::instance().get_view_cache().change_value<ViewYZ>());
+    else if (kind == WindowKind::ViewFilter2D)
+        return static_cast<TriggerChangeValue<ViewWindow>>(
+            GSH::instance().get_view_cache().change_value<ViewFilter2D>());
 
     throw std::runtime_error("Unexpected WindowKind");
-    return TriggerChangeValue<View_Window>([]() {}, nullptr);
+    return TriggerChangeValue<ViewWindow>([]() {}, nullptr);
 }
 
 void start_chart_display()

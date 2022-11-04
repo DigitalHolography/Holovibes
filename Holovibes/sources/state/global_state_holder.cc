@@ -27,10 +27,8 @@ void GSH::set_caches_as_refs()
     ImportCache::RefSingleton::set_main_ref(import_cache_);
     ExportCache::RefSingleton::set_main_ref(export_cache_);
     CompositeCache::RefSingleton::set_main_ref(composite_cache_);
-    Filter2DCache::RefSingleton::set_main_ref(filter2d_cache_);
     ViewCache::RefSingleton::set_main_ref(view_cache_);
     ZoneCache::RefSingleton::set_main_ref(zone_cache_);
-    FileReadCache::RefSingleton::set_main_ref(file_read_cache_);
 }
 
 GSH::~GSH() { remove_caches_as_refs(); }
@@ -42,10 +40,8 @@ void GSH::remove_caches_as_refs()
     ImportCache::RefSingleton::remove_main_ref(import_cache_);
     ExportCache::RefSingleton::remove_main_ref(export_cache_);
     CompositeCache::RefSingleton::remove_main_ref(composite_cache_);
-    Filter2DCache::RefSingleton::remove_main_ref(filter2d_cache_);
     ViewCache::RefSingleton::remove_main_ref(view_cache_);
     ZoneCache::RefSingleton::remove_main_ref(zone_cache_);
-    FileReadCache::RefSingleton::remove_main_ref(file_read_cache_);
 }
 
 GSH& GSH::instance()

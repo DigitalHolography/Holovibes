@@ -37,7 +37,7 @@ struct ActivableCompositeP : public CompositeP
     SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
 
-/*! \class RGBWeights 
+/*! \class RGBWeights
  *
  * \brief Class that represents RGBWeights
  */
@@ -50,11 +50,11 @@ struct RGBWeights
     SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 };
 
-/*! \class CompositeRGB
+/*! \class CompositeRGBStruct
  *
- * \brief Class that represents CompositeRGB
+ * \brief Class that represents CompositeRGBStruct
  */
-struct CompositeRGB
+struct CompositeRGBStruct
 {
     CompositeP p;
     RGBWeights weight;
@@ -63,9 +63,9 @@ struct CompositeRGB
     uint get_blue() const { return p.max; }
 
     void set_red(uint _red) { p.min = _red; }
-    void set_blue(uint _blue) { p.max = _blue};
+    void set_blue(uint _blue) { p.max = _blue; }
 
-    SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
+    SERIALIZE_JSON_STRUCT(CompositeRGBStruct, p, weight)
 };
 
 /*! \class Threshold
@@ -80,7 +80,7 @@ struct Threshold
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
-/*! \class  Blur 
+/*! \class  Blur
  *
  * \brief Class that represents Blur
  */
@@ -119,17 +119,17 @@ struct CompositeSV
     SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
 };
 
-/*! \class CompositeHSV
+/*! \class CompositeHSVStruct
  *
- * \brief Class that represents CompositeHSV
+ * \brief Class that represents CompositeHSVStruct
  */
-struct CompositeHSV
+struct CompositeHSVStruct
 {
-    CompositeH_OLD h{};
-    CompositeSV_OLD s{};
-    CompositeSV_OLD v{};
+    CompositeH h{};
+    CompositeSV s{};
+    CompositeSV v{};
 
-    SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
+    SERIALIZE_JSON_STRUCT(CompositeHSVStruct, h, s, v)
 };
 
 /*! \class Composite
@@ -138,10 +138,10 @@ struct CompositeHSV
  */
 struct Composite
 {
-    CompositeKind mode = CompositeKind::RGB;
+    CompositeKindEnum mode = CompositeKindEnum::RGB;
     bool composite_auto_weights = false;
-    CompositeRGB rgb;
-    CompositeHSV hsv;
+    CompositeRGBStruct rgb;
+    CompositeHSVStruct hsv;
 
     void Load();
     void Update();

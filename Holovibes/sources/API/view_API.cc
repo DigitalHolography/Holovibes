@@ -37,9 +37,8 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(
-            api::get_current_window_as_view_xyz().get_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().rotation);
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_current_window_as_view_xyz().flip_enabled);
     }
     catch (const std::runtime_error& e)
     {
@@ -105,9 +104,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
                                     QSize(filter2d_window_width, filter2d_window_height),
                                     get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D_PARAM view");
+        UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
 
-        GSH::instance().change_value<Filter2D_PARAM>()->set_log_scale_slice_enabled(true);
+        GSH::instance().change_value<ViewFilter2D>()->set_log_scale_slice_enabled(true);
         api::get_view_filter2d().request_exec_auto_contrast();
     }
     else

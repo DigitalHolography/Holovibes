@@ -16,7 +16,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/convolution_API.cc
     API/cuts_API.cc
     API/display_API.cc
-    API/filter2d_API.cc
     API/import_API.cc
     API/pipe_API.cc
     API/record_API.cc

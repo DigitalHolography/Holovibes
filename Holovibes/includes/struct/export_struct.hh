@@ -39,20 +39,7 @@ struct FrameRecordStruct
     void set_record_mode(RecordMode value) { record_mode_ = value; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
-{
-    if (value.get_record_mode() == RecordMode::NONE)
-        return os << "NONE";
-    if (value.get_record_mode() == RecordMode::CHART)
-        return os << "CHART";
-    if (value.get_record_mode() == RecordMode::CUTS_XZ)
-        return os << "CUTS_XZ";
-    if (value.get_record_mode() == RecordMode::CUTS_YZ)
-        return os << "CUTS_YZ";
-    if (value.get_record_mode() == RecordMode::HOLOGRAM)
-        return os << "HOLOGRAM";
-    if (value.get_record_mode() == RecordMode::RAW)
-        return os << "RAW";
-    return os;
-}
+// FIXME : TODO
+inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value) { return os; }
+
 } // namespace holovibes

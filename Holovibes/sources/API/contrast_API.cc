@@ -10,22 +10,25 @@ void set_auto_contrast_all()
         return;
 
     // FIXME API : this code stay here
-    api::get_view_xy().request_exec_auto_contrast();
+    GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().request_exec_auto_contrast();
     if (api::get_cuts_view_enabled())
     {
-        api::get_view_xz().request_exec_auto_contrast();
-        api::get_view_yz().request_exec_auto_contrast();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().request_exec_auto_contrast();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().request_exec_auto_contrast();
     }
     if (api::get_filter2d_view_enabled())
-        api::get_view_filter2d().request_exec_auto_contrast();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().request_exec_auto_contrast();
 }
 
+// FIXME : name should be request instead of set
 bool set_auto_contrast()
 {
     try
     {
-        if (api::is_current_window_xyz_type())
-            api::get_current_window_as_view_xyz().request_exec_auto_contrast();
+        // FIXME COMPILE
+        // if (api::is_current_window_xyz_type())
+        //     api::get_current_window_as_view_xyz().request_exec_auto_contrast();
+        set_auto_contrast_all();
         return true;
     }
     catch (const std::runtime_error& e)
@@ -48,8 +51,7 @@ void set_current_window_contrast_min(const float value)
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
     if (old_val != value)
-        api::change_current_window()->set_contrast_min(get_current_window().log_scale_slice_enabled ? value
-                                                                                                    : pow(10, value));
+        api::change_current_window()->contrast.min = get_current_window().log_enabled ? value : pow(10, value);
 }
 
 static float get_truncate_contrast_max(const int precision = 2)
@@ -64,8 +66,7 @@ void set_current_window_contrast_max(const float value)
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
     if (old_val != value)
-        api::change_current_window()->set_contrast_max(get_current_window().log_scale_slice_enabled ? value
-                                                                                                    : pow(10, value));
+        api::change_current_window()->contrast.max(get_current_window().log_enabled ? value : pow(10, value));
 }
 
 } // namespace holovibes::api

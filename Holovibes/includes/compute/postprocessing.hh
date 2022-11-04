@@ -12,9 +12,6 @@
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
 
-#include "advanced.hh"
-#include "compute.hh"
-
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -46,7 +43,7 @@ class Postprocessing
     /*! \brief Free the ressources for the postprocessing */
     void dispose();
 
-    /*! \brief Insert the Convolution_PARAM function. TODO: Check if it works. */
+    /*! \brief Insert the Convolution function. TODO: Check if it works. */
     void insert_convolution();
 
     /*! \brief Insert the normalization function. */

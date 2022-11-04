@@ -30,20 +30,4 @@ SERIALIZE_JSON_ENUM(SpaceTransformationEnum,
                         {SpaceTransformationEnum::FFT2, "2FFT"}, // Compat
                         {SpaceTransformationEnum::NONE, "None"}, // Compat
                     })
-
-inline std::string space_transformation_to_string(SpaceTransformationEnum value)
-{
-    return _internal::space_transform_to_string.at(value);
-}
-
-inline SpaceTransformationEnum space_transformation_from_string(const std::string& in)
-{
-    return _internal::string_to_space_transform.at(in);
-}
-
-inline std::ostream& operator<<(std::ostream& os, SpaceTransformationEnum value)
-{
-    return os << space_transformation_to_string(value);
-}
-
 } // namespace holovibes

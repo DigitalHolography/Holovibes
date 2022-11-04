@@ -14,8 +14,6 @@
 #include "function_vector.hh"
 #include "global_state_holder.hh"
 
-#include "compute.hh"
-
 namespace holovibes
 {
 class Queue;
@@ -41,8 +39,7 @@ class FourierTransform
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
                      ComputeCache::Cache& compute_cache,
-                     ViewCache::Cache& view_cache,
-                     Filter2DCache::Cache& filter2d_cache);
+                     ViewCache::Cache& view_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft();
@@ -117,6 +114,5 @@ class FourierTransform
 
     ComputeCache::Cache& compute_cache_;
     ViewCache::Cache& view_cache_;
-    Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace holovibes::compute

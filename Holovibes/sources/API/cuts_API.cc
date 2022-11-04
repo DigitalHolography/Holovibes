@@ -25,8 +25,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             api::get_compute_pipe().get_stft_slice_queue(0).get(),
             gui::KindOfView::SliceXZ));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(api::get_view_xz().get_rotation());
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(api::get_view_xz().get_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(api::get_view_xz().rotation);
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(api::get_view_xz().flip_enabled);
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
@@ -34,8 +34,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             api::get_compute_pipe().get_stft_slice_queue(1).get(),
             gui::KindOfView::SliceYZ));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().get_rotation());
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().get_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().rotation);
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().flip_enabled);
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
         api::set_cuts_view_enabled(true);

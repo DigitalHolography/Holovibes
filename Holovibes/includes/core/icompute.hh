@@ -30,7 +30,6 @@ class ICompute
     ImportCache::Cache& get_import_cache() { return import_cache_; }
     ExportCache::Cache& get_export_cache() { return export_cache_; }
     CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
-    Filter2DCache::Cache& get_filter2d_cache() { return filter2d_cache_; }
     ViewCache::Cache& get_view_cache() { return view_cache_; }
     ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
 
@@ -144,7 +143,6 @@ class ICompute
     ImportCache::Cache import_cache_;
     ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
-    Filter2DCache::Cache filter2d_cache_;
     ViewCache::Cache view_cache_;
     ZoneCache::Cache zone_cache_;
 };

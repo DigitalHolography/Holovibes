@@ -72,24 +72,23 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
-    // Filter2D_PARAM
-    ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(api::get_filter2d_enabled());
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
+    // ViewFilter2D
+    ui_->ViewFilter2D->setEnabled(!is_raw);
+    ui_->ViewFilter2D->setChecked(api::get_filter2d().enabled);
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d().enabled);
+    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d().enabled);
+    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d().enabled);
+    ui_->Filter2DN1SpinBox->setValue(api::get_filter2d().n1);
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
+    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d().enabled);
+    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d().n2);
 
-    // Convolution_PARAM
+    // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_convolution().get_is_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().get_is_enabled() &&
-                                         api::get_convolution().get_divide_enabled());
+    ui_->ConvoCheckBox->setChecked(api::get_convolution().is_enabled);
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().is_enabled && api::get_convolution().enabled);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
-        ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().get_name())));
+        ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -136,7 +135,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
         if (res)
         {
-            /* Filter2D_PARAM */
+            /* ViewFilter2D */
             camera::FrameDescriptor fd = api::get_gpu_input_queue().get_fd();
             ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
@@ -214,12 +213,17 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n) { api::set_filter2d_n1(n); }
+void ImageRenderingPanel::set_filter2d_n1(int n)
+{
+    api::detail::change_value<Filter2D>().n1 = n;
+    api::set_auto_contrast_all();
+}
 
 void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
-    api::set_filter2d_n2(n);
+    api::detail::change_value<Filter2D>().n2 = n;
+    api::set_auto_contrast_all();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -341,7 +345,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
         return;
 
     if (value)
-        api::enable_convolution(api::get_convolution().get_name());
+        api::enable_convolution(api::get_convolution().type);
     else
         api::disable_convolution();
 
@@ -353,11 +357,11 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    if (!api::get_convolution().get_is_enabled())
+    if (!api::get_convolution().is_enabled)
         return;
 
-    api::get_convolution().set_name(value.toStdString());
-    api::enable_convolution(api::get_convolution().get_name());
+    api::get_convolution().type = value.toStdString();
+    api::enable_convolution(api::get_convolution().type);
 
     parent_->notify();
 }
@@ -367,7 +371,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    api::change_convolution()->set_divide_enabled(value);
+    api::change_convolution()->enabled = value;
 
     parent_->notify();
 }

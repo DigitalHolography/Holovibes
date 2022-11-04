@@ -13,9 +13,6 @@
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
 
-#include "advanced.hh"
-#include "compute.hh"
-
 namespace holovibes
 {
 class ICompute;
@@ -66,7 +63,7 @@ class Rendering
     void insert_main_log();
     /*! \brief insert the log10 on the slices */
     void insert_slice_log();
-    /*! \brief insert the log10 on the Filter2D_PARAM view */
+    /*! \brief insert the log10 on the ViewFilter2D view */
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */

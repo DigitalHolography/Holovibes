@@ -11,8 +11,6 @@
 #include "composite_API.hh"
 #include "export_API.hh"
 #include "import_API.hh"
-#include "file_read_API.hh"
-#include "filter2d_API.hh"
 #include "view_API.hh"
 #include "zone_API.hh"
 #include "record_API.hh"

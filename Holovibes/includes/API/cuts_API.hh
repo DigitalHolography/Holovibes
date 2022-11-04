@@ -11,14 +11,14 @@ inline void set_x_cuts(uint value)
 {
     auto fd = api::get_gpu_input_queue().get_fd();
     if (value < fd.width)
-        api::detail::change_value<ViewAccuX>()->set_cuts(value);
+        api::detail::change_value<ViewAccuX>()->cuts = value;
 }
 
 inline void set_y_cuts(uint value)
 {
     auto fd = api::get_gpu_input_queue().get_fd();
     if (value < fd.height)
-        api::detail::change_value<ViewAccuY>()->set_cuts(value);
+        api::detail::change_value<ViewAccuY>()->cuts = value;
 }
 
 bool set_3d_cuts_view(uint time_transformation_size);

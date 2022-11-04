@@ -14,22 +14,22 @@ inline bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_kind());
 }
 
-const View_Window& get_window(WindowKind kind);
-inline const View_Window& get_current_window() { return get_window(get_current_window_kind()); }
-inline const View_XYZ& get_current_window_as_view_xyz()
+const ViewWindow& get_window(WindowKind kind);
+inline const ViewWindow& get_current_window() { return get_window(get_current_window_kind()); }
+inline const ViewXYZ& get_current_window_as_view_xyz()
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    return reinterpret_cast<const View_XYZ&>(api::get_current_window());
+    return reinterpret_cast<const ViewXYZ&>(api::get_current_window());
 }
 
-TriggerChangeValue<View_Window> change_window(WindowKind kind);
-inline TriggerChangeValue<View_Window> change_current_window() { return change_window(get_current_window_kind()); }
-inline TriggerChangeValue<View_XYZ> change_current_window_as_view_xyz()
+TriggerChangeValue<ViewWindow> change_window(WindowKind kind);
+inline TriggerChangeValue<ViewWindow> change_current_window() { return change_window(get_current_window_kind()); }
+inline TriggerChangeValue<ViewXYZ> change_current_window_as_view_xyz()
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    return TriggerChangeValue<View_XYZ>(api::change_current_window());
+    return TriggerChangeValue<ViewXYZ>(api::change_current_window());
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
@@ -45,6 +45,7 @@ inline void start_information_display(const std::function<void()>& callback)
     Holovibes::instance().start_information_display(callback);
 }
 
+// FIXME : TO DELETE
 inline void set_composite_area()
 {
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
