@@ -44,7 +44,7 @@ void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, const V
                 GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
                                         pipe.get_image_acc_env().gpu_float_average_xy_frame,
-                                        GSH::instance().get_value<ViewXY>().image_accumulation_level,
+                                        GSH::instance().get_value<ViewXY>().img_accu_level,
                                         new_fd);
         }
     }
@@ -71,7 +71,7 @@ void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, const V
             new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
                                         pipe.get_image_acc_env().gpu_float_average_xz_frame,
-                                        GSH::instance().get_value<ViewXZ>().image_accumulation_level,
+                                        GSH::instance().get_value<ViewXZ>().img_accu_level,
                                         new_fd);
         }
     }
@@ -98,7 +98,7 @@ void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, const V
             new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
             allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
                                         pipe.get_image_acc_env().gpu_float_average_yz_frame,
-                                        GSH::instance().get_value<ViewYZ>().image_accumulation_level,
+                                        GSH::instance().get_value<ViewYZ>().img_accu_level,
                                         new_fd);
         }
     }

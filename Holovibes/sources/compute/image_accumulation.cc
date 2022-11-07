@@ -78,7 +78,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_xy_queue,
                             buffers_.gpu_postprocess_frame.get(),
                             image_acc_env_.gpu_float_average_xy_frame.get(),
-                            view_cache_.get_value<ViewXY>().image_accumulation_level,
+                            view_cache_.get_value<ViewXY>().img_accu_level,
                             buffers_.gpu_postprocess_frame_size);
 
         // XZ view
@@ -86,7 +86,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_xz_queue,
                             buffers_.gpu_postprocess_frame_xz.get(),
                             image_acc_env_.gpu_float_average_xz_frame,
-                            view_cache_.get_value<ViewXZ>().image_accumulation_level,
+                            view_cache_.get_value<ViewXZ>().img_accu_level,
                             image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_res());
 
         // YZ view
@@ -94,7 +94,7 @@ void ImageAccumulation::insert_compute_average()
             compute_average(image_acc_env_.gpu_accumulation_yz_queue,
                             buffers_.gpu_postprocess_frame_yz.get(),
                             image_acc_env_.gpu_float_average_yz_frame,
-                            view_cache_.get_value<ViewYZ>().image_accumulation_level,
+                            view_cache_.get_value<ViewYZ>().img_accu_level,
                             image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_res());
     };
 

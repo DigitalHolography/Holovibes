@@ -403,8 +403,8 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    width,
                                                    height,
                                                    compute_cache_.get_value<TimeTransformationSize>(),
-                                                   view_cache_.get_value<ViewXZ>().image_accumulation_level,
-                                                   view_cache_.get_value<ViewYZ>().image_accumulation_level,
+                                                   view_cache_.get_value<ViewXZ>().img_accu_level,
+                                                   view_cache_.get_value<ViewYZ>().img_accu_level,
                                                    view_cache_.get_value<ImageType>(),
                                                    stream_);
                 }

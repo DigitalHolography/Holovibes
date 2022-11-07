@@ -113,10 +113,10 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().image_accumulation_level);
+        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().img_accu_level);
 
         ui_->RotatePushButton->setText(
-            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().rotation))).c_str());
+            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().rot))).c_str());
         ui_->FlipPushButton->setText(
             ("Flip " + std::to_string(api::get_current_window_as_view_xyz().flip_enabled)).c_str());
     }
@@ -410,7 +410,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::change_current_window_as_view_xyz()->image_accumulation_level = value;
+    api::change_current_window_as_view_xyz()->img_accu_level = value;
 }
 
 void ViewPanel::set_contrast_mode(bool value)

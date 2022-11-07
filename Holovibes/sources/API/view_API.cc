@@ -38,7 +38,7 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().rotation);
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_current_window_as_view_xyz().rot);
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_current_window_as_view_xyz().flip_enabled);
     }
     catch (const std::runtime_error& e)

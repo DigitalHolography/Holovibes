@@ -60,10 +60,10 @@ struct ViewXYZ : public ViewWindow
 {
     bool log_enabled = false;
     bool flip_enabled = false;
-    float rotation = 0;
-    uint image_accumulation_level = 1;
+    float rot = 0;
+    uint img_accu_level = 1;
 
-    bool is_image_accumulation_enabled() const { return image_accumulation_level > 1; }
+    bool is_image_accumulation_enabled() const { return img_accu_level > 1; }
 
     // FIXME COMPILE : CHECK THIS TO TRIGGER
   private:
@@ -78,10 +78,10 @@ struct ViewXYZ : public ViewWindow
     bool operator!=(const ViewXYZ& rhs)
     {
         return ViewWindow::operator!=(rhs) || log_enabled != rhs.log_enabled || flip_enabled != rhs.flip_enabled ||
-               rotation != rhs.rotation || image_accumulation_level != rhs.image_accumulation_level;
-     }
+               rot != rhs.rot || img_accu_level != rhs.img_accu_level;
+    }
 
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rotation, image_accumulation_level)
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 };
 
 /*! \class ViewAccu

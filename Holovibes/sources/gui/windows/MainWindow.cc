@@ -214,7 +214,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::change_view_xy()->image_accumulation_level = 1; }
+static void handle_accumulation_exception() { api::change_view_xy()->img_accu_level = 1; }
 
 void MainWindow::notify_error(const std::exception& e)
 {
