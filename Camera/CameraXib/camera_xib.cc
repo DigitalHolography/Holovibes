@@ -5,7 +5,8 @@
 #include <iostream>
 #include <cstring>
 
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
+#include "camera_logger.hh"
 
 namespace camera
 {
@@ -147,7 +148,7 @@ void CameraXib::load_ini_params()
         }
         else
         {
-            spdlog::get("Setup")->error("Invalid ROI settings, ignoring ROI.");
+            Logger::camera()->error("Invalid ROI settings, ignoring ROI.");
         }
     }
 
@@ -168,8 +169,8 @@ void CameraXib::bind_params()
     // This camera does not support downsampling
     if (!strncmp(name, "CB160MG-LX-X8G3-R2", 18) || !strncmp(name, "CB013MG-LX-X8G3-R2", 18))
     {
-        spdlog::get("Setup")->warn("Detected camera is Ximea {} which does not support downsampling options", name);
-        spdlog::get("Setup")->warn("Skipping parameters setting of downsapling rate and downsampling type");
+        Logger::camera()->warn("Detected camera is Ximea {} which does not support downsampling options", name);
+        Logger::camera()->warn("Skipping parameters setting of downsapling rate and downsampling type");
     }
     else
     {
@@ -177,13 +178,13 @@ void CameraXib::bind_params()
 
         if (status != XI_OK)
         {
-            spdlog::get("Setup")->warn("Failed to set downsampling with err code {}", status);
+            Logger::camera()->warn("Failed to set downsampling with err code {}", status);
         }
         status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
 
         if (status != XI_OK)
         {
-            spdlog::get("Setup")->error("Failed to set downsampling type with err code {}", status);
+            Logger::camera()->error("Failed to set downsampling type with err code {}", status);
         }
     }
 
@@ -191,35 +192,35 @@ void CameraXib::bind_params()
 
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set image data format with err code {}", status);
+        Logger::camera()->error("Failed to set image data format with err code {}", status);
     }
     status = xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set roi width with err code {}", status);
+        Logger::camera()->error("Failed to set roi width with err code {}", status);
     }
     status = xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set roi height with err code {}", status);
+        Logger::camera()->error("Failed to set roi height with err code {}", status);
     }
 
     status = xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set roi offset x with err code {}", status);
+        Logger::camera()->error("Failed to set roi offset x with err code {}", status);
     }
 
     status = xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set roi offset y with err code {}", status);
+        Logger::camera()->error("Failed to set roi offset y with err code {}", status);
     }
 
     status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set buffer policy with err code {}", status);
+        Logger::camera()->error("Failed to set buffer policy with err code {}", status);
     }
 
     if (exposure_time_)
@@ -227,7 +228,7 @@ void CameraXib::bind_params()
         status = xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
         if (status != XI_OK)
         {
-            spdlog::get("Setup")->error("Failed to set exposure with err code {}", status);
+            Logger::camera()->error("Failed to set exposure with err code {}", status);
         }
     }
     else
@@ -235,20 +236,20 @@ void CameraXib::bind_params()
         status = xiSetParamFloat(device_, XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FREE_RUN);
         if (status != XI_OK)
         {
-            spdlog::get("Setup")->error("Failed to set timing mode with err code {}", status);
+            Logger::camera()->error("Failed to set timing mode with err code {}", status);
         }
     }
 
     status = xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set gain with err code {}", status);
+        Logger::camera()->error("Failed to set gain with err code {}", status);
     }
 
     status = xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
     if (status != XI_OK)
     {
-        spdlog::get("Setup")->error("Failed to set trigger source with err code {}", status);
+        Logger::camera()->error("Failed to set trigger source with err code {}", status);
     }
 
     /* Update the frame descriptor. */

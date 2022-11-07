@@ -141,7 +141,7 @@ void CameraXiq::load_ini_params()
         }
         else
         {
-            spdlog::get("Setup")->error("Invalid ROI settings, ignoring ROI.");
+            Logger::camera()->error("Invalid ROI settings, ignoring ROI.");
         }
     }
 
