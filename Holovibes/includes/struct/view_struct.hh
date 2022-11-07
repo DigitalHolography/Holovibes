@@ -47,11 +47,6 @@ struct ViewWindow
 
     ViewContrast contrast;
 
-    bool exec_auto_contrast_ = false;
-    bool get_exec_auto_contrast() const { return exec_auto_contrast_; }
-    void request_exec_auto_contrast() { exec_auto_contrast_ = true; }
-    void reset_exec_auto_contrast() { exec_auto_contrast_ = false; }
-
     bool operator!=(const ViewWindow& rhs) { return contrast != rhs.contrast || log_enabled != rhs.log_enabled; }
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
@@ -70,7 +65,7 @@ struct ViewXYZ : public ViewWindow
 
     bool is_image_accumulation_enabled() const { return image_accumulation_level > 1; }
 
-    // FIXME : CHEC THIS TO TRIGGER
+    // FIXME COMPILE : CHECK THIS TO TRIGGER
   private:
     bool request_clear_image_accumulation_ = false;
 

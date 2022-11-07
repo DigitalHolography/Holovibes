@@ -21,7 +21,7 @@ void ChartRecordWorker::run()
 
     // Header displaying
     of << "[#img : " << GSH::instance().get_value<TimeTransformationSize>()
-       << ", p : " << GSH::instance().get_value<ViewAccuP>().get_index()
+       << ", p : " << GSH::instance().get_value<ViewAccuP>().index
        << ", lambda : " << GSH::instance().get_value<Lambda>() << ", z : " << GSH::instance().get_value<ZDistance>()
        << "]" << std::endl;
 

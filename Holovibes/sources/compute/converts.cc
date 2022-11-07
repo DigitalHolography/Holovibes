@@ -144,8 +144,8 @@ void Converts::insert_to_composite()
         [=]()
         {
             CompositeRGBStruct rgb_struct = composite_cache_.get_value<CompositeRGB>();
-            if (!is_between<ushort>(rgb_struct.p_min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
-                !is_between<ushort>(rgb_struct.p_max, 0, compute_cache_.get_value<TimeTransformationSize>()))
+            if (!is_between<ushort>(rgb_struct.p.min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
+                !is_between<ushort>(rgb_struct.p.max, 0, compute_cache_.get_value<TimeTransformationSize>()))
                 return;
 
             if (composite_cache_.get_value<CompositeKind>() == CompositeKindEnum::RGB)

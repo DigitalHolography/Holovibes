@@ -85,8 +85,8 @@ void ImageRenderingPanel::on_notify()
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_convolution().is_enabled);
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().is_enabled && api::get_convolution().enabled);
+    ui_->ConvoCheckBox->setChecked(api::get_convolution().enabled);
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().enabled);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
         ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
 }
@@ -215,14 +215,14 @@ void ImageRenderingPanel::set_filter2d(bool checked)
 
 void ImageRenderingPanel::set_filter2d_n1(int n)
 {
-    api::detail::change_value<Filter2D>().n1 = n;
+    api::detail::change_value<Filter2D>()->n1 = n;
     api::set_auto_contrast_all();
 }
 
 void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
-    api::detail::change_value<Filter2D>().n2 = n;
+    api::detail::change_value<Filter2D>()->n2 = n;
     api::set_auto_contrast_all();
 }
 
@@ -244,7 +244,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     try
     {
         // json{} return an array
-        st = json{value.toStdString()}[0].get<SpaceTransformation>();
+        st = json{value.toStdString()}[0].get<SpaceTransformationEnum>();
         LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     }
     catch (std::out_of_range& e)
@@ -269,7 +269,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
         return;
 
     // json{} return an array
-    TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
+    TimeTransformationEnum tt = json{value.toStdString()}[0].get<TimeTransformationEnum>();
     LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     // Prevent useless reload of Holo window
     if (api::get_time_transformation() == tt)
@@ -357,7 +357,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    if (!api::get_convolution().is_enabled)
+    if (!api::get_convolution().enabled)
         return;
 
     api::get_convolution().type = value.toStdString();

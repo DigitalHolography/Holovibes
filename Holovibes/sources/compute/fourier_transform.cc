@@ -32,6 +32,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
+                                   AdvancedCache::Cache& advanced_cache,
                                    ComputeCache::Cache& compute_cache,
                                    ViewCache::Cache& view_cache)
     : gpu_lens_(nullptr)
@@ -43,6 +44,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , spatial_transformation_plan_(spatial_transformation_plan)
     , time_transformation_env_(time_transformation_env)
     , stream_(stream)
+    , advanced_cache_(advanced_cache)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
 {
@@ -53,15 +55,15 @@ void FourierTransform::insert_fft()
 {
     LOG_FUNC(compute_worker);
 
-    if (view_cache_.get_value<Filter2DEnabled>())
+    if (compute_cache_.get_value<Filter2D>().enabled)
     {
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
-                                     filter2d_cache_.get_value<Filter2D>().n1,
-                                     filter2d_cache_.get_value<Filter2D>().n2,
-                                     filter2d_cache_.get_value<Filter2DSmoothLow>(),
-                                     filter2d_cache_.get_value<Filter2DSmoothHigh>(),
+                                     compute_cache_.get_value<Filter2D>().n1,
+                                     compute_cache_.get_value<Filter2D>().n2,
+                                     advanced_cache_.get_value<Filter2DSmooth>().low,
+                                     advanced_cache_.get_value<Filter2DSmooth>().high,
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
@@ -142,7 +144,7 @@ void FourierTransform::insert_fft2()
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
-    if (view_cache_.get_value<Filter2DEnabled>())
+    if (compute_cache_.get_value<Filter2D>().enabled)
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();

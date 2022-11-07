@@ -88,9 +88,9 @@ void toggle_renormalize(bool value)
 
     if (api::get_import_type() != ImportTypeEnum::None)
     {
-        api::get_view_xy().request_clear_image_accumulation();
-        api::get_view_xz().request_clear_image_accumulation();
-        api::get_view_yz().request_clear_image_accumulation();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().request_clear_image_accumulation();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().request_clear_image_accumulation();
+        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().request_clear_image_accumulation();
     }
 }
 

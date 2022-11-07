@@ -19,7 +19,7 @@ namespace holovibes::api
 void after_load_checks()
 {
     if (GSH::instance().get_value<Filter2D>().n1 >= GSH::instance().get_value<Filter2D>().n2)
-        GSH::instance().change_value<Filter2D>() = GSH::instance().get_value<Filter2D>().n1 - 1;
+        GSH::instance().change_value<Filter2D>()->n1 = GSH::instance().get_value<Filter2D>().n1 - 1;
     if (GSH::instance().get_value<TimeTransformationSize>() < 1)
         GSH::instance().set_value<TimeTransformationSize>(1);
 

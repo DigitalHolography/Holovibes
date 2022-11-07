@@ -177,9 +177,8 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    mouse_position_ = units::PointFd(units::ConversionData(parent_),
-                                     api::get_view_accu_x().get_cuts(),
-                                     api::get_view_accu_y().get_cuts());
+    mouse_position_ =
+        units::PointFd(units::ConversionData(parent_), api::get_view_accu_x().cuts, api::get_view_accu_y().cuts);
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}

@@ -4,8 +4,9 @@ namespace holovibes::api
 {
 void display_reticle(bool value)
 {
-    set_reticle_display_enabled(value);
+    change_reticle()->display_enabled = value;
 
+    // FIXME API -> GUI
     if (value)
     {
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
@@ -79,7 +80,7 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 {
     api::detail::set_value<LastImageType>(value);
     get_compute_pipe().insert_fn_end_vect(callback);
-    api::get_view_xy().request_exec_auto_contrast();
+    api::get_compute_pipe().get_rendering().request_view_xy_exec_contrast();
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
@@ -106,8 +107,8 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
 
-        GSH::instance().change_value<ViewFilter2D>()->set_log_scale_slice_enabled(true);
-        api::get_view_filter2d().request_exec_auto_contrast();
+        GSH::instance().set_value<Filter2DViewEnabled>(true);
+        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
     }
     else
     {
@@ -119,6 +120,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     }
 }
 
+/// FIXME USELESS
 void set_filter2d(bool checked)
 {
     set_filter2d_view_enabled(checked);

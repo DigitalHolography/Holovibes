@@ -64,9 +64,9 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                       spatial_transformation_plan_,
                                                                       time_transformation_env_,
                                                                       stream_,
+                                                                      advanced_cache_,
                                                                       compute_cache_,
-                                                                      view_cache_,
-                                                                      filter2d_cache_);
+                                                                      view_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -137,7 +137,6 @@ void Pipe::synchronize_caches_and_make_requests()
     import_cache_.synchronize<ImportPipeRequestOnSync>(*this);
     export_cache_.synchronize<ExportPipeRequestOnSync>(*this);
     composite_cache_.synchronize<CompositePipeRequestOnSync>(*this);
-    filter2d_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
     view_cache_.synchronize<ViewPipeRequestOnSync>(*this);
     zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
 
@@ -153,8 +152,8 @@ bool Pipe::caches_has_change_requested()
 {
     return advanced_cache_.has_change_requested() || compute_cache_.has_change_requested() ||
            export_cache_.has_change_requested() || import_cache_.has_change_requested() ||
-           filter2d_cache_.has_change_requested() || view_cache_.has_change_requested() ||
-           zone_cache_.has_change_requested() || composite_cache_.has_change_requested();
+           view_cache_.has_change_requested() || zone_cache_.has_change_requested() ||
+           composite_cache_.has_change_requested();
 }
 
 void Pipe::refresh()
@@ -413,7 +412,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_value<Filter2DEnabled>() && view_cache_.get_value<Filter2DViewEnabled>())
+    if (compute_cache_.get_value<Filter2D>().enabled && view_cache_.get_value<Filter2DViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()

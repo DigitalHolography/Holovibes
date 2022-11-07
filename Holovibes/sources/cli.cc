@@ -151,7 +151,7 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         return 1;
     }
 
-    if (holovibes::GSH::instance().get_value<holovibes::Convolution>().is_enabled)
+    if (holovibes::GSH::instance().get_value<holovibes::Convolution>().enabled)
         holovibes::api::enable_convolution(holovibes::api::detail::get_value<holovibes::Convolution>().type);
 
     // WHY Trigger ?
@@ -169,7 +169,7 @@ static void main_loop()
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().get_contrast_auto_refresh();
+    bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().contrast.auto_refresh;
 
     while (holovibes::GSH::instance().get_value<holovibes::FrameRecordMode>().is_enable())
     {
@@ -189,8 +189,10 @@ static void main_loop()
                 // end up with black images ...
                 if (progress->first >= holovibes::api::get_view_xy().image_accumulation_level && requested_autocontrast)
                 {
-                    if (holovibes::api::is_current_window_xyz_type())
-                        holovibes::api::change_current_window_as_view_xyz()->request_exec_auto_contrast();
+                    // FIXME COMPILE
+                    // if (holovibes::api::is_current_window_xyz_type())
+                    // holovibes::api::change_current_window_as_view_xyz()->request_exec_auto_contrast();
+                    holovibes::api::set_auto_contrast_all();
                     requested_autocontrast = false;
                 }
             }

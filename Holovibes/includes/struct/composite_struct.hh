@@ -59,6 +59,7 @@ struct CompositeRGBStruct
     CompositeP p;
     RGBWeights weight;
 
+    // FIXME COMPILE : chetor
     uint get_red() const { return p.min; }
     uint get_blue() const { return p.max; }
 

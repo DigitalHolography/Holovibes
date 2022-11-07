@@ -234,7 +234,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
             case WindowKind::ViewFilter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = GSH::instance().get_value<ViewFilter2D>();
+                wind = view_cache_.get_value<ViewFilter2D>();
                 break;
             }
 
@@ -265,42 +265,42 @@ void Rendering::insert_compute_autocontrast()
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (view_cache_.get_value<ViewXY>().get_exec_auto_contrast() &&
+        if (view_xy_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            view_cache_.get_value<ViewXY>().reset_exec_auto_contrast();
+            view_xy_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<ViewXZ>().get_exec_auto_contrast() &&
+        if (view_xz_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 compute_cache_.get_value<TimeTransformationSize>(),
-                                advanced_cache_.get_value<CutsContrastPOffset>(),
+                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                 WindowKind::XZview);
-            view_cache_.get_value<ViewXZ>().reset_exec_auto_contrast();
+            view_xz_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<ViewYZ>().get_exec_auto_contrast() &&
+        if (view_yz_exec_contrast_ &&
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 compute_cache_.get_value<TimeTransformationSize>(),
                                 fd_.height,
-                                advanced_cache_.get_value<CutsContrastPOffset>(),
+                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                 WindowKind::YZview);
-            view_cache_.get_value<ViewYZ>().reset_exec_auto_contrast();
+            view_yz_exec_contrast_ = false;
         }
-        if (view_cache_.get_value<ViewFilter2D>().get_exec_auto_contrast())
+        if (view_filter2d_exec_contrast_)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
                                 WindowKind::ViewFilter2D);
-            view_cache_.get_value<ViewFilter2D>().reset_exec_auto_contrast();
+            view_filter2d_exec_contrast_ = false;
         }
 
         // FIXME: gsh should not be modified in the pipe
@@ -317,26 +317,27 @@ void Rendering::autocontrast_caller(
 
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastLowerThreshold>(),
-                                            advanced_cache_.get_value<ContrastUpperThreshold>()};
+    const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastThreshold>().lower,
+                                            advanced_cache_.get_value<ContrastThreshold>().upper};
     switch (view)
     {
     case WindowKind::XYview:
     case WindowKind::XZview:
     case WindowKind::ViewFilter2D:
         // No offset
-        compute_percentile_xy_view(input,
-                                   width,
-                                   height,
-                                   (view == WindowKind::XYview) ? 0 : offset,
-                                   percent_in,
-                                   percent_min_max_,
-                                   percent_size,
-                                   zone_cache_.get_value<ReticleZone>(),
-                                   (view == WindowKind::ViewFilter2D) ? false
-                                                                      : view_cache_.get_value<ReticleDisplayEnabled>(),
-                                   stream_);
-        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
+        compute_percentile_xy_view(
+            input,
+            width,
+            height,
+            (view == WindowKind::XYview) ? 0 : offset,
+            percent_in,
+            percent_min_max_,
+            percent_size,
+            zone_cache_.get_value<ReticleZone>(),
+            (view == WindowKind::ViewFilter2D) ? false : view_cache_.get_value<Reticle>().display_enabled,
+            stream_);
+        api::change_window(view)->contrast.min = percent_min_max_[0];
+        api::change_window(view)->contrast.max = percent_min_max_[1];
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -347,9 +348,10 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    zone_cache_.get_value<ReticleZone>(),
-                                   view_cache_.get_value<ReticleDisplayEnabled>(),
+                                   view_cache_.get_value<Reticle>().display_enabled,
                                    stream_);
-        api::change_window(view)->set_contrast_min(percent_min_max_[0]).set_contrast_max(percent_min_max_[1]);
+        api::change_window(view)->contrast.min = percent_min_max_[0];
+        api::change_window(view)->contrast.max = percent_min_max_[1];
         break;
     }
 }

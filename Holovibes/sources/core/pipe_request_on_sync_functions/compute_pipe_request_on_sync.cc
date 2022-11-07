@@ -28,7 +28,7 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
     {
         request_fail();
 
-        GSH::instance().change_value<ViewAccuP>()->set_index(0);
+        GSH::instance().change_value<ViewAccuP>()->index = 0;
         GSH::instance().set_value<TimeTransformationSize>(1);
         pipe.update_time_transformation_size(1);
         LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
@@ -42,11 +42,11 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 {
     LOG_TRACE(compute_worker, "UPDATE Convolution");
 
-    if (new_value.is_enabled != old_value.is_enabled)
+    if (new_value.enabled != old_value.enabled)
     {
-        if (new_value.is_enabled == false)
+        if (new_value.enabled == false)
             pipe.get_postprocess().dispose();
-        else if (new_value.is_enabled == true)
+        else if (new_value.enabled == true)
             pipe.get_postprocess().init();
     }
 

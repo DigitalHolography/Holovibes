@@ -7,15 +7,8 @@ namespace holovibes
 {
 static inline const std::filesystem::path dir(get_exe_dir());
 GSH::GSH()
-    : cache_dispatcher_(advanced_cache_,
-                        compute_cache_,
-                        import_cache_,
-                        export_cache_,
-                        composite_cache_,
-                        filter2d_cache_,
-                        view_cache_,
-                        zone_cache_,
-                        file_read_cache_)
+    : cache_dispatcher_(
+          advanced_cache_, compute_cache_, import_cache_, export_cache_, composite_cache_, view_cache_, zone_cache_)
 {
     set_caches_as_refs();
 }
@@ -71,11 +64,11 @@ struct JsonSettings
     {
         convert_default(data, json_patch);
 
-        data["compute settings"]["image rendering"]["space transformation"] = static_cast<SpaceTransformation>(
+        data["compute settings"]["image rendering"]["space transformation"] = static_cast<SpaceTransformationEnum>(
             static_cast<int>(data["compute settings"]["image rendering"]["space transformation"]));
         data["compute settings"]["image rendering"]["image mode"] =
             static_cast<Computation>(static_cast<int>(data["compute settings"]["image rendering"]["image mode"]) - 1);
-        data["compute settings"]["image rendering"]["time transformation"] = static_cast<TimeTransformation>(
+        data["compute settings"]["image rendering"]["time transformation"] = static_cast<TimeTransformationEnum>(
             static_cast<int>(data["compute settings"]["image rendering"]["time transformation"]));
     }
 

@@ -15,8 +15,10 @@ HoloWindow::HoloWindow(
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    if (api::get_current_window().get_contrast_auto_refresh())
-        api::get_view_xy().request_exec_auto_contrast();
+    // FIXME COMPILE WHY
+    // if (api::get_current_window().contrast.auto_refresh)
+    //     api::get_view_xy().request_exec_auto_contrast();
+    api::set_auto_contrast_all();
 }
 
 HoloWindow::~HoloWindow() {}

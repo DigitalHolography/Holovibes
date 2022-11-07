@@ -10,14 +10,14 @@ void set_auto_contrast_all()
         return;
 
     // FIXME API : this code stay here
-    GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().request_exec_auto_contrast();
+    api::get_compute_pipe().get_rendering().request_view_xy_exec_contrast();
     if (api::get_cuts_view_enabled())
     {
-        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().request_exec_auto_contrast();
-        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().request_exec_auto_contrast();
+        api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
+        api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
     }
     if (api::get_filter2d_view_enabled())
-        GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().request_exec_auto_contrast();
+        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
 }
 
 // FIXME : name should be request instead of set
@@ -66,7 +66,7 @@ void set_current_window_contrast_max(const float value)
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
     if (old_val != value)
-        api::change_current_window()->contrast.max(get_current_window().log_enabled ? value : pow(10, value));
+        api::change_current_window()->contrast.max = get_current_window().log_enabled ? value : pow(10, value);
 }
 
 } // namespace holovibes::api

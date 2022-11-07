@@ -26,12 +26,12 @@ static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    if (new_value.get_request_clear_image_accumulation() == true)
-    {
-        if (new_value.is_image_accumulation_enabled())
-            pipe.get_image_acc_env().gpu_accumulation_xy_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
-    }
+    // FIXME COMPILE
+    // if (new_value.get_request_clear_image_accumulation() == true)
+    // {
+    //     if (new_value.is_image_accumulation_enabled())
+    //         pipe.get_image_acc_env().gpu_accumulation_xy_queue->clear();
+    // }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
@@ -53,12 +53,12 @@ void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, const V
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    if (new_value.get_request_clear_image_accumulation() == true)
-    {
-        if (new_value.is_image_accumulation_enabled())
-            pipe.get_image_acc_env().gpu_accumulation_xz_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
-    }
+    // FIXME COMPILE
+    // if (new_value.get_request_clear_image_accumulation() == true)
+    // {
+    //     if (new_value.is_image_accumulation_enabled())
+    //         pipe.get_image_acc_env().gpu_accumulation_xz_queue->clear();
+    // }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
@@ -80,12 +80,12 @@ void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, const V
 template <>
 void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    if (new_value.get_request_clear_image_accumulation() == true)
-    {
-        if (new_value.is_image_accumulation_enabled())
-            pipe.get_image_acc_env().gpu_accumulation_yz_queue->clear();
-        new_value.reset_request_clear_image_accumulation();
-    }
+    // FIXME COMPILE
+    // if (new_value.get_request_clear_image_accumulation() == true)
+    // {
+    //     if (new_value.is_image_accumulation_enabled())
+    //         pipe.get_image_acc_env().gpu_accumulation_yz_queue->clear();
+    // }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {

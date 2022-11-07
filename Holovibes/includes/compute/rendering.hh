@@ -58,6 +58,18 @@ class Rendering
     /*! \brief insert the functions relative to the contrast. */
     void insert_contrast();
 
+  public:
+    void request_view_xy_exec_contrast() { view_xy_exec_contrast_ = true; }
+    void request_view_xz_exec_contrast() { view_xz_exec_contrast_ = true; }
+    void request_view_yz_exec_contrast() { view_yz_exec_contrast_ = true; }
+    void request_view_filter2d_exec_contrast() { view_filter2d_exec_contrast_ = true; }
+
+  private:
+    std::atomic_bool view_xy_exec_contrast_{false};
+    std::atomic_bool view_xz_exec_contrast_{false};
+    std::atomic_bool view_yz_exec_contrast_{false};
+    std::atomic_bool view_filter2d_exec_contrast_{false};
+
   private:
     /*! \brief insert the log10 on the XY window */
     void insert_main_log();

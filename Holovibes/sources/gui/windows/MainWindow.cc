@@ -214,7 +214,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::change_view_xy()->set_image_accumulation_level(1); }
+static void handle_accumulation_exception() { api::change_view_xy()->image_accumulation_level = 1; }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -227,7 +227,7 @@ void MainWindow::notify_error(const std::exception& e)
             auto lambda = [&, this]
             {
                 // notify will be in close_critical_compute
-                api::change_view_accu_p()->set_index(0);
+                api::change_view_accu_p()->index = 0;
                 api::set_time_transformation_size(1);
                 api::disable_convolution();
                 api::close_windows();
@@ -574,8 +574,8 @@ void MainWindow::set_view_image_type(const QString& value)
     // Force cuts views autocontrast if needed
     if (api::get_cuts_view_enabled())
     {
-        api::get_view_xz().request_exec_auto_contrast();
-        api::get_view_yz().request_exec_auto_contrast();
+        api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
+        api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
     }
 }
 
@@ -623,7 +623,8 @@ void MainWindow::reset_settings()
     std::string to_remove = holovibes::settings::compute_settings_filepath;
 
     std::stringstream tmp;
-    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove << " and Holovibe will close";
+    tmp << "Reset settings and quit\n\nThis will remove the compute settings located in " << to_remove
+        << " and Holovibe will close";
 
     QMessageBox msgBox;
     msgBox.setText(QString::fromUtf8(tmp.str().c_str()));
