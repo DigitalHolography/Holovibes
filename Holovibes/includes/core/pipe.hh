@@ -86,10 +86,12 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    /*! \brief Enqueue the main FunctionVector according to the requests. */
-    void refresh();
+    void sync_and_refresh();
 
-  protected:
+  private:
+    void refresh();
+    void call_reload_function_caches();
+    /*! \brief Enqueue the main FunctionVector according to the requests. */
     void synchronize_caches_and_make_requests();
 
   private:

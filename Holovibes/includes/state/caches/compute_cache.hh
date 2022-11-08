@@ -37,23 +37,32 @@ class TimeTransformationCutsEnable : public BoolParameter<false, "time_transform
 
 // clang-format on
 
-class ComputeCache : public MicroCache<ComputeMode,
-                                       BatchSize,
-                                       TimeStride,
-                                       Filter2D,
-                                       SpaceTransformation,
-                                       TimeTransformation,
-                                       TimeTransformationSize,
-                                       Lambda,
-                                       ZDistance,
-                                       Convolution,
-                                       InputFps,
-                                       PixelSize,
-                                       UnwrapHistorySize,
-                                       Unwrap2DRequested,
-                                       IsComputationStopped,
-                                       TimeTransformationCutsEnable>
+using BasicComputeCache = MicroCache<ComputeMode,
+                                     BatchSize,
+                                     TimeStride,
+                                     Filter2D,
+                                     SpaceTransformation,
+                                     TimeTransformation,
+                                     TimeTransformationSize,
+                                     Lambda,
+                                     ZDistance,
+                                     Convolution,
+                                     InputFps,
+                                     PixelSize,
+                                     UnwrapHistorySize,
+                                     Unwrap2DRequested,
+                                     IsComputationStopped,
+                                     TimeTransformationCutsEnable>;
+// clang-format off
+
+class ComputeCache : public BasicComputeCache
 {
+  public:
+    using Base = BasicComputeCache;
+    class Cache : public Base::Cache{};
+    class Ref : public Base::Ref{};
 };
+
+// clang-format on
 
 } // namespace holovibes

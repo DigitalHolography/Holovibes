@@ -8,20 +8,30 @@ class CompositePipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
+    void operator()(typename T::ConstRefType, Pipe&)
     {
+    }
+
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value, [[maybe_unused]] typename T::ConstRefType, Pipe& pipe)
+    {
+        operator()<T>(new_value, pipe);
     }
 
   public:
     template <>
-    void operator()<CompositeRGB>(const CompositeRGBStruct&, const CompositeRGBStruct&, Pipe& pipe)
+    void operator()<CompositeRGB>(const CompositeRGBStruct&, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE CompositeRGB");
+
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<CompositeHSV>(const CompositeHSVStruct&, const CompositeHSVStruct&, Pipe& pipe)
+    void operator()<CompositeHSV>(const CompositeHSVStruct&, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE CompositeHSV");
+
         request_pipe_refresh();
     }
 };

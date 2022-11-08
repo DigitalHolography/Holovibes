@@ -9,41 +9,56 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
+    void operator()(typename T::ConstRefType, Pipe&)
     {
     }
 
-    template <>
-    void operator()<BatchSize>(int new_value, int old_value, Pipe& pipe);
-
-    template <>
-    void operator()<TimeStride>(int new_value, int old_value, Pipe& pipe);
-
-    template <>
-    void operator()<TimeTransformationSize>(uint new_value, uint old_value, Pipe& pipe);
-
-    template <>
-    void operator()<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
-
-    template <>
-    void operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe);
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value, [[maybe_unused]] typename T::ConstRefType, Pipe& pipe)
+    {
+        operator()<T>(new_value, pipe);
+    }
 
   public:
     template <>
-    void operator()<Lambda>(float, float, Pipe& pipe)
+    void operator()<BatchSize>(int new_value, Pipe& pipe);
+
+    template <>
+    void operator()<TimeStride>(int new_value, Pipe& pipe);
+
+    template <>
+    void operator()<TimeTransformationSize>(uint new_value, Pipe& pipe);
+
+    template <>
+    void on_sync<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
+    template <>
+    void operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe);
+
+    template <>
+    void operator()<TimeTransformationCutsEnable>(bool new_value, Pipe& pipe);
+
+  public:
+    template <>
+    void operator()<Lambda>(float, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE Lambda");
+
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<ZDistance>(float, float, Pipe& pipe)
+    void operator()<ZDistance>(float, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE ZDistance");
+
         request_pipe_refresh();
     }
 
     template <>
-    void operator()<Unwrap2DRequested>(bool, bool, Pipe& pipe)
+    void operator()<Unwrap2DRequested>(bool, Pipe& pipe)
     {
+        LOG_TRACE(compute_worker, "UPDATE Unwrap2DRequested");
+
         request_pipe_refresh();
     }
 };

@@ -243,7 +243,7 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
     // It has to be refresh in the main thread because the read of file is launched just after.
-    holovibes::api::get_compute_pipe().refresh();
+    holovibes::api::get_compute_pipe().sync_and_refresh();
 
     // Thread 2
     holovibes::Holovibes::instance().start_compute_worker();

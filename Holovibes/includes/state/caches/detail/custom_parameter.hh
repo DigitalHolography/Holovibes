@@ -75,7 +75,7 @@ class CustomParameter : public IParameter
             return;
         }
 
-        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs) { lhs.operator!=(rhs); };
+        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs) { lhs != rhs; };
 
         ValueType& new_value = ref_cast->get_value();
         if constexpr (has_op_neq)

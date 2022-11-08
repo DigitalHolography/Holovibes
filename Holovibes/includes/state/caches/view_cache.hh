@@ -44,25 +44,35 @@ class Reticle : public CustomParameter<ReticleStruct, DefaultLiteral<ReticleStru
 
 // clang-format on
 
-class ViewCache : public MicroCache<ImageType,
-                                    ViewAccuX,
-                                    ViewAccuY,
-                                    ViewAccuP,
-                                    ViewAccuQ,
-                                    ViewXY,
-                                    ViewXZ,
-                                    ViewYZ,
-                                    ViewFilter2D,
-                                    CurrentWindowKind,
-                                    LensViewEnabled,
-                                    ChartDisplayEnabled,
-                                    Filter2DViewEnabled,
-                                    FftShiftEnabled,
-                                    RawViewEnabled,
-                                    CutsViewEnabled,
-                                    RenormEnabled,
-                                    Reticle>
+using BasicViewCache = MicroCache<ImageType,
+                                  ViewAccuX,
+                                  ViewAccuY,
+                                  ViewAccuP,
+                                  ViewAccuQ,
+                                  ViewXY,
+                                  ViewXZ,
+                                  ViewYZ,
+                                  ViewFilter2D,
+                                  CurrentWindowKind,
+                                  LensViewEnabled,
+                                  ChartDisplayEnabled,
+                                  Filter2DViewEnabled,
+                                  FftShiftEnabled,
+                                  RawViewEnabled,
+                                  CutsViewEnabled,
+                                  RenormEnabled,
+                                  Reticle>;
+
+// clang-format off
+
+class ViewCache : public BasicViewCache
 {
+  public:
+    using Base = BasicViewCache;
+    class Cache : public Base::Cache{};
+    class Ref : public Base::Ref{};
 };
+
+// clang-format on
 
 } // namespace holovibes

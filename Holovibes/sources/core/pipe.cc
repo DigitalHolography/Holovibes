@@ -45,7 +45,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
-
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_value<TimeStride>(); };
 
@@ -99,35 +98,30 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              view_cache_);
     *processed_output_fps_ = 0;
 
-    GSH::instance().change_value<TimeTransformationSize>();
-
-    try
-    {
-        refresh();
-    }
-    catch (const holovibes::CustomException& e)
-    {
-        // If refresh fails the compute descriptor settings will be
-        // changed to something that should make refresh work
-        // (ex: lowering the GPU memory usage)
-        LOG_WARN(compute_worker, "Pipe refresh failed, trying one more time with updated compute descriptor");
-        LOG_WARN(compute_worker, "Exception: {}", e.what());
-        try
-        {
-            refresh();
-        }
-        catch (const holovibes::CustomException& e)
-        {
-            // If it still didn't work holovibes is probably going to freeze
-            // and the only thing you can do is restart it manually
-            LOG_ERROR(compute_worker, "Pipe could not be initialized, You might want to restart holovibes");
-            LOG_ERROR(compute_worker, "Exception: {}", e.what());
-            throw e;
-        }
-    }
+    call_reload_function_caches();
+    refresh();
 }
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+
+void Pipe::call_reload_function_caches()
+{
+    PipeRequestOnSync::begin_requests();
+    advanced_cache_.synchronize_force<AdvancedPipeRequestOnSync>(*this);
+    compute_cache_.synchronize_force<ComputePipeRequestOnSync>(*this);
+    import_cache_.synchronize_force<ImportPipeRequestOnSync>(*this);
+    export_cache_.synchronize_force<ExportPipeRequestOnSync>(*this);
+    composite_cache_.synchronize_force<CompositePipeRequestOnSync>(*this);
+    view_cache_.synchronize_force<ViewPipeRequestOnSync>(*this);
+    zone_cache_.synchronize_force<DefaultPipeRequestOnSync>(*this);
+
+    if (PipeRequestOnSync::has_requests_fail())
+    {
+        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        // FIXME : handle pipe requests on sync failure
+        return;
+    }
+}
 
 void Pipe::synchronize_caches_and_make_requests()
 {
@@ -156,33 +150,41 @@ bool Pipe::caches_has_change_requested()
            composite_cache_.has_change_requested();
 }
 
-void Pipe::refresh()
-{
-    // LOG_FUNC(main);
+#ifndef DISABLE_LOG_PIPE
+#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
+#else
+#define LOG_PIPE(...)
+#endif
 
+void Pipe::sync_and_refresh()
+{
     if (!caches_has_change_requested())
     {
-        // LOG_TRACE(main, "Pipe refresh doesn't need refresh : caches already syncs");
+        // LOG_PIPE("Pipe refresh doesn't need refresh : caches already syncs");
         return;
     }
 
-    LOG_TRACE(main, "Pipe refresh : Call caches ...");
+    LOG_PIPE("Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
 
     if (api::get_import_type() == ImportTypeEnum::None)
     {
-        LOG_DEBUG(main, "Pipe refresh doesn't need refresh : no import set");
+        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
         return;
     }
 
     if (!PipeRequestOnSync::do_need_pipe_refresh())
     {
-        LOG_DEBUG(
-            main,
+        LOG_PIPE(
             "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
         return;
     }
 
+    refresh();
+}
+
+void Pipe::refresh()
+{
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
      * calls/operations on its own default stream. Cuda calls/operations ran on
@@ -281,7 +283,7 @@ void Pipe::refresh()
 
 void Pipe::run_all()
 {
-    refresh();
+    sync_and_refresh();
 
     for (FnType& f : fn_compute_vect_)
         f();

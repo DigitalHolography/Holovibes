@@ -18,7 +18,7 @@ class StaticContainer<>
 
   public:
     template <typename StaticContainerRef>
-    void sync_with(StaticContainerRef& ref)
+    void set_all_values(StaticContainerRef& ref)
     {
     }
 
@@ -70,10 +70,10 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
 
   public:
     template <typename StaticContainerRef>
-    void sync_with(StaticContainerRef& ref)
+    void set_all_values(StaticContainerRef& ref)
     {
         value_.sync_with(&ref.template get<TParameter>());
-        StaticContainer<R...>::sync_with(ref);
+        StaticContainer<R...>::set_all_values(ref);
     }
 
     template <typename FunctionClass, typename... Args>

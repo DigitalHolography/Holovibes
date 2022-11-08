@@ -31,17 +31,27 @@ class RawBitshift : public IntParameter<0, "raw_bitshift">{};
 
 // clang-format on
 
-class AdvancedCache : public MicroCache<DisplayRate,
-                                        FileBufferSize,
-                                        InputBufferSize,
-                                        OutputBufferSize,
-                                        RecordBufferSize,
-                                        TimeTransformationCutsBufferSize,
-                                        Filter2DSmooth,
-                                        ContrastThreshold,
-                                        RenormConstant,
-                                        RawBitshift>
+using BasicAdvancedCache = MicroCache<DisplayRate,
+                                      FileBufferSize,
+                                      InputBufferSize,
+                                      OutputBufferSize,
+                                      RecordBufferSize,
+                                      TimeTransformationCutsBufferSize,
+                                      Filter2DSmooth,
+                                      ContrastThreshold,
+                                      RenormConstant,
+                                      RawBitshift>;
+
+// clang-format off
+
+class AdvancedCache : public BasicAdvancedCache
 {
+  public:
+    using Base = BasicAdvancedCache;
+    class Cache : public Base::Cache{};
+    class Ref : public Base::Ref{};
 };
+
+// clang-format on
 
 } // namespace holovibes

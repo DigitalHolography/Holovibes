@@ -8,12 +8,19 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
+    void operator()(typename T::ConstRefType, Pipe&)
     {
     }
 
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value, [[maybe_unused]] typename T::ConstRefType, Pipe& pipe)
+    {
+        operator()<T>(new_value, pipe);
+    }
+
+  public:
     template <>
-    void operator()<OutputBufferSize>(uint new_value, uint old_value, Pipe& pipe)
+    void operator()<OutputBufferSize>(uint new_value, Pipe& pipe)
     {
         // FIXME : Not used
         // pipe.get_gpu_output_queue().resize(new_value, stream_);
@@ -21,7 +28,7 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<RenormConstant>(uint, uint, Pipe& pipe)
+    void operator()<RenormConstant>(uint, Pipe& pipe)
     {
     }
 };

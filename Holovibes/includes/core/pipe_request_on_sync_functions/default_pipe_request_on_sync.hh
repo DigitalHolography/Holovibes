@@ -8,8 +8,14 @@ class DefaultPipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
+    void operator()(typename T::ConstRefType, Pipe&)
     {
+    }
+
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value, [[maybe_unused]] typename T::ConstRefType, Pipe& pipe)
+    {
+        operator()<T>(new_value, pipe);
     }
 };
 } // namespace holovibes

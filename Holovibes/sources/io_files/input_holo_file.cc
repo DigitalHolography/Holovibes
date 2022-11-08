@@ -69,7 +69,8 @@ void InputHoloFile::load_header()
         std::fclose(file_);
         throw FileException("Invalid holo file", false);
     }
-    LOG_TRACE(main, "Exiting InputHoloFile::load_header");
+
+    //LOG_TRACE(main, "Exiting InputHoloFile::load_header");
 }
 
 void InputHoloFile::load_fd()
@@ -79,7 +80,7 @@ void InputHoloFile::load_fd()
     fd_.height = holo_file_header_.img_height;
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
-    LOG_TRACE(main, "Exiting InputHoloFile::load_fd");
+    // LOG_TRACE(main, "Exiting InputHoloFile::load_fd");
 }
 void InputHoloFile::load_footer()
 {
@@ -122,7 +123,7 @@ void InputHoloFile::load_footer()
         }
     }
 
-    LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
+    // LOG_TRACE(main, "Exiting InputHoloFile::load_footer");
 }
 
 void InputHoloFile::import_compute_settings()

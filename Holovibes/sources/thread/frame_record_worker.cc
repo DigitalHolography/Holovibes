@@ -157,7 +157,7 @@ void FrameRecordWorker::run()
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
-    LOG_TRACE(record_worker, "Exiting FrameRecordWorker::run()");
+    // LOG_TRACE(record_worker, "Exiting FrameRecordWorker::run()");
 }
 
 Queue& FrameRecordWorker::init_gpu_record_queue()

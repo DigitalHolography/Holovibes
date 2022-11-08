@@ -23,21 +23,21 @@ void cudaXMallocManaged(T** devPtr, size_t size)
 template <typename T>
 cudaError_t cudaXRMalloc(T** devPtr, size_t size)
 {
-    LOG_TRACE(cuda, "Allocate {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_TRACE(cuda, "Allocate {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMalloc(devPtr, size);
 }
 
 template <typename T>
 cudaError_t cudaXRMallocHost(T** devPtr, size_t size)
 {
-    LOG_TRACE(cuda, "Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_TRACE(cuda, "Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMallocHost(devPtr, size);
 }
 
 template <typename T>
 cudaError_t cudaXRMallocManaged(T** devPtr, size_t size)
 {
-    LOG_TRACE(cuda, "Allocate {:.3f} Gib on Device w/ Managed", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_TRACE(cuda, "Allocate {:.3f} Gib on Device w/ Managed", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMallocManaged(devPtr, size);
 }
 

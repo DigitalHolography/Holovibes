@@ -9,15 +9,21 @@ class ExportPipeRequestOnSync : public PipeRequestOnSync
 {
   public:
     template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
+    void operator()(typename T::ConstRefType, Pipe&)
     {
     }
 
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value, [[maybe_unused]] typename T::ConstRefType, Pipe& pipe)
+    {
+        operator()<T>(new_value, pipe);
+    }
+
+  public:
     template <>
-    void
-    operator()<FrameRecordMode>(const FrameRecordStruct& new_value, const FrameRecordStruct& old_value, Pipe& pipe);
+    void operator()<FrameRecordMode>(const FrameRecordStruct& new_value, Pipe& pipe);
 
     template <>
-    void operator()<ChartRecord>(const ChartRecordStruct& new_value, const ChartRecordStruct& old_value, Pipe& pipe);
+    void operator()<ChartRecord>(const ChartRecordStruct& new_value, Pipe& pipe);
 };
 } // namespace holovibes

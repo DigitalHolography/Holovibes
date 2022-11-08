@@ -2,6 +2,12 @@
 
 // FIXME Check for tweakme spdlog : maybe a bad idea ?
 
+#define DISABLE_LOG_FUNC
+#define DISABLE_LOG_UPDATE_MAP_ENTRY
+// #define DISABLE_LOG_TRIGGER_MICROCACHE
+// #define DISABLE_LOG_SYNC_MICROCACHE
+// #define DISABLE_LOG_PIPE
+
 #include <exception>
 #include <fstream>
 #include <functional>
@@ -54,11 +60,15 @@ constexpr const char* get_file_name(const char* path)
     return file;
 }
 
+#ifndef DISABLE_LOG_FUNC
 #define LOG_FUNC(log, ...)                                                                                             \
     LOG_TRACE(log,                                                                                                     \
               "{}:{} -> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")",                                            \
               get_file_name(__FILE__),                                                                                 \
               __LINE__ INTERNAL_LOGGER_GET_ARGS(log, __FUNCTION__, __VA_ARGS__))
+#else
+#define LOG_FUNC(log, ...)
+#endif
 
 #define CUDA_FATAL(file, line, fmt, ...)                                                                               \
     {                                                                                                                  \

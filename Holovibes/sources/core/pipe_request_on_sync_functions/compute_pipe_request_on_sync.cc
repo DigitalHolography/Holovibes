@@ -3,7 +3,7 @@
 namespace holovibes
 {
 template <>
-void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, int old_value, Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE BatchSize");
 
@@ -12,7 +12,7 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, int old_valu
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, int old_value, Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE TimeStride");
 
@@ -20,7 +20,7 @@ void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, int old_val
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value, uint old_value, Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE TimeTransformationSize");
 
@@ -36,25 +36,31 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value,
-                                                       const ConvolutionStruct& old_value,
-                                                       Pipe& pipe)
+void ComputePipeRequestOnSync::on_sync<Convolution>(const ConvolutionStruct& new_value,
+                                                    const ConvolutionStruct& old_value,
+                                                    Pipe& pipe)
+{
+    if (new_value.enabled != old_value.enabled)
+    {
+        operator()<Convolution>(new_value, pipe);
+    }
+}
+
+template <>
+void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE Convolution");
 
-    if (new_value.enabled != old_value.enabled)
-    {
-        if (new_value.enabled == false)
-            pipe.get_postprocess().dispose();
-        else if (new_value.enabled == true)
-            pipe.get_postprocess().init();
-    }
+    if (new_value.enabled == false)
+        pipe.get_postprocess().dispose();
+    else if (new_value.enabled == true)
+        pipe.get_postprocess().init();
 
     request_pipe_refresh();
 }
 
 template <>
-void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, bool old_value, Pipe& pipe)
+void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE Convolution");
 

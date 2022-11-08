@@ -33,11 +33,5 @@ class PipeRequestOnSync
     }
     static bool has_requests_fail() { return requests_fail; }
     static bool do_need_pipe_refresh() { return pipe_need_to_refresh; }
-
-  public:
-    template <typename T>
-    void operator()(typename T::ConstRefType, typename T::ConstRefType, Pipe& pipe)
-    {
-    }
 };
 } // namespace holovibes

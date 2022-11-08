@@ -24,8 +24,18 @@ class CurrentCameraKind : public CustomParameter<CameraKind, CameraKind::None, "
 
 // clang-format on
 
-class ImportCache : public MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>
+using BasicImportCache = MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>;
+
+// clang-format off
+
+class ImportCache : public BasicImportCache
 {
+  public:
+    using Base = BasicImportCache;
+    class Cache : public Base::Cache{};
+    class Ref : public Base::Ref{};
 };
+
+// clang-format on
 
 } // namespace holovibes

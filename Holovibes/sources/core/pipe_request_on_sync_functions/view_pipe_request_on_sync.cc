@@ -23,89 +23,114 @@ static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation
 }
 
 // FIXME API : these 3 function need to use the same function
+
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    // FIXME COMPILE
+    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    {
+        operator()<ViewXY>(new_value, pipe);
+    }
+}
+
+template <>
+void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& pipe)
+{
+    LOG_TRACE(compute_worker, "UPDATE ViewXY");
+
+    // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
     // {
     //     if (new_value.is_image_accumulation_enabled())
     //         pipe.get_image_acc_env().gpu_accumulation_xy_queue->clear();
     // }
 
-    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    if (new_value.is_image_accumulation_enabled() == false)
+        pipe.get_image_acc_env().gpu_accumulation_xy_queue.reset(nullptr);
+    else
     {
-        if (new_value.is_image_accumulation_enabled() == false)
-            pipe.get_image_acc_env().gpu_accumulation_xy_queue.reset(nullptr);
-        else
-        {
-            auto new_fd = api::get_gpu_input_queue().get_fd();
-            new_fd.depth =
-                GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
-            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
-                                        pipe.get_image_acc_env().gpu_float_average_xy_frame,
-                                        GSH::instance().get_value<ViewXY>().img_accu_level,
-                                        new_fd);
-        }
+        auto new_fd = api::get_gpu_input_queue().get_fd();
+        new_fd.depth =
+            GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
+        allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
+                                    pipe.get_image_acc_env().gpu_float_average_xy_frame,
+                                    GSH::instance().get_value<ViewXY>().img_accu_level,
+                                    new_fd);
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    // FIXME COMPILE
+    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    {
+        operator()<ViewXZ>(new_value, pipe);
+    }
+}
+
+template <>
+void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& pipe)
+{
+    LOG_TRACE(compute_worker, "UPDATE ViewXZ");
+
+    // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
     // {
     //     if (new_value.is_image_accumulation_enabled())
     //         pipe.get_image_acc_env().gpu_accumulation_xz_queue->clear();
     // }
 
-    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    if (new_value.is_image_accumulation_enabled() == false)
+        pipe.get_image_acc_env().gpu_accumulation_xz_queue.reset(nullptr);
+    else
     {
-        if (new_value.is_image_accumulation_enabled() == false)
-            pipe.get_image_acc_env().gpu_accumulation_xz_queue.reset(nullptr);
-        else
-        {
-            auto new_fd = api::get_gpu_input_queue().get_fd();
-            new_fd.depth = sizeof(float);
-            new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
-            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
-                                        pipe.get_image_acc_env().gpu_float_average_xz_frame,
-                                        GSH::instance().get_value<ViewXZ>().img_accu_level,
-                                        new_fd);
-        }
+        auto new_fd = api::get_gpu_input_queue().get_fd();
+        new_fd.depth = sizeof(float);
+        new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
+        allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
+                                    pipe.get_image_acc_env().gpu_float_average_xz_frame,
+                                    GSH::instance().get_value<ViewXZ>().img_accu_level,
+                                    new_fd);
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    // FIXME COMPILE
+    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    {
+        operator()<ViewYZ>(new_value, pipe);
+    }
+}
+
+template <>
+void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& pipe)
+{
+    LOG_TRACE(compute_worker, "UPDATE ViewYZ");
+
+    // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
     // {
     //     if (new_value.is_image_accumulation_enabled())
     //         pipe.get_image_acc_env().gpu_accumulation_yz_queue->clear();
     // }
 
-    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    if (new_value.is_image_accumulation_enabled() == false)
+        pipe.get_image_acc_env().gpu_accumulation_yz_queue.reset(nullptr);
+    else
     {
-        if (new_value.is_image_accumulation_enabled() == false)
-            pipe.get_image_acc_env().gpu_accumulation_yz_queue.reset(nullptr);
-        else
-        {
-            auto new_fd = api::get_gpu_input_queue().get_fd();
-            new_fd.depth = sizeof(float);
-            new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
-            allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
-                                        pipe.get_image_acc_env().gpu_float_average_yz_frame,
-                                        GSH::instance().get_value<ViewYZ>().img_accu_level,
-                                        new_fd);
-        }
+        auto new_fd = api::get_gpu_input_queue().get_fd();
+        new_fd.depth = sizeof(float);
+        new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
+        allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
+                                    pipe.get_image_acc_env().gpu_float_average_yz_frame,
+                                    GSH::instance().get_value<ViewYZ>().img_accu_level,
+                                    new_fd);
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE RawViewEnabled");
 
@@ -121,7 +146,7 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, bool old_
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, bool old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE ChartDisplayEnabled");
 
@@ -135,7 +160,7 @@ void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, bool
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE Filter2DViewEnabled");
 
@@ -151,7 +176,7 @@ void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, bool
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, bool old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, Pipe& pipe)
 {
     LOG_TRACE(compute_worker, "UPDATE LensViewEnabled");
 

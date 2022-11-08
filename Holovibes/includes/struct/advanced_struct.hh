@@ -21,6 +21,8 @@ struct Filter2DSmoothStruct
     int high = 0;
 
     SERIALIZE_JSON_STRUCT(Filter2DSmoothStruct, low, high)
+
+    bool operator!=(const Filter2DSmoothStruct& rhs) { return low != rhs.low || high != rhs.high; }
 };
 
 /*! \class ContrastThreshold
@@ -34,6 +36,8 @@ struct ContrastThresholdStruct
     unsigned cuts_p_offset = 2;
 
     SERIALIZE_JSON_STRUCT(ContrastThresholdStruct, lower, upper, cuts_p_offset)
+
+    bool operator!=(const ContrastThresholdStruct& rhs) { return lower != rhs.lower || upper != rhs.upper || cuts_p_offset != rhs.cuts_p_offset; }
 };
 
 /*! \class AdvancedSettings

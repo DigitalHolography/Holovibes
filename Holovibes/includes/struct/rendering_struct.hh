@@ -29,6 +29,8 @@ struct Filter2DStruct
     int n2 = 1;
 
     SERIALIZE_JSON_STRUCT(Filter2DStruct, enabled, n1, n2)
+
+    bool operator!=(const Filter2DStruct& rhs) { return enabled != rhs.enabled || n1 != rhs.n1 || n2 != rhs.n2; }
 };
 
 /*! \class ConvolutionStruct
@@ -43,6 +45,11 @@ struct ConvolutionStruct
     std::vector<float> matrix = {};
 
     SERIALIZE_JSON_STRUCT(ConvolutionStruct, enabled, type, divide)
+
+    bool operator!=(const ConvolutionStruct& rhs)
+    {
+        return enabled != rhs.enabled || divide != rhs.divide || type != rhs.type || matrix != rhs.matrix;
+    }
 };
 
 /*! \class Rendering
