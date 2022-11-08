@@ -7,6 +7,7 @@
 
 #include "types.hh"
 #include "enum_record_mode.hh"
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -24,11 +25,6 @@ struct ChartRecordStruct
     bool operator!=(const ChartRecordStruct& rhs) { return nb_points_to_record_ != rhs.nb_points_to_record_; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
-{
-    return os << value.get_nb_points_to_record();
-}
-
 struct FrameRecordStruct
 {
   public:
@@ -43,7 +39,14 @@ struct FrameRecordStruct
     bool operator!=(const FrameRecordStruct& rhs) { return record_mode_ != rhs.record_mode_; }
 };
 
-// FIXME : TODO
-inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value) { return os; }
+inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
+{
+    return os << value.nb_points_to_record_;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
+{
+    return os << value.get_record_mode();
+}
 
 } // namespace holovibes

@@ -178,4 +178,13 @@ struct Views
     void Load();
 };
 
+inline std::ostream& operator<<(std::ostream& os, const ViewContrast& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewWindow& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewXYZ& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccu& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccuPQ& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccuXY& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Windows& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ReticleStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Views& value) { return os << json{value}; }
 } // namespace holovibes

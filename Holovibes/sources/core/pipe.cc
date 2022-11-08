@@ -167,16 +167,16 @@ void Pipe::sync_and_refresh()
     LOG_PIPE("Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
 
-    if (api::get_import_type() == ImportTypeEnum::None)
-    {
-        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
-        return;
-    }
-
     if (!PipeRequestOnSync::do_need_pipe_refresh())
     {
         LOG_PIPE(
             "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
+        return;
+    }
+
+    if (api::get_import_type() == ImportTypeEnum::None)
+    {
+        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
         return;
     }
 

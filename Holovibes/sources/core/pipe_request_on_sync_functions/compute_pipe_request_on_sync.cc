@@ -5,7 +5,7 @@ namespace holovibes
 template <>
 void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE BatchSize");
+    LOG_UPDATE_PIPE(BatchSize);
 
     pipe.update_spatial_transformation_parameters();
     pipe.get_gpu_input_queue().resize(new_value);
@@ -14,7 +14,7 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
 template <>
 void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE TimeStride");
+    LOG_UPDATE_PIPE(TimeStride);
 
     pipe.get_batch_env().batch_index = 0;
 }
@@ -22,7 +22,7 @@ void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE TimeTransformationSize");
+    LOG_UPDATE_PIPE(TimeTransformationSize);
 
     if (!pipe.update_time_transformation_size(pipe.get_compute_cache().get_value<TimeTransformationSize>()))
     {
@@ -49,7 +49,7 @@ void ComputePipeRequestOnSync::on_sync<Convolution>(const ConvolutionStruct& new
 template <>
 void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Convolution");
+    LOG_UPDATE_PIPE(Convolution);
 
     if (new_value.enabled == false)
         pipe.get_postprocess().dispose();
@@ -62,7 +62,7 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Convolution");
+    LOG_UPDATE_PIPE(Convolution);
 
     if (new_value == false)
         pipe.dispose_cuts();

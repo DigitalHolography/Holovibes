@@ -7,6 +7,13 @@ class Pipe;
 
 namespace holovibes
 {
+
+#ifndef DISABLE_LOG_UPDATE_PIPE
+#define LOG_UPDATE_PIPE(type) LOG_TRACE(compute_worker, "UPDATE " #type);
+#else
+#define LOG_UPDATE_PIPE(type)
+#endif
+
 class PipeRequestOnSync
 {
   private:

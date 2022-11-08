@@ -6,7 +6,7 @@ namespace holovibes
 template <>
 void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruct& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE FrameRecordMode");
+    LOG_UPDATE_PIPE(FrameRecordMode);
 
     if (new_value.get_record_mode() == RecordMode::NONE)
     {
@@ -44,7 +44,7 @@ void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruc
 template <>
 void ExportPipeRequestOnSync::operator()<ChartRecord>(const ChartRecordStruct& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ChartRecord");
+    LOG_UPDATE_PIPE(ChartRecord);
 
     if (new_value.is_enable() == false)
         pipe.get_chart_env().chart_record_queue_.reset(nullptr);

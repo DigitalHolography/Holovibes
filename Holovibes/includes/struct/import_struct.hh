@@ -6,6 +6,7 @@
 #pragma once
 
 #include "types.hh"
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -34,10 +35,27 @@ enum ImportTypeEnum
     File,
 };
 
-// FIXME : TODO
-inline std::ostream& operator<<(std::ostream& os, const CameraKind& value) { return os; }
+// clang-format off
+SERIALIZE_JSON_ENUM(CameraKind, {
+    {CameraKind::None, "None"},
+    {CameraKind::Adimec, "Adimec"},
+    {CameraKind::IDS, "IDS"},
+    {CameraKind::Phantom, "Phantom"},
+    {CameraKind::BitflowCyton, "BitflowCyton"},
+    {CameraKind::Hamamatsu, "Hamamatsu"},
+    {CameraKind::xiQ, "xiQ"},
+    {CameraKind::xiB, "xiB"},
+    {CameraKind::OpenCV, "OpenCV"}
+})
 
-// FIXME : TODO
-inline std::ostream& operator<<(std::ostream& os, const ImportTypeEnum& value) { return os; }
+SERIALIZE_JSON_ENUM(ImportTypeEnum, {
+    {ImportTypeEnum::None, "None"},
+    {ImportTypeEnum::Camera, "Camera"},
+    {ImportTypeEnum::File, "File"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const CameraKind& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ImportTypeEnum& value) { return os << json{value}; }
 
 } // namespace holovibes

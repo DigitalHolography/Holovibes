@@ -37,7 +37,28 @@ struct ContrastThresholdStruct
 
     SERIALIZE_JSON_STRUCT(ContrastThresholdStruct, lower, upper, cuts_p_offset)
 
-    bool operator!=(const ContrastThresholdStruct& rhs) { return lower != rhs.lower || upper != rhs.upper || cuts_p_offset != rhs.cuts_p_offset; }
+    bool operator!=(const ContrastThresholdStruct& rhs)
+    {
+        return lower != rhs.lower || upper != rhs.upper || cuts_p_offset != rhs.cuts_p_offset;
+    }
+};
+
+/*! \class BufferSize
+ *
+ * \brief Class that represents BufferSize
+ */
+struct BufferSize
+{
+    unsigned input = 512;
+    unsigned file = 512;
+    unsigned record = 1024;
+    unsigned output = 256;
+    unsigned time_transformation_cuts = 512;
+
+    void Load();
+    void Update();
+
+    SERIALIZE_JSON_STRUCT(BufferSize, input, file, record, output, time_transformation_cuts)
 };
 
 /*! \class AdvancedSettings
@@ -46,24 +67,6 @@ struct ContrastThresholdStruct
  */
 struct AdvancedSettings
 {
-    /*! \class BufferSize
-     *
-     * \brief Class that represents BufferSize
-     */
-    struct BufferSize
-    {
-        unsigned input = 512;
-        unsigned file = 512;
-        unsigned record = 1024;
-        unsigned output = 256;
-        unsigned time_transformation_cuts = 512;
-
-        void Load();
-        void Update();
-
-        SERIALIZE_JSON_STRUCT(BufferSize, input, file, record, output, time_transformation_cuts)
-    };
-
     BufferSize buffer_size;
     Filter2DSmoothStruct filter2d_smooth;
     ContrastThresholdStruct contrast;
@@ -76,4 +79,8 @@ struct AdvancedSettings
     SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant, raw_bitshift)
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Filter2DSmoothStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ContrastThresholdStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const BufferSize& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const AdvancedSettings& value) { return os << json{value}; }
 } // namespace holovibes

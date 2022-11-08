@@ -23,6 +23,7 @@ enum class ImageTypeEnum
 };
 
 // clang-format off
+
 SERIALIZE_JSON_ENUM(ImageTypeEnum, {
     {ImageTypeEnum::Modulus, "MODULUS"},
     {ImageTypeEnum::SquaredModulus, "SQUAREDMODULUS"},
@@ -30,5 +31,9 @@ SERIALIZE_JSON_ENUM(ImageTypeEnum, {
     {ImageTypeEnum::PhaseIncrease, "PHASEINCREASE"},
     {ImageTypeEnum::Composite, "COMPOSITE"},
 })
+
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const ImageTypeEnum& value) { return os << json{value}; }
 
 } // namespace holovibes

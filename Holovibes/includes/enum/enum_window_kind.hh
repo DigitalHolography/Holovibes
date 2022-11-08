@@ -28,4 +28,7 @@ SERIALIZE_JSON_ENUM(WindowKind, {
     { WindowKind::ViewFilter2D, "ViewFilter2D"}
 })
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const WindowKind& value) { return os << json{value}; }
+
 } // namespace holovibes

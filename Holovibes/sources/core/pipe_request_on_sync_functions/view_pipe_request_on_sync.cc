@@ -36,7 +36,7 @@ void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ViewXY");
+    LOG_UPDATE_PIPE(ViewXY);
 
     // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
@@ -71,7 +71,7 @@ void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ViewXZ");
+    LOG_UPDATE_PIPE(ViewXZ);
 
     // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
@@ -106,7 +106,7 @@ void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ViewYZ");
+    LOG_UPDATE_PIPE(ViewYZ);
 
     // FIXME COMPILE : this need to go outside cache
     // if (new_value.get_request_clear_image_accumulation() == true)
@@ -132,7 +132,7 @@ void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& p
 template <>
 void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE RawViewEnabled");
+    LOG_UPDATE_PIPE(RawViewEnabled);
 
     if (new_value == false)
         pipe.get_raw_view_queue_ptr().reset(nullptr);
@@ -148,7 +148,7 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pip
 template <>
 void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ChartDisplayEnabled");
+    LOG_UPDATE_PIPE(ChartDisplayEnabled);
 
     if (new_value == false)
         pipe.get_chart_env().chart_display_queue_.reset(nullptr);
@@ -162,7 +162,7 @@ void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Filter2DViewEnabled");
+    LOG_UPDATE_PIPE(Filter2DViewEnabled);
 
     if (new_value == false)
         pipe.get_filter2d_view_queue_ptr().reset(nullptr);
@@ -178,7 +178,7 @@ void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE LensViewEnabled");
+    LOG_UPDATE_PIPE(LensViewEnabled);
 
     if (new_value == false)
         pipe.get_fourier_transforms().get_lens_queue().reset(nullptr);

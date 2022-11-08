@@ -11,6 +11,7 @@
 #include "composite_struct.hh"
 #include "advanced_struct.hh"
 #include "API.hh"
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -34,4 +35,7 @@ struct ComputeSettings
 
     SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
 };
+
+inline std::ostream& operator<<(std::ostream& os, const ComputeSettings& value) { return os << json{value}; }
+
 } // namespace holovibes

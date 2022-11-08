@@ -209,7 +209,10 @@ class MicroCache
             IParameter* ref = &this->BasicMicroCache::template get_type<T>();
 
 #ifndef DISABLE_LOG_TRIGGER_MICROCACHE
-            LOG_TRACE(main, "MicroCache : TRIGGER {}", ref->get_key());
+            LOG_TRACE(main,
+                      "MicroCache : TRIGGER {} = {}",
+                      ref->get_key(),
+                      this->BasicMicroCache::template get_type<T>().get_value());
 #endif
 
             // FIXME : this is only for current holovibes version because each caches only exists once. If you want
@@ -261,7 +264,11 @@ class MicroCache
         }
 
       protected:
-        void add_cache_to_synchronize(Cache& cache) { caches_to_sync_.insert(&cache); }
+        void add_cache_to_synchronize(Cache& cache)
+        {
+            caches_to_sync_.insert(&cache);
+            cache.set_all_values(*this);
+        }
 
         void remove_cache_to_synchronize(Cache& cache)
         {

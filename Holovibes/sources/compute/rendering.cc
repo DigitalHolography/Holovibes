@@ -304,7 +304,7 @@ void Rendering::insert_compute_autocontrast()
         }
 
         // FIXME: gsh should not be modified in the pipe
-        view_cache_.synchronize<ViewPipeRequestOnSync>(api::get_compute_pipe());
+        // view_cache_.synchronize<ViewPipeRequestOnSync>(api::get_compute_pipe());
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);

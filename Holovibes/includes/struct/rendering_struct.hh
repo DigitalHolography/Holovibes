@@ -85,4 +85,8 @@ struct Rendering
                           convolution)
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Filter2DStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ConvolutionStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Rendering& value) { return os << json{value}; }
+
 } // namespace holovibes

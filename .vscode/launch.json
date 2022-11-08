@@ -13,7 +13,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/Ninja/Debug",
             "environment": [],
-            "externalConsole": false,
+            "console": "integratedTerminal",
             "preLaunchTask": "Build",
             "env": {
                 "Path": "${env:Path};C:\\Qt\\Qt6.2.1\\6.2.1\\msvc2019_64\\bin"
