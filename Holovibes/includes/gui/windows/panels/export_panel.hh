@@ -48,7 +48,7 @@ class ExportPanel : public Panel
      *
      * \param value The new record mode
      */
-    void set_record_mode(const QString& value);
+    void set_frame_record_mode(const QString& value);
 
     /*! \brief Stops the record */
     void stop_record();

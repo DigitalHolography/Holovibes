@@ -14,6 +14,7 @@
 #include "all_caches.hh"
 #include "cache_dispatcher.hh"
 #include "all_pipe_requests_on_sync_functions.hh"
+#include "compute_gsh_on_change.hh"
 
 namespace holovibes
 {
@@ -45,15 +46,23 @@ using entities::Span;
  * FastUpdateHolder : the fastUpdateHolder is a templated map which is used by the informationWorker to access and
  * display information (like fps and queue occupancy) at a high rate, since this needs to be updated continuously.
  */
-
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
-using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref,
-                                           ComputeCache::Ref,
-                                           ImportCache::Ref,
-                                           ExportCache::Ref,
-                                           CompositeCache::Ref,
-                                           ViewCache::Ref,
-                                           ZoneCache::Ref>;
+
+using GSHAdvancedCache = AdvancedCache::Ref<>;
+using GSHComputeCache = ComputeCache::Ref<ComputeGSHOnChange>;
+using GSHImportCache = ImportCache::Ref<>;
+using GSHExportCache = ExportCache::Ref<>;
+using GSHCompositeCache = CompositeCache::Ref<>;
+using GSHViewCache = ViewCache::Ref<>;
+using GSHZoneCache = ZoneCache::Ref<>;
+
+using GSHCacheDispatcher = CacheDispatcher<GSHAdvancedCache,
+                                           GSHComputeCache,
+                                           GSHImportCache,
+                                           GSHExportCache,
+                                           GSHCompositeCache,
+                                           GSHViewCache,
+                                           GSHZoneCache>;
 
 class GSH
 {
@@ -87,13 +96,13 @@ class GSH
         return cache_dispatcher_.template get<T>().template change_value<T>();
     }
 
-    AdvancedCache::Ref& get_advanced_cache() { return advanced_cache_; }
-    ComputeCache::Ref& get_compute_cache() { return compute_cache_; }
-    ImportCache::Ref& get_import_cache() { return import_cache_; }
-    ExportCache::Ref& get_export_cache() { return export_cache_; }
-    CompositeCache::Ref& get_composite_cache() { return composite_cache_; }
-    ViewCache::Ref& get_view_cache() { return view_cache_; }
-    ZoneCache::Ref& get_zone_cache() { return zone_cache_; }
+    auto& get_advanced_cache() { return advanced_cache_; }
+    auto& get_compute_cache() { return compute_cache_; }
+    auto& get_import_cache() { return import_cache_; }
+    auto& get_export_cache() { return export_cache_; }
+    auto& get_composite_cache() { return composite_cache_; }
+    auto& get_view_cache() { return view_cache_; }
+    auto& get_zone_cache() { return zone_cache_; }
 
   public:
     // inline prevents MSVC from brain-dying, dunno why
@@ -119,13 +128,13 @@ class GSH
   private:
     std::function<void()> notify_callback_ = []() {};
 
-    AdvancedCache::Ref advanced_cache_;
-    ComputeCache::Ref compute_cache_;
-    ImportCache::Ref import_cache_;
-    ExportCache::Ref export_cache_;
-    CompositeCache::Ref composite_cache_;
-    ViewCache::Ref view_cache_;
-    ZoneCache::Ref zone_cache_;
+    GSHAdvancedCache advanced_cache_;
+    GSHComputeCache compute_cache_;
+    GSHImportCache import_cache_;
+    GSHExportCache export_cache_;
+    GSHCompositeCache composite_cache_;
+    GSHViewCache view_cache_;
+    GSHZoneCache zone_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 

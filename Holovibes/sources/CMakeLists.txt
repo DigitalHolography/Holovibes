@@ -13,17 +13,15 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/camera_API.cc
     API/compute_API.cc
     API/contrast_API.cc
-    API/convolution_API.cc
     API/cuts_API.cc
     API/display_API.cc
     API/import_API.cc
     API/pipe_API.cc
     API/record_API.cc
-    API/texture_API.cc
     API/unknown_API.cc
     API/view_API.cc
 
-
+    core/gsh_cache_on_change/compute_gsh_on_change.cc
     core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc
@@ -80,6 +78,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/AdvancedSettingsWindowTools/q_int_spin_box_layout.cc
     gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
     gui/windows/panels/asw_mainwindow_panel.cc
+    gui/utilities/gui_utilities.cc
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc

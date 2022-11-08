@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "custom_parameter.hh"
+#include "parameter.hh"
 #include "micro_cache.hh"
 
 #include "rect.hh"
@@ -13,7 +13,7 @@
 namespace holovibes
 {
 template <StringLiteral Key>
-using RectFdParameter = CustomParameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
+using RectFdParameter = Parameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
 
 // clang-format off
 
@@ -30,17 +30,6 @@ class ReticleZone : public RectFdParameter<"reticle_zone">{};
 
 // clang-format on
 
-using BasicZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
-
-// clang-format off
-class ZoneCache : public BasicZoneCache
-{
-  public:
-    using Base = BasicZoneCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
 
 } // namespace holovibes

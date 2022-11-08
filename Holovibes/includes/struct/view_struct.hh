@@ -64,15 +64,6 @@ struct ViewXYZ : public ViewWindow
 
     bool is_image_accumulation_enabled() const { return output_image_accumulation > 1; }
 
-    // FIXME COMPILE : CHECK THIS TO TRIGGER
-  private:
-    bool request_clear_image_accumulation_ = false;
-
-  public:
-    bool get_request_clear_image_accumulation() const { return request_clear_image_accumulation_; }
-    void request_clear_image_accumulation() { request_clear_image_accumulation_ = true; }
-    void reset_request_clear_image_accumulation() { request_clear_image_accumulation_ = false; }
-
   public:
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 
@@ -139,9 +130,9 @@ struct Windows
     void Load();
 };
 
-/*! \class Reticle
+/*! \class ReticleStruct
  *
- * \brief Class that represents the Reticle
+ * \brief Class that represents the ReticleStruct
  */
 struct ReticleStruct
 {
@@ -178,4 +169,13 @@ struct Views
     void Load();
 };
 
+inline std::ostream& operator<<(std::ostream& os, const ViewContrast& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewWindow& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewXYZ& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccu& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccuPQ& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ViewAccuXY& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Windows& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ReticleStruct& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Views& value) { return os << json{value}; }
 } // namespace holovibes

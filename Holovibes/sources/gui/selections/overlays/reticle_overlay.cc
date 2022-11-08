@@ -5,7 +5,7 @@
 namespace holovibes::gui
 {
 ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
-    : Overlay(Reticle, parent)
+    : Overlay(KindOfOverlay::Reticle, parent)
 {
     LOG_FUNC();
 

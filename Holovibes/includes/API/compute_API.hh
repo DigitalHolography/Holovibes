@@ -32,7 +32,7 @@ inline void set_lambda(float value) { api::detail::set_value<Lambda>(value); }
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline ConvolutionStruct get_convolution() { return api::detail::get_value<Convolution>(); }
+inline const ConvolutionStruct& get_convolution() { return api::detail::get_value<Convolution>(); }
 inline TriggerChangeValue<ConvolutionStruct> change_convolution() { return api::detail::change_value<Convolution>(); }
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
@@ -62,11 +62,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 // other
 void close_critical_compute();
 void set_raw_mode(uint window_max_size);
-
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size);
-void update_time_stride(std::function<void()> callback, const uint time_stride);
-
-void set_time_transformation_size(std::function<void()> callback);
 
 void toggle_renormalize(bool value);
 

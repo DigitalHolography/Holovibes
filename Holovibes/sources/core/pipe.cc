@@ -123,6 +123,12 @@ void Pipe::call_reload_function_caches()
     }
 }
 
+#ifndef DISABLE_LOG_PIPE
+#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
+#else
+#define LOG_PIPE(...)
+#endif
+
 void Pipe::synchronize_caches_and_make_requests()
 {
     PipeRequestOnSync::begin_requests();
@@ -140,6 +146,12 @@ void Pipe::synchronize_caches_and_make_requests()
         // FIXME : handle pipe requests on sync failure
         return;
     }
+
+    if (PipeRequestOnSync::do_need_notify())
+    {
+        LOG_DEBUG(main, "Pipe call notify");
+        GSH::instance().notify();
+    }
 }
 
 bool Pipe::caches_has_change_requested()
@@ -149,12 +161,6 @@ bool Pipe::caches_has_change_requested()
            view_cache_.has_change_requested() || zone_cache_.has_change_requested() ||
            composite_cache_.has_change_requested();
 }
-
-#ifndef DISABLE_LOG_PIPE
-#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
-#else
-#define LOG_PIPE(...)
-#endif
 
 void Pipe::sync_and_refresh()
 {
@@ -167,16 +173,16 @@ void Pipe::sync_and_refresh()
     LOG_PIPE("Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
 
-    if (api::get_import_type() == ImportTypeEnum::None)
-    {
-        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
-        return;
-    }
-
     if (!PipeRequestOnSync::do_need_pipe_refresh())
     {
         LOG_PIPE(
             "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
+        return;
+    }
+
+    if (api::get_import_type() == ImportTypeEnum::None)
+    {
+        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
         return;
     }
 
@@ -260,6 +266,7 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
     rendering_->insert_contrast();
+    rendering_->insert_clear_image_accumulation();
 
     converts_->insert_to_ushort();
 
@@ -462,7 +469,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::RAW)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -477,7 +484,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::HOLOGRAM)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -496,20 +503,16 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().is_enable())
+
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_XZ)
     {
-        if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_XZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
-        }
-        else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode() == RecordMode::CUTS_YZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
-        }
+        fn_compute_vect_.push_back(
+            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
+    }
+    else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_YZ)
+    {
+        fn_compute_vect_.push_back(
+            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
     }
 }
 

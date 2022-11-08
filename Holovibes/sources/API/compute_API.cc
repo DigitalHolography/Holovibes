@@ -55,42 +55,15 @@ void set_raw_mode(uint window_max_size)
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
 }
 
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
-{
-    if (batch_size == api::get_batch_size())
-        return;
-
-    api::set_batch_size(batch_size);
-
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe_ptr().get()))
-    {
-        get_compute_pipe().insert_fn_end_vect(notify_callback);
-    }
-    else
-    {
-        LOG_INFO(main, "could not get pipe");
-    }
-}
-
-void update_time_stride(std::function<void()> callback, const uint time_stride)
-{
-    api::get_compute_pipe().insert_fn_end_vect(callback);
-}
-
-void set_time_transformation_size(std::function<void()> callback)
-{
-    api::get_compute_pipe().insert_fn_end_vect(callback);
-}
-
 void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
 
     if (api::get_import_type() != ImportTypeEnum::None)
     {
-        GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().request_clear_image_accumulation();
-        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().request_clear_image_accumulation();
-        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().request_clear_image_accumulation();
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewXY);
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewXZ);
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewYZ);
     }
 }
 

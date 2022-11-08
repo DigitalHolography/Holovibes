@@ -19,12 +19,12 @@ inline void set_reticle_zone(const units::RectFd& rect) { api::detail::set_value
 
 inline void active_noise_zone()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::KindOfOverlay::Noise>();
 }
 
 inline void active_signal_zone()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::KindOfOverlay::Signal>();
 }
 
 } // namespace holovibes::api

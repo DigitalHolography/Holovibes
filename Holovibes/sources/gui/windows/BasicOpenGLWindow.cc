@@ -1,3 +1,5 @@
+#include <map>
+
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QRect>
@@ -12,11 +14,32 @@
 
 #include "holovibes.hh"
 #include "tools.hh"
+#include "API.hh"
 
 namespace holovibes
 {
 using camera::FrameDescriptor;
 } // namespace holovibes
+
+namespace holovibes::api
+{
+static WindowKind get_window_kind_form_kind_of_window(gui::KindOfView kview)
+{
+    static auto map = std::map<gui::KindOfView, WindowKind>{{gui::KindOfView::Raw, WindowKind::ViewXY},
+                                                            {gui::KindOfView::Hologram, WindowKind::ViewXY},
+                                                            {gui::KindOfView::SliceXZ, WindowKind::ViewXZ},
+                                                            {gui::KindOfView::SliceYZ, WindowKind::ViewYZ},
+                                                            {gui::KindOfView::ViewFilter2D, WindowKind::ViewFilter2D}};
+    if (map.contains(kview) == false)
+        throw std::runtime_error("Expect WindowKind view");
+    return map[kview];
+}
+
+static const ViewXYZ& get_view_as_xyz_type(gui::KindOfView kind)
+{
+    return api::get_view_as_xyz_type(get_window_kind_form_kind_of_window(kind));
+}
+} // namespace holovibes::api
 
 namespace holovibes::gui
 {
@@ -27,7 +50,6 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , winPos(p)
     , output_(q)
     , fd_(q->get_fd())
-    , kView(k)
     , overlay_manager_(this)
     , cuResource(nullptr)
     , cuPtrToPbo(nullptr)
@@ -38,13 +60,11 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , Ebo(0)
     , Pbo(0)
     , Tex(0)
-    , translate_(0.f, 0.f, 0.f, 0.f)
-    , scale_(1.f)
-    , angle_(0.f)
-    , flip_(0)
-    , bitshift_(0)
     , transform_matrix_(1.0f)
     , transform_inverse_matrix_(1.0f)
+    , translate_(0.f, 0.f, 0.f, 0.f)
+    , scale_(1.f)
+    , kind_of_view(k)
 {
     LOG_FUNC();
 
@@ -73,7 +93,7 @@ BasicOpenGLWindow::~BasicOpenGLWindow()
     delete Program;
 }
 
-const KindOfView BasicOpenGLWindow::getKindOfView() const { return kView; }
+const KindOfView BasicOpenGLWindow::getKindOfView() const { return kind_of_view; }
 
 const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const { return overlay_manager_.getKind(); }
 
@@ -111,30 +131,6 @@ void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
     overlay_manager_.keyPress(e);
 }
 
-void BasicOpenGLWindow::setAngle(float a)
-{
-    angle_ = a;
-    setTransform();
-}
-
-float BasicOpenGLWindow::getAngle() const { return angle_; }
-
-void BasicOpenGLWindow::setFlip(bool f)
-{
-    flip_ = f;
-    setTransform();
-}
-
-bool BasicOpenGLWindow::getFlip() const { return flip_; }
-
-void BasicOpenGLWindow::setBitshift(unsigned int b)
-{
-    bitshift_ = b;
-    setTransform();
-}
-
-unsigned int BasicOpenGLWindow::getBitshift() const { return bitshift_; }
-
 void BasicOpenGLWindow::setTranslate(float x, float y)
 {
     translate_[0] = x;
@@ -148,7 +144,6 @@ void BasicOpenGLWindow::resetTransform()
 {
     translate_ = {0.f, 0.f, 0.f, 0.f};
     scale_ = 1.f;
-    flip_ = false;
     setTransform();
 }
 
@@ -162,10 +157,26 @@ float BasicOpenGLWindow::getScale() const { return scale_; }
 
 void BasicOpenGLWindow::setTransform()
 {
-    LOG_FUNC(angle_, flip_, bitshift_);
+    LOG_FUNC(main);
 
-    const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (flip_ == 1)), glm::vec3(0.f, 1.f, 0.f));
-    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));
+..    // FIXME API-FIXME VIEW : View should be the same
+    glm::mat4 rotY;
+    if (kind_of_view == KindOfView::SliceYZ)
+    {
+        rotY = glm::rotate(glm::mat4(1.f),
+                           glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).flip_enabled ? 1 : 0)),
+                           glm::vec3(0.f, 1.f, 0.f));
+    }
+    else
+    {
+        rotY = glm::rotate(glm::mat4(1.f),
+                           glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).flip_enabled ? 0 : 1)),
+                           glm::vec3(0.f, 1.f, 0.f));
+    }
+
+    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f),
+                                       glm::radians(api::get_view_as_xyz_type(kind_of_view).rot),
+                                       glm::vec3(0.f, 0.f, 1.f));
     glm::mat4 rotYZ = rotY * rotZ;
 
     // Avoid float multiplication imprecision due to glm::rotate
@@ -173,9 +184,10 @@ void BasicOpenGLWindow::setTransform()
         for (int j = 0; j < 4; j++)
             rotYZ[i][j] = std::round(rotYZ[i][j]);
 
-    const glm::mat4 scl = glm::scale(
-        glm::mat4(1.f),
-        glm::vec3(kView == KindOfView::SliceYZ ? 1 : scale_, kView == KindOfView::SliceXZ ? 1 : scale_, 1.f));
+    const glm::mat4 scl = glm::scale(glm::mat4(1.f),
+                                     glm::vec3(kind_of_view == KindOfView::SliceYZ ? 1 : scale_,
+                                               kind_of_view == KindOfView::SliceXZ ? 1 : scale_,
+                                               1.f));
     glm::mat4 mvp = rotYZ * scl;
 
     for (uint id = 0; id < 2; id++)
@@ -196,13 +208,18 @@ void BasicOpenGLWindow::setTransform()
     {
         makeCurrent();
         Program->bind();
-        Program->setUniformValue(Program->uniformLocation("angle"), angle_);
-        Program->setUniformValue(Program->uniformLocation("flip"), flip_);
-        Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
-        Program->setUniformValue(Program->uniformLocation("bitshift"), bitshift_);
-
         QMatrix4x4 m(glm::value_ptr(mvp));
         Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
+        Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
+
+        if (kind_of_view == KindOfView::Raw)
+        {
+            Program->setUniformValue(Program->uniformLocation("bitshift"), api::get_raw_bitshift());
+            return;
+        }
+        else
+            Program->setUniformValue(Program->uniformLocation("bitshift"), 0);
+
         Program->release();
     }
 }

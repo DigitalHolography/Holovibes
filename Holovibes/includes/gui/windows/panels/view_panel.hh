@@ -92,10 +92,10 @@ class ViewPanel : public Panel
     /*! \brief Modifies q accumulation from ui value */
     void set_q_acc();
 
-    /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
+    /*! \brief Rotates the current selected output display window (ViewXY or ViewXZ or ViewYZ) */
     void rotateTexture();
 
-    /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
+    /*! \brief Flips the current selected output display window (ViewXY or ViewXZ or ViewYZ) */
     void flipTexture();
 
     /*! \brief Enables or Disables log scale on the current window

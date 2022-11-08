@@ -7,6 +7,7 @@
 
 #include "types.hh"
 #include "enum_record_mode.hh"
+#include "all_struct.hh"
 
 namespace holovibes
 {
@@ -24,26 +25,32 @@ struct ChartRecordStruct
     bool operator!=(const ChartRecordStruct& rhs) { return nb_points_to_record_ != rhs.nb_points_to_record_; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
-{
-    return os << value.get_nb_points_to_record();
-}
-
 struct FrameRecordStruct
 {
   public:
-    RecordMode record_mode_ = RecordMode::NONE;
+    RecordMode record_mode = RecordMode::NONE;
+    bool enabled = false;
 
   public:
-    void disable() { record_mode_ = RecordMode::NONE; }
-    bool is_enable() const { return record_mode_ != RecordMode::NONE; }
-    RecordMode get_record_mode() const { return record_mode_; }
-    void set_record_mode(RecordMode value) { record_mode_ = value; }
+    RecordMode get_record_mode_if_enable() const
+    {
+        if (enabled)
+            return record_mode;
+        return RecordMode::NONE;
+    }
 
-    bool operator!=(const FrameRecordStruct& rhs) { return record_mode_ != rhs.record_mode_; }
+  public:
+    bool operator!=(const FrameRecordStruct& rhs) { return record_mode != rhs.record_mode || enabled != rhs.enabled; }
 };
 
-// FIXME : TODO
-inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value) { return os; }
+inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
+{
+    return os << value.nb_points_to_record_;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
+{
+    return os << value.record_mode << ", enabled : " << value.enabled;
+}
 
 } // namespace holovibes

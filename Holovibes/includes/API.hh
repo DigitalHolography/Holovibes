@@ -23,11 +23,7 @@
 #include "camera_API.hh"
 #include "compute_settings_API.hh"
 #include "compute_settings_struct.hh"
-#include "convolution_API.hh"
-#include "texture_API.hh"
 #include "unknown_API.hh"
-
-// FIXME restore pipe refresh
 
 namespace holovibes::api
 {

@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "gui_utilities.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -43,19 +44,19 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast.enabled);
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_view().contrast.enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast.auto_refresh);
-    ui_->InvertContrastCheckBox->setChecked(api::get_current_window().contrast.invert);
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast.auto_refresh);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_view().contrast.auto_refresh);
+    ui_->InvertContrastCheckBox->setChecked(api::get_current_view().contrast.invert);
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_view().contrast.auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast.auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_view().contrast.auto_refresh);
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_view_kind()));
 }
 
 void ViewPanel::on_notify()
@@ -67,9 +68,9 @@ void ViewPanel::on_notify()
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_image_type() == ImageTypeEnum::PhaseIncrease ||
                                            api::get_image_type() == ImageTypeEnum::Argument);
 
-    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
     ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
                                                     MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
+    ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
 
     ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
     ui_->FFTShiftCheckBox->setEnabled(true);
@@ -80,23 +81,23 @@ void ViewPanel::on_notify()
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_window().contrast.enabled);
+    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_current_view().contrast.enabled);
     ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_window().contrast.auto_refresh);
-    ui_->InvertContrastCheckBox->setChecked(api::get_current_window().contrast.invert);
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_window().contrast.auto_refresh);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_current_view().contrast.auto_refresh);
+    ui_->InvertContrastCheckBox->setChecked(api::get_current_view().contrast.invert);
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_current_view().contrast.auto_refresh);
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_window().contrast.auto_refresh);
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_current_view().contrast.auto_refresh);
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_view_kind()));
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_current_window().log_enabled);
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_current_view().log_enabled);
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val)
@@ -107,18 +108,18 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window_kind() == WindowKind::ViewFilter2D)
+    if (api::get_current_view_kind() == WindowKind::ViewFilter2D)
         set_xyzf_visibility(false);
     else
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_current_window_as_view_xyz().img_accu_level);
+        ui_->ImgAccuSpinBox->setValue(api::get_current_view_as_view_xyz().img_accu_level);
 
         ui_->RotatePushButton->setText(
-            ("Rot " + std::to_string(static_cast<int>(api::get_current_window_as_view_xyz().rot))).c_str());
+            ("Rot " + std::to_string(static_cast<int>(api::get_current_view_as_view_xyz().rot))).c_str());
         ui_->FlipPushButton->setText(
-            ("Flip " + std::to_string(api::get_current_window_as_view_xyz().flip_enabled)).c_str());
+            ("Flip " + std::to_string(api::get_current_view_as_view_xyz().flip_enabled)).c_str());
     }
 
     // Deactivate previous maximum (chetor)
@@ -254,8 +255,8 @@ void ViewPanel::cancel_time_transformation_cuts()
 
 void ViewPanel::set_auto_contrast_cuts()
 {
-    api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
-    api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
 }
 
 void ViewPanel::set_fft_shift(const bool value)
@@ -337,8 +338,6 @@ void ViewPanel::increment_p()
     }
 
     set_p(api::get_view_accu_p().index + 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -355,8 +354,6 @@ void ViewPanel::decrement_p()
     }
 
     set_p(api::get_view_accu_p().index - 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -383,14 +380,31 @@ void ViewPanel::set_q_acc()
 
 void ViewPanel::rotateTexture()
 {
-    api::rotateTexture();
+    double rot = api::get_current_view_as_view_xyz().rot;
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
+    api::change_current_view_as_view_xyz()->rot = new_rot;
+
+    if (api::get_current_view_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }
 
 void ViewPanel::flipTexture()
 {
-    api::flipTexture();
+    api::change_current_view_as_view_xyz()->flip_enabled = !api::get_current_view_as_view_xyz().flip_enabled;
+
+    // FIXME => TRIGGER
+    if (api::get_current_view_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }
@@ -410,7 +424,7 @@ void ViewPanel::set_accumulation_level(int value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::change_current_window_as_view_xyz()->img_accu_level = value;
+    api::change_current_view_as_view_xyz()->img_accu_level = value;
 }
 
 void ViewPanel::set_contrast_mode(bool value)
@@ -418,7 +432,7 @@ void ViewPanel::set_contrast_mode(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::change_current_window()->contrast.enabled = value;
+    api::change_current_view()->contrast.enabled = value;
 
     parent_->notify();
 }
@@ -428,12 +442,12 @@ void ViewPanel::set_auto_contrast()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_auto_contrast();
+    api::request_exec_contrast_current_window();
 }
 
 void ViewPanel::set_auto_refresh_contrast(bool value)
 {
-    api::change_current_window()->contrast.auto_refresh = value;
+    api::change_current_view()->contrast.auto_refresh = value;
 
     parent_->notify();
 }
@@ -443,10 +457,10 @@ void ViewPanel::invert_contrast(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_current_window().contrast.enabled)
+    if (!api::get_current_view().contrast.enabled)
         return;
 
-    api::change_current_window()->contrast.invert = value;
+    api::change_current_view()->contrast.invert = value;
 }
 
 void ViewPanel::set_contrast_min(const double value)
@@ -454,7 +468,7 @@ void ViewPanel::set_contrast_min(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_current_window().contrast.enabled)
+    if (!api::get_current_view().contrast.enabled)
         return;
 
     api::set_current_window_contrast_min(value);
@@ -465,7 +479,7 @@ void ViewPanel::set_contrast_max(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_current_window().contrast.enabled)
+    if (!api::get_current_view().contrast.enabled)
         return;
 
     api::set_current_window_contrast_max(value);
@@ -476,7 +490,7 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 void ViewPanel::display_reticle(bool value)
 {
     if (api::get_reticle().display_enabled != value)
-        api::display_reticle(value);
+        gui::utilities::display_reticle(value);
 
     parent_->notify();
 }

@@ -69,6 +69,8 @@ set(INTERNAL_INCLUDES
     includes/compute/
     includes/core/
     includes/core/pipe_request_on_sync_functions
+    includes/core/gsh_cache_on_change
+    
     includes/enum/
     includes/struct/
     includes/gui/other/
@@ -88,6 +90,7 @@ set(INTERNAL_INCLUDES
     includes/tools/exception/
     includes/tools/logger/
 
+    includes/gui/utilities/
 
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"

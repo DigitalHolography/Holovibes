@@ -57,18 +57,31 @@ class Rendering
     void insert_log();
     /*! \brief insert the functions relative to the contrast. */
     void insert_contrast();
+    void insert_clear_image_accumulation();
 
   public:
-    void request_view_xy_exec_contrast() { view_xy_exec_contrast_ = true; }
-    void request_view_xz_exec_contrast() { view_xz_exec_contrast_ = true; }
-    void request_view_yz_exec_contrast() { view_yz_exec_contrast_ = true; }
-    void request_view_filter2d_exec_contrast() { view_filter2d_exec_contrast_ = true; }
+    void request_view_exec_contrast(WindowKind window) { view_exec_contrast_[static_cast<int>(window)] = true; }
+    void request_view_clear_image_accumulation(WindowKind window)
+    {
+        view_clear_image_accumulation_[static_cast<int>(window)] = true;
+    }
+
+  protected:
+    bool has_requested_view_exec_contrast(WindowKind window) { return view_exec_contrast_[static_cast<int>(window)]; }
+    bool has_requested_view_clear_image_accumulation(WindowKind window)
+    {
+        return view_clear_image_accumulation_[static_cast<int>(window)];
+    }
+
+    void reset_view_exec_contrast(WindowKind window) { view_exec_contrast_[static_cast<int>(window)] = false; }
+    void reset_view_clear_image_accumulation(WindowKind window)
+    {
+        view_clear_image_accumulation_[static_cast<int>(window)] = false;
+    }
 
   private:
-    std::atomic_bool view_xy_exec_contrast_{false};
-    std::atomic_bool view_xz_exec_contrast_{false};
-    std::atomic_bool view_yz_exec_contrast_{false};
-    std::atomic_bool view_filter2d_exec_contrast_{false};
+    std::atomic_bool view_exec_contrast_[4] = {false, false, false, false};
+    std::atomic_bool view_clear_image_accumulation_[4] = {false, false, false, false};
 
   private:
     /*! \brief insert the log10 on the XY window */
@@ -78,8 +91,8 @@ class Rendering
     /*! \brief insert the log10 on the ViewFilter2D view */
     void insert_filter2d_view_log();
 
-    /*! \brief insert the autocontrast computation */
-    void insert_compute_autocontrast();
+    /*! \brief insert the automatic request of contrast */
+    void insert_request_exec_contrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
@@ -96,7 +109,7 @@ class Rendering
     /*! \brief Time transformation environment */
     const TimeTransformationEnv& time_transformation_env_;
     /*! \brief Image accumulation environment */
-    const ImageAccEnv& image_acc_env_;
+    [[maybe_unused]] const ImageAccEnv& image_acc_env_;
     /*! \brief Describes the input frame size */
     const camera::FrameDescriptor& input_fd_;
     /*! \brief Describes the output frame size */

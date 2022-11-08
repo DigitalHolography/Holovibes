@@ -173,16 +173,21 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
 
     if (record_mode_ == RecordMode::HOLOGRAM || record_mode_ == RecordMode::RAW)
     {
-        api::set_record_mode(record_mode_);
+        api::change_frame_record_mode()->record_mode = record_mode_;
+        api::change_frame_record_mode()->enabled = true;
         while (api::get_compute_pipe().get_export_cache().has_change_requested())
             continue;
     }
     else if (record_mode_ == RecordMode::CUTS_XZ || record_mode_ == RecordMode::CUTS_YZ)
     {
-        api::set_record_mode(record_mode_);
+        api::change_frame_record_mode()->record_mode = record_mode_;
+        api::change_frame_record_mode()->enabled = true;
         while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
             continue;
     }
+    if (record_mode_ == RecordMode::NONE)
+        api::change_frame_record_mode()->enabled = false;
+
     return *api::get_compute_pipe().get_frame_record_queue_ptr();
 }
 
@@ -197,7 +202,7 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 
 void FrameRecordWorker::reset_gpu_record_queue()
 {
-    api::detail::change_value<FrameRecordMode>()->disable();
+    api::detail::change_value<FrameRecordMode>()->enabled = false;
 
     std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue_ptr();
     if (raw_view_queue)
