@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "custom_parameter.hh"
+#include "parameter.hh"
 #include "micro_cache.hh"
 
 #include "enum_computation.hh"
@@ -17,16 +17,16 @@ namespace holovibes
 {
 // clang-format off
 
-class ComputeMode : public CustomParameter<Computation, Computation::Raw, "compute_mode", Computation>{};
+class ComputeMode : public Parameter<Computation, Computation::Raw, "compute_mode", Computation>{};
 class BatchSize : public IntParameter<1, "batch_size">{};
 class TimeStride : public IntParameter<1, "time_stride">{};
-class Filter2D : public CustomParameter<Filter2DStruct, DefaultLiteral<Filter2DStruct>{}, "filter2d">{};
-class SpaceTransformation : public CustomParameter<SpaceTransformationEnum, SpaceTransformationEnum::NONE, "space_transformation", SpaceTransformationEnum>{};
-class TimeTransformation : public CustomParameter<TimeTransformationEnum, TimeTransformationEnum::NONE, "time_transformation", TimeTransformationEnum>{};
+class Filter2D : public Parameter<Filter2DStruct, DefaultLiteral<Filter2DStruct>{}, "filter2d">{};
+class SpaceTransformation : public Parameter<SpaceTransformationEnum, SpaceTransformationEnum::NONE, "space_transformation", SpaceTransformationEnum>{};
+class TimeTransformation : public Parameter<TimeTransformationEnum, TimeTransformationEnum::NONE, "time_transformation", TimeTransformationEnum>{};
 class TimeTransformationSize : public UIntParameter<1, "time_transformation_size">{};
 class Lambda : public FloatParameter<852e-9f, "lambda">{};
 class ZDistance : public FloatParameter<1.50f, "z_distance">{};
-class Convolution : public CustomParameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">{};
+class Convolution : public Parameter<ConvolutionStruct, DefaultLiteral<ConvolutionStruct>{}, "convolution">{};
 
 class InputFps : public UIntParameter<60, "input_fps">{};
 class PixelSize : public FloatParameter<12.0f, "pixel_size">{};
@@ -37,32 +37,21 @@ class TimeTransformationCutsEnable : public BoolParameter<false, "time_transform
 
 // clang-format on
 
-using BasicComputeCache = MicroCache<ComputeMode,
-                                     BatchSize,
-                                     TimeStride,
-                                     Filter2D,
-                                     SpaceTransformation,
-                                     TimeTransformation,
-                                     TimeTransformationSize,
-                                     Lambda,
-                                     ZDistance,
-                                     Convolution,
-                                     InputFps,
-                                     PixelSize,
-                                     UnwrapHistorySize,
-                                     Unwrap2DRequested,
-                                     IsComputationStopped,
-                                     TimeTransformationCutsEnable>;
-// clang-format off
-
-class ComputeCache : public BasicComputeCache
-{
-  public:
-    using Base = BasicComputeCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ComputeCache = MicroCache<ComputeMode,
+                                BatchSize,
+                                TimeStride,
+                                Filter2D,
+                                SpaceTransformation,
+                                TimeTransformation,
+                                TimeTransformationSize,
+                                Lambda,
+                                ZDistance,
+                                Convolution,
+                                InputFps,
+                                PixelSize,
+                                UnwrapHistorySize,
+                                Unwrap2DRequested,
+                                IsComputationStopped,
+                                TimeTransformationCutsEnable>;
 
 } // namespace holovibes

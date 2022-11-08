@@ -22,7 +22,7 @@ class CompositePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<CompositeRGB>(const CompositeRGBStruct&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE CompositeRGB");
+        LOG_UPDATE_PIPE(CompositeRGB);
 
         request_pipe_refresh();
     }
@@ -30,7 +30,7 @@ class CompositePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<CompositeHSV>(const CompositeHSVStruct&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE CompositeHSV");
+        LOG_UPDATE_PIPE(CompositeHSV);
 
         request_pipe_refresh();
     }

@@ -22,7 +22,7 @@ namespace holovibes::gui
  *
  * \brief #TODO Add a description for this enum
  */
-enum KindOfOverlay
+enum class KindOfOverlay
 {
     Zoom,
     Reticle,
@@ -38,6 +38,22 @@ enum KindOfOverlay
     CompositeArea,
     Rainbow
 };
+
+// clang-format off
+SERIALIZE_JSON_ENUM(KindOfOverlay, {
+    {KindOfOverlay::Zoom, "Zoom"},
+    {KindOfOverlay::Reticle, "Reticle"},
+    {KindOfOverlay::Signal, "Signal"},
+    {KindOfOverlay::Noise, "Noise"},
+    {KindOfOverlay::Cross, "Cross"},
+    {KindOfOverlay::SliceCross, "SliceCross"},
+    {KindOfOverlay::Filter2DReticle, "Filter2DReticle"},
+    {KindOfOverlay::CompositeArea, "CompositeArea"},
+    {KindOfOverlay::Rainbow, "Rainbow"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const KindOfOverlay& value) { return os << json{value}; }
 
 class BasicOpenGLWindow;
 

@@ -110,7 +110,6 @@ int main(int argc, char* argv[])
     holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
 
     LOG_INFO("Start Holovibes");
-    LOG_TRACE("hello");
 
     holovibes::OptionsParser parser;
     holovibes::OptionsDescriptor opts = parser.parse(argc, argv);

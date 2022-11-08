@@ -44,7 +44,7 @@ void Rendering::Update()
     this->convolution = GSH::instance().get_value<Convolution>();
 }
 
-void AdvancedSettings::BufferSize::Update()
+void BufferSize::Update()
 {
     this->file = GSH::instance().get_value<FileBufferSize>();
     this->input = GSH::instance().get_value<InputBufferSize>();
@@ -78,7 +78,7 @@ void ComputeSettings::Update()
     this->advanced.Update();
 }
 
-void AdvancedSettings::BufferSize::Load()
+void BufferSize::Load()
 {
     GSH::instance().set_value<FileBufferSize>(this->file);
     GSH::instance().set_value<InputBufferSize>(this->input);
@@ -132,15 +132,6 @@ void Views::Load()
     GSH::instance().set_value<RenormEnabled>(this->renorm);
     GSH::instance().set_value<Reticle>(this->reticle);
 }
-
-/*
-void Rendering::ConvolutionStruct::Load()
-{
-    GSH::instance().set_convolution_enabled(this->enabled);
-    // FIXME : Check
-    UserInterfaceDescriptor::instance().convo_name = this->type;
-    GSH::instance().set_divide_convolution_enabled(this->divide);
-}*/
 
 void Rendering::Load()
 {

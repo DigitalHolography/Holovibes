@@ -23,5 +23,8 @@ SERIALIZE_JSON_ENUM(CompositeKindEnum, {
     {CompositeKindEnum::RGB, "RGB"},
     {CompositeKindEnum::HSV, "HSV"},
 })
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const CompositeKindEnum& value) { return os << json{value}; }
 
 } // namespace holovibes

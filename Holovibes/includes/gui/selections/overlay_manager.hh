@@ -24,23 +24,23 @@ class OverlayManager
     template <KindOfOverlay ko>
     void create_overlay();
     template <>
-    void create_overlay<Zoom>();
+    void create_overlay<KindOfOverlay::Zoom>();
     template <>
-    void create_overlay<Noise>();
+    void create_overlay<KindOfOverlay::Noise>();
     template <>
-    void create_overlay<Signal>();
+    void create_overlay<KindOfOverlay::Signal>();
     template <>
-    void create_overlay<Cross>();
+    void create_overlay<KindOfOverlay::Cross>();
     template <>
-    void create_overlay<SliceCross>();
+    void create_overlay<KindOfOverlay::SliceCross>();
     template <>
     void create_overlay<KindOfOverlay::CompositeArea>();
     template <>
-    void create_overlay<Rainbow>();
+    void create_overlay<KindOfOverlay::Rainbow>();
     template <>
-    void create_overlay<Reticle>();
+    void create_overlay<KindOfOverlay::Reticle>();
     template <>
-    void create_overlay<Filter2DReticle>();
+    void create_overlay<KindOfOverlay::Filter2DReticle>();
 
     /*! \brief Create the default overlay in the view. Zoom for Raw/Holo, Cross for Slices. */
     void create_default();

@@ -23,28 +23,8 @@ static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation
 }
 
 // FIXME API : these 3 function need to use the same function
-
-template <>
-void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+static void view_xy_refresh(const ViewXYZ& new_value, Pipe& pipe)
 {
-    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
-    {
-        operator()<ViewXY>(new_value, pipe);
-    }
-}
-
-template <>
-void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& pipe)
-{
-    LOG_TRACE(compute_worker, "UPDATE ViewXY");
-
-    // FIXME COMPILE : this need to go outside cache
-    // if (new_value.get_request_clear_image_accumulation() == true)
-    // {
-    //     if (new_value.is_image_accumulation_enabled())
-    //         pipe.get_image_acc_env().gpu_accumulation_xy_queue->clear();
-    // }
-
     if (new_value.is_image_accumulation_enabled() == false)
         pipe.get_image_acc_env().gpu_accumulation_xy_queue.reset(nullptr);
     else
@@ -60,26 +40,32 @@ void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& p
 }
 
 template <>
-void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
+    if (new_value.contrast.enabled != old_value.contrast.enabled && new_value.contrast.enabled == true)
+    {
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
+        request_pipe_refresh();
+    }
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
-        operator()<ViewXZ>(new_value, pipe);
+        view_xy_refresh(new_value, pipe);
+        request_pipe_refresh();
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ViewXZ");
+    LOG_UPDATE_PIPE(ViewXY);
+    view_xy_refresh(new_value, pipe);
+    if (new_value.contrast.enabled)
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
+    request_pipe_refresh();
+}
 
-    // FIXME COMPILE : this need to go outside cache
-    // if (new_value.get_request_clear_image_accumulation() == true)
-    // {
-    //     if (new_value.is_image_accumulation_enabled())
-    //         pipe.get_image_acc_env().gpu_accumulation_xz_queue->clear();
-    // }
-
+static void view_xz_refresh(const ViewXYZ& new_value, Pipe& pipe)
+{
     if (new_value.is_image_accumulation_enabled() == false)
         pipe.get_image_acc_env().gpu_accumulation_xz_queue.reset(nullptr);
     else
@@ -95,26 +81,33 @@ void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& p
 }
 
 template <>
-void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
+    LOG_UPDATE_PIPE(ViewXZ);
+    if (new_value.contrast.enabled != old_value.contrast.enabled && new_value.contrast.enabled == true)
+    {
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+        request_pipe_refresh();
+    }
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
-        operator()<ViewYZ>(new_value, pipe);
+        view_xz_refresh(new_value, pipe);
+        request_pipe_refresh();
     }
 }
 
 template <>
-void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& pipe)
+void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ViewYZ");
+    LOG_UPDATE_PIPE(ViewXZ);
+    view_xz_refresh(new_value, pipe);
+    if (new_value.contrast.enabled)
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+    request_pipe_refresh();
+}
 
-    // FIXME COMPILE : this need to go outside cache
-    // if (new_value.get_request_clear_image_accumulation() == true)
-    // {
-    //     if (new_value.is_image_accumulation_enabled())
-    //         pipe.get_image_acc_env().gpu_accumulation_yz_queue->clear();
-    // }
-
+static void view_yz_refresh(const ViewXYZ& new_value, Pipe& pipe)
+{
     if (new_value.is_image_accumulation_enabled() == false)
         pipe.get_image_acc_env().gpu_accumulation_yz_queue.reset(nullptr);
     else
@@ -130,9 +123,36 @@ void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& p
 }
 
 template <>
+void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
+{
+    LOG_UPDATE_PIPE(ViewXZ);
+    if (new_value.contrast.enabled != old_value.contrast.enabled && new_value.contrast.enabled == true)
+    {
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
+        request_pipe_refresh();
+    }
+
+    if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
+    {
+        view_yz_refresh(new_value, pipe);
+        request_pipe_refresh();
+    }
+}
+
+template <>
+void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& pipe)
+{
+    LOG_UPDATE_PIPE(ViewYZ);
+    view_yz_refresh(new_value, pipe);
+    if (new_value.contrast.enabled)
+        pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
+    request_pipe_refresh();
+}
+
+template <>
 void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE RawViewEnabled");
+    LOG_UPDATE_PIPE(RawViewEnabled);
 
     if (new_value == false)
         pipe.get_raw_view_queue_ptr().reset(nullptr);
@@ -148,7 +168,7 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pip
 template <>
 void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE ChartDisplayEnabled");
+    LOG_UPDATE_PIPE(ChartDisplayEnabled);
 
     if (new_value == false)
         pipe.get_chart_env().chart_display_queue_.reset(nullptr);
@@ -162,7 +182,7 @@ void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE Filter2DViewEnabled");
+    LOG_UPDATE_PIPE(Filter2DViewEnabled);
 
     if (new_value == false)
         pipe.get_filter2d_view_queue_ptr().reset(nullptr);
@@ -178,7 +198,7 @@ void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_TRACE(compute_worker, "UPDATE LensViewEnabled");
+    LOG_UPDATE_PIPE(LensViewEnabled);
 
     if (new_value == false)
         pipe.get_fourier_transforms().get_lens_queue().reset(nullptr);

@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "input_frame_file_factory.hh"
 #include "API.hh"
+#include "gui_utilities.hh"
 
 namespace api = ::holovibes::api;
 
@@ -190,7 +191,7 @@ void ImportPanel::import_start()
 
         // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
         // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
-        api::display_reticle(api::get_reticle().display_enabled);
+        gui::utilities::display_reticle(api::get_reticle().display_enabled);
     }
     else
     {

@@ -15,10 +15,6 @@ HoloWindow::HoloWindow(
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
-    // FIXME COMPILE WHY
-    // if (api::get_current_window().contrast.auto_refresh)
-    //     api::get_view_xy().request_exec_auto_contrast();
-    api::set_auto_contrast_all();
 }
 
 HoloWindow::~HoloWindow() {}
@@ -35,7 +31,7 @@ void HoloWindow::initShaders()
 void HoloWindow::focusInEvent(QFocusEvent* e)
 {
     QOpenGLWindow::focusInEvent(e);
-    api::change_current_window_kind(WindowKind::XYview);
+    api::set_current_view_kind(WindowKind::ViewXY);
 }
 
 void HoloWindow::update_slice_transforms()
@@ -51,8 +47,6 @@ void HoloWindow::update_slice_transforms()
         yz_slice_->setScale(getScale());
     }
 }
-
-void HoloWindow::resetTransform() { BasicOpenGLWindow::resetTransform(); }
 
 void HoloWindow::setTransform()
 {

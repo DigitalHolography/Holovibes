@@ -65,13 +65,6 @@ struct CompositeRGBStruct
     CompositeP frame_index;
     RGBWeights weight;
 
-    // FIXME COMPILE : chetor
-    uint get_red() const { return p.min; }
-    uint get_blue() const { return p.max; }
-
-    void set_red(uint _red) { p.min = _red; }
-    void set_blue(uint _blue) { p.max = _blue; }
-
     SERIALIZE_JSON_STRUCT(CompositeRGBStruct, frame_index, weight)
 
     bool operator!=(const CompositeRGBStruct& rhs) { return frame_index != rhs.frame_index || weight != rhs.weight; }
@@ -174,4 +167,15 @@ struct Composite
     SERIALIZE_JSON_STRUCT(Composite, mode, auto_weight, rgb, hsv)
 };
 
+inline std::ostream& operator<<(std::ostream& os, const CompositeP& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const ActivableCompositeP& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const RGBWeights& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Threshold& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Blur& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const CompositeH& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const CompositeSV& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const Composite& value) { return os << json{value}; }
+
+inline std::ostream& operator<<(std::ostream& os, const CompositeHSVStruct& value) { return os /*<< json{value}*/; }
+inline std::ostream& operator<<(std::ostream& os, const CompositeRGBStruct& value) { return os /*<< json{value}*/; }
 } // namespace holovibes

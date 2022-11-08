@@ -10,32 +10,9 @@ GSH::GSH()
     : cache_dispatcher_(
           advanced_cache_, compute_cache_, import_cache_, export_cache_, composite_cache_, view_cache_, zone_cache_)
 {
-    set_caches_as_refs();
 }
 
-void GSH::set_caches_as_refs()
-{
-    AdvancedCache::RefSingleton::set_main_ref(advanced_cache_);
-    ComputeCache::RefSingleton::set_main_ref(compute_cache_);
-    ImportCache::RefSingleton::set_main_ref(import_cache_);
-    ExportCache::RefSingleton::set_main_ref(export_cache_);
-    CompositeCache::RefSingleton::set_main_ref(composite_cache_);
-    ViewCache::RefSingleton::set_main_ref(view_cache_);
-    ZoneCache::RefSingleton::set_main_ref(zone_cache_);
-}
-
-GSH::~GSH() { remove_caches_as_refs(); }
-
-void GSH::remove_caches_as_refs()
-{
-    AdvancedCache::RefSingleton::remove_main_ref(advanced_cache_);
-    ComputeCache::RefSingleton::remove_main_ref(compute_cache_);
-    ImportCache::RefSingleton::remove_main_ref(import_cache_);
-    ExportCache::RefSingleton::remove_main_ref(export_cache_);
-    CompositeCache::RefSingleton::remove_main_ref(composite_cache_);
-    ViewCache::RefSingleton::remove_main_ref(view_cache_);
-    ZoneCache::RefSingleton::remove_main_ref(zone_cache_);
-}
+GSH::~GSH() {}
 
 GSH& GSH::instance()
 {

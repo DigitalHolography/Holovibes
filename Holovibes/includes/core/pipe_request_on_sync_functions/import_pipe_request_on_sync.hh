@@ -22,7 +22,7 @@ class ImportPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<LastImageType>(const std::string&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE LastImageType");
+        LOG_UPDATE_PIPE(LastImageType);
 
         request_pipe_refresh();
     }

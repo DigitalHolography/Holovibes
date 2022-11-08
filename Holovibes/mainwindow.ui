@@ -285,9 +285,9 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QCheckBox" name="ViewFilter2D">
+            <widget class="QCheckBox" name="Filter2D">
              <property name="text">
-              <string>ViewFilter2D</string>
+              <string>Filter2D</string>
              </property>
             </widget>
            </item>
@@ -898,7 +898,7 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>Apply</string>
+                    <string>Exec</string>
                    </property>
                    <property name="flat">
                     <bool>false</bool>
@@ -1259,7 +1259,7 @@
            </item>
            <item>
             <property name="text">
-             <string>ViewFilter2D view</string>
+             <string>Filter2D view</string>
             </property>
            </item>
           </widget>
@@ -4599,7 +4599,7 @@ p, li { white-space: pre-wrap; }
    <sender>RecordImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>ExportPanel</receiver>
-   <slot>set_record_mode(QString)</slot>
+   <slot>set_frame_record_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>793</x>
@@ -4884,7 +4884,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ViewFilter2D</sender>
+   <sender>Filter2D</sender>
    <signal>clicked(bool)</signal>
    <receiver>ImageRenderingPanel</receiver>
    <slot>set_filter2d(bool)</slot>
@@ -5159,7 +5159,7 @@ p, li { white-space: pre-wrap; }
    <sender>WindowSelectionComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>change_window(int)</slot>
+   <slot>change_view(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>307</x>
@@ -5228,7 +5228,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_hamamatsu()</slot>
   <slot>camera_none()</slot>
   <slot>camera_opencv()</slot>
-  <slot>change_window(int)</slot>
+  <slot>change_view(int)</slot>
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
@@ -5294,7 +5294,7 @@ p, li { white-space: pre-wrap; }
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
-  <slot>set_record_mode(QString)</slot>
+  <slot>set_frame_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>

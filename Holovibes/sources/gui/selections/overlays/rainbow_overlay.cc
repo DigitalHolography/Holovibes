@@ -6,7 +6,7 @@
 namespace holovibes::gui
 {
 RainbowOverlay::RainbowOverlay(BasicOpenGLWindow* parent)
-    : Overlay(Rainbow, parent)
+    : Overlay(KindOfOverlay::Rainbow, parent)
 {
     LOG_FUNC();
 
@@ -120,10 +120,11 @@ void RainbowOverlay::setBuffer()
 
     int red;
     int blue;
+    // FIXME NAME
     if (api::get_composite_kind() == CompositeKindEnum::RGB)
     {
-        red = api::get_composite_rgb().get_red();
-        blue = api::get_composite_rgb().get_blue();
+        red = api::get_composite_rgb().p.min;
+        blue = api::get_composite_rgb().p.max;
     }
     else
     {

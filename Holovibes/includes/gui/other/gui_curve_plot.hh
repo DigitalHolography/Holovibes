@@ -50,7 +50,7 @@ class CurvePlot : public QWidget
     ~CurvePlot();
 
     /*! \brief Different curve options */
-    enum CurveName
+    enum class CurveName
     {
         AVG_SIGNAL = 0,
         AVG_NOISE = 1,

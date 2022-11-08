@@ -30,8 +30,6 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     void operator()<TimeTransformationSize>(uint new_value, Pipe& pipe);
 
     template <>
-    void on_sync<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
-    template <>
     void operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe);
 
     template <>
@@ -39,9 +37,17 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
+    void operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe)
+    {
+        LOG_UPDATE_PIPE(Filter2D);
+
+        request_pipe_refresh();
+    }
+
+    template <>
     void operator()<Lambda>(float, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE Lambda");
+        LOG_UPDATE_PIPE(Lambda);
 
         request_pipe_refresh();
     }
@@ -49,7 +55,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ZDistance>(float, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE ZDistance");
+        LOG_UPDATE_PIPE(ZDistance);
 
         request_pipe_refresh();
     }
@@ -57,7 +63,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<Unwrap2DRequested>(bool, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE Unwrap2DRequested");
+        LOG_UPDATE_PIPE(Unwrap2DRequested);
 
         request_pipe_refresh();
     }

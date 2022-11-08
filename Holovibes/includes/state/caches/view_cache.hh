@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "custom_parameter.hh"
+#include "parameter.hh"
 #include "micro_cache.hh"
 
 #include "view_struct.hh"
@@ -18,16 +18,16 @@ namespace holovibes
 // clang-format off
 
 //! \brief Type of the image displayed
-class ImageType : public CustomParameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>{};
-class ViewAccuX : public CustomParameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_x">{};
-class ViewAccuY : public CustomParameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_y">{};
-class ViewAccuP : public CustomParameter<ViewAccuPQ, DefaultLiteral<ViewAccuPQ>{}, "view_accu_p">{};
-class ViewAccuQ : public CustomParameter<ViewAccuPQ, DefaultLiteral<ViewAccuPQ>{}, "view_accu_q">{};
-class ViewXY : public CustomParameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xy">{};
-class ViewXZ : public CustomParameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xz">{};
-class ViewYZ : public CustomParameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_yz">{};
-class ViewFilter2D : public CustomParameter<ViewWindow, DefaultLiteral<ViewWindow>{}, "view_filter2d">{};
-class CurrentWindowKind : public CustomParameter<WindowKind, WindowKind::XYview, "current_window">{};
+class ImageType : public Parameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>{};
+class ViewAccuX : public Parameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_x">{};
+class ViewAccuY : public Parameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_y">{};
+class ViewAccuP : public Parameter<ViewAccuPQ, DefaultLiteral<ViewAccuPQ>{}, "view_accu_p">{};
+class ViewAccuQ : public Parameter<ViewAccuPQ, DefaultLiteral<ViewAccuPQ>{}, "view_accu_q">{};
+class ViewXY : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xy">{};
+class ViewXZ : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xz">{};
+class ViewYZ : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_yz">{};
+class ViewFilter2D : public Parameter<ViewWindow, DefaultLiteral<ViewWindow>{}, "view_filter2d">{};
+class CurrentWindowKind : public Parameter<WindowKind, WindowKind::ViewXY, "current_window">{};
 class LensViewEnabled : public BoolParameter<false, "lens_view_enabled">{};
 //! \brief Enables the signal and noise chart display
 class ChartDisplayEnabled : public BoolParameter<false, "chart_display_enabled">{};
@@ -40,39 +40,27 @@ class RawViewEnabled : public BoolParameter<false, "raw_view_enabled">{};
 //! \brief Are slices YZ and XZ enabled
 class CutsViewEnabled : public BoolParameter<false, "cuts_view_enabled">{};
 class RenormEnabled : public BoolParameter<true, "renorm_enabled">{};
-class Reticle : public CustomParameter<ReticleStruct, DefaultLiteral<ReticleStruct>{}, "reticle">{};
+class Reticle : public Parameter<ReticleStruct, DefaultLiteral<ReticleStruct>{}, "reticle">{};
 
 // clang-format on
 
-using BasicViewCache = MicroCache<ImageType,
-                                  ViewAccuX,
-                                  ViewAccuY,
-                                  ViewAccuP,
-                                  ViewAccuQ,
-                                  ViewXY,
-                                  ViewXZ,
-                                  ViewYZ,
-                                  ViewFilter2D,
-                                  CurrentWindowKind,
-                                  LensViewEnabled,
-                                  ChartDisplayEnabled,
-                                  Filter2DViewEnabled,
-                                  FftShiftEnabled,
-                                  RawViewEnabled,
-                                  CutsViewEnabled,
-                                  RenormEnabled,
-                                  Reticle>;
-
-// clang-format off
-
-class ViewCache : public BasicViewCache
-{
-  public:
-    using Base = BasicViewCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ViewCache = MicroCache<ImageType,
+                             ViewAccuX,
+                             ViewAccuY,
+                             ViewAccuP,
+                             ViewAccuQ,
+                             ViewXY,
+                             ViewXZ,
+                             ViewYZ,
+                             ViewFilter2D,
+                             CurrentWindowKind,
+                             LensViewEnabled,
+                             ChartDisplayEnabled,
+                             Filter2DViewEnabled,
+                             FftShiftEnabled,
+                             RawViewEnabled,
+                             CutsViewEnabled,
+                             RenormEnabled,
+                             Reticle>;
 
 } // namespace holovibes

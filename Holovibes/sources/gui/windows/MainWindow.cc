@@ -228,7 +228,7 @@ void MainWindow::notify_error(const std::exception& e)
                 // notify will be in close_critical_compute
                 api::change_view_accu_p()->index = 0;
                 api::set_time_transformation_size(1);
-                api::disable_convolution();
+                api::change_convolution()->enabled = false;
                 api::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
@@ -549,45 +549,16 @@ void MainWindow::set_view_image_type(const QString& value)
         }
     }
 
-    // FIXME: delete comment
-    // C'est ce que philippe faisait pour les space/time_transform aussi
-    // Pas faux
-    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
-    // Perso la string me va très bien
-    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
-    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
-    // Faudrait peut-être demander l'avis de tt le monde
-    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
-    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
-    // On peut demander aux autres
+    api::set_image_type(static_cast<ImageTypeEnum>(ui_->ViewModeComboBox->currentIndex()));
+    layout_toggled();
 
-    auto callback = ([=]() {
-        api::set_image_type(static_cast<ImageTypeEnum>(ui_->ViewModeComboBox->currentIndex()));
-        notify();
-        layout_toggled();
-    });
-
-    // Force XYview autocontrast
-    api::set_view_mode(str, callback);
-
-    // Force cuts views autocontrast if needed
-    if (api::get_cuts_view_enabled())
-    {
-        api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
-        api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
-    }
+    // FIXME CONTRAST
+    api::request_exec_contrast_all_windows();
 }
 
 #pragma endregion
 
 /* ------------ */
-
-void MainWindow::change_window(int index)
-{
-    api::change_current_window_kind(static_cast<WindowKind>(index));
-
-    notify();
-}
 
 void MainWindow::start_import(QString filename)
 {

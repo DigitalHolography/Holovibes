@@ -24,7 +24,7 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
+    set_frame_record_mode(QString::fromUtf8("Raw Image"));
 }
 
 void ExportPanel::on_notify()
@@ -93,28 +93,29 @@ void ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (api::get_frame_record_mode().record_mode == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_record_mode() == RecordMode::RAW)
+    else if (api::get_frame_record_mode().record_mode == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+    else if (api::get_frame_record_mode().record_mode == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
+    else if (api::get_frame_record_mode().record_mode == RecordMode::CUTS_XZ ||
+             api::get_frame_record_mode().record_mode == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -160,29 +161,29 @@ static void set_record_mode_in_api_from_text(const std::string& text)
 
     // TODO: Dictionnary
     if (text == "Chart")
-        api::set_record_mode(RecordMode::CHART);
+        api::change_frame_record_mode()->record_mode = RecordMode::CHART;
     else if (text == "Processed Image")
-        api::set_record_mode(RecordMode::HOLOGRAM);
+        api::change_frame_record_mode()->record_mode = RecordMode::HOLOGRAM;
     else if (text == "Raw Image")
-        api::set_record_mode(RecordMode::RAW);
+        api::change_frame_record_mode()->record_mode = RecordMode::RAW;
     else if (text == "3D Cuts XZ")
-        api::set_record_mode(RecordMode::CUTS_XZ);
+        api::change_frame_record_mode()->record_mode = RecordMode::CUTS_XZ;
     else if (text == "3D Cuts YZ")
-        api::set_record_mode(RecordMode::CUTS_YZ);
+        api::change_frame_record_mode()->record_mode = RecordMode::CUTS_YZ;
     else
         throw std::exception("Record mode not handled");
 }
 
-void ExportPanel::set_record_mode(const QString& value)
+void ExportPanel::set_frame_record_mode(const QString& value)
 {
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (api::get_frame_record_mode().record_mode == RecordMode::CHART)
         stop_chart_display();
 
     stop_record();
 
     set_record_mode_in_api_from_text(value.toStdString());
 
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (api::get_frame_record_mode().record_mode == RecordMode::CHART)
     {
         ui_->RecordExtComboBox->clear();
         ui_->RecordExtComboBox->insertItem(0, ".csv");
@@ -194,26 +195,27 @@ void ExportPanel::set_record_mode(const QString& value)
         {
             api::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().enable_all(Signal);
-            api::get_main_display()->getOverlayManager().enable_all(Noise);
-            api::get_main_display()->getOverlayManager().create_overlay<Signal>();
+            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Signal);
+            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Noise);
+            api::get_main_display()->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
         }
     }
     else
     {
-        if (api::get_record_mode() == RecordMode::RAW)
+        if (api::get_frame_record_mode().record_mode == RecordMode::RAW)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
         }
-        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+        else if (api::get_frame_record_mode().record_mode == RecordMode::HOLOGRAM)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
-        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
+        else if (api::get_frame_record_mode().record_mode == RecordMode::CUTS_YZ ||
+                 api::get_frame_record_mode().record_mode == RecordMode::CUTS_XZ)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
@@ -226,8 +228,8 @@ void ExportPanel::set_record_mode(const QString& value)
         {
             api::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().disable_all(Signal);
-            api::get_main_display()->getOverlayManager().disable_all(Noise);
+            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Signal);
+            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Noise);
         }
     }
 
@@ -292,7 +294,7 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), this]()
+    auto callback = [record_mode = api::get_frame_record_mode().record_mode, this]()
     { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
     api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);

@@ -72,11 +72,11 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
-    // ViewFilter2D
-    ui_->ViewFilter2D->setEnabled(!is_raw);
-    ui_->ViewFilter2D->setChecked(api::get_filter2d().enabled);
+    // Filter2D
+    ui_->Filter2D->setEnabled(!is_raw);
+    ui_->Filter2D->setChecked(api::get_filter2d().enabled);
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d().enabled);
-    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d().enabled);
+    ui_->Filter2DView->setChecked(api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d().enabled);
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d().n1);
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
@@ -86,7 +86,7 @@ void ImageRenderingPanel::on_notify()
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution().enabled);
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().enabled);
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().divide);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
         ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
 }
@@ -161,11 +161,7 @@ void ImageRenderingPanel::update_batch_size()
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
-
-    // Need a notify because time transformation stride might change due to change on batch size
-    auto notify_callback = [=]() { parent_->notify(); };
-
-    api::update_batch_size(notify_callback, batch_size);
+    api::set_batch_size(batch_size);
 }
 
 void ImageRenderingPanel::update_time_stride()
@@ -174,24 +170,16 @@ void ImageRenderingPanel::update_time_stride()
         return;
 
     uint time_stride = ui_->TimeStrideSpinBox->value();
-
     if (time_stride == api::get_time_stride())
         return;
+    api::set_time_stride(time_stride);
 
-    auto callback = [=]()
-    {
-        api::set_time_stride(time_stride);
-
-        // Only in file mode, if batch size change, the record frame number have to change
-        // User need.
-        if (api::get_import_type() == ImportTypeEnum::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-        parent_->notify();
-    };
-
-    api::update_time_stride(callback, time_stride);
+    // Check this
+    //         if (api::get_import_type() == ImportTypeEnum::File)
+    //             ui_->NumberOfFramesSpinBox->setValue(
+    //                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+    //                      (float)ui_->TimeStrideSpinBox->value()));
+    //         parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)
@@ -199,7 +187,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_filter2d(checked);
+    api::change_filter2d()->enabled = checked;
 
     if (checked)
     {
@@ -213,17 +201,12 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n)
-{
-    api::detail::change_value<Filter2D>()->n1 = n;
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n1(int n) { api::detail::change_value<Filter2D>()->n1 = n; }
 
 void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
     api::detail::change_value<Filter2D>()->n2 = n;
-    api::set_auto_contrast_all();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -231,7 +214,33 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
     if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    api::set_filter2d_view_enabled(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
+
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
+
+    if (checked == false)
+    {
+        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
+        return;
+    }
+
+    const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+    ushort filter2d_window_width = fd.width;
+    ushort filter2d_window_height = fd.height;
+    get_good_size(filter2d_window_width, filter2d_window_height, parent_->auxiliary_window_max_size);
+
+    // set positions of new windows according to the position of the
+    // main GL window
+    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+    UserInterfaceDescriptor::instance().filter2d_window.reset(
+        new gui::Filter2DWindow(pos,
+                                QSize(filter2d_window_width, filter2d_window_height),
+                                api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
+
+    UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
@@ -292,17 +301,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     if (time_transformation_size == api::get_time_transformation_size())
         return;
 
-    auto callback = [=]()
-    {
-        api::set_time_transformation_size(time_transformation_size);
-
-        ui_->ViewPanel->set_p_accu();
-        // This will not do anything until
-        // SliceWindow::changeTexture() isn't coded.
-        parent_->notify();
-    };
-
-    api::set_time_transformation_size(callback);
+    api::set_time_transformation_size(time_transformation_size);
 }
 
 void ImageRenderingPanel::set_wavelength(const double value)
@@ -344,10 +343,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    if (value)
-        api::enable_convolution(api::get_convolution().type);
-    else
-        api::disable_convolution();
+    api::change_convolution()->enabled = value;
 
     parent_->notify();
 }
@@ -360,8 +356,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (!api::get_convolution().enabled)
         return;
 
-    api::get_convolution().type = value.toStdString();
-    api::enable_convolution(api::get_convolution().type);
+    api::change_convolution()->type = value.toStdString();
 
     parent_->notify();
 }
@@ -371,7 +366,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    api::change_convolution()->enabled = value;
+    api::change_convolution()->divide = value;
 
     parent_->notify();
 }

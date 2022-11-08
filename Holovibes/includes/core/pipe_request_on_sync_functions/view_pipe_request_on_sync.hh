@@ -57,7 +57,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ViewAccuX>(const ViewAccuXY&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE ViewAccuX");
+        LOG_UPDATE_PIPE(ViewAccuX);
 
         request_pipe_refresh();
     }
@@ -65,7 +65,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ViewAccuY>(const ViewAccuXY&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE ViewAccuY");
+        LOG_UPDATE_PIPE(ViewAccuY);
 
         request_pipe_refresh();
     }
@@ -73,7 +73,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ViewAccuP>(const ViewAccuPQ&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE ViewAccuP");
+        LOG_UPDATE_PIPE(ViewAccuP);
 
         request_pipe_refresh();
     }
@@ -81,7 +81,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ViewAccuQ>(const ViewAccuPQ&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE ViewAccuQ");
+        LOG_UPDATE_PIPE(ViewAccuQ);
 
         request_pipe_refresh();
     }
@@ -89,7 +89,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<FftShiftEnabled>(bool, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE FftShiftEnabled");
+        LOG_UPDATE_PIPE(FftShiftEnabled);
 
         request_pipe_refresh();
     }
@@ -97,7 +97,7 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<Reticle>(const ReticleStruct&, Pipe& pipe)
     {
-        LOG_TRACE(compute_worker, "UPDATE Reticle");
+        LOG_UPDATE_PIPE(Reticle);
 
         request_pipe_refresh();
     }

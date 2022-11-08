@@ -30,4 +30,8 @@ SERIALIZE_JSON_ENUM(TimeTransformationEnum, {
     {TimeTransformationEnum::NONE, "None"}, // Compat
 
 });
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const TimeTransformationEnum& value) { return os << json{value}; }
+
 } // namespace holovibes

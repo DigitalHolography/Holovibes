@@ -48,18 +48,11 @@ inline TriggerChangeValue<ViewWindow> change_view_filter2d() { return api::detai
 inline const ReticleStruct& get_reticle() { return api::detail::get_value<Reticle>(); }
 inline TriggerChangeValue<ReticleStruct> change_reticle() { return api::detail::change_value<Reticle>(); }
 
-void display_reticle(bool value);
-
-void create_holo_window(ushort window_size);
-// TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
-// dictionary
-void refresh_view_mode(ushort window_size, uint index);
-void set_view_mode(const std::string& value, std::function<void()> callback);
-
-void set_filter2d_view(bool checked, uint auxiliary_window_max_size);
-void set_filter2d(bool checked);
-
 inline bool get_renorm_enabled() { return GSH::instance().get_value<RenormEnabled>(); }
 inline void set_renorm_enabled(bool value) { GSH::instance().set_value<RenormEnabled>(value); }
+
+void create_holo_window(ushort window_size);
+
+void refresh_view_mode(ushort window_size, uint index);
 
 } // namespace holovibes::api

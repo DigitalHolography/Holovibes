@@ -33,16 +33,16 @@ void OverlayManager::create_overlay()
 }
 
 template <>
-void OverlayManager::create_overlay<Zoom>()
+void OverlayManager::create_overlay<KindOfOverlay::Zoom>()
 {
-    if (!set_current(Zoom))
+    if (!set_current(KindOfOverlay::Zoom))
         create_overlay(std::make_shared<ZoomOverlay>(parent_));
 }
 
 template <>
-void OverlayManager::create_overlay<Noise>()
+void OverlayManager::create_overlay<KindOfOverlay::Noise>()
 {
-    if (!set_current(Noise))
+    if (!set_current(KindOfOverlay::Noise))
     {
         std::shared_ptr<Overlay> noise_overlay = std::make_shared<NoiseOverlay>(parent_);
         create_overlay(noise_overlay);
@@ -50,9 +50,9 @@ void OverlayManager::create_overlay<Noise>()
 }
 
 template <>
-void OverlayManager::create_overlay<Signal>()
+void OverlayManager::create_overlay<KindOfOverlay::Signal>()
 {
-    if (!set_current(Signal))
+    if (!set_current(KindOfOverlay::Signal))
     {
         std::shared_ptr<Overlay> signal_overlay = std::make_shared<SignalOverlay>(parent_);
         create_overlay(signal_overlay);
@@ -60,17 +60,17 @@ void OverlayManager::create_overlay<Signal>()
 }
 
 template <>
-void OverlayManager::create_overlay<Cross>()
+void OverlayManager::create_overlay<KindOfOverlay::Cross>()
 {
-    if (!set_current(Cross))
+    if (!set_current(KindOfOverlay::Cross))
         create_overlay(std::make_shared<CrossOverlay>(parent_));
-    create_overlay<Zoom>();
+    create_overlay<KindOfOverlay::Zoom>();
 }
 
 template <>
-void OverlayManager::create_overlay<SliceCross>()
+void OverlayManager::create_overlay<KindOfOverlay::SliceCross>()
 {
-    if (!set_current(SliceCross))
+    if (!set_current(KindOfOverlay::SliceCross))
         create_overlay(std::make_shared<SliceCrossOverlay>(parent_));
 }
 
@@ -82,21 +82,21 @@ void OverlayManager::create_overlay<KindOfOverlay::CompositeArea>()
 }
 
 template <>
-void OverlayManager::create_overlay<Rainbow>()
+void OverlayManager::create_overlay<KindOfOverlay::Rainbow>()
 {
     if (!set_current(KindOfOverlay::Rainbow))
         create_overlay(std::make_shared<RainbowOverlay>(parent_));
 }
 
 template <>
-void OverlayManager::create_overlay<Reticle>()
+void OverlayManager::create_overlay<KindOfOverlay::Reticle>()
 {
     if (!set_current(KindOfOverlay::Reticle))
         create_overlay(std::make_shared<ReticleOverlay>(parent_));
 }
 
 template <>
-void OverlayManager::create_overlay<Filter2DReticle>()
+void OverlayManager::create_overlay<KindOfOverlay::Filter2DReticle>()
 {
     if (!set_current(KindOfOverlay::Filter2DReticle))
         create_overlay(std::make_shared<Filter2DReticleOverlay>(parent_));
@@ -139,7 +139,7 @@ void OverlayManager::keyPress(QKeyEvent* e)
     if (e->key() == Qt::Key_Space)
     {
         for (auto o : overlays_)
-            if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
+            if ((o->getKind() == KindOfOverlay::Cross || o->getKind() == KindOfOverlay::SliceCross) && o->isActive())
                 o->keyPress(e);
     }
     else if (current_overlay_)
@@ -149,7 +149,7 @@ void OverlayManager::keyPress(QKeyEvent* e)
 void OverlayManager::move(QMouseEvent* e)
 {
     for (auto o : overlays_)
-        if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
+        if ((o->getKind() == KindOfOverlay::Cross || o->getKind() == KindOfOverlay::SliceCross) && o->isActive())
             o->move(e);
     if (current_overlay_)
         current_overlay_->move(e);
@@ -162,10 +162,10 @@ void OverlayManager::release(ushort frame)
         current_overlay_->release(frame);
         if (!current_overlay_->isActive())
             create_default();
-        else if (current_overlay_->getKind() == Noise)
-            create_overlay<Signal>();
-        else if (current_overlay_->getKind() == Signal)
-            create_overlay<Noise>();
+        else if (current_overlay_->getKind() == KindOfOverlay::Noise)
+            create_overlay<KindOfOverlay::Signal>();
+        else if (current_overlay_->getKind() == KindOfOverlay::Signal)
+            create_overlay<KindOfOverlay::Noise>();
     }
 }
 
@@ -222,14 +222,14 @@ void OverlayManager::create_default()
     switch (parent_->getKindOfView())
     {
     case KindOfView::ViewFilter2D:
-        create_overlay<Filter2DReticle>();
+        create_overlay<KindOfOverlay::Filter2DReticle>();
     case KindOfView::Raw:
     case KindOfView::Hologram:
-        create_overlay<Zoom>();
+        create_overlay<KindOfOverlay::Zoom>();
         break;
     case KindOfView::SliceXZ:
     case KindOfView::SliceYZ:
-        create_overlay<SliceCross>();
+        create_overlay<KindOfOverlay::SliceCross>();
         break;
     default:
         break;
@@ -242,7 +242,10 @@ units::RectWindow OverlayManager::getZone() const
     return current_overlay_->getZone();
 }
 
-KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
+KindOfOverlay OverlayManager::getKind() const
+{
+    return current_overlay_ ? current_overlay_->getKind() : KindOfOverlay::Zoom;
+}
 
 #ifdef _DEBUG
 void OverlayManager::printVector()

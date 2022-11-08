@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "all_struct.hh"
+
 namespace holovibes
 {
 /*! \enum RecordMode
@@ -19,4 +21,17 @@ enum class RecordMode
     HOLOGRAM,
     RAW,
 };
+
+// clang-format off
+SERIALIZE_JSON_ENUM(RecordMode, {
+    {RecordMode::NONE, "NONE"},
+    {RecordMode::CHART, "CHART"},
+    {RecordMode::CUTS_XZ, "CUTS_XZ"},
+    {RecordMode::CUTS_YZ, "CUTS_YZ"},
+    {RecordMode::HOLOGRAM, "HOLOGRAM"},
+    {RecordMode::RAW, "RAW"}
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const RecordMode& value) { return os << json{value}; }
 } // namespace holovibes

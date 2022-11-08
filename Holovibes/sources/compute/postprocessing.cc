@@ -50,6 +50,7 @@ void Postprocessing::init()
     cuComplex_buffer_.resize(frame_res);
 
     gpu_kernel_buffer_.resize(frame_res);
+
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
@@ -97,7 +98,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<Convolution>().enabled,
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -107,7 +108,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_value<Convolution>().enabled,
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -117,7 +118,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_value<Convolution>().enabled,
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -146,7 +147,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_value<Convolution>().enabled,
+                                   compute_cache_.get_value<Convolution>().divide,
                                    true,
                                    stream_);
             });

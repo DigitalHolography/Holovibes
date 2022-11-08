@@ -37,6 +37,8 @@ constexpr int CUDA_STREAM_READER_PRIORITY = 1;
 constexpr int CUDA_STREAM_RECORDER_PRIORITY = 1;
 constexpr int CUDA_STREAM_COMPUTE_PRIORITY = 0;
 
+// FIXME API : NEED TO BE RECODED
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -251,7 +253,6 @@ class Holovibes
 
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
-
     worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;
 
     worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;

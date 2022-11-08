@@ -178,6 +178,6 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_current_window_kind(WindowKind::ViewFilter2D);
+    api::set_current_view_kind(WindowKind::ViewFilter2D);
 }
 } // namespace holovibes::gui

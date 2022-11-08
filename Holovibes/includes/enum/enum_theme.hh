@@ -25,4 +25,6 @@ SERIALIZE_JSON_ENUM(Theme, {
 })
 // clang-format on
 
+inline std::ostream& operator<<(std::ostream& os, const Theme& value) { return os << json{value}; }
+
 } // namespace holovibes
