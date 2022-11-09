@@ -6,10 +6,9 @@
  */
 #pragma once
 
-#include <opencv2/videoio.hpp>
-
 #include "camera.hh"
 #include "camera_exception.hh"
+#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -20,6 +19,13 @@ namespace camera
  */
 class CameraOpenCV : public Camera
 {
+    enum grayscale_method
+    {
+        CVTCOLOR,
+        MANUAL,
+        AUTO,
+    };
+
   public:
     CameraOpenCV();
 
@@ -30,6 +36,12 @@ class CameraOpenCV : public Camera
     virtual void stop_acquisition() override;
     virtual void shutdown_camera() override;
     virtual CapturedFramesDescriptor get_frames() override;
+
+    static std::chrono::milliseconds single_threaded;
+    static std::chrono::milliseconds multi_threaded;
+
+    static std::chrono::high_resolution_clock::time_point start;
+    static std::chrono::high_resolution_clock::time_point end;
 
   private:
     virtual void load_default_params() override;
@@ -52,5 +64,9 @@ class CameraOpenCV : public Camera
     int deviceID_;
     int apiID_;
     unsigned int fps_;
+
+    enum grayscale_method method_;
+    // BGR to greyscale colors coeffs [B, G, R]
+    float grayscale_coeffs_[3];
 };
 } // namespace camera

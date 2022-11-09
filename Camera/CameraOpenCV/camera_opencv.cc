@@ -7,14 +7,17 @@
 #include "camera_opencv.hh"
 
 #include <iostream>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
+#include <chrono>
 
 #include "camera_logger.hh"
+#include "opencv2/core.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/videoio.hpp"
+#include "internal_conversion.hh"
 
 namespace camera
 {
+
 CameraOpenCV::CameraOpenCV()
     : Camera("opencv.ini")
 {
@@ -44,6 +47,21 @@ void CameraOpenCV::load_ini_params()
     fd_.height = pt.get<unsigned short>("opencv.height", fd_.height);
     fps_ = pt.get<unsigned int>("opencv.fps", fps_);
     pixel_size_ = pt.get<float>("opencv.pixel_size", pixel_size_);
+
+    std::string str = pt.get<std::string>("grayscale.method");
+    if (str == "CVTCOLOR")
+        method_ = CVTCOLOR;
+    else if (str == "MANUAL")
+        method_ = MANUAL;
+    else if (str == "AUTO")
+        method_ = AUTO;
+
+    if (method_ == MANUAL)
+    {
+        grayscale_coeffs_[0] = pt.get<float>("grayscale.blue");
+        grayscale_coeffs_[1] = pt.get<float>("grayscale.green");
+        grayscale_coeffs_[2] = pt.get<float>("grayscale.red");
+    }
 }
 
 double CameraOpenCV::get_and_check(int param, double value, std::string param_str)
@@ -61,13 +79,23 @@ void CameraOpenCV::bind_params()
     capture_device_.set(cv::CAP_PROP_FPS, fps_);
     capture_device_.set(cv::CAP_PROP_FRAME_WIDTH, fd_.width);
     capture_device_.set(cv::CAP_PROP_FRAME_HEIGHT, fd_.height);
+}
 
-    int format = capture_device_.get(cv::CAP_PROP_FORMAT);
-    if (format == -1)
+void CameraOpenCV::init_camera()
+{
+    deviceID_ = 0;        /* open default camera */
+    apiID_ = cv::CAP_ANY; /* autodetect default API */
+    capture_device_.open(deviceID_, apiID_);
+    if (!capture_device_.isOpened())
     {
-        capture_device_.read(frame_);
-        format = frame_.depth();
+        throw CameraException(CameraException::NOT_CONNECTED);
     }
+
+    bind_params();
+
+    capture_device_.read(frame_);
+
+    int format = frame_.depth();
     /*!
      * explanation:
      * (format & CV_MAT_DEPTH_MASK) gives the depth code internal to opencv
@@ -95,31 +123,53 @@ void CameraOpenCV::bind_params()
     fps_ = get_and_check(cv::CAP_PROP_FPS, fps_, "opencv.fps");
     fd_.width = get_and_check(cv::CAP_PROP_FRAME_WIDTH, fd_.width, "opencv.width");
     fd_.height = get_and_check(cv::CAP_PROP_FRAME_HEIGHT, fd_.height, "opencv.height");
-}
 
-void CameraOpenCV::init_camera()
-{
-    deviceID_ = 0;        /* open default camera */
-    apiID_ = cv::CAP_ANY; /* autodetect default API */
-    capture_device_.open(deviceID_, apiID_);
-    if (!capture_device_.isOpened())
+    if (method_ == AUTO)
     {
-        throw CameraException(CameraException::NOT_CONNECTED);
+        cv::Scalar means = cv::mean(frame_);
+        grayscale_coeffs_[0] = 1 / means[0];
+        grayscale_coeffs_[1] = 1 / means[1];
+        grayscale_coeffs_[2] = 1 / means[2];
+        float sum = grayscale_coeffs_[0] + grayscale_coeffs_[1] + grayscale_coeffs_[2];
+        grayscale_coeffs_[0] /= sum;
+        grayscale_coeffs_[1] /= sum;
+        grayscale_coeffs_[2] /= sum;
     }
-    bind_params();
 }
 
 void CameraOpenCV::start_acquisition() { return; }
 
 void CameraOpenCV::stop_acquisition() { return; }
 
-void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
+void CameraOpenCV::shutdown_camera()
+{
+    Logger::camera()->info("single_threaded: {}, multi_threaded: {}", single_threaded.count(), multi_threaded.count());
+    capture_device_.release();
+}
 
 CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
+    start = std::chrono::high_resolution_clock::now();
     capture_device_.read(frame_);
-    cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
+    switch (method_)
+    {
+    case AUTO:
+    case MANUAL:
+        internal_convertColor(frame_, frame_, grayscale_coeffs_);
+        break;
+    case CVTCOLOR:
+        cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
+        break;
+    }
+    end = std::chrono::high_resolution_clock::now();
+    single_threaded += std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     return CapturedFramesDescriptor(frame_.data);
 }
+
+std::chrono::milliseconds CameraOpenCV::single_threaded;
+std::chrono::milliseconds CameraOpenCV::multi_threaded;
+std::chrono::high_resolution_clock::time_point CameraOpenCV::start;
+std::chrono::high_resolution_clock::time_point CameraOpenCV::end;
+
 ICamera* new_camera_device() { return new CameraOpenCV(); }
 } // namespace camera
