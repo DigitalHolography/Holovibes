@@ -1,5 +1,11 @@
 ## Changelog
 
+### 11.1.1
+
+* Fix Xiq camera
+* Fix Bitflow_cyton camera
+* Improve logger
+
 ### 11.1.0
 
 * Update and clean loading of holo file using nlhomann
@@ -14,6 +20,7 @@
 * Add OpenCV compatibility
 * Fix rotation function
 * Fix rawbitshift
+
 ### 11.0.0
 
 * Changed logger to spdlog (1.10.0 header_only)
