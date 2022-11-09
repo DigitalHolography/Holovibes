@@ -70,7 +70,7 @@ void CameraXiq::load_default_params()
     fd_.height = 2048;
     pixel_size_ = 5.5f;
     fd_.depth = 1;
-    fd_.byteEndian = Endianness::BigEndian;
+    fd_.byteEndian = Endianness::LittleEndian;
 
     /* Custom parameters. */
     gain_ = 0.f;

@@ -3,9 +3,10 @@ include(CheckIncludeFile)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Idealy create a FindBitflow.cmake file
-set(BITFLOW_SDK "C:/BitFlow SDK 6.50/")
+set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
 # idem
 set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
+
 
 find_file(HAVE_BFType "BFType.h" PATHS "${BITFLOW_SDK}/Include")
 find_file(HAVE_BFErApi "BFErApi.h" PATHS "${BITFLOW_SDK}/Include")
@@ -26,6 +27,8 @@ endif()
 if (HAVE_EGrabber AND HAVE_EGrabbers)
     add_subdirectory(CameraPhantom)
 endif()
+
+
 
 add_subdirectory(CameraHamamatsu)
 add_subdirectory(CameraIds)

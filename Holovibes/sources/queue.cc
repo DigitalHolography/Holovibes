@@ -117,12 +117,12 @@ void Queue::enqueue_multiple_aux(
 {
     cudaXMemcpyAsync(out, in, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
 
-    if (is_big_endian_)
-        endianness_conversion(reinterpret_cast<ushort*>(out),
-                              reinterpret_cast<ushort*>(out),
-                              nb_elts,
-                              fd_.get_frame_res(),
-                              stream);
+     if (is_big_endian_)
+         endianness_conversion(reinterpret_cast<ushort*>(out),
+                               reinterpret_cast<ushort*>(out),
+                               nb_elts,
+                               fd_.get_frame_res(),
+                               stream);
 }
 
 void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream)

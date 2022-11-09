@@ -122,7 +122,7 @@ BFU32 CameraPhantomBitflow::get_circ_options(size_t i)
     }
     else if (nb_boards == 4)
     {
-        return default_options | (FourHorizInterleavedChunks0 + i);
+        return default_options | (FourHorizInterleavedChunks0 << i);
     }
     // Should not happen
     assert(false);
@@ -263,9 +263,11 @@ void CameraPhantomBitflow::load_ini_params()
             throw CameraException(CameraException::NOT_INITIALIZED);
         }
     }
+
+    pixel_size_ = pt.get<float>("bitflow.pixel_size", 20.0f);
 }
 
-void CameraPhantomBitflow::load_default_params() { fd_.byteEndian = Endianness::BigEndian; }
+void CameraPhantomBitflow::load_default_params() { fd_.byteEndian = Endianness::LittleEndian; }
 
 void CameraPhantomBitflow::bind_params()
 {
