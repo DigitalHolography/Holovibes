@@ -285,9 +285,9 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QCheckBox" name="ViewFilter2D">
+            <widget class="QCheckBox" name="Filter2D">
              <property name="text">
-              <string>ViewFilter2D</string>
+              <string>Filter2D</string>
              </property>
             </widget>
            </item>
@@ -1259,7 +1259,7 @@
            </item>
            <item>
             <property name="text">
-             <string>ViewFilter2D view</string>
+             <string>Filter2D view</string>
             </property>
            </item>
           </widget>
@@ -4884,7 +4884,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ViewFilter2D</sender>
+   <sender>Filter2D</sender>
    <signal>clicked(bool)</signal>
    <receiver>ImageRenderingPanel</receiver>
    <slot>set_filter2d(bool)</slot>

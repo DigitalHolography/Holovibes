@@ -63,11 +63,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 void close_critical_compute();
 void set_raw_mode(uint window_max_size);
 
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size);
-void update_time_stride(std::function<void()> callback, const uint time_stride);
-
-void set_time_transformation_size(std::function<void()> callback);
-
 void toggle_renormalize(bool value);
 
 } // namespace holovibes::api

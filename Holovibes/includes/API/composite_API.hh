@@ -16,28 +16,10 @@ inline const CompositeHSVStruct get_composite_hsv() { return api::detail::get_va
 inline TriggerChangeValue<CompositeRGBStruct> change_composite_rgb()
 {
     return api::detail::change_value<CompositeRGB>();
-    // FIXME COMPILE
-    // TriggerChangeValue<CompositeRGBStruct> res = api::detail::change_value<CompositeRGB>();
-    // auto callback = res.callback_;
-    // res.callback_ = [callback]()
-    // {
-    //     callback();
-    //     GSH::instance().notify();
-    // };
-    // return TriggerChangeValue<CompositeRGBStruct>{res};
 }
 inline TriggerChangeValue<CompositeHSVStruct> change_composite_hsv()
 {
     return api::detail::change_value<CompositeHSV>();
-    // FIXME COMPILE
-    // TriggerChangeValue<CompositeHSVStruct> res = api::detail::change_value<CompositeHSV>();
-    // auto callback = res.callback_;
-    // res.callback_ = [callback]()
-    // {
-    //     callback();
-    //     GSH::instance().notify();
-    // };
-    // return TriggerChangeValue<CompositeHSVStruct>{res};
 }
 
 inline bool get_composite_auto_weights() { return api::detail::get_value<CompositeAutoWeights>(); }
