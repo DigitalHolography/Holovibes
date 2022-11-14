@@ -21,18 +21,8 @@ void templated_internal_convertColor(cv::Mat& in, cv::Mat& out, float* coeffs)
 
     cv::Mat dst(in.rows, in.cols, mat_type);
 
-    CameraOpenCV::end = std::chrono::high_resolution_clock::now();
-    CameraOpenCV::single_threaded +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(CameraOpenCV::end - CameraOpenCV::start);
-    CameraOpenCV::start = std::chrono::high_resolution_clock::now();
-
     Parallel_cvtColor<mat_type> parallel_cvtColor(in, dst, coeffs);
     cv::parallel_for_(cv::Range(0, in.rows), parallel_cvtColor);
-
-    CameraOpenCV::end = std::chrono::high_resolution_clock::now();
-    CameraOpenCV::multi_threaded +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(CameraOpenCV::end - CameraOpenCV::start);
-    CameraOpenCV::start = std::chrono::high_resolution_clock::now();
 
     out = dst;
 }

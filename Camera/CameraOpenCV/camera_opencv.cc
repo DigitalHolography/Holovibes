@@ -141,15 +141,10 @@ void CameraOpenCV::start_acquisition() { return; }
 
 void CameraOpenCV::stop_acquisition() { return; }
 
-void CameraOpenCV::shutdown_camera()
-{
-    Logger::camera()->info("single_threaded: {}, multi_threaded: {}", single_threaded.count(), multi_threaded.count());
-    capture_device_.release();
-}
+void CameraOpenCV::shutdown_camera() { capture_device_.release(); }
 
 CapturedFramesDescriptor CameraOpenCV::get_frames()
 {
-    start = std::chrono::high_resolution_clock::now();
     capture_device_.read(frame_);
     switch (method_)
     {
@@ -161,15 +156,8 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
         cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
         break;
     }
-    end = std::chrono::high_resolution_clock::now();
-    single_threaded += std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     return CapturedFramesDescriptor(frame_.data);
 }
-
-std::chrono::milliseconds CameraOpenCV::single_threaded;
-std::chrono::milliseconds CameraOpenCV::multi_threaded;
-std::chrono::high_resolution_clock::time_point CameraOpenCV::start;
-std::chrono::high_resolution_clock::time_point CameraOpenCV::end;
 
 ICamera* new_camera_device() { return new CameraOpenCV(); }
 } // namespace camera

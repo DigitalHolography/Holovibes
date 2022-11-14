@@ -1,9 +1,14 @@
 #pragma once
 
+#include <concepts>
+
 #include "opencv2/core.hpp"
 
 namespace camera
 {
+template <int type>
+concept mat_type = type == CV_8UC1 || type == CV_16UC1;
+
 class Parallel_cvtColor_default : public cv::ParallelLoopBody
 {
   protected:
@@ -14,11 +19,12 @@ class Parallel_cvtColor_default : public cv::ParallelLoopBody
     Parallel_cvtColor_default(cv::Mat& src, cv::Mat& dst, float* coeffs);
 };
 
-template <int mat_type>
+template <int type>
+requires mat_type<type>
 class Parallel_cvtColor : public Parallel_cvtColor_default
 {
   public:
-    Parallel_cvtColor(cv::Mat& src, cv::Mat& dst, float* coeffs) = 0;
+    Parallel_cvtColor(cv::Mat& src, cv::Mat& dst, float* coeffs);
 };
 
 void internal_convertColor(cv::Mat& in, cv::Mat& out, float* coeffs);

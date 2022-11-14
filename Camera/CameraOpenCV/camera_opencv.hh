@@ -37,12 +37,6 @@ class CameraOpenCV : public Camera
     virtual void shutdown_camera() override;
     virtual CapturedFramesDescriptor get_frames() override;
 
-    static std::chrono::milliseconds single_threaded;
-    static std::chrono::milliseconds multi_threaded;
-
-    static std::chrono::high_resolution_clock::time_point start;
-    static std::chrono::high_resolution_clock::time_point end;
-
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
