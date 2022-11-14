@@ -157,7 +157,7 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
     case MANUAL:
         internal_convertColor(frame_, frame_, grayscale_coeffs_);
         break;
-    case CVTCOLOR:
+    case OPENCV:
         cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
         break;
     }
