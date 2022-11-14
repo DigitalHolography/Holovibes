@@ -21,7 +21,7 @@ class CameraOpenCV : public Camera
 {
     enum grayscale_method
     {
-        CVTCOLOR,
+        OPENCV,
         MANUAL,
         AUTO,
     };
@@ -66,7 +66,7 @@ class CameraOpenCV : public Camera
     unsigned int fps_;
 
     enum grayscale_method method_;
-    // BGR to greyscale colors coeffs [B, G, R]
+    // BGR to grayscale colors coeffs [B, G, R]
     float grayscale_coeffs_[3];
 };
 } // namespace camera

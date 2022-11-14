@@ -49,8 +49,8 @@ void CameraOpenCV::load_ini_params()
     pixel_size_ = pt.get<float>("opencv.pixel_size", pixel_size_);
 
     std::string str = pt.get<std::string>("grayscale.method");
-    if (str == "CVTCOLOR")
-        method_ = CVTCOLOR;
+    if (str == "OPENCV")
+        method_ = OPENCV;
     else if (str == "MANUAL")
         method_ = MANUAL;
     else if (str == "AUTO")
