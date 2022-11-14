@@ -9,11 +9,13 @@ void display_reticle(bool value)
     // FIXME API -> GUI
     if (value)
     {
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
+        UserInterfaceDescriptor::instance()
+            .mainDisplay->getOverlayManager()
+            .create_overlay<gui::KindOfOverlay::Reticle>();
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
     }
     else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle);
 }
 
 void create_holo_window(ushort window_size)

@@ -33,7 +33,7 @@ class IDuplicatedParameter
     virtual void save_current_value(const IParameter* param) = 0;
 };
 
-// T is a class that herit from IParameter like CustomParameter, ...
+// T is a class that herit from IParameter like Parameter, ...
 template <typename T>
 class DuplicatedParameter : public IDuplicatedParameter
 {

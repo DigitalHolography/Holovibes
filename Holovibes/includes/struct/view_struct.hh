@@ -139,9 +139,9 @@ struct Windows
     void Load();
 };
 
-/*! \class Reticle
+/*! \class ReticleStruct
  *
- * \brief Class that represents the Reticle
+ * \brief Class that represents the ReticleStruct
  */
 struct ReticleStruct
 {

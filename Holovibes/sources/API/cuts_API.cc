@@ -37,7 +37,9 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().rot);
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().flip_enabled);
 
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+        UserInterfaceDescriptor::instance()
+            .mainDisplay->getOverlayManager()
+            .create_overlay<gui::KindOfOverlay::Cross>();
         api::set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
@@ -64,8 +66,9 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
     if (UserInterfaceDescriptor::instance().mainDisplay)
     {
         UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(
+            gui::KindOfOverlay::SliceCross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::KindOfOverlay::Cross);
     }
 }
 

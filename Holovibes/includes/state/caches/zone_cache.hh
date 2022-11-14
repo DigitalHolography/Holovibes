@@ -13,7 +13,7 @@
 namespace holovibes
 {
 template <StringLiteral Key>
-using RectFdParameter = CustomParameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
+using RectFdParameter = Parameter<units::RectFd, DefaultLiteral<units::RectFd>{}, Key>;
 
 // clang-format off
 

@@ -32,29 +32,29 @@ struct DefaultLiteral
 };
 
 template <typename T, auto DefaultValue, StringLiteral Key, typename TRef = const T&>
-class CustomParameter : public IParameter
+class Parameter : public IParameter
 {
   public:
     using ValueType = T;
     using ConstRefType = TRef;
 
   public:
-    CustomParameter()
+    Parameter()
         : value_(DefaultValue)
     {
     }
 
-    CustomParameter(ConstRefType value)
+    Parameter(ConstRefType value)
         : value_(value)
     {
     }
 
-    CustomParameter(const std::convertible_to<ValueType> auto& value)
+    Parameter(const std::convertible_to<ValueType> auto& value)
         : value_(static_cast<ValueType>(value))
     {
     }
 
-    virtual ~CustomParameter() override {}
+    virtual ~Parameter() override {}
 
     operator ConstRefType() const { return value_; }
 
@@ -68,7 +68,7 @@ class CustomParameter : public IParameter
   public:
     virtual void sync_with(IParameter* ref) override
     {
-        CustomParameter* ref_cast = dynamic_cast<CustomParameter*>(ref);
+        Parameter* ref_cast = dynamic_cast<Parameter*>(ref);
         if (ref_cast == nullptr)
         {
             LOG_ERROR(main, "Not supposed to end here : Not the good type casted when syncing");
@@ -101,28 +101,28 @@ class CustomParameter : public IParameter
 };
 
 template <bool DefaultValue, StringLiteral Key>
-using BoolParameter = CustomParameter<bool, DefaultValue, Key, bool>;
+using BoolParameter = Parameter<bool, DefaultValue, Key, bool>;
 
 template <uint DefaultValue, StringLiteral Key>
-using UIntParameter = CustomParameter<uint, DefaultValue, Key, uint>;
+using UIntParameter = Parameter<uint, DefaultValue, Key, uint>;
 
 template <int DefaultValue, StringLiteral Key>
-using IntParameter = CustomParameter<int, DefaultValue, Key, int>;
+using IntParameter = Parameter<int, DefaultValue, Key, int>;
 
 template <FloatLiteral DefaultValue, StringLiteral Key>
-using FloatParameter = CustomParameter<float, DefaultValue, Key, float>;
+using FloatParameter = Parameter<float, DefaultValue, Key, float>;
 
 template <StringLiteral DefaultValue, StringLiteral Key>
-using StringParameter = CustomParameter<std::string, DefaultValue, Key>;
+using StringParameter = Parameter<std::string, DefaultValue, Key>;
 
 template <typename T, StringLiteral Key>
-using VectorParameter = CustomParameter<std::vector<T>, DefaultLiteral<std::vector<T>>{}, Key>;
+using VectorParameter = Parameter<std::vector<T>, DefaultLiteral<std::vector<T>>{}, Key>;
 
 struct TriggerRequest
 {
 };
 
 template <StringLiteral Key>
-using TriggerParameter = CustomParameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerRequest>;
+using TriggerParameter = Parameter<TriggerRequest, DefaultLiteral<TriggerRequest>{}, Key, TriggerRequest>;
 
 } // namespace holovibes

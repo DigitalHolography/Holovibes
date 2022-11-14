@@ -24,8 +24,8 @@ class OutputBufferSize : public UIntParameter<256, "output_buffer_size">{};
 class RecordBufferSize : public UIntParameter<1024, "record_buffer_size">{};
 class TimeTransformationCutsBufferSize : public UIntParameter<512, "time_transformation_cuts_buffer_size">{};
 
-class Filter2DSmooth : public CustomParameter<Filter2DSmoothStruct, DefaultLiteral<Filter2DSmoothStruct>{}, "filter2d_smooth">{};
-class ContrastThreshold : public CustomParameter<ContrastThresholdStruct, DefaultLiteral<ContrastThresholdStruct>{}, "contrast_threshold">{};
+class Filter2DSmooth : public Parameter<Filter2DSmoothStruct, DefaultLiteral<Filter2DSmoothStruct>{}, "filter2d_smooth">{};
+class ContrastThreshold : public Parameter<ContrastThresholdStruct, DefaultLiteral<ContrastThresholdStruct>{}, "contrast_threshold">{};
 class RenormConstant : public UIntParameter<5, "renorm_constant">{};
 class RawBitshift : public IntParameter<0, "raw_bitshift">{};
 

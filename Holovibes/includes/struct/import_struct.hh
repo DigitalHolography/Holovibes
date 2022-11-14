@@ -28,7 +28,7 @@ enum class CameraKind
     OpenCV        /*!< OpenCV camera */
 };
 
-enum ImportTypeEnum
+enum class ImportTypeEnum
 {
     None,
     Camera,

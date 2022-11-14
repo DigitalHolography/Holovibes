@@ -60,7 +60,7 @@ class OnSync
             if (old_value == nullptr)
             {
                 LOG_ERROR(main,
-                          "Not supposed to end here : fail to cast DuplicatedParameter<T> T = {}",
+                          "Not supposed to end here : fail to cast DuplicatedParameter<T> ; T = {}",
                           typeid(T).name());
                 return;
             }
@@ -182,6 +182,29 @@ class MicroCache
         void synchronize_force(Args&&... args);
 
         bool has_change_requested() { return change_pool_.size() > 0; }
+
+      public:
+        // for debugging purpose ONLY
+        template <typename T, typename FunctionsClass, typename... Args>
+        void virtual_synchronize_W(Args&&... args)
+        {
+            auto param_to_change = BasicMicroCache::template get_type<T>();
+            IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
+            DuplicatedParameter<T>* old_value = dynamic_cast<DuplicatedParameter<T>*>(Iold_value);
+
+            if (old_value == nullptr)
+            {
+                LOG_ERROR(main,
+                          "Not supposed to end here : fail to cast DuplicatedParameter<T> ; T = {}",
+                          typeid(T).name());
+                return;
+            }
+
+            FunctionsClass functions;
+            functions.template on_sync<T>(param_to_change.get_value(),
+                                          old_value->get_value(),
+                                          std::forward<Args>(args)...);
+        }
 
       private:
         ChangePool change_pool_;

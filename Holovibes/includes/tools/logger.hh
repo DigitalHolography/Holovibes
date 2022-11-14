@@ -7,7 +7,7 @@
 // #define DISABLE_LOG_TRIGGER_MICROCACHE
 #define DISABLE_LOG_SYNC_MICROCACHE
 #define DISABLE_LOG_PIPE
-#define DISABLE_LOG_UPDATE_PIPE
+// #define DISABLE_LOG_UPDATE_PIPE
 
 #include <exception>
 #include <fstream>

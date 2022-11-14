@@ -35,7 +35,7 @@ void SliceWindow::initShaders()
     Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
     if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
-        overlay_manager_.create_overlay<Rainbow>();
+        overlay_manager_.create_overlay<KindOfOverlay::Rainbow>();
     else
         overlay_manager_.create_default();
 }

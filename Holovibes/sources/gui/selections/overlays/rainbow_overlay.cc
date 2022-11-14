@@ -6,7 +6,7 @@
 namespace holovibes::gui
 {
 RainbowOverlay::RainbowOverlay(BasicOpenGLWindow* parent)
-    : Overlay(Rainbow, parent)
+    : Overlay(KindOfOverlay::Rainbow, parent)
 {
     LOG_FUNC(main);
 

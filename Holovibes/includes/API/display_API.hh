@@ -48,7 +48,9 @@ inline void start_information_display(const std::function<void()>& callback)
 // FIXME : TO DELETE
 inline void set_composite_area()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
+    UserInterfaceDescriptor::instance()
+        .mainDisplay->getOverlayManager()
+        .create_overlay<gui::KindOfOverlay::CompositeArea>();
 }
 
 } // namespace holovibes::api

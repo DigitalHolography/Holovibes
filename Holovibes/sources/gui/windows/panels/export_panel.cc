@@ -194,9 +194,9 @@ void ExportPanel::set_record_mode(const QString& value)
         {
             api::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().enable_all(Signal);
-            api::get_main_display()->getOverlayManager().enable_all(Noise);
-            api::get_main_display()->getOverlayManager().create_overlay<Signal>();
+            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Signal);
+            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Noise);
+            api::get_main_display()->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
         }
     }
     else
@@ -226,8 +226,8 @@ void ExportPanel::set_record_mode(const QString& value)
         {
             api::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().disable_all(Signal);
-            api::get_main_display()->getOverlayManager().disable_all(Noise);
+            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Signal);
+            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Noise);
         }
     }
 
