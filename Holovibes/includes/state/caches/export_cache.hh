@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "custom_parameter.hh"
+#include "parameter.hh"
 #include "micro_cache.hh"
 #include "export_struct.hh"
 

@@ -11,7 +11,7 @@
 #include <utility>
 #include <mutex>
 #include <thread>
-#include "parameter.hh"
+#include "Iparameter.hh"
 #include "logger.hh"
 
 #include "static_container.hh"
@@ -144,11 +144,13 @@ class MicroCache
         template <typename T>
         void trigger_param(IParameter* ref)
         {
-            IParameter* param_to_change = static_cast<IParameter*>(&BasicMicroCache::template get_type<T>());
-            IDuplicatedParameter* old_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
+            IParameter* Iparam_to_change = static_cast<IParameter*>(&BasicMicroCache::template get_type<T>());
+            if (Iparam_to_change->value_has_changed(ref) == false)
+                return;
+            IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
 
             std::lock_guard<std::mutex> guard(lock_);
-            change_pool_[param_to_change] = std::pair{ref, old_value};
+            change_pool_[Iparam_to_change] = std::pair{ref, Iold_value};
         }
 
       public:
@@ -181,7 +183,11 @@ class MicroCache
         template <typename FunctionClass, typename... Args>
         void synchronize_force(Args&&... args);
 
-        bool has_change_requested() { return change_pool_.size() > 0; }
+        bool has_change_requested()
+        {
+            std::lock_guard<std::mutex> guard(lock_);
+            return change_pool_.size() > 0;
+        }
 
       public:
         // for debugging purpose ONLY

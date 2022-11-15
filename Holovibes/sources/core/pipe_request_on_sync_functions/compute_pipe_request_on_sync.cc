@@ -67,11 +67,14 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(Convolution);
+    LOG_UPDATE_PIPE(TimeTransformationCutsEnable);
 
     if (new_value == false)
         pipe.dispose_cuts();
     else if (new_value == true)
         pipe.init_cuts();
+
+    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
 }
 } // namespace holovibes

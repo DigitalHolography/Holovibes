@@ -6,8 +6,8 @@ namespace holovibes::api
 void enable_convolution(const std::string& filename)
 {
     {
-        api::change_convolution()->enabled = true;
-        api::change_convolution()->matrix.clear();
+    api::change_convolution()->enabled = true;
+    api::change_convolution()->matrix.clear();
 
         if (filename != UID_CONVOLUTION_TYPE_DEFAULT)
             load_convolution_matrix(filename);

@@ -140,6 +140,8 @@ void Pipe::synchronize_caches_and_make_requests()
         // FIXME : handle pipe requests on sync failure
         return;
     }
+
+    GSH::instance().notify();
 }
 
 bool Pipe::caches_has_change_requested()

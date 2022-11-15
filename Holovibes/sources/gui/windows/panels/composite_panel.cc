@@ -219,7 +219,6 @@ void slide_update_threshold(const QSlider& slider,
 
 void CompositePanel::slide_update_threshold_h_min()
 {
-
     // Avoid modification from panel instead of API
     float receiver = api::get_composite_hsv().h.threshold.min;
     float bound_to_update = api::get_composite_hsv().h.threshold.max;
@@ -238,7 +237,6 @@ void CompositePanel::slide_update_threshold_h_min()
 
 void CompositePanel::slide_update_threshold_h_max()
 {
-
     float receiver = api::get_composite_hsv().h.threshold.max;
     float bound_to_update = api::get_composite_hsv().h.threshold.min;
 
@@ -256,7 +254,6 @@ void CompositePanel::slide_update_threshold_h_max()
 
 void CompositePanel::slide_update_threshold_s_min()
 {
-
     float receiver = api::get_composite_hsv().s.threshold.min;
     float bound_to_update = api::get_composite_hsv().s.threshold.max;
 
@@ -274,7 +271,6 @@ void CompositePanel::slide_update_threshold_s_min()
 
 void CompositePanel::slide_update_threshold_s_max()
 {
-
     float receiver = api::get_composite_hsv().s.threshold.max;
     float bound_to_update = api::get_composite_hsv().s.threshold.min;
 

@@ -6,7 +6,7 @@ namespace holovibes::api
 bool set_3d_cuts_view(uint time_transformation_size)
 {
     api::detail::set_value<TimeTransformationCutsEnable>(true);
-    while (api::get_compute_pipe().get_composite_cache().has_change_requested())
+    while (api::get_compute_pipe().get_compute_cache().has_change_requested())
         continue;
 
     // FIXME API : Need to move this outside this (and this function must be useless)

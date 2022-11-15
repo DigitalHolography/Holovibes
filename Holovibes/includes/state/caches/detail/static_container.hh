@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include <type_traits>
-#include "parameter.hh"
+#include "Iparameter.hh"
 
 namespace holovibes
 {
