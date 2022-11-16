@@ -78,5 +78,7 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
 
     pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
     pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
+
+    request_pipe_refresh();
 }
 } // namespace holovibes

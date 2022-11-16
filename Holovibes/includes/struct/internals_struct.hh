@@ -99,7 +99,7 @@ struct Internals
     Misc misc;
 
     std::vector<float> convo_matrix;
-    WindowKind current_window = WindowKind::XYview;
+    WindowKind current_window = WindowKind::ViewXY;
 
     SERIALIZE_JSON_STRUCT(Internals, zones, record, enabled, misc, convo_matrix, current_window)
 };

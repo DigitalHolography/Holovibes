@@ -99,11 +99,6 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_log_scale(const bool value)
-{
-    api::change_current_window()->log_enabled = value;
-    if (value && api::get_current_window().contrast.enabled)
-        set_auto_contrast();
-}
+void set_log_scale(const bool value) { api::change_current_window()->log_enabled = value; }
 
 } // namespace holovibes::api

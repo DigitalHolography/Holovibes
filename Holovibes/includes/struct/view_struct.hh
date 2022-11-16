@@ -64,15 +64,6 @@ struct ViewXYZ : public ViewWindow
 
     bool is_image_accumulation_enabled() const { return img_accu_level > 1; }
 
-    // FIXME COMPILE : CHECK THIS TO TRIGGER
-  private:
-    bool request_clear_image_accumulation_ = false;
-
-  public:
-    bool get_request_clear_image_accumulation() const { return request_clear_image_accumulation_; }
-    void request_clear_image_accumulation() { request_clear_image_accumulation_ = true; }
-    void reset_request_clear_image_accumulation() { request_clear_image_accumulation_ = false; }
-
   public:
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
 

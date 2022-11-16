@@ -43,7 +43,7 @@ class PipeRequestOnSync
     {
         requests_fail = false;
         need_pipe_refresh = false;
-        need_notify = false;
+        need_notify = true;
     }
 
     static bool has_requests_fail() { return requests_fail; }

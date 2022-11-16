@@ -6,11 +6,11 @@ namespace holovibes::api
 {
 
 inline WindowKind get_current_window_kind() { return api::detail::get_value<CurrentWindowKind>(); }
-inline void change_current_window_kind(WindowKind index) { api::detail::change_value<CurrentWindowKind>(); }
+inline void set_current_window_kind(WindowKind value) { api::detail::set_value<CurrentWindowKind>(value); }
 
 inline bool is_current_window_xyz_type()
 {
-    static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
+    static const std::set<WindowKind> types = {WindowKind::ViewXY, WindowKind::ViewXZ, WindowKind::ViewYZ};
     return types.contains(api::get_current_window_kind());
 }
 

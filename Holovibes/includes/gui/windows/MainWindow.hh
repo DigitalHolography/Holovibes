@@ -140,7 +140,7 @@ class MainWindow : public QMainWindow, public Observer
     void set_view_image_type(const QString& value);
 
     /*! \brief Changes the focused windows */
-    void change_window(int index);
+    void change_window(int index) {}
 
     void shift_screen();
 

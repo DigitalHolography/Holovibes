@@ -3,40 +3,27 @@
 namespace holovibes::api
 {
 
-void set_auto_contrast_all()
+void request_auto_contrast_all_windows()
 {
     // FIXME API : Need to move this outside this
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
     // FIXME API : this code stay here
-    api::get_compute_pipe().get_rendering().request_view_xy_exec_contrast();
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
     if (api::get_cuts_view_enabled())
     {
-        api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
-        api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
     }
     if (api::get_filter2d_view_enabled())
-        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
 }
 
-// FIXME : name should be request instead of set
-bool set_auto_contrast()
+void request_auto_contrast_current_window()
 {
-    try
-    {
-        // FIXME COMPILE
-        // if (api::is_current_window_xyz_type())
-        //     api::get_current_window_as_view_xyz().request_exec_auto_contrast();
-        set_auto_contrast_all();
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR(main, "Catch {}", e.what());
-    }
-
-    return false;
+    if (api::is_current_window_xyz_type())
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(api::get_current_window_kind());
 }
 
 static float get_truncate_contrast_min(const int precision = 2)

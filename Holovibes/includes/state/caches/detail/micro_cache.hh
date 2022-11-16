@@ -148,6 +148,13 @@ class MicroCache
             if (param_to_change.value_has_changed(ref) == false)
                 return;
 
+#ifndef DISABLE_LOG_TRIGGER_MICROCACHE
+            LOG_TRACE(main,
+                      "MicroCache : TRIGGER {} = {}",
+                      ref->get_key(),
+                      this->BasicMicroCache::template get_type<T>().get_value());
+#endif
+
             IParameter* Iparam_to_change = static_cast<IParameter*>(&param_to_change);
             IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
 
@@ -239,14 +246,7 @@ class MicroCache
         {
             IParameter* ref = &this->BasicMicroCache::template get_type<T>();
 
-#ifndef DISABLE_LOG_TRIGGER_MICROCACHE
-            LOG_TRACE(main,
-                      "MicroCache : TRIGGER {} = {}",
-                      ref->get_key(),
-                      this->BasicMicroCache::template get_type<T>().get_value());
-#endif
-
-            // FIXME : this is only for current holovibes version because each caches only exists once. If you want
+            // This is only for current holovibes version because each caches only exists once. If you want
             // more caches at the same time remove this to don't get this warning
             size_t nb_caches = caches_to_sync_.size();
             if (nb_caches > 1)

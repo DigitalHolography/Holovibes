@@ -87,6 +87,7 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
 
+    includes/gui/utilities/
 
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"

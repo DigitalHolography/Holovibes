@@ -201,17 +201,12 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_filter2d_n1(int n)
-{
-    api::detail::change_value<Filter2D>()->n1 = n;
-    api::set_auto_contrast_all();
-}
+void ImageRenderingPanel::set_filter2d_n1(int n) { api::detail::change_value<Filter2D>()->n1 = n; }
 
 void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
     api::detail::change_value<Filter2D>()->n2 = n;
-    api::set_auto_contrast_all();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -219,7 +214,33 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
     if (api::get_compute_mode() == Computation::Raw || api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    api::set_filter2d_view_enabled(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
+
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
+
+    if (checked == false)
+    {
+        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
+        return;
+    }
+
+    const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+    ushort filter2d_window_width = fd.width;
+    ushort filter2d_window_height = fd.height;
+    get_good_size(filter2d_window_width, filter2d_window_height, parent_->auxiliary_window_max_size);
+
+    // set positions of new windows according to the position of the
+    // main GL window
+    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
+                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
+    UserInterfaceDescriptor::instance().filter2d_window.reset(
+        new gui::Filter2DWindow(pos,
+                                QSize(filter2d_window_width, filter2d_window_height),
+                                api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
+
+    UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)

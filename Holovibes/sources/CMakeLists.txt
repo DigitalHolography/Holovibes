@@ -19,7 +19,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/import_API.cc
     API/pipe_API.cc
     API/record_API.cc
-    API/texture_API.cc
     API/unknown_API.cc
     API/view_API.cc
 
@@ -80,6 +79,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui/windows/AdvancedSettingsWindowTools/q_int_spin_box_layout.cc
     gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
     gui/windows/panels/asw_mainwindow_panel.cc
+    gui/utilities/gui_utilities.cc
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc

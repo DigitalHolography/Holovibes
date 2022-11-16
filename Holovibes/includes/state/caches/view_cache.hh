@@ -27,7 +27,7 @@ class ViewXY : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xy">{}
 class ViewXZ : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_xz">{};
 class ViewYZ : public Parameter<ViewXYZ, DefaultLiteral<ViewXYZ>{}, "view_yz">{};
 class ViewFilter2D : public Parameter<ViewWindow, DefaultLiteral<ViewWindow>{}, "view_filter2d">{};
-class CurrentWindowKind : public Parameter<WindowKind, WindowKind::XYview, "current_window">{};
+class CurrentWindowKind : public Parameter<WindowKind, WindowKind::ViewXY, "current_window">{};
 class LensViewEnabled : public BoolParameter<false, "lens_view_enabled">{};
 //! \brief Enables the signal and noise chart display
 class ChartDisplayEnabled : public BoolParameter<false, "chart_display_enabled">{};

@@ -189,10 +189,7 @@ static void main_loop()
                 // end up with black images ...
                 if (progress->first >= holovibes::api::get_view_xy().img_accu_level && requested_autocontrast)
                 {
-                    // FIXME COMPILE
-                    // if (holovibes::api::is_current_window_xyz_type())
-                    // holovibes::api::change_current_window_as_view_xyz()->request_exec_auto_contrast();
-                    holovibes::api::set_auto_contrast_all();
+                    holovibes::api::request_auto_contrast_current_window();
                     requested_autocontrast = false;
                 }
             }

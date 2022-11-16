@@ -147,8 +147,11 @@ void Pipe::synchronize_caches_and_make_requests()
         return;
     }
 
-    LOG_PIPE("Pipe call notify");
-    GSH::instance().notify();
+    if (PipeRequestOnSync::do_need_notify())
+    {
+        LOG_PIPE("Pipe call notify");
+        GSH::instance().notify();
+    }
 }
 
 bool Pipe::caches_has_change_requested()
@@ -263,6 +266,7 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
     rendering_->insert_contrast();
+    rendering_->insert_clear_image_accumulation();
 
     converts_->insert_to_ushort();
 

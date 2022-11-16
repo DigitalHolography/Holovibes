@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "gui_utilities.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -254,8 +255,8 @@ void ViewPanel::cancel_time_transformation_cuts()
 
 void ViewPanel::set_auto_contrast_cuts()
 {
-    api::get_compute_pipe().get_rendering().request_view_xz_exec_contrast();
-    api::get_compute_pipe().get_rendering().request_view_yz_exec_contrast();
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
 }
 
 void ViewPanel::set_fft_shift(const bool value)
@@ -337,8 +338,6 @@ void ViewPanel::increment_p()
     }
 
     set_p(api::get_view_accu_p().index + 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -355,8 +354,6 @@ void ViewPanel::decrement_p()
     }
 
     set_p(api::get_view_accu_p().index - 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -383,14 +380,30 @@ void ViewPanel::set_q_acc()
 
 void ViewPanel::rotateTexture()
 {
-    api::rotateTexture();
+    double rot = api::get_current_window_as_view_xyz().rot;
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
+    api::change_current_window_as_view_xyz()->rot = new_rot;
+
+    if (api::get_current_window_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_view_xy().rot);
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(api::get_view_xz().rot);
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().rot);
 
     parent_->notify();
 }
 
 void ViewPanel::flipTexture()
 {
-    api::flipTexture();
+    api::change_current_window_as_view_xyz()->flip_enabled = !api::get_current_window_as_view_xyz().flip_enabled;
+
+    if (api::get_current_window_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_view_xy().flip_enabled);
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(api::get_view_xz().flip_enabled);
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().flip_enabled);
 
     parent_->notify();
 }
@@ -428,7 +441,7 @@ void ViewPanel::set_auto_contrast()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_auto_contrast();
+    api::request_auto_contrast_current_window();
 }
 
 void ViewPanel::set_auto_refresh_contrast(bool value)
@@ -476,7 +489,7 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 void ViewPanel::display_reticle(bool value)
 {
     if (api::get_reticle().display_enabled != value)
-        api::display_reticle(value);
+        gui::utilities::display_reticle(value);
 
     parent_->notify();
 }

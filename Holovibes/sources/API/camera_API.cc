@@ -15,7 +15,7 @@ void camera_none()
 
     // FIXME API : Need to move this outside this (and this function must be useless)
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
-    set_is_computation_stopped(true);
+    api::set_is_computation_stopped(true);
 }
 
 bool change_camera(CameraKind c)

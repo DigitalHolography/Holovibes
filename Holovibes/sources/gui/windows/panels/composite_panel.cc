@@ -36,8 +36,8 @@ void CompositePanel::on_notify()
 
     ui_->RenormalizationCheckBox->setChecked(api::get_composite_auto_weights());
 
-    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_rgb().get_red());
-    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_rgb().get_blue());
+    QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_rgb().p.min);
+    QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_rgb().p.max);
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_composite_rgb().weight.r);
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_composite_rgb().weight.g);
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_composite_rgb().weight.b);
@@ -103,8 +103,9 @@ void CompositePanel::set_composite_intervals()
     ui_->PRedSpinBox_Composite->setValue(
         std::min(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value()));
 
-    api::change_composite_rgb()->set_red(ui_->PRedSpinBox_Composite->value());
-    api::change_composite_rgb()->set_blue(ui_->PBlueSpinBox_Composite->value());
+    // FIXME NAME
+    api::change_composite_rgb()->p.min = ui_->PRedSpinBox_Composite->value();
+    api::change_composite_rgb()->p.max = ui_->PBlueSpinBox_Composite->value();
     parent_->notify();
 }
 
@@ -153,11 +154,7 @@ void CompositePanel::set_composite_weights()
     parent_->notify();
 }
 
-void CompositePanel::set_composite_auto_weights(bool value)
-{
-    api::set_composite_auto_weights(value);
-    ui_->ViewPanel->set_auto_contrast();
-}
+void CompositePanel::set_composite_auto_weights(bool value) { api::set_composite_auto_weights(value); }
 
 void CompositePanel::click_composite_rgb_or_hsv()
 {
