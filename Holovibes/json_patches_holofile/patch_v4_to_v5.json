@@ -22,7 +22,7 @@
 	{
 		"op": "move",
 		"from": "/compute_settings/advanced/contrast/cuts p offset",
-		"path": "/compute_settings/advanced/contrast/cuts_p_offset"
+		"path": "/compute_settings/advanced/contrast/frame_index_offset"
 	},
 	{
 		"op": "move",
@@ -31,28 +31,83 @@
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/auto weight",
-		"path": "/compute_settings/composite/auto_weight"
+		"from": "/compute_settings/composite",
+		"path": "/compute_settings/color_composite_image"
+	},
+        {
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/auto weight",
+		"path": "/compute_settings/color_composite_image/auto_weight"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/h/blur/kernel size",
-		"path": "/compute_settings/composite/hsv/h/blur/kernel_size"
+		"from": "/compute_settings/color_composite_image/hsv/h/blur/kernel size",
+		"path": "/compute_settings/color_composite_image/hsv/h/blur/kernel_size"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/h/slider threshold",
-		"path": "/compute_settings/composite/hsv/h/slider_threshold"
+		"from": "/compute_settings/color_composite_image/hsv/h/slider threshold",
+		"path": "/compute_settings/color_composite_image/hsv/h/slider_threshold"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/s/slider threshold",
-		"path": "/compute_settings/composite/hsv/s/slider_threshold"
+		"from": "/compute_settings/color_composite_image/hsv/s/slider threshold",
+		"path": "/compute_settings/color_composite_image/hsv/s/slider_threshold"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/v/slider threshold",
-		"path": "/compute_settings/composite/hsv/v/slider_threshold"
+		"from": "/compute_settings/color_composite_image/hsv/v/slider threshold",
+		"path": "/compute_settings/color_composite_image/hsv/v/slider_threshold"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/h/threshold/high",
+		"path": "/compute_settings/color_composite_image/hsv/h/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/h/threshold/low",
+		"path": "/compute_settings/color_composite_image/hsv/h/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/s/threshold/high",
+		"path": "/compute_settings/color_composite_image/hsv/s/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/s/threshold/low",
+		"path": "/compute_settings/color_composite_image/hsv/s/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/v/threshold/high",
+		"path": "/compute_settings/color_composite_image/hsv/v/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/v/threshold/low",
+		"path": "/compute_settings/color_composite_image/hsv/v/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/h/p",
+		"path": "/compute_settings/color_composite_image/hsv/h/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/s/p",
+		"path": "/compute_settings/color_composite_image/hsv/s/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/hsv/v/p",
+		"path": "/compute_settings/color_composite_image/hsv/v/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/color_composite_image/rgb/p",
+		"path": "/compute_settings/color_composite_image/rgb/frame_index"
 	},
 	{
 		"op": "move",
@@ -92,7 +147,17 @@
 	{
 		"op": "move",
 		"from": "/compute_settings/image_rendering/z distance",
-		"path": "/compute_settings/image_rendering/z_distance"
+		"path": "/compute_settings/image_rendering/propagation_distance"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/image_rendering/filter2d/n1",
+		"path": "/compute_settings/image_rendering/filter2d/inner_radius"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/image_rendering/filter2d/n2",
+		"path": "/compute_settings/image_rendering/filter2d/outer_radius"
 	},
 	{
 		"op": "move",
@@ -101,13 +166,33 @@
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/view/p/accu level",
-		"path": "/compute_settings/view/p/accu_level"
+		"from": "/compute_settings/view/p",
+		"path": "/compute_settings/view/z"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/view/q/accu level",
-		"path": "/compute_settings/view/q/accu_level"
+		"from": "/compute_settings/view/z/accu level",
+		"path": "/compute_settings/view/z/width"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/view/z/index",
+		"path": "/compute_settings/view/z/start"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/view/q",
+		"path": "/compute_settings/view/z2"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/view/z2/accu level",
+		"path": "/compute_settings/view/z2/width"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/view/z2/index",
+		"path": "/compute_settings/view/z2/start"
 	},
 	{
 		"op": "move",
@@ -142,12 +227,12 @@
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/xy/img accu level",
-		"path": "/compute_settings/view/window/xy/img_accu_level"
+		"path": "/compute_settings/view/window/xy/output_image_accumulation"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/xz/img accu level",
-		"path": "/compute_settings/view/window/xz/img_accu_level"
+		"path": "/compute_settings/view/window/xz/output_image_accumulation"
 	},
 	{
 		"op": "move",
@@ -167,77 +252,62 @@
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/yz/img accu level",
-		"path": "/compute_settings/view/window/yz/img_accu_level"
+		"path": "/compute_settings/view/window/yz/output_image_accumulation"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/x/accu level",
-		"path": "/compute_settings/view/x/accu_level"
+		"path": "/compute_settings/view/x/width"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/y/accu level",
-		"path": "/compute_settings/view/y/accu_level"
+		"path": "/compute_settings/view/y/width"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/h/threshold/high",
-		"path": "/compute_settings/composite/hsv/h/threshold/max"
+		"from": "/compute_settings/view/x/cuts",
+		"path": "/compute_settings/view/x/start"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/hsv/h/threshold/low",
-		"path": "/compute_settings/composite/hsv/h/threshold/min"
-	},
-	{
-		"op": "move",
-		"from": "/compute_settings/composite/hsv/s/threshold/high",
-		"path": "/compute_settings/composite/hsv/s/threshold/max"
-	},
-	{
-		"op": "move",
-		"from": "/compute_settings/composite/hsv/s/threshold/low",
-		"path": "/compute_settings/composite/hsv/s/threshold/min"
-	},
-	{
-		"op": "move",
-		"from": "/compute_settings/composite/hsv/v/threshold/high",
-		"path": "/compute_settings/composite/hsv/v/threshold/max"
-	},
-	{
-		"op": "move",
-		"from": "/compute_settings/composite/hsv/v/threshold/low",
-		"path": "/compute_settings/composite/hsv/v/threshold/min"
+		"from": "/compute_settings/view/y/cuts",
+		"path": "/compute_settings/view/y/start"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/type",
-		"path": "/compute_settings/view/img_type"
+		"path": "/compute_settings/view/image_type"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/xy/flip",
-		"path": "/compute_settings/view/window/xy/flip_enabled"
+		"path": "/compute_settings/view/window/xy/horizontal_flip"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/xz/flip",
-		"path": "/compute_settings/view/window/xz/flip_enabled"
+		"path": "/compute_settings/view/window/xz/horizontal_flip"
 	},
 	{
 		"op": "move",
 		"from": "/compute_settings/view/window/yz/flip",
-		"path": "/compute_settings/view/window/yz/flip_enabled"
+		"path": "/compute_settings/view/window/yz/horizontal_flip"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/view/reticle/scale",
-		"path": "/compute_settings/view/reticle/reticle_scale"
+		"from": "/compute_settings/view/window/xy/rot",
+		"path": "/compute_settings/view/window/xy/rotation"
 	},
 	{
 		"op": "move",
-		"from": "/compute_settings/composite/auto_weight",
-		"path": "/compute_settings/composite/composite_auto_weights"
+		"from": "/compute_settings/view/window/xz/rot",
+		"path": "/compute_settings/view/window/xz/rotation"
+	},
+	{
+		"op": "move",
+		"from": "/compute_settings/view/window/yz/rot",
+		"path": "/compute_settings/view/window/yz/rotation"
 	},
 	{
 		"op": "move",
@@ -247,7 +317,7 @@
 	{
 		"op": "move",
 		"from": "/info/pixel size",
-		"path": "/info/pixel_size"
+		"path": "/info/pixel_pitch"
 	},
 	{
 		"op": "move",
