@@ -123,6 +123,12 @@ void Pipe::call_reload_function_caches()
     }
 }
 
+#ifndef DISABLE_LOG_PIPE
+#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
+#else
+#define LOG_PIPE(...)
+#endif
+
 void Pipe::synchronize_caches_and_make_requests()
 {
     PipeRequestOnSync::begin_requests();
@@ -141,6 +147,7 @@ void Pipe::synchronize_caches_and_make_requests()
         return;
     }
 
+    LOG_PIPE("Pipe call notify");
     GSH::instance().notify();
 }
 
@@ -151,12 +158,6 @@ bool Pipe::caches_has_change_requested()
            view_cache_.has_change_requested() || zone_cache_.has_change_requested() ||
            composite_cache_.has_change_requested();
 }
-
-#ifndef DISABLE_LOG_PIPE
-#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
-#else
-#define LOG_PIPE(...)
-#endif
 
 void Pipe::sync_and_refresh()
 {

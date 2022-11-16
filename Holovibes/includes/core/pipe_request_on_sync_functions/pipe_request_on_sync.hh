@@ -18,7 +18,8 @@ class PipeRequestOnSync
 {
   private:
     inline static bool requests_fail = false;
-    inline static bool pipe_need_to_refresh = false;
+    inline static bool need_notify = true;
+    inline static bool need_pipe_refresh = false;
 
   protected:
     static void request_fail()
@@ -29,16 +30,24 @@ class PipeRequestOnSync
     static void request_pipe_refresh()
     {
         LOG_DEBUG(main, "Need a pipe refresh");
-        pipe_need_to_refresh = true;
+        need_pipe_refresh = true;
+    }
+    static void request_notify()
+    {
+        LOG_DEBUG(main, "Need notify");
+        need_notify = true;
     }
 
   public:
     static void begin_requests()
     {
         requests_fail = false;
-        pipe_need_to_refresh = false;
+        need_pipe_refresh = false;
+        need_notify = false;
     }
+
     static bool has_requests_fail() { return requests_fail; }
-    static bool do_need_pipe_refresh() { return pipe_need_to_refresh; }
+    static bool do_need_pipe_refresh() { return need_pipe_refresh; }
+    static bool do_need_notify() { return need_notify; }
 };
 } // namespace holovibes

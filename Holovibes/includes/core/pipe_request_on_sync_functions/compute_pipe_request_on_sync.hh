@@ -39,6 +39,14 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
+    void operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe)
+    {
+        LOG_UPDATE_PIPE(Filter2D);
+
+        request_pipe_refresh();
+    }
+
+    template <>
     void operator()<Lambda>(float, Pipe& pipe)
     {
         LOG_UPDATE_PIPE(Lambda);

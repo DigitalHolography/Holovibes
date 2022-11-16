@@ -10,10 +10,12 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
     pipe.update_spatial_transformation_parameters();
     pipe.get_gpu_input_queue().resize(new_value);
 
-    pipe.get_export_cache().virtual_synchronize_W<FrameRecordMode, ExportPipeRequestOnSync>(pipe);
-    pipe.get_export_cache().virtual_synchronize_W<ChartRecord, ExportPipeRequestOnSync>(pipe);
-    pipe.get_composite_cache().virtual_synchronize_W<CompositeRGB, CompositePipeRequestOnSync>(pipe);
-    pipe.get_composite_cache().virtual_synchronize_W<CompositeHSV, CompositePipeRequestOnSync>(pipe);
+    request_pipe_refresh();
+
+    // pipe.get_export_cache().virtual_synchronize_W<FrameRecordMode, ExportPipeRequestOnSync>(pipe);
+    // pipe.get_export_cache().virtual_synchronize_W<ChartRecord, ExportPipeRequestOnSync>(pipe);
+    // pipe.get_composite_cache().virtual_synchronize_W<CompositeRGB, CompositePipeRequestOnSync>(pipe);
+    // pipe.get_composite_cache().virtual_synchronize_W<CompositeHSV, CompositePipeRequestOnSync>(pipe);
 }
 
 template <>

@@ -92,7 +92,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         api::detail::set_value<Filter2DViewEnabled>(true);
         while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
+        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
 
+        // FIXME API
         const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
         ushort filter2d_window_width = fd.width;
         ushort filter2d_window_height = fd.height;
@@ -108,25 +110,15 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
                                     get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
-
-        GSH::instance().set_value<Filter2DViewEnabled>(true);
-        api::get_compute_pipe().get_rendering().request_view_filter2d_exec_contrast();
     }
     else
     {
-        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-
         api::detail::set_value<Filter2DViewEnabled>(false);
         while (api::get_compute_pipe().get_view_cache().has_change_requested())
             continue;
+
+        // FIXME API
+        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
     }
 }
-
-/// FIXME USELESS
-void set_filter2d(bool checked)
-{
-    set_filter2d_view_enabled(checked);
-    set_auto_contrast_all();
-}
-
 } // namespace holovibes::api

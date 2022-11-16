@@ -187,7 +187,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_filter2d(checked);
+    api::change_filter2d()->enabled = checked;
 
     if (checked)
     {

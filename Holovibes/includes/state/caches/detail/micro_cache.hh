@@ -144,9 +144,11 @@ class MicroCache
         template <typename T>
         void trigger_param(IParameter* ref)
         {
-            IParameter* Iparam_to_change = static_cast<IParameter*>(&BasicMicroCache::template get_type<T>());
-            if (Iparam_to_change->value_has_changed(ref) == false)
+            auto& param_to_change = BasicMicroCache::template get_type<T>();
+            if (param_to_change.value_has_changed(ref) == false)
                 return;
+
+            IParameter* Iparam_to_change = static_cast<IParameter*>(&param_to_change);
             IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
 
             std::lock_guard<std::mutex> guard(lock_);
