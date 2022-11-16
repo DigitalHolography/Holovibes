@@ -20,17 +20,17 @@ void Windows::Update()
 void Reticle::Update()
 {
     this->display_enabled = GSH::instance().get_reticle_display_enabled();
-    this->reticle_scale = GSH::instance().get_reticle_scale();
+    this->scale = GSH::instance().get_reticle_scale();
 }
 
 void Views::Update()
 {
-    this->img_type = GSH::instance().get_img_type();
+    this->image_type = GSH::instance().get_img_type();
     this->fft_shift = GSH::instance().get_fft_shift_enabled();
     this->x = GSH::instance().get_x();
     this->y = GSH::instance().get_y();
-    this->p = GSH::instance().get_p();
-    this->q = GSH::instance().get_q();
+    this->z = GSH::instance().get_p();
+    this->z2 = GSH::instance().get_q();
     this->window.Update();
     this->renorm = GSH::instance().get_renorm_enabled();
     this->reticle.Update();
@@ -46,8 +46,8 @@ void Rendering::Convolution::Update()
 void Rendering::Filter2D::Update()
 {
     this->enabled = GSH::instance().get_filter2d_enabled();
-    this->n1 = GSH::instance().get_filter2d_n1();
-    this->n2 = GSH::instance().get_filter2d_n2();
+    this->inner_radius = GSH::instance().get_filter2d_n1();
+    this->outer_radius = GSH::instance().get_filter2d_n2();
 }
 
 void Rendering::Update()
@@ -60,7 +60,7 @@ void Rendering::Update()
     this->time_transformation = GSH::instance().get_time_transformation();
     this->time_transformation_size = GSH::instance().get_time_transformation_size();
     this->lambda = GSH::instance().get_lambda();
-    this->z_distance = GSH::instance().get_z_distance();
+    this->propagation_distance = GSH::instance().get_z_distance();
     this->convolution.Update();
 }
 
@@ -83,7 +83,7 @@ void AdvancedSettings::ContrastThreshold::Update()
 {
     this->lower = GSH::instance().get_contrast_lower_threshold();
     this->upper = GSH::instance().get_contrast_upper_threshold();
-    this->cuts_p_offset = GSH::instance().get_cuts_contrast_p_offset();
+    this->frame_index_offset = GSH::instance().get_cuts_contrast_p_offset();
 }
 
 void AdvancedSettings::Update()
@@ -98,7 +98,7 @@ void AdvancedSettings::Update()
 void Composite::Update()
 {
     this->mode = GSH::instance().get_composite_kind();
-    this->composite_auto_weights = GSH::instance().get_composite_auto_weights();
+    this->auto_weight = GSH::instance().get_composite_auto_weights();
     this->rgb = GSH::instance().get_rgb();
     this->hsv = GSH::instance().get_hsv();
 }
@@ -107,7 +107,7 @@ void ComputeSettings::Update()
 {
     this->image_rendering.Update();
     this->view.Update();
-    this->composite.Update();
+    this->color_composite_image.Update();
     this->advanced.Update();
 }
 
@@ -130,7 +130,7 @@ void AdvancedSettings::ContrastThreshold::Load()
 {
     GSH::instance().set_contrast_lower_threshold(this->lower);
     GSH::instance().set_contrast_upper_threshold(this->upper);
-    GSH::instance().set_cuts_contrast_p_offset(this->cuts_p_offset);
+    GSH::instance().set_cuts_contrast_p_offset(this->frame_index_offset);
 }
 
 void AdvancedSettings::Load()
@@ -145,7 +145,7 @@ void AdvancedSettings::Load()
 void Composite::Load()
 {
     GSH::instance().set_composite_kind(this->mode);
-    GSH::instance().set_composite_auto_weights(this->composite_auto_weights);
+    GSH::instance().set_composite_auto_weights(this->auto_weight);
     GSH::instance().set_rgb(this->rgb);
     GSH::instance().set_hsv(this->hsv);
 }
@@ -153,7 +153,7 @@ void Composite::Load()
 void ComputeSettings::Load()
 {
     this->image_rendering.Load();
-    this->composite.Load();
+    this->color_composite_image.Load();
     this->advanced.Load();
     this->view.Load();
 }
@@ -169,17 +169,17 @@ void Windows::Load()
 void Reticle::Load()
 {
     GSH::instance().set_reticle_display_enabled(this->display_enabled);
-    GSH::instance().set_reticle_scale(this->reticle_scale);
+    GSH::instance().set_reticle_scale(this->scale);
 }
 
 void Views::Load()
 {
-    GSH::instance().set_img_type(this->img_type);
+    GSH::instance().set_img_type(this->image_type);
     GSH::instance().set_fft_shift_enabled(this->fft_shift);
     GSH::instance().set_x(this->x);
     GSH::instance().set_y(this->y);
-    GSH::instance().set_p(this->p);
-    GSH::instance().set_q(this->q);
+    GSH::instance().set_p(this->z);
+    GSH::instance().set_q(this->z2);
     this->window.Load();
     GSH::instance().set_renorm_enabled(this->renorm);
     this->reticle.Load();
@@ -195,8 +195,8 @@ void Rendering::Convolution::Load()
 void Rendering::Filter2D::Load()
 {
     GSH::instance().set_filter2d_enabled(this->enabled);
-    GSH::instance().set_filter2d_n1(this->n1);
-    GSH::instance().set_filter2d_n2(this->n2);
+    GSH::instance().set_filter2d_n1(this->inner_radius);
+    GSH::instance().set_filter2d_n2(this->outer_radius);
 }
 
 void Rendering::Load()
@@ -209,7 +209,7 @@ void Rendering::Load()
     GSH::instance().set_time_transformation(this->time_transformation);
     GSH::instance().set_time_transformation_size(this->time_transformation_size);
     GSH::instance().set_lambda(this->lambda);
-    GSH::instance().set_z_distance(this->z_distance);
+    GSH::instance().set_z_distance(this->propagation_distance);
     this->convolution.Load();
 }
 

@@ -23,9 +23,9 @@ void after_load_checks()
     if (GSH::instance().get_time_transformation_size() < 1)
         GSH::instance().set_time_transformation_size(1);
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (GSH::instance().get_p().index >= GSH::instance().get_time_transformation_size())
+    if (GSH::instance().get_p().start >= GSH::instance().get_time_transformation_size())
         GSH::instance().set_p_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_q().index >= GSH::instance().get_time_transformation_size())
+    if (GSH::instance().get_q().start >= GSH::instance().get_time_transformation_size())
         GSH::instance().set_q_index(GSH::instance().get_time_transformation_size() - 1);
     if (GSH::instance().get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
         GSH::instance().set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);

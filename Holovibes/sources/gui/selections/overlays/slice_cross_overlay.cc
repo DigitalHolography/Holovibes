@@ -97,8 +97,8 @@ void SliceCrossOverlay::setBuffer()
 
     ViewPQ p = api::get_p();
 
-    uint pmin = p.index;
-    uint pmax = pmin + p.accu_level;
+    uint pmin = p.start;
+    uint pmax = pmin + p.width;
 
     units::ConversionData convert(parent_);
 

@@ -50,11 +50,11 @@ struct ViewWindow
  */
 struct ViewXYZ : public ViewWindow
 {
-    bool flip_enabled = false;
-    float rot = 0;
-    unsigned img_accu_level = 1;
+    bool horizontal_flip = false;
+    float rotation = 0;
+    unsigned output_image_accumulation = 1;
 
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, flip_enabled, rot, img_accu_level)
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 };
 
 /*! \class ViewAccu
@@ -63,9 +63,9 @@ struct ViewXYZ : public ViewWindow
  */
 struct ViewAccu
 {
-    int accu_level = 0;
+    int width = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewAccu, accu_level)
+    SERIALIZE_JSON_STRUCT(ViewAccu, width)
 };
 
 /*! \class ViewPQ
@@ -74,9 +74,9 @@ struct ViewAccu
  */
 struct ViewPQ : public ViewAccu
 {
-    unsigned index = 0;
+    unsigned start = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewPQ, accu_level, index)
+    SERIALIZE_JSON_STRUCT(ViewPQ, width, start)
 };
 
 /*! \class ViewXY
@@ -85,9 +85,9 @@ struct ViewPQ : public ViewAccu
  */
 struct ViewXY : public ViewAccu
 {
-    unsigned cuts = 0;
+    unsigned start = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewXY, accu_level, cuts)
+    SERIALIZE_JSON_STRUCT(ViewXY, width, start)
 };
 
 /*! \class Windows
@@ -114,9 +114,9 @@ struct Windows
 struct Reticle
 {
     bool display_enabled = false;
-    float reticle_scale = 0.5f;
+    float scale = 0.5f;
 
-    SERIALIZE_JSON_STRUCT(Reticle, display_enabled, reticle_scale);
+    SERIALIZE_JSON_STRUCT(Reticle, display_enabled, scale);
 
     void Update();
     void Load();
@@ -128,17 +128,17 @@ struct Reticle
  */
 struct Views
 {
-    ImgType img_type = ImgType::Modulus;
+    ImgType image_type = ImgType::Modulus;
     bool fft_shift = false;
     ViewXY x;
     ViewXY y;
-    ViewPQ p;
-    ViewPQ q;
+    ViewPQ z;
+    ViewPQ z2;
     Windows window;
     bool renorm = false;
     Reticle reticle;
 
-    SERIALIZE_JSON_STRUCT(Views, img_type, fft_shift, x, y, p, q, window, renorm, reticle);
+    SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, x, y, z, z2, window, renorm, reticle);
 
     void Update();
     void Load();

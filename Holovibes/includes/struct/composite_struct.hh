@@ -33,7 +33,7 @@ struct ActivableCompositeP : public CompositeP
     SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
 
-/*! \class RGBWeights 
+/*! \class RGBWeights
  *
  * \brief Class that represents RGBWeights
  */
@@ -52,10 +52,10 @@ struct RGBWeights
  */
 struct CompositeRGB
 {
-    CompositeP p;
+    CompositeP frame_index;
     RGBWeights weight;
 
-    SERIALIZE_JSON_STRUCT(CompositeRGB, p, weight)
+    SERIALIZE_JSON_STRUCT(CompositeRGB, frame_index, weight)
 };
 
 /*! \class Threshold
@@ -70,7 +70,7 @@ struct Threshold
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
-/*! \class  Blur 
+/*! \class  Blur
  *
  * \brief Class that represents Blur
  */
@@ -88,12 +88,12 @@ struct Blur
  */
 struct CompositeH
 {
-    CompositeP p;
+    CompositeP frame_index;
     Threshold slider_threshold;
     Threshold threshold;
     Blur blur;
 
-    SERIALIZE_JSON_STRUCT(CompositeH, p, slider_threshold, threshold, blur)
+    SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, blur)
 };
 
 /*! \class CompositeSV
@@ -102,11 +102,11 @@ struct CompositeH
  */
 struct CompositeSV
 {
-    ActivableCompositeP p;
+    ActivableCompositeP frame_index;
     Threshold slider_threshold;
     Threshold threshold;
 
-    SERIALIZE_JSON_STRUCT(CompositeSV, p, slider_threshold, threshold)
+    SERIALIZE_JSON_STRUCT(CompositeSV, frame_index, slider_threshold, threshold)
 };
 
 /*! \class CompositeHSV
@@ -129,14 +129,14 @@ struct CompositeHSV
 struct Composite
 {
     CompositeKind mode = CompositeKind::RGB;
-    bool composite_auto_weights = false;
+    bool auto_weight = false;
     CompositeRGB rgb;
     CompositeHSV hsv;
 
     void Load();
     void Update();
 
-    SERIALIZE_JSON_STRUCT(Composite, mode, composite_auto_weights, rgb, hsv)
+    SERIALIZE_JSON_STRUCT(Composite, mode, auto_weight, rgb, hsv)
 };
 
 } // namespace holovibes
