@@ -21,26 +21,26 @@ namespace holovibes
 struct Rendering
 {
 
-/*! \class Filter2D
- *
- * \brief Class that represents Filter2D
- */
+    /*! \class Filter2D
+     *
+     * \brief Class that represents Filter2D
+     */
     struct Filter2D
     {
         bool enabled = false;
-        int n1 = 0;
-        int n2 = 1;
+        int inner_radius = 0;
+        int outer_radius = 1;
 
         void Update();
         void Load();
 
-        SERIALIZE_JSON_STRUCT(Filter2D, enabled, n1, n2)
+        SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius)
     };
 
-/*! \class Convolution
- *
- * \brief Class that represents Convolution
- */
+    /*! \class Convolution
+     *
+     * \brief Class that represents Convolution
+     */
     struct Convolution
     {
         bool enabled = false;
@@ -61,7 +61,7 @@ struct Rendering
     TimeTransformation time_transformation = TimeTransformation::NONE;
     unsigned time_transformation_size = 1;
     float lambda = 852e-9f;
-    float z_distance = 1.5f;
+    float propagation_distance = 1.5f;
     Convolution convolution;
 
     void Update();
@@ -76,7 +76,7 @@ struct Rendering
                           time_transformation,
                           time_transformation_size,
                           lambda,
-                          z_distance,
+                          propagation_distance,
                           convolution)
 };
 

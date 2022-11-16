@@ -92,13 +92,13 @@ void Converts::insert_compute_p_accu()
         [=]()
         {
             ViewPQ p = view_cache_.get_p();
-            pmin_ = p.index;
-            if (p.accu_level != 0)
-                pmax_ = std::max(0,
-                                 std::min<int>(pmin_ + p.accu_level,
-                                               static_cast<int>(compute_cache_.get_time_transformation_size())));
+            pmin_ = p.start;
+            if (p.width != 0)
+                pmax_ = std::max(
+                    0,
+                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_time_transformation_size())));
             else
-                pmax_ = p.index;
+                pmax_ = p.start;
         });
 }
 
@@ -144,8 +144,8 @@ void Converts::insert_to_composite()
         [=]()
         {
             CompositeRGB rgb_struct = composite_cache_.get_rgb();
-            if (!is_between<ushort>(rgb_struct.p.min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(rgb_struct.p.max, 0, compute_cache_.get_time_transformation_size()))
+            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_time_transformation_size()) ||
+                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_time_transformation_size()))
                 return;
 
             if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
@@ -153,8 +153,8 @@ void Converts::insert_to_composite()
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
                     composite_cache_.get_composite_auto_weights(),
-                    rgb_struct.p.min,
-                    rgb_struct.p.max,
+                    rgb_struct.frame_index.min,
+                    rgb_struct.frame_index.max,
                     rgb_struct.weight.r,
                     rgb_struct.weight.g,
                     rgb_struct.weight.b,

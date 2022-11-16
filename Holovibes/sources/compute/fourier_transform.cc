@@ -313,8 +313,8 @@ void FourierTransform::insert_ssa_stft()
             // filter eigen vectors
             // only keep vectors between q and q + q_acc
             ViewPQ q_struct = view_cache_.get_q();
-            int q = q_struct.accu_level != 0 ? q_struct.index : 0;
-            int q_acc = q_struct.accu_level != 0 ? q_struct.accu_level : time_transformation_size;
+            int q = q_struct.width != 0 ? q_struct.start : 0;
+            int q_acc = q_struct.width != 0 ? q_struct.width : time_transformation_size;
             int q_index = q * time_transformation_size;
             int q_acc_index = q_acc * time_transformation_size;
             cudaXMemsetAsync(V, 0, q_index * sizeof(cuComplex), stream_);
@@ -358,7 +358,7 @@ void FourierTransform::insert_store_p_frame()
              * with respect to the host but never overlap with kernel execution*/
             cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
                              (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                                 view_cache_.get_p().index * frame_res,
+                                 view_cache_.get_p().start * frame_res,
                              sizeof(cuComplex) * frame_res,
                              cudaMemcpyDeviceToDevice,
                              stream_);
@@ -384,11 +384,11 @@ void FourierTransform::insert_time_transformation_cuts_view()
 
                 ViewXY x = view_cache_.get_x();
                 ViewXY y = view_cache_.get_y();
-                if (x.cuts < width && y.cuts < height)
+                if (x.start < width && y.start < height)
                 {
                     {
-                        mouse_posx = x.cuts;
-                        mouse_posy = y.cuts;
+                        mouse_posx = x.start;
+                        mouse_posy = y.start;
                     }
                     // -----------------------------------------------------
                     time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
@@ -396,13 +396,13 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    buffers_.gpu_postprocess_frame_yz.get(),
                                                    mouse_posx,
                                                    mouse_posy,
-                                                   mouse_posx + x.accu_level,
-                                                   mouse_posy + y.accu_level,
+                                                   mouse_posx + x.width,
+                                                   mouse_posy + y.width,
                                                    width,
                                                    height,
                                                    compute_cache_.get_time_transformation_size(),
-                                                   view_cache_.get_xz_const_ref().img_accu_level,
-                                                   view_cache_.get_yz_const_ref().img_accu_level,
+                                                   view_cache_.get_xz_const_ref().output_image_accumulation,
+                                                   view_cache_.get_yz_const_ref().output_image_accumulation,
                                                    view_cache_.get_img_type(),
                                                    stream_);
                 }

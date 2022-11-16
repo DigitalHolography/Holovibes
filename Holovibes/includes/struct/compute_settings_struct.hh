@@ -22,7 +22,7 @@ struct ComputeSettings
 {
     Rendering image_rendering;
     Views view;
-    Composite composite;
+    Composite color_composite_image;
     AdvancedSettings advanced;
 
     /*! \brief Synchornize instance of ComputeSettings with GSH */
@@ -32,6 +32,6 @@ struct ComputeSettings
     /*! \brief Debug function - Dump instance of ComputeSettings in json */
     void Dump(const std::string& filename);
 
-    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, composite, advanced)
+    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, color_composite_image, advanced)
 };
 } // namespace holovibes

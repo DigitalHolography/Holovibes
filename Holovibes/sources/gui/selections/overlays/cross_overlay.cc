@@ -213,27 +213,27 @@ void CrossOverlay::computeZone()
     // Computing min/max coordinates in function of the frame_descriptor
     ViewXY x = api::get_x();
     ViewXY y = api::get_y();
-    int x_min = x.cuts;
-    int x_max = x.cuts;
-    int y_min = y.cuts;
-    int y_max = y.cuts;
-    (x.accu_level < 0 ? x_min : x_max) += x.accu_level;
-    (y.accu_level < 0 ? y_min : y_max) += y.accu_level;
+    int x_min = x.start;
+    int x_max = x.start;
+    int y_min = y.start;
+    int y_max = y.start;
+    (x.width < 0 ? x_min : x_max) += x.width;
+    (y.width < 0 ? y_min : y_max) += y.width;
     units::ConversionData convert(parent_);
 
     units::PointFd min(convert, x_min, y_min);
     units::PointFd max(convert, x_max, y_max);
 
     // Setting the zone_
-    if (x.accu_level == 0)
+    if (x.width == 0)
     {
-        min.x().set(x.cuts);
-        max.x().set(x.cuts);
+        min.x().set(x.start);
+        max.x().set(x.start);
     }
-    if (y.accu_level == 0)
+    if (y.width == 0)
     {
-        min.y().set(y.cuts);
-        max.y().set(y.cuts);
+        min.y().set(y.start);
+        max.y().set(y.start);
     }
     max.x() += 1;
     max.y() += 1;

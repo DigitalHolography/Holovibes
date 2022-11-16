@@ -47,7 +47,7 @@ double GSH::get_rotation() const
         throw std::runtime_error("bad window type");
 
     auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.rot;
+    return w.rotation;
 }
 
 bool GSH::get_flip_enabled() const
@@ -57,7 +57,7 @@ bool GSH::get_flip_enabled() const
         throw std::runtime_error("bad window type");
 
     auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.flip_enabled;
+    return w.horizontal_flip;
 }
 
 bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_enabled; }
@@ -68,7 +68,7 @@ unsigned GSH::get_img_accu_level() const
         throw std::runtime_error("bad window type");
 
     auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.img_accu_level;
+    return w.output_image_accumulation;
 }
 #pragma endregion
 
@@ -134,7 +134,7 @@ void GSH::set_accumulation_level(int value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<ViewXYZ*>(get_current_window().get())->img_accu_level = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->output_image_accumulation = value;
 }
 
 void GSH::set_rotation(double value)
@@ -142,7 +142,7 @@ void GSH::set_rotation(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<ViewXYZ*>(get_current_window().get())->rot = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->rotation = value;
 }
 
 void GSH::set_flip_enabled(double value)
@@ -150,7 +150,7 @@ void GSH::set_flip_enabled(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    reinterpret_cast<ViewXYZ*>(get_current_window().get())->flip_enabled = value;
+    reinterpret_cast<ViewXYZ*>(get_current_window().get())->horizontal_flip = value;
 }
 
 void GSH::set_fft_shift_enabled(bool value)
@@ -161,16 +161,17 @@ void GSH::set_fft_shift_enabled(bool value)
 
 void GSH::set_composite_p_h(Span<uint> span, bool notify)
 {
-    composite_cache_.get_hsv_ref()->h.p.max = span.min;
-    composite_cache_.get_hsv_ref()->h.p.max = span.max;
+    // FIXME - RENAME
+    composite_cache_.get_hsv_ref()->h.frame_index.min = span.min;
+    composite_cache_.get_hsv_ref()->h.frame_index.max = span.max;
     if (notify)
         this->notify();
 }
 
 void GSH::set_rgb_p(Span<int> span, bool notify)
 {
-    composite_cache_.get_rgb_ref()->p.min = span.min;
-    composite_cache_.get_rgb_ref()->p.max = span.max;
+    composite_cache_.get_rgb_ref()->frame_index.min = span.min;
+    composite_cache_.get_rgb_ref()->frame_index.max = span.max;
     if (notify)
         this->notify();
 }
