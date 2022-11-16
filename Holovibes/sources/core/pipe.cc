@@ -149,7 +149,7 @@ void Pipe::synchronize_caches_and_make_requests()
 
     if (PipeRequestOnSync::do_need_notify())
     {
-        LOG_PIPE("Pipe call notify");
+        LOG_DEBUG(main, "Pipe call notify");
         GSH::instance().notify();
     }
 }

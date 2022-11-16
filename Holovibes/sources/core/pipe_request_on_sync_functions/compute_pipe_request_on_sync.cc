@@ -11,11 +11,6 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
     pipe.get_gpu_input_queue().resize(new_value);
 
     request_pipe_refresh();
-
-    // pipe.get_export_cache().virtual_synchronize_W<FrameRecordMode, ExportPipeRequestOnSync>(pipe);
-    // pipe.get_export_cache().virtual_synchronize_W<ChartRecord, ExportPipeRequestOnSync>(pipe);
-    // pipe.get_composite_cache().virtual_synchronize_W<CompositeRGB, CompositePipeRequestOnSync>(pipe);
-    // pipe.get_composite_cache().virtual_synchronize_W<CompositeHSV, CompositePipeRequestOnSync>(pipe);
 }
 
 template <>
@@ -62,6 +57,10 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
         pipe.get_postprocess().dispose();
     else if (new_value.enabled == true)
         pipe.get_postprocess().init();
+
+    pipe.get_view_cache().virtual_synchronize_W<ViewXY, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
 
     request_pipe_refresh();
 }

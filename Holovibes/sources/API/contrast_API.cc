@@ -5,11 +5,24 @@ namespace holovibes::api
 
 void request_auto_contrast_all_windows()
 {
-    // FIXME API : Need to move this outside this
-    if (api::get_import_type() == ImportTypeEnum::None)
-        return;
+    if (api::get_view_xy().contrast.auto_refresh)
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
 
-    // FIXME API : this code stay here
+    if (api::get_cuts_view_enabled())
+    {
+        if (api::get_view_xz().contrast.auto_refresh)
+            api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+        if (api::get_view_yz().contrast.auto_refresh)
+            api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
+    }
+
+    if (api::get_filter2d_view_enabled())
+        if (api::get_view_filter2d().contrast.auto_refresh)
+            api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
+}
+
+void request_exec_contrast_all_windows()
+{
     api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
     if (api::get_cuts_view_enabled())
     {
@@ -20,7 +33,7 @@ void request_auto_contrast_all_windows()
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
 }
 
-void request_auto_contrast_current_window()
+void request_exec_contrast_current_window()
 {
     if (api::is_current_window_xyz_type())
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(api::get_current_window_kind());

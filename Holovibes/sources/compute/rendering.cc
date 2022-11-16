@@ -120,8 +120,8 @@ void Rendering::insert_contrast()
 {
     LOG_FUNC(compute_worker);
 
-    // Compute min and max pixel values if requested
-    insert_compute_autocontrast();
+    insert_auto_request_contrast();
+    insert_request_exec_contrast();
 
     // Apply contrast on the main view
     if (view_cache_.get_value<ViewXY>().contrast.enabled)
@@ -253,13 +253,13 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
-void Rendering::insert_compute_autocontrast()
+void Rendering::insert_request_exec_contrast()
 {
     LOG_FUNC(compute_worker);
 
     // requested check are inside the lambda so that we don't need to
     // refresh the pipe at each autocontrast
-    auto lambda_autocontrast = [&]()
+    auto lambda = [&]()
     {
         // Compute autocontrast once the gpu time transformation queue is full
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
@@ -271,27 +271,29 @@ void Rendering::insert_compute_autocontrast()
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::ViewXY);
         }
 
-        if (has_requested_view_exec_contrast(WindowKind::ViewXZ))
+        if (api::get_cuts_view_enabled())
         {
-            reset_view_exec_contrast(WindowKind::ViewXZ);
-            autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
-                                fd_.width,
-                                compute_cache_.get_value<TimeTransformationSize>(),
-                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
-                                WindowKind::ViewXZ);
+            if (has_requested_view_exec_contrast(WindowKind::ViewXZ))
+            {
+                reset_view_exec_contrast(WindowKind::ViewXZ);
+                autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
+                                    fd_.width,
+                                    compute_cache_.get_value<TimeTransformationSize>(),
+                                    advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
+                                    WindowKind::ViewXZ);
+            }
+            if (has_requested_view_exec_contrast(WindowKind::ViewYZ))
+            {
+                reset_view_exec_contrast(WindowKind::ViewYZ);
+                autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
+                                    compute_cache_.get_value<TimeTransformationSize>(),
+                                    fd_.height,
+                                    advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
+                                    WindowKind::ViewYZ);
+            }
         }
 
-        if (has_requested_view_exec_contrast(WindowKind::ViewYZ))
-        {
-            reset_view_exec_contrast(WindowKind::ViewYZ);
-            autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
-                                compute_cache_.get_value<TimeTransformationSize>(),
-                                fd_.height,
-                                advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
-                                WindowKind::ViewYZ);
-        }
-
-        if (has_requested_view_exec_contrast(WindowKind::ViewFilter2D))
+        if (api::get_filter2d_view_enabled() && has_requested_view_exec_contrast(WindowKind::ViewFilter2D))
         {
             reset_view_exec_contrast(WindowKind::ViewFilter2D);
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
@@ -302,7 +304,29 @@ void Rendering::insert_compute_autocontrast()
         }
     };
 
-    fn_compute_vect_.conditional_push_back(lambda_autocontrast);
+    fn_compute_vect_.conditional_push_back(lambda);
+}
+
+void Rendering::insert_auto_request_contrast()
+{
+    LOG_FUNC(compute_worker);
+
+    auto lambda = [&]()
+    {
+        if (api::get_view_xy().contrast.auto_refresh)
+            request_view_exec_contrast(WindowKind::ViewXY);
+        if (api::get_cuts_view_enabled())
+        {
+            if (api::get_view_xz().contrast.auto_refresh)
+                request_view_exec_contrast(WindowKind::ViewXZ);
+            if (api::get_view_yz().contrast.auto_refresh)
+                request_view_exec_contrast(WindowKind::ViewYZ);
+        }
+        if (api::get_filter2d_view_enabled() && api::get_view_filter2d().contrast.auto_refresh)
+            request_view_exec_contrast(WindowKind::ViewFilter2D);
+    };
+
+    fn_compute_vect_.conditional_push_back(lambda);
 }
 
 void Rendering::insert_clear_image_accumulation()

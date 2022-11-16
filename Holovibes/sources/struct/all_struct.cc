@@ -133,15 +133,6 @@ void Views::Load()
     GSH::instance().set_value<Reticle>(this->reticle);
 }
 
-/*
-void Rendering::ConvolutionStruct::Load()
-{
-    GSH::instance().set_convolution_enabled(this->enabled);
-    // FIXME : Check
-    UserInterfaceDescriptor::instance().convo_name = this->type;
-    GSH::instance().set_divide_convolution_enabled(this->divide);
-}*/
-
 void Rendering::Load()
 {
     GSH::instance().set_value<ComputeMode>(this->image_mode);

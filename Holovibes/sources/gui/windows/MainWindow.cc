@@ -554,7 +554,7 @@ void MainWindow::set_view_image_type(const QString& value)
     layout_toggled();
 
     // FIXME CONTRAST
-    api::request_auto_contrast_all_windows();
+    api::request_exec_contrast_all_windows();
 }
 
 #pragma endregion

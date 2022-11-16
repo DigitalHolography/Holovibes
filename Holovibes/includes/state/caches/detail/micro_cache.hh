@@ -65,6 +65,7 @@ class OnSync
                 return;
             }
             functions_to_call.template on_sync<T>(value, old_value->get_value(), std::forward<Args>(args)...);
+            old_value->save_current_value(&value);
         }
     }
 };

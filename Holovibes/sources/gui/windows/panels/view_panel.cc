@@ -441,7 +441,7 @@ void ViewPanel::set_auto_contrast()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::request_auto_contrast_current_window();
+    api::request_exec_contrast_current_window();
 }
 
 void ViewPanel::set_auto_refresh_contrast(bool value)

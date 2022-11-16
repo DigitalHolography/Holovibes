@@ -18,7 +18,8 @@ inline float get_contrast_max()
                                                  : log10(api::get_current_window().contrast.max);
 }
 
-void request_auto_contrast_all_windows();
+void request_exec_contrast_all_windows();
+void request_exec_contrast_current_window();
 void request_auto_contrast_current_window();
 
 void set_current_window_contrast_min(const float value);

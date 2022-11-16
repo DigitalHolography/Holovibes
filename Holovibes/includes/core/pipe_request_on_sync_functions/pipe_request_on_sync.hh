@@ -24,17 +24,23 @@ class PipeRequestOnSync
   protected:
     static void request_fail()
     {
+#ifndef DISABLE_LOG_PIPE
         LOG_ERROR(main, "Got a request fail in a pipe request");
+#endif
         requests_fail = true;
     }
     static void request_pipe_refresh()
     {
+#ifndef DISABLE_LOG_PIPE
         LOG_DEBUG(main, "Need a pipe refresh");
+#endif
         need_pipe_refresh = true;
     }
     static void request_notify()
     {
+#ifndef DISABLE_LOG_PIPE
         LOG_DEBUG(main, "Need notify");
+#endif
         need_notify = true;
     }
 
