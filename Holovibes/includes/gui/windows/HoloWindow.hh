@@ -28,8 +28,7 @@ class HoloWindow : public RawWindow
     virtual ~HoloWindow();
 
     void update_slice_transforms();
-
-    void resetTransform() override;
+    
     void setTransform() override;
 
   protected:

@@ -56,7 +56,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_view_kind()));
 }
 
 void ViewPanel::on_notify()
@@ -93,7 +93,7 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_kind()));
+    window_selection->setCurrentIndex(static_cast<int>(api::get_current_view_kind()));
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
@@ -108,7 +108,7 @@ void ViewPanel::on_notify()
         ui_->FlipPushButton->setVisible(val);
     };
 
-    if (api::get_current_window_kind() == WindowKind::ViewFilter2D)
+    if (api::get_current_view_kind() == WindowKind::ViewFilter2D)
         set_xyzf_visibility(false);
     else
     {
@@ -384,12 +384,12 @@ void ViewPanel::rotateTexture()
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
     api::change_current_view_as_view_xyz()->rot = new_rot;
 
-    if (api::get_current_window_kind() == WindowKind::ViewXY)
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_view_xy().rot);
-    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::ViewXZ)
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(api::get_view_xz().rot);
-    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::ViewYZ)
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(api::get_view_yz().rot);
+    if (api::get_current_view_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }
@@ -398,12 +398,13 @@ void ViewPanel::flipTexture()
 {
     api::change_current_view_as_view_xyz()->flip_enabled = !api::get_current_view_as_view_xyz().flip_enabled;
 
-    if (api::get_current_window_kind() == WindowKind::ViewXY)
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_view_xy().flip_enabled);
-    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_window_kind() == WindowKind::ViewXZ)
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(api::get_view_xz().flip_enabled);
-    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_window_kind() == WindowKind::ViewYZ)
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(api::get_view_yz().flip_enabled);
+    // FIXME => TRIGGER
+    if (api::get_current_view_kind() == WindowKind::ViewXY)
+        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
+    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }

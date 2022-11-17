@@ -14,6 +14,7 @@
 #include "overlay_manager.hh"
 #include "tools_conversion.cuh"
 #include "display_queue.hh"
+#include "enum_window_kind.hh"
 
 /*! \brief Contains all function to display the graphical user interface */
 namespace holovibes::gui
@@ -53,15 +54,9 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \name Transform functions
      * \{
      */
-    virtual void resetTransform();
+    void resetTransform();
     void setScale(float);
     float getScale() const;
-    void setAngle(float a);
-    float getAngle() const;
-    void setFlip(bool f);
-    bool getFlip() const;
-    void setBitshift(unsigned int b);
-    unsigned int getBitshift() const;
     void setTranslate(float x, float y);
     glm::vec2 getTranslate() const;
 
@@ -69,38 +64,9 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     const glm::mat3x3& getTransformInverseMatrix() const;
     /*! \} */
 
-  protected:
-    Qt::WindowState winState;
-    QPoint winPos;
-
-    /*! \brief Output queue filled in the computing pipeline */
-    DisplayQueue* output_;
-    const camera::FrameDescriptor& fd_;
-    const KindOfView kView;
-
-    OverlayManager overlay_manager_;
-
     virtual void setTransform();
 
-    /*! \name CUDA Objects
-     * \{
-     */
-    cudaGraphicsResource_t cuResource;
-    cudaStream_t cuStream;
-    /*! \} */
-
-    void* cuPtrToPbo;
-    size_t sizeBuffer;
-
-    /*! \name OpenGL Objects
-     * \{
-     */
-    QOpenGLShaderProgram* Program;
-    QOpenGLVertexArrayObject Vao;
-    GLuint Vbo, Ebo, Pbo;
-    GLuint Tex;
-    /*! \} */
-
+  protected:
     /*! \name Virtual Pure Functions (trick used because Qt define these functions, please implement them)
      * \{
      */
@@ -120,14 +86,38 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \} */
 
   protected:
-    glm::vec4 translate_;
-    float scale_;
-    /*! \brief Angle in degree */
-    float angle_;
-    bool flip_;
-    int bitshift_;
+    Qt::WindowState winState;
+    QPoint winPos;
 
+    /*! \brief Output queue filled in the computing pipeline */
+    DisplayQueue* output_;
+    const camera::FrameDescriptor& fd_;
+
+    OverlayManager overlay_manager_;
+    /*! \name CUDA Objects
+     * \{
+     */
+    cudaGraphicsResource_t cuResource;
+    void* cuPtrToPbo;
+    cudaStream_t cuStream;
+    size_t sizeBuffer;
+    /*! \} */
+
+    /*! \name OpenGL Objects
+     * \{
+     */
+    QOpenGLShaderProgram* Program;
+    QOpenGLVertexArrayObject Vao;
+    GLuint Vbo, Ebo, Pbo;
+    GLuint Tex;
+    /*! \} */
+
+  protected:
     glm::mat3x3 transform_matrix_;
     glm::mat3x3 transform_inverse_matrix_;
+
+    glm::vec4 translate_;
+    float scale_;
+    const KindOfView kind_of_view;
 };
 } // namespace holovibes::gui

@@ -35,8 +35,8 @@ void request_exec_contrast_all_windows()
 
 void request_exec_contrast_current_window()
 {
-    if (api::is_current_window_xyz_type())
-        api::get_compute_pipe().get_rendering().request_view_exec_contrast(api::get_current_window_kind());
+    if (api::is_current_view_xyz_type())
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(api::get_current_view_kind());
 }
 
 static float get_truncate_contrast_min(const int precision = 2)

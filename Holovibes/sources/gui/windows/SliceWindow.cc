@@ -193,6 +193,6 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 void SliceWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::set_current_window_kind((kView == KindOfView::SliceXZ) ? WindowKind::ViewXZ : WindowKind::ViewYZ);
+    api::set_current_view_kind((kind_of_view == KindOfView::SliceXZ) ? WindowKind::ViewXZ : WindowKind::ViewYZ);
 }
 } // namespace holovibes::gui
