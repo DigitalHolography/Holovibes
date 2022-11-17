@@ -145,13 +145,13 @@ class HoloFile:
 
         if 'values_changed' in ddiff:
             if "root['compute settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
-                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+                diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
                 if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
-                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['max']"]
+                    del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
             if "root['compute settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
-                diff = ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+                diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
                 if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
-                    del ddiff["values_changed"]["root['compute settings']['view']['window']['xy']['contrast']['min']"]
+                    del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
 
             if not ddiff['values_changed']:
                 del ddiff['values_changed']

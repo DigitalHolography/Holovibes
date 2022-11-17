@@ -36,7 +36,7 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
     try
     {
         auto j_fi =
-            json{{"pixel_size", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
+            json{{"pixel_pitch", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
                  {"input_fps", input_fps},
                  {"contiguous", contiguous}};
         raw_footer_.Update();
