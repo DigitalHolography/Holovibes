@@ -149,15 +149,15 @@ class MicroCache
             if (param_to_change.value_has_changed(ref) == false)
                 return;
 
+            IParameter* Iparam_to_change = static_cast<IParameter*>(&param_to_change);
+            IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
+
 #ifndef DISABLE_LOG_TRIGGER_MICROCACHE
             LOG_TRACE(main,
                       "MicroCache : TRIGGER {} = {}",
                       ref->get_key(),
-                      this->BasicMicroCache::template get_type<T>().get_value());
+                      duplicate_container_.template get<DuplicatedParameter<T>>().get_value());
 #endif
-
-            IParameter* Iparam_to_change = static_cast<IParameter*>(&param_to_change);
-            IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
 
             std::lock_guard<std::mutex> guard(lock_);
             change_pool_[Iparam_to_change] = std::pair{ref, Iold_value};
