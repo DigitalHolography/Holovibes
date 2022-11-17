@@ -15,8 +15,8 @@ from typing import List, Tuple
 holo_header_version = 5
 holo_header_size = 64
 holo_header_padding_size = 35
-patch_file = 'C:\\Users\\Petrozavodsk\\Desktop\\Stagiaires-2022\\julien.nicolle\\serialized_crash\\resources\\json_patches_holofile\\patch_v4_to_v5.json'
-patch_json_file = "C:\\Users\\Petrozavodsk\\Desktop\\Stagiaires-2022\\julien.nicolle\\serialized_crash\\resources\\json_patches_holofile\\patch_update_json_tests.json"
+patch_file = 'C:\\Users\\Petrozavodsk\\Desktop\\Stagiaires-2022\\julien.nicolle\\serialized_crash\\Holovibes\\json_patches_holofile\\patch_v4_to_v5.json'
+patch_json_file = "C:\\Users\\Petrozavodsk\\Desktop\\Stagiaires-2022\\julien.nicolle\\serialized_crash\\Holovibes\\json_patches_holofile\\patch_update_json_tests.json"
 
 struct_format = (
     '='
