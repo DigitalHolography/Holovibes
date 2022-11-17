@@ -5,8 +5,11 @@
 namespace holovibes::api
 {
 
-inline RecordMode get_record_mode() { return api::detail::get_value<FrameRecordMode>().get_record_mode(); }
-inline void set_record_mode(RecordMode mode) { api::detail::change_value<FrameRecordMode>()->set_record_mode(mode); }
+inline const FrameRecordStruct& get_frame_record_mode() { return api::detail::get_value<FrameRecordMode>(); }
+inline TriggerChangeValue<FrameRecordStruct> change_frame_record_mode()
+{
+    return api::detail::change_value<FrameRecordMode>();
+}
 
 inline const ChartRecordStruct& get_chart_record() { return api::detail::get_value<ChartRecord>(); }
 inline TriggerChangeValue<ChartRecordStruct> change_chart_record() { return api::detail::change_value<ChartRecord>(); }

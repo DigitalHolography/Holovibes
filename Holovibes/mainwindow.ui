@@ -4599,7 +4599,7 @@ p, li { white-space: pre-wrap; }
    <sender>RecordImageModeComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>ExportPanel</receiver>
-   <slot>set_record_mode(QString)</slot>
+   <slot>set_frame_record_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>793</x>
@@ -5294,7 +5294,7 @@ p, li { white-space: pre-wrap; }
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
-  <slot>set_record_mode(QString)</slot>
+  <slot>set_frame_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>

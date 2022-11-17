@@ -28,15 +28,11 @@ struct ChartRecordStruct
 struct FrameRecordStruct
 {
   public:
-    RecordMode record_mode_ = RecordMode::NONE;
+    RecordMode record_mode = RecordMode::NONE;
+    bool enabled = false;
 
   public:
-    void disable() { record_mode_ = RecordMode::NONE; }
-    bool is_enable() const { return record_mode_ != RecordMode::NONE; }
-    RecordMode get_record_mode() const { return record_mode_; }
-    void set_record_mode(RecordMode value) { record_mode_ = value; }
-
-    bool operator!=(const FrameRecordStruct& rhs) { return record_mode_ != rhs.record_mode_; }
+    bool operator!=(const FrameRecordStruct& rhs) { return record_mode != rhs.record_mode || enabled != rhs.enabled; }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
@@ -46,7 +42,7 @@ inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value
 
 inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
 {
-    return os << value.get_record_mode();
+    return os << value.record_mode << ", enabled : " << value.enabled;
 }
 
 } // namespace holovibes

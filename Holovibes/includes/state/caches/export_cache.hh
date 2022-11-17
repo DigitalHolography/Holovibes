@@ -14,7 +14,7 @@ namespace holovibes
 // clang-format off
 
 //! \brief Is holovibes currently recording
-class FrameRecordMode : public Parameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_enabled">{};
+class FrameRecordMode : public Parameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record_mode">{};
 //! \brief Enables the signal and noise chart record
 class ChartRecord : public Parameter<ChartRecordStruct, DefaultLiteral<ChartRecordStruct>{}, "chart_record">{};
 

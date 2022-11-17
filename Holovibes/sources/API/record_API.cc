@@ -13,7 +13,8 @@ bool start_record_preconditions(const bool batch_enabled,
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || api::get_record_mode() == RecordMode::CHART) && nb_frames_to_record == std::nullopt)
+    if ((batch_enabled || api::get_frame_record_mode().record_mode == RecordMode::CHART) &&
+        nb_frames_to_record == std::nullopt)
     {
         LOG_ERROR(main, "Number of frames must be activated");
         return false;
@@ -39,12 +40,12 @@ void start_record(const bool batch_enabled,
         Holovibes::instance().start_batch_gpib(batch_input_path,
                                                output_path,
                                                nb_frames_to_record.value(),
-                                               api::get_record_mode(),
+                                               api::get_frame_record_mode().record_mode,
                                                callback);
     }
     else
     {
-        if (api::get_record_mode() == RecordMode::CHART)
+        if (api::get_frame_record_mode().record_mode == RecordMode::CHART)
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
@@ -52,7 +53,7 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_frame_record(output_path,
                                                      nb_frames_to_record,
-                                                     api::get_record_mode(),
+                                                     api::get_frame_record_mode().record_mode,
                                                      0,
                                                      callback);
         }
@@ -65,11 +66,13 @@ void stop_record()
 
     Holovibes::instance().stop_batch_gpib();
 
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (api::get_frame_record_mode().record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
 
-    else if (api::get_record_mode() == RecordMode::HOLOGRAM || api::get_record_mode() == RecordMode::RAW ||
-             api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
+    else if (api::get_frame_record_mode().record_mode == RecordMode::HOLOGRAM ||
+             api::get_frame_record_mode().record_mode == RecordMode::RAW ||
+             api::get_frame_record_mode().record_mode == RecordMode::CUTS_XZ ||
+             api::get_frame_record_mode().record_mode == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 }
 
