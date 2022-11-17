@@ -10,7 +10,7 @@ from build import build_utils
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "11.1.0"
+    version = "11.1.1"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
