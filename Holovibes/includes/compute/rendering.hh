@@ -92,7 +92,6 @@ class Rendering
     void insert_filter2d_view_log();
 
     /*! \brief insert the automatic request of contrast */
-    void insert_auto_request_contrast();
     void insert_request_exec_contrast();
 
     /*! \brief insert the constrast on a view */

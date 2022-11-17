@@ -51,7 +51,7 @@ void set_current_window_contrast_min(const float value)
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
     if (old_val != value)
-        api::change_current_window()->contrast.min = get_current_window().log_enabled ? value : pow(10, value);
+        api::change_current_view()->contrast.min = get_current_view().log_enabled ? value : pow(10, value);
 }
 
 static float get_truncate_contrast_max(const int precision = 2)
@@ -66,7 +66,7 @@ void set_current_window_contrast_max(const float value)
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
     if (old_val != value)
-        api::change_current_window()->contrast.max = get_current_window().log_enabled ? value : pow(10, value);
+        api::change_current_view()->contrast.max = get_current_view().log_enabled ? value : pow(10, value);
 }
 
 } // namespace holovibes::api

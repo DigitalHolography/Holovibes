@@ -53,7 +53,7 @@ bool set_holographic_mode(ushort window_size)
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
-        api::change_current_window()->contrast.enabled = true;
+        api::change_current_view()->contrast.enabled = true;
 
         return true;
     }
@@ -99,6 +99,6 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_log_scale(const bool value) { api::change_current_window()->log_enabled = value; }
+void set_log_scale(const bool value) { api::change_current_view()->log_enabled = value; }
 
 } // namespace holovibes::api

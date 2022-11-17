@@ -14,22 +14,22 @@ inline bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_kind());
 }
 
-const ViewWindow& get_window(WindowKind kind);
-inline const ViewWindow& get_current_window() { return get_window(get_current_window_kind()); }
-inline const ViewXYZ& get_current_window_as_view_xyz()
+const ViewWindow& get_view(WindowKind kind);
+inline const ViewWindow& get_current_view() { return get_view(get_current_window_kind()); }
+inline const ViewXYZ& get_current_view_as_view_xyz()
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    return reinterpret_cast<const ViewXYZ&>(api::get_current_window());
+    return reinterpret_cast<const ViewXYZ&>(api::get_current_view());
 }
 
-TriggerChangeValue<ViewWindow> change_window(WindowKind kind);
-inline TriggerChangeValue<ViewWindow> change_current_window() { return change_window(get_current_window_kind()); }
-inline TriggerChangeValue<ViewXYZ> change_current_window_as_view_xyz()
+TriggerChangeValue<ViewWindow> change_view(WindowKind kind);
+inline TriggerChangeValue<ViewWindow> change_current_view() { return change_view(get_current_window_kind()); }
+inline TriggerChangeValue<ViewXYZ> change_current_view_as_view_xyz()
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    return TriggerChangeValue<ViewXYZ>(api::change_current_window());
+    return TriggerChangeValue<ViewXYZ>(api::change_current_view());
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();

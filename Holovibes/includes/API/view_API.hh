@@ -52,8 +52,7 @@ inline bool get_renorm_enabled() { return GSH::instance().get_value<RenormEnable
 inline void set_renorm_enabled(bool value) { GSH::instance().set_value<RenormEnabled>(value); }
 
 void create_holo_window(ushort window_size);
-// TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
-// dictionary
+
 void refresh_view_mode(ushort window_size, uint index);
 
 } // namespace holovibes::api

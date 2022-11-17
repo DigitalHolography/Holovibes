@@ -53,8 +53,8 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_display_rate(ui.DisplayRateSpinBox->value());
     api::change_filter2d_smooth()->low = ui.Filter2DLowSpinBox->value();
     api::change_filter2d_smooth()->high = ui.Filter2DHighSpinBox->value();
-    api::change_current_window_as_view_xyz()->contrast.min = ui.ContrastLowerSpinBox->value();
-    api::change_current_window_as_view_xyz()->contrast.max = ui.ContrastUpperSpinBox->value();
+    api::change_current_view_as_view_xyz()->contrast.min = ui.ContrastLowerSpinBox->value();
+    api::change_current_view_as_view_xyz()->contrast.max = ui.ContrastUpperSpinBox->value();
     api::set_renorm_constant(ui.RenormConstantSpinBox->value());
     api::change_contrast_threshold()->cuts_p_offset = ui.CutsContrastSpinBox->value();
 

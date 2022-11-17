@@ -3,7 +3,7 @@
 namespace holovibes::api
 {
 
-const ViewWindow& get_window(WindowKind kind)
+const ViewWindow& get_view(WindowKind kind)
 {
     if (kind == WindowKind::ViewXY)
         return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewXY>());
@@ -19,7 +19,7 @@ const ViewWindow& get_window(WindowKind kind)
     return static_cast<const ViewWindow&>(GSH::instance().get_view_cache().get_value<ViewXY>());
 }
 
-TriggerChangeValue<ViewWindow> change_window(WindowKind kind)
+TriggerChangeValue<ViewWindow> change_view(WindowKind kind)
 {
     if (kind == WindowKind::ViewXY)
         return static_cast<TriggerChangeValue<ViewWindow>>(GSH::instance().get_view_cache().change_value<ViewXY>());
