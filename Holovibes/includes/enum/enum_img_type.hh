@@ -25,9 +25,9 @@ enum class ImgType
 // clang-format off
 SERIALIZE_JSON_ENUM(ImgType, {
     {ImgType::Modulus, "MODULUS"},
-    {ImgType::SquaredModulus, "SQUAREDMODULUS"},
+    {ImgType::SquaredModulus, "SQUARED_MODULUS"},
     {ImgType::Argument, "ARGUMENT"},
-    {ImgType::PhaseIncrease, "PHASEINCREASE"},
+    {ImgType::PhaseIncrease, "PHASE_INCREASE"},
     {ImgType::Composite, "COMPOSITE"},
 })
 // clang-format on
