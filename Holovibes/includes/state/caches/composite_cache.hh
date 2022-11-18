@@ -22,18 +22,6 @@ class CompositeHSV : public Parameter<CompositeHSVStruct, CompositeHSVStruct{}, 
 
 // clang-format on
 
-using BasicCompositeCache = MicroCache<CompositeKind, CompositeAutoWeights, CompositeRGB, CompositeHSV>;
-
-// clang-format off
-
-class CompositeCache : public BasicCompositeCache
-{
-  public:
-    using Base = BasicCompositeCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using CompositeCache = MicroCache<CompositeKind, CompositeAutoWeights, CompositeRGB, CompositeHSV>;
 
 } // namespace holovibes

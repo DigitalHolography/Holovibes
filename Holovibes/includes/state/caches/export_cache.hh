@@ -20,18 +20,6 @@ class ChartRecord : public Parameter<ChartRecordStruct, DefaultLiteral<ChartReco
 
 // clang-format on
 
-using BasicExportCache = MicroCache<FrameRecordMode, ChartRecord>;
-
-// clang-format off
-
-class ExportCache : public BasicExportCache
-{
-  public:
-    using Base = BasicExportCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ExportCache = MicroCache<FrameRecordMode, ChartRecord>;
 
 } // namespace holovibes

@@ -30,8 +30,6 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     void operator()<TimeTransformationSize>(uint new_value, Pipe& pipe);
 
     template <>
-    void on_sync<Convolution>(const ConvolutionStruct& new_value, const ConvolutionStruct& old_value, Pipe& pipe);
-    template <>
     void operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe);
 
     template <>

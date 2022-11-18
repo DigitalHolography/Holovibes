@@ -32,7 +32,7 @@ inline void set_lambda(float value) { api::detail::set_value<Lambda>(value); }
 inline float get_z_distance() { return api::detail::get_value<ZDistance>(); }
 inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(value); }
 
-inline ConvolutionStruct get_convolution() { return api::detail::get_value<Convolution>(); }
+inline const ConvolutionStruct& get_convolution() { return api::detail::get_value<Convolution>(); }
 inline TriggerChangeValue<ConvolutionStruct> change_convolution() { return api::detail::change_value<Convolution>(); }
 
 inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }

@@ -122,14 +122,14 @@ class MicroCache
         StaticContainer<Params...> container_;
     };
 
-  public:
-    class Ref;
+  protected:
+    class BasicRef;
 
   public:
     class Cache : public BasicMicroCache
     {
       public:
-        friend Ref;
+        friend class BasicRef;
 
       public:
         Cache();
@@ -230,19 +230,48 @@ class MicroCache
     };
 
   public:
-    class Ref : public BasicMicroCache
+    class RefSingleton
+    {
+      public:
+        friend BasicRef;
+
+      public:
+        static BasicRef& get()
+        {
+            if (instance == nullptr)
+                throw std::runtime_error("No Ref has been set for this cache");
+            return *instance;
+        }
+
+      protected:
+        static void set_main_ref(BasicRef& ref) { instance = &ref; }
+        static void remove_main_ref(BasicRef& ref)
+        {
+            if (instance == &ref)
+                instance = nullptr;
+        }
+
+      private:
+        static inline BasicRef* instance;
+    };
+
+  protected:
+    class BasicRef : public BasicMicroCache
     {
       public:
         friend Cache;
 
       public:
-        Ref()
+        BasicRef()
             : BasicMicroCache()
             , caches_to_sync_{}
         {
+            RefSingleton::set_main_ref(*this);
         }
 
-      private:
+        ~BasicRef() { RefSingleton::remove_main_ref(*this); }
+
+      protected:
         template <typename T>
         void trigger_param()
         {
@@ -256,27 +285,6 @@ class MicroCache
 
             for (auto cache : caches_to_sync_)
                 cache->template trigger_param<T>(ref);
-        }
-
-      public:
-        template <typename T>
-        void set_value(typename T::ConstRefType value)
-        {
-            this->BasicMicroCache::template get_type<T>().set_value(value);
-            trigger_param<T>();
-        }
-
-        template <typename T>
-        void callback_trigger_change_value()
-        {
-            trigger_param<T>();
-        }
-
-        template <typename T>
-        TriggerChangeValue<typename T::ValueType> change_value()
-        {
-            return TriggerChangeValue<typename T::ValueType>([this]() { this->callback_trigger_change_value<T>(); },
-                                                             &BasicMicroCache::template get_type<T>().get_value());
         }
 
       public:
@@ -313,26 +321,47 @@ class MicroCache
         std::set<Cache*> caches_to_sync_;
     };
 
-    class RefSingleton
+  public:
+    template <typename FunctionOnChange>
+    class Ref : public BasicRef
     {
       public:
-        static Ref& get()
+        friend Cache;
+
+      public:
+        template <typename T>
+        static constexpr bool has()
         {
-            if (instance == nullptr)
-                throw std::runtime_error("No Ref has been set for this cache");
-            return *instance;
+            return BasicMicroCache::template has<T>();
         }
 
       public:
-        static void set_main_ref(Ref& ref) { instance = &ref; }
-        static void remove_main_ref(Ref& ref)
+        Ref() {}
+        ~Ref() {}
+
+      public:
+        template <typename T>
+        void callback_trigger_change_value()
         {
-            if (instance == &ref)
-                instance = nullptr;
+            FunctionOnChange functions;
+            functions.template operator()<T>();
+
+            this->BasicRef::template trigger_param<T>();
         }
 
-      private:
-        static inline Ref* instance;
+        template <typename T>
+        void set_value(typename T::ConstRefType value)
+        {
+            this->BasicMicroCache::template get_type<T>().set_value(value);
+            callback_trigger_change_value<T>();
+        }
+
+        template <typename T>
+        TriggerChangeValue<typename T::ValueType> change_value()
+        {
+            return TriggerChangeValue<typename T::ValueType>([this]() { this->callback_trigger_change_value<T>(); },
+                                                             &BasicMicroCache::template get_type<T>().get_value());
+        }
     };
 
   public:

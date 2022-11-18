@@ -50,6 +50,7 @@ void Postprocessing::init()
     cuComplex_buffer_.resize(frame_res);
 
     gpu_kernel_buffer_.resize(frame_res);
+    
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),

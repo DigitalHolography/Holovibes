@@ -24,18 +24,6 @@ class CurrentCameraKind : public Parameter<CameraKind, CameraKind::None, "curren
 
 // clang-format on
 
-using BasicImportCache = MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>;
-
-// clang-format off
-
-class ImportCache : public BasicImportCache
-{
-  public:
-    using Base = BasicImportCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ImportCache = MicroCache<StartFrame, EndFrame, ImportType, LastImageType, CurrentCameraKind>;
 
 } // namespace holovibes

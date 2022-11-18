@@ -151,13 +151,6 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
         return 1;
     }
 
-    if (holovibes::GSH::instance().get_value<holovibes::Convolution>().enabled)
-        holovibes::api::enable_convolution(holovibes::api::detail::get_value<holovibes::Convolution>().type);
-
-    // WHY Trigger ?
-    holovibes::api::detail::change_value<holovibes::TimeStride>().trigger();
-    holovibes::api::detail::change_value<holovibes::TimeTransformationSize>().trigger();
-
     delete input_frame_file;
 
     return 0;

@@ -44,35 +44,23 @@ class Reticle : public Parameter<ReticleStruct, DefaultLiteral<ReticleStruct>{},
 
 // clang-format on
 
-using BasicViewCache = MicroCache<ImageType,
-                                  ViewAccuX,
-                                  ViewAccuY,
-                                  ViewAccuP,
-                                  ViewAccuQ,
-                                  ViewXY,
-                                  ViewXZ,
-                                  ViewYZ,
-                                  ViewFilter2D,
-                                  CurrentWindowKind,
-                                  LensViewEnabled,
-                                  ChartDisplayEnabled,
-                                  Filter2DViewEnabled,
-                                  FftShiftEnabled,
-                                  RawViewEnabled,
-                                  CutsViewEnabled,
-                                  RenormEnabled,
-                                  Reticle>;
-
-// clang-format off
-
-class ViewCache : public BasicViewCache
-{
-  public:
-    using Base = BasicViewCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ViewCache = MicroCache<ImageType,
+                             ViewAccuX,
+                             ViewAccuY,
+                             ViewAccuP,
+                             ViewAccuQ,
+                             ViewXY,
+                             ViewXZ,
+                             ViewYZ,
+                             ViewFilter2D,
+                             CurrentWindowKind,
+                             LensViewEnabled,
+                             ChartDisplayEnabled,
+                             Filter2DViewEnabled,
+                             FftShiftEnabled,
+                             RawViewEnabled,
+                             CutsViewEnabled,
+                             RenormEnabled,
+                             Reticle>;
 
 } // namespace holovibes

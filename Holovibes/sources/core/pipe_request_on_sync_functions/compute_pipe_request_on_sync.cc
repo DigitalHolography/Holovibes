@@ -38,17 +38,6 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 }
 
 template <>
-void ComputePipeRequestOnSync::on_sync<Convolution>(const ConvolutionStruct& new_value,
-                                                    const ConvolutionStruct& old_value,
-                                                    Pipe& pipe)
-{
-    if (new_value.enabled != old_value.enabled)
-    {
-        operator()<Convolution>(new_value, pipe);
-    }
-}
-
-template <>
 void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe)
 {
     LOG_UPDATE_PIPE(Convolution);
@@ -57,10 +46,6 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
         pipe.get_postprocess().dispose();
     else if (new_value.enabled == true)
         pipe.get_postprocess().init();
-
-    pipe.get_view_cache().virtual_synchronize_W<ViewXY, ViewPipeRequestOnSync>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
 
     request_pipe_refresh();
 }

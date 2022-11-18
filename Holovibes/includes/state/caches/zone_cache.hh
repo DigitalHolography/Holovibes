@@ -30,17 +30,6 @@ class ReticleZone : public RectFdParameter<"reticle_zone">{};
 
 // clang-format on
 
-using BasicZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
-
-// clang-format off
-class ZoneCache : public BasicZoneCache
-{
-  public:
-    using Base = BasicZoneCache;
-    class Cache : public Base::Cache{};
-    class Ref : public Base::Ref{};
-};
-
-// clang-format on
+using ZoneCache = MicroCache<SignalZone, NoiseZone, CompositeZone, ZoomedZone, ReticleZone>;
 
 } // namespace holovibes

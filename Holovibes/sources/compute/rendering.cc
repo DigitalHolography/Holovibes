@@ -372,8 +372,6 @@ void Rendering::autocontrast_caller(
             zone_cache_.get_value<ReticleZone>(),
             (view == WindowKind::ViewFilter2D) ? false : view_cache_.get_value<Reticle>().display_enabled,
             stream_);
-        api::change_view(view)->contrast.min = percent_min_max_[0];
-        api::change_view(view)->contrast.max = percent_min_max_[1];
         break;
     case WindowKind::ViewYZ: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -386,9 +384,24 @@ void Rendering::autocontrast_caller(
                                    zone_cache_.get_value<ReticleZone>(),
                                    view_cache_.get_value<Reticle>().display_enabled,
                                    stream_);
-        api::change_view(view)->contrast.min = percent_min_max_[0];
-        api::change_view(view)->contrast.max = percent_min_max_[1];
         break;
+    }
+
+    // FIXME API : deso but view are too weirdy coded
+    switch (view)
+    {
+    case WindowKind::ViewXY:
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().contrast.min = percent_min_max_[0];
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().contrast.max = percent_min_max_[1];
+    case WindowKind::ViewXZ:
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().contrast.min = percent_min_max_[0];
+        GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().contrast.max = percent_min_max_[1];
+    case WindowKind::ViewYZ:
+        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().contrast.min = percent_min_max_[0];
+        GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().contrast.max = percent_min_max_[1];
+    case WindowKind::ViewFilter2D:
+        GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().contrast.min = percent_min_max_[0];
+        GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().contrast.max = percent_min_max_[1];
     }
 }
 } // namespace holovibes::compute

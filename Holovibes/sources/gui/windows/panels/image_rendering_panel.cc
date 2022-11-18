@@ -86,7 +86,7 @@ void ImageRenderingPanel::on_notify()
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution().enabled);
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().enabled);
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().divide);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
         ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
 }
@@ -344,9 +344,9 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
         return;
 
     if (value)
-        api::enable_convolution(api::get_convolution().type);
+        api::enable_convolution();
     else
-        api::disable_convolution();
+        api::change_convolution()->enabled = false;
 
     parent_->notify();
 }
@@ -359,8 +359,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
     if (!api::get_convolution().enabled)
         return;
 
-    api::get_convolution().type = value.toStdString();
-    api::enable_convolution(api::get_convolution().type);
+    api::change_convolution()->type = value.toStdString();
 
     parent_->notify();
 }
@@ -370,7 +369,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    api::change_convolution()->enabled = value;
+    api::change_convolution()->divide = value;
 
     parent_->notify();
 }
