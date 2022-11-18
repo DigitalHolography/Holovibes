@@ -432,7 +432,7 @@
            <item row="5" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="text">
-              <string>z (m)</string>
+              <string>propag. dist. (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -698,7 +698,7 @@
                  <enum>Qt::LeftToRight</enum>
                 </property>
                 <property name="text">
-                 <string>Flip</string>
+                 <string>h. flip 0</string>
                 </property>
                </widget>
               </item>
@@ -723,7 +723,7 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Rotate</string>
+                 <string>Rotate   0</string>
                 </property>
                </widget>
               </item>
@@ -750,7 +750,7 @@
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
                 <property name="text">
-                 <string>Img. Acc.</string>
+                 <string>Output Image Acc.</string>
                 </property>
                </widget>
               </item>
@@ -996,7 +996,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="PLabel">
              <property name="text">
-              <string>p</string>
+              <string>z</string>
              </property>
             </widget>
            </item>
@@ -1045,7 +1045,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="Q_Label">
              <property name="text">
-              <string>q</string>
+              <string>z2</string>
              </property>
             </widget>
            </item>
@@ -1103,7 +1103,7 @@
            <item row="3" column="2">
             <widget class="QLabel" name="QaccLabel">
              <property name="text">
-              <string>Acc.</string>
+              <string>Width</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1113,7 +1113,7 @@
            <item row="2" column="2">
             <widget class="QLabel" name="PaccLabel">
              <property name="text">
-              <string>Acc.</string>
+              <string>Width</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1123,7 +1123,7 @@
            <item row="1" column="2">
             <widget class="QLabel" name="YAccLabel">
              <property name="text">
-              <string>Acc.</string>
+              <string>Width</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1133,7 +1133,7 @@
            <item row="0" column="2">
             <widget class="QLabel" name="XAccLabel">
              <property name="text">
-              <string>Acc.</string>
+              <string>Width</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1156,7 +1156,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Img. Type:</string>
+              <string>Image Type:</string>
              </property>
             </widget>
            </item>

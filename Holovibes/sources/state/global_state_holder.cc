@@ -367,6 +367,15 @@ struct JsonSettings
         }
 
         convert_default(data, json_patch);
+
+        if (data["compute_setting"]["view"]["image_type"] == "PHASEINCREASE")
+        {
+            data["compute_setting"]["view"]["image_type"] = "PHASE_INCREASE";
+        }
+        else if (data["compute_setting"]["view"]["image_type"] == "SQUAREDMODULUS")
+        {
+            data["compute_setting"]["view"]["image_type"] = "SQUARED_MODULUS";
+        }
     }
 
     /*! \class ComputeSettingsConverter
