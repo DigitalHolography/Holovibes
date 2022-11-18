@@ -469,7 +469,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().record_mode == RecordMode::RAW)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -484,7 +484,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().record_mode == RecordMode::HOLOGRAM)
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -503,20 +503,16 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().enabled)
+
+    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_XZ)
     {
-        if (GSH::instance().get_value<FrameRecordMode>().record_mode == RecordMode::CUTS_XZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
-        }
-        else if (GSH::instance().get_value<FrameRecordMode>().record_mode == RecordMode::CUTS_YZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
-        }
+        fn_compute_vect_.push_back(
+            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
+    }
+    else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_YZ)
+    {
+        fn_compute_vect_.push_back(
+            [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
     }
 }
 

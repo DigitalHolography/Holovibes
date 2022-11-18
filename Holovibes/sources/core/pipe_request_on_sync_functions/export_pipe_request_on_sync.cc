@@ -8,7 +8,7 @@ void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruc
 {
     LOG_UPDATE_PIPE(FrameRecordMode);
 
-    if (new_value.record_mode == RecordMode::NONE)
+    if (new_value.enabled == false || new_value.record_mode == RecordMode::NONE)
     {
         pipe.get_frame_record_env().gpu_frame_record_queue_.reset(nullptr);
     }
@@ -39,6 +39,8 @@ void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruc
         pipe.get_frame_record_env().gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, GSH::instance().get_value<RecordBufferSize>(), QueueType::RECORD_QUEUE));
     }
+
+    request_pipe_refresh();
 }
 
 template <>

@@ -185,7 +185,9 @@ Queue& FrameRecordWorker::init_gpu_record_queue()
         while (api::get_compute_pipe().get_export_cache().has_change_requested() && !stop_requested_)
             continue;
     }
-    // FIXME : NONE -> api::detail::change_value<FrameRecordMode>()->enabled = false;
+    if (record_mode_ == RecordMode::NONE)
+        api::change_frame_record_mode()->enabled = false;
+
     return *api::get_compute_pipe().get_frame_record_queue_ptr();
 }
 
@@ -201,7 +203,6 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 void FrameRecordWorker::reset_gpu_record_queue()
 {
     api::detail::change_value<FrameRecordMode>()->enabled = false;
-    api::detail::change_value<FrameRecordMode>()->record_mode = RecordMode::NONE;
 
     std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue_ptr();
     if (raw_view_queue)

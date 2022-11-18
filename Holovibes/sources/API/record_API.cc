@@ -3,6 +3,7 @@
 namespace holovibes::api
 {
 
+// FIXME : record seems to be weirdly coded
 bool start_record_preconditions(const bool batch_enabled,
                                 const bool nb_frame_checked,
                                 std::optional<unsigned int> nb_frames_to_record,

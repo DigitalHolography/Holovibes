@@ -32,7 +32,6 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_FUNC(main, input_fps, contiguous);
-    LOG_DEBUG(main, "raw bitshift : {}", api::get_raw_bitshift());
 
     try
     {

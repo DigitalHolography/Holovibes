@@ -32,6 +32,14 @@ struct FrameRecordStruct
     bool enabled = false;
 
   public:
+    RecordMode get_record_mode_if_enable() const
+    {
+        if (enabled)
+            return record_mode;
+        return RecordMode::NONE;
+    }
+
+  public:
     bool operator!=(const FrameRecordStruct& rhs) { return record_mode != rhs.record_mode || enabled != rhs.enabled; }
 };
 
