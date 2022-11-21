@@ -1,5 +1,10 @@
 ## Changelog
 
+### 11.1.2
+
+* Add compatibility with footer version 5
+* Edit some names in the gui
+
 ### 11.1.1
 
 * Fix Xiq camera
