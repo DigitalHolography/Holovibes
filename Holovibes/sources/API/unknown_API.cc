@@ -67,7 +67,8 @@ bool set_holographic_mode(ushort window_size)
 
 void close_critical_compute()
 {
-    api::disable_convolution();
+        api::change_convolution()->enabled = false;
+
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});

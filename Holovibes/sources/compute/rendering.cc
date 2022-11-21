@@ -215,21 +215,21 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 if (api::get_view_xz().contrast.enabled == false)
                     return;
 
-                input = buffers_.gpu_postprocess_frame_yz.get();
-                size = fd_.height * compute_cache_.get_value<TimeTransformationSize>();
-                wind = view_cache_.get_value<ViewYZ>();
+                input = buffers_.gpu_postprocess_frame_xz.get();
+                size = fd_.width * compute_cache_.get_value<TimeTransformationSize>();
+                wind = view_cache_.get_value<ViewXZ>();
             }
 
             else if (view == WindowKind::ViewYZ)
             {
                 if (api::get_cuts_view_enabled() == false)
                     return;
-                if (api::get_view_xz().contrast.enabled == false)
+                if (api::get_view_yz().contrast.enabled == false)
                     return;
 
-                input = buffers_.gpu_postprocess_frame_xz.get();
-                size = fd_.width * compute_cache_.get_value<TimeTransformationSize>();
-                wind = view_cache_.get_value<ViewXZ>();
+                input = buffers_.gpu_postprocess_frame_yz.get();
+                size = fd_.height * compute_cache_.get_value<TimeTransformationSize>();
+                wind = view_cache_.get_value<ViewYZ>();
             }
 
             else if (view == WindowKind::ViewFilter2D)
@@ -280,6 +280,7 @@ void Rendering::insert_request_exec_contrast()
         if (api::get_cuts_view_enabled())
         {
             if (api::get_view_xz().contrast.enabled)
+            {
                 if (api::get_view_xz().contrast.auto_refresh || has_requested_view_exec_contrast(WindowKind::ViewXZ))
                 {
                     reset_view_exec_contrast(WindowKind::ViewXZ);
@@ -289,8 +290,10 @@ void Rendering::insert_request_exec_contrast()
                                         advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                         WindowKind::ViewXZ);
                 }
+            }
 
             if (api::get_view_yz().contrast.enabled)
+            {
                 if (api::get_view_yz().contrast.auto_refresh || has_requested_view_exec_contrast(WindowKind::ViewYZ))
                 {
                     reset_view_exec_contrast(WindowKind::ViewYZ);
@@ -300,9 +303,10 @@ void Rendering::insert_request_exec_contrast()
                                         advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
                                         WindowKind::ViewYZ);
                 }
+            }
         }
 
-        if (api::get_filter2d_view_enabled() || api::get_view_filter2d().contrast.enabled)
+        if (api::get_filter2d_view_enabled() && api::get_view_filter2d().contrast.enabled)
             if (api::get_view_filter2d().contrast.auto_refresh ||
                 has_requested_view_exec_contrast(WindowKind::ViewFilter2D))
             {

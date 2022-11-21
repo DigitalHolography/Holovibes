@@ -165,7 +165,16 @@ class MicroCache
         }
 
       public:
-        template <typename FunctionClass, typename... Args>
+        class DefaultFunctionsOnSync
+        {
+          public:
+            template <typename T>
+            void operator()()
+            {
+            }
+        };
+
+        template <typename FunctionClass = DefaultFunctionsOnSync, typename... Args>
         void synchronize(Args&&... args)
         {
             if (change_pool_.size() == 0)
@@ -322,7 +331,16 @@ class MicroCache
     };
 
   public:
-    template <typename FunctionOnChange>
+    class DefaultFunctionsOnChange
+    {
+      public:
+        template <typename T>
+        void operator()(typename T::ValueType&)
+        {
+        }
+    };
+
+    template <typename FunctionsOnChange = DefaultFunctionsOnChange>
     class Ref : public BasicRef
     {
       public:
@@ -343,8 +361,8 @@ class MicroCache
         template <typename T>
         void callback_trigger_change_value()
         {
-            FunctionOnChange functions;
-            functions.template operator()<T>();
+            FunctionsOnChange functions;
+            functions.template operator()<T>(this->BasicMicroCache::template get_type<T>().get_value());
 
             this->BasicRef::template trigger_param<T>();
         }

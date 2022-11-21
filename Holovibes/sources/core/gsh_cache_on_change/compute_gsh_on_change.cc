@@ -1,15 +1,27 @@
+#include "compute_gsh_on_change.hh"
 #include "API.hh"
 
-namespace holovibes::api
+namespace holovibes
 {
 
-static void load_convolution_matrix()
+static void load_convolution_matrix(ConvolutionStruct& convo);
+template <>
+void ComputeGSHOnChange::operator()<Convolution>(ConvolutionStruct& new_value)
+{
+    LOG_ON_CHANGE_GSH(Convolution);
+    if (api::get_compute_pipe_ptr() == nullptr)
+        return;
+
+    load_convolution_matrix(new_value);
+}
+
+static void load_convolution_matrix(ConvolutionStruct& convo)
 {
     if (api::get_convolution().type == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
 
     std::filesystem::path dir(get_exe_dir());
-    dir = dir / "convolution_kernels" / api::get_convolution().type;
+    dir = dir / "convolution_kernels" / convo.type;
     std::string path = dir.string();
 
     std::vector<float> matrix;
@@ -66,27 +78,17 @@ static void load_convolution_matrix()
     const uint first_row = (output_height / 2) - (matrix_height / 2);
     const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-    GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().matrix.resize(size, 0.0f);
+    convo.matrix.resize(size, 0.0f);
 
     uint kernel_indice = 0;
     for (uint i = first_row; i < last_row; i++)
     {
         for (uint j = first_col; j < last_col; j++)
         {
-            GSH::instance().get_compute_cache().get_value_ref_W<Convolution>().matrix[i * output_width + j] =
-                matrix[kernel_indice];
+            convo.matrix[i * output_width + j] = matrix[kernel_indice];
             kernel_indice++;
         }
     }
 }
 
-void enable_convolution()
-{
-    load_convolution_matrix();
-    api::change_convolution()->enabled = true;
-    api::change_convolution()->divide = false;
-}
-
-void disable_convolution() { api::change_convolution()->enabled = false; }
-
-} // namespace holovibes::api
+} // namespace holovibes

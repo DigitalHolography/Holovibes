@@ -23,7 +23,6 @@
 #include "camera_API.hh"
 #include "compute_settings_API.hh"
 #include "compute_settings_struct.hh"
-#include "convolution_API.hh"
 #include "unknown_API.hh"
 
 namespace holovibes::api

@@ -229,7 +229,7 @@ void MainWindow::notify_error(const std::exception& e)
                 // notify will be in close_critical_compute
                 api::change_view_accu_p()->index = 0;
                 api::set_time_transformation_size(1);
-                api::disable_convolution();
+                api::change_convolution()->enabled = false;
                 api::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR(main, "GPU computing error occured. : {}", e.what());

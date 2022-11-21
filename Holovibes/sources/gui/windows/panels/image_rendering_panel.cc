@@ -343,10 +343,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
-    if (value)
-        api::enable_convolution();
-    else
-        api::change_convolution()->enabled = false;
+    api::change_convolution()->enabled = value;
 
     parent_->notify();
 }

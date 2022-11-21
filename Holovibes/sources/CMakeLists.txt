@@ -13,7 +13,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/camera_API.cc
     API/compute_API.cc
     API/contrast_API.cc
-    API/convolution_API.cc
     API/cuts_API.cc
     API/display_API.cc
     API/import_API.cc
@@ -22,7 +21,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/unknown_API.cc
     API/view_API.cc
 
-
+    core/gsh_cache_on_change/compute_gsh_on_change.cc
     core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc

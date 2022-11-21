@@ -47,6 +47,9 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
     else if (new_value.enabled == true)
         pipe.get_postprocess().init();
 
+    pipe.get_view_cache().virtual_synchronize_W<ViewXY, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
     request_pipe_refresh();
 }
 

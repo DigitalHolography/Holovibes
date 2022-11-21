@@ -14,6 +14,7 @@
 #include "all_caches.hh"
 #include "cache_dispatcher.hh"
 #include "all_pipe_requests_on_sync_functions.hh"
+#include "compute_gsh_on_change.hh"
 
 namespace holovibes
 {
@@ -47,22 +48,21 @@ using entities::Span;
  */
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
 
-class DefaultFunctionsOnChange
-{
-  public:
-    template <typename T>
-    void operator()()
-    {
-    }
-};
+using GSHAdvancedCache = AdvancedCache::Ref<>;
+using GSHComputeCache = ComputeCache::Ref<ComputeGSHOnChange>;
+using GSHImportCache = ImportCache::Ref<>;
+using GSHExportCache = ExportCache::Ref<>;
+using GSHCompositeCache = CompositeCache::Ref<>;
+using GSHViewCache = ViewCache::Ref<>;
+using GSHZoneCache = ZoneCache::Ref<>;
 
-using GSHCacheDispatcher = CacheDispatcher<AdvancedCache::Ref<DefaultFunctionsOnChange>,
-                                           ComputeCache::Ref<DefaultFunctionsOnChange>,
-                                           ImportCache::Ref<DefaultFunctionsOnChange>,
-                                           ExportCache::Ref<DefaultFunctionsOnChange>,
-                                           CompositeCache::Ref<DefaultFunctionsOnChange>,
-                                           ViewCache::Ref<DefaultFunctionsOnChange>,
-                                           ZoneCache::Ref<DefaultFunctionsOnChange>>;
+using GSHCacheDispatcher = CacheDispatcher<GSHAdvancedCache,
+                                           GSHComputeCache,
+                                           GSHImportCache,
+                                           GSHExportCache,
+                                           GSHCompositeCache,
+                                           GSHViewCache,
+                                           GSHZoneCache>;
 
 class GSH
 {
@@ -128,13 +128,13 @@ class GSH
   private:
     std::function<void()> notify_callback_ = []() {};
 
-    AdvancedCache::Ref<DefaultFunctionsOnChange> advanced_cache_;
-    ComputeCache::Ref<DefaultFunctionsOnChange> compute_cache_;
-    ImportCache::Ref<DefaultFunctionsOnChange> import_cache_;
-    ExportCache::Ref<DefaultFunctionsOnChange> export_cache_;
-    CompositeCache::Ref<DefaultFunctionsOnChange> composite_cache_;
-    ViewCache::Ref<DefaultFunctionsOnChange> view_cache_;
-    ZoneCache::Ref<DefaultFunctionsOnChange> zone_cache_;
+    GSHAdvancedCache advanced_cache_;
+    GSHComputeCache compute_cache_;
+    GSHImportCache import_cache_;
+    GSHExportCache export_cache_;
+    GSHCompositeCache composite_cache_;
+    GSHViewCache view_cache_;
+    GSHZoneCache zone_cache_;
 
     GSHCacheDispatcher cache_dispatcher_;
 
