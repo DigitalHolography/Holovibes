@@ -17,7 +17,7 @@
 	{
 		"op": "move",
 		"from": "/advanced/contrast/cuts p offset",
-		"path": "/advanced/contrast/cuts_p_offset"
+		"path": "/advanced/contrast/frame_index_offset"
 	},
 	{
 		"op": "move",
@@ -26,28 +26,83 @@
 	},
 	{
 		"op": "move",
-		"from": "/composite/auto weight",
-		"path": "/composite/auto_weight"
+		"from": "/composite",
+		"path": "/color_composite_image"
+	},
+        {
+		"op": "move",
+		"from": "/color_composite_image/auto weight",
+		"path": "/color_composite_image/auto_weight"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/h/blur/kernel size",
-		"path": "/composite/hsv/h/blur/kernel_size"
+		"from": "/color_composite_image/hsv/h/blur/kernel size",
+		"path": "/color_composite_image/hsv/h/blur/kernel_size"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/h/slider threshold",
-		"path": "/composite/hsv/h/slider_threshold"
+		"from": "/color_composite_image/hsv/h/slider threshold",
+		"path": "/color_composite_image/hsv/h/slider_threshold"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/s/slider threshold",
-		"path": "/composite/hsv/s/slider_threshold"
+		"from": "/color_composite_image/hsv/s/slider threshold",
+		"path": "/color_composite_image/hsv/s/slider_threshold"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/v/slider threshold",
-		"path": "/composite/hsv/v/slider_threshold"
+		"from": "/color_composite_image/hsv/v/slider threshold",
+		"path": "/color_composite_image/hsv/v/slider_threshold"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/h/threshold/high",
+		"path": "/color_composite_image/hsv/h/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/h/threshold/low",
+		"path": "/color_composite_image/hsv/h/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/s/threshold/high",
+		"path": "/color_composite_image/hsv/s/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/s/threshold/low",
+		"path": "/color_composite_image/hsv/s/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/v/threshold/high",
+		"path": "/color_composite_image/hsv/v/threshold/max"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/v/threshold/low",
+		"path": "/color_composite_image/hsv/v/threshold/min"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/h/p",
+		"path": "/color_composite_image/hsv/h/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/s/p",
+		"path": "/color_composite_image/hsv/s/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/hsv/v/p",
+		"path": "/color_composite_image/hsv/v/frame_index"
+	},
+	{
+		"op": "move",
+		"from": "/color_composite_image/rgb/p",
+		"path": "/color_composite_image/rgb/frame_index"
 	},
 	{
 		"op": "move",
@@ -87,7 +142,17 @@
 	{
 		"op": "move",
 		"from": "/image_rendering/z distance",
-		"path": "/image_rendering/z_distance"
+		"path": "/image_rendering/propagation_distance"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/filter2d/n1",
+		"path": "/image_rendering/filter2d/inner_radius"
+	},
+	{
+		"op": "move",
+		"from": "/image_rendering/filter2d/n2",
+		"path": "/image_rendering/filter2d/outer_radius"
 	},
 	{
 		"op": "move",
@@ -96,13 +161,33 @@
 	},
 	{
 		"op": "move",
-		"from": "/view/p/accu level",
-		"path": "/view/p/accu_level"
+		"from": "/view/p",
+		"path": "/view/z"
 	},
 	{
 		"op": "move",
-		"from": "/view/q/accu level",
-		"path": "/view/q/accu_level"
+		"from": "/view/z/accu level",
+		"path": "/view/z/width"
+	},
+	{
+		"op": "move",
+		"from": "/view/z/index",
+		"path": "/view/z/start"
+	},
+	{
+		"op": "move",
+		"from": "/view/q",
+		"path": "/view/z2"
+	},
+	{
+		"op": "move",
+		"from": "/view/z2/accu level",
+		"path": "/view/z2/width"
+	},
+	{
+		"op": "move",
+		"from": "/view/z2/index",
+		"path": "/view/z2/start"
 	},
 	{
 		"op": "move",
@@ -137,12 +222,12 @@
 	{
 		"op": "move",
 		"from": "/view/window/xy/img accu level",
-		"path": "/view/window/xy/img_accu_level"
+		"path": "/view/window/xy/output_image_accumulation"
 	},
 	{
 		"op": "move",
 		"from": "/view/window/xz/img accu level",
-		"path": "/view/window/xz/img_accu_level"
+		"path": "/view/window/xz/output_image_accumulation"
 	},
 	{
 		"op": "move",
@@ -162,77 +247,62 @@
 	{
 		"op": "move",
 		"from": "/view/window/yz/img accu level",
-		"path": "/view/window/yz/img_accu_level"
+		"path": "/view/window/yz/output_image_accumulation"
 	},
 	{
 		"op": "move",
 		"from": "/view/x/accu level",
-		"path": "/view/x/accu_level"
+		"path": "/view/x/width"
 	},
 	{
 		"op": "move",
 		"from": "/view/y/accu level",
-		"path": "/view/y/accu_level"
+		"path": "/view/y/width"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/h/threshold/high",
-		"path": "/composite/hsv/h/threshold/max"
+		"from": "/view/x/cuts",
+		"path": "/view/x/start"
 	},
 	{
 		"op": "move",
-		"from": "/composite/hsv/h/threshold/low",
-		"path": "/composite/hsv/h/threshold/min"
-	},
-	{
-		"op": "move",
-		"from": "/composite/hsv/s/threshold/high",
-		"path": "/composite/hsv/s/threshold/max"
-	},
-	{
-		"op": "move",
-		"from": "/composite/hsv/s/threshold/low",
-		"path": "/composite/hsv/s/threshold/min"
-	},
-	{
-		"op": "move",
-		"from": "/composite/hsv/v/threshold/high",
-		"path": "/composite/hsv/v/threshold/max"
-	},
-	{
-		"op": "move",
-		"from": "/composite/hsv/v/threshold/low",
-		"path": "/composite/hsv/v/threshold/min"
+		"from": "/view/y/cuts",
+		"path": "/view/y/start"
 	},
 	{
 		"op": "move",
 		"from": "/view/type",
-		"path": "/view/img_type"
+		"path": "/view/image_type"
 	},
 	{
 		"op": "move",
 		"from": "/view/window/xy/flip",
-		"path": "/view/window/xy/flip_enabled"
+		"path": "/view/window/xy/horizontal_flip"
 	},
 	{
 		"op": "move",
 		"from": "/view/window/xz/flip",
-		"path": "/view/window/xz/flip_enabled"
+		"path": "/view/window/xz/horizontal_flip"
 	},
 	{
 		"op": "move",
 		"from": "/view/window/yz/flip",
-		"path": "/view/window/yz/flip_enabled"
+		"path": "/view/window/yz/horizontal_flip"
 	},
 	{
 		"op": "move",
-		"from": "/view/reticle/scale",
-		"path": "/view/reticle/reticle_scale"
+		"from": "/view/window/xy/rot",
+		"path": "/view/window/xy/rotation"
 	},
 	{
 		"op": "move",
-		"from": "/composite/auto_weight",
-		"path": "/composite/composite_auto_weights"
+		"from": "/view/window/xz/rot",
+		"path": "/view/window/xz/rotation"
+	},
+	{
+		"op": "move",
+		"from": "/view/window/yz/rot",
+		"path": "/view/window/yz/rotation"
 	},
 	{
 		"op": "add",

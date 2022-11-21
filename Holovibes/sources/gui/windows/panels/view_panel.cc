@@ -115,8 +115,21 @@ void ViewPanel::on_notify()
 
         ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
 
-        ui_->RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(api::get_rotation()))).c_str());
-        ui_->FlipPushButton->setText(("Flip " + std::to_string(api::get_flip_enabled())).c_str());
+        constexpr int max_digit_rotate = 3;
+        constexpr int max_digit_flip = 1;
+
+        std::string rotation_degree = std::to_string(static_cast<int>(api::get_rotation()));
+        rotation_degree.insert(0, max_digit_rotate - rotation_degree.size(), ' ');
+
+        auto current_rotation = ui_->RotatePushButton->text();
+        current_rotation.replace(current_rotation.size() - 3, max_digit_rotate, rotation_degree.c_str());
+
+        auto current_flip = ui_->FlipPushButton->text();
+        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_flip_enabled()).c_str());
+
+        ui_->RotatePushButton->setText(current_rotation);
+        ui_->FlipPushButton->setText(current_flip); //(current_rotation.toStdString() +
+                                                    // std::to_string(api::get_flip_enabled())).c_str());
     }
 
     // Deactivate previous maximum (chetor)

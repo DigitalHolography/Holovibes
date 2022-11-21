@@ -230,12 +230,12 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    const uint min_h_index = hsv_struct.h.p.min;
-    const uint max_h_index = hsv_struct.h.p.max;
-    const uint min_s_index = hsv_struct.s.p.min;
-    const uint max_s_index = hsv_struct.s.p.max;
-    const uint min_v_index = hsv_struct.v.p.min;
-    const uint max_v_index = hsv_struct.v.p.max;
+    const uint min_h_index = hsv_struct.h.frame_index.min;
+    const uint max_h_index = hsv_struct.h.frame_index.max;
+    const uint min_s_index = hsv_struct.s.frame_index.min;
+    const uint max_s_index = hsv_struct.s.frame_index.max;
+    const uint min_v_index = hsv_struct.v.frame_index.min;
+    const uint max_v_index = hsv_struct.v.frame_index.max;
 
     kernel_compute_and_fill_h<<<blocks, threads, 0, stream>>>(gpu_input,
                                                               gpu_output,
@@ -246,7 +246,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                                                               omega_arr_size,
                                                               gpu_omega_arr);
 
-    if (hsv_struct.s.p.activated)
+    if (hsv_struct.s.frame_index.activated)
         kernel_compute_and_fill_s<<<blocks, threads, 0, stream>>>(gpu_input,
                                                                   gpu_output,
                                                                   frame_res,
@@ -265,7 +265,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                                                                   omega_arr_size,
                                                                   gpu_omega_arr + omega_arr_size);
 
-    if (hsv_struct.v.p.activated)
+    if (hsv_struct.v.frame_index.activated)
         kernel_compute_and_fill_v<<<blocks, threads, 0, stream>>>(gpu_input,
                                                                   gpu_output,
                                                                   frame_res,

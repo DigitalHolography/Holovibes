@@ -58,12 +58,12 @@ struct AdvancedSettings
     {
         float lower = 0.5f;
         float upper = 99.5f;
-        unsigned cuts_p_offset = 2;
+        unsigned frame_index_offset = 2;
 
         void Load();
         void Update();
 
-        SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, cuts_p_offset)
+        SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, frame_index_offset)
     };
 
     BufferSizes buffer_size;
