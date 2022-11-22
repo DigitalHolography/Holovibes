@@ -67,6 +67,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 {
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
+        // FIXME LOGGER
         spdlog::get("Setup")->error(
             "{} ({}) value: {} is not valid. The valid condition is: 1 <= {} <= nb_frame. For this file nb_frame = ",
             option,
@@ -156,13 +157,11 @@ static int set_parameters(const holovibes::OptionsDescriptor& opts)
     return 0;
 }
 
+// FIXME WTF
 static void main_loop()
 {
     // Recording progress (used by the progress bar)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
-
-    // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = holovibes::GSH::instance().get_value<holovibes::ViewXY>().contrast.auto_refresh;
 
     while (holovibes::GSH::instance().get_value<holovibes::FrameRecordMode>().enabled)
     {
@@ -172,20 +171,7 @@ static void main_loop()
                 progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
                     holovibes::ProgressType::FRAME_RECORD);
             else
-            {
                 progress_bar(progress->first, progress->second, 40);
-
-                // FIXME : WTF why it is in the cli.cc
-                // Very dirty hack
-                // Request auto contrast once we have accumualated enough images
-                // Otherwise the autocontrast is computed at the beginning and we
-                // end up with black images ...
-                if (progress->first >= holovibes::api::get_view_xy().img_accu_level && requested_autocontrast)
-                {
-                    holovibes::api::request_exec_contrast_current_window();
-                    requested_autocontrast = false;
-                }
-            }
         }
 
         // Don't make the current thread loop too fast
@@ -221,21 +207,6 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
     if (!opts.noskip_acc && holovibes::api::get_view_xy().is_image_accumulation_enabled())
         nb_frames_skip = holovibes::api::get_view_xy().img_accu_level;
 
-    holovibes::Holovibes::instance().start_frame_record(opts.output_path.value(),
-                                                        record_nb_frames,
-                                                        opts.record_raw ? holovibes::RecordMode::RAW
-                                                                        : holovibes::RecordMode::HOLOGRAM,
-                                                        nb_frames_skip);
-
-    // FIXME : this is a dangerous hack need to be changed
-    // The following while ensure the record has been requested by the thread previously launched.
-    while (!holovibes::api::get_compute_pipe().get_export_cache().has_change_requested())
-        continue;
-
-    // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
-    // It has to be refresh in the main thread because the read of file is launched just after.
-    holovibes::api::get_compute_pipe().sync_and_refresh();
-
     // Thread 2
     holovibes::Holovibes::instance().start_compute_worker();
 
@@ -246,6 +217,12 @@ static int start_cli_workers(const holovibes::OptionsDescriptor& opts)
                                                            holovibes::api::get_start_frame() - 1,
                                                            static_cast<uint>(input_nb_frames),
                                                            opts.gpu);
+
+    holovibes::Holovibes::instance().start_frame_record(opts.output_path.value(),
+                                                        record_nb_frames,
+                                                        opts.record_raw ? holovibes::RecordMode::RAW
+                                                                        : holovibes::RecordMode::HOLOGRAM,
+                                                        nb_frames_skip);
 
     return 0;
 }

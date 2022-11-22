@@ -159,11 +159,21 @@ void BasicOpenGLWindow::setTransform()
 {
     LOG_FUNC(main);
 
-    // FIXME API : View should be the same
-    const glm::mat4 rotY =
-        glm::rotate(glm::mat4(1.f),
-                    glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).flip_enabled ? 0 : 1)),
-                    glm::vec3(0.f, 1.f, 0.f));
+..    // FIXME API-FIXME VIEW : View should be the same
+    glm::mat4 rotY;
+    if (kind_of_view == KindOfView::SliceYZ)
+    {
+        rotY = glm::rotate(glm::mat4(1.f),
+                           glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).flip_enabled ? 1 : 0)),
+                           glm::vec3(0.f, 1.f, 0.f));
+    }
+    else
+    {
+        rotY = glm::rotate(glm::mat4(1.f),
+                           glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).flip_enabled ? 0 : 1)),
+                           glm::vec3(0.f, 1.f, 0.f));
+    }
+
     const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f),
                                        glm::radians(api::get_view_as_xyz_type(kind_of_view).rot),
                                        glm::vec3(0.f, 0.f, 1.f));

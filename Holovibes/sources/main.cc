@@ -108,7 +108,6 @@ static void print_help(holovibes::OptionsParser parser)
 
 int main(int argc, char* argv[])
 {
-
     LOG_INFO(main, "Start Holovibes");
 
     holovibes::OptionsParser parser;
