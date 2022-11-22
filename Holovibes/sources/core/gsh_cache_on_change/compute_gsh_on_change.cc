@@ -78,6 +78,7 @@ static void load_convolution_matrix(ConvolutionStruct& convo)
     const uint first_row = (output_height / 2) - (matrix_height / 2);
     const uint last_row = (output_height / 2) + (matrix_height / 2);
 
+    convo.matrix.clear();
     convo.matrix.resize(size, 0.0f);
 
     uint kernel_indice = 0;
