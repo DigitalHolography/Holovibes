@@ -129,15 +129,17 @@ void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC();
 
+    meta_data_ = json::parse("{}");
     // if there is no footer we use the state of the GSH
     if (!has_footer)
     {
         raw_footer_.Update();
         to_json(meta_data_, raw_footer_);
-        return;
     }
-
-    this->load_footer();
+    else
+    {
+        this->load_footer();
+    }
 
     // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
@@ -151,7 +153,14 @@ void InputHoloFile::import_compute_settings()
     else
         LOG_ERROR("HOLO file version not supported!");
 
-    from_json(meta_data_["compute_settings"], raw_footer_);
+    if (!has_footer)
+    {
+        from_json(meta_data_, raw_footer_);
+    }
+    else
+    {
+        from_json(meta_data_["compute_settings"], raw_footer_);
+    }
 
     // update GSH with the footer values
     raw_footer_.Load();
