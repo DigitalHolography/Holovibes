@@ -1,5 +1,9 @@
 ## Changelog
 
+### 11.1.3
+
+* Fix load of holo with no footer
+
 ### 11.1.2
 
 * Add compatibility with footer version 5
