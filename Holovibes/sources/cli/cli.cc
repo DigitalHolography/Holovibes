@@ -64,12 +64,18 @@ static void print_verbose(const OptionsDescriptor& opts)
 }
 
 // FIXME
-static void main_loop()
+static void main_loop(const OptionsDescriptor& opts)
 {
     // Recording progress (used by the progress bar)
     FastUpdatesHolder<ProgressType>::Value progress = nullptr;
 
-    while (api::detail::get_value<FrameRecordMode>().enabled)
+    auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.get_entry(ProgressType::FRAME_RECORD);
+    std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
+
+    size_t input_nb_frames = api::get_end_frame() - api::get_start_frame() + 1;
+    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / api::get_time_stride());
+
+    while (api::detail::get_value<FrameRecordMode>().enabled && nb_frames_recorded < record_nb_frames)
     {
         if (GSH::fast_updates_map<ProgressType>.contains(ProgressType::FRAME_RECORD))
         {
@@ -151,7 +157,7 @@ void start_cli(const OptionsDescriptor& opts)
 
     api::change_frame_record_mode()->record_mode = opts.record_raw ? RecordMode::RAW : RecordMode::HOLOGRAM;
 
-    main_loop();
+    main_loop(opts);
 
     LOG_DEBUG(main, "Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
 }

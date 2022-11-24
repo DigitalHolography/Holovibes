@@ -67,8 +67,6 @@ void FrameRecordWorker::run()
 
     if (nb_frames_to_record_.has_value())
         nb_frames_to_record = nb_frames_to_record_.value();
-    else
-        nb_frames_to_record = 0;
 
     // Processed FPS FastUpdatesHolder entry
 
@@ -93,6 +91,10 @@ void FrameRecordWorker::run()
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
+            LOG_DEBUG(main, "nb_frames_to_record_ = {}", nb_frames_to_record_.value());
+            LOG_DEBUG(main, "nb_frames_recorded = {}", nb_frames_recorded);
+            LOG_DEBUG(main, "nb_frames_to_record = {}", nb_frames_to_record);
+
             if (record_queue.has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.

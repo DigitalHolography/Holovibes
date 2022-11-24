@@ -258,7 +258,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    api::record_finished();
 }
 
 void ExportPanel::start_record()
@@ -287,7 +286,6 @@ void ExportPanel::start_record()
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    UserInterfaceDescriptor::instance().is_recording_ = true;
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);

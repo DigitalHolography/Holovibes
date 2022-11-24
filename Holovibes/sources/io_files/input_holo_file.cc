@@ -70,7 +70,7 @@ void InputHoloFile::load_header()
         throw FileException("Invalid holo file", false);
     }
 
-    //LOG_TRACE(main, "Exiting InputHoloFile::load_header");
+    // LOG_TRACE(main, "Exiting InputHoloFile::load_header");
 }
 
 void InputHoloFile::load_fd()
@@ -164,14 +164,7 @@ void InputHoloFile::import_info() const
     if (!has_footer)
         return;
 
-    try
-    {
-        // Pixel are considered square
-        api::set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
-    }
-    catch (std::exception&)
-    {
-    }
+    api::set_pixel_size(meta_data_["info"]["pixel_size"]["x"]);
 }
 
 } // namespace holovibes::io_files

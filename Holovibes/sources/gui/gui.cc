@@ -10,11 +10,11 @@ void start_gui(int argc, char** argv, const std::string filename)
 {
     holovibes::Holovibes::instance().is_cli = false;
 
+    api::check_cuda_graphic_card();
+
     QLocale::setDefault(QLocale("en_US"));
-    // Create the Qt app
     QApplication app(argc, argv);
 
-    api::check_cuda_graphic_card();
     QSplashScreen splash(QPixmap(":/holovibes_logo.png"));
     splash.show();
 
@@ -24,7 +24,7 @@ void start_gui(int argc, char** argv, const std::string filename)
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 
     // Create the window object that inherit from QMainWindow
-    holovibes::gui::MainWindow window;
+    gui::MainWindow window;
     window.show();
     splash.finish(&window);
 
@@ -33,13 +33,11 @@ void start_gui(int argc, char** argv, const std::string filename)
     holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
     if (!filename.empty())
-    {
-        window.start_import(QString(filename.c_str()));
-        LOG_INFO(main, "Imported file {}", filename.c_str());
-    }
+        api::import_file(filename);
 
     // Resizing horizontally the window before starting
     window.layout_toggled();
+
     // Launch the Qt app
     if (app.exec())
         throw std::runtime_error("QT crash");

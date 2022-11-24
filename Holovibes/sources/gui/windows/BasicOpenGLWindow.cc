@@ -159,7 +159,7 @@ void BasicOpenGLWindow::setTransform()
 {
     LOG_FUNC(main);
 
-..    // FIXME API-FIXME VIEW : View should be the same
+    // FIXME API-FIXME VIEW : View should be the same
     glm::mat4 rotY;
     if (kind_of_view == KindOfView::SliceYZ)
     {

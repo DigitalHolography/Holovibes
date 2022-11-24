@@ -201,7 +201,7 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api::get_import_type() == ImportTypeEnum::Camera)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -560,12 +560,6 @@ void MainWindow::set_view_image_type(const QString& value)
 #pragma endregion
 
 /* ------------ */
-
-void MainWindow::start_import(QString filename)
-{
-    ui_->ImportPanel->import_file(filename);
-    ui_->ImportPanel->import_start();
-}
 
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 

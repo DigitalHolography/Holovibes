@@ -80,10 +80,9 @@ void ImportPanel::import_file(const QString& filename)
     import_line_edit->insert(filename);
 
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt;
     try
     {
-        input_file_opt = api::import_file(filename.toStdString());
+        api::import_file(filename.toStdString());
     }
     catch (const io_files::FileException& e)
     {
@@ -96,32 +95,12 @@ void ImportPanel::import_file(const QString& filename)
         return;
     }
 
-    if (input_file_opt)
-    {
-        auto input_file = input_file_opt.value();
+    parent_->notify();
 
-        // Import Compute Settings there before init_pipe to
-        // Allocate correctly buffer
-        input_file->import_compute_settings();
-
-        parent_->notify();
-
-        // Gather data from the newly opened file
-        size_t nb_frames = input_file->get_total_nb_frames();
-        UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
-
-        // Don't need the input file anymore
-        delete input_file;
-
-        // Update the ui with the gathered data
-        ui_->ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
-        ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
-
-        // We can now launch holovibes over this file
-        set_start_stop_buttons(true);
-    }
-    else
-        set_start_stop_buttons(false);
+    ui_->ImportEndIndexSpinBox->setMaximum(api::detail::get_value<FileNumberOfFrame>());
+    ui_->ImportEndIndexSpinBox->setValue(api::detail::get_value<FileNumberOfFrame>());
+    // We can now launch holovibes over this file
+    set_start_stop_buttons(true);
 }
 
 void ImportPanel::import_stop()

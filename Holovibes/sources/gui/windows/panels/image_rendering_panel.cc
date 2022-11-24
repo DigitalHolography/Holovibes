@@ -51,7 +51,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !api::get_frame_record_mode().enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -115,7 +115,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         api::close_windows();
         api::close_critical_compute();
 
-        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
+        if (api::get_import_type() != ImportTypeEnum::Camera)
             return;
 
         api::set_raw_mode(parent_->window_max_size);
@@ -254,7 +254,6 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     {
         // json{} return an array
         st = json{value.toStdString()}[0].get<SpaceTransformationEnum>();
-        LOG_DEBUG(main, "value.toStdString() : {}", value.toStdString());
     }
     catch (std::out_of_range& e)
     {

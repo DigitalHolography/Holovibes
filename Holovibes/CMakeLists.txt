@@ -65,6 +65,7 @@ set(INTERNAL_INCLUDES
     includes/state/caches
     includes/state/caches/detail
     includes/API
+    includes/cli
 
     includes/compute/
     includes/core/
@@ -73,6 +74,7 @@ set(INTERNAL_INCLUDES
     
     includes/enum/
     includes/struct/
+    includes/gui/
     includes/gui/other/
     includes/gui/selections/
     includes/gui/selections/interfaces/

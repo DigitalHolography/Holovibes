@@ -69,9 +69,6 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Stops critical compute */
     void close_critical_compute();
 
-    /*! \brief Start the import process */
-    void start_import(QString filename);
-
     Ui::MainWindow* get_ui();
 
     uint window_max_size = 768;

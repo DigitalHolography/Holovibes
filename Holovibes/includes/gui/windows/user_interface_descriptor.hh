@@ -40,8 +40,6 @@ class UserInterfaceDescriptor
         return instance;
     }
 
-    camera::FrameDescriptor file_fd_;
-
     std::unique_ptr<::holovibes::gui::RawWindow> mainDisplay = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceXZ = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceYZ = nullptr;
@@ -57,8 +55,6 @@ class UserInterfaceDescriptor
     std::string batch_input_directory_{"C:\\"};
 
     // FIXME API : all of this need to not be here
-    bool is_recording_ = false;
-    bool is_enabled_camera_ = false;
     bool is_advanced_settings_displayed = false;
     bool has_been_updated = false;
 
