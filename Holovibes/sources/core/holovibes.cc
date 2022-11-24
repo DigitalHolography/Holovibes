@@ -11,7 +11,7 @@
 
 namespace holovibes
 {
-using camera::FrameDescriptor;
+using FrameDescriptor;
 
 Holovibes& Holovibes::instance()
 {
@@ -33,9 +33,9 @@ const float Holovibes::get_boundary()
 
 bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
 
-void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
+void Holovibes::init_input_queue(const FrameDescriptor& fd, const unsigned int input_queue_size)
 {
-    camera::FrameDescriptor queue_fd = fd;
+    FrameDescriptor queue_fd = fd;
 
     gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
 }
@@ -82,7 +82,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     try
     {
         GSH::instance().set_value<PixelSize>(active_camera_->get_pixel_size());
-        const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
+        const FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         api::set_import_type(ImportTypeEnum::Camera);
         init_input_queue(camera_fd, api::get_input_buffer_size());
@@ -185,7 +185,7 @@ void Holovibes::init_pipe()
 {
     LOG_FUNC();
 
-    camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
+    FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
     {
         output_fd.depth = 2;

@@ -19,8 +19,8 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      ChartEnv& chart_env,
                      const ImageAccEnv& image_acc_env,
                      const TimeTransformationEnv& time_transformation_env,
-                     const camera::FrameDescriptor& input_fd,
-                     const camera::FrameDescriptor& output_fd,
+                     const FrameDescriptor& input_fd,
+                     const FrameDescriptor& output_fd,
                      const cudaStream_t& stream,
                      AdvancedCache::Cache& advanced_cache,
                      ComputeCache::Cache& compute_cache,
@@ -40,7 +40,6 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
     , export_cache_(export_cache)
     , view_cache_(view_cache)
     , zone_cache_(zone_cache)
-//    , cache_(cache)
 {
     // Hold 2 float values (min and max)
     cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -94,7 +93,7 @@ void Rendering::insert_chart()
 
                 if (view_cache_.get_value<ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_value<ChartRecord>().is_enable() &&
+                if (export_cache_.get_value<ChartRecord>().is_enable() > 0 &&
                     chart_env_.current_nb_point_to_record_left > 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);

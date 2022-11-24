@@ -40,7 +40,7 @@ __global__ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t 
 
 void textureUpdate(cudaSurfaceObject_t cuSurface,
                    void* frame,
-                   const camera::FrameDescriptor& fd,
+                   const holovibes::FrameDescriptor& fd,
                    const cudaStream_t stream)
 {
     unsigned thread_width = std::min(32u, (unsigned)fd.width);

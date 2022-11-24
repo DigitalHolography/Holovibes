@@ -6,7 +6,7 @@ namespace holovibes
 static void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
                                         cuda_tools::UniquePtr<float>& gpu_average_frame,
                                         const unsigned int accumulation_level,
-                                        const camera::FrameDescriptor fd)
+                                        const FrameDescriptor fd)
 {
     // If the queue is null or the level has changed
     if (!gpu_accumulation_queue || accumulation_level != gpu_accumulation_queue->get_max_size())

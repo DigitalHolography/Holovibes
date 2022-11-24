@@ -185,8 +185,8 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
     {
         resetTransform();
-        if (holovibes::api::get_main_display())
-            holovibes::api::get_main_display()->resetTransform();
+        if (UserInterface::instance().main_display)
+            UserInterface::instance().main_display->resetTransform();
     }
 }
 

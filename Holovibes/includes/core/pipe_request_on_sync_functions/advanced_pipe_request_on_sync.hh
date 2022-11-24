@@ -32,4 +32,5 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
     {
     }
 };
+
 } // namespace holovibes

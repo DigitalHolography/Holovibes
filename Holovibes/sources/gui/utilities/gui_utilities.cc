@@ -8,12 +8,10 @@ void display_reticle(bool value)
 
     if (value)
     {
-        UserInterfaceDescriptor::instance()
-            .mainDisplay->getOverlayManager()
-            .create_overlay<gui::KindOfOverlay::Reticle>();
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
+        UserInterface::instance().main_display->getOverlayManager().create_overlay<gui::KindOfOverlay::Reticle>();
+        UserInterface::instance().main_display->getOverlayManager().create_default();
     }
     else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle);
+        UserInterface::instance().main_display->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle);
 }
-} // namespace holovibes::gui
+} // namespace holovibes::gui::utilities

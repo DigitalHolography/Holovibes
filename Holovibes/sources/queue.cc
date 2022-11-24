@@ -13,10 +13,10 @@
 
 namespace holovibes
 {
-using camera::Endianness;
-using camera::FrameDescriptor;
+using FrameDescriptor;
+using Endianness;
 
-Queue::Queue(const camera::FrameDescriptor& fd,
+Queue::Queue(const FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
              unsigned int input_width,
@@ -40,7 +40,6 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
-
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 

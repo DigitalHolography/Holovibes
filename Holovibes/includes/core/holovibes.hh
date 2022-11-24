@@ -146,7 +146,7 @@ class Holovibes
      * \param fd frame descriptor of the camera
      * \param input_queue_size size of the input queue
      */
-    void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
+    void init_input_queue(const FrameDescriptor& fd, const unsigned int input_queue_size);
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
@@ -233,10 +233,6 @@ class Holovibes
 
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
-
-    /*! \brief This value is set in start_gui or start_cli. It says if we are in cli or gui mode. This information is
-     * used to know if queues have to keep contiguity or not. */
-    bool is_cli;
 
     /*! \brief function called when some thread throws an exception */
     std::function<void(const std::exception&)> error_callback_;

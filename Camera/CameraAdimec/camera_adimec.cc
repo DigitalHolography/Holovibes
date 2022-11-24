@@ -25,7 +25,7 @@ CameraAdimec::CameraAdimec()
     // Technically the camera is 11-bits, but each pixel value is encoded on 16
     // bits.
     fd_.depth = 2;
-    fd_.byteEndian = Endianness::LittleEndian;
+    fd_.byteEndian = holovibes::Endianness::LittleEndian;
     pixel_size_ = 12;
 
     load_default_params();

@@ -1,6 +1,5 @@
 target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
-    cli.cc
     compute_settings.cc
     gpib_dll.cc
     options_parser.cc
@@ -20,6 +19,9 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/record_API.cc
     API/unknown_API.cc
     API/view_API.cc
+    API/CUDA_API.cc
+
+    cli/cli.cc
 
     core/gsh_cache_on_change/compute_gsh_on_change.cc
     core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
@@ -40,6 +42,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     core/icompute.cc
     core/pipe.cc
 
+    gui/gui.cc
     gui/other/gui_curve_plot.cc
     gui/other/gui_drag_drop_lineedit.cc
     gui/other/gui_frame.cc

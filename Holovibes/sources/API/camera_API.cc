@@ -11,10 +11,8 @@ void camera_none()
     if (get_compute_mode() == Computation::Hologram)
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
-    api::detail::set_value<ImportType>(ImportTypeEnum::None);
 
-    // FIXME API : Need to move this outside this (and this function must be useless)
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    api::detail::set_value<ImportType>(ImportTypeEnum::None);
     api::set_is_computation_stopped(true);
 }
 
@@ -27,13 +25,13 @@ bool change_camera(CameraKind c)
 
     try
     {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+        UserInterface::instance().main_display.reset(nullptr);
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
         Holovibes::instance().start_camera_frame_read(c);
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+        api::detail::set_value<ImportType>(ImportTypeEnum::Camera);
         GSH::instance().set_value<CurrentCameraKind>(c);
 
         set_is_computation_stopped(false);

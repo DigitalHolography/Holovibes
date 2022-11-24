@@ -16,7 +16,7 @@ namespace holovibes::compute
 {
 Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
-                               const camera::FrameDescriptor& input_fd,
+                               const FrameDescriptor& input_fd,
                                const cudaStream_t& stream,
                                AdvancedCache::Cache& advanced_cache,
                                ComputeCache::Cache& compute_cache,

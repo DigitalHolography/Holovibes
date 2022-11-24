@@ -34,7 +34,7 @@ class FourierTransform
     /*! \brief Constructor */
     FourierTransform(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
-                     const camera::FrameDescriptor& fd,
+                     const FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
@@ -105,7 +105,7 @@ class FourierTransform
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
     /*! \brief Pland 2D. Used by FFTs (1, 2, filter2D). */
     cuda_tools::CufftHandle& spatial_transformation_plan_;
     /*! \brief Time transformation environment. */

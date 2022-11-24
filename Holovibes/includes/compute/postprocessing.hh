@@ -31,7 +31,7 @@ class Postprocessing
     /*! \brief Constructor */
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
-                   const camera::FrameDescriptor& fd,
+                   const FrameDescriptor& fd,
                    const cudaStream_t& stream,
                    AdvancedCache::Cache& advanced_cache,
                    ComputeCache::Cache& compute_cache,
@@ -67,7 +67,7 @@ class Postprocessing
     CoreBuffersEnv& buffers_;
 
     /*! \brief Describes the frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
 
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;

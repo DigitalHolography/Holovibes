@@ -235,7 +235,7 @@ void CameraHamamatsu::load_default_params()
     fd_.width = MAX_WIDTH;
     fd_.height = MAX_WIDTH;
     fd_.depth = 2;
-    fd_.byteEndian = Endianness::LittleEndian;
+    fd_.byteEndian = holovibes::Endianness::LittleEndian;
 
     pixel_size_ = 6.5f;
 

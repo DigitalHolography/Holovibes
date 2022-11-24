@@ -38,26 +38,4 @@ inline TriggerChangeValue<ViewXYZ> change_current_view_as_view_xyz()
 {
     return change_view_as_view_xyz(api::get_current_view_kind());
 }
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
-void start_chart_display();
-void stop_chart_display();
-void set_raw_view(bool checked, uint auxiliary_window_max_size);
-void set_lens_view(bool checked, uint auxiliary_window_max_size);
-void close_windows();
-
-inline void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
-
-// FIXME : TO DELETE
-inline void set_composite_area()
-{
-    UserInterfaceDescriptor::instance()
-        .mainDisplay->getOverlayManager()
-        .create_overlay<gui::KindOfOverlay::CompositeArea>();
-}
-
 } // namespace holovibes::api

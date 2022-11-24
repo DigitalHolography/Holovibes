@@ -28,7 +28,7 @@ void ExportPipeRequestOnSync::operator()<FrameRecordMode>(const FrameRecordStruc
     }
     else if (new_value.record_mode == RecordMode::CUTS_XZ || new_value.record_mode == RecordMode::CUTS_YZ)
     {
-        camera::FrameDescriptor fd_xyz = pipe.get_gpu_output_queue().get_fd();
+        FrameDescriptor fd_xyz = pipe.get_gpu_output_queue().get_fd();
 
         fd_xyz.depth = sizeof(ushort);
         if (new_value.record_mode == RecordMode::CUTS_XZ)

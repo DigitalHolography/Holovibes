@@ -19,6 +19,7 @@
 
 namespace holovibes
 {
+
 template <bool has_been_sync>
 class SetHasBeenSynchronized
 {
@@ -110,6 +111,14 @@ class MicroCache
             return StaticContainer<Params...>::template has<T>();
         }
 
+        static constexpr uint size() { return StaticContainer<Params...>::size(); }
+
+        template <typename T>
+        static constexpr uint get_index_of()
+        {
+            return StaticContainer<Params...>::template get_index_of<T>();
+        }
+
       protected:
         template <typename T>
         T& get_type()
@@ -173,7 +182,7 @@ class MicroCache
             {
             }
         };
-
+        // En gros c'est simple, ca synchronise
         template <typename FunctionClass = DefaultFunctionsOnSync, typename... Args>
         void synchronize(Args&&... args)
         {
@@ -370,23 +379,43 @@ class MicroCache
         template <typename T>
         void set_value(typename T::ConstRefType value)
         {
-            this->BasicMicroCache::template get_type<T>().set_value(value);
-            callback_trigger_change_value<T>();
+            const T& old_value = this->BasicMicroCache::template get_type<T>();
+            if (old_value.has_parameter_change(value))
+            {
+                this->BasicMicroCache::template get_type<T>().set_value(value);
+                callback_trigger_change_value<T>();
+            }
         }
 
         template <typename T>
         TriggerChangeValue<typename T::ValueType> change_value()
         {
-            return TriggerChangeValue<typename T::ValueType>([this]() { this->callback_trigger_change_value<T>(); },
-                                                             &BasicMicroCache::template get_type<T>().get_value());
+            return TriggerChangeValue<typename T::ValueType>(
+                [this, old_value = this->BasicMicroCache::template get_type<T>()]()
+                {
+                    if (old_value.has_parameter_change(BasicMicroCache::template get_type<T>().get_value()))
+                    {
+                        this->callback_trigger_change_value<T>();
+                    }
+                },
+                &BasicMicroCache::template get_type<T>().get_value());
         }
     };
 
   public:
+    // Allows use of AdvancedCache::size
     template <typename T>
     static constexpr bool has()
     {
         return BasicMicroCache::template has<T>();
+    }
+
+    static constexpr uint size() { return BasicMicroCache::size(); }
+
+    template <typename T>
+    static constexpr uint get_index_of()
+    {
+        return BasicMicroCache::template get_index_of<T>();
     }
 };
 
@@ -411,7 +440,7 @@ template <typename FunctionClass, typename... Args>
 void MicroCache<Params...>::Cache::synchronize_force(Args&&... args)
 {
     set_all_values(MicroCache<Params...>::RefSingleton::get());
-    this->template call<FunctionClass>(std::forward<Args>(args)...);
+    this->template call<FugtgtgtnctionClass>(std::forward<Args>(args)...);
 
     std::lock_guard<std::mutex> guard(lock_);
     change_pool_.clear();

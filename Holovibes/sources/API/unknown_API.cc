@@ -29,58 +29,14 @@ void check_q_limits()
         api::change_view_accu_q()->index = upper_bound;
 }
 
-void init_image_mode(QPoint& position, QSize& size)
-{
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        position = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
-        size = UserInterfaceDescriptor::instance().mainDisplay->size();
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
-}
-
-bool set_holographic_mode(ushort window_size)
-{
-    /* ---------- */
-    try
-    {
-        set_compute_mode(Computation::Hologram);
-        /* Pipe & Window */
-        create_pipe();
-        create_holo_window(window_size);
-        /* Info Manager */
-        auto fd = api::get_gpu_input_queue().get_fd();
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        /* Contrast */
-        api::change_current_view()->contrast.enabled = true;
-
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR(main, "cannot set holographic mode: {}", e.what());
-    }
-
-    return false;
-}
-
 void close_critical_compute()
 {
-        api::change_convolution()->enabled = false;
-
+    api::change_convolution()->enabled = false;
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
 
     Holovibes::instance().stop_compute();
-}
-
-void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
-{
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
-    UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
 }
 
 bool slide_update_threshold(

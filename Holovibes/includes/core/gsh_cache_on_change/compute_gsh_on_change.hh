@@ -16,5 +16,9 @@ class ComputeGSHOnChange
   public:
     template <>
     void operator()<Convolution>(ConvolutionStruct& new_value);
+    template <>
+    void operator()<BatchSize>(int& new_value);
+    template <>
+    void operator()<TimeStride>(int& new_value);
 };
 } // namespace holovibes

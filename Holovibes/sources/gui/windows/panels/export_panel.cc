@@ -17,6 +17,7 @@ namespace holovibes::gui
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().export_panel = this;
 }
 
 ExportPanel::~ExportPanel() {}
@@ -58,24 +59,23 @@ void ExportPanel::on_notify()
     }
 
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
-    signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
-                              api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
+    signalBtn->setStyleSheet((UserInterface::instance().main_display && signalBtn->isEnabled() &&
+                              UserInterface::instance().main_display->getKindOfOverlay() == KindOfOverlay::Signal)
                                  ? "QPushButton {color: #8E66D9;}"
                                  : "");
 
     QPushButton* noiseBtn = ui_->ChartNoisePushButton;
-    noiseBtn->setStyleSheet((api::get_main_display() && noiseBtn->isEnabled() &&
-                             api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Noise)
+    noiseBtn->setStyleSheet((UserInterface::instance().main_display && noiseBtn->isEnabled() &&
+                             UserInterface::instance().main_display->getKindOfOverlay() == KindOfOverlay::Noise)
                                 ? "QPushButton {color: #00A4AB;}"
                                 : "");
 
     QLineEdit* path_line_edit = ui_->OutputFilePathLineEdit;
     path_line_edit->clear();
 
-    std::string record_output_path =
-        (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) /
-         UserInterfaceDescriptor::instance().default_output_filename_)
-            .string();
+    std::string record_output_path = (std::filesystem::path(UserInterface::instance().record_output_directory_) /
+                                      UserInterface::instance().default_output_filename_)
+                                         .string();
     path_line_edit->insert(record_output_path.c_str());
 }
 
@@ -97,21 +97,21 @@ void ExportPanel::browse_record_output_file()
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
-                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
     else if (api::get_frame_record_mode().record_mode == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
-                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
     else if (api::get_frame_record_mode().record_mode == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
-                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
     else if (api::get_frame_record_mode().record_mode == RecordMode::CUTS_XZ ||
@@ -119,7 +119,7 @@ void ExportPanel::browse_record_output_file()
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
-                                                UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
+                                                UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Mp4 files (*.mp4);; Avi Files (*.avi);;"));
     }
 
@@ -144,7 +144,7 @@ void ExportPanel::browse_batch_input()
     // Open file explorer on the fly
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("Batch input file"),
-                                                    UserInterfaceDescriptor::instance().batch_input_directory_.c_str(),
+                                                    UserInterface::instance().batch_input_directory_.c_str(),
                                                     tr("All files (*)"));
 
     // Output the file selected in he ui line edit widget
@@ -191,13 +191,13 @@ void ExportPanel::set_frame_record_mode(const QString& value)
 
         ui_->ChartPlotWidget->show();
 
-        if (api::get_main_display())
+        if (UserInterface::instance().main_display)
         {
-            api::get_main_display()->resetTransform();
+            UserInterface::instance().main_display->resetTransform();
 
-            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Signal);
-            api::get_main_display()->getOverlayManager().enable_all(KindOfOverlay::Noise);
-            api::get_main_display()->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
+            UserInterface::instance().main_display->getOverlayManager().enable_all(KindOfOverlay::Signal);
+            UserInterface::instance().main_display->getOverlayManager().enable_all(KindOfOverlay::Noise);
+            UserInterface::instance().main_display->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
         }
     }
     else
@@ -224,12 +224,12 @@ void ExportPanel::set_frame_record_mode(const QString& value)
 
         ui_->ChartPlotWidget->hide();
 
-        if (api::get_main_display())
+        if (UserInterface::instance().main_display)
         {
-            api::get_main_display()->resetTransform();
+            UserInterface::instance().main_display->resetTransform();
 
-            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Signal);
-            api::get_main_display()->getOverlayManager().disable_all(KindOfOverlay::Noise);
+            UserInterface::instance().main_display->getOverlayManager().disable_all(KindOfOverlay::Signal);
+            UserInterface::instance().main_display->getOverlayManager().disable_all(KindOfOverlay::Noise);
         }
     }
 
@@ -258,7 +258,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
-    api::record_finished();
 }
 
 void ExportPanel::start_record()
@@ -282,12 +281,11 @@ void ExportPanel::start_record()
         return;
 
     // Start record
-    api::get_raw_window().reset(nullptr);
+    UserInterface()::instance().raw_window->reset(nullptr);
     ui_->ViewPanel->update_raw_view(false);
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    UserInterfaceDescriptor::instance().is_recording_ = true;
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
@@ -302,38 +300,15 @@ void ExportPanel::start_record()
 
 void ExportPanel::activeSignalZone()
 {
-    api::active_signal_zone();
-    parent_->notify();
+    UserInterface::instance().main_display->getOverlayManager().create_overlay<gui::KindOfOverlay::Signal>();
 }
 
 void ExportPanel::activeNoiseZone()
 {
-    api::active_noise_zone();
-    parent_->notify();
+    UserInterface::instance().main_display->getOverlayManager().create_overlay<gui::KindOfOverlay::Noise>();
 }
 
-void ExportPanel::start_chart_display()
-{
-    if (api::get_chart_display_enabled())
-        return;
+void ExportPanel::start_chart_display() { api::detail::set_value<ChartDisplayEnabled>(true); }
 
-    api::start_chart_display();
-    connect(UserInterfaceDescriptor::instance().plot_window_.get(),
-            SIGNAL(closed()),
-            this,
-            SLOT(stop_chart_display()),
-            Qt::UniqueConnection);
-
-    ui_->ChartPlotPushButton->setEnabled(false);
-}
-
-void ExportPanel::stop_chart_display()
-{
-    if (!api::get_chart_display_enabled())
-        return;
-
-    api::stop_chart_display();
-
-    ui_->ChartPlotPushButton->setEnabled(true);
-}
+void ExportPanel::stop_chart_display() { api::detail::set_value<ChartDisplayEnabled>(false); }
 } // namespace holovibes::gui

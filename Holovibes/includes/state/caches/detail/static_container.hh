@@ -28,6 +28,15 @@ class StaticContainer<>
         return false;
     }
 
+    static constexpr uint size() { return 0; }
+
+    template <typename K>
+    static constexpr uint get_index_of()
+    {
+        static_assert(false, "This type is not in this class");
+        return 0;
+    }
+
     template <typename FunctionClass, typename... Args>
     void operator()(FunctionClass functions_class, Args&&... args)
     {
@@ -63,10 +72,20 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
     template <typename K>
     static constexpr bool has()
     {
-        if (std::is_same_v<TParameter, K> == true)
+        if constexpr (std::is_same_v<TParameter, K> == true)
             return true;
         return StaticContainer<R...>::template has<K>();
     }
+
+    template <typename K>
+    static constexpr uint get_index_of()
+    {
+        if constexpr (std::is_same_v<TParameter, K> == true)
+            return 0;
+        return 1 + StaticContainer<R...>::template get_index_of<K>();
+    }
+
+    static constexpr uint size() { return 1 + sizeof...(R); }
 
   public:
     template <typename StaticContainerRef>

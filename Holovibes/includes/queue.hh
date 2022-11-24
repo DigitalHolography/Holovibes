@@ -48,7 +48,7 @@ class Queue final : public DisplayQueue
      * \param max_size The max size of the queue
      * \param type The type of the queue
      */
-    Queue(const camera::FrameDescriptor& fd,
+    Queue(const FrameDescriptor& fd,
           const unsigned int max_size,
           QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,

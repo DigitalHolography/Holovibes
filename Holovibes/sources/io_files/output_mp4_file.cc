@@ -3,7 +3,7 @@
 
 namespace holovibes::io_files
 {
-OutputMp4File::OutputMp4File(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+OutputMp4File::OutputMp4File(const std::string& file_path, const FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , Mp4File()
 {
@@ -56,7 +56,7 @@ size_t OutputMp4File::write_frame(const char* frame, size_t frame_size)
 
             size_t frame_size_half = frame_size / 2;
 
-            if (fd_.byteEndian == camera::Endianness::LittleEndian)
+            if (fd_.byteEndian == Endianness::LittleEndian)
             {
                 for (size_t i = 0; i < frame_size_half; i++)
                     mat_frame.data[i] = frame[2 * i + 1];

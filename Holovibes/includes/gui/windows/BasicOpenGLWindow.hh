@@ -15,6 +15,7 @@
 #include "tools_conversion.cuh"
 #include "display_queue.hh"
 #include "enum_window_kind.hh"
+#include "user_interface.hh"
 
 /*! \brief Contains all function to display the graphical user interface */
 namespace holovibes::gui
@@ -48,7 +49,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     const KindOfOverlay getKindOfOverlay() const;
     void resetSelection();
 
-    const camera::FrameDescriptor& getFd() const;
+    const FrameDescriptor& getFd() const;
     OverlayManager& getOverlayManager();
 
     /*! \name Transform functions
@@ -91,7 +92,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     /*! \brief Output queue filled in the computing pipeline */
     DisplayQueue* output_;
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
 
     OverlayManager overlay_manager_;
     /*! \name CUDA Objects

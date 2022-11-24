@@ -24,6 +24,7 @@ namespace holovibes::gui
 ViewPanel::ViewPanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().view_panel = this;
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
     p_left_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
@@ -267,6 +268,86 @@ void ViewPanel::set_fft_shift(const bool value)
     api::set_fft_shift_enabled(value);
 }
 
+void set_raw_view(bool checked)
+{
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    api::detail::set_value<RawViewEnabled>(checked);
+
+    GSH::instance().set_value<RawViewEnabled>(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
+
+    // FIXME API : Need to move this outside this (and this function must be useless)
+    if (checked)
+    {
+        const FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+        ushort raw_window_width = fd.width;
+        ushort raw_window_height = fd.height;
+        get_good_size(raw_window_width, raw_window_height, UserInterface::auxiliary_window_max_size);
+
+        // set positions of new windows according to the position of the main GL
+        // window and Lens window
+        QPoint pos = UserInterface::instance().main_display->framePosition() +
+                     QPoint(UserInterface::instance().main_display->width() + 310, 0);
+        UserInterface::instance().raw_window.reset(
+            new gui::RawWindow(pos,
+                               QSize(raw_window_width, raw_window_height),
+                               api::get_compute_pipe().get_raw_view_queue_ptr().get()));
+
+        UserInterface::instance().raw_window->setTitle("Raw view");
+    }
+    else
+    {
+        UserInterface::instance().raw_window.reset(nullptr);
+    }
+}
+
+void set_lens_view(bool checked)
+{
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    api::set_lens_view_enabled(checked);
+    while (api::get_compute_pipe().get_view_cache().has_change_requested())
+        continue;
+
+    // FIXME API : Need to move this outside this (and this function must be useless)
+    if (checked)
+    {
+        try
+        {
+            // set positions of new windows according to the position of the
+            // main GL window
+            QPoint pos = UserInterface::instance().main_display->framePosition() +
+                         QPoint(UserInterface::instance().main_display->width() + 310, 0);
+
+            const FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+            ushort lens_window_width = fd.width;
+            ushort lens_window_height = fd.height;
+            get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
+
+            UserInterface::instance().lens_window.reset(
+                new gui::RawWindow(pos,
+                                   QSize(lens_window_width, lens_window_height),
+                                   get_compute_pipe().get_fourier_transforms().get_lens_queue().get(),
+                                   0.f,
+                                   gui::KindOfView::Lens));
+
+            UserInterface::instance().lens_window->setTitle("Lens view");
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR(main, "Catch {}", e.what());
+        }
+    }
+    else
+    {
+        UserInterface::instance().lens_window.reset(nullptr);
+    }
+}
+
 void ViewPanel::update_lens_view(bool checked)
 {
     if (api::get_import_type() == ImportTypeEnum::None)
@@ -287,6 +368,22 @@ void ViewPanel::update_raw_view(bool checked)
     }
 
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
+}
+
+void ViewPanel::close_windows()
+{
+    UserInterface::instance().main_display.reset(nullptr);
+
+    UserInterface::instance().sliceXZ.reset(nullptr);
+    UserInterface::instance().sliceYZ.reset(nullptr);
+    UserInterface::instance().filter2d_window.reset(nullptr);
+
+    if (UserInterface::instance().lens_window)
+        set_lens_view(false, 0);
+    if (UserInterface::instance().raw_window)
+        set_raw_view(false, 0);
+
+    UserInterface::instance().plot_window_.reset(nullptr);
 }
 
 void ViewPanel::set_x_y()
@@ -385,11 +482,11 @@ void ViewPanel::rotateTexture()
     api::change_current_view_as_view_xyz()->rot = new_rot;
 
     if (api::get_current_view_kind() == WindowKind::ViewXY)
-        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
-    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
-        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
-    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
-        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
+        UserInterface::instance().main_display->setTransform();
+    else if (UserInterface::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterface::instance().sliceXZ->setTransform();
+    else if (UserInterface::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterface::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }
@@ -400,11 +497,11 @@ void ViewPanel::flipTexture()
 
     // FIXME => TRIGGER
     if (api::get_current_view_kind() == WindowKind::ViewXY)
-        UserInterfaceDescriptor::instance().mainDisplay->setTransform();
-    else if (UserInterfaceDescriptor::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
-        UserInterfaceDescriptor::instance().sliceXZ->setTransform();
-    else if (UserInterfaceDescriptor::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
-        UserInterfaceDescriptor::instance().sliceYZ->setTransform();
+        UserInterface::instance().main_display->setTransform();
+    else if (UserInterface::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
+        UserInterface::instance().sliceXZ->setTransform();
+    else if (UserInterface::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
+        UserInterface::instance().sliceYZ->setTransform();
 
     parent_->notify();
 }
@@ -485,7 +582,17 @@ void ViewPanel::set_contrast_max(const double value)
     api::set_current_window_contrast_max(value);
 }
 
-void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }
+void ViewPanel::toggle_renormalize(bool value)
+{
+    set_renorm_enabled(value);
+
+    if (api::get_import_type() != ImportTypeEnum::None)
+    {
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewXY);
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewXZ);
+        api::get_compute_pipe().get_rendering().request_view_clear_image_accumulation(WindowKind::ViewYZ);
+    }
+}
 
 void ViewPanel::display_reticle(bool value)
 {

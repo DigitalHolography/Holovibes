@@ -4,6 +4,7 @@
 
 namespace holovibes::api
 {
+inline const FrameDescriptor& get_import_frame_descriptor() { return api::detail::get_value<ImportFrameDescriptor>(); }
 
 inline int get_batch_size() { return api::detail::get_value<BatchSize>(); }
 void set_batch_size(int value);
@@ -59,10 +60,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
     api::detail::set_value<TimeTransformationCutsBufferSize>(value);
 }
 
-// other
 void close_critical_compute();
-void set_raw_mode(uint window_max_size);
-
-void toggle_renormalize(bool value);
 
 } // namespace holovibes::api

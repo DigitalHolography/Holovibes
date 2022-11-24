@@ -34,6 +34,7 @@ class UnwrapHistorySize : public UIntParameter<1, "unwrap_history_stopped">{};
 class Unwrap2DRequested : public BoolParameter<false, "unwrap_2d_requested">{};
 class IsComputationStopped : public BoolParameter<true, "is_computation_stopped">{};
 class TimeTransformationCutsEnable : public BoolParameter<false, "time_transformation_cuts_enable">{};
+class IsGuiEnable: public BoolParameter<false, "is_gui_enable">{};
 
 // clang-format on
 
@@ -52,6 +53,7 @@ using ComputeCache = MicroCache<ComputeMode,
                                 UnwrapHistorySize,
                                 Unwrap2DRequested,
                                 IsComputationStopped,
-                                TimeTransformationCutsEnable>;
+                                TimeTransformationCutsEnable,
+                                IsGuiEnable>;
 
 } // namespace holovibes

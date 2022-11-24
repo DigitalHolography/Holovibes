@@ -898,7 +898,7 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>Exec</string>
+                    <string>Execute</string>
                    </property>
                    <property name="flat">
                     <bool>false</bool>

@@ -16,6 +16,7 @@ namespace holovibes::gui
 CompositePanel::CompositePanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().composite_panel = this;
     hide();
 }
 
@@ -347,5 +348,8 @@ void CompositePanel::actualize_kernel_size_blur()
     api::change_composite_hsv()->h.blur.kernel_size = ui_->SpinBox_hue_blur_kernel_size->value();
 }
 
-void CompositePanel::set_composite_area() { api::set_composite_area(); }
+void CompositePanel::set_composite_area()
+{
+    UserInterface::instance().main_display->getOverlayManager().create_overlay<gui::KindOfOverlay::CompositeArea>();
+}
 } // namespace holovibes::gui
