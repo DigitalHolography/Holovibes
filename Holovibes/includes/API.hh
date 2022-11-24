@@ -24,8 +24,17 @@
 #include "compute_settings_API.hh"
 #include "compute_settings_struct.hh"
 #include "unknown_API.hh"
+#include "CUDA_API.hh"
+#include "options_parser.hh"
 
 namespace holovibes::api
 {
+inline void print_version() { std::cout << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
 
+inline void print_help(OptionsParser& parser)
+{
+    print_version();
+    std::cout << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cout << parser.get_opts_desc();
+}
 } // namespace holovibes::api

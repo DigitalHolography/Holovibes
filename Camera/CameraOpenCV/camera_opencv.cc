@@ -37,7 +37,7 @@ CameraOpenCV::CameraOpenCV()
     init_camera();
 }
 
-void CameraOpenCV::load_default_params() { fd_.byteEndian = Endianness::LittleEndian; }
+void CameraOpenCV::load_default_params() { fd_.byteEndian = holovibes::Endianness::LittleEndian; }
 
 void CameraOpenCV::load_ini_params()
 {

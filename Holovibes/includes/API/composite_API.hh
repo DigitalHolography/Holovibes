@@ -5,8 +5,6 @@
 namespace holovibes::api
 {
 
-// notify()
-
 inline CompositeKindEnum get_composite_kind() { return api::detail::get_value<CompositeKind>(); }
 inline void set_composite_kind(CompositeKindEnum value) { api::detail::set_value<CompositeKind>(value); }
 

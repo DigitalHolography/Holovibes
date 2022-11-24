@@ -37,7 +37,7 @@ class ImageAccumulation
     ImageAccumulation(FunctionVector& fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
-                      const camera::FrameDescriptor& fd,
+                      const FrameDescriptor& fd,
                       const cudaStream_t& stream,
                       ViewCache::Cache& view_cache);
 
@@ -81,7 +81,7 @@ class ImageAccumulation
     const CoreBuffersEnv& buffers_;
 
     /*! \brief Describes the frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

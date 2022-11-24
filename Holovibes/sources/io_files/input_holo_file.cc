@@ -78,7 +78,7 @@ void InputHoloFile::load_fd()
     fd_.width = holo_file_header_.img_width;
     fd_.height = holo_file_header_.img_height;
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
-    fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
+    fd_.byteEndian = holo_file_header_.endianness ? Endianness::BigEndian : Endianness::LittleEndian;
     LOG_TRACE("Exiting InputHoloFile::load_fd");
 }
 void InputHoloFile::load_footer()
@@ -172,14 +172,7 @@ void InputHoloFile::import_info() const
     if (!has_footer)
         return;
 
-    try
-    {
-        // Pixel are considered square
-        api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
-    }
-    catch (std::exception&)
-    {
-    }
+    api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
 }
 
 } // namespace holovibes::io_files

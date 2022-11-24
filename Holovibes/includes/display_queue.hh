@@ -15,16 +15,16 @@ namespace holovibes
 class DisplayQueue
 {
   public:
-    DisplayQueue(const camera::FrameDescriptor& fd)
+    DisplayQueue(const FrameDescriptor& fd)
         : fd_(fd)
     {
     }
 
     virtual void* get_last_image() const = 0;
 
-    const camera::FrameDescriptor& get_fd() const { return fd_; }
+    const FrameDescriptor& get_fd() const { return fd_; }
 
   protected:
-    camera::FrameDescriptor fd_;
+    FrameDescriptor fd_;
 };
 } // namespace holovibes

@@ -60,7 +60,7 @@ class MainWindow : public QMainWindow, public Observer
     void notify() override;
     void notify_error(const std::exception& e) override;
 
-    // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
+    // Might be removed because all parameters can be accessed in UserInterface
     friend class AdvancedSettingsWindow;
 
     /*! \brief Closes all the displayed windows */
@@ -69,13 +69,7 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Stops critical compute */
     void close_critical_compute();
 
-    /*! \brief Start the import process */
-    void start_import(QString filename);
-
     Ui::MainWindow* get_ui();
-
-    uint window_max_size = 768;
-    uint auxiliary_window_max_size = 512;
 
   public slots:
     void on_notify();

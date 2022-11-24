@@ -6,10 +6,13 @@
 
 #include "holovibes.hh"
 #include "options_parser.hh"
+#include "CUDA_API.hh"
 
-namespace cli
+namespace holovibes::cli
 {
+
 #define DEFAULT_CLI_FPS INT_MAX
 
-int start_cli(const holovibes::OptionsDescriptor& opts);
-} // namespace cli
+void start_cli(const holovibes::OptionsDescriptor& opts);
+
+} // namespace holovibes::cli

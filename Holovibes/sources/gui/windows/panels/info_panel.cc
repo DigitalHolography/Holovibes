@@ -15,6 +15,7 @@ namespace holovibes::gui
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().info_panel = this;
 }
 
 InfoPanel::~InfoPanel() {}

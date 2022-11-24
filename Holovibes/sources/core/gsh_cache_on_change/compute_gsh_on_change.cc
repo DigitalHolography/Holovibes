@@ -92,4 +92,27 @@ static void load_convolution_matrix(ConvolutionStruct& convo)
     }
 }
 
+template <>
+void ComputeGSHOnChange::operator()<BatchSize>(int& new_value)
+{
+    if (value > api::get_input_buffer_size())
+        value = api::get_input_buffer_size();
+
+    auto time_stride = api::get_time_stride();
+    if (time_stride < value)
+        api::set_time_stride(value);
+    else if (time_stride % value != 0)
+        api::set_time_stride(time_stride - time_stride % value);
+}
+
+template <>
+void ComputeGSHOnChange::operator()<TimeStride>(int& new_value)
+{
+    auto batch_size = api::get_batch_size();
+    if (batch_size > new_value)
+        new_value = batch_size;
+    else if (new_value % batch_size != 0)
+        new_value = new_value - new_value % batch_size;
+}
+
 } // namespace holovibes

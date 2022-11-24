@@ -22,7 +22,7 @@
 
 namespace holovibes
 {
-using camera::FrameDescriptor;
+using FrameDescriptor;
 
 ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : gpu_input_queue_(input)
@@ -34,7 +34,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
     plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
 
-    const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
+    const FrameDescriptor& fd = gpu_input_queue_.get_fd();
     long long int n[] = {fd.height, fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
@@ -59,7 +59,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     time_transformation_env_.stft_plan
         .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-    camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
+    FrameDescriptor new_fd = gpu_input_queue_.get_fd();
     new_fd.depth = 8;
     // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
     time_transformation_env_.gpu_time_transformation_queue.reset(
@@ -186,7 +186,7 @@ void ICompute::update_spatial_transformation_parameters()
 
 void ICompute::init_cuts()
 {
-    camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+    FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;

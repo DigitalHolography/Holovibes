@@ -20,6 +20,8 @@ namespace holovibes::gui
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().image_rendering_panel = this;
+
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
@@ -51,7 +53,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !api::get_frame_record_mode().enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -105,53 +107,79 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
+static void init_image_mode(QPoint& position, QSize& size)
+{
+    if (UserInterface::instance().main_display)
+    {
+        position = UserInterface::instance().main_display->framePosition();
+        size = UserInterface::instance().main_display->size();
+        UserInterface::instance().main_display.reset(nullptr);
+    }
+}
+
+static void set_raw_mode()
+{
+    QPoint pos(0, 0);
+    const FrameDescriptor& fd = api::detail::get_value<ImportFrameDescriptor>();
+    unsigned short width = fd.width;
+    unsigned short height = fd.height;
+    get_good_size(width, height, UserInterface::window_max_size);
+    QSize size(width, height);
+    init_image_mode(pos, size);
+
+    UserInterface::instance().main_display.reset(
+        new holovibes::gui::RawWindow(pos,
+                                      size,
+                                      api::get_gpu_input_queue_ptr().get(),
+                                      static_cast<float>(width) / static_cast<float>(height)));
+    UserInterface::instance().main_display->setTitle(QString("XY view"));
+    std::string fd_info =
+        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+}
+
+static void set_holographic_mode()
+{
+    if (api::detail::get_value<IsGuiEnable>())
+        create_holo_window(UserInterface::window_max_size);
+    /* Info Manager */
+    auto fd = api::get_import_frame_descriptor();
+    std::string fd_info =
+        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+}
+
 void ImageRenderingPanel::set_image_mode(int mode)
 {
     if (api::get_import_type() == ImportTypeEnum::None)
         return;
 
+    api::set_image_mode(static_cast<Computation>(mode));
+
     if (mode == static_cast<int>(Computation::Raw))
     {
-        api::close_windows();
-        api::close_critical_compute();
-
-        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
-            return;
-
-        api::set_raw_mode(parent_->window_max_size);
-
+        set_raw_mode();
         parent_->notify();
         parent_->layout_toggled();
     }
     else if (mode == static_cast<int>(Computation::Hologram))
     {
-        // That function is used to reallocate the buffers since the Square
-        // input mode could have changed
-        /* Close windows & destory thread compute */
-        api::close_windows();
-        api::close_critical_compute();
+        api::set_holographic_mode();
 
-        const bool res = api::set_holographic_mode(parent_->window_max_size);
+        /* ViewFilter2D */
+        FrameDescriptor fd = api::get_import_frame_descriptor();
+        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
-        if (res)
-        {
-            /* ViewFilter2D */
-            camera::FrameDescriptor fd = api::get_gpu_input_queue().get_fd();
-            ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        /* Record Frame Calculation. Only in file mode */
+        if (api::get_import_type() == ImportTypeEnum::File)
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeStrideSpinBox->value()));
 
-            /* Record Frame Calculation. Only in file mode */
-            if (api::get_import_type() == ImportTypeEnum::File)
-                ui_->NumberOfFramesSpinBox->setValue(
-                    ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                         (float)ui_->TimeStrideSpinBox->value()));
+        /* Batch size */
+        // The batch size is set with the value present in GUI.
+        update_batch_size();
 
-            /* Batch size */
-            // The batch size is set with the value present in GUI.
-            update_batch_size();
-
-            /* Notify */
-            parent_->notify();
-        }
+        /* Notify */
+        parent_->notify();
     }
 }
 
@@ -192,7 +220,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (checked)
     {
         // Set the input box related to the filter2d
-        const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+        const FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
     }
     else
@@ -222,25 +250,25 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
 
     if (checked == false)
     {
-        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
+        UserInterface::instance().filter2d_window.reset(nullptr);
         return;
     }
 
-    const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+    const FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
     ushort filter2d_window_width = fd.width;
     ushort filter2d_window_height = fd.height;
     get_good_size(filter2d_window_width, filter2d_window_height, parent_->auxiliary_window_max_size);
 
     // set positions of new windows according to the position of the
     // main GL window
-    QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                 QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-    UserInterfaceDescriptor::instance().filter2d_window.reset(
+    QPoint pos = UserInterface::instance().main_display->framePosition() +
+                 QPoint(UserInterface::instance().main_display->width() + 310, 0);
+    UserInterface::instance().filter2d_window.reset(
         new gui::Filter2DWindow(pos,
                                 QSize(filter2d_window_width, filter2d_window_height),
                                 api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
 
-    UserInterfaceDescriptor::instance().filter2d_window->setTitle("ViewFilter2D view");
+    UserInterface::instance().filter2d_window->setTitle("ViewFilter2D view");
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
@@ -254,7 +282,6 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     {
         // json{} return an array
         st = json{value.toStdString()}[0].get<SpaceTransformationEnum>();
-        LOG_DEBUG("value.toStdString() : {}", value.toStdString());
     }
     catch (std::out_of_range& e)
     {

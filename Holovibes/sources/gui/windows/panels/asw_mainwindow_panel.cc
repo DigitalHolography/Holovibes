@@ -11,6 +11,7 @@ ASWMainWindowPanel::ASWMainWindowPanel(MainWindow* parent)
     : AdvancedSettingsWindowPanel("MainWindow")
     , parent_(parent)
 {
+    UserInterface::instance().asw_main_window_panel = this;
     QVBoxLayout* mainwindow_layout = new QVBoxLayout();
 
     // Widgets creation

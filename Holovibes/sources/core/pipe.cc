@@ -39,7 +39,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
     }
 }
 
-using camera::FrameDescriptor;
+using FrameDescriptor;
 
 Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
@@ -104,16 +104,20 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
+// Call only when pipe is created
 void Pipe::call_reload_function_caches()
 {
     PipeRequestOnSync::begin_requests();
-    advanced_cache_.synchronize_force<AdvancedPipeRequestOnSync>(*this);
-    compute_cache_.synchronize_force<ComputePipeRequestOnSync>(*this);
-    import_cache_.synchronize_force<ImportPipeRequestOnSync>(*this);
-    export_cache_.synchronize_force<ExportPipeRequestOnSync>(*this);
-    composite_cache_.synchronize_force<CompositePipeRequestOnSync>(*this);
-    view_cache_.synchronize_force<ViewPipeRequestOnSync>(*this);
-    zone_cache_.synchronize_force<DefaultPipeRequestOnSync>(*this);
+
+    // clang-format off
+    advanced_cache_.synchronize_force<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheAfterMethod>>(*this);
+    compute_cache_.synchronize_force<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheAfterMethod>>(*this);
+    import_cache_.synchronize_force<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheAfterMethod>>(*this);
+    export_cache_.synchronize_force<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheAfterMethod>>(*this);
+    composite_cache_.synchronize_force<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheAfterMethod>>(*this);
+    view_cache_.synchronize_force<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheAfterMethod>>(*this);
+    zone_cache_.synchronize_force<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheAfterMethod>>(*this);
+    // clang-format on
 
     if (PipeRequestOnSync::has_requests_fail())
     {
@@ -132,13 +136,16 @@ void Pipe::call_reload_function_caches()
 void Pipe::synchronize_caches_and_make_requests()
 {
     PipeRequestOnSync::begin_requests();
-    advanced_cache_.synchronize<AdvancedPipeRequestOnSync>(*this);
-    compute_cache_.synchronize<ComputePipeRequestOnSync>(*this);
-    import_cache_.synchronize<ImportPipeRequestOnSync>(*this);
-    export_cache_.synchronize<ExportPipeRequestOnSync>(*this);
-    composite_cache_.synchronize<CompositePipeRequestOnSync>(*this);
-    view_cache_.synchronize<ViewPipeRequestOnSync>(*this);
-    zone_cache_.synchronize<DefaultPipeRequestOnSync>(*this);
+
+    // clang-format off
+    advanced_cache_.synchronize<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheAfterMethod>>(*this);
+    compute_cache_.synchronize<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheAfterMethod>>(*this);
+    import_cache_.synchronize<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheAfterMethod>>(*this);
+    export_cache_.synchronize<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheAfterMethod>>(*this);
+    composite_cache_.synchronize<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheAfterMethod>>(*this);
+    view_cache_.synchronize<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheAfterMethod>>(*this);
+    zone_cache_.synchronize<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheAfterMethod>>(*this);
+    // clang-format on
 
     if (PipeRequestOnSync::has_requests_fail())
     {
@@ -471,7 +478,7 @@ void Pipe::insert_raw_record()
 {
     if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::RAW)
     {
-        if (Holovibes::instance().is_cli)
+        if (!api::detail::get_value<IsGuiEnable>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
 
         fn_compute_vect_.push_back(
@@ -486,7 +493,7 @@ void Pipe::insert_hologram_record()
 {
     if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::HOLOGRAM)
     {
-        if (Holovibes::instance().is_cli)
+        if (!api::detail::get_value<IsGuiEnable>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
 
         fn_compute_vect_.conditional_push_back(

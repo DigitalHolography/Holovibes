@@ -35,7 +35,7 @@ class Camera : public ICamera
   public:
     virtual ~Camera() {}
 
-    const FrameDescriptor& get_fd() const override { return fd_; }
+    const holovibes::FrameDescriptor& get_fd() const override { return fd_; }
 
     const float get_pixel_size() const override { return pixel_size_; }
 
@@ -102,7 +102,7 @@ class Camera : public ICamera
 
   protected:
     /*! \brief Frame descriptor updated by camera */
-    FrameDescriptor fd_;
+    holovibes::FrameDescriptor fd_;
 
     /* Theses parameters are common to all cameras.
      * Others parameters such as binning, gain ... belongs to

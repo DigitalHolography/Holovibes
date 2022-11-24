@@ -18,6 +18,7 @@ namespace holovibes::gui
 ImportPanel::ImportPanel(QWidget* parent)
     : Panel(parent)
 {
+    UserInterface::instance().import_panel = this;
 }
 
 ImportPanel::~ImportPanel() {}
@@ -42,10 +43,7 @@ void ImportPanel::save_gui(json& j_us)
     j_us["import"]["from gpu"] = ui_->LoadFileInGpuCheckBox->isChecked();
 }
 
-std::string& ImportPanel::get_file_input_directory()
-{
-    return UserInterfaceDescriptor::instance().file_input_directory_;
-}
+std::string& ImportPanel::get_file_input_directory() { return UserInterface::instance().file_input_directory_; }
 
 void ImportPanel::set_start_stop_buttons(bool value)
 {
@@ -59,12 +57,11 @@ void ImportPanel::import_browse_file()
 
     // Open the file explorer to let the user pick his file
     // and store the chosen file in filename
-    filename =
-        QFileDialog::getOpenFileName(this,
-                                     tr("import file"),
-                                     QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
-                                     tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
-                                        "(*.cine)"));
+    filename = QFileDialog::getOpenFileName(this,
+                                            tr("import file"),
+                                            QString::fromStdString(UserInterface::instance().file_input_directory_),
+                                            tr("All files (*.holo *.cine);; Holo files (*.holo);; Cine files "
+                                               "(*.cine)"));
 
     // Start importing the chosen
     import_file(filename);
@@ -80,10 +77,9 @@ void ImportPanel::import_file(const QString& filename)
     import_line_edit->insert(filename);
 
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt;
     try
     {
-        input_file_opt = api::import_file(filename.toStdString());
+        api::import_file(filename.toStdString());
     }
     catch (const io_files::FileException& e)
     {
@@ -96,33 +92,12 @@ void ImportPanel::import_file(const QString& filename)
         return;
     }
 
-    if (input_file_opt)
-    {
-        auto input_file = input_file_opt.value();
+    parent_->notify();
 
-        // Import Compute Settings there before init_pipe to
-        // Allocate correctly buffer
-        input_file->import_compute_settings();
-        input_file->import_info();
-
-        parent_->notify();
-
-        // Gather data from the newly opened file
-        size_t nb_frames = input_file->get_total_nb_frames();
-        UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
-
-        // Don't need the input file anymore
-        delete input_file;
-
-        // Update the ui with the gathered data
-        ui_->ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
-        ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
-
-        // We can now launch holovibes over this file
-        set_start_stop_buttons(true);
-    }
-    else
-        set_start_stop_buttons(false);
+    ui_->ImportEndIndexSpinBox->setMaximum(api::detail::get_value<FileNumberOfFrame>());
+    ui_->ImportEndIndexSpinBox->setValue(api::detail::get_value<FileNumberOfFrame>());
+    // We can now launch holovibes over this file
+    set_start_stop_buttons(true);
 }
 
 void ImportPanel::import_stop()
@@ -140,7 +115,7 @@ void ImportPanel::import_stop()
     parent_->notify();
 }
 
-// TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
+// TODO: review function, we cannot edit UserInterface here (instead of API)
 void ImportPanel::import_start()
 {
     // Check if computation is currently running
@@ -161,42 +136,44 @@ void ImportPanel::import_start()
 
     std::string file_path = import_line_edit->text().toStdString();
 
-    bool res_import_start = api::import_start(file_path,
-                                              api::get_input_fps(),
-                                              start_spinbox->value(),
-                                              load_file_gpu_box->isChecked(),
-                                              end_spinbox->value());
-
-    if (res_import_start)
+    try
     {
-        ui_->FileReaderProgressBar->show();
-
-        // Make camera's settings menu unaccessible
-        QAction* settings = ui_->actionSettings;
-        settings->setEnabled(false);
-
-        // This notify is required.
-        // This sets GUI values and avoid having callbacks destroy and recreate the window and pipe.
-        // This prevents a double pipe initialization which is the source of many crashed (for example,
-        // going from Raw to Processed using reload_compute_settings or starting a .holo in Hologram mode).
-        // Ideally, every value should be set without callbacks before the window is created, which would avoid such
-        // problems.
-        // This is for now absolutely terrible, but it's a necessary evil until notify is reworked.
-        // Something in the notify cancels the convolution. An issue is opened about this problem.
-        parent_->notify();
-
-        // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
-        if (api::get_main_display() == nullptr)
-            parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
-
-        // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
-        // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
-        gui::utilities::display_reticle(api::get_reticle().display_enabled);
+        api::import_start(file_path,
+                          api::get_input_fps(),
+                          start_spinbox->value(),
+                          load_file_gpu_box->isChecked(),
+                          end_spinbox->value());
     }
-    else
+    catch (...)
     {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+
+        UserInterface::instance().main_display.reset(nullptr);
+        throw;
     }
+
+    ui_->FileReaderProgressBar->show();
+
+    // Make camera's settings menu unaccessible
+    QAction* settings = ui_->actionSettings;
+    settings->setEnabled(false);
+
+    // This notify is required.
+    // This sets GUI values and avoid having callbacks destroy and recreate the window and pipe.
+    // This prevents a double pipe initialization which is the source of many crashed (for example,
+    // going from Raw to Processed using reload_compute_settings or starting a .holo in Hologram mode).
+    // Ideally, every value should be set without callbacks before the window is created, which would avoid such
+    // problems.
+    // This is for now absolutely terrible, but it's a necessary evil until notify is reworked.
+    // Something in the notify cancels the convolution. An issue is opened about this problem.
+    parent_->notify();
+
+    // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
+    if (UserInterface::instance().main_display == nullptr)
+        parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+
+    // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
+    // this can easily be done while impacting only the GUI, so it's done here as a dirty fix
+    gui::utilities::display_reticle(api::get_reticle().display_enabled);
 }
 
 void ImportPanel::import_start_spinbox_update()

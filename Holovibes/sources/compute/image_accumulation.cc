@@ -22,7 +22,7 @@ namespace holovibes::compute
 ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
                                      ImageAccEnv& image_acc_env,
                                      const CoreBuffersEnv& buffers,
-                                     const camera::FrameDescriptor& fd,
+                                     const FrameDescriptor& fd,
                                      const cudaStream_t& stream,
                                      ViewCache::Cache& view_cache)
     : fn_compute_vect_(fn_compute_vect)

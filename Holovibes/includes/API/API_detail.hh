@@ -7,7 +7,6 @@
 #include "view_panel.hh"
 #include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
-#include "user_interface_descriptor.hh"
 #include "global_state_holder.hh"
 
 #include <nlohmann/json.hpp>

@@ -74,7 +74,7 @@ void CameraXib::load_default_params()
     fd_.height = real_height_;
     pixel_size_ = 5.5f;
     fd_.depth = 1;
-    fd_.byteEndian = Endianness::BigEndian;
+    fd_.byteEndian = holovibes::Endianness::BigEndian;
 
     /* Custom parameters. */
     gain_ = 0.f;

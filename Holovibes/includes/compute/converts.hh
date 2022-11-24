@@ -37,7 +37,7 @@ class Converts
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan2d,
-             const camera::FrameDescriptor& input_fd,
+             const FrameDescriptor& input_fd,
              const cudaStream_t& stream,
              ComputeCache::Cache& compute_cache,
              CompositeCache::Cache& composite_cache,
@@ -100,7 +100,7 @@ class Converts
     /*! \brief Plan 2D. Used for unwrapping. */
     cuda_tools::CufftHandle& plan_unwrap_2d_;
     /*! \brief Describes the input frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 

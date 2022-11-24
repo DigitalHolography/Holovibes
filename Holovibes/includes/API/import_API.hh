@@ -20,10 +20,10 @@ inline void set_current_camera_kind(CameraKind value) { api::detail::set_value<C
 inline const std::string& get_last_image_type() { return api::detail::get_value<LastImageType>(); }
 inline void set_last_image_type(const std::string& value) { api::detail::set_value<LastImageType>(value); }
 
-bool import_start(
+void import_start(
     std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame);
 
 void import_stop();
-std::optional<io_files::InputFrameFile*> import_file(const std::string& filename);
+void import_file(const std::string& filename);
 
 } // namespace holovibes::api

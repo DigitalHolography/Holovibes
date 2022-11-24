@@ -39,8 +39,8 @@ class Rendering
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
               const TimeTransformationEnv& time_transformation_env,
-              const camera::FrameDescriptor& input_fd,
-              const camera::FrameDescriptor& output_fd,
+              const FrameDescriptor& input_fd,
+              const FrameDescriptor& output_fd,
               const cudaStream_t& stream,
               AdvancedCache::Cache& advanced_cache,
               ComputeCache::Cache& compute_cache,
@@ -111,9 +111,9 @@ class Rendering
     /*! \brief Image accumulation environment */
     [[maybe_unused]] const ImageAccEnv& image_acc_env_;
     /*! \brief Describes the input frame size */
-    const camera::FrameDescriptor& input_fd_;
+    const FrameDescriptor& input_fd_;
     /*! \brief Describes the output frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

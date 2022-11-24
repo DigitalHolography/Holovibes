@@ -7,7 +7,7 @@
 
 #include <cufftXt.h>
 
-using camera::FrameDescriptor;
+using holovibes::FrameDescriptor;
 
 void fft1_lens(cuComplex* lens,
                const uint lens_side_size,

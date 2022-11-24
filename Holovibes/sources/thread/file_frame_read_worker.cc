@@ -6,6 +6,7 @@
 
 #include "holovibes.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
 
 namespace holovibes::worker
 {
@@ -48,7 +49,7 @@ void FileFrameReadWorker::run()
         return;
     }
 
-    const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+    const FrameDescriptor& fd = input_file_->get_frame_descriptor();
     frame_size_ = fd.get_frame_size();
 
     if (!init_frame_buffers())
@@ -214,7 +215,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
         if (flag_packed != 8 && flag_packed != 16)
         {
-            const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+            const FrameDescriptor& fd = input_file_->get_frame_descriptor();
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
@@ -265,7 +266,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     {
         fps_handler_.wait();
 
-        if (Holovibes::instance().is_cli)
+        if (!api::detail::get_value<IsGuiEnable>())
         {
             while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
                        Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&

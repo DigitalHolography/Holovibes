@@ -28,7 +28,7 @@ using holovibes::compute::FourierTransform;
 
 FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    const holovibes::CoreBuffersEnv& buffers,
-                                   const camera::FrameDescriptor& fd,
+                                   const FrameDescriptor& fd,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,

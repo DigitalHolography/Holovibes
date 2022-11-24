@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-using camera::FrameDescriptor;
+using holovibes::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::CufftHandle;
 using cuda_tools::UniquePtr;

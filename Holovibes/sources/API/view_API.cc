@@ -6,7 +6,7 @@ namespace holovibes::api
 void create_holo_window(ushort window_size)
 {
     QPoint pos(0, 0);
-    const camera::FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
+    const FrameDescriptor& fd = api::get_gpu_input_queue().get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_size);
@@ -15,16 +15,16 @@ void create_holo_window(ushort window_size)
 
     try
     {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
+        UserInterface::instance().main_display.reset(
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue_ptr().get(),
-                                UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ,
+                                UserInterface::instance().sliceXZ,
+                                UserInterface::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-        UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
+        UserInterface::instance().main_display->set_is_resize(false);
+        UserInterface::instance().main_display->setTitle(QString("XY view"));
+        UserInterface::instance().main_display->resetTransform();
     }
     catch (const std::runtime_error& e)
     {
@@ -36,10 +36,10 @@ void refresh_view_mode(ushort window_size, uint index)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
-    if (UserInterfaceDescriptor::instance().mainDisplay)
+    if (UserInterface::instance().main_display)
     {
-        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
-        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
+        old_scale = UserInterface::instance().main_display->getScale();
+        old_translation = UserInterface::instance().main_display->getTranslate();
     }
 
     api::close_windows();
@@ -51,12 +51,12 @@ void refresh_view_mode(ushort window_size, uint index)
     {
         api::create_pipe();
         api::create_holo_window(window_size);
-        UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-        UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+        UserInterface::instance().main_display->setScale(old_scale);
+        UserInterface::instance().main_display->setTranslate(old_translation[0], old_translation[1]);
     }
     catch (const std::runtime_error& e)
     {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+        UserInterface::instance().main_display.reset(nullptr);
         LOG_ERROR(main, "refresh_view_mode: {}", e.what());
     }
 }

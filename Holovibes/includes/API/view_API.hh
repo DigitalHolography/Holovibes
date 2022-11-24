@@ -4,6 +4,7 @@
 
 namespace holovibes::api
 {
+    
 inline ImageTypeEnum get_image_type() { return api::detail::get_value<ImageType>(); }
 inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<ImageType>(value); }
 

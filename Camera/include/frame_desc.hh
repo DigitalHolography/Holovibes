@@ -3,7 +3,7 @@
  * Image format stored as a structure. */
 #pragma once
 
-namespace camera
+namespace holovibes
 {
 using Endianness = enum { LittleEndian = 0, BigEndian = 1 };
 
@@ -23,5 +23,15 @@ struct FrameDescriptor
     unsigned short height; /*!< Height of the frame in pixels. */
     unsigned int depth;    /*!< Byte depth during acquisition. */
     Endianness byteEndian; /*!< To each camera software its endianness. Useful for 16-bit cameras. */
+
+    bool operator!=(const FrameDescriptor& rhs)
+    {
+        return width != rhs.width || height != rhs.height || depth != rhs.depth;
+    }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const FrameDescriptor& fd)
+{
+    return os << "width : " << fd.width << "height : " << fd.height << "depth : " << fd.depth;
+}
 } // namespace camera

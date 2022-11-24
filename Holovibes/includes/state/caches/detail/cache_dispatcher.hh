@@ -40,7 +40,9 @@ class CacheDispatcher<>
     template <typename T>
     void get()
     {
-        static_assert(false, "Can't dispatch to this Attribute because it is not in this class");
+        static_assert(false,
+                      "Can't dispatch to this Attribute because it is not in this class, Maybe be add it to the cache "
+                      "constructor");
     }
 };
 

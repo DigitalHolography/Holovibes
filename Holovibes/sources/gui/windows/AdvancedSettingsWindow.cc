@@ -19,10 +19,7 @@ AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSett
     set_current_values();
 }
 
-AdvancedSettingsWindow::~AdvancedSettingsWindow()
-{
-    UserInterfaceDescriptor::instance().advanced_settings_window_.release();
-}
+AdvancedSettingsWindow::~AdvancedSettingsWindow() { UserInterface::instance().advanced_settings_window.release(); }
 
 #pragma region PANELS
 
@@ -58,19 +55,19 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_renorm_constant(ui.RenormConstantSpinBox->value());
     api::change_contrast_threshold()->cuts_p_offset = ui.CutsContrastSpinBox->value();
 
-    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
+    UserInterface::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
+    UserInterface::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
+    UserInterface::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
+    UserInterface::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
 
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
+    UserInterface::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
     api::set_raw_bitshift(ui.rawBitShiftSpinBox->value());
 
     if (specific_panel_ != nullptr)
         specific_panel_->set_ui_values();
 
-    UserInterfaceDescriptor::instance().has_been_updated = true;
+    UserInterface::instance().has_been_updated = true;
     this->close();
 }
 
@@ -110,13 +107,13 @@ void AdvancedSettingsWindow::set_current_values()
     ui.RenormConstantSpinBox->setValue(api::get_renorm_constant());
     ui.CutsContrastSpinBox->setValue(api::get_contrast_threshold().cuts_p_offset);
 
-    ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
-    ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
-    ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
-    ui.BatchFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().batch_input_directory_.c_str());
+    ui.OutputNameLineEdit->setText(UserInterface::instance().default_output_filename_.c_str());
+    ui.InputFolderPathLineEdit->setText(UserInterface::instance().record_output_directory_.c_str());
+    ui.OutputFolderPathLineEdit->setText(UserInterface::instance().file_input_directory_.c_str());
+    ui.BatchFolderPathLineEdit->setText(UserInterface::instance().batch_input_directory_.c_str());
 
     ui.autoScalePointThresholdSpinBox->setValue(
-        static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
+        static_cast<int>(UserInterface::instance().auto_scale_point_threshold_));
 
     ui.rawBitShiftSpinBox->setValue(api::get_raw_bitshift());
 

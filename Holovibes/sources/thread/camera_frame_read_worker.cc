@@ -13,7 +13,7 @@ CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> ca
 
 void CameraFrameReadWorker::run()
 {
-    const camera::FrameDescriptor& camera_fd = camera_->get_fd();
+    const FrameDescriptor& camera_fd = camera_->get_fd();
 
     // Update information container
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
@@ -53,7 +53,7 @@ void CameraFrameReadWorker::run()
 }
 
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
-                                         const camera::FrameDescriptor& camera_fd)
+                                         const FrameDescriptor& camera_fd)
 {
     auto copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
 

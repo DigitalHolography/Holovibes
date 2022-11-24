@@ -39,7 +39,7 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const FrameDescriptor& fd);
 
     ~BatchInputQueue();
 
@@ -136,7 +136,7 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_total_nb_frames() const { return total_nb_frames_; }
 
-    const camera::FrameDescriptor& get_fd() const { return fd_; }
+    const FrameDescriptor& get_fd() const { return fd_; }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.

@@ -287,7 +287,7 @@ void CameraPhantomBitflow::load_ini_params()
     pixel_size_ = pt.get<float>("bitflow.pixel_size", 20.0f);
 }
 
-void CameraPhantomBitflow::load_default_params() { fd_.byteEndian = Endianness::LittleEndian; }
+void CameraPhantomBitflow::load_default_params() { fd_.byteEndian = holovibes::Endianness::LittleEndian; }
 
 void CameraPhantomBitflow::bind_params()
 {

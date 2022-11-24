@@ -19,8 +19,8 @@
 
 namespace holovibes
 {
-using camera::Endianness;
-using camera::FrameDescriptor;
+using Endianness;
+using FrameDescriptor;
 } // namespace holovibes
 
 namespace holovibes::gui

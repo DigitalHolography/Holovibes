@@ -6,7 +6,7 @@
 
 namespace holovibes::io_files
 {
-OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+OutputHoloFile::OutputHoloFile(const std::string& file_path, const FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , HoloFile()
 {
@@ -22,7 +22,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.img_width = fd_.width;
     holo_file_header_.img_height = fd_.height;
     holo_file_header_.img_nb = img_nb;
-    holo_file_header_.endianness = camera::Endianness::LittleEndian;
+    holo_file_header_.endianness = Endianness::LittleEndian;
 
     holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 

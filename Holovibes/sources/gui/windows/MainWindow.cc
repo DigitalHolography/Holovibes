@@ -26,8 +26,8 @@
 
 namespace holovibes
 {
-using camera::Endianness;
-using camera::FrameDescriptor;
+using Endianness;
+using FrameDescriptor;
 } // namespace holovibes
 
 namespace holovibes::gui
@@ -148,7 +148,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    // FIXME : api::start_information_display();
     Holovibes::instance().start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
@@ -200,7 +199,7 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api::get_import_type() == ImportTypeEnum::Camera)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -317,7 +316,7 @@ void MainWindow::browse_import_ini()
 {
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .json file"),
-                                                    UserInterfaceDescriptor::instance().file_input_directory_.c_str(),
+                                                    UserInterface::instance().file_input_directory_.c_str(),
                                                     tr("All files (*.json);; Json files (*.json)"));
 
     if (!filename.isEmpty())
@@ -364,31 +363,25 @@ void MainWindow::load_gui()
     ui_->ExportPanel->set_record_frame_step(
         json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
 
-    UserInterfaceDescriptor::instance().auto_scale_point_threshold_ =
+    UserInterface::instance().auto_scale_point_threshold_ =
         json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
+                            UserInterface::instance().auto_scale_point_threshold_,
                             "chart",
                             "auto scale point threshold");
-    UserInterfaceDescriptor::instance().default_output_filename_ =
+    UserInterface::instance().default_output_filename_ =
         json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().default_output_filename_,
+                            UserInterface::instance().default_output_filename_,
                             "files",
                             "default output filename");
-    UserInterfaceDescriptor::instance().record_output_directory_ =
+    UserInterface::instance().record_output_directory_ =
         json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().record_output_directory_,
+                            UserInterface::instance().record_output_directory_,
                             "files",
                             "record output directory");
-    UserInterfaceDescriptor::instance().file_input_directory_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().file_input_directory_,
-                            "files",
-                            "file input directory");
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().batch_input_directory_,
-                            "files",
-                            "batch input directory");
+    UserInterface::instance().file_input_directory_ =
+        json_get_or_default(j_us, UserInterface::instance().file_input_directory_, "files", "file input directory");
+    UserInterface::instance().batch_input_directory_ =
+        json_get_or_default(j_us, UserInterface::instance().batch_input_directory_, "files", "batch input directory");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
@@ -411,11 +404,11 @@ void MainWindow::save_gui()
     j_us["display"]["refresh rate"] = api::get_display_rate();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
-    j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
-    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
-    j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
-    j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
-    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
+    j_us["chart"]["auto scale point threshold"] = UserInterface::instance().auto_scale_point_threshold_;
+    j_us["files"]["default output filename"] = UserInterface::instance().default_output_filename_;
+    j_us["files"]["record output directory"] = UserInterface::instance().record_output_directory_;
+    j_us["files"]["file input directory"] = UserInterface::instance().file_input_directory_;
+    j_us["files"]["batch input directory"] = UserInterface::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -560,12 +553,6 @@ void MainWindow::set_view_image_type(const QString& value)
 
 /* ------------ */
 
-void MainWindow::start_import(QString filename)
-{
-    ui_->ImportPanel->import_file(filename);
-    ui_->ImportPanel->import_start();
-}
-
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
@@ -574,7 +561,7 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 void MainWindow::close_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().has_been_updated)
+    if (UserInterface::instance().has_been_updated)
     {
         ImportTypeEnum it = api::get_import_type();
         ui_->ImportPanel->import_stop();
@@ -585,7 +572,7 @@ void MainWindow::close_advanced_settings()
             change_camera(api::get_current_camera_kind());
     }
 
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+    UserInterface::instance().is_advanced_settings_displayed = false;
 }
 
 void MainWindow::reset_settings()
@@ -624,13 +611,16 @@ void MainWindow::reset_settings()
 
 void MainWindow::open_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
+    if (UserInterface::instance().is_advanced_settings_displayed)
         return;
 
     ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
-    api::open_advanced_settings(this, panel);
 
-    connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
+    UserInterface::instance().is_advanced_settings_displayed = true;
+    UserInterface::instance().advanced_settings_window =
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(this, panel);
+
+    connect(UserInterface::instance().advanced_settings_window.get(),
             SIGNAL(closed()),
             this,
             SLOT(close_advanced_settings()),

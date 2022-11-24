@@ -86,9 +86,9 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::filesystem::path path = std::filesystem::path(std_filepath);
 
     // FIXME Opti: we could be all these 3 operations below on a single string processing
-    UserInterfaceDescriptor::instance().record_output_directory_ = path.parent_path().string();
+    UserInterface::instance().record_output_directory_ = path.parent_path().string();
     const std::string file_ext = path.extension().string();
-    UserInterfaceDescriptor::instance().default_output_filename_ = path.stem().string();
+    UserInterface::instance().default_output_filename_ = path.stem().string();
 
     return file_ext;
 }

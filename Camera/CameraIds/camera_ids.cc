@@ -81,7 +81,7 @@ void CameraIds::load_default_params()
     fd_.height = 2048;
     fd_.depth = 1;
     pixel_size_ = 5.5f;
-    fd_.byteEndian = Endianness::LittleEndian;
+    fd_.byteEndian = holovibes::Endianness::LittleEndian;
 
     exposure_time_ = 49.91f;
     gain_ = 0;

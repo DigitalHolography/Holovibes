@@ -9,5 +9,5 @@
 
 void textureUpdate(cudaSurfaceObject_t cuSurface,
                    void* frame,
-                   const camera::FrameDescriptor& fd,
+                   const holovibes::FrameDescriptor& fd,
                    const cudaStream_t stream);

@@ -8,6 +8,21 @@
 namespace holovibes
 {
 
+namespace detail
+{
+template <typename T>
+inline bool has_value_change(typename T::ConstValueRef old_value, typename T::ConstValueRef new_value)
+{
+    constexpr bool has_op_neq = requires(typename T::ConstValueRef lhs, typename T::ConstValueRef rhs) { lhs != rhs; };
+
+    if constexpr (has_op_neq) return value_ != new_value;
+
+    LOG_WARN(main, "Couldn't check if the value has been change ; T = {}", typeid(T).name());
+    return true;
+}
+
+} // namespace detail
+
 template <size_t N>
 struct StringLiteral
 {
@@ -66,7 +81,20 @@ class Parameter : public IParameter
     const char* get_key() const override { return Key; }
 
   public:
-    virtual bool value_has_changed(IParameter* ref) override
+    inline bool has_parameter_change(ValueType ref) const
+    {
+        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs)
+        {
+            lhs != rhs;
+        };
+
+        if constexpr (has_op_neq) return value_ != ref;
+
+        LOG_WARN(main, "Couldn't check if the value has been change ; T = {}", typeid(T).name());
+        return true;
+    }
+
+    virtual bool has_parameter_change(IParameter* ref) const override
     {
         Parameter* ref_cast = dynamic_cast<Parameter*>(ref);
         if (ref_cast == nullptr)
@@ -75,14 +103,8 @@ class Parameter : public IParameter
             return true;
         }
 
-        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs) { lhs != rhs; };
-
         ValueType& new_value = ref_cast->get_value();
-        if constexpr (has_op_neq)
-            return value_ != new_value;
-
-        LOG_WARN(main, "Couldn't check if the value has been change ; T = {}", typeid(T).name());
-        return true;
+        return has_parameter_change(new_value);
     };
 
     virtual void sync_with(IParameter* ref) override
