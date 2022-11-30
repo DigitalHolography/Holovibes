@@ -6,18 +6,6 @@
 namespace holovibes::api
 {
 
-inline float get_contrast_min()
-{
-    return api::get_current_view().log_enabled ? api::get_current_view().contrast.min
-                                               : log10(api::get_current_view().contrast.min);
-}
-
-inline float get_contrast_max()
-{
-    return api::get_current_view().log_enabled ? api::get_current_view().contrast.max
-                                               : log10(api::get_current_view().contrast.max);
-}
-
 void request_exec_contrast_all_windows();
 void request_exec_contrast_current_window();
 void request_auto_contrast_current_window();

@@ -20,7 +20,7 @@ class IParameter
     virtual const char* get_key() const { return ""; };
 
   public:
-    virtual bool value_has_changed(IParameter* ref) const = 0;
+    virtual bool has_parameter_change(IParameter* ref) const = 0;
     virtual void sync_with(IParameter* ref) = 0;
 
     bool get_has_been_synchronized() const { return has_been_synchronized_; }

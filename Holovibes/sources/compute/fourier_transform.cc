@@ -32,9 +32,9 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
-                                   AdvancedCache::Cache& advanced_cache,
-                                   ComputeCache::Cache& compute_cache,
-                                   ViewCache::Cache& view_cache)
+                                   PipeAdvancedCache& advanced_cache,
+                                   PipeComputeCache& compute_cache,
+                                   PipeViewCache& view_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -60,8 +60,8 @@ void FourierTransform::insert_fft()
         update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      fd_.width,
                                      fd_.height,
-                                     compute_cache_.get_value<Filter2D>().n1,
-                                     compute_cache_.get_value<Filter2D>().n2,
+                                     compute_cache_.get_value<Filter2D>().inner_radius,
+                                     compute_cache_.get_value<Filter2D>().outer_radius,
                                      advanced_cache_.get_value<Filter2DSmooth>().low,
                                      advanced_cache_.get_value<Filter2DSmooth>().high,
                                      stream_);
@@ -374,7 +374,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (view_cache_.get_value<CutsViewEnabled>())
+            if (view_cache_.get_value<CutsViewEnable>())
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;
@@ -405,7 +405,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
                                                    compute_cache_.get_value<TimeTransformationSize>(),
                                                    view_cache_.get_value<ViewXZ>().output_image_accumulation,
                                                    view_cache_.get_value<ViewYZ>().output_image_accumulation,
-                                                   view_cache_.get_value<ImageType>(),
+                                                   compute_cache_.get_value<ImageType>(),
                                                    stream_);
                 }
             }

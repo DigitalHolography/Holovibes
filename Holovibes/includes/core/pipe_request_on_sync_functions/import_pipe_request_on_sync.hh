@@ -20,11 +20,13 @@ class ImportPipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<LastImageType>(const std::string&, Pipe& pipe)
-    {
-        LOG_UPDATE_PIPE(LastImageType);
+    void on_sync<ImportType>(ImportTypeEnum new_value, ImportTypeEnum old_value, Pipe& pipe);
+    template <>
+    void operator()<ImportType>(ImportTypeEnum new_value, Pipe& pipe);
 
-        request_pipe_refresh();
-    }
+    template <>
+    void on_sync<CurrentCameraKind>(CameraKind new_value, CameraKind old_value, Pipe& pipe);
+    template <>
+    void operator()<CurrentCameraKind>(CameraKind new_value, Pipe& pipe);
 };
 } // namespace holovibes

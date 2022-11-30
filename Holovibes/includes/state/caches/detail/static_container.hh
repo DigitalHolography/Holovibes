@@ -33,7 +33,6 @@ class StaticContainer<>
     template <typename K>
     static constexpr uint get_index_of()
     {
-        static_assert(false, "This type is not in this class");
         return 0;
     }
 
@@ -85,7 +84,7 @@ class StaticContainer<TParameter, R...> : public StaticContainer<R...>
         return 1 + StaticContainer<R...>::template get_index_of<K>();
     }
 
-    static constexpr uint size() { return 1 + sizeof...(R); }
+    static constexpr uint size() { return 1 + StaticContainer<R...>::size(); }
 
   public:
     template <typename StaticContainerRef>

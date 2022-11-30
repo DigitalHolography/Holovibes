@@ -22,10 +22,10 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
                    const FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache,
-                   CompositeCache::Cache& composite_cache,
-                   ViewCache::Cache& view_cache,
-                   ZoneCache::Cache& zone_cache)
+                   PipeComputeCache& compute_cache,
+                   PipeCompositeCache& composite_cache,
+                   PipeViewCache& view_cache,
+                   PipeZoneCache& zone_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -46,19 +46,20 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     LOG_FUNC(unwrap_2d_requested);
 
     insert_compute_p_accu();
-    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+    if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         insert_to_composite();
-    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Modulus) // img type in ui : magnitude
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::SquaredModulus) // img type in ui : squared magnitude
+    else if (compute_cache_.get_value<ImageType>() ==
+             ImageTypeEnum::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Argument)
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (view_cache_.get_value<ImageType>() == ImageTypeEnum::PhaseIncrease)
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
     if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::PCA &&
-        view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
+        compute_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -78,7 +79,7 @@ void Converts::insert_to_ushort()
     LOG_FUNC();
 
     insert_main_ushort();
-    if (view_cache_.get_value<CutsViewEnabled>())
+    if (view_cache_.get_value<CutsViewEnable>())
         insert_slice_ushort();
     if (view_cache_.get_value<Filter2DViewEnabled>())
         insert_filter2d_ushort();

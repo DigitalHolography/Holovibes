@@ -54,11 +54,11 @@ namespace holovibes
 class Pipe : public ICompute
 {
   public:
-    /*! \brief Allocate CPU/GPU ressources for computation.
+    /*! \brief Allocate CPU/GPU ressources for ComputeModeEnum.
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the ComputeModeEnums are processed
      */
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
 
@@ -128,7 +128,7 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
+    /*! \brief Request the ComputeModeEnum of a autocontrast if the contrast and the contrast refresh is enabled */
     void insert_request_autocontrast();
 
     void insert_raw_view();
@@ -169,6 +169,6 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
 
-    std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
+    uint processed_output_fps_;
 };
 } // namespace holovibes

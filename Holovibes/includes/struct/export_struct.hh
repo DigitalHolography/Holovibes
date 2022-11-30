@@ -6,7 +6,7 @@
 #pragma once
 
 #include "types.hh"
-#include "enum_record_mode.hh"
+
 #include "all_struct.hh"
 
 namespace holovibes
@@ -14,43 +14,79 @@ namespace holovibes
 struct ChartRecordStruct
 {
   public:
-    uint nb_points_to_record_ = 0;
+    std::string chart_file_path;
+    uint nb_points_to_record = 0;
+    bool is_running = false;
+    bool is_selected = false;
+
+    bool get_is_selected_if_is_running() const { return is_running && is_selected; }
 
   public:
-    void disable() { nb_points_to_record_ = 0; }
-    bool is_enable() const { return nb_points_to_record_ != 0; }
-    uint get_nb_points_to_record() const { return nb_points_to_record_; }
-    void set_nb_points_to_record(uint value) { nb_points_to_record_ = value; }
-
-    bool operator!=(const ChartRecordStruct& rhs) { return nb_points_to_record_ != rhs.nb_points_to_record_; }
+    bool operator!=(const ChartRecordStruct& rhs) const
+    {
+        return nb_points_to_record != rhs.nb_points_to_record || is_running != rhs.is_running;
+    }
 };
 
 struct FrameRecordStruct
 {
   public:
-    RecordMode record_mode = RecordMode::NONE;
-    bool enabled = false;
+    enum class RecordType
+    {
+        NONE,
+        RAW,
+        HOLOGRAM,
+        CUTS_XZ,
+        CUTS_YZ
+    };
 
   public:
-    RecordMode get_record_mode_if_enable() const
+    std::string frames_file_path;
+    uint nb_frames_to_record = 0;
+    uint nb_frames_to_skip = 0;
+    bool is_running = false;
+    RecordType record_type;
+
+  public:
+    RecordType get_record_type_if_is_running() const
     {
-        if (enabled)
-            return record_mode;
-        return RecordMode::NONE;
+        if (is_running == false)
+            return RecordType::NONE;
+        return record_type;
     }
 
   public:
-    bool operator!=(const FrameRecordStruct& rhs) { return record_mode != rhs.record_mode || enabled != rhs.enabled; }
+    bool operator!=(const FrameRecordStruct& rhs) const
+    {
+        return nb_frames_to_record != rhs.nb_frames_to_record || nb_frames_to_skip != rhs.nb_frames_to_skip ||
+               is_running != rhs.is_running || record_type != rhs.record_type;
+    }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
 {
-    return os << value.nb_points_to_record_;
+    return os << value.nb_points_to_record << ", is_running : " << value.is_running;
+    ;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
 {
-    return os << value.record_mode << ", enabled : " << value.enabled;
+    return os << value.nb_frames_to_record << ", enabled : " << value.is_running;
+}
+
+// clang-format off
+SERIALIZE_JSON_ENUM(FrameRecordStruct::RecordType, {
+    {FrameRecordStruct::RecordType::NONE, "NONE"},
+    {FrameRecordStruct::RecordType::RAW, "RAW"},
+    {FrameRecordStruct::RecordType::CUTS_XZ, "CUTS_XZ"},
+    {FrameRecordStruct::RecordType::CUTS_YZ, "CUTS_YZ"},
+    {FrameRecordStruct::RecordType::HOLOGRAM, "HOLOGRAM"}
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct::RecordType& value)
+{
+    return os << json{value};
 }
 
 } // namespace holovibes

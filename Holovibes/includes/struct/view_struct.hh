@@ -29,7 +29,7 @@ struct ViewContrast
 
     SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
 
-    bool operator!=(const ViewContrast& rhs)
+    bool operator!=(const ViewContrast& rhs) const
     {
         return enabled != rhs.enabled || auto_refresh != rhs.auto_refresh || invert != rhs.invert || min != rhs.min ||
                max != rhs.max;
@@ -48,7 +48,22 @@ struct ViewWindow
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
 
-    bool operator!=(const ViewWindow& rhs) { return contrast != rhs.contrast || log_enabled != rhs.log_enabled; }
+    bool operator!=(const ViewWindow& rhs) const { return contrast != rhs.contrast || log_enabled != rhs.log_enabled; }
+
+  public:
+    float get_contrast_min_logged() const
+    {
+        if (log_enabled)
+            return contrast.min;
+        return log10(contrast.min);
+    }
+
+    float get_contrast_max_logged() const
+    {
+        if (log_enabled)
+            return contrast.max;
+        return log10(contrast.max);
+    }
 };
 
 /*! \class ViewXYZ
@@ -67,7 +82,7 @@ struct ViewXYZ : public ViewWindow
   public:
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
 
-    bool operator!=(const ViewXYZ& rhs)
+    bool operator!=(const ViewXYZ& rhs) const
     {
         return ViewWindow::operator!=(rhs) || log_enabled != rhs.log_enabled || horizontal_flip != rhs.horizontal_flip ||
                rotation != rhs.rotation || output_image_accumulation != rhs.output_image_accumulation;
@@ -84,7 +99,7 @@ struct ViewAccu
 
     SERIALIZE_JSON_STRUCT(ViewAccu, width)
 
-    bool operator!=(const ViewAccu& rhs) { return width != rhs.width; }
+    bool operator!=(const ViewAccu& rhs) const { return width != rhs.width; }
 };
 
 /*! \class ViewPQ
@@ -97,7 +112,7 @@ struct ViewAccuPQ : public ViewAccu
 
     SERIALIZE_JSON_STRUCT(ViewAccuPQ, width, start)
 
-    bool operator!=(const ViewAccuPQ& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
+    bool operator!=(const ViewAccuPQ& rhs) const { return ViewAccu::operator!=(rhs) || start != rhs.start; }
 };
 
 /*! \class ViewXY
@@ -110,7 +125,7 @@ struct ViewAccuXY : public ViewAccu
 
     SERIALIZE_JSON_STRUCT(ViewAccuXY, width, start)
 
-    bool operator!=(const ViewAccuXY& rhs) { return ViewAccu::operator!=(rhs) || start != rhs.start; }
+    bool operator!=(const ViewAccuXY& rhs) const { return ViewAccu::operator!=(rhs) || start != rhs.start; }
 };
 
 /*! \class Windows
@@ -141,7 +156,7 @@ struct ReticleStruct
 
     SERIALIZE_JSON_STRUCT(ReticleStruct, display_enabled, scale);
 
-    bool operator!=(const ReticleStruct& rhs)
+    bool operator!=(const ReticleStruct& rhs) const
     {
         return display_enabled != rhs.display_enabled || scale != rhs.scale;
     }

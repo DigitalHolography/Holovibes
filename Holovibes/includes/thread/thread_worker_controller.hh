@@ -22,14 +22,13 @@ template <WorkerDerived T>
 class ThreadWorkerController
 {
   public:
-    /*! \brief Default constructor */
-    ThreadWorkerController() = default;
+    ThreadWorkerController(int priority) { set_priority(priority); }
 
     /*! \brief Destructor
      *
      * Stop the thread if it is running
      */
-    ~ThreadWorkerController();
+    ~ThreadWorkerController() { stop(); }
 
     /*! \brief Deleted copy constructor */
     ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
@@ -41,13 +40,16 @@ class ThreadWorkerController
      *
      * This method must be called before the start method
      */
-    void set_callback(std::function<void()> callback);
+    void set_callback(std::function<void()> callback) { callback_ = callback; }
 
     /*! \brief Set the function executed when an exception unwind the thread stack
      *
      * This method must be called before the start method
      */
-    void set_error_callback(std::function<void(const std::exception&)> error_callback);
+    void set_error_callback(std::function<void(const std::exception&)> error_callback)
+    {
+        error_callback_ = error_callback;
+    }
 
     /*! \brief Set the priority of the thread
      *
@@ -55,7 +57,7 @@ class ThreadWorkerController
      *
      * \param priority Priority level of the thread
      */
-    void set_priority(int priority);
+    void set_priority(int priority) { SetThreadPriority(thread_.native_handle(), priority); }
 
     /*! \brief Construct the associated worker and start the thread
      *

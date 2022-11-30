@@ -65,7 +65,6 @@ set(INTERNAL_INCLUDES
     includes/state/caches
     includes/state/caches/detail
     includes/API
-    includes/cli
 
     includes/compute/
     includes/core/
@@ -74,15 +73,7 @@ set(INTERNAL_INCLUDES
     
     includes/enum/
     includes/struct/
-    includes/gui/
-    includes/gui/other/
-    includes/gui/selections/
-    includes/gui/selections/interfaces/
-    includes/gui/selections/overlays/
-    includes/gui/windows/
-    includes/gui/windows/panels/
-    includes/gui/windows/AdvancedSettingsWindowTools
-    includes/gui/windows/AdvancedSettingsWindowTools/panels
+
     includes/io_files/
     includes/thread/
     includes/tools/
@@ -92,7 +83,19 @@ set(INTERNAL_INCLUDES
     includes/tools/exception/
     includes/tools/logger/
 
-    includes/gui/utilities/
+    HolovibesCLI/
+
+    HolovibesGUI/
+    HolovibesGUI/utilities/
+    HolovibesGUI/gui_front_end
+    HolovibesGUI/other/
+    HolovibesGUI/selections/
+    HolovibesGUI/selections/interfaces/
+    HolovibesGUI/selections/overlays/
+    HolovibesGUI/windows/
+    HolovibesGUI/windows/panels/
+    HolovibesGUI/windows/AdvancedSettingsWindowTools
+    HolovibesGUI/windows/AdvancedSettingsWindowTools/panels
 
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
@@ -142,6 +145,9 @@ target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLU
 # need to be compiled to the target
 add_subdirectory(sources)
 add_subdirectory(includes)
+
+add_subdirectory(HolovibesCLI)
+add_subdirectory(HolovibesGUI)
 
 # Precompile header (to remove)
 if(COMMAND target_precompile_headers)

@@ -23,7 +23,7 @@ class SignalZone : public RectFdParameter<"signal_zone">{};
 class NoiseZone : public RectFdParameter<"noise_zone">{};
 //! \brief The area on which we'll normalize the colors
 class CompositeZone : public RectFdParameter<"composite_zone">{};
-//! \brief The area used to limit the stft computations
+//! \brief The area used to limit the stft ComputeModeEnums
 class ZoomedZone : public RectFdParameter<"zoomed_zone">{};
 //! \brief The zone of the reticle area
 class ReticleZone : public RectFdParameter<"reticle_zone">{};

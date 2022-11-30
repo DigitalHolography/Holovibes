@@ -31,10 +31,10 @@ static void view_xy_refresh(const ViewXYZ& new_value, Pipe& pipe)
     {
         auto new_fd = api::get_gpu_input_queue().get_fd();
         new_fd.depth =
-            GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
+            api::detail::get_value<ImageType>() == ImageTypeEnum::Composite ? 3 * sizeof(float) : sizeof(float);
         allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xy_queue,
                                     pipe.get_image_acc_env().gpu_float_average_xy_frame,
-                                    GSH::instance().get_value<ViewXY>().img_accu_level,
+                                    api::detail::get_value<ViewXY>().output_image_accumulation,
                                     new_fd);
     }
 }
@@ -57,7 +57,7 @@ void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXY>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ViewXY);
+    LOG_UPDATE_ON_SYNC(ViewXY);
     view_xy_refresh(new_value, pipe);
     if (new_value.contrast.enabled)
         pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
@@ -72,10 +72,10 @@ static void view_xz_refresh(const ViewXYZ& new_value, Pipe& pipe)
     {
         auto new_fd = api::get_gpu_input_queue().get_fd();
         new_fd.depth = sizeof(float);
-        new_fd.height = GSH::instance().get_value<TimeTransformationSize>();
+        new_fd.height = api::detail::get_value<TimeTransformationSize>();
         allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_xz_queue,
                                     pipe.get_image_acc_env().gpu_float_average_xz_frame,
-                                    GSH::instance().get_value<ViewXZ>().img_accu_level,
+                                    api::detail::get_value<ViewXZ>().output_image_accumulation,
                                     new_fd);
     }
 }
@@ -83,7 +83,7 @@ static void view_xz_refresh(const ViewXYZ& new_value, Pipe& pipe)
 template <>
 void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ViewXZ);
+    LOG_UPDATE_ON_SYNC(ViewXZ);
     if (new_value.contrast.enabled != old_value.contrast.enabled && new_value.contrast.enabled == true)
     {
         pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
@@ -99,7 +99,7 @@ void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewXZ>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ViewXZ);
+    LOG_UPDATE_ON_SYNC(ViewXZ);
     view_xz_refresh(new_value, pipe);
     if (new_value.contrast.enabled)
         pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
@@ -114,10 +114,10 @@ static void view_yz_refresh(const ViewXYZ& new_value, Pipe& pipe)
     {
         auto new_fd = api::get_gpu_input_queue().get_fd();
         new_fd.depth = sizeof(float);
-        new_fd.width = GSH::instance().get_value<TimeTransformationSize>();
+        new_fd.width = api::detail::get_value<TimeTransformationSize>();
         allocate_accumulation_queue(pipe.get_image_acc_env().gpu_accumulation_yz_queue,
                                     pipe.get_image_acc_env().gpu_float_average_yz_frame,
-                                    GSH::instance().get_value<ViewYZ>().img_accu_level,
+                                    api::detail::get_value<ViewYZ>().output_image_accumulation,
                                     new_fd);
     }
 }
@@ -125,7 +125,7 @@ static void view_yz_refresh(const ViewXYZ& new_value, Pipe& pipe)
 template <>
 void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const ViewXYZ& old_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ViewXZ);
+    LOG_UPDATE_ON_SYNC(ViewYZ);
     if (new_value.contrast.enabled != old_value.contrast.enabled && new_value.contrast.enabled == true)
     {
         pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
@@ -142,7 +142,7 @@ void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const View
 template <>
 void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ViewYZ);
+    LOG_UPDATE_ON_SYNC(ViewYZ);
     view_yz_refresh(new_value, pipe);
     if (new_value.contrast.enabled)
         pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
@@ -152,14 +152,14 @@ void ViewPipeRequestOnSync::operator()<ViewYZ>(const ViewXYZ& new_value, Pipe& p
 template <>
 void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(RawViewEnabled);
+    LOG_UPDATE_ON_SYNC(RawViewEnabled);
 
     if (new_value == false)
         pipe.get_raw_view_queue_ptr().reset(nullptr);
     else
     {
         auto fd = pipe.get_gpu_input_queue().get_fd();
-        pipe.get_raw_view_queue_ptr().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
+        pipe.get_raw_view_queue_ptr().reset(new Queue(fd, api::detail::get_value<OutputBufferSize>()));
     }
 
     request_pipe_refresh();
@@ -168,7 +168,7 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pip
 template <>
 void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(ChartDisplayEnabled);
+    LOG_UPDATE_ON_SYNC(ChartDisplayEnabled);
 
     if (new_value == false)
         pipe.get_chart_env().chart_display_queue_.reset(nullptr);
@@ -182,14 +182,14 @@ void ViewPipeRequestOnSync::operator()<ChartDisplayEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(Filter2DViewEnabled);
+    LOG_UPDATE_ON_SYNC(Filter2DViewEnabled);
 
     if (new_value == false)
         pipe.get_filter2d_view_queue_ptr().reset(nullptr);
     else
     {
         auto fd = pipe.get_gpu_output_queue().get_fd();
-        pipe.get_filter2d_view_queue_ptr().reset(new Queue(fd, GSH::instance().get_value<OutputBufferSize>()));
+        pipe.get_filter2d_view_queue_ptr().reset(new Queue(fd, api::detail::get_value<OutputBufferSize>()));
     }
 
     request_pipe_refresh();
@@ -198,7 +198,7 @@ void ViewPipeRequestOnSync::operator()<Filter2DViewEnabled>(bool new_value, Pipe
 template <>
 void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(LensViewEnabled);
+    LOG_UPDATE_ON_SYNC(LensViewEnabled);
 
     if (new_value == false)
         pipe.get_fourier_transforms().get_lens_queue().reset(nullptr);

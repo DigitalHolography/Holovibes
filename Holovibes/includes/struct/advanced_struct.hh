@@ -22,7 +22,7 @@ struct Filter2DSmoothStruct
 
     SERIALIZE_JSON_STRUCT(Filter2DSmoothStruct, low, high)
 
-    bool operator!=(const Filter2DSmoothStruct& rhs) { return low != rhs.low || high != rhs.high; }
+    bool operator!=(const Filter2DSmoothStruct& rhs)const{ return low != rhs.low || high != rhs.high; }
 };
 
 /*! \class ContrastThreshold
@@ -37,7 +37,7 @@ struct ContrastThresholdStruct
 
     SERIALIZE_JSON_STRUCT(ContrastThresholdStruct, lower, upper, frame_index_offset)
 
-    bool operator!=(const ContrastThresholdStruct& rhs)
+    bool operator!=(const ContrastThresholdStruct& rhs) const
     {
         return lower != rhs.lower || upper != rhs.upper || frame_index_offset != rhs.frame_index_offset;
     }

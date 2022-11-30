@@ -183,20 +183,18 @@ class BatchInputQueue final : public DisplayQueue
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_{nullptr};
 
-    /*! \brief FastUpdatesHolder entry */
-    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
-
     /*! \brief The current number of frames in the queue
      *
      * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
-    std::atomic<uint>& curr_nb_frames_;
+    uint curr_nb_frames_;
     /*! \brief The total number of frames that can be contained in the queue according to batch size
      *
      * With respect to batch size (batch_size_ * max_size_)
      */
-    std::atomic<uint>& total_nb_frames_;
+    uint total_nb_frames_;
+
     /*! \brief The total number of frames that can be contained in the queue */
     std::atomic<uint> frame_capacity_{0};
 

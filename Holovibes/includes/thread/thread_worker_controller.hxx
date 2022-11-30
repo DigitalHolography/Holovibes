@@ -10,30 +10,6 @@ namespace holovibes::worker
 using MutexGuard = std::lock_guard<std::mutex>;
 
 template <WorkerDerived T>
-ThreadWorkerController<T>::~ThreadWorkerController()
-{
-    stop();
-}
-
-template <WorkerDerived T>
-inline void ThreadWorkerController<T>::set_callback(std::function<void()> callback)
-{
-    callback_ = callback;
-}
-
-template <WorkerDerived T>
-inline void ThreadWorkerController<T>::set_error_callback(std::function<void(const std::exception&)> error_callback)
-{
-    error_callback_ = error_callback;
-}
-
-template <WorkerDerived T>
-inline void ThreadWorkerController<T>::set_priority(int priority)
-{
-    SetThreadPriority(thread_.native_handle(), priority);
-}
-
-template <WorkerDerived T>
 template <typename... Args>
 void ThreadWorkerController<T>::start(Args&&... args)
 {
@@ -74,6 +50,7 @@ void ThreadWorkerController<T>::run()
     }
     catch (const std::exception& e)
     {
+        error_callback_(e);
         LOG_ERROR("Uncaught exception in Worker of type {} : {}", typeid(T).name(), e.what());
         throw;
     }

@@ -202,7 +202,7 @@ class Rect
     Point<T> dst_;
 
   public:
-    bool operator!=(const Rect& rhs) { return false; }
+    bool operator!=(const Rect& rhs) const { return false; }
 };
 
 /*! \brief Rectangle in the OpenGL coordinates [-1;1] */

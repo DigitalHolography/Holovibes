@@ -1,15 +1,19 @@
 #pragma once
 
 #include "logger.hh"
+
+#include "holovibes_config.hh"
+
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
+
+#include "all_caches.hh"
 #include "holovibes.hh"
-#include "view_panel.hh"
-#include "AdvancedSettingsWindow.hh"
-#include "holovibes_config.hh"
+
 #include "global_state_holder.hh"
 
 #include <nlohmann/json.hpp>
+
 using json = ::nlohmann::json;
 
 namespace holovibes::api::detail

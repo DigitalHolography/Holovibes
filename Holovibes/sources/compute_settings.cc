@@ -18,20 +18,20 @@ namespace holovibes::api
 
 void after_load_checks()
 {
-    if (GSH::instance().get_value<Filter2D>().n1 >= GSH::instance().get_value<Filter2D>().n2)
-        GSH::instance().change_value<Filter2D>()->n1 = GSH::instance().get_value<Filter2D>().n1 - 1;
-    if (GSH::instance().get_value<TimeTransformationSize>() < 1)
-        GSH::instance().set_value<TimeTransformationSize>(1);
+    if (api::detail::get_value<Filter2D>().inner_radius >= api::detail::get_value<Filter2D>().outer_radius)
+        api::detail::change_value<Filter2D>()->inner_radius = api::detail::get_value<Filter2D>().inner_radius - 1;
+    if (api::detail::get_value<TimeTransformationSize>() < 1)
+        api::detail::set_value<TimeTransformationSize>(1);
 
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (GSH::instance().get_value<ViewAccuP>().start >= GSH::instance().get_value<TimeTransformationSize>())
-        GSH::instance().change_value<ViewAccuP>()->start = 0;
-    if (GSH::instance().get_value<ViewAccuQ>().start >= GSH::instance().get_value<TimeTransformationSize>())
-        GSH::instance().change_value<ViewAccuQ>()->start = 0;
-    if (GSH::instance().get_value<ContrastThreshold>().frame_index_offset >
-        GSH::instance().get_value<TimeTransformationSize>() - 1)
-        GSH::instance().change_value<ContrastThreshold>()->frame_index_offset =
-            (GSH::instance().get_value<TimeTransformationSize>() - 1);
+    if (api::detail::get_value<ViewAccuP>().start >= api::detail::get_value<TimeTransformationSize>())
+        api::detail::change_value<ViewAccuP>()->start = 0;
+    if (api::detail::get_value<ViewAccuQ>().start >= api::detail::get_value<TimeTransformationSize>())
+        api::detail::change_value<ViewAccuQ>()->start = 0;
+    if (api::detail::get_value<ContrastThreshold>().frame_index_offset >
+        api::detail::get_value<TimeTransformationSize>() - 1)
+        api::detail::change_value<ContrastThreshold>()->frame_index_offset =
+            (api::detail::get_value<TimeTransformationSize>() - 1);
 }
 
 void load_compute_settings(const std::string& json_path)

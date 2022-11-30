@@ -11,6 +11,7 @@
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
+#include "icompute.hh"
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -33,9 +34,9 @@ class Postprocessing
                    CoreBuffersEnv& buffers,
                    const FrameDescriptor& fd,
                    const cudaStream_t& stream,
-                   AdvancedCache::Cache& advanced_cache,
-                   ComputeCache::Cache& compute_cache,
-                   ViewCache::Cache& view_cache);
+                   PipeAdvancedCache& advanced_cache,
+                   PipeComputeCache& compute_cache,
+                   PipeViewCache& view_cache);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -72,12 +73,12 @@ class Postprocessing
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief Compute stream to perform  pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
     /*! \brief All view related variables, updated at each end of pipe */
-    AdvancedCache::Cache& advanced_cache_;
-    ComputeCache::Cache& compute_cache_;
-    ViewCache::Cache& view_cache_;
+    PipeAdvancedCache& advanced_cache_;
+    PipeComputeCache& compute_cache_;
+    PipeViewCache& view_cache_;
 };
 } // namespace holovibes::compute

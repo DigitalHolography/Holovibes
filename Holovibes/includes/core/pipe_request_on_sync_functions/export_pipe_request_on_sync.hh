@@ -21,7 +21,7 @@ class ExportPipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<FrameRecordMode>(const FrameRecordStruct& new_value, Pipe& pipe);
+    void operator()<FrameRecord>(const FrameRecordStruct& new_value, Pipe& pipe);
 
     template <>
     void operator()<ChartRecord>(const ChartRecordStruct& new_value, Pipe& pipe);

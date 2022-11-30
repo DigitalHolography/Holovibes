@@ -4,9 +4,9 @@
 #include "gtest/gtest.h"
 #include "test_reduce.cuh"
 
-static constexpr cudaStream_t stream = 0;
+using namespace holovibes;
 
-using uint = unsigned int;
+static constexpr cudaStream_t stream = 0;
 
 template <typename T, typename U>
 static U init_data_sum(T** d_data, U** d_result, size_t size)

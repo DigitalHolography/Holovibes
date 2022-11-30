@@ -22,7 +22,6 @@
 
 namespace holovibes
 {
-using FrameDescriptor;
 
 ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : gpu_input_queue_(input)
@@ -49,7 +48,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
                                             fd.get_frame_res(),                    // Ouput layout same as input
                                             CUDA_C_32F,                            // Output type
                                             compute_cache_.get_value<BatchSize>(), // Batch size
-                                            CUDA_C_32F);                           // Computation type
+                                            CUDA_C_32F);                           // ComputeModeEnum type
 
     int inembed[1];
     int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
@@ -72,13 +71,13 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
         err++;
 
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
-    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+    if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
     buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-    if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+    if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
     if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
@@ -181,7 +180,7 @@ void ICompute::update_spatial_transformation_parameters()
         gpu_input_queue_fd.get_frame_res(),    // Ouput layout same as input
         CUDA_C_32F,                            // Output type
         compute_cache_.get_value<BatchSize>(), // Batch size
-        CUDA_C_32F);                           // Computation type
+        CUDA_C_32F);                           // ComputeModeEnum type
 }
 
 void ICompute::init_cuts()
@@ -190,13 +189,13 @@ void ICompute::init_cuts()
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;
-    fd_xz.height = GSH::instance().get_value<TimeTransformationSize>();
-    fd_yz.width = GSH::instance().get_value<TimeTransformationSize>();
+    fd_xz.height = api::detail::get_value<TimeTransformationSize>();
+    fd_yz.width = api::detail::get_value<TimeTransformationSize>();
 
     time_transformation_env_.gpu_output_queue_xz.reset(
-        new Queue(fd_xz, GSH::instance().get_value<TimeTransformationCutsBufferSize>()));
+        new Queue(fd_xz, api::detail::get_value<TimeTransformationCutsBufferSize>()));
     time_transformation_env_.gpu_output_queue_yz.reset(
-        new Queue(fd_yz, GSH::instance().get_value<TimeTransformationCutsBufferSize>()));
+        new Queue(fd_yz, api::detail::get_value<TimeTransformationCutsBufferSize>()));
 
     buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());

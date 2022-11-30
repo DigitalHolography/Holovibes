@@ -14,6 +14,7 @@
 #include "all_caches.hh"
 #include "cache_dispatcher.hh"
 #include "all_pipe_requests_on_sync_functions.hh"
+#include "gsh_cache_on_change.hh"
 #include "compute_gsh_on_change.hh"
 
 namespace holovibes
@@ -35,8 +36,8 @@ using entities::Span;
  * MicroCache : local state holder belonging to a worker. Previously, each worker had to fetch data at the same
  * place ; therefore, all variables had to be atomic, with the aim to be thread safe. Furthermore, since global state
  * was used in the pipe, directly modifying the state was often not possible (changing operations or variables which
- * have impact on buffers'size would have caused incoherent computations and/or segfaults and undefined behaviors). The
- * ComputeWorker now possess MicroCaches, containing all the state it needs. Those MicroCaches are accessed only by
+ * have impact on buffers'size would have caused incoherent ComputeModeEnums and/or segfaults and undefined behaviors).
+ * The ComputeWorker now possess MicroCaches, containing all the state it needs. Those MicroCaches are accessed only by
  * their worker, and are synchronized with the GSH when each worker chooses to (using a trigger system). The
  * implementation of MicroCaches enabled the direct modification of the state, since the state used in the pipe is now
  * desynchronized from the GSH.
@@ -48,13 +49,15 @@ using entities::Span;
  */
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
 
-using GSHAdvancedCache = AdvancedCache::Ref<>;
-using GSHComputeCache = ComputeCache::Ref<ComputeGSHOnChange>;
-using GSHImportCache = ImportCache::Ref<>;
-using GSHExportCache = ExportCache::Ref<>;
-using GSHCompositeCache = CompositeCache::Ref<>;
-using GSHViewCache = ViewCache::Ref<>;
-using GSHZoneCache = ZoneCache::Ref<>;
+// clang-format off
+class GSHAdvancedCache : public AdvancedCache::Ref<>{};
+class GSHComputeCache : public ComputeCache::Ref<ComputeGSHOnChange>{};
+class GSHImportCache : public ImportCache::Ref<ImportGSHOnChange>{};
+class GSHExportCache : public ExportCache::Ref<>{};
+class GSHCompositeCache : public CompositeCache::Ref<>{};
+class GSHViewCache : public ViewCache::Ref<ViewGSHOnChange>{};
+class GSHZoneCache : public ZoneCache::Ref<>{};
+// clang-format on
 
 using GSHCacheDispatcher = CacheDispatcher<GSHAdvancedCache,
                                            GSHComputeCache,

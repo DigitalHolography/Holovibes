@@ -93,7 +93,7 @@ QString create_absolute_qt_path(const std::string& relative_path);
 std::string create_absolute_path(const std::string& relative_path);
 /*! \brief Returns the absolute path to the user Documents folder */
 std::filesystem::path get_user_documents_path();
-}
+} // namespace holovibes
 // Json tools
 namespace holovibes
 {

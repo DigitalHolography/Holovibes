@@ -33,17 +33,13 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
                frame_record_env_.gpu_frame_record_queue_->get_max_size() &&
-           // This check prevents being stuck in this loop because record might stop while in this loop
-           Holovibes::instance().is_recording())
+           api::get_frame_record().is_running)
     {
     }
 }
 
-using FrameDescriptor;
-
 Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
-    , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_value<TimeStride>(); };
@@ -96,7 +92,9 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              advanced_cache_,
                                                              compute_cache_,
                                                              view_cache_);
-    *processed_output_fps_ = 0;
+
+    GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS) = &processed_output_fps_;
+    processed_output_fps_ = 0;
 
     call_reload_function_caches();
     refresh();
@@ -110,25 +108,31 @@ void Pipe::call_reload_function_caches()
     PipeRequestOnSync::begin_requests();
 
     // clang-format off
-    advanced_cache_.synchronize_force<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheAfterMethod>>(*this);
-    compute_cache_.synchronize_force<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheAfterMethod>>(*this);
-    import_cache_.synchronize_force<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheAfterMethod>>(*this);
-    export_cache_.synchronize_force<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheAfterMethod>>(*this);
-    composite_cache_.synchronize_force<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheAfterMethod>>(*this);
-    view_cache_.synchronize_force<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheAfterMethod>>(*this);
-    zone_cache_.synchronize_force<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheAfterMethod>>(*this);
+    advanced_cache_.synchronize_force(*this);
+    compute_cache_.synchronize_force(*this);
+    import_cache_.synchronize_force(*this);
+    export_cache_.synchronize_force(*this);
+    composite_cache_.synchronize_force(*this);
+    view_cache_.synchronize_force(*this);
+    zone_cache_.synchronize_force(*this);
     // clang-format on
 
     if (PipeRequestOnSync::has_requests_fail())
     {
-        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        LOG_ERROR("Failure when making requests after all caches synchronizations");
         // FIXME : handle pipe requests on sync failure
         return;
+    }
+
+    if (PipeRequestOnSync::do_need_notify())
+    {
+        LOG_DEBUG("Pipe call notify");
+        GSH::instance().notify();
     }
 }
 
 #ifndef DISABLE_LOG_PIPE
-#define LOG_PIPE(...) LOG_TRACE(main, __VA_ARGS__)
+#define LOG_PIPE(...) LOG_TRACE(__VA_ARGS__)
 #else
 #define LOG_PIPE(...)
 #endif
@@ -138,25 +142,25 @@ void Pipe::synchronize_caches_and_make_requests()
     PipeRequestOnSync::begin_requests();
 
     // clang-format off
-    advanced_cache_.synchronize<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheAfterMethod>>(*this);
-    compute_cache_.synchronize<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheAfterMethod>>(*this);
-    import_cache_.synchronize<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheAfterMethod>>(*this);
-    export_cache_.synchronize<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheAfterMethod>>(*this);
-    composite_cache_.synchronize<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheAfterMethod>>(*this);
-    view_cache_.synchronize<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheAfterMethod>>(*this);
-    zone_cache_.synchronize<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheAfterMethod>>(*this);
+    advanced_cache_.synchronize(*this);
+    compute_cache_.synchronize(*this);
+    import_cache_.synchronize(*this);
+    export_cache_.synchronize(*this);
+    composite_cache_.synchronize(*this);
+    view_cache_.synchronize(*this);
+    zone_cache_.synchronize(*this);
     // clang-format on
 
     if (PipeRequestOnSync::has_requests_fail())
     {
-        LOG_ERROR(main, "Failure when making requests after all caches synchronizations");
+        LOG_ERROR("Failure when making requests after all caches synchronizations");
         // FIXME : handle pipe requests on sync failure
         return;
     }
 
     if (PipeRequestOnSync::do_need_notify())
     {
-        LOG_DEBUG(main, "Pipe call notify");
+        LOG_DEBUG("Pipe call notify");
         GSH::instance().notify();
     }
 }
@@ -228,7 +232,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (compute_cache_.get_value<ComputeMode>() == Computation::Raw)
+    if (compute_cache_.get_value<ComputeMode>() == ComputeModeEnum::Raw)
     {
         insert_dequeue_input();
         return;
@@ -260,7 +264,7 @@ void Pipe::refresh()
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(GSH::instance().get_value<Unwrap2DRequested>());
+    converts_->insert_to_float(api::detail::get_value<Unwrap2DRequested>());
 
     insert_filter2d_view();
 
@@ -319,7 +323,7 @@ void Pipe::exec()
         }
         catch (CustomException& e)
         {
-            LOG_ERROR(compute_worker, "Pipe error: message: {}", e.what());
+            LOG_ERROR("Pipe error: message: {}", e.what());
             throw;
         }
     }
@@ -378,7 +382,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            *processed_output_fps_ += compute_cache_.get_value<BatchSize>();
+            processed_output_fps_ += compute_cache_.get_value<BatchSize>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -398,14 +402,14 @@ void Pipe::insert_output_enqueue_hologram_mode()
     fn_compute_vect_.conditional_push_back(
         [&]()
         {
-            (*processed_output_fps_)++;
+            processed_output_fps_++;
 
             safe_enqueue_output(gpu_output_queue_,
                                 buffers_.gpu_output_frame.get(),
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (view_cache_.get_value<CutsViewEnabled>())
+            if (view_cache_.get_value<CutsViewEnable>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -476,9 +480,9 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::RAW)
+    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() == FrameRecordStruct::RecordType::RAW)
     {
-        if (!api::detail::get_value<IsGuiEnable>())
+        if (api::detail::get_value<ExportRecordDontLoseFrame>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
 
         fn_compute_vect_.push_back(
@@ -491,9 +495,10 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::HOLOGRAM)
+    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() ==
+        FrameRecordStruct::RecordType::HOLOGRAM)
     {
-        if (!api::detail::get_value<IsGuiEnable>())
+        if (api::detail::get_value<ExportRecordDontLoseFrame>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
 
         fn_compute_vect_.conditional_push_back(
@@ -511,12 +516,13 @@ void Pipe::insert_hologram_record()
 void Pipe::insert_cuts_record()
 {
 
-    if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_XZ)
+    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() == FrameRecordStruct::RecordType::CUTS_XZ)
     {
         fn_compute_vect_.push_back(
             [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
     }
-    else if (GSH::instance().get_value<FrameRecordMode>().get_record_mode_if_enable() == RecordMode::CUTS_YZ)
+    else if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() ==
+             FrameRecordStruct::RecordType::CUTS_YZ)
     {
         fn_compute_vect_.push_back(
             [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });

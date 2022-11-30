@@ -17,6 +17,17 @@
 #include "cli.hh"
 #include "gui.hh"
 
+using namespace holovibes;
+
+inline void print_version() { std::cout << "Holovibes " << __HOLOVIBES_VERSION__ << std::endl; }
+
+inline void print_help(OptionsParser& parser)
+{
+    print_version();
+    std::cout << "Usage: ./Holovibes.exe [OPTIONS]" << std::endl;
+    std::cout << parser.get_opts_desc();
+}
+
 int main(int argc, char* argv[])
 {
     holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
@@ -28,13 +39,13 @@ int main(int argc, char* argv[])
 
     if (opts.print_help)
     {
-        holovibes::api::print_help(parser);
+        print_help(parser);
         std::exit(0);
     }
 
     if (opts.print_version)
     {
-        holovibes::api::print_version();
+        print_version();
         std::exit(0);
     }
 

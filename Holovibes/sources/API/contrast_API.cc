@@ -41,7 +41,7 @@ void request_exec_contrast_current_window()
 
 static float get_truncate_contrast_min(const int precision = 2)
 {
-    float value = api::get_contrast_min();
+    float value = api::get_current_view().get_contrast_min_logged();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
@@ -56,7 +56,7 @@ void set_current_window_contrast_min(const float value)
 
 static float get_truncate_contrast_max(const int precision = 2)
 {
-    float value = api::get_contrast_max();
+    float value = api::get_current_view().get_contrast_max_logged();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }

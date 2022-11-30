@@ -21,7 +21,6 @@
 
 // Enum
 #include "import_struct.hh"
-#include "enum_record_mode.hh"
 
 // Threads priority
 constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
@@ -101,86 +100,25 @@ class Holovibes
   public:
     static Holovibes& instance();
 
-    /*! \name Queue getters
-     * \{
-     */
-    /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
+    std::shared_ptr<BatchInputQueue>& get_gpu_input_queue() { return gpu_input_queue_; }
+    std::shared_ptr<Queue>& get_gpu_output_queue() { return gpu_output_queue_; }
+    std::shared_ptr<Pipe>& get_compute_pipe() { return compute_pipe_; }
+    std::shared_ptr<camera::ICamera>& get_active_camera() { return active_camera_; }
+    const CudaStreams& get_cuda_streams() const { return cuda_streams_; }
 
-    /*! \brief Used to display frames */
-    std::shared_ptr<Queue> get_gpu_output_queue();
-    /*! \} */
+    void init_gpu_queues();
+    void destroy_gpu_queues();
 
-    /*! \name Getters/Setters
-     * \{
-     */
-    std::shared_ptr<Pipe> get_compute_pipe();
-    std::shared_ptr<Pipe> get_compute_pipe_nothrow();
-
-    const CudaStreams& get_cuda_streams() const;
-
-    /*! \return Corresponding Camera INI file path */
-    const char* get_camera_ini_name() const;
-
-    /*! \brief Get zb = N d^2 / lambda
-     *
-     * Is updated everytime the camera changes or lamdba changes
-     * N = frame height
-     * d = pixel size
-     * lambda = wavelength
-     *
-     * \return const float
-     */
-    const float get_boundary();
-
-    /*! \brief Say if the worker recording raw/holo/cuts is running.
-     *
-     * \return bool true if recording, else false
-     */
-    bool is_recording() const;
-
-    /*! \} */
-
-    /*! \brief Initializes the input queue
-     *
-     * \param fd frame descriptor of the camera
-     * \param input_queue_size size of the input queue
-     */
-    void init_input_queue(const FrameDescriptor& fd, const unsigned int input_queue_size);
-
-    /*! \brief Sets and starts the file_read_worker attribute
-     *
-     * \param file_path
-     * \param loop
-     * \param fps
-     * \param first_frame_id
-     * \param nb_frames_to_read
-     * \param load_file_in_gpu
-     * \param callback
-     */
-    void start_file_frame_read(
-        const std::string& file_path,
-        bool loop,
-        unsigned int fps,
-        unsigned int first_frame_id,
-        unsigned int nb_frames_to_read,
-        bool load_file_in_gpu,
-        const std::function<void()>& callback = []() {});
+    void start_file_frame_read();
+    void stop_file_frame_read();
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
      *
      * \param camera_kind
-     * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
-
-    /*! \brief Handle frame reading interruption
-     *
-     * Stops both read_worker, resets the active camera and store the gpu_input_queue
-     */
-    void stop_frame_read();
+    void start_camera_frame_read();
+    void stop_camera_frame_read();
 
     /*! \brief Initialize and start the frame record worker controller
      *
@@ -190,46 +128,20 @@ class Holovibes
      * \param nb_frames_skip
      * \param callback
      */
-    void start_frame_record(
-        const std::string& path,
-        std::optional<unsigned int> nb_frames_to_record,
-        RecordMode record_mode,
-        unsigned int nb_frames_skip = 0,
-        const std::function<void()>& callback = []() {});
-
+    void start_frame_record();
     void stop_frame_record();
 
-    void start_chart_record(
-        const std::string& path,
-        const unsigned int nb_points_to_record,
-        const std::function<void()>& callback = []() {});
-
+    void start_chart_record();
     void stop_chart_record();
 
-    void start_batch_gpib(
-        const std::string& batch_input_path,
-        const std::string& output_path,
-        unsigned int nb_frames_to_record,
-        RecordMode record_mode,
-        const std::function<void()>& callback = []() {});
-
-    void stop_batch_gpib();
-
-    void start_information_display(const std::function<void()>& callback = []() {});
-
+    void start_information_display();
     void stop_information_display();
 
-    /*! \brief Start compute worker */
-    void start_compute_worker(const std::function<void()>& callback = []() {});
-
-    void start_compute(const std::function<void()>& callback = []() {});
-
+    void start_compute();
     void stop_compute();
 
-    // Always close the 3D cuts before calling this function
-    void stop_all_worker_controller();
-
     void init_pipe();
+    void destroy_pipe();
 
     /*! \brief Reload the cuda streams when the device is reset */
     void reload_streams();
@@ -243,28 +155,24 @@ class Holovibes
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
 
-    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
-    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
+    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_frame_read_worker_controller_{
+        THREAD_READER_PRIORITY};
+    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_{
+        THREAD_READER_PRIORITY};
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
-    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
-    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;
+    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_{THREAD_RECORDER_PRIORITY};
+    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_{THREAD_RECORDER_PRIORITY};
+    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_{THREAD_RECORDER_PRIORITY};
 
-    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
+    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_{THREAD_DISPLAY_PRIORITY};
 
-    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_;
-    std::atomic<std::shared_ptr<Pipe>> compute_pipe_{nullptr};
+    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_{THREAD_COMPUTE_PRIORITY};
+    std::shared_ptr<Pipe> compute_pipe_{nullptr};
 
-    /*! \name Frames queue (GPU)
-     * \{
-     */
-    std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
-    std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
-    /*! \} */
+    std::shared_ptr<BatchInputQueue> gpu_input_queue_{nullptr};
+    std::shared_ptr<Queue> gpu_output_queue_{nullptr};
 
     CudaStreams cuda_streams_;
 };
 } // namespace holovibes
-
-#include "holovibes.hxx"

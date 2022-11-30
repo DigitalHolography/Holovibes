@@ -10,6 +10,8 @@
 #include "shift_corners.cuh"
 #include "map.cuh"
 
+#include "API.hh"
+
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes::compute
@@ -18,9 +20,9 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
                                const FrameDescriptor& input_fd,
                                const cudaStream_t& stream,
-                               AdvancedCache::Cache& advanced_cache,
-                               ComputeCache::Cache& compute_cache,
-                               ViewCache::Cache& view_cache)
+                               PipeAdvancedCache& advanced_cache,
+                               PipeComputeCache& compute_cache,
+                               PipeViewCache& view_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -54,7 +56,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_value<Convolution>().matrix.data(),
+                                   api::detail::get_value<Convolution>().matrix.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -136,7 +138,7 @@ void Postprocessing::insert_convolution()
         compute_cache_.get_value<Convolution>().matrix.empty())
         return;
 
-    if (view_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
+    if (compute_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -169,7 +171,7 @@ void Postprocessing::insert_renormalize()
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+            if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),

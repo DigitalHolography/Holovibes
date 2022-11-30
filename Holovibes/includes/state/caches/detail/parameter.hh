@@ -17,7 +17,7 @@ inline bool has_value_change(typename T::ConstValueRef old_value, typename T::Co
 
     if constexpr (has_op_neq) return value_ != new_value;
 
-    LOG_WARN(main, "Couldn't check if the value has been change ; T = {}", typeid(T).name());
+    LOG_WARN("Couldn't check if the value has been change ; T = {}", typeid(T).name());
     return true;
 }
 
@@ -81,16 +81,13 @@ class Parameter : public IParameter
     const char* get_key() const override { return Key; }
 
   public:
-    inline bool has_parameter_change(ValueType ref) const
+    inline bool has_parameter_change_valuetype(ConstRefType ref) const
     {
-        constexpr bool has_op_neq = requires(ValueType lhs, ValueType rhs)
-        {
-            lhs != rhs;
-        };
+        constexpr bool has_op_neq = requires(ValueType lhs, ConstRefType rhs) { lhs != rhs; };
 
         if constexpr (has_op_neq) return value_ != ref;
 
-        LOG_WARN(main, "Couldn't check if the value has been change ; T = {}", typeid(T).name());
+        LOG_WARN("Couldn't check if the value has been change ; T = {}", typeid(T).name());
         return true;
     }
 
@@ -99,17 +96,17 @@ class Parameter : public IParameter
         Parameter* ref_cast = dynamic_cast<Parameter*>(ref);
         if (ref_cast == nullptr)
         {
-            LOG_ERROR(main, "Not supposed to end here : Not the good type casted when syncing");
+            LOG_ERROR("Not supposed to end here : Not the good type casted when syncing");
             return true;
         }
 
-        ValueType& new_value = ref_cast->get_value();
-        return has_parameter_change(new_value);
+        ConstRefType new_value = ref_cast->get_value();
+        return has_parameter_change_valuetype(new_value);
     };
 
     virtual void sync_with(IParameter* ref) override
     {
-        if (value_has_changed(ref))
+        if (has_parameter_change(ref))
         {
             // technically doesn't need to check here
             Parameter* ref_cast = reinterpret_cast<Parameter*>(ref);
@@ -137,7 +134,7 @@ class DuplicatedParameter : public IDuplicatedParameter
         const T* param_as_t = dynamic_cast<const T*>(param);
         if (param_as_t == nullptr)
         {
-            LOG_ERROR(main, "Not supposed to end here : Not the good type casted when syncing");
+            LOG_ERROR("Not supposed to end here : Not the good type casted when syncing");
             return;
         }
 

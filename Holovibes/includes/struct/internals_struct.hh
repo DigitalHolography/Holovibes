@@ -80,10 +80,10 @@ struct Misc
 {
     float pixel_size = 12.0f;
     unsigned unwrap_history_size = 1;
-    bool is_computation_stopped = true;
+    bool is_ComputeModeEnum_stopped = true;
     int raw_bitshift = 0;
 
-    SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
+    SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_ComputeModeEnum_stopped)
 };
 
 /*! \class Internals

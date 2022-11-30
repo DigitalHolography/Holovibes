@@ -5,8 +5,20 @@
 #pragma once
 
 #include "env_structs.hh"
+#include "all_pipe_requests_on_sync_functions.hh"
+#include "pipe_request_on_sync.hh"
+
 namespace holovibes
 {
+// clang-format off
+using PipeAdvancedCache = AdvancedCache::Cache<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheFrontEndMethods>>;
+using PipeComputeCache = ComputeCache::Cache<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheFrontEndMethods>>;
+using PipeImportCache = ImportCache::Cache<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheFrontEndMethods>>;
+using PipeExportCache = ExportCache::Cache<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheFrontEndMethods>>;
+using PipeCompositeCache = CompositeCache::Cache<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheFrontEndMethods>>;
+using PipeViewCache = ViewCache::Cache<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheFrontEndMethods>>;
+using PipeZoneCache = ZoneCache::Cache<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheFrontEndMethods>>;
+// clang-format on
 
 /*! \class ICompute
  *
@@ -25,13 +37,13 @@ class ICompute
     virtual ~ICompute();
 
   public:
-    AdvancedCache::Cache& get_advanced_cache() { return advanced_cache_; }
-    ComputeCache::Cache& get_compute_cache() { return compute_cache_; }
-    ImportCache::Cache& get_import_cache() { return import_cache_; }
-    ExportCache::Cache& get_export_cache() { return export_cache_; }
-    CompositeCache::Cache& get_composite_cache() { return composite_cache_; }
-    ViewCache::Cache& get_view_cache() { return view_cache_; }
-    ZoneCache::Cache& get_zone_cache() { return zone_cache_; }
+    PipeAdvancedCache& get_advanced_cache() { return advanced_cache_; }
+    PipeComputeCache& get_compute_cache() { return compute_cache_; }
+    PipeImportCache& get_import_cache() { return import_cache_; }
+    PipeExportCache& get_export_cache() { return export_cache_; }
+    PipeCompositeCache& get_composite_cache() { return composite_cache_; }
+    PipeViewCache& get_view_cache() { return view_cache_; }
+    PipeZoneCache& get_zone_cache() { return zone_cache_; }
 
     BatchInputQueue& get_gpu_input_queue() { return gpu_input_queue_; };
     Queue& get_gpu_output_queue() { return gpu_output_queue_; }
@@ -44,15 +56,6 @@ class ICompute
 
     std::unique_ptr<Queue>& get_raw_view_queue_ptr() { return gpu_raw_view_queue_; }
     std::unique_ptr<Queue>& get_filter2d_view_queue_ptr() { return gpu_filter2d_view_queue_; }
-    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue_ptr()
-    {
-        return chart_env_.chart_display_queue_;
-    }
-    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue_ptr()
-    {
-        return chart_env_.chart_record_queue_;
-    }
-    std::unique_ptr<Queue>& get_frame_record_queue_ptr() { return frame_record_env_.gpu_frame_record_queue_; }
 
     void request_termination() { termination_requested_ = true; }
 
@@ -123,7 +126,7 @@ class ICompute
     /*! \brief Pland 2D. Used for unwrap 2D. */
     cuda_tools::CufftHandle plan_unwrap_2d_;
 
-    /*! \brief Compute stream to perform pipe computation */
+    /*! \brief Compute stream to perform pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
     /*! \brief Chrono counting time between two iteration
@@ -138,12 +141,12 @@ class ICompute
 
     std::atomic<bool> termination_requested_{false};
 
-    AdvancedCache::Cache advanced_cache_;
-    ComputeCache::Cache compute_cache_;
-    ImportCache::Cache import_cache_;
-    ExportCache::Cache export_cache_;
-    CompositeCache::Cache composite_cache_;
-    ViewCache::Cache view_cache_;
-    ZoneCache::Cache zone_cache_;
+    PipeAdvancedCache advanced_cache_;
+    PipeComputeCache compute_cache_;
+    PipeImportCache import_cache_;
+    PipeExportCache export_cache_;
+    PipeCompositeCache composite_cache_;
+    PipeViewCache view_cache_;
+    PipeZoneCache zone_cache_;
 };
 } // namespace holovibes

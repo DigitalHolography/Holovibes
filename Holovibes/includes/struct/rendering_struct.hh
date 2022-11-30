@@ -10,7 +10,7 @@
 
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
-#include "enum_computation.hh"
+#include "enum_compute_mode.hh"
 #include "all_struct.hh"
 
 #define UID_CONVOLUTION_TYPE_DEFAULT "None"
@@ -30,7 +30,7 @@ struct Filter2DStruct
 
     SERIALIZE_JSON_STRUCT(Filter2DStruct, enabled, inner_radius, outer_radius)
 
-    bool operator!=(const Filter2DStruct& rhs) { return enabled != rhs.enabled || inner_radius != rhs.inner_radius || outer_radius != rhs.outer_radius; }
+    bool operator!=(const Filter2DStruct& rhs) const { return enabled != rhs.enabled || inner_radius != rhs.inner_radius || outer_radius != rhs.outer_radius; }
 };
 
 /*! \class ConvolutionStruct
@@ -46,7 +46,7 @@ struct ConvolutionStruct
 
     SERIALIZE_JSON_STRUCT(ConvolutionStruct, enabled, type, divide)
 
-    bool operator!=(const ConvolutionStruct& rhs)
+    bool operator!=(const ConvolutionStruct& rhs) const
     {
         return enabled != rhs.enabled || divide != rhs.divide || type != rhs.type || matrix != rhs.matrix;
     }
@@ -58,7 +58,7 @@ struct ConvolutionStruct
  */
 struct Rendering
 {
-    Computation image_mode = Computation::Raw;
+    ComputeModeEnum image_mode = ComputeModeEnum::Raw;
     unsigned batch_size = 1;
     unsigned time_transformation_stride = 1;
     Filter2DStruct filter2d;

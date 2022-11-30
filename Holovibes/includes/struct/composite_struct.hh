@@ -25,7 +25,7 @@ struct CompositeP
 
     SERIALIZE_JSON_STRUCT(CompositeP, min, max)
 
-    bool operator!=(const CompositeP& rhs) { return min != rhs.min || max != rhs.max; }
+    bool operator!=(const CompositeP& rhs)const { return min != rhs.min || max != rhs.max; }
 };
 
 /*! \class ActivableCompositeP
@@ -38,7 +38,7 @@ struct ActivableCompositeP : public CompositeP
 
     SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 
-    bool operator!=(const ActivableCompositeP& rhs) { return activated != rhs.activated; }
+    bool operator!=(const ActivableCompositeP& rhs)const { return activated != rhs.activated; }
 };
 
 /*! \class RGBWeights
@@ -53,7 +53,7 @@ struct RGBWeights
 
     SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 
-    bool operator!=(const RGBWeights& rhs) { return r != rhs.r || g != rhs.g || b != rhs.b; }
+    bool operator!=(const RGBWeights& rhs)const { return r != rhs.r || g != rhs.g || b != rhs.b; }
 };
 
 /*! \class CompositeRGBStruct
@@ -67,7 +67,7 @@ struct CompositeRGBStruct
 
     SERIALIZE_JSON_STRUCT(CompositeRGBStruct, frame_index, weight)
 
-    bool operator!=(const CompositeRGBStruct& rhs) { return frame_index != rhs.frame_index || weight != rhs.weight; }
+    bool operator!=(const CompositeRGBStruct& rhs) const{ return frame_index != rhs.frame_index || weight != rhs.weight; }
 };
 
 /*! \class Threshold
@@ -81,7 +81,7 @@ struct Threshold
 
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 
-    bool operator!=(const Threshold& rhs) { return min != rhs.min || max != rhs.max; }
+    bool operator!=(const Threshold& rhs) const{ return min != rhs.min || max != rhs.max; }
 };
 
 /*! \class  Blur
@@ -95,7 +95,7 @@ struct Blur
 
     SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
 
-    bool operator!=(const Blur& rhs) { return enabled != rhs.enabled || kernel_size != rhs.kernel_size; }
+    bool operator!=(const Blur& rhs) const{ return enabled != rhs.enabled || kernel_size != rhs.kernel_size; }
 };
 
 /*! \class CompositeH
@@ -111,7 +111,7 @@ struct CompositeH
 
     SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, blur)
 
-    bool operator!=(const CompositeH& rhs)
+    bool operator!=(const CompositeH& rhs)const
     {
         return frame_index != rhs.frame_index || slider_threshold != rhs.slider_threshold || threshold != rhs.threshold || blur != rhs.blur;
     }
@@ -129,7 +129,7 @@ struct CompositeSV
 
     SERIALIZE_JSON_STRUCT(CompositeSV, frame_index, slider_threshold, threshold)
 
-    bool operator!=(const CompositeSV& rhs)
+    bool operator!=(const CompositeSV& rhs)const
     {
         return frame_index != rhs.frame_index || slider_threshold != rhs.slider_threshold || threshold != rhs.threshold;
     }
@@ -147,7 +147,7 @@ struct CompositeHSVStruct
 
     SERIALIZE_JSON_STRUCT(CompositeHSVStruct, h, s, v)
 
-    bool operator!=(const CompositeHSVStruct& rhs) { return h != rhs.h || s != rhs.s || v != rhs.v; }
+    bool operator!=(const CompositeHSVStruct& rhs) const{ return h != rhs.h || s != rhs.s || v != rhs.v; }
 };
 
 /*! \class Composite
