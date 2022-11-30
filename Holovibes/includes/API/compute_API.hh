@@ -4,13 +4,11 @@
 
 namespace holovibes::api
 {
-inline const FrameDescriptor& get_import_frame_descriptor() { return api::detail::get_value<ImportFrameDescriptor>(); }
-
 inline int get_batch_size() { return api::detail::get_value<BatchSize>(); }
-void set_batch_size(int value);
+inline void set_batch_size(int value) { api::detail::set_value<BatchSize>(value); }
 
 inline int get_time_stride() { return api::detail::get_value<TimeStride>(); }
-void set_time_stride(int value);
+inline void set_time_stride(int value) { api::detail::set_value<TimeStride>(value); }
 
 inline const Filter2DStruct& get_filter2d() { return api::detail::get_value<Filter2D>(); }
 inline TriggerChangeValue<Filter2DStruct> change_filter2d() { return api::detail::change_value<Filter2D>(); }
@@ -36,20 +34,14 @@ inline void set_z_distance(float value) { api::detail::set_value<ZDistance>(valu
 inline const ConvolutionStruct& get_convolution() { return api::detail::get_value<Convolution>(); }
 inline TriggerChangeValue<ConvolutionStruct> change_convolution() { return api::detail::change_value<Convolution>(); }
 
-inline uint get_input_fps() { return api::detail::get_value<InputFps>(); }
-inline void set_input_fps(uint value) { api::detail::set_value<InputFps>(value); }
-
-inline Computation get_compute_mode() { return api::detail::get_value<ComputeMode>(); }
-inline void set_compute_mode(Computation value) { api::detail::set_value<ComputeMode>(value); }
+inline ComputeModeEnum get_compute_mode() { return api::detail::get_value<ComputeMode>(); }
+inline void set_compute_mode(ComputeModeEnum value) { api::detail::set_value<ComputeMode>(value); }
 
 inline float get_pixel_size() { return api::detail::get_value<PixelSize>(); }
 inline void set_pixel_size(float value) { api::detail::set_value<PixelSize>(value); }
 
 inline uint get_unwrap_history_stopped() { return api::detail::get_value<UnwrapHistorySize>(); }
 inline void set_unwrap_history_stopped(uint value) { api::detail::set_value<UnwrapHistorySize>(value); }
-
-inline bool get_is_computation_stopped() { return api::detail::get_value<IsComputationStopped>(); }
-inline void set_is_computation_stopped(bool value) { api::detail::set_value<IsComputationStopped>(value); }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
@@ -59,7 +51,4 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
     api::detail::set_value<TimeTransformationCutsBufferSize>(value);
 }
-
-void close_critical_compute();
-
 } // namespace holovibes::api

@@ -13,10 +13,10 @@ using holovibes::units::RectFd;
 namespace holovibes
 {
 class Queue;
-} //namepace holovibes
+} // namespace holovibes
 
 /*! \brief Compute the STFT time transform from gpu_time_transformation_queue_
- * to gpu_p_acc_buffer using plan1d wich is the data and computation descriptor
+ * to gpu_p_acc_buffer using plan1d wich is the data and ComputeModeEnum descriptor
  */
 void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d);
 

@@ -23,21 +23,21 @@ void cudaXMallocManaged(T** devPtr, size_t size)
 template <typename T>
 cudaError_t cudaXRMalloc(T** devPtr, size_t size)
 {
-    LOG_DEBUG("Allocate {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_DEBUG("Allocate {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMalloc(devPtr, size);
 }
 
 template <typename T>
 cudaError_t cudaXRMallocHost(T** devPtr, size_t size)
 {
-    LOG_DEBUG("Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_DEBUG("Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMallocHost(devPtr, size);
 }
 
 template <typename T>
 cudaError_t cudaXRMallocManaged(T** devPtr, size_t size)
 {
-    LOG_DEBUG("Allocate {:.3f} Gib on Device w/ Managed", static_cast<float>(size) / (1024 * 1024 * 1024));
+    // LOG_DEBUG("Allocate {:.3f} Gib on Device w/ Managed", static_cast<float>(size) / (1024 * 1024 * 1024));
     return cudaMallocManaged(devPtr, size);
 }
 
@@ -50,15 +50,9 @@ inline size_t cudaGetAllocatedSize(T* devPtr)
     return psize;
 }
 
-inline void cudaXFree(void* devPtr)
-{
-    cudaSafeCall(cudaFree(devPtr));
-}
+inline void cudaXFree(void* devPtr) { cudaSafeCall(cudaFree(devPtr)); }
 
-inline void cudaXFreeHost(void* devPtr)
-{
-    cudaSafeCall(cudaFreeHost(devPtr));
-}
+inline void cudaXFreeHost(void* devPtr) { cudaSafeCall(cudaFreeHost(devPtr)); }
 
 inline void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
 {

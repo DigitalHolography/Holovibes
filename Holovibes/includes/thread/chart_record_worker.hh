@@ -5,6 +5,8 @@
 #pragma once
 
 #include "worker.hh"
+#include "env_structs.hh"
+#include "export_cache.hh"
 
 namespace holovibes::worker
 {
@@ -19,14 +21,13 @@ class ChartRecordWorker final : public Worker
      * \param path Output record path
      * \param nb_frames_to_record Number of points to record
      */
-    ChartRecordWorker(const std::string& path, const unsigned int nb_frames_to_record);
+    ChartRecordWorker();
 
     void run() override;
 
   private:
-    /*! \brief Output record path */
-    const std::string path_;
-    /*! \brief Number of points to record */
-    const unsigned int nb_frames_to_record_;
+    // FIXME API : this must be by value instead of a pipe reference
+    ChartEnv& env_;
+    ExportCache::Cache<> export_cache_;
 };
 } // namespace holovibes::worker

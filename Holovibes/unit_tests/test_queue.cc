@@ -7,6 +7,8 @@
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
 
+using namespace holovibes;
+
 static constexpr cudaStream_t stream = 0;
 
 /*! \brief Get the element at a specific position in the queue */

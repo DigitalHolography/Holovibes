@@ -4,14 +4,12 @@
 #include "API.hh"
 #include "camera_dll.hh"
 #include "tools.hh"
-#include "logger.hh"
 #include "holo_file.hh"
 #include "icompute.hh"
 #include "API.hh"
 
 namespace holovibes
 {
-using FrameDescriptor;
 
 Holovibes& Holovibes::instance()
 {
@@ -19,46 +17,55 @@ Holovibes& Holovibes::instance()
     return instance;
 }
 
-const float Holovibes::get_boundary()
+void Holovibes::init_gpu_queues()
 {
-    if (gpu_input_queue_.load())
+    LOG_DEBUG("init_gpu_queues");
+
+    gpu_input_queue_.reset(
+        new BatchInputQueue(api::get_input_buffer_size(),
+                            api::get_compute_mode() == ComputeModeEnum::Raw ? 1 : api::get_batch_size(),
+                            api::get_import_frame_descriptor()));
+
+    gpu_output_queue_.reset(new Queue(api::detail::get_value<OutputFrameDescriptor>(),
+                                      api::detail::get_value<OutputBufferSize>(),
+                                      QueueType::OUTPUT_QUEUE));
+
+    // FIXME API : This can be remove if holovibes still works
+    FrameDescriptor output_fd = api::get_import_frame_descriptor();
+    if (api::detail::get_value<ComputeMode>() == ComputeModeEnum::Hologram)
     {
-        FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
-        const float d = GSH::instance().get_value<PixelSize>() * 0.000001f;
-        const float n = static_cast<float>(fd.height);
-        return (n * d * d) / GSH::instance().get_value<Lambda>();
+        output_fd.depth = 2;
+        if (api::detail::get_value<ImageType>() == ImageTypeEnum::Composite)
+            output_fd.depth = 6;
     }
-    return 0.f;
+
+    if (output_fd != api::detail::get_value<OutputFrameDescriptor>())
+        LOG_ERROR("Output frame descriptor ComputeModeEnum failed !!");
 }
 
-bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
-
-void Holovibes::init_input_queue(const FrameDescriptor& fd, const unsigned int input_queue_size)
+void Holovibes::destroy_gpu_queues()
 {
-    FrameDescriptor queue_fd = fd;
-
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
+    LOG_DEBUG("destroy_gpu_queues");
+    gpu_input_queue_.reset(static_cast<BatchInputQueue*>(nullptr));
+    gpu_output_queue_.reset(static_cast<Queue*>(nullptr));
 }
 
-void Holovibes::start_file_frame_read(const std::string& file_path,
-                                      bool loop,
-                                      unsigned int fps,
-                                      unsigned int first_frame_id,
-                                      unsigned int nb_frames_to_read,
-                                      bool load_file_in_gpu,
-                                      const std::function<void()>& callback)
+void Holovibes::start_file_frame_read()
 {
-    CHECK(gpu_input_queue_.load() != nullptr);
-
-    file_read_worker_controller_.set_callback(callback);
-    file_read_worker_controller_.set_error_callback(error_callback_);
-    file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
-    file_read_worker_controller_
-        .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
+    LOG_DEBUG("start_file_frame_read");
+    file_frame_read_worker_controller_.start();
 }
 
-void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)
+void Holovibes::stop_file_frame_read()
 {
+    LOG_DEBUG("stop_file_frame_read");
+    file_frame_read_worker_controller_.stop();
+}
+
+void Holovibes::start_camera_frame_read()
+{
+    LOG_DEBUG("start_camera_frame_read");
+
     try
     {
         const static std::map<CameraKind, LPCSTR> camera_dictionary = {
@@ -71,7 +78,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             {CameraKind::xiB, "CameraXib.dll"},
             {CameraKind::OpenCV, "CameraOpenCV.dll"},
         };
-        active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
+        active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(api::get_current_camera_kind()));
     }
     catch (const std::exception& e)
     {
@@ -81,166 +88,99 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
     try
     {
-        GSH::instance().set_value<PixelSize>(active_camera_->get_pixel_size());
-        const FrameDescriptor& camera_fd = active_camera_->get_fd();
+        // FIXME API : this 2 lines shoud be done in the camera files
+        api::detail::set_value<PixelSize>(active_camera_->get_pixel_size());
+        api::detail::set_value<ImportFrameDescriptor>(active_camera_->get_fd());
 
-        api::set_import_type(ImportTypeEnum::Camera);
-        init_input_queue(camera_fd, api::get_input_buffer_size());
-
-        camera_read_worker_controller_.set_callback(callback);
-        camera_read_worker_controller_.set_error_callback(error_callback_);
-        camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
-        camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
+        camera_read_worker_controller_.start(active_camera_);
     }
     catch (std::exception& e)
     {
         LOG_ERROR("Error at camera frame read start worker. (Exception: {})", e.what());
-        stop_frame_read();
+        stop_camera_frame_read();
         throw;
     }
 }
 
-void Holovibes::stop_frame_read()
+void Holovibes::stop_camera_frame_read()
 {
     LOG_FUNC();
     camera_read_worker_controller_.stop();
-    file_read_worker_controller_.stop();
     active_camera_.reset();
-    gpu_input_queue_.store(nullptr);
 }
-/*
-void Holovibes::start_cli_record_and_compute(const std::string& path,
-                                             std::optional<unsigned int> nb_frames_to_record,
-                                             RecordMode record_mode,
-                                             unsigned int nb_frames_skip)
+
+void Holovibes::start_frame_record()
 {
-    start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
-*/
-void Holovibes::start_frame_record(const std::string& path,
-                                   std::optional<unsigned int> nb_frames_to_record,
-                                   RecordMode record_mode,
-                                   unsigned int nb_frames_skip,
-                                   const std::function<void()>& callback)
-{
-    if (GSH::instance().get_value<BatchSize>() > GSH::instance().get_value<RecordBufferSize>())
+    LOG_DEBUG("start_frame_record");
+
+    if (api::detail::get_value<BatchSize>() > api::detail::get_value<RecordBufferSize>())
     {
         LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
         return;
     }
 
-    frame_record_worker_controller_.set_callback(callback);
-    frame_record_worker_controller_.set_error_callback(error_callback_);
-    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path,
-                                          nb_frames_to_record,
-                                          record_mode,
-                                          nb_frames_skip,
-                                          GSH::instance().get_value<OutputBufferSize>());
+    if (api::detail::get_value<ExportScriptPath>() == "")
+        frame_record_worker_controller_.start();
+    else
+        batch_gpib_worker_controller_.start();
 }
 
-void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
-
-void Holovibes::start_chart_record(const std::string& path,
-                                   const unsigned int nb_points_to_record,
-                                   const std::function<void()>& callback)
+void Holovibes::stop_frame_record()
 {
-    chart_record_worker_controller_.set_callback(callback);
-    chart_record_worker_controller_.set_error_callback(error_callback_);
-    chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    chart_record_worker_controller_.start(path, nb_points_to_record);
+    LOG_DEBUG("stop_frame_record");
+
+    if (api::detail::get_value<ExportScriptPath>() == "")
+        frame_record_worker_controller_.stop();
+    else
+        batch_gpib_worker_controller_.stop();
 }
 
-void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
-
-void Holovibes::start_batch_gpib(const std::string& batch_input_path,
-                                 const std::string& output_path,
-                                 unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 const std::function<void()>& callback)
+void Holovibes::start_chart_record()
 {
-    batch_gpib_worker_controller_.stop();
-    batch_gpib_worker_controller_.set_callback(callback);
-    batch_gpib_worker_controller_.set_error_callback(error_callback_);
-    batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    batch_gpib_worker_controller_.start(batch_input_path,
-                                        output_path,
-                                        nb_frames_to_record,
-                                        record_mode,
-                                        GSH::instance().get_value<OutputBufferSize>());
+    LOG_DEBUG("start_chart_record");
+    chart_record_worker_controller_.start();
 }
 
-void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
-
-void Holovibes::start_information_display(const std::function<void()>& callback)
+void Holovibes::stop_chart_record()
 {
-    info_worker_controller_.set_callback(callback);
-    info_worker_controller_.set_error_callback(error_callback_);
-    info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
+    LOG_DEBUG("stop_chart_record");
+    chart_record_worker_controller_.stop();
+}
+
+void Holovibes::start_information_display()
+{
+    LOG_DEBUG("start_information_display");
     info_worker_controller_.start();
 }
 
-void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
+void Holovibes::stop_information_display()
+{
+    LOG_DEBUG("stop_information_display");
+    info_worker_controller_.stop();
+}
 
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
-
-    FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (GSH::instance().get_value<ComputeMode>() == Computation::Hologram)
-    {
-        output_fd.depth = 2;
-        if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
-            output_fd.depth = 6;
-    }
-
-    gpu_output_queue_.store(
-        std::make_shared<Queue>(output_fd, GSH::instance().get_value<OutputBufferSize>(), QueueType::OUTPUT_QUEUE));
-
-    if (!compute_pipe_.load())
-    {
-        compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
-                                                   *(gpu_output_queue_.load()),
-                                                   get_cuda_streams().compute_stream));
-    }
+    compute_pipe_.reset(new Pipe(*gpu_input_queue_, *gpu_output_queue_, get_cuda_streams().compute_stream));
 }
 
-void Holovibes::start_compute_worker(const std::function<void()>& callback)
+void Holovibes::destroy_pipe()
 {
-    compute_worker_controller_.set_callback(callback);
-    compute_worker_controller_.set_error_callback(error_callback_);
-    compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
-    compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
+    LOG_DEBUG("destroy_pipe");
+    compute_pipe_.reset(static_cast<Pipe*>(nullptr));
 }
 
-void Holovibes::start_compute(const std::function<void()>& callback)
+void Holovibes::start_compute()
 {
-    /**
-     * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
-     * Here is a suggestion :
-     * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
-     */
-    CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
-
-    init_pipe();
-    start_compute_worker(callback);
-
-    while (!compute_pipe_.load())
-        continue;
+    LOG_DEBUG("start_compute");
+    compute_worker_controller_.start();
 }
 
 void Holovibes::stop_compute()
 {
-    frame_record_worker_controller_.stop();
-    chart_record_worker_controller_.stop();
-    batch_gpib_worker_controller_.stop();
+    LOG_DEBUG("stop_compute");
     compute_worker_controller_.stop();
-}
-
-void Holovibes::stop_all_worker_controller()
-{
-    info_worker_controller_.stop();
-    stop_compute();
-    stop_frame_read();
 }
 
 void Holovibes::reload_streams() { cuda_streams_.reload(); }

@@ -46,14 +46,14 @@ class InformationWorker final : public Worker
 
     /*! \brief Compute throughput (input, output, saving) according to the information container
      *
-     * \param cd Compute descriptor used for computations
+     * \param cd Compute descriptor used for ComputeModeEnums
      * \param output_frame_res Frame resolution of output images
      * \param input_frame_size Frame size of input images
      * \param record_frame_size Frame size of record images
      */
     void compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size);
 
-    /*! \brief Refresh side informations according to new computations */
+    /*! \brief Refresh side informations according to new ComputeModeEnums */
     void display_gui_information();
 
     /*! \brief Input fps */

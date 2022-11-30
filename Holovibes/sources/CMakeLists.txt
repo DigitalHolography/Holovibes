@@ -9,26 +9,20 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
 
     state/global_state_holder.cc
 
-    API/camera_API.cc
-    API/compute_API.cc
     API/contrast_API.cc
-    API/cuts_API.cc
-    API/display_API.cc
-    API/import_API.cc
-    API/pipe_API.cc
-    API/record_API.cc
-    API/unknown_API.cc
-    API/view_API.cc
     API/CUDA_API.cc
+    API/display_API.cc
 
-    cli/cli.cc
-
+    core/gsh_cache_on_change/common_on_change.cc
     core/gsh_cache_on_change/compute_gsh_on_change.cc
+    core/gsh_cache_on_change/import_gsh_on_change.cc
+    core/gsh_cache_on_change/view_gsh_on_change.cc
+
     core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/import_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc
 
-    tools/logger.cc
     compute/compute_bundles.cc
     compute/compute_bundles_2d.cc
     compute/converts.cc
@@ -41,47 +35,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     core/holovibes.cc
     core/icompute.cc
     core/pipe.cc
-
-    gui/gui.cc
-    gui/other/gui_curve_plot.cc
-    gui/other/gui_drag_drop_lineedit.cc
-    gui/other/gui_frame.cc
-    gui/other/gui_group_box.cc
-    gui/other/popup_error.cc
-    gui/selections/interfaces/Overlay.cc
-    gui/selections/interfaces/rect_overlay.cc
-    gui/selections/interfaces/square_overlay.cc
-    gui/selections/overlays/composite_area_overlay.cc
-    gui/selections/overlays/cross_overlay.cc
-    gui/selections/overlays/filter2d_reticle_overlay.cc
-    gui/selections/overlays/noise_overlay.cc
-    gui/selections/overlays/rainbow_overlay.cc
-    gui/selections/overlays/reticle_overlay.cc
-    gui/selections/overlays/signal_overlay.cc
-    gui/selections/overlays/slice_cross_overlay.cc
-    gui/selections/overlays/zoom_overlay.cc
-    gui/selections/overlay_manager.cc
-    gui/windows/BasicOpenGLWindow.cc
-    gui/windows/AdvancedSettingsWindow.cc
-    gui/windows/RawWindow.cc
-    gui/windows/HoloWindow.cc
-    gui/windows/MainWindow.cc
-    gui/windows/PlotWindow.cc
-    gui/windows/SliceWindow.cc
-    gui/windows/Filter2DWindow.cc
-    gui/windows/panels/panel.cc
-    gui/windows/panels/import_panel.cc
-    gui/windows/panels/export_panel.cc
-    gui/windows/panels/info_panel.cc
-    gui/windows/panels/view_panel.cc
-    gui/windows/panels/composite_panel.cc
-    gui/windows/panels/image_rendering_panel.cc
-    gui/windows/AdvancedSettingsWindowTools/q_spin_box_layout.cc
-    gui/windows/AdvancedSettingsWindowTools/q_double_spin_box_layout.cc
-    gui/windows/AdvancedSettingsWindowTools/q_int_spin_box_layout.cc
-    gui/windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
-    gui/windows/panels/asw_mainwindow_panel.cc
-    gui/utilities/gui_utilities.cc
 
     io_files/file_exception.cc
     io_files/input_frame_file.cc

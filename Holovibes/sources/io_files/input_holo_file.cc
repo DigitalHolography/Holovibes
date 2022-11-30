@@ -164,6 +164,7 @@ void InputHoloFile::import_compute_settings()
 
     // update GSH with the footer values
     raw_footer_.Load();
+
 }
 
 void InputHoloFile::import_info() const

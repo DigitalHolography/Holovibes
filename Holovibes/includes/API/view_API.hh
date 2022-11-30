@@ -4,22 +4,24 @@
 
 namespace holovibes::api
 {
-    
+
 inline ImageTypeEnum get_image_type() { return api::detail::get_value<ImageType>(); }
 inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<ImageType>(value); }
 
 inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnabled>(); }
 inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }
 
-inline bool get_cuts_view_enabled() { return api::detail::get_value<CutsViewEnabled>(); }
-inline void set_cuts_view_enabled(bool value) { api::detail::set_value<CutsViewEnabled>(value); }
+inline bool get_cuts_view_enabled() { return api::detail::get_value<CutsViewEnable>(); }
+inline void set_cuts_view_enabled(bool value) { api::detail::set_value<CutsViewEnable>(value); }
 
 inline bool get_lens_view_enabled() { return api::detail::get_value<LensViewEnabled>(); }
 inline void set_lens_view_enabled(bool value) { api::detail::set_value<LensViewEnabled>(value); }
 
 inline bool get_chart_display_enabled() { return api::detail::get_value<ChartDisplayEnabled>(); }
+inline void set_chart_display_enabled(bool value) { api::detail::set_value<ChartDisplayEnabled>(value); }
 
 inline bool get_raw_view_enabled() { return api::detail::get_value<RawViewEnabled>(); }
+inline void set_raw_view_enabled(bool value) { api::detail::set_value<RawViewEnabled>(value); }
 
 inline bool get_filter2d_view_enabled() noexcept { return api::detail::get_value<Filter2DViewEnabled>(); }
 inline void set_filter2d_view_enabled(bool value) noexcept
@@ -49,11 +51,7 @@ inline TriggerChangeValue<ViewWindow> change_view_filter2d() { return api::detai
 inline const ReticleStruct& get_reticle() { return api::detail::get_value<Reticle>(); }
 inline TriggerChangeValue<ReticleStruct> change_reticle() { return api::detail::change_value<Reticle>(); }
 
-inline bool get_renorm_enabled() { return GSH::instance().get_value<RenormEnabled>(); }
-inline void set_renorm_enabled(bool value) { GSH::instance().set_value<RenormEnabled>(value); }
-
-void create_holo_window(ushort window_size);
-
-void refresh_view_mode(ushort window_size, uint index);
+inline bool get_renorm_enabled() { return api::detail::get_value<RenormEnabled>(); }
+inline void set_renorm_enabled(bool value) { api::detail::set_value<RenormEnabled>(value); }
 
 } // namespace holovibes::api

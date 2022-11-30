@@ -22,11 +22,11 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
                      const FrameDescriptor& input_fd,
                      const FrameDescriptor& output_fd,
                      const cudaStream_t& stream,
-                     AdvancedCache::Cache& advanced_cache,
-                     ComputeCache::Cache& compute_cache,
-                     ExportCache::Cache& export_cache,
-                     ViewCache::Cache& view_cache,
-                     ZoneCache::Cache& zone_cache)
+                     PipeAdvancedCache& advanced_cache,
+                     PipeComputeCache& compute_cache,
+                     PipeExportCache& export_cache,
+                     PipeViewCache& view_cache,
+                     PipeZoneCache& zone_cache)
     : fn_compute_vect_(fn_compute_vect)
     , buffers_(buffers)
     , chart_env_(chart_env)
@@ -53,7 +53,7 @@ void Rendering::insert_fft_shift()
 
     if (view_cache_.get_value<FftShiftEnabled>())
     {
-        if (view_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
+        if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
@@ -72,7 +72,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecord>().is_enable())
+    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecord>().is_running)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -93,11 +93,10 @@ void Rendering::insert_chart()
 
                 if (view_cache_.get_value<ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_value<ChartRecord>().is_enable() > 0 &&
-                    chart_env_.current_nb_point_to_record_left > 0)
+                if (export_cache_.get_value<ChartRecord>().is_running && chart_env_.current_nb_points_recorded > 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
-                    --chart_env_.current_nb_point_to_record_left;
+                    --chart_env_.current_nb_points_recorded;
                 }
             });
     }
@@ -109,7 +108,7 @@ void Rendering::insert_log()
 
     if (view_cache_.get_value<ViewXY>().log_enabled)
         insert_main_log();
-    if (view_cache_.get_value<CutsViewEnabled>())
+    if (view_cache_.get_value<CutsViewEnable>())
         insert_slice_log();
     if (view_cache_.get_value<ViewFilter2D>().log_enabled)
         insert_filter2d_view_log();
@@ -160,7 +159,7 @@ void Rendering::insert_filter2d_view_log()
 {
     LOG_FUNC();
 
-    if (GSH::instance().get_value<Filter2DViewEnabled>())
+    if (api::detail::get_value<Filter2DViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -175,7 +174,7 @@ void Rendering::insert_filter2d_view_log()
 
 void Rendering::insert_contrast()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     // FIXME API : All thoses function should be a unique job/lambda
     insert_request_exec_contrast();
@@ -286,7 +285,7 @@ void Rendering::insert_request_exec_contrast()
                     autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                         fd_.width,
                                         compute_cache_.get_value<TimeTransformationSize>(),
-                                        advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
+                                        advanced_cache_.get_value<ContrastThreshold>().frame_index_offset,
                                         WindowKind::ViewXZ);
                 }
             }
@@ -299,7 +298,7 @@ void Rendering::insert_request_exec_contrast()
                     autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                         compute_cache_.get_value<TimeTransformationSize>(),
                                         fd_.height,
-                                        advanced_cache_.get_value<ContrastThreshold>().cuts_p_offset,
+                                        advanced_cache_.get_value<ContrastThreshold>().frame_index_offset,
                                         WindowKind::ViewYZ);
                 }
             }
@@ -323,7 +322,7 @@ void Rendering::insert_request_exec_contrast()
 
 void Rendering::insert_clear_image_accumulation()
 {
-    LOG_FUNC(compute_worker);
+    LOG_FUNC();
 
     auto lambda_clear_image_accumulation = [&]()
     {

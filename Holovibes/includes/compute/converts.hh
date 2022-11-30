@@ -13,6 +13,7 @@
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
@@ -39,10 +40,10 @@ class Converts
              cuda_tools::CufftHandle& plan2d,
              const FrameDescriptor& input_fd,
              const cudaStream_t& stream,
-             ComputeCache::Cache& compute_cache,
-             CompositeCache::Cache& composite_cache,
-             ViewCache::Cache& view_cache,
-             ZoneCache::Cache& zone_cache);
+             PipeComputeCache& compute_cache,
+             PipeCompositeCache& composite_cache,
+             PipeViewCache& view_cache,
+             PipeZoneCache& zone_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested);
@@ -101,16 +102,12 @@ class Converts
     cuda_tools::CufftHandle& plan_unwrap_2d_;
     /*! \brief Describes the input frame size */
     const FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform pipe computation */
+    /*! \brief Compute stream to perform pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    CompositeCache::Cache& composite_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ViewCache::Cache& view_cache_;
-    ZoneCache::Cache& zone_cache_;
+    PipeComputeCache& compute_cache_;
+    PipeCompositeCache& composite_cache_;
+    PipeViewCache& view_cache_;
+    PipeZoneCache& zone_cache_;
 };
 } // namespace holovibes::compute

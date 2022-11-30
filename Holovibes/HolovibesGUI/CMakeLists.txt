@@ -1,0 +1,65 @@
+target_sources("${PROJECT_NAME}_lib" PRIVATE
+    other/gui_curve_plot.hh
+    other/gui_drag_drop_lineedit.hh
+    other/gui_group_box.hh
+    other/gui_frame.hh
+    windows/MainWindow.hh
+    windows/AdvancedSettingsWindow.hh
+    windows/PlotWindow.hh
+    windows/panels/panel.hh
+    windows/panels/import_panel.hh
+    windows/panels/export_panel.hh
+    windows/panels/info_panel.hh
+    windows/panels/view_panel.hh
+    windows/panels/composite_panel.hh
+    windows/panels/image_rendering_panel.hh
+
+    windows/AdvancedSettingsWindowTools/q_double_spin_box_layout.hh
+    windows/AdvancedSettingsWindowTools/q_int_spin_box_layout.hh
+
+    windows/panels/asw_mainwindow_panel.hh
+
+    gui_front_end/gui_front_end_for_import_cache_on_pipe_request.cc
+    gui_front_end/gui_front_end_for_view_cache_on_pipe_request.cc
+    gui_front_end/gui_front_end_for_compute_cache_on_pipe_request.cc
+
+    gui.cc
+    other/gui_curve_plot.cc
+    other/gui_drag_drop_lineedit.cc
+    other/gui_frame.cc
+    other/gui_group_box.cc
+    other/popup_error.cc
+    selections/interfaces/Overlay.cc
+    selections/interfaces/rect_overlay.cc
+    selections/interfaces/square_overlay.cc
+    selections/overlays/composite_area_overlay.cc
+    selections/overlays/cross_overlay.cc
+    selections/overlays/filter2d_reticle_overlay.cc
+    selections/overlays/noise_overlay.cc
+    selections/overlays/rainbow_overlay.cc
+    selections/overlays/reticle_overlay.cc
+    selections/overlays/signal_overlay.cc
+    selections/overlays/slice_cross_overlay.cc
+    selections/overlays/zoom_overlay.cc
+    selections/overlay_manager.cc
+    windows/BasicOpenGLWindow.cc
+    windows/AdvancedSettingsWindow.cc
+    windows/RawWindow.cc
+    windows/HoloWindow.cc
+    windows/MainWindow.cc
+    windows/PlotWindow.cc
+    windows/SliceWindow.cc
+    windows/Filter2DWindow.cc
+    windows/panels/panel.cc
+    windows/panels/import_panel.cc
+    windows/panels/export_panel.cc
+    windows/panels/info_panel.cc
+    windows/panels/view_panel.cc
+    windows/panels/composite_panel.cc
+    windows/panels/image_rendering_panel.cc
+    windows/AdvancedSettingsWindowTools/q_spin_box_layout.cc
+    windows/AdvancedSettingsWindowTools/q_double_spin_box_layout.cc
+    windows/AdvancedSettingsWindowTools/q_int_spin_box_layout.cc
+    windows/AdvancedSettingsWindowTools/panels/advanced_settings_window_panel.cc
+    windows/panels/asw_mainwindow_panel.cc
+)

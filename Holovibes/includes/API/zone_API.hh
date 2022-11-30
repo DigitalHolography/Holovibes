@@ -17,4 +17,10 @@ inline void set_composite_zone(const units::RectFd& rect) { api::detail::set_val
 inline void set_zoomed_zone(const units::RectFd& rect) { api::detail::set_value<ZoomedZone>(rect); };
 inline void set_reticle_zone(const units::RectFd& rect) { api::detail::set_value<ReticleZone>(rect); };
 
+inline TriggerChangeValue<units::RectFd> change_signal_zone() { return api::detail::change_value<SignalZone>(); };
+inline TriggerChangeValue<units::RectFd> change_noise_zone() { return api::detail::change_value<NoiseZone>(); };
+inline TriggerChangeValue<units::RectFd> change_composite_zone() { return api::detail::change_value<CompositeZone>(); };
+inline TriggerChangeValue<units::RectFd> change_zoomed_zone() { return api::detail::change_value<ZoomedZone>(); };
+inline TriggerChangeValue<units::RectFd> change_reticle_zone() { return api::detail::change_value<ReticleZone>(); };
+
 } // namespace holovibes::api

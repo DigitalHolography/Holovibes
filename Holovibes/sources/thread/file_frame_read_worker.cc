@@ -10,66 +10,45 @@
 
 namespace holovibes::worker
 {
-FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
-                                         bool loop,
-                                         unsigned int fps,
-                                         unsigned int first_frame_id,
-                                         unsigned int total_nb_frames_to_read,
-                                         bool load_file_in_gpu,
-                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
-    : FrameReadWorker(gpu_input_queue)
-    , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
-    , current_nb_frames_read_(fast_updates_entry_->first)
-    , total_nb_frames_to_read_(fast_updates_entry_->second)
-    , file_path_(file_path)
-    , loop_(loop)
-    , fps_handler_(FileFrameReadWorker::FpsHandler(fps))
-    , first_frame_id_(first_frame_id)
-    , load_file_in_gpu_(load_file_in_gpu)
-    , input_file_(nullptr)
-    , frame_size_(0)
+FileFrameReadWorker::FileFrameReadWorker()
+    : FrameReadWorker()
+    , current_nb_frames_read(0)
+    , fps_handler_(api::get_input_fps())
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
     , gpu_packed_buffer_(nullptr)
 {
-    current_nb_frames_read_ = 0;
-    total_nb_frames_to_read_ = total_nb_frames_to_read;
+    input_file_.reset(io_files::InputFrameFileFactory::open(api::detail::get_value<ImportFilePath>()));
+    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = "File";
+}
+
+FileFrameReadWorker::~FileFrameReadWorker()
+{
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 }
 
 void FileFrameReadWorker::run()
 {
     LOG_FUNC();
-    try
-    {
-        input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
-    }
-    catch (const io_files::FileException& e)
-    {
-        LOG_ERROR("{}", e.what());
-        return;
-    }
-
-    const FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    frame_size_ = fd.get_frame_size();
 
     if (!init_frame_buffers())
         return;
 
+    // FIXME FASTUPDATEMAP
+    auto fd = api::detail::get_value<ImportFrameDescriptor>();
     std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
                                         std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
 
-    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
-    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
-    *entry1 = "File";
-    *entry2 = input_descriptor_info;
-
-    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true) = input_descriptor_info;
 
     try
     {
-        input_file_->set_pos_to_frame(first_frame_id_);
+        input_file_->set_pos_to_frame(api::get_start_frame());
 
-        if (load_file_in_gpu_)
+        if (api::detail::get_value<LoadFileInGpu>())
             read_file_in_gpu();
         else
             read_file_batch();
@@ -80,12 +59,7 @@ void FileFrameReadWorker::run()
     }
 
     // No more enqueue, thus release the producer ressources
-    gpu_input_queue_.load()->stop_producer();
-
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+    api::get_gpu_input_queue().stop_producer();
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
@@ -96,24 +70,22 @@ bool FileFrameReadWorker::init_frame_buffers()
 {
     size_t buffer_nb_frames;
 
-    if (load_file_in_gpu_)
-        buffer_nb_frames = total_nb_frames_to_read_;
+    if (api::detail::get_value<LoadFileInGpu>())
+        buffer_nb_frames = api::get_end_frame() - api::get_start_frame();
     else
-        buffer_nb_frames = GSH::instance().get_value<FileBufferSize>();
+        buffer_nb_frames = api::detail::get_value<FileBufferSize>();
 
-    size_t buffer_size = frame_size_ * buffer_nb_frames;
+    size_t buffer_size = api::get_import_frame_descriptor().get_frame_size() * buffer_nb_frames;
 
     cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
 
+    std::string error_message = "";
+    if (api::detail::get_value<LoadFileInGpu>())
+        error_message += " (consider disabling \"Load file in GPU\" option)";
+
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "Not enough CPU RAM to read file";
-
-        if (load_file_in_gpu_)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
-
+        LOG_ERROR("Not enough CPU RAM to read file {}", error_message);
         return false;
     }
 
@@ -121,27 +93,17 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "Not enough GPU DRAM to read file";
-
-        if (load_file_in_gpu_)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
+        LOG_ERROR("Not enough GPU VRAM to read file {}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         return false;
     }
 
-    error_code = cudaXRMalloc(&gpu_packed_buffer_, frame_size_);
+    error_code = cudaXRMalloc(&gpu_packed_buffer_, api::get_import_frame_descriptor().get_frame_size());
 
     if (error_code != cudaSuccess)
     {
-        std::string error_message = "Not enough GPU DRAM to read file";
-
-        if (load_file_in_gpu_)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
+        LOG_ERROR("Not enough GPU VRAM to read file {}", error_message);
 
         cudaXFreeHost(cpu_frame_buffer_);
         cudaXFree(gpu_frame_buffer_);
@@ -156,14 +118,14 @@ void FileFrameReadWorker::read_file_in_gpu()
     fps_handler_.begin();
 
     // Read and copy the entire file
-    size_t frames_read = read_copy_file(total_nb_frames_to_read_);
+    size_t frames_read = read_copy_file(api::get_nb_frame_to_read());
 
     while (!stop_requested_)
     {
         enqueue_loop(frames_read);
 
-        if (loop_)
-            current_nb_frames_read_ = 0;
+        if (api::detail::get_value<LoopFile>())
+            current_nb_frames_read = 0;
         else
             stop_requested_ = true;
     }
@@ -171,14 +133,14 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = GSH::instance().get_value<FileBufferSize>();
+    const unsigned int batch_size = api::detail::get_value<FileBufferSize>();
 
     fps_handler_.begin();
 
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, total_nb_frames_to_read_ - current_nb_frames_read_);
+        size_t frames_to_read = std::min(batch_size, api::get_nb_frame_to_read() - current_nb_frames_read);
 
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
@@ -187,12 +149,12 @@ void FileFrameReadWorker::read_file_batch()
         enqueue_loop(frames_read);
 
         // Reset to the first frame if needed
-        if (current_nb_frames_read_ == total_nb_frames_to_read_)
+        if (current_nb_frames_read == api::get_nb_frame_to_read())
         {
-            if (loop_)
+            if (api::detail::get_value<LoopFile>())
             {
-                input_file_->set_pos_to_frame(first_frame_id_);
-                current_nb_frames_read_ = 0;
+                input_file_->set_pos_to_frame(api::get_start_frame());
+                current_nb_frames_read = 0;
             }
             else
             {
@@ -210,12 +172,13 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
     try
     {
+        uint frame_size = api::get_import_frame_descriptor().get_frame_size();
         frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
-        size_t frames_total_size = frames_read * frame_size_;
+        size_t frames_total_size = frames_read * frame_size;
 
         if (flag_packed != 8 && flag_packed != 16)
         {
-            const FrameDescriptor& fd = input_file_->get_frame_descriptor();
+            const FrameDescriptor& fd = api::detail::get_value<ImportFrameDescriptor>();
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
             for (size_t i = 0; i < frames_read; ++i)
             {
@@ -228,14 +191,14 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 
                 // Convert 12bit frame to 16bit
                 if (flag_packed == 12)
-                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
-                                       frame_size_ / 2,
+                    unpack_12_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size),
+                                       frame_size / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
                                        stream_);
                 else if (flag_packed == 10)
-                    unpack_10_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size_),
-                                       frame_size_ / 2,
+                    unpack_10_to_16bit((short*)(gpu_frame_buffer_ + i * frame_size),
+                                       frame_size / 2,
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
                                        stream_);
@@ -266,7 +229,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     {
         fps_handler_.wait();
 
-        if (!api::detail::get_value<IsGuiEnable>())
+        if (api::detail::get_value<ExportRecordDontLoseFrame>())
         {
             while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
                        Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&
@@ -278,9 +241,11 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (stop_requested_)
             break;
 
-        gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
+        api::get_gpu_input_queue().enqueue(gpu_frame_buffer_ +
+                                               frames_enqueued * api::get_import_frame_descriptor().get_frame_size(),
+                                           cudaMemcpyDeviceToDevice);
 
-        current_nb_frames_read_++;
+        current_nb_frames_read++;
         processed_frames_++;
         frames_enqueued++;
 
@@ -292,7 +257,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file in in the buffer,
     // so we don't have to sync
-    if (load_file_in_gpu_ == false)
-        gpu_input_queue_.load()->sync_current_batch();
+    if (api::detail::get_value<LoadFileInGpu>() == false)
+        api::get_gpu_input_queue().sync_current_batch();
 }
 } // namespace holovibes::worker

@@ -18,7 +18,6 @@ namespace holovibes
 // clang-format off
 
 //! \brief Type of the image displayed
-class ImageType : public Parameter<ImageTypeEnum, ImageTypeEnum::Modulus, "img_type", ImageTypeEnum>{};
 class ViewAccuX : public Parameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_x">{};
 class ViewAccuY : public Parameter<ViewAccuXY, DefaultLiteral<ViewAccuXY>{}, "view_accu_y">{};
 class ViewAccuP : public Parameter<ViewAccuPQ, DefaultLiteral<ViewAccuPQ>{}, "view_accu_p">{};
@@ -38,14 +37,13 @@ class FftShiftEnabled : public BoolParameter<false, "fft_shift_enabled">{};
 //! \brief Display the raw interferogram when we are in hologram mode.
 class RawViewEnabled : public BoolParameter<false, "raw_view_enabled">{};
 //! \brief Are slices YZ and XZ enabled
-class CutsViewEnabled : public BoolParameter<false, "cuts_view_enabled">{};
+class CutsViewEnable : public BoolParameter<false, "cuts_view_enabled">{};
 class RenormEnabled : public BoolParameter<true, "renorm_enabled">{};
 class Reticle : public Parameter<ReticleStruct, DefaultLiteral<ReticleStruct>{}, "reticle">{};
 
 // clang-format on
 
-using ViewCache = MicroCache<ImageType,
-                             ViewAccuX,
+using ViewCache = MicroCache<ViewAccuX,
                              ViewAccuY,
                              ViewAccuP,
                              ViewAccuQ,
@@ -59,7 +57,7 @@ using ViewCache = MicroCache<ImageType,
                              Filter2DViewEnabled,
                              FftShiftEnabled,
                              RawViewEnabled,
-                             CutsViewEnabled,
+                             CutsViewEnable,
                              RenormEnabled,
                              Reticle>;
 

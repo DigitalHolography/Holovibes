@@ -4487,7 +4487,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageModeComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(int)</slot>
+   <slot>set_image_type(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4535,7 +4535,7 @@ p, li { white-space: pre-wrap; }
    <sender>AutoContrastPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_auto_contrast()</slot>
+   <slot>request_exec_contrast_current_window()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>378</x>
@@ -5205,13 +5205,13 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(int)</slot>
+  <slot>set_image_type(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
-  <slot>set_auto_contrast()</slot>
+  <slot>request_exec_contrast_current_window()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
   <slot>invert_contrast(bool)</slot>

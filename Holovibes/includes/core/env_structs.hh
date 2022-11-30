@@ -16,7 +16,7 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
-#include "enum_record_mode.hh"
+
 #include "global_state_holder.hh"
 
 namespace holovibes
@@ -116,7 +116,7 @@ struct TimeTransformationEnv
     /*! \brief Plan 1D used for the STFT. */
     cuda_tools::CufftHandle stft_plan;
 
-    /*! \brief Hold the P frame after the time transformation computation. */
+    /*! \brief Hold the P frame after the time transformation ComputeModeEnum. */
     cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;
 
     /*! \name PCA time transformation
@@ -135,6 +135,9 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
+
+    uint current_nb_frames_recorded = 0;
+    uint nb_frame_skip = 0;
 };
 
 /*! \struct ChartEnv
@@ -147,7 +150,7 @@ struct ChartEnv
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_display_queue_ = nullptr;
     std::unique_ptr<ConcurrentDeque<ChartPoint>> chart_record_queue_ = nullptr;
 
-    uint current_nb_point_to_record_left = 0;
+    uint current_nb_points_recorded = 0;
 };
 
 /*! \struct ImageAccEnv

@@ -12,6 +12,7 @@
 #include "rect.hh"
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
@@ -42,11 +43,11 @@ class Rendering
               const FrameDescriptor& input_fd,
               const FrameDescriptor& output_fd,
               const cudaStream_t& stream,
-              AdvancedCache::Cache& advanced_cache,
-              ComputeCache::Cache& compute_cache,
-              ExportCache::Cache& export_cache,
-              ViewCache::Cache& view_cache,
-              ZoneCache::Cache& zone_cache);
+              PipeAdvancedCache& advanced_cache,
+              PipeComputeCache& compute_cache,
+              PipeExportCache& export_cache,
+              PipeViewCache& view_cache,
+              PipeZoneCache& zone_cache);
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -114,15 +115,15 @@ class Rendering
     const FrameDescriptor& input_fd_;
     /*! \brief Describes the output frame size */
     const FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief Compute stream to perform  pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    AdvancedCache::Cache& advanced_cache_;
-    ComputeCache::Cache& compute_cache_;
-    ExportCache::Cache& export_cache_;
-    ViewCache::Cache& view_cache_;
-    ZoneCache::Cache& zone_cache_;
+    /*! \brief Variables needed for the ComputeModeEnum in the pipe, updated at each end of pipe */
+    PipeAdvancedCache& advanced_cache_;
+    PipeComputeCache& compute_cache_;
+    PipeExportCache& export_cache_;
+    PipeViewCache& view_cache_;
+    PipeZoneCache& zone_cache_;
 
     float* percent_min_max_;
 };

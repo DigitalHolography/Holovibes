@@ -5,6 +5,8 @@
 
 #include <thread>
 
+using namespace holovibes;
+
 static void ASSERT_QUEUE_ELT_EQ(holovibes::BatchInputQueue& q, size_t pos, std::string expected)
 {
     // TODO: getter max size

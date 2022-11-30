@@ -33,7 +33,7 @@ void check_cuda_graphic_card()
     }
     else
         error_message = "No CUDA graphic card detected.\n"
-                        "You will not be able to run Holovibes.\n\n"
+                        "You will not be able to run Holovibes.\n"
                         "Try to update your graphic drivers.";
 
     throw std::runtime_error(error_message);

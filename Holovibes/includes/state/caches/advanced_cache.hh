@@ -29,6 +29,8 @@ class ContrastThreshold : public Parameter<ContrastThresholdStruct, DefaultLiter
 class RenormConstant : public UIntParameter<5, "renorm_constant">{};
 class RawBitshift : public IntParameter<0, "raw_bitshift">{};
 
+class FrontEnd : public StringParameter<"", "front_end">{};
+
 // clang-format on
 
 using AdvancedCache = MicroCache<DisplayRate,
@@ -40,6 +42,7 @@ using AdvancedCache = MicroCache<DisplayRate,
                                  Filter2DSmooth,
                                  ContrastThreshold,
                                  RenormConstant,
-                                 RawBitshift>;
+                                 RawBitshift,
+                                 FrontEnd>;
 
 } // namespace holovibes

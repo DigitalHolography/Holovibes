@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "holovibes.hh"
+#include "API.hh"
 
 #include "batch_input_queue.hh"
 
@@ -8,13 +9,13 @@ namespace holovibes
 {
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const FrameDescriptor& fd)
     : DisplayQueue(fd)
-    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
-    , curr_nb_frames_(fast_updates_entry_->first)
-    , total_nb_frames_(fast_updates_entry_->second)
+    , curr_nb_frames_(0)
+    , total_nb_frames_(0)
     , frame_capacity_(total_nb_frames)
 {
-    curr_nb_frames_ = 0;
-    total_nb_frames_ = total_nb_frames;
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::INPUT_QUEUE);
+    entry.recorded = reinterpret_cast<const uint*>(&curr_nb_frames_);
+    entry.to_record = reinterpret_cast<const uint*>(&total_nb_frames_);
 
     // Set priority of streams
     // Set batch_size and max_size
@@ -23,10 +24,9 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
 
 BatchInputQueue::~BatchInputQueue()
 {
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::INPUT_QUEUE);
     destroy_mutexes_streams();
     // data is free as it is a UniquePtr.
-
-    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
 void BatchInputQueue::create_queue(const uint new_batch_size)
@@ -282,7 +282,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-        dest.size_.store(dest.max_size_.load());
+        dest.size_.store(dest.max_size_);
         dest.has_overridden_ = true;
     }
 }

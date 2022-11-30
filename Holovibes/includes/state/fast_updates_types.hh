@@ -42,6 +42,7 @@ enum class ProgressType
     FILE_READ,
     FRAME_RECORD,
     CHART_RECORD,
+    INPUT_QUEUE
 };
 
 enum class QueueType
@@ -76,21 +77,29 @@ template <>
 struct TypeValue<FpsType>
 {
     using key = FpsType;
-    using value = std::atomic<uint>;
+    using value = const uint*;
 };
 
 template <>
 struct TypeValue<ProgressType>
 {
     using key = ProgressType;
-    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+    struct value
+    {
+        const uint* recorded;
+        const uint* to_record;
+    };
 };
 
 template <>
 struct TypeValue<QueueType>
 {
     using key = QueueType;
-    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+    struct value
+    {
+        const std::atomic<uint>* size;
+        const uint* max_size;
+    };
 };
 
 } // namespace holovibes::internal

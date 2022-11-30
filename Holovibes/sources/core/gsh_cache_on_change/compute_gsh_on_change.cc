@@ -1,4 +1,5 @@
 #include "compute_gsh_on_change.hh"
+#include "common_on_change.hh"
 #include "API.hh"
 
 namespace holovibes
@@ -8,15 +9,16 @@ static void load_convolution_matrix(ConvolutionStruct& convo);
 template <>
 void ComputeGSHOnChange::operator()<Convolution>(ConvolutionStruct& new_value)
 {
-    LOG_ON_CHANGE_GSH(Convolution);
-    if (api::get_compute_pipe_ptr() == nullptr)
-        return;
+    LOG_UPDATE_ON_CHANGE(Convolution);
 
     load_convolution_matrix(new_value);
 }
 
 static void load_convolution_matrix(ConvolutionStruct& convo)
 {
+    if (api::get_convolution().enabled == false)
+        return;
+
     if (api::get_convolution().type == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
 
@@ -62,8 +64,8 @@ static void load_convolution_matrix(ConvolutionStruct& convo)
     fclose(c_file);
 
     // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-    const uint output_width = Holovibes::instance().get_gpu_output_queue()->get_fd().width;
-    const uint output_height = Holovibes::instance().get_gpu_output_queue()->get_fd().height;
+    const uint output_width = api::get_output_frame_descriptor().width;
+    const uint output_height = api::get_output_frame_descriptor().height;
     const uint size = output_width * output_height;
 
     // The convo matrix is centered and padded with 0 since the kernel is
@@ -95,24 +97,62 @@ static void load_convolution_matrix(ConvolutionStruct& convo)
 template <>
 void ComputeGSHOnChange::operator()<BatchSize>(int& new_value)
 {
-    if (value > api::get_input_buffer_size())
-        value = api::get_input_buffer_size();
+    LOG_UPDATE_ON_CHANGE(BatchSize);
+
+    if (new_value > api::get_input_buffer_size())
+        new_value = api::get_input_buffer_size();
 
     auto time_stride = api::get_time_stride();
-    if (time_stride < value)
-        api::set_time_stride(value);
-    else if (time_stride % value != 0)
-        api::set_time_stride(time_stride - time_stride % value);
+    if (time_stride < new_value)
+        api::set_time_stride(new_value);
+    else if (time_stride % new_value != 0)
+        api::set_time_stride(time_stride - time_stride % new_value);
 }
 
 template <>
 void ComputeGSHOnChange::operator()<TimeStride>(int& new_value)
 {
+    LOG_UPDATE_ON_CHANGE(TimeStride);
+
     auto batch_size = api::get_batch_size();
     if (batch_size > new_value)
         new_value = batch_size;
     else if (new_value % batch_size != 0)
         new_value = new_value - new_value % batch_size;
+}
+
+template <>
+void ComputeGSHOnChange::operator()<TimeTransformationCutsEnable>(bool& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(TimeTransformationCutsEnable);
+
+    if (new_value == false)
+        api::detail::set_value<CutsViewEnable>(false);
+}
+
+template <>
+void ComputeGSHOnChange::operator()<ComputeMode>(ComputeModeEnum& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(ComputeMode);
+
+    compute_output_fd(api::get_import_frame_descriptor(), new_value, api::get_image_type());
+}
+
+template <>
+void ComputeGSHOnChange::operator()<ImageType>(ImageTypeEnum& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(ImageType);
+
+    compute_output_fd(api::get_import_frame_descriptor(), api::get_compute_mode(), new_value);
+}
+
+template <>
+void ComputeGSHOnChange::operator()<Filter2D>(Filter2DStruct& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(Filter2D);
+
+    if (new_value.enabled == false)
+        api::set_filter2d_view_enabled(false);
 }
 
 } // namespace holovibes

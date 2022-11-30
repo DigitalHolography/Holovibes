@@ -6,6 +6,9 @@
 
 #include "frame_read_worker.hh"
 #include "input_frame_file.hh"
+#include "env_structs.hh"
+#include "export_cache.hh"
+#include "import_cache.hh"
 
 // Fast forward declarations
 namespace holovibes
@@ -22,27 +25,13 @@ namespace holovibes::worker
 {
 /*! \class FileFrameReadWorker
  *
- * \brief    Class used to read frames from a file
+ * \brief Class used to read frames from a file
  */
 class FileFrameReadWorker final : public FrameReadWorker
 {
   public:
-    /*! \brief Constructor
-     *
-     * \param file_path  The file path
-     * \param loop Whether the reading should loop
-     * \param first_frame_id Id of the first frame to read
-     * \param total_nb_frames_to_read Total number of frames to read
-     * \param load_file_in_gpu Whether the file should be load in gpu
-     * \param gpu_input_queue The input queue
-     */
-    FileFrameReadWorker(const std::string& file_path,
-                        bool loop,
-                        unsigned int fps,
-                        unsigned int first_frame_id,
-                        unsigned int total_nb_frames_to_read,
-                        bool load_file_in_gpu,
-                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FileFrameReadWorker();
+    ~FileFrameReadWorker();
 
     void run() override;
 
@@ -50,10 +39,13 @@ class FileFrameReadWorker final : public FrameReadWorker
     class FpsHandler
     {
       public:
-        FpsHandler(unsigned int fps);
+        FpsHandler(unsigned int fps)
+            : enqueue_interval_((1 / static_cast<double>(fps)))
+        {
+        }
 
         /*! \brief Begin the process of fps handling */
-        void begin();
+        void begin() { begin_time_ = std::chrono::high_resolution_clock::now(); }
 
         /*! \brief Wait the correct time to simulate fps
          *
@@ -62,7 +54,29 @@ class FileFrameReadWorker final : public FrameReadWorker
          * To cope with this issue, we compute the wasted time in order to take it into account for the next enqueue.
          * By doing so, the correct enqueuing time is computed, not doing so would create a lag.
          */
-        void wait();
+        void wait()
+        {
+            /* end_time should only be being_time + enqueue_interval_ aka the time point
+             * for the next enqueue
+             * However the wasted_time is substracted to get the correct next enqueue
+             * time point
+             */
+            auto end_time = (begin_time_ + enqueue_interval_) - wasted_time_;
+
+            // Wait until the next enqueue time point is reached
+            while (std::chrono::high_resolution_clock::now() < end_time)
+            {
+            }
+
+            /* Wait is done, it might have been too long (descheduling...)
+             *
+             * Set the begin_time (now) for the next enqueue
+             * And compute the wasted time (real time point - theoretical time point)
+             */
+            auto now = std::chrono::high_resolution_clock::now();
+            wasted_time_ = now - end_time;
+            begin_time_ = now;
+        }
 
       private:
         /*! \brief Theoretical time between 2 enqueues/waits */
@@ -106,34 +120,17 @@ class FileFrameReadWorker final : public FrameReadWorker
     void enqueue_loop(size_t nb_frames_to_enqueue);
 
   private:
-    FastUpdatesHolder<ProgressType>::Value fast_updates_entry_;
+    uint current_nb_frames_read;
 
-    /*! \brief Current number of frames read */
-    std::atomic<unsigned int>& current_nb_frames_read_;
-    /*! \brief Total number of frames to read at the beginning of the process */
-    std::atomic<unsigned int>& total_nb_frames_to_read_;
-
-    /*! \brief The file path */
-    const std::string file_path_;
-    /*! \brief Whether the reading should start over when meeting the end of the file */
-    bool loop_;
-    /*! \brief Object used to handle the fps */
     FpsHandler fps_handler_;
-    /*! \brief Id of the first frame to read */
-    unsigned int first_frame_id_;
-    /*! \brief Whether the entire file should be loaded in the gpu */
-    bool load_file_in_gpu_;
-    /*! \brief The input file in which the frames are read */
-    std::unique_ptr<io_files::InputFrameFile> input_file_;
-    /*! \brief Size of an input frame */
-    size_t frame_size_;
+
     /*! \brief CPU buffer in which the frames are temporarly stored */
     char* cpu_frame_buffer_;
     /*! \brief GPU buffer in which the frames are temporarly stored */
     char* gpu_frame_buffer_;
     /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
     char* gpu_packed_buffer_;
+
+    std::unique_ptr<io_files::InputFrameFile> input_file_;
 };
 } // namespace holovibes::worker
-
-#include "file_frame_read_worker.hxx"

@@ -39,7 +39,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe)
     {
-        LOG_UPDATE_PIPE(Filter2D);
+        LOG_UPDATE_ON_SYNC(Filter2D);
 
         request_pipe_refresh();
     }
@@ -47,7 +47,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<Lambda>(float, Pipe& pipe)
     {
-        LOG_UPDATE_PIPE(Lambda);
+        LOG_UPDATE_ON_SYNC(Lambda);
 
         request_pipe_refresh();
     }
@@ -55,7 +55,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ZDistance>(float, Pipe& pipe)
     {
-        LOG_UPDATE_PIPE(ZDistance);
+        LOG_UPDATE_ON_SYNC(ZDistance);
 
         request_pipe_refresh();
     }
@@ -63,7 +63,23 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<Unwrap2DRequested>(bool, Pipe& pipe)
     {
-        LOG_UPDATE_PIPE(Unwrap2DRequested);
+        LOG_UPDATE_ON_SYNC(Unwrap2DRequested);
+
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<SpaceTransformation>(SpaceTransformationEnum, Pipe& pipe)
+    {
+        LOG_UPDATE_ON_SYNC(SpaceTransformation);
+
+        request_pipe_refresh();
+    }
+
+    template <>
+    void operator()<TimeTransformation>(TimeTransformationEnum, Pipe& pipe)
+    {
+        LOG_UPDATE_ON_SYNC(TimeTransformation);
 
         request_pipe_refresh();
     }

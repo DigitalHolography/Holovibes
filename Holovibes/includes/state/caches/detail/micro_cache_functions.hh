@@ -6,6 +6,6 @@ class Dump
     template <typename T>
     void operator()(T& value)
     {
-        LOG_DEBUG(main, "{} {} = {}", typeid(T).name(), value.get_key(), value);
+        LOG_DEBUG("{} {} = {}", typeid(T).name(), value.get_key(), value);
     }
 };

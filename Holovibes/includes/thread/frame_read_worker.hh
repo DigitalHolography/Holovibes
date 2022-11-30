@@ -17,25 +17,16 @@ namespace holovibes::worker
 class FrameReadWorker : public Worker
 {
   public:
-    FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
-
-    /*! \brief Constructor
-     *
-     * \param gpu_input_queue The input queue
-     */
-    FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
-
-    virtual ~FrameReadWorker(){};
+    FrameReadWorker();
+    virtual ~FrameReadWorker();
 
   protected:
     void compute_fps();
 
-    /*! \brief The queue in which the frames are stored */
-    std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue_;
-
     /*! \brief The current fps */
-    std::shared_ptr<std::atomic<unsigned int>> current_fps_;
-    std::atomic<unsigned int> processed_frames_;
+    uint current_fps_;
+    uint processed_frames_;
+    uint to_record_;
 
     /*! \brief Useful for Input fps value. */
 
@@ -43,6 +34,8 @@ class FrameReadWorker : public Worker
 
     float current_display_rate = 30.0f;
     float time_to_wait = 33.0f;
+
+    ImportCache::Cache<> import_cache_;
 
     const cudaStream_t stream_;
 };

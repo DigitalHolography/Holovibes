@@ -5,9 +5,10 @@ namespace holovibes
 template <>
 void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(BatchSize);
+    LOG_UPDATE_ON_SYNC(BatchSize);
 
     pipe.update_spatial_transformation_parameters();
+    // NOP
     pipe.get_gpu_input_queue().resize(new_value);
 
     request_pipe_refresh();
@@ -16,7 +17,7 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
 template <>
 void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(TimeStride);
+    LOG_UPDATE_ON_SYNC(TimeStride);
 
     pipe.get_batch_env().batch_index = 0;
 }
@@ -24,23 +25,23 @@ void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(TimeTransformationSize);
+    LOG_UPDATE_ON_SYNC(TimeTransformationSize);
 
     if (!pipe.update_time_transformation_size(pipe.get_compute_cache().get_value<TimeTransformationSize>()))
     {
         request_fail();
 
-        GSH::instance().change_value<ViewAccuP>()->index = 0;
-        GSH::instance().set_value<TimeTransformationSize>(1);
+        api::detail::change_value<ViewAccuP>()->start = 0;
+        api::detail::set_value<TimeTransformationSize>(1);
         pipe.update_time_transformation_size(1);
-        LOG_WARN(compute_worker, "Updating #img failed; #img updated to 1");
+        LOG_WARN("Updating #img failed; #img updated to 1");
     }
 }
 
 template <>
 void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(Convolution);
+    LOG_UPDATE_ON_SYNC(Convolution);
 
     if (new_value.enabled == false)
         pipe.get_postprocess().dispose();
@@ -56,7 +57,7 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 template <>
 void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new_value, Pipe& pipe)
 {
-    LOG_UPDATE_PIPE(TimeTransformationCutsEnable);
+    LOG_UPDATE_ON_SYNC(TimeTransformationCutsEnable);
 
     if (new_value == false)
         pipe.dispose_cuts();
@@ -68,4 +69,5 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
 
     request_pipe_refresh();
 }
+
 } // namespace holovibes

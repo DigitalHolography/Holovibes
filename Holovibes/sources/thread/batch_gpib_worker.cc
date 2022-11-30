@@ -9,25 +9,18 @@
 #include "logger.hh"
 #include "gpib_exceptions.hh"
 #include "chrono.hh"
+#include "API.hh"
 
 namespace holovibes::worker
 {
-BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
-                                 const std::string& output_path,
-                                 unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 const unsigned int output_buffer_size)
+BatchGPIBWorker::BatchGPIBWorker()
     : Worker()
-    , output_path_(output_path)
-    , nb_frames_to_record_(nb_frames_to_record)
-    , record_mode_(record_mode)
-    , output_buffer_size_(output_buffer_size)
     , frame_record_worker_(nullptr)
     , chart_record_worker_(nullptr)
 {
     try
     {
-        parse_file(batch_input_path);
+        parse_file(export_cache_.get_value<ExportScriptPath>());
     }
     catch (const std::exception& exception)
     {
@@ -66,18 +59,17 @@ void BatchGPIBWorker::run()
             {
                 std::string formatted_path = format_batch_output(file_index);
 
-                if (record_mode_ == RecordMode::CHART)
+                // FIXME API : Change this
+                if (export_cache_.get_value<ChartRecord>().is_running)
                 {
-                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_);
+                    api::detail::change_value<ChartRecord>()->chart_file_path = formatted_path;
+                    chart_record_worker_ = std::make_unique<ChartRecordWorker>();
                     chart_record_worker_->run();
                 }
                 else // Frame Record
                 {
-                    frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
-                                                                               nb_frames_to_record_,
-                                                                               record_mode_,
-                                                                               0,
-                                                                               output_buffer_size_);
+                    api::detail::change_value<FrameRecord>()->frames_file_path = formatted_path;
+                    frame_record_worker_ = std::make_unique<FrameRecordWorker>();
                     frame_record_worker_->run();
                 }
 
@@ -205,7 +197,7 @@ std::string BatchGPIBWorker::format_batch_output(const unsigned int index)
     file_index = convert.str();
 
     std::vector<std::string> path_tokens;
-    boost::split(path_tokens, output_path_, boost::is_any_of("."));
+    boost::split(path_tokens, api::detail::get_value<FrameRecord>().frames_file_path, boost::is_any_of("."));
 
     std::string res = path_tokens[0] + "_" + file_index;
     if (path_tokens.size() > 1)
