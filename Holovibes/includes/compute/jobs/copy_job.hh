@@ -11,12 +11,12 @@ class CopyJob : public SimpleJob
 {
   public:
     CopyJob()
-        : SimpleJob(json{}, nullptr, false)
+        : SimpleJob(nullptr, false)
     {
     }
 
     CopyJob(shared_job next_job)
-        : SimpleJob(json{}, next_job, false)
+        : SimpleJob(next_job, false)
     {
     }
 

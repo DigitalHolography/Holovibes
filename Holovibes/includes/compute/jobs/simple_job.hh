@@ -12,6 +12,7 @@ namespace holovibes
 
 /*! \brief class for all jobs which truly do some calculations
  */
+
 class SimpleJob : public Job
 {
   public:
@@ -28,16 +29,14 @@ class SimpleJob : public Job
         }
     };
 
-    explicit SimpleJob(json env, shared_job next_job, bool inplace = false)
+    explicit SimpleJob(shared_job next_job, bool inplace = false)
         : inplace_(inplace)
-        , env_(env)
         , next_job_(next_job)
     {
     }
 
-    SimpleJob(json env, bool inplace = false)
+    SimpleJob(bool inplace = false)
         : inplace_(inplace)
-        , env_(env)
     {
     }
 
@@ -45,7 +44,6 @@ class SimpleJob : public Job
 
     const std::byte* get_output_buffer() const noexcept { return output_.get(); }
 
-    json get_env() const { return env_; }
     bool is_inplace() const noexcept { return inplace_; }
 
     shared_job get_next_job() const { return next_job_; }
@@ -60,20 +58,24 @@ class SimpleJob : public Job
 
         if (!inplace_)
             output_.resize(output.get_buffer_size());
-        next_job_->prepare(output);
+
+        if (next_job_ != nullptr)
+            next_job_->prepare(output);
     }
 
     void run(Job::RunEnv env) final
     {
         auto new_env = ExecuteEnv{env, (inplace_) ? env.input : output_.get(), get_output_dimensions(env.input_desc)};
         execute(new_env);
-        next_job_->run(new_env);
+
+        Job::RunEnv next_env = Job::RunEnv{env, new_env.output, new_env.output_desc};
+
+        next_job_->run(next_env);
     }
 
     operator std::string() const override
     {
-        return std::string{"SimpleJob{inplace = "} + std::to_string(inplace_) + ", env = " + std::string{env_} +
-               "} -> " + std::string{*next_job_};
+        return std::string{"SimpleJob{inplace = "} + std::to_string(inplace_) + " -> " + std::string{*next_job_};
     }
 
   protected:
@@ -103,7 +105,6 @@ class SimpleJob : public Job
   private:
     /*! \brief Inplace means the Job's action is done on the buffer. (only side effect, no return) */
     const bool inplace_;
-    const json env_;
     shared_job next_job_{nullptr};
     cuda_tools::UniquePtr<std::byte> output_{nullptr};
 };
