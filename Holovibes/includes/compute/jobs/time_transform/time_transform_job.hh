@@ -9,50 +9,66 @@
 
 namespace holovibes
 {
-class TimeTransformJob : public SimpleJob
+class TimeTransformJob : public Job
 {
   public:
-    TimeTransformJob(json env, shared_job next_job, bool inplace = false, TimeTransformState& state)
-        : SimpleJob(env, next_job, inplace)
+    struct TimeTransformEnv
+    {
+        cuda_tools::CufftHandle stft_plan;
+    };
+
+  public:
+    TimeTransformJob(shared_job next_job, bool inplace = false, TimeTransformState& state)
+        : SimpleJob(next_job, inplace)
         , state_(state)
     {
     }
 
-    TimeTransformJob(json env, bool inplace = false, TimeTransformState& state)
-        : SimpleJob(env, inplace)
+    TimeTransformJob(shared_job next_job, bool inplace = false, TimeTransformation state, TimeTransformEnv env)
+        : SimpleJob(next_job, inplace)
+    {
+        change_state(state, env);
+    }
+
+    TimeTransformJob(bool inplace = false, TimeTransformState& state)
+        : SimpleJob(inplace)
         , state_(state)
     {
     }
 
-    TimeTransformJob(json env, bool inplace = false, TimeTransformation state)
-        : SimpleJob(env, inplace)
+    TimeTransformJob(bool inplace = false, TimeTransformation state, TimeTransformEnv env)
+        : SimpleJob(inplace)
     {
-        change_state(state);
+        change_state(state, env);
     }
 
-    virtual void execute(ExecuteEnv env) { state_.handle(env); }
+    void prepare(Job::BufferDescriptor input) final { state_.prepare(input); }
 
+    void run(Job::RunEnv env) final { state_.run(env); }
+
+    /**
+     * \brief change the state of the job (stft, pca, ssa_stft)
+     * \param TimeTransformState state
+     */
     void change_state(TimeTransformState& state) { state_ = state; }
 
-    void change_state(TimeTransformation state)
+    /**
+     * \brief change the state of the job (stft, pca, ssa_stft)
+     * \param TimeTransformation state
+     * \param TimeTransformEnv env
+     */
+    void change_state(TimeTransformation state, TimeTransformEnv env)
     {
         switch (state)
         {
         case STFT:
-            state_ = TimeTransformState_STFT(this);
+            state_ = TimeTransformState_STFT(this, env);
             break;
         case STFT:
-            state_ = TimeTransformState_PCA(this);
+            state_ = TimeTransformState_PCA(this, env);
             break;
         case STFT:
-            state_ = TimeTransformState_SSA_STFT(this);
-            break;
-
-        default:
-            /* TODO what to do with NONE ?
-             * Check before and remove TimeTransformJob ?
-             * Just copy to next buffer
-             */
+            state_ = TimeTransformState_SSA_STFT(this, env);
             break;
         }
     }
