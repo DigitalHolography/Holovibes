@@ -21,9 +21,6 @@ class ExportPipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<FrameRecord>(const FrameRecordStruct& new_value, Pipe& pipe);
-
-    template <>
-    void operator()<ChartRecord>(const ChartRecordStruct& new_value, Pipe& pipe);
+    void operator()<Record>(const RecordStruct& new_value, Pipe& pipe);
 };
 } // namespace holovibes

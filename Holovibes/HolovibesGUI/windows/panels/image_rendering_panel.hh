@@ -40,7 +40,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_type(int mode);
+    void set_compute_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
@@ -118,13 +118,6 @@ class ImageRenderingPanel : public Panel
      * \param value the new value
      */
     void set_z_step(double value);
-
-    /*!
-     * \brief Gets the z step
-     *
-     * \return double the current z step
-     */
-    double get_z_step();
 
   private:
     QShortcut* z_up_shortcut_;

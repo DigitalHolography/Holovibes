@@ -4,11 +4,8 @@
  */
 #pragma once
 
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
 #include "logger.hh"
+#include "guiafx.hh"
 
 namespace holovibes::gui
 {

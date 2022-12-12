@@ -9,6 +9,20 @@ CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> ca
     : FrameReadWorker()
     , camera_(camera)
 {
+    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = camera_->get_name();
+    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT) = "FIXME Camera Format";
+
+    to_record_ = api::get_nb_frame_to_read();
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
+    entry.recorded = &processed_frames_;
+    entry.to_record = &to_record_;
+}
+
+CameraFrameReadWorker::~CameraFrameReadWorker()
+{
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::READ);
 }
 
 void CameraFrameReadWorker::run()
@@ -18,8 +32,6 @@ void CameraFrameReadWorker::run()
     // Update information container
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
                                std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
-
-    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true) = camera_->get_name();
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true) = input_format;
 
     try
@@ -40,10 +52,6 @@ void CameraFrameReadWorker::run()
     {
         LOG_ERROR("[CAPTURE] {}", e.what());
     }
-
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
 
     camera_.reset();
 }

@@ -1,16 +1,13 @@
 #pragma once
 
-// without namespace
+#include "guiafx.hh"
 #include "tools.hh"
 
-// namespace camera
 #include "camera_exception.hh"
 
-// namespace holovibes
 #include "holovibes.hh"
 #include "custom_exception.hh"
 
-// namespace gui
 #include "AdvancedSettingsWindow.hh"
 #include "HoloWindow.hh"
 #include "SliceWindow.hh"

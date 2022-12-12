@@ -255,7 +255,7 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
+void MainWindow::documentation() { QDesktopServices::openUrl(QUrl(api::get_documentation_url().c_str())); }
 
 #pragma endregion
 /* ------------ */
@@ -472,29 +472,7 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_compute_mode() == ComputeModeEnum::Raw)
-    {
-        LOG_ERROR("Cannot set view image type in raw mode");
-        return;
-    }
-
-    // FIXME API - FIXME IMAGE_TYPE
-
-    // const std::string& str = value.toStdString();
-    // if (need_refresh(api::get_last_image_type(), str))
-    // {
-    //     refresh_view_mode();
-    //     if (api::get_image_type() == ImageTypeEnum::Composite)
-    //     {
-    //         set_composite_values();
-    //     }
-    // }
-
     api::set_image_type(static_cast<ImageTypeEnum>(ui_->ViewModeComboBox->currentIndex()));
-    layout_toggled();
-
-    // FIXME CONTRAST
-    api::request_exec_contrast_all_windows();
 }
 
 #pragma endregion

@@ -11,29 +11,13 @@
 
 namespace holovibes
 {
-struct ChartRecordStruct
-{
-  public:
-    std::string chart_file_path;
-    uint nb_points_to_record = 0;
-    bool is_running = false;
-    bool is_selected = false;
-
-    bool get_is_selected_if_is_running() const { return is_running && is_selected; }
-
-  public:
-    bool operator!=(const ChartRecordStruct& rhs) const
-    {
-        return nb_points_to_record != rhs.nb_points_to_record || is_running != rhs.is_running;
-    }
-};
-
-struct FrameRecordStruct
+struct RecordStruct
 {
   public:
     enum class RecordType
     {
         NONE,
+        CHART,
         RAW,
         HOLOGRAM,
         CUTS_XZ,
@@ -41,9 +25,9 @@ struct FrameRecordStruct
     };
 
   public:
-    std::string frames_file_path;
-    uint nb_frames_to_record = 0;
-    uint nb_frames_to_skip = 0;
+    std::string file_path;
+    uint nb_to_record = 0;
+    uint nb_to_skip = 0;
     bool is_running = false;
     RecordType record_type;
 
@@ -56,37 +40,28 @@ struct FrameRecordStruct
     }
 
   public:
-    bool operator!=(const FrameRecordStruct& rhs) const
+    bool operator!=(const RecordStruct& rhs) const
     {
-        return nb_frames_to_record != rhs.nb_frames_to_record || nb_frames_to_skip != rhs.nb_frames_to_skip ||
-               is_running != rhs.is_running || record_type != rhs.record_type;
+        return nb_to_record != rhs.nb_to_record || nb_to_skip != rhs.nb_to_skip || is_running != rhs.is_running ||
+               record_type != rhs.record_type;
     }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ChartRecordStruct& value)
+inline std::ostream& operator<<(std::ostream& os, const RecordStruct& value)
 {
-    return os << value.nb_points_to_record << ", is_running : " << value.is_running;
-    ;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct& value)
-{
-    return os << value.nb_frames_to_record << ", enabled : " << value.is_running;
+    return os << value.nb_to_record << ", enabled : " << value.is_running;
 }
 
 // clang-format off
-SERIALIZE_JSON_ENUM(FrameRecordStruct::RecordType, {
-    {FrameRecordStruct::RecordType::NONE, "NONE"},
-    {FrameRecordStruct::RecordType::RAW, "RAW"},
-    {FrameRecordStruct::RecordType::CUTS_XZ, "CUTS_XZ"},
-    {FrameRecordStruct::RecordType::CUTS_YZ, "CUTS_YZ"},
-    {FrameRecordStruct::RecordType::HOLOGRAM, "HOLOGRAM"}
+SERIALIZE_JSON_ENUM(RecordStruct::RecordType, {
+    {RecordStruct::RecordType::NONE, "NONE"},
+    {RecordStruct::RecordType::RAW, "RAW"},
+    {RecordStruct::RecordType::CUTS_XZ, "CUTS_XZ"},
+    {RecordStruct::RecordType::CUTS_YZ, "CUTS_YZ"},
+    {RecordStruct::RecordType::HOLOGRAM, "HOLOGRAM"}
 })
 // clang-format on
 
-inline std::ostream& operator<<(std::ostream& os, const FrameRecordStruct::RecordType& value)
-{
-    return os << json{value};
-}
+inline std::ostream& operator<<(std::ostream& os, const RecordStruct::RecordType& value) { return os << json{value}; }
 
 } // namespace holovibes

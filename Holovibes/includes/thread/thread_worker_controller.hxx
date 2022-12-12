@@ -36,7 +36,7 @@ void ThreadWorkerController<T>::stop()
             worker_->stop();
     }
 
-    if (thread_.joinable())
+    if (thread_.joinable() && thread_.get_id() != std::this_thread::get_id())
         thread_.join();
 }
 

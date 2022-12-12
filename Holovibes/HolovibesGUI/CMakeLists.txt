@@ -20,6 +20,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     windows/panels/asw_mainwindow_panel.hh
 
     gui_front_end/gui_front_end_for_import_cache_on_pipe_request.cc
+    gui_front_end/gui_front_end_for_export_cache_on_pipe_request.cc
     gui_front_end/gui_front_end_for_view_cache_on_pipe_request.cc
     gui_front_end/gui_front_end_for_compute_cache_on_pipe_request.cc
 

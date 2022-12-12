@@ -1,0 +1,50 @@
+#pragma once
+
+#include "stdafx.hh"
+
+// Qt
+#include <QAction>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QDragEnterEvent>
+#include <QEvent.h>
+#include <QFileDialog>
+#include <QFont>
+#include <QGroupBox>
+#include <QGuiApplication>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QObject>
+#include <QOpenGLFunctions>
+#include <QOpenGLPaintDevice>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLWindow>
+#include <QPainter>
+#include <QPen>
+#include <QProgressBar>
+#include <QRect>
+#include <QScreen>
+#include <QShortcut>
+#include <QTextBrowser>
+#include <QTextDocument>
+#include <QThread>
+#include <QVector>
+#include <QWheelEvent>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtWidgets>
+
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QMimeData>
+
+#include <qabstracttextdocumentlayout.h>
+#include <qglobal.h>
+#include <qmap.h>
+#include <qrect.h>
+#include <qtextdocument.h>

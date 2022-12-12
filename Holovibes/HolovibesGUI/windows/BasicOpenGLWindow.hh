@@ -42,7 +42,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
   public:
   public:
     // Constructor & Destructor
-    BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k);
+    BasicOpenGLWindow(std::string name_, QPoint p, QSize s, DisplayQueue* q, KindOfView k);
     virtual ~BasicOpenGLWindow();
 
     const KindOfView getKindOfView() const { return kind_of_view; }
@@ -55,17 +55,20 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     const QSize& get_window_size() const { return winSize; }
     QSize& get_window_size() { return winSize; }
 
-    void resetSelection();
+    void resetSelection() { overlay_manager_.reset(); }
 
   public:
+    void setName(std::string name_) { name = name_; }
+    const std::string& getName() const { return name; }
+
     /*! \name Transform functions
      * \{
      */
     void resetTransform();
     void setScale(float);
-    float getScale() const;
+    float getScale() const { return scale_; }
     void setTranslate(float x, float y);
-    glm::vec2 getTranslate() const;
+    glm::vec2 getTranslate() const { return glm::vec2(translate_[0], translate_[1]); }
 
     const glm::mat3x3& getTransformMatrix() const { return transform_matrix_; }
     const glm::mat3x3& getTransformInverseMatrix() const { return transform_inverse_matrix_; }
@@ -87,7 +90,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     /*! \name Event functions
      * \{
      */
-    void timerEvent(QTimerEvent* e) override;
+    void timerEvent(QTimerEvent* e) override { QPaintDeviceWindow::update(); }
     void keyPressEvent(QKeyEvent* e) override;
     bool eventFilter(QObject* obj, QEvent* event) override;
     /*! \} */
@@ -96,6 +99,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
     Qt::WindowState winState;
     QPoint winPos;
     QSize winSize;
+    std::string name;
 
     /*! \brief Output queue filled in the computing pipeline */
     DisplayQueue* output_;

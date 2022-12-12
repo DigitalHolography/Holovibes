@@ -17,6 +17,9 @@ ComputeWorker::ComputeWorker()
     cuda_tools::CublasHandle::set_stream(stream_);
     cuda_tools::CufftHandle::set_stream(stream_);
     cuda_tools::CusolverHandle::set_stream(stream_);
+
+    Holovibes::instance().init_gpu_queues();
+    Holovibes::instance().init_pipe();
 }
 
 void ComputeWorker::stop()
@@ -25,5 +28,14 @@ void ComputeWorker::stop()
     api::get_compute_pipe().request_termination();
 }
 
-void ComputeWorker::run() { api::get_compute_pipe().exec(); }
+void ComputeWorker::run()
+{
+    if (stop_requested_ == false)
+        api::get_compute_pipe().exec();
+    else
+    {
+        Holovibes::instance().destroy_pipe();
+        Holovibes::instance().destroy_gpu_queues();
+    }
+}
 } // namespace holovibes::worker

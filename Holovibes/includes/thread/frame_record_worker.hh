@@ -32,7 +32,7 @@ class FrameRecordWorker final : public Worker
     /*! \brief Constructor
      *
      * \param file_path The path of the file to record
-     * \param nb_frames_to_record The number of frames to record
+     * \param nb_to_record The number of frames to record
      * \param record_mode Type of record between raw, holo and cuts
      * \param nb_frames_skip Number of frames to skip before starting
      */
@@ -66,9 +66,9 @@ class FrameRecordWorker final : public Worker
     /*! \brief Compute fps_buffer_ average on the correct number of value */
     size_t compute_fps_average() const;
 
-     uint current_fps_;
-     uint processed_fps_;
-     
+    uint current_fps_;
+    uint processed_fps_;
+
     FrameRecordEnv& env_;
     ExportCache::Cache<> export_cache_;
 

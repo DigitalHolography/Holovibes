@@ -72,13 +72,6 @@ std::string get_record_filename(std::string filename)
     return filename;
 }
 
-QString create_absolute_qt_path(const std::string& relative_path)
-{
-    std::filesystem::path dir(get_exe_dir());
-    dir = dir / relative_path;
-    return QString(dir.string().c_str());
-}
-
 std::string create_absolute_path(const std::string& relative_path)
 {
     std::filesystem::path dir(get_exe_dir());

@@ -32,6 +32,15 @@ void ImportPipeRequestOnSync::on_sync<ImportType>(ImportTypeEnum new_value, Impo
 template <>
 void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, Pipe& pipe)
 {
+    if (new_value == ImportTypeEnum::None)
+    {
+        Holovibes::instance().stop_camera_frame_read();
+        Holovibes::instance().stop_file_frame_read();
+
+        Holovibes::instance().stop_information_display();
+        Holovibes::instance().stop_compute();
+    }
+
     // On Camera Import
     if (new_value == ImportTypeEnum::Camera)
     {
@@ -41,11 +50,6 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
     else if (new_value == ImportTypeEnum::File)
     {
         Holovibes::instance().start_file_frame_read();
-    }
-    else
-    {
-        Holovibes::instance().stop_camera_frame_read();
-        Holovibes::instance().stop_file_frame_read();
     }
 }
 

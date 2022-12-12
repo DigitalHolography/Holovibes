@@ -72,7 +72,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_value<ChartDisplayEnabled>() || export_cache_.get_value<ChartRecord>().is_running)
+    if (export_cache_.get_value<Record>().is_running)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -93,7 +93,8 @@ void Rendering::insert_chart()
 
                 if (view_cache_.get_value<ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_value<ChartRecord>().is_running && chart_env_.current_nb_points_recorded > 0)
+
+                if (export_cache_.get_value<Record>().is_running && chart_env_.current_nb_points_recorded > 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
                     --chart_env_.current_nb_points_recorded;
@@ -351,8 +352,6 @@ void Rendering::insert_clear_image_accumulation()
 void Rendering::autocontrast_caller(
     float* input, const uint width, const uint height, const uint offset, WindowKind view)
 {
-    LOG_FUNC();
-
     constexpr uint percent_size = 2;
 
     const float percent_in[percent_size] = {advanced_cache_.get_value<ContrastThreshold>().lower,

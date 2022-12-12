@@ -20,20 +20,23 @@ FileFrameReadWorker::FileFrameReadWorker()
 {
     input_file_.reset(io_files::InputFrameFileFactory::open(api::detail::get_value<ImportFilePath>()));
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = "File";
+    GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT) = "FIXME File Format";
+
+    to_record_ = api::get_nb_frame_to_read();
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
+    entry.recorded = &current_nb_frames_read;
+    entry.to_record = &to_record_;
 }
 
 FileFrameReadWorker::~FileFrameReadWorker()
 {
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::READ);
 }
 
 void FileFrameReadWorker::run()
 {
-    LOG_FUNC();
-
     if (!init_frame_buffers())
         return;
 

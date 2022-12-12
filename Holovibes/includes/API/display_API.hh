@@ -38,4 +38,7 @@ inline TriggerChangeValue<ViewXYZ> change_current_view_as_view_xyz()
 {
     return change_view_as_view_xyz(api::get_current_view_kind());
 }
+
+float get_z_boundary();
+
 } // namespace holovibes::api

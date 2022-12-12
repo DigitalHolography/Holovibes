@@ -4,8 +4,7 @@
  */
 #pragma once
 
-#include <QGroupBox>
-#include <QObject>
+#include "guiafx.hh"
 
 #include <boost/property_tree/ptree.hpp>
 #include <nlohmann/json.hpp>

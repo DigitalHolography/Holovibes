@@ -21,19 +21,16 @@ void ImportGSHOnChange::operator()<ImportType>(ImportTypeEnum& new_value)
 
     if (new_value != ImportTypeEnum::None)
     {
-        Holovibes::instance().init_gpu_queues();
-        Holovibes::instance().init_pipe();
         Holovibes::instance().start_compute();
         Holovibes::instance().start_information_display();
     }
     else
     {
-        Holovibes::instance().stop_file_frame_read();
-        Holovibes::instance().stop_camera_frame_read();
-        Holovibes::instance().stop_information_display();
-        Holovibes::instance().stop_compute();
-        Holovibes::instance().destroy_pipe();
-        Holovibes::instance().destroy_gpu_queues();
+        api::set_raw_view_enabled(false);
+        api::set_lens_view_enabled(false);
+
+        api::set_time_transformation_cuts_enable(false);
+        api::change_filter2d()->enabled = false;
     }
 }
 

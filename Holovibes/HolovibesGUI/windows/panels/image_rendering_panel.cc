@@ -50,7 +50,7 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !api::get_frame_record().is_running);
+    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !api::get_record().is_running);
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -114,11 +114,7 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_image_type(int mode)
-{
-    api::set_image_type(
-        static_cast<ImageTypeEnum>(UserInterface::instance().main_window->get_ui()->ViewModeComboBox->currentIndex()));
-}
+void ImageRenderingPanel::set_compute_mode(int mode) { api::set_compute_mode(static_cast<ComputeModeEnum>(mode)); }
 
 void ImageRenderingPanel::update_batch_size() { api::set_batch_size(ui_->BatchSizeSpinBox->value()); }
 
@@ -189,33 +185,15 @@ void ImageRenderingPanel::set_convolution_mode(const bool value) { api::change_c
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (api::get_import_type() == ImportTypeEnum::None)
-        return;
-
-    if (!api::get_convolution().enabled)
-        return;
-
     api::change_convolution()->type = value.toStdString();
-
-    parent_->notify();
 }
 
-void ImageRenderingPanel::set_divide_convolution(const bool value)
-{
-    if (api::get_import_type() == ImportTypeEnum::None)
-        return;
-
-    api::change_convolution()->divide = value;
-
-    parent_->notify();
-}
+void ImageRenderingPanel::set_divide_convolution(const bool value) { api::change_convolution()->divide = value; }
 
 void ImageRenderingPanel::set_z_step(double value)
 {
     z_step_ = value;
     ui_->ZDoubleSpinBox->setSingleStep(value);
 }
-
-double ImageRenderingPanel::get_z_step() { return z_step_; }
 
 } // namespace holovibes::gui

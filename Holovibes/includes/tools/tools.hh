@@ -11,15 +11,7 @@
 #include <ctime>
 #include <cassert>
 
-#ifndef __NVCC__
-#include <qrect.h>
-#else
-class QString;
-using uchar = unsigned char;
-using uint = unsigned int;
-using ushort = unsigned short;
-using ulong = unsigned long;
-#endif
+#include "types.hh"
 
 #include <filesystem>
 #include <fstream>
@@ -48,12 +40,6 @@ inline unsigned map_blocks_to_problem(const size_t problem_size, const unsigned 
     CHECK(nb_blocks <= get_max_blocks(), "Too many blocks required.");
 
     return nb_blocks;
-}
-
-template <typename T>
-bool is_between(T val, T min, T max)
-{
-    return min <= val && val <= max;
 }
 
 template <typename T>
@@ -87,8 +73,6 @@ void get_good_size(ushort& width, ushort& height, ushort window_size);
 std::string get_exe_dir();
 /*! \brief Return the first not used filename available from the parameter filename as a base */
 std::string get_record_filename(std::string filename);
-/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
-QString create_absolute_qt_path(const std::string& relative_path);
 /*! \brief Returns the absolute path from a relative path (prepend by the execution directory) */
 std::string create_absolute_path(const std::string& relative_path);
 /*! \brief Returns the absolute path to the user Documents folder */

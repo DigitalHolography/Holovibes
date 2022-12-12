@@ -123,7 +123,7 @@ class Holovibes
     /*! \brief Initialize and start the frame record worker controller
      *
      * \param path
-     * \param nb_frames_to_record
+     * \param nb_to_record
      * \param record_mode
      * \param nb_frames_skip
      * \param callback

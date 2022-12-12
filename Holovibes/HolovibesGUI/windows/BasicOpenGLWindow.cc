@@ -38,12 +38,13 @@ static const ViewXYZ& get_view_as_xyz_type(gui::KindOfView kind)
 
 namespace holovibes::gui
 {
-BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+BasicOpenGLWindow::BasicOpenGLWindow(std::string name_, QPoint p, QSize s, DisplayQueue* q, KindOfView k)
     : QOpenGLWindow()
     , QOpenGLFunctions()
     , winState(Qt::WindowNoState)
     , winPos(p)
     , winSize(s)
+    , name(name_)
     , output_(q)
     , fd_(q->get_fd())
     , overlay_manager_(this)
@@ -62,11 +63,11 @@ BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, DisplayQueue* q, KindOfV
     , scale_(1.f)
     , kind_of_view(k)
 {
-    LOG_FUNC();
     cudaSafeCall(cudaStreamCreateWithPriority(&cuStream, cudaStreamDefault, CUDA_STREAM_WINDOW_PRIORITY));
 
     resize(winSize);
     setFramePosition(winPos);
+    setTitle(name.c_str());
     setIcon(QIcon(":/holovibes_logo.png"));
     installEventFilter(this);
 }
@@ -96,8 +97,6 @@ void BasicOpenGLWindow::resizeGL(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void BasicOpenGLWindow::timerEvent(QTimerEvent* e) { QPaintDeviceWindow::update(); }
-
 void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 {
     switch (e->key())
@@ -122,8 +121,6 @@ void BasicOpenGLWindow::setTranslate(float x, float y)
     setTransform();
 }
 
-glm::vec2 BasicOpenGLWindow::getTranslate() const { return glm::vec2(translate_[0], translate_[1]); }
-
 void BasicOpenGLWindow::resetTransform()
 {
     translate_ = {0.f, 0.f, 0.f, 0.f};
@@ -137,15 +134,12 @@ void BasicOpenGLWindow::setScale(float scale)
     setTransform();
 }
 
-float BasicOpenGLWindow::getScale() const { return scale_; }
-
 void BasicOpenGLWindow::setTransform()
 {
-    LOG_FUNC();
-
     // FIXME API-FIXME VIEW : View should be the same
-    glm::mat4 rotY;
-    glm::mat4 rotZ;
+    glm::mat4 rotY(1.f);
+    glm::mat4 rotZ(1.f);
+
     if (kind_of_view == KindOfView::SliceYZ)
     {
         rotY = glm::rotate(glm::mat4(1.f),
@@ -156,7 +150,7 @@ void BasicOpenGLWindow::setTransform()
                            glm::radians(api::get_view_as_xyz_type(kind_of_view).rotation),
                            glm::vec3(0.f, 0.f, 1.f));
     }
-    else if (kind_of_view != KindOfView::Lens)
+    else if (kind_of_view != KindOfView::Lens && kind_of_view != KindOfView::ViewFilter2D)
     {
         rotY = glm::rotate(glm::mat4(1.f),
                            glm::radians(180.f * (api::get_view_as_xyz_type(kind_of_view).horizontal_flip ? 0 : 1)),
@@ -185,7 +179,7 @@ void BasicOpenGLWindow::setTransform()
     glm::mat4 mvp = rotYZ * scl;
 
     for (uint id = 0; id < 2; id++)
-        if (is_between(translate_[id], -FLT_EPSILON, FLT_EPSILON))
+        if (translate_[id] >= -FLT_EPSILON && translate_[id] <= FLT_EPSILON)
             translate_[id] = 0.f;
 
     glm::vec4 trs = rotYZ * translate_;
@@ -217,8 +211,6 @@ void BasicOpenGLWindow::setTransform()
         Program->release();
     }
 }
-
-void BasicOpenGLWindow::resetSelection() { overlay_manager_.reset(); }
 
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {

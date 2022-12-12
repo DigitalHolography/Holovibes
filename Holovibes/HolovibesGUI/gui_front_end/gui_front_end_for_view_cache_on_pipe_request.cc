@@ -55,13 +55,13 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<CutsViewEnable>()
         {
             UserInterface::instance().sliceXZ.reset(nullptr);
             UserInterface::instance().sliceYZ.reset(nullptr);
+            if (UserInterface::instance().xy_window)
+            {
+                UserInterface::instance().xy_window->setCursor(Qt::ArrowCursor);
+                UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::SliceCross);
+                UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Cross);
+            }
         });
-    if (UserInterface::instance().xy_window)
-    {
-        UserInterface::instance().xy_window->setCursor(Qt::ArrowCursor);
-        UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::SliceCross);
-        UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Cross);
-    }
 }
 
 template <>
@@ -88,24 +88,24 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<CutsViewEnable>()
         [=]()
         {
             UserInterface::instance().sliceXZ.reset(new gui::SliceWindow(
+                "XZ view",
                 xzPos,
                 QSize(UserInterface::instance().xy_window->width(), api::get_time_transformation_size()),
                 api::get_compute_pipe().get_stft_slice_queue(0).get(),
                 gui::KindOfView::SliceXZ));
-            UserInterface::instance().sliceXZ->setTitle("XZ view");
 
             UserInterface::instance().sliceYZ.reset(new gui::SliceWindow(
+                "YZ view",
                 yzPos,
                 QSize(api::get_time_transformation_size(), UserInterface::instance().xy_window->height()),
                 api::get_compute_pipe().get_stft_slice_queue(1).get(),
                 gui::KindOfView::SliceYZ));
-            UserInterface::instance().sliceYZ->setTitle("YZ view");
             UserInterface::instance().xy_window->getOverlayManager().create_overlay<gui::KindOfOverlay::Cross>();
-        });
 
-    auto holo = dynamic_cast<gui::HoloWindow*>(UserInterface::instance().xy_window.get());
-    if (holo)
-        holo->update_slice_transforms();
+            auto holo = dynamic_cast<gui::HoloWindow*>(UserInterface::instance().xy_window.get());
+            if (holo)
+                holo->update_slice_transforms();
+        });
 }
 
 template <>
@@ -119,7 +119,8 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<Reticle>()
     if (api::get_reticle().display_enabled)
         return;
 
-    UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle);
+    UserInterface::instance().main_window->synchronize_thread(
+        [=]() { UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle); });
 }
 
 template <>
@@ -133,8 +134,12 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Reticle>()
     if (api::get_reticle().display_enabled == false)
         return;
 
-    UserInterface::instance().xy_window->getOverlayManager().create_overlay<gui::KindOfOverlay::Reticle>();
-    UserInterface::instance().xy_window->getOverlayManager().create_default();
+    UserInterface::instance().main_window->synchronize_thread(
+        [=]()
+        {
+            UserInterface::instance().xy_window->getOverlayManager().create_overlay<gui::KindOfOverlay::Reticle>();
+            UserInterface::instance().xy_window->getOverlayManager().create_default();
+        });
 }
 
 template <>
@@ -170,12 +175,12 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<LensViewEnabled>()
         [=]()
         {
             UserInterface::instance().lens_window.reset(
-                new gui::RawWindow(pos,
+                new gui::RawWindow("Lens view",
+                                   pos,
                                    QSize(lens_window_width, lens_window_height),
                                    api::get_compute_pipe().get_fourier_transforms().get_lens_queue().get(),
                                    0.f,
                                    gui::KindOfView::Lens));
-            UserInterface::instance().lens_window->setTitle("Lens view");
         });
 }
 
@@ -212,11 +217,10 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<RawViewEnabled>()
         [=]()
         {
             UserInterface::instance().raw_window.reset(
-                new gui::RawWindow(pos,
+                new gui::RawWindow("Raw view",
+                                   pos,
                                    QSize(raw_window_width, raw_window_height),
                                    api::get_compute_pipe().get_raw_view_queue_ptr().get()));
-
-            UserInterface::instance().raw_window->setTitle("Raw view");
         });
 }
 
@@ -253,12 +257,11 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Filter2DViewEnabled>()
         [=]()
         {
             UserInterface::instance().filter2d_window.reset(
-                new Filter2DWindow(pos,
+                new Filter2DWindow("Filter2D view",
+                                   pos,
                                    QSize(filter2d_window_width, filter2d_window_height),
                                    api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
         });
-
-    UserInterface::instance().filter2d_window->setTitle("Filter2D view");
 }
 
 } // namespace holovibes::gui

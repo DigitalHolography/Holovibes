@@ -189,6 +189,7 @@ class BatchInputQueue final : public DisplayQueue
      * batch_size_ * size_ + curr_batch_counter
      */
     uint curr_nb_frames_;
+
     /*! \brief The total number of frames that can be contained in the queue according to batch size
      *
      * With respect to batch size (batch_size_ * max_size_)

@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "types.hh"
+
 namespace holovibes
 {
 void device_print(uchar* d_data, size_t offset, size_t nb_elts);

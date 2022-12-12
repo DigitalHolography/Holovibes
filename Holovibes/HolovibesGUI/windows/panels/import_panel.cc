@@ -31,6 +31,11 @@ void ImportPanel::on_notify()
     ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty());
     ui_->ImportEndIndexSpinBox->setMaximum(api::get_max_end_frame());
     ui_->ImportEndIndexSpinBox->setValue(api::get_max_end_frame());
+
+    if (api::get_import_type() != ImportTypeEnum::None)
+        ui_->FileReaderProgressBar->show();
+    else
+        ui_->FileReaderProgressBar->hide();
 }
 
 void ImportPanel::load_gui(const json& j_us)
@@ -97,12 +102,7 @@ void ImportPanel::import_file(const QString& filename)
     // We can now launch holovibes over this file
 }
 
-void ImportPanel::import_stop()
-{
-    api::set_import_type(ImportTypeEnum::None);
-
-    parent_->synchronize_thread([&]() { ui_->FileReaderProgressBar->hide(); });
-}
+void ImportPanel::import_stop() { api::set_import_type(ImportTypeEnum::None); }
 
 // TODO: review function, we cannot edit UserInterface here (instead of API)
 void ImportPanel::import_start()

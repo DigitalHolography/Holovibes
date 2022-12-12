@@ -12,11 +12,6 @@ FrameReadWorker::FrameReadWorker()
     , stream_(Holovibes::instance().get_cuda_streams().reader_stream)
 {
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS) = &current_fps_;
-
-    to_record_ = api::get_nb_frame_to_read();
-    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ);
-    entry.recorded = &processed_frames_;
-    entry.to_record = &to_record_;
 }
 
 FrameReadWorker::~FrameReadWorker() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS); }
