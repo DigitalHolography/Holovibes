@@ -17,7 +17,7 @@ ChartRecordWorker::ChartRecordWorker()
 
 void ChartRecordWorker::run()
 {
-    std::ofstream of(export_cache_.get_value<ChartRecord>().chart_file_path);
+    std::ofstream of(export_cache_.get_value<Record>().file_path);
 
     // Header displaying
     of << "[#img : " << api::detail::get_value<TimeTransformationSize>()
@@ -34,14 +34,14 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    auto& nb_points_to_record = export_cache_.get_value<ChartRecord>().nb_points_to_record;
+    auto& nb_to_record = export_cache_.get_value<Record>().nb_to_record;
     env_.current_nb_points_recorded = 0;
 
-    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::RECORD);
     entry.recorded = &env_.current_nb_points_recorded;
-    entry.to_record = &nb_points_to_record;
+    entry.to_record = &nb_to_record;
 
-    while (env_.current_nb_points_recorded < nb_points_to_record)
+    while (env_.current_nb_points_recorded < nb_to_record)
     {
         // FIXME : This should be a trigger
         while (env_.chart_record_queue_->size() <= env_.current_nb_points_recorded && !stop_requested_)
@@ -59,7 +59,7 @@ void ChartRecordWorker::run()
         env_.current_nb_points_recorded++;
     }
 
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::RECORD);
 }
 
 } // namespace holovibes::worker

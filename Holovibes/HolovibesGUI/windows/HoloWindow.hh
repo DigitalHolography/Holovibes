@@ -19,7 +19,8 @@ using SharedPipe = std::shared_ptr<ICompute>;
 class HoloWindow : public RawWindow
 {
   public:
-    HoloWindow(QPoint p,
+    HoloWindow(std::string name,
+               QPoint p,
                QSize s,
                DisplayQueue* q,
                std::unique_ptr<SliceWindow>& xz,

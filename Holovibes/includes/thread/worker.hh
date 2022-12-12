@@ -20,7 +20,7 @@ class Worker
     Worker() = default;
 
     /*! \brief Stop the execution of the worker */
-    virtual void stop();
+    virtual void stop() { stop_requested_ = true; }
 
     /*! \brief Core method of the worker, main method of its execution */
     virtual void run() = 0;

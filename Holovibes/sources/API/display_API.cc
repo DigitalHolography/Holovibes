@@ -35,4 +35,11 @@ TriggerChangeValue<ViewWindow> change_view(WindowKind kind)
     return TriggerChangeValue<ViewWindow>([]() {}, nullptr);
 }
 
+float get_z_boundary()
+{
+    FrameDescriptor fd = api::get_import_frame_descriptor();
+    const float d = api::detail::get_value<PixelSize>() * 0.000001f;
+    const float n = static_cast<float>(fd.height);
+    return (n * d * d) / api::detail::get_value<Lambda>();
+}
 } // namespace holovibes::api

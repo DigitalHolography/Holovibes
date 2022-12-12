@@ -14,9 +14,9 @@ FrameRecordWorker::FrameRecordWorker()
     , env_(api::get_compute_pipe().get_frame_record_env())
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
 {
-    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::RECORD);
     entry.recorded = &env_.current_nb_frames_recorded;
-    entry.to_record = &export_cache_.get_value<FrameRecord>().nb_frames_to_record;
+    entry.to_record = &export_cache_.get_value<Record>().nb_to_record;
 
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS) = &processed_fps_;
 }
@@ -53,21 +53,20 @@ void FrameRecordWorker::run()
     // Progress recording FastUpdatesHolder entry
 
     // Init vars
-    const auto& nb_frames_to_record = export_cache_.get_value<FrameRecord>().nb_frames_to_record;
+    const auto& nb_to_record = export_cache_.get_value<Record>().nb_to_record;
     env_.current_nb_frames_recorded = 0;
-    env_.nb_frame_skip = export_cache_.get_value<FrameRecord>().nb_frames_to_skip;
+    env_.nb_frame_skip = export_cache_.get_value<Record>().nb_to_skip;
     processed_fps_ = 0;
-    
+
     const size_t output_frame_size = env_.gpu_frame_record_queue_->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
 
     try
     {
-        output_frame_file =
-            io_files::OutputFrameFileFactory::create(export_cache_.get_value<FrameRecord>().frames_file_path,
-                                                     env_.gpu_frame_record_queue_->get_fd(),
-                                                     nb_frames_to_record);
+        output_frame_file = io_files::OutputFrameFileFactory::create(export_cache_.get_value<Record>().file_path,
+                                                                     env_.gpu_frame_record_queue_->get_fd(),
+                                                                     nb_to_record);
 
         output_frame_file->write_header();
 
@@ -75,7 +74,7 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        while (nb_frames_to_record == 0 || env_.current_nb_frames_recorded < nb_frames_to_record)
+        while (nb_to_record == 0 || env_.current_nb_frames_recorded < nb_to_record)
         {
             if (stop_requested_)
                 break;
@@ -139,7 +138,7 @@ void FrameRecordWorker::run()
 
     reset_gpu_record_queue();
 
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
     // LOG_TRACE(record_worker, "Exiting FrameRecordWorker::run()");
@@ -156,7 +155,7 @@ void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 
 void FrameRecordWorker::reset_gpu_record_queue()
 {
-    api::detail::change_value<FrameRecord>()->is_running = false;
+    api::detail::change_value<Record>()->is_running = false;
 
     std::unique_ptr<Queue>& raw_view_queue = api::get_compute_pipe().get_raw_view_queue_ptr();
     if (raw_view_queue)

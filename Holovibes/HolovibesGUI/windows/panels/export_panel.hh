@@ -57,7 +57,7 @@ class ExportPanel : public Panel
      *
      * \param record_mode The current record mode
      */
-    void record_finished(FrameRecordStruct::RecordType record_mode);
+    void record_finished(RecordStruct::RecordType record_mode);
 
     /*! \brief Starts recording */
     void start_record();

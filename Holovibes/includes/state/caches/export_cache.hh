@@ -14,8 +14,7 @@ namespace holovibes
 {
 // clang-format off
 
-class FrameRecord : public Parameter<FrameRecordStruct, DefaultLiteral<FrameRecordStruct>{}, "frame_record">{};
-class ChartRecord : public Parameter<ChartRecordStruct, DefaultLiteral<ChartRecordStruct>{}, "chart_record">{};
+class Record : public Parameter<RecordStruct, DefaultLiteral<RecordStruct>{}, "frame_record">{};
 class ExportScriptPath : public StringParameter<"", "export_script_path">{};
 
 class OutputFrameDescriptor : public Parameter<FrameDescriptor, DefaultLiteral<FrameDescriptor>{}, "output_frame_descriptor">{};
@@ -24,7 +23,6 @@ class ExportRecordDontLoseFrame: public BoolParameter<true, "export_record_dont_
 
 // clang-format on
 
-using ExportCache =
-    MicroCache<FrameRecord, ChartRecord, ExportScriptPath, OutputFrameDescriptor, ExportRecordDontLoseFrame>;
+using ExportCache = MicroCache<Record, ExportScriptPath, OutputFrameDescriptor, ExportRecordDontLoseFrame>;
 
 } // namespace holovibes

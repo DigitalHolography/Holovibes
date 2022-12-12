@@ -56,7 +56,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     thread/frame_read_worker.cc
     thread/frame_record_worker.cc
     thread/information_worker.cc
-    thread/worker.cc
 
     tools/cuda_tools/cublas_handle.cc
     tools/cuda_tools/cufft_handle.cc

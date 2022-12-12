@@ -10,8 +10,8 @@
 namespace holovibes::gui
 {
 HoloWindow::HoloWindow(
-    QPoint p, QSize s, DisplayQueue* q, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, float ratio)
-    : RawWindow(p, s, q, ratio, KindOfView::Hologram)
+    std::string name, QPoint p, QSize s, DisplayQueue* q, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, float ratio)
+    : RawWindow(name, p, s, q, ratio, KindOfView::Hologram)
     , xz_slice_(xz)
     , yz_slice_(yz)
 {
@@ -22,8 +22,10 @@ HoloWindow::~HoloWindow() {}
 void HoloWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                     QString(create_absolute_path("shaders/vertex.holo.glsl").c_str()));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                     QString(create_absolute_path("shaders/fragment.tex.glsl").c_str()));
     Program->link();
     overlay_manager_.create_default();
 }

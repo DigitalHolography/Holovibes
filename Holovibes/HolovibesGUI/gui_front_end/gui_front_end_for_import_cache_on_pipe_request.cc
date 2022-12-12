@@ -15,17 +15,21 @@ void GuiFrontEndForImportCacheOnPipeRequest::before_method<ImportType>()
 
     if (api::detail::get_value<ImportType>() == ImportTypeEnum::None)
     {
-        UserInterface::instance().xy_window.reset(nullptr);
-        UserInterface::instance().sliceXZ.reset(nullptr);
-        UserInterface::instance().sliceYZ.reset(nullptr);
-        UserInterface::instance().filter2d_window.reset(nullptr);
+        UserInterface::instance().main_window->synchronize_thread(
+            [=]()
+            {
+                UserInterface::instance().xy_window.reset(nullptr);
+                UserInterface::instance().sliceXZ.reset(nullptr);
+                UserInterface::instance().sliceYZ.reset(nullptr);
+                UserInterface::instance().filter2d_window.reset(nullptr);
 
-        if (UserInterface::instance().lens_window)
-            api::set_lens_view_enabled(false);
-        if (UserInterface::instance().raw_window)
-            api::set_raw_view_enabled(false);
+                if (UserInterface::instance().lens_window)
+                    api::set_lens_view_enabled(false);
+                if (UserInterface::instance().raw_window)
+                    api::set_raw_view_enabled(false);
 
-        UserInterface::instance().plot_window_.reset(nullptr);
+                UserInterface::instance().plot_window_.reset(nullptr);
+            });
     }
 }
 

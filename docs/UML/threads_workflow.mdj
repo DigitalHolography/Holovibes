@@ -1981,7 +1981,7 @@
 											"top": 594,
 											"width": 586.85986328125,
 											"height": 13,
-											"text": "+FrameRecordWorker(file_path: string, nb_frames_to_record: optional unsigned int, raw_record: bool)",
+											"text": "+FrameRecordWorker(file_path: string, nb_to_record: optional unsigned int, raw_record: bool)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2374,7 +2374,7 @@
 											"top": 1036,
 											"width": 404.041015625,
 											"height": 13,
-											"text": "+ChartRecordWorker(path: string, nb_frames_to_record: unsigned int)",
+											"text": "+ChartRecordWorker(path: string, nb_to_record: unsigned int)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -2784,7 +2784,7 @@
 											"top": 856,
 											"width": 853.5693359375,
 											"height": 13,
-											"text": "+BatchGPIBWorker(batch_input_path: string, output_path: string, nb_frames_to_record: unsigned int, chart_record: bool, raw_record_enabled: bool)",
+											"text": "+BatchGPIBWorker(batch_input_path: string, output_path: string, nb_to_record: unsigned int, chart_record: bool, raw_record_enabled: bool)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -5120,7 +5120,7 @@
 									"_parent": {
 										"$ref": "AAAAAAF2UmforWlo76A="
 									},
-									"name": "nb_frames_to_record",
+									"name": "nb_to_record",
 									"type": "optional unsigned int"
 								},
 								{
@@ -5301,7 +5301,7 @@
 									"_parent": {
 										"$ref": "AAAAAAF2UnHgW2n3YAg="
 									},
-									"name": "nb_frames_to_record",
+									"name": "nb_to_record",
 									"type": "unsigned int"
 								}
 							]
@@ -5517,7 +5517,7 @@
 									"_parent": {
 										"$ref": "AAAAAAF2UnrnC2rVZOU="
 									},
-									"name": "nb_frames_to_record",
+									"name": "nb_to_record",
 									"type": "unsigned int"
 								},
 								{

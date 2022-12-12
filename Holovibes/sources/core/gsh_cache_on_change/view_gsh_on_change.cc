@@ -60,11 +60,21 @@ void ViewGSHOnChange::operator()<CutsViewEnable>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(CutsViewEnable);
 
-    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
-    api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
+    if (new_value)
+    {
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
+        api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
+        api::detail::set_value<TimeTransformationCutsEnable>(true);
+    }
+}
+
+template <>
+void ViewGSHOnChange::operator()<Filter2DViewEnabled>(bool& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(Filter2DViewEnabled);
 
     if (new_value)
-        api::detail::set_value<TimeTransformationCutsEnable>(true);
+        api::detail::change_value<Filter2D>()->enabled = true;
 }
 
 template <>
@@ -89,5 +99,13 @@ template <>
 bool ViewGSHOnChange::change_accepted<RawViewEnabled>(bool new_value)
 {
     return !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());
+}
+
+template <>
+bool ViewGSHOnChange::change_accepted<ViewAccuP>(const ViewAccuPQ& new_value)
+{
+    if (new_value.start + new_value.width >= api::get_time_transformation_size())
+        return false;
+    return true;
 }
 } // namespace holovibes

@@ -31,12 +31,11 @@ void InfoPanel::init()
             {
                 switch (type)
                 {
-                case ProgressType::FILE_READ:
+                case ProgressType::READ:
                     ui_->FileReaderProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->FileReaderProgressBar->setValue(static_cast<int>(value));
                     break;
-                case ProgressType::CHART_RECORD:
-                case ProgressType::FRAME_RECORD:
+                case ProgressType::RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
                     break;

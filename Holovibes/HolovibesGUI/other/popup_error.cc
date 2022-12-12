@@ -1,3 +1,4 @@
+#include "guiafx.hh"
 #include "popup_error.hh"
 #include "holovibes.hh"
 

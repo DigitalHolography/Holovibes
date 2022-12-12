@@ -16,6 +16,8 @@
  * };
  */
 
+#include "types.hh"
+
 namespace holovibes
 {
 
@@ -39,10 +41,8 @@ enum class FpsType
 
 enum class ProgressType
 {
-    FILE_READ,
-    FRAME_RECORD,
-    CHART_RECORD,
-    INPUT_QUEUE
+    READ,
+    RECORD,
 };
 
 enum class QueueType

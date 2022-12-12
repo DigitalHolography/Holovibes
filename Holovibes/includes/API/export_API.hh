@@ -5,11 +5,8 @@
 namespace holovibes::api
 {
 
-inline const FrameRecordStruct& get_frame_record() { return api::detail::get_value<FrameRecord>(); }
-inline TriggerChangeValue<FrameRecordStruct> change_frame_record() { return api::detail::change_value<FrameRecord>(); }
-
-inline const ChartRecordStruct& get_chart_record() { return api::detail::get_value<ChartRecord>(); }
-inline TriggerChangeValue<ChartRecordStruct> change_chart_record() { return api::detail::change_value<ChartRecord>(); }
+inline const RecordStruct& get_record() { return api::detail::get_value<Record>(); }
+inline TriggerChangeValue<RecordStruct> change_record() { return api::detail::change_value<Record>(); }
 
 inline const std::string& get_script_path() { return api::detail::get_value<ExportScriptPath>(); }
 inline void set_script_path(const std::string& value) { return api::detail::set_value<ExportScriptPath>(value); }

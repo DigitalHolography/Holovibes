@@ -13,9 +13,9 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
     , total_nb_frames_(0)
     , frame_capacity_(total_nb_frames)
 {
-    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::INPUT_QUEUE);
-    entry.recorded = reinterpret_cast<const uint*>(&curr_nb_frames_);
-    entry.to_record = reinterpret_cast<const uint*>(&total_nb_frames_);
+    auto& entry = GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE);
+    entry.size = &size_;
+    entry.max_size = &max_size_;
 
     // Set priority of streams
     // Set batch_size and max_size
@@ -24,7 +24,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
 
 BatchInputQueue::~BatchInputQueue()
 {
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::INPUT_QUEUE);
+    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
     destroy_mutexes_streams();
     // data is free as it is a UniquePtr.
 }

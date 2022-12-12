@@ -120,14 +120,6 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     return ss.str();
 }
 
-static const float get_boundary()
-{
-    FrameDescriptor fd = api::get_import_frame_descriptor();
-    const float d = api::detail::get_value<PixelSize>() * 0.000001f;
-    const float n = static_cast<float>(fd.height);
-    return (n * d * d) / api::detail::get_value<Lambda>();
-}
-
 void InformationWorker::display_gui_information()
 {
     std::string str;
@@ -143,7 +135,10 @@ void InformationWorker::display_gui_information()
             continue;
 
         to_display << queue_type_to_string_.at(key) << ":\n  ";
-        to_display << *value.size << "/" << *value.max_size << "\n";
+        if (value.size != nullptr && value.max_size != nullptr)
+            to_display << *value.size << "/" << *value.max_size << "\n";
+        else
+            to_display << "?? / ?? \n";
     }
 
     if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))
@@ -180,11 +175,12 @@ void InformationWorker::display_gui_information()
                << "  " << engineering_notation(total, 3) + "B total\n";
 
     // #TODO change this being called every frame to only being called to update the value if needed
-    to_display << "\nz boundary: " << get_boundary() << "m\n";
+    to_display << "\nz boundary: " << api::get_z_boundary() << "m\n";
 
     display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
-        update_progress_function_(key, *value.recorded, *value.to_record);
+        if (value.recorded != nullptr && value.to_record != nullptr)
+            update_progress_function_(key, *value.recorded, *value.to_record);
 }
 } // namespace holovibes::worker

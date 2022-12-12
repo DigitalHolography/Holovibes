@@ -17,7 +17,7 @@ class MainWindow;
 class Filter2DWindow : public BasicOpenGLWindow
 {
   public:
-    Filter2DWindow(QPoint p, QSize s, DisplayQueue* q);
+    Filter2DWindow(std::string name, QPoint p, QSize s, DisplayQueue* q);
     virtual ~Filter2DWindow();
 
   protected:

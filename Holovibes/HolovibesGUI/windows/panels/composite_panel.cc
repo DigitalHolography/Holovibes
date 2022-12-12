@@ -97,6 +97,12 @@ void CompositePanel::on_notify()
         show_rgb();
         show_hsv();
     }
+
+    ui_->SpinBox_saturation_freq_min->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
+    ui_->SpinBox_saturation_freq_max->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
+    ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
+    ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
+    ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
 }
 
 void CompositePanel::set_composite_intervals()
@@ -108,43 +114,36 @@ void CompositePanel::set_composite_intervals()
     // FIXME NAME
     api::change_composite_rgb()->frame_index.min = ui_->PRedSpinBox_Composite->value();
     api::change_composite_rgb()->frame_index.max = ui_->PBlueSpinBox_Composite->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_hue_freq_min->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_hue_freq_max->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_saturation_freq_min->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_saturation_freq_max->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_value_freq_min->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_value_freq_max->value();
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_weights()
@@ -152,8 +151,6 @@ void CompositePanel::set_composite_weights()
     api::change_composite_rgb()->weight.r = (ui_->WeightSpinBox_R->value());
     api::change_composite_rgb()->weight.g = (ui_->WeightSpinBox_G->value());
     api::change_composite_rgb()->weight.b = (ui_->WeightSpinBox_B->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_auto_weights(bool value) { api::set_composite_auto_weights(value); }
@@ -176,8 +173,6 @@ void CompositePanel::click_composite_rgb_or_hsv()
         ui_->SpinBox_value_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
         ui_->SpinBox_value_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
     }
-
-    parent_->notify();
 }
 
 void fancy_Qslide_text_percent(char* str)
@@ -331,24 +326,16 @@ void CompositePanel::slide_update_threshold_v_max()
 void CompositePanel::actualize_frequency_channel_s()
 {
     api::change_composite_hsv()->s.frame_index.activated = ui_->checkBox_saturation_freq->isChecked();
-
-    ui_->SpinBox_saturation_freq_min->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
-    ui_->SpinBox_saturation_freq_max->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
 }
 
 void CompositePanel::actualize_frequency_channel_v()
 {
     api::change_composite_hsv()->s.frame_index.activated = ui_->checkBox_value_freq->isChecked();
-
-    ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
-    ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
 }
 
 void CompositePanel::actualize_checkbox_h_gaussian_blur()
 {
     api::change_composite_hsv()->h.blur.enabled = ui_->checkBox_h_gaussian_blur->isChecked();
-
-    ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
 }
 
 void CompositePanel::actualize_kernel_size_blur()

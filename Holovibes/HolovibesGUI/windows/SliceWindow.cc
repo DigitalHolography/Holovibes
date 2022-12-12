@@ -14,8 +14,8 @@
 
 namespace holovibes::gui
 {
-SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, k)
+SliceWindow::SliceWindow(std::string name, QPoint p, QSize s, DisplayQueue* q, KindOfView k)
+    : BasicOpenGLWindow(name, p, s, q, k)
     , cuArray(nullptr)
     , cuSurface(0)
 {
@@ -33,8 +33,10 @@ SliceWindow::~SliceWindow()
 void SliceWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                     QString(create_absolute_path("shaders/vertex.holo.glsl").c_str()));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                     QString(create_absolute_path("shaders/fragment.tex.glsl").c_str()));
     Program->link();
     if (GSH::instance().get_value<ImageType>() == ImageTypeEnum::Composite)
         overlay_manager_.create_overlay<KindOfOverlay::Rainbow>();

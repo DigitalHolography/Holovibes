@@ -33,7 +33,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
                frame_record_env_.gpu_frame_record_queue_->get_max_size() &&
-           api::get_frame_record().is_running)
+           api::get_record().is_running)
     {
     }
 }
@@ -480,7 +480,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() == FrameRecordStruct::RecordType::RAW)
+    if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::RAW)
     {
         if (api::detail::get_value<ExportRecordDontLoseFrame>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
@@ -495,8 +495,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() ==
-        FrameRecordStruct::RecordType::HOLOGRAM)
+    if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::HOLOGRAM)
     {
         if (api::detail::get_value<ExportRecordDontLoseFrame>())
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -516,13 +515,12 @@ void Pipe::insert_hologram_record()
 void Pipe::insert_cuts_record()
 {
 
-    if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() == FrameRecordStruct::RecordType::CUTS_XZ)
+    if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::CUTS_XZ)
     {
         fn_compute_vect_.push_back(
             [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
     }
-    else if (api::detail::get_value<FrameRecord>().get_record_type_if_is_running() ==
-             FrameRecordStruct::RecordType::CUTS_YZ)
+    else if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::CUTS_YZ)
     {
         fn_compute_vect_.push_back(
             [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });

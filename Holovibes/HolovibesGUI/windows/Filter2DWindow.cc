@@ -13,11 +13,12 @@
 
 namespace holovibes::gui
 {
-Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
-    : BasicOpenGLWindow(p, s, q, KindOfView::ViewFilter2D)
+Filter2DWindow::Filter2DWindow(std::string name, QPoint p, QSize s, DisplayQueue* q)
+    : BasicOpenGLWindow(name, p, s, q, KindOfView::ViewFilter2D)
 {
     LOG_FUNC();
     setMinimumSize(s);
+    show();
 }
 
 Filter2DWindow::~Filter2DWindow()
@@ -32,8 +33,10 @@ Filter2DWindow::~Filter2DWindow()
 void Filter2DWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                     QString(create_absolute_path("shaders/vertex.holo.glsl").c_str()));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                     QString(create_absolute_path("shaders/fragment.tex.glsl").c_str()));
     Program->link();
     overlay_manager_.create_default();
 }

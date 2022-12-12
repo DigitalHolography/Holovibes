@@ -26,7 +26,7 @@ class BatchGPIBWorker final : public Worker
     /*!
      * \param batch_input_path Batch input path that details commands to process
      * \param output_path Output record path
-     * \param nb_frames_to_record Number of frames to record for a signle record command
+     * \param nb_to_record Number of frames to record for a signle record command
      * \param record_mode The record mode used for all the batch (RAW, HOLOGRAM, CHART)
      * \param Option passed to the frame record: resize saved images (linear interpolation)
      */
@@ -58,10 +58,10 @@ class BatchGPIBWorker final : public Worker
     std::string format_batch_output(const unsigned int index);
 
   private:
-    /*! \brief Instance of the frame record worker used if FrameRecordStruct::RecordType is RAW or HOLOGRAM */
+    /*! \brief Instance of the frame record worker used if RecordStruct::RecordType is RAW or HOLOGRAM */
     std::unique_ptr<FrameRecordWorker> frame_record_worker_;
 
-    /*! \brief Instance of the chart record worker used if FrameRecordStruct::RecordType is CHART */
+    /*! \brief Instance of the chart record worker used if RecordStruct::RecordType is CHART */
     std::unique_ptr<ChartRecordWorker> chart_record_worker_;
 
     /*! \brief Batch commands that are parsed from the batch input file */

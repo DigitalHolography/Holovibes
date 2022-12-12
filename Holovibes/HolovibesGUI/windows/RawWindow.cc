@@ -19,8 +19,8 @@
 
 namespace holovibes::gui
 {
-RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio_, KindOfView k)
-    : BasicOpenGLWindow(p, s, q, k)
+RawWindow::RawWindow(std::string name, QPoint p, QSize s, DisplayQueue* q, float ratio_, KindOfView k)
+    : BasicOpenGLWindow(name, p, s, q, k)
     , texDepth(0)
     , texType(0)
     , ratio(ratio_)
@@ -41,8 +41,10 @@ RawWindow::~RawWindow()
 void RawWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.raw.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.raw.glsl"));
+    Program->addShaderFromSourceFile(QOpenGLShader::Vertex,
+                                     QString(create_absolute_path("shaders/vertex.raw.glsl").c_str()));
+    Program->addShaderFromSourceFile(QOpenGLShader::Fragment,
+                                     QString(create_absolute_path("shaders/fragment.tex.raw.glsl").c_str()));
     Program->link();
     overlay_manager_.create_default();
 }
@@ -361,8 +363,10 @@ void RawWindow::set_is_resize(bool b) { is_resize = b; }
 void RawWindow::wheelEvent(QWheelEvent* e)
 {
     QPointF pos = e->position();
-    if (!is_between(static_cast<int>(pos.x()), 0, width()) || !is_between(static_cast<int>(pos.y()), 0, height()))
+    if (!(static_cast<int>(pos.x()) >= 0 && static_cast<int>(pos.x()) <= width()) ||
+        !(static_cast<int>(pos.y()) >= 0 && static_cast<int>(pos.y()) <= height()))
         return;
+
     const float xGL = (static_cast<float>(pos.x() - width() / 2)) / static_cast<float>(width()) * 2.f;
     const float yGL = -((static_cast<float>(pos.y() - height() / 2)) / static_cast<float>(height())) * 2.f;
     if (e->angleDelta().y() > 0)

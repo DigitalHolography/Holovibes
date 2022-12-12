@@ -32,12 +32,12 @@ void GuiFrontEndForComputeCacheOnPipeRequest::after_method<ComputeMode>()
             [=]()
             {
                 UserInterface::instance().xy_window.reset(
-                    new gui::RawWindow(position,
+                    new gui::RawWindow("XY view",
+                                       position,
                                        size,
                                        &api::get_gpu_input_queue(),
                                        static_cast<float>(width) / static_cast<float>(height)));
                 UserInterface::instance().xy_window->set_is_resize(false);
-                UserInterface::instance().xy_window->setTitle(QString("XY view"));
             });
 
         // FIXME INFO - FIXME API
@@ -52,14 +52,14 @@ void GuiFrontEndForComputeCacheOnPipeRequest::after_method<ComputeMode>()
             [=]()
             {
                 UserInterface::instance().xy_window.reset(
-                    new gui::HoloWindow(position,
+                    new gui::HoloWindow("XY view",
+                                        position,
                                         size,
                                         &api::get_gpu_output_queue(),
                                         UserInterface::instance().sliceXZ,
                                         UserInterface::instance().sliceYZ,
                                         static_cast<float>(width) / static_cast<float>(height)));
                 UserInterface::instance().xy_window->set_is_resize(false);
-                UserInterface::instance().xy_window->setTitle(QString("XY view"));
             });
 
         // FIXME INFO - FIXME API

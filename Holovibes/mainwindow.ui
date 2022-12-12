@@ -4487,7 +4487,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImageModeComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_type(int)</slot>
+   <slot>set_compute_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5205,7 +5205,7 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_type(int)</slot>
+  <slot>set_compute_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>

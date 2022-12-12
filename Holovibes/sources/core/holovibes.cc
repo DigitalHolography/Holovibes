@@ -161,7 +161,7 @@ void Holovibes::stop_information_display()
 
 void Holovibes::init_pipe()
 {
-    LOG_FUNC();
+    LOG_DEBUG("init_pipe");
     compute_pipe_.reset(new Pipe(*gpu_input_queue_, *gpu_output_queue_, get_cuda_streams().compute_stream));
 }
 

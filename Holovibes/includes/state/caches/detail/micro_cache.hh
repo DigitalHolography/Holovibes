@@ -227,7 +227,6 @@ class MicroCache
       public:
         bool has_change_requested()
         {
-            std::lock_guard<std::mutex> guard(lock_);
             return change_pool_.size() > 0;
         }
 

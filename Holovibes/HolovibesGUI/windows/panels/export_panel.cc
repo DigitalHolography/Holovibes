@@ -80,9 +80,41 @@ void ExportPanel::on_notify()
                                          .string();
     path_line_edit->insert(record_output_path.c_str());
 
-    ui_->ExportRecPushButton->setEnabled(false);
+    ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(true);
     ui_->ChartPlotPushButton->setEnabled(api::detail::get_value<ChartDisplayEnabled>() == false);
+
+    if (api::get_record().record_type == RecordStruct::RecordType::CHART)
+    {
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".csv");
+        ui_->RecordExtComboBox->insertItem(1, ".txt");
+        ui_->ChartPlotWidget->show();
+    }
+    else
+    {
+        ui_->ChartPlotWidget->hide();
+    }
+
+    if (api::get_record().record_type == RecordStruct::RecordType::RAW)
+    {
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".holo");
+    }
+    else if (api::get_record().record_type == RecordStruct::RecordType::HOLOGRAM)
+    {
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".holo");
+        ui_->RecordExtComboBox->insertItem(1, ".avi");
+        ui_->RecordExtComboBox->insertItem(2, ".mp4");
+    }
+    else if (api::get_record().record_type == RecordStruct::RecordType::CUTS_YZ ||
+             api::get_record().record_type == RecordStruct::RecordType::CUTS_XZ)
+    {
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".mp4");
+        ui_->RecordExtComboBox->insertItem(1, ".avi");
+    }
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -99,29 +131,29 @@ void ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (api::get_chart_record().is_running)
+    if (api::get_record().record_type == RecordStruct::RecordType::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::RAW)
+    else if (api::get_record().record_type == RecordStruct::RecordType::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::HOLOGRAM)
+    else if (api::get_record().record_type == RecordStruct::RecordType::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterface::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::CUTS_XZ ||
-             api::get_frame_record().record_type == FrameRecordStruct::RecordType::CUTS_YZ)
+    else if (api::get_record().record_type == RecordStruct::RecordType::CUTS_XZ ||
+             api::get_record().record_type == RecordStruct::RecordType::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -165,105 +197,31 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->insert(filename);
 }
 
-static void set_record_mode_in_api_from_text(const std::string& text)
+void ExportPanel::set_frame_record_mode(const QString& value)
 {
-    LOG_FUNC(text);
-
-    // FIXME API : Maybe a map
-
-    // TODO: Dictionnary
-    if (text == "Chart")
-        api::change_chart_record()->is_selected = true;
-    else
-        api::change_chart_record()->is_selected = false;
-
-    if (text == "Processed Image")
-        api::change_frame_record()->record_type = FrameRecordStruct::RecordType::HOLOGRAM;
-    else if (text == "Raw Image")
-        api::change_frame_record()->record_type = FrameRecordStruct::RecordType::RAW;
-    else if (text == "3D Cuts XZ")
-        api::change_frame_record()->record_type = FrameRecordStruct::RecordType::CUTS_XZ;
-    else if (text == "3D Cuts YZ")
-        api::change_frame_record()->record_type = FrameRecordStruct::RecordType::CUTS_YZ;
-    else if (text != "Chart")
+    if (value == "Chart")
+        api::change_record()->record_type = RecordStruct::RecordType::CHART;
+    else if (value == "Processed Image")
+        api::change_record()->record_type = RecordStruct::RecordType::HOLOGRAM;
+    else if (value == "Raw Image")
+        api::change_record()->record_type = RecordStruct::RecordType::RAW;
+    else if (value == "3D Cuts XZ")
+        api::change_record()->record_type = RecordStruct::RecordType::CUTS_XZ;
+    else if (value == "3D Cuts YZ")
+        api::change_record()->record_type = RecordStruct::RecordType::CUTS_YZ;
+    else if (value != "Chart")
         throw std::exception("Record mode not handled");
 }
 
-void ExportPanel::set_frame_record_mode(const QString& value)
-{
-    if (api::get_chart_record().is_running)
-        stop_chart_display();
+void ExportPanel::stop_record() { api::change_record()->is_running = false; }
 
-    stop_record();
-
-    set_record_mode_in_api_from_text(value.toStdString());
-
-    if (api::get_chart_record().is_running)
-    {
-        ui_->RecordExtComboBox->clear();
-        ui_->RecordExtComboBox->insertItem(0, ".csv");
-        ui_->RecordExtComboBox->insertItem(1, ".txt");
-
-        ui_->ChartPlotWidget->show();
-
-        if (UserInterface::instance().xy_window)
-        {
-            UserInterface::instance().xy_window->resetTransform();
-
-            UserInterface::instance().xy_window->getOverlayManager().enable_all(KindOfOverlay::Signal);
-            UserInterface::instance().xy_window->getOverlayManager().enable_all(KindOfOverlay::Noise);
-            UserInterface::instance().xy_window->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
-        }
-    }
-    else
-    {
-        if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::RAW)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-        else if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::HOLOGRAM)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-            ui_->RecordExtComboBox->insertItem(2, ".mp4");
-        }
-        else if (api::get_frame_record().record_type == FrameRecordStruct::RecordType::CUTS_YZ ||
-                 api::get_frame_record().record_type == FrameRecordStruct::RecordType::CUTS_XZ)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".mp4");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-        }
-
-        ui_->ChartPlotWidget->hide();
-
-        if (UserInterface::instance().xy_window)
-        {
-            UserInterface::instance().xy_window->resetTransform();
-
-            UserInterface::instance().xy_window->getOverlayManager().disable_all(KindOfOverlay::Signal);
-            UserInterface::instance().xy_window->getOverlayManager().disable_all(KindOfOverlay::Noise);
-        }
-    }
-
-    parent_->notify();
-}
-
-void ExportPanel::stop_record()
-{
-    api::change_chart_record()->is_running = false;
-    api::change_frame_record()->is_running = false;
-}
-
-void ExportPanel::record_finished(FrameRecordStruct::RecordType record_mode)
+void ExportPanel::record_finished(RecordStruct::RecordType record_mode)
 {
     std::string info;
 
-    if (api::get_chart_record().is_running)
+    if (api::get_record().record_type == RecordStruct::RecordType::CHART)
         info = "Chart record finished";
-    else if (api::get_frame_record().is_running)
+    else
         info = "Frame record finished";
 
     if (ui_->BatchGroupBox->isChecked())
@@ -280,23 +238,16 @@ void ExportPanel::start_record()
         api::set_script_path("");
 
     if (ui_->NumberOfFramesCheckBox->isChecked())
-    {
-        api::change_chart_record()->nb_points_to_record = ui_->NumberOfFramesSpinBox->value();
-        api::change_frame_record()->nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
-    }
+        api::change_record()->nb_to_record = ui_->NumberOfFramesSpinBox->value();
     else
-    {
-        api::change_chart_record()->nb_points_to_record = 0;
-        api::change_frame_record()->nb_frames_to_record = 0;
-    }
+        api::change_record()->nb_to_record = 0;
 
     std::string output_path =
         ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
 
-    api::change_chart_record()->chart_file_path = output_path;
-    api::change_frame_record()->frames_file_path = output_path;
+    api::change_record()->file_path = output_path;
 
-    // FIXME API --- FIXME RECORD
+    api::change_record()->is_running = true;
 }
 
 void ExportPanel::activeSignalZone()

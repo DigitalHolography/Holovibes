@@ -27,11 +27,11 @@ struct Zones
     SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
 };
 
-/*! \class Record
+/*! \class RecordJsonStruct
  *
- * \brief Class that represents Record
+ * \brief Class that represents RecordJsonStruct
  */
-struct Record
+struct RecordJsonStruct
 {
     float input_fps = 60.0f;
     unsigned record_start_frame = 0;
@@ -40,7 +40,7 @@ struct Record
     bool chart_record_enabled = false;
 
     SERIALIZE_JSON_STRUCT(
-        Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
+        RecordJsonStruct, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
 };
 
 /*! \class ViewEnabled
@@ -94,7 +94,7 @@ struct Internals
 {
 
     Zones zones;
-    Record record;
+    RecordJsonStruct record;
     Enabled enabled;
     Misc misc;
 
@@ -106,7 +106,7 @@ struct Internals
 
 inline std::ostream& operator<<(std::ostream& os, const Internals& value) { return os << json{value}; }
 inline std::ostream& operator<<(std::ostream& os, const Zones& value) { return os << json{value}; }
-inline std::ostream& operator<<(std::ostream& os, const Record& value) { return os << json{value}; }
+inline std::ostream& operator<<(std::ostream& os, const RecordJsonStruct& value) { return os << json{value}; }
 inline std::ostream& operator<<(std::ostream& os, const Enabled& value) { return os << json{value}; }
 inline std::ostream& operator<<(std::ostream& os, const Misc& value) { return os << json{value}; }
 } // namespace holovibes

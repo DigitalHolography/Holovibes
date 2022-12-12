@@ -19,7 +19,7 @@ class ChartRecordWorker final : public Worker
   public:
     /*!
      * \param path Output record path
-     * \param nb_frames_to_record Number of points to record
+     * \param nb_to_record Number of points to record
      */
     ChartRecordWorker();
 

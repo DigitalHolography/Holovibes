@@ -233,40 +233,11 @@ void ViewPanel::set_x_accu() { api::change_view_accu_x()->width = ui_->XAccSpinB
 
 void ViewPanel::set_y_accu() { api::change_view_accu_y()->width = ui_->YAccSpinBox->value(); }
 
-void ViewPanel::set_p(int value)
-{
-    if (value >= static_cast<int>(api::get_time_transformation_size()))
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
+void ViewPanel::set_p(int value) { api::change_view_accu_p()->start = value; }
 
-    api::change_view_accu_p()->start = value;
-}
+void ViewPanel::increment_p() { set_p(api::get_view_accu_p().start + 1); }
 
-void ViewPanel::increment_p()
-{
-    // FIXME: Cannot append
-    if (api::get_view_accu_p().start >= api::get_time_transformation_size())
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_view_accu_p().start + 1);
-}
-
-void ViewPanel::decrement_p()
-{
-    // FIXME: Cannot append
-    if (api::get_view_accu_p().start <= 0)
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_view_accu_p().start - 1);
-}
+void ViewPanel::decrement_p() { set_p(api::get_view_accu_p().start - 1); }
 
 void ViewPanel::set_p_accu() { api::change_view_accu_p()->width = ui_->PAccSpinBox->value(); }
 
@@ -286,23 +257,19 @@ void ViewPanel::rotateTexture()
         UserInterface::instance().sliceXZ->setTransform();
     else if (UserInterface::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
         UserInterface::instance().sliceYZ->setTransform();
-
-    parent_->notify();
 }
 
 void ViewPanel::flipTexture()
 {
     api::change_current_view_as_view_xyz()->horizontal_flip = !api::get_current_view_as_view_xyz().horizontal_flip;
 
-    // FIXME => TRIGGER
+    // FIXME API => TRIGGER
     if (api::get_current_view_kind() == WindowKind::ViewXY)
         UserInterface::instance().xy_window->setTransform();
     else if (UserInterface::instance().sliceXZ && api::get_current_view_kind() == WindowKind::ViewXZ)
         UserInterface::instance().sliceXZ->setTransform();
     else if (UserInterface::instance().sliceYZ && api::get_current_view_kind() == WindowKind::ViewYZ)
         UserInterface::instance().sliceYZ->setTransform();
-
-    parent_->notify();
 }
 
 void ViewPanel::set_log_scale(const bool value) { api::change_current_view()->log_enabled = value; }

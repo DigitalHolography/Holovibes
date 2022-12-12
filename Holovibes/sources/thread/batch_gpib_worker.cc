@@ -60,17 +60,11 @@ void BatchGPIBWorker::run()
                 std::string formatted_path = format_batch_output(file_index);
 
                 // FIXME API : Change this
-                if (export_cache_.get_value<ChartRecord>().is_running)
+                if (export_cache_.get_value<Record>().is_running)
                 {
-                    api::detail::change_value<ChartRecord>()->chart_file_path = formatted_path;
+                    api::detail::change_value<Record>()->file_path = formatted_path;
                     chart_record_worker_ = std::make_unique<ChartRecordWorker>();
                     chart_record_worker_->run();
-                }
-                else // Frame Record
-                {
-                    api::detail::change_value<FrameRecord>()->frames_file_path = formatted_path;
-                    frame_record_worker_ = std::make_unique<FrameRecordWorker>();
-                    frame_record_worker_->run();
                 }
 
                 ++file_index;
@@ -197,7 +191,7 @@ std::string BatchGPIBWorker::format_batch_output(const unsigned int index)
     file_index = convert.str();
 
     std::vector<std::string> path_tokens;
-    boost::split(path_tokens, api::detail::get_value<FrameRecord>().frames_file_path, boost::is_any_of("."));
+    boost::split(path_tokens, api::detail::get_value<Record>().file_path, boost::is_any_of("."));
 
     std::string res = path_tokens[0] + "_" + file_index;
     if (path_tokens.size() > 1)

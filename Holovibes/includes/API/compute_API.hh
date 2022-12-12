@@ -19,6 +19,12 @@ inline void set_space_transformation(SpaceTransformationEnum value)
     api::detail::set_value<SpaceTransformation>(value);
 }
 
+inline bool get_time_transformation_cuts_enable() { return api::detail::get_value<TimeTransformationCutsEnable>(); }
+inline void set_time_transformation_cuts_enable(bool value)
+{
+    api::detail::set_value<TimeTransformationCutsEnable>(value);
+}
+
 inline TimeTransformationEnum get_time_transformation() { return api::detail::get_value<TimeTransformation>(); }
 inline void set_time_transformation(TimeTransformationEnum value) { api::detail::set_value<TimeTransformation>(value); }
 
@@ -51,4 +57,5 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
     api::detail::set_value<TimeTransformationCutsBufferSize>(value);
 }
+
 } // namespace holovibes::api

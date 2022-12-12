@@ -11,6 +11,7 @@ void start_gui(int argc, char** argv, const std::string filename)
 {
     ComputeCacheFrontEndMethods::link_front_end<GuiFrontEndForComputeCacheOnPipeRequest>();
     ImportCacheFrontEndMethods::link_front_end<GuiFrontEndForImportCacheOnPipeRequest>();
+    ExportCacheFrontEndMethods::link_front_end<GuiFrontEndForExportCacheOnPipeRequest>();
     ViewCacheFrontEndMethods::link_front_end<GuiFrontEndForViewCacheOnPipeRequest>();
 
     api::detail::set_value<ExportRecordDontLoseFrame>(false);

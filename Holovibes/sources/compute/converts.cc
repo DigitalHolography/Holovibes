@@ -95,9 +95,9 @@ void Converts::insert_compute_p_accu()
             ViewAccuPQ p = view_cache_.get_value<ViewAccuP>();
             pmin_ = p.start;
             if (p.width != 0)
-                pmax_ = std::max(
-                    0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_value<TimeTransformationSize>())));
+                pmax_ = std::max(0,
+                                 std::min<int>(pmin_ + p.width,
+                                               static_cast<int>(compute_cache_.get_value<TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -145,9 +145,6 @@ void Converts::insert_to_composite()
         [=]()
         {
             CompositeRGBStruct rgb_struct = composite_cache_.get_value<CompositeRGB>();
-            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_value<TimeTransformationSize>()) ||
-                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_value<TimeTransformationSize>()))
-                return;
 
             if (composite_cache_.get_value<CompositeKind>() == CompositeKindEnum::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
