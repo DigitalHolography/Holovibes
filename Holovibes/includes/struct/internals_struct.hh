@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 #include "enum_window_kind.hh"
 #include "rect.hh"
 namespace holovibes

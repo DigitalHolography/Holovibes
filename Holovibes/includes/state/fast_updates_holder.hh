@@ -40,7 +40,7 @@ class FastUpdatesHolder
         map_[key] = FastUpdateTypeValue<T>();
 
 #ifndef DISABLE_LOG_UPDATE_MAP_ENTRY
-        LOG_DEBUG("New FastUpdatesHolder<{}>", typeid(T).name());
+        LOG_DEBUG("New FastUpdatesHolder<{}> {}", typeid(T).name(), key);
 #endif
 
         return map_[key];

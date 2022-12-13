@@ -17,13 +17,11 @@
  */
 
 #include "types.hh"
+#include "json_macro.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
-
-/*! \name Key types of the FastUpdatesHolder class
- * \{
- */
 
 enum class IndicationType
 {
@@ -52,13 +50,50 @@ enum class QueueType
     OUTPUT_QUEUE,
     RECORD_QUEUE,
 };
-} // namespace holovibes
 
-/*! \} */
+// clang-format off
+SERIALIZE_JSON_ENUM(IndicationType, {
+    {IndicationType::IMG_SOURCE, "IMG_SOURCE"},
+    {IndicationType::INPUT_FORMAT, "INPUT_FORMAT"},
+    {IndicationType::OUTPUT_FORMAT, "OUTPUT_FORMAT"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const IndicationType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(FpsType, {
+    {FpsType::INPUT_FPS, "INPUT_FPS"},
+    {FpsType::OUTPUT_FPS, "OUTPUT_FPS"},
+    {FpsType::SAVING_FPS, "SAVING_FPS"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const FpsType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(ProgressType, {
+    {ProgressType::READ, "READ"},
+    {ProgressType::RECORD, "RECORD"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const ProgressType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(QueueType, {
+    {QueueType::UNDEFINED, "UNDEFINED"},
+    {QueueType::INPUT_QUEUE, "INPUT_QUEUE"},
+    {QueueType::OUTPUT_QUEUE, "OUTPUT_QUEUE"},
+    {QueueType::RECORD_QUEUE, "RECORD_QUEUE"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const QueueType& value) { return os << json{value}; }
+} // namespace holovibes
 
 namespace holovibes::internal
 {
-
 template <typename T>
 struct TypeValue
 {

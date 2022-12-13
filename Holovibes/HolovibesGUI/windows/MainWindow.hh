@@ -72,7 +72,7 @@ class MainWindow : public QMainWindow, public Observer
      *
      * \param f the function to execute
      */
-    void synchronize_thread(std::function<void()> f);
+    void synchronize_thread(std::function<void()> f, bool sync = false);
 
     void browse_import_ini();
     void browse_export_ini();

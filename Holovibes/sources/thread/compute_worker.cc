@@ -30,12 +30,9 @@ void ComputeWorker::stop()
 
 void ComputeWorker::run()
 {
-    if (stop_requested_ == false)
-        api::get_compute_pipe().exec();
-    else
-    {
-        Holovibes::instance().destroy_pipe();
-        Holovibes::instance().destroy_gpu_queues();
-    }
+    api::get_compute_pipe().exec();
+    LOG_TRACE("Compute worker finallly stop");
+    Holovibes::instance().destroy_pipe();
+    Holovibes::instance().destroy_gpu_queues();
 }
 } // namespace holovibes::worker

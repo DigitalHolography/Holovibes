@@ -36,6 +36,21 @@ class DefaultFunctionsOnSync
     }
 };
 
+class DefaultFunctionsOnChange
+{
+  public:
+    template <typename T>
+    void operator()(typename T::ValueType&)
+    {
+    }
+
+    template <typename T>
+    bool change_accepted(typename T::ConstRefType)
+    {
+        return true;
+    }
+};
+
 template <typename... T>
 class MultiFunctions;
 
@@ -84,7 +99,7 @@ class FillMapKeyParams
     }
 };
 
-//! <param_to_change, <ref_new_value, ref_old_value>>
+//! <param_to_change, <ref_new_value, cache_old_value>>
 using ChangePool = std::map<IParameter*, std::pair<IParameter*, IDuplicatedParameter*>>;
 template <typename FunctionClass, typename... Args>
 class OnSync
@@ -225,36 +240,16 @@ class MicroCache
         }
 
       public:
-        bool has_change_requested()
-        {
-            return change_pool_.size() > 0;
-        }
+        bool has_change_requested() { return change_pool_.size() > 0; }
 
-      public:
-        // for debugging purpose ONLY
-        template <typename T, typename FunctionsClass, typename... Args>
-        void virtual_synchronize_W(Args&&... args)
-        {
-            auto param_to_change = BasicMicroCache::template get_type<T>();
-            IDuplicatedParameter* Iold_value = &duplicate_container_.template get<DuplicatedParameter<T>>();
-            DuplicatedParameter<T>* old_value = dynamic_cast<DuplicatedParameter<T>*>(Iold_value);
-
-            if (old_value == nullptr)
-            {
-                LOG_ERROR("Not supposed to end here : fail to cast DuplicatedParameter<T> ; T = {}", typeid(T).name());
-                return;
-            }
-
-            FunctionsClass functions;
-            functions.template on_sync<T>(param_to_change.get_value(),
-                                          old_value->get_value(),
-                                          std::forward<Args>(args)...);
-        }
+        void lock() { guard_.reset(new std::lock_guard<std::mutex>(lock_)); }
+        void unlock() { guard_.reset(nullptr); }
 
       protected:
         ChangePool change_pool_;
         StaticContainer<DuplicatedParameter<Params>...> duplicate_container_;
         std::mutex lock_;
+        std::unique_ptr<std::lock_guard<std::mutex>> guard_;
     };
 
   public:
@@ -301,6 +296,37 @@ class MicroCache
 
         template <typename... Args>
         void synchronize_force(Args&&... args);
+
+      public:
+        // for debugging purpose ONLY
+        template <typename T, typename... Args>
+        void virtual_synchronize_W(Args&&... args)
+        {
+
+            auto& param_to_change = BasicMicroCache::template get_type<T>();
+            IParameter* Iparam_to_change = &param_to_change;
+            if (this->change_pool_.contains(Iparam_to_change) == false)
+            {
+                FunctionsClass functions;
+                functions.template operator()<T>(param_to_change.get_value(), std::forward<Args>(args)...);
+            }
+            else
+            {
+                auto& old_value = this->duplicate_container_.template get<DuplicatedParameter<T>>();
+                old_value.set_value(param_to_change);
+                IParameter* ref_param = this->change_pool_[Iparam_to_change].first;
+                param_to_change.sync_with(ref_param);
+
+#ifndef DISABLE_LOG_TRIGGER_CACHE
+                LOG_TRACE("Call On Sync (Forced) {} = {}", param_to_change.get_key(), param_to_change.get_value());
+#endif
+
+                FunctionsClass functions;
+                functions.template on_sync<T>(param_to_change.get_value(),
+                                              old_value.get_value(),
+                                              std::forward<Args>(args)...);
+            }
+        }
     };
 
   public:
@@ -391,26 +417,11 @@ class MicroCache
                 LOG_ERROR("Maybe a problem here...");
         }
 
-      private:
+      protected:
         std::set<BasicCache*> caches_to_sync_;
     };
 
   public:
-    class DefaultFunctionsOnChange
-    {
-      public:
-        template <typename T>
-        void operator()(typename T::ValueType&)
-        {
-        }
-
-        template <typename T>
-        bool change_accepted(typename T::ConstRefType)
-        {
-            return true;
-        }
-    };
-
     template <typename FunctionsOnChange = DefaultFunctionsOnChange>
     class Ref : public BasicRef
     {
@@ -434,6 +445,9 @@ class MicroCache
         {
             try
             {
+                for (auto cache : this->caches_to_sync_)
+                    cache->lock();
+
                 FunctionsOnChange functions;
 
                 if (functions.template change_accepted<T>(this->BasicMicroCache::template get_type<T>().get_value()) ==
@@ -449,9 +463,15 @@ class MicroCache
                 }
 
                 functions.template operator()<T>(this->BasicMicroCache::template get_type<T>().get_value());
+
+                for (auto cache : this->caches_to_sync_)
+                    cache->unlock();
             }
             catch (const std::exception& e)
             {
+                for (auto cache : this->caches_to_sync_)
+                    cache->unlock();
+
                 LOG_ERROR("Got an exception with the OnChange functions of {} with old_value : {} ; new_value : {} ; "
                           "error : {} ; Skip the change",
                           typeid(T).name(),

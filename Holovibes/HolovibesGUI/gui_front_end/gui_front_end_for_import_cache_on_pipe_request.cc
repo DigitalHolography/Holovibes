@@ -29,7 +29,7 @@ void GuiFrontEndForImportCacheOnPipeRequest::before_method<ImportType>()
                     api::set_raw_view_enabled(false);
 
                 UserInterface::instance().plot_window_.reset(nullptr);
-            });
+            }, true);
     }
 }
 

@@ -8,7 +8,7 @@
 #include "file_exception.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
 #include "API.hh"
 #include "global_state_holder.hh"
 #include "internals_struct.hh"
@@ -164,7 +164,6 @@ void InputHoloFile::import_compute_settings()
 
     // update GSH with the footer values
     raw_footer_.Load();
-
 }
 
 void InputHoloFile::import_info() const

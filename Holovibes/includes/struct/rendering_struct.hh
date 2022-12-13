@@ -11,7 +11,7 @@
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
 #include "enum_compute_mode.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 #define UID_CONVOLUTION_TYPE_DEFAULT "None"
 
@@ -30,7 +30,10 @@ struct Filter2DStruct
 
     SERIALIZE_JSON_STRUCT(Filter2DStruct, enabled, inner_radius, outer_radius)
 
-    bool operator!=(const Filter2DStruct& rhs) const { return enabled != rhs.enabled || inner_radius != rhs.inner_radius || outer_radius != rhs.outer_radius; }
+    bool operator!=(const Filter2DStruct& rhs) const
+    {
+        return enabled != rhs.enabled || inner_radius != rhs.inner_radius || outer_radius != rhs.outer_radius;
+    }
 };
 
 /*! \class ConvolutionStruct

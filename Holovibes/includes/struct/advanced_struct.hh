@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
@@ -22,7 +22,7 @@ struct Filter2DSmoothStruct
 
     SERIALIZE_JSON_STRUCT(Filter2DSmoothStruct, low, high)
 
-    bool operator!=(const Filter2DSmoothStruct& rhs)const{ return low != rhs.low || high != rhs.high; }
+    bool operator!=(const Filter2DSmoothStruct& rhs) const { return low != rhs.low || high != rhs.high; }
 };
 
 /*! \class ContrastThreshold

@@ -87,15 +87,6 @@ void ViewGSHOnChange::operator()<LensViewEnabled>(bool& new_value)
 }
 
 template <>
-void ViewGSHOnChange::operator()<RawViewEnabled>(bool& new_value)
-{
-    LOG_UPDATE_ON_CHANGE(RawViewEnabled);
-
-    if (api::get_compute_mode() == ComputeModeEnum::Raw)
-        new_value = false;
-}
-
-template <>
 bool ViewGSHOnChange::change_accepted<RawViewEnabled>(bool new_value)
 {
     return !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());

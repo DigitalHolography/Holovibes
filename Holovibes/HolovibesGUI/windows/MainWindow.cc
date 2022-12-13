@@ -153,15 +153,27 @@ MainWindow::~MainWindow() { delete ui_; }
 #pragma endregion
 /* ------------ */
 #pragma region Notify
-void MainWindow::synchronize_thread(std::function<void()> f)
+void MainWindow::synchronize_thread(std::function<void()> f, bool sync)
 {
-    // We can't update gui values from a different thread
-    // so we pass it to the right one using a signal
-    // FIXME - (This whole notify thing needs to be cleaned up / removed)
-    if (QThread::currentThread() != this->thread())
+    if (QThread::currentThread() == this->thread())
+        return f();
+
+    if (sync == false)
+    {
         emit synchronize_thread_signal(f);
-    else
-        f();
+        return;
+    }
+
+    std::atomic<bool> has_finish = false;
+    emit synchronize_thread_signal(
+        [&]()
+        {
+            f();
+            has_finish = true;
+        });
+
+    while (has_finish == false)
+        ;
 }
 
 void MainWindow::notify()

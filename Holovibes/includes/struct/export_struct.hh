@@ -7,7 +7,7 @@
 
 #include "types.hh"
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
