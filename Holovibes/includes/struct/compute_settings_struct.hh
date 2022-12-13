@@ -11,7 +11,7 @@
 #include "composite_struct.hh"
 #include "advanced_struct.hh"
 #include "API.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {

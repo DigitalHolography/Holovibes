@@ -8,7 +8,7 @@
 
 #include "types.hh"
 #include "logger.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
 #include "enum_img_type.hh"
 
 #define CONSTRUCTOR(name, arg_name)
@@ -84,8 +84,9 @@ struct ViewXYZ : public ViewWindow
 
     bool operator!=(const ViewXYZ& rhs) const
     {
-        return ViewWindow::operator!=(rhs) || log_enabled != rhs.log_enabled || horizontal_flip != rhs.horizontal_flip ||
-               rotation != rhs.rotation || output_image_accumulation != rhs.output_image_accumulation;
+        return ViewWindow::operator!=(rhs) || log_enabled != rhs.log_enabled ||
+               horizontal_flip != rhs.horizontal_flip || rotation != rhs.rotation ||
+               output_image_accumulation != rhs.output_image_accumulation;
     }
 };
 

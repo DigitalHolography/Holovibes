@@ -47,9 +47,9 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
     else if (new_value.enabled == true)
         pipe.get_postprocess().init();
 
-    pipe.get_view_cache().virtual_synchronize_W<ViewXY, ViewPipeRequestOnSync>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewXY>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewXZ>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewYZ>(pipe);
     request_pipe_refresh();
 }
 
@@ -63,8 +63,8 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
     else if (new_value == true)
         pipe.init_cuts();
 
-    pipe.get_view_cache().virtual_synchronize_W<ViewXZ, ViewPipeRequestOnSync>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewYZ, ViewPipeRequestOnSync>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewXZ>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<ViewYZ>(pipe);
 
     request_pipe_refresh();
 }

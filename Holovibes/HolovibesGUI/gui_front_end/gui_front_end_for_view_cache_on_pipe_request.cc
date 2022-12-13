@@ -15,7 +15,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<ChartDisplayEnabled>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        []() { UserInterface::instance().plot_window_.reset(nullptr); });
+        []() { UserInterface::instance().plot_window_.reset(nullptr); }, true);
 }
 
 template <>
@@ -33,7 +33,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<ChartDisplayEnabled>()
                 std::make_unique<gui::PlotWindow>(*api::get_compute_pipe().get_chart_env().chart_display_queue_,
                                                   UserInterface::instance().auto_scale_point_threshold_,
                                                   "Chart");
-        });
+        }, true);
 
     // UserInterface::instance().get_export_panel()->connect(UserInterface::instance().plot_window_.get(),
     //                                                       SIGNAL(closed()),
@@ -61,7 +61,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<CutsViewEnable>()
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::SliceCross);
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Cross);
             }
-        });
+        }, true);
 }
 
 template <>
@@ -105,7 +105,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<CutsViewEnable>()
             auto holo = dynamic_cast<gui::HoloWindow*>(UserInterface::instance().xy_window.get());
             if (holo)
                 holo->update_slice_transforms();
-        });
+        }, true);
 }
 
 template <>
@@ -120,7 +120,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<Reticle>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        [=]() { UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle); });
+        [=]() { UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle); }, true);
 }
 
 template <>
@@ -139,7 +139,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Reticle>()
         {
             UserInterface::instance().xy_window->getOverlayManager().create_overlay<gui::KindOfOverlay::Reticle>();
             UserInterface::instance().xy_window->getOverlayManager().create_default();
-        });
+        }, true);
 }
 
 template <>
@@ -151,7 +151,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<LensViewEnabled>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        []() { UserInterface::instance().lens_window.reset(nullptr); });
+        []() { UserInterface::instance().lens_window.reset(nullptr); }, true);
 }
 
 template <>
@@ -181,7 +181,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<LensViewEnabled>()
                                    api::get_compute_pipe().get_fourier_transforms().get_lens_queue().get(),
                                    0.f,
                                    gui::KindOfView::Lens));
-        });
+        }, true);
 }
 
 template <>
@@ -193,7 +193,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<RawViewEnabled>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread([]()
-                                                              { UserInterface::instance().raw_window.reset(nullptr); });
+                                                              { UserInterface::instance().raw_window.reset(nullptr); }, true);
 }
 
 template <>
@@ -221,7 +221,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<RawViewEnabled>()
                                    pos,
                                    QSize(raw_window_width, raw_window_height),
                                    api::get_compute_pipe().get_raw_view_queue_ptr().get()));
-        });
+        }, true);
 }
 
 template <>
@@ -233,7 +233,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<Filter2DViewEnabled>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        []() { UserInterface::instance().filter2d_window.reset(nullptr); });
+        []() { UserInterface::instance().filter2d_window.reset(nullptr); }, true);
 }
 
 template <>
@@ -261,7 +261,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Filter2DViewEnabled>()
                                    pos,
                                    QSize(filter2d_window_width, filter2d_window_height),
                                    api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
-        });
+        }, true);
 }
 
 } // namespace holovibes::gui

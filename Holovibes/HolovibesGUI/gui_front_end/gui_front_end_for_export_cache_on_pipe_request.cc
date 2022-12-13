@@ -25,7 +25,7 @@ void GuiFrontEndForExportCacheOnPipeRequest::after_method<Record>()
                 UserInterface::instance().xy_window->getOverlayManager().enable_all(KindOfOverlay::Signal);
                 UserInterface::instance().xy_window->getOverlayManager().enable_all(KindOfOverlay::Noise);
                 UserInterface::instance().xy_window->getOverlayManager().create_overlay<KindOfOverlay::Signal>();
-            });
+            }, true);
     }
     else
     {
@@ -35,7 +35,7 @@ void GuiFrontEndForExportCacheOnPipeRequest::after_method<Record>()
                 UserInterface::instance().xy_window->resetTransform();
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(KindOfOverlay::Signal);
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(KindOfOverlay::Noise);
-            });
+            }, true);
     }
 }
 

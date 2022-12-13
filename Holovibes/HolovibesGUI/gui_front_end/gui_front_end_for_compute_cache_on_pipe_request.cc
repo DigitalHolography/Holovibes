@@ -38,7 +38,8 @@ void GuiFrontEndForComputeCacheOnPipeRequest::after_method<ComputeMode>()
                                        &api::get_gpu_input_queue(),
                                        static_cast<float>(width) / static_cast<float>(height)));
                 UserInterface::instance().xy_window->set_is_resize(false);
-            });
+            },
+            true);
 
         // FIXME INFO - FIXME API
         // std::string fd_info =
@@ -60,7 +61,8 @@ void GuiFrontEndForComputeCacheOnPipeRequest::after_method<ComputeMode>()
                                         UserInterface::instance().sliceYZ,
                                         static_cast<float>(width) / static_cast<float>(height)));
                 UserInterface::instance().xy_window->set_is_resize(false);
-            });
+            },
+            true);
 
         // FIXME INFO - FIXME API
         // std::string fd_info =

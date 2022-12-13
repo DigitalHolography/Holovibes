@@ -32,6 +32,10 @@ void ImportPipeRequestOnSync::on_sync<ImportType>(ImportTypeEnum new_value, Impo
 template <>
 void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, Pipe& pipe)
 {
+    pipe.get_view_cache().virtual_synchronize_W<RawViewEnabled>(pipe);
+    pipe.get_view_cache().virtual_synchronize_W<LensViewEnabled>(pipe);
+    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationCutsEnable>(pipe);
+
     if (new_value == ImportTypeEnum::None)
     {
         Holovibes::instance().stop_camera_frame_read();

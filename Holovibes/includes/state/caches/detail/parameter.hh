@@ -128,7 +128,7 @@ class DuplicatedParameter : public IDuplicatedParameter
 
   public:
     typename BaseParameter::ValueType& get_value() { return value_; }
-    void set_value(typename BaseParameter::ValueType& value) { value_ = value; }
+    void set_value(typename BaseParameter::ConstRefType value) { value_ = value; }
     virtual void save_current_value(const IParameter* param) override
     {
         const T* param_as_t = dynamic_cast<const T*>(param);

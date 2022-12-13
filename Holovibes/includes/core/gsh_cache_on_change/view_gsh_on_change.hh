@@ -46,8 +46,6 @@ class ViewGSHOnChange
     template <>
     void operator()<LensViewEnabled>(bool& new_value);
     template <>
-    void operator()<RawViewEnabled>(bool& new_value);
-    template <>
     void operator()<Filter2DViewEnabled>(bool& new_value);
 };
 } // namespace holovibes

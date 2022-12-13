@@ -34,6 +34,6 @@ struct FrameDescriptor
 
 inline std::ostream& operator<<(std::ostream& os, const FrameDescriptor& fd)
 {
-    return os << "width : " << fd.width << "height : " << fd.height << "depth : " << fd.depth;
+    return os << "width : " << fd.width << ", height : " << fd.height << ", depth : " << fd.depth;
 }
 } // namespace holovibes

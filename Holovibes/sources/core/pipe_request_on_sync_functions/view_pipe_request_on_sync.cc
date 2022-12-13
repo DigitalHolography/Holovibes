@@ -157,10 +157,8 @@ void ViewPipeRequestOnSync::operator()<RawViewEnabled>(bool new_value, Pipe& pip
     if (new_value == false)
         pipe.get_raw_view_queue_ptr().reset(nullptr);
     else
-    {
-        auto fd = pipe.get_gpu_input_queue().get_fd();
-        pipe.get_raw_view_queue_ptr().reset(new Queue(fd, api::detail::get_value<OutputBufferSize>()));
-    }
+        pipe.get_raw_view_queue_ptr().reset(
+            new Queue(api::get_import_frame_descriptor(), api::detail::get_value<OutputBufferSize>()));
 
     request_pipe_refresh();
 }

@@ -28,7 +28,6 @@ void ImportGSHOnChange::operator()<ImportType>(ImportTypeEnum& new_value)
     {
         api::set_raw_view_enabled(false);
         api::set_lens_view_enabled(false);
-
         api::set_time_transformation_cuts_enable(false);
         api::change_filter2d()->enabled = false;
     }

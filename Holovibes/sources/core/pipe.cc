@@ -119,14 +119,14 @@ void Pipe::call_reload_function_caches()
 
     if (PipeRequestOnSync::has_requests_fail())
     {
-        LOG_ERROR("Failure when making requests after all caches synchronizations");
+        LOG_ERROR("Failure when making requests after all caches synchronizations 'call_reload_function_caches'");
         // FIXME : handle pipe requests on sync failure
         return;
     }
 
     if (PipeRequestOnSync::do_need_notify())
     {
-        LOG_DEBUG("Pipe call notify");
+        LOG_DEBUG("Pipe call notify 'call_reload_function_caches'");
         GSH::instance().notify();
     }
 }
@@ -188,12 +188,6 @@ void Pipe::sync_and_refresh()
     {
         LOG_PIPE(
             "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
-        return;
-    }
-
-    if (api::get_import_type() == ImportTypeEnum::None)
-    {
-        LOG_PIPE("Pipe refresh doesn't need refresh : no import set");
         return;
     }
 
