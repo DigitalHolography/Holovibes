@@ -235,21 +235,21 @@ class MicroCache
                 LOG_TRACE("TRIGGER On Cache {} = ? (unable to cast ref)", Iref->get_key());
 #endif
 
-            std::lock_guard<std::mutex> guard(lock_);
+            std::lock_guard<std::recursive_mutex> guard(lock_);
             change_pool_[Iparam_to_change] = std::pair{Iref, Iold_value};
         }
 
       public:
         bool has_change_requested() { return change_pool_.size() > 0; }
 
-        void lock() { guard_.reset(new std::lock_guard<std::mutex>(lock_)); }
+        void lock() { guard_.reset(new std::lock_guard<std::recursive_mutex>(lock_)); }
         void unlock() { guard_.reset(nullptr); }
 
       protected:
         ChangePool change_pool_;
         StaticContainer<DuplicatedParameter<Params>...> duplicate_container_;
-        std::mutex lock_;
-        std::unique_ptr<std::lock_guard<std::mutex>> guard_;
+        std::recursive_mutex lock_;
+        std::unique_ptr<std::lock_guard<std::recursive_mutex>> guard_;
     };
 
   public:
@@ -277,7 +277,7 @@ class MicroCache
             LOG_TRACE("Cache sync {} elements", this->change_pool_.size());
 #endif
 
-            std::lock_guard<std::mutex> guard(this->lock_);
+            std::lock_guard<std::recursive_mutex> guard(this->lock_);
 
             this->container_.template call<SetHasBeenSynchronized<false>>();
 
@@ -554,7 +554,7 @@ void MicroCache<Params...>::Cache<FunctionsClass>::synchronize_force(Args&&... a
     this->set_all_values(MicroCache<Params...>::RefSingleton::get());
     this->template call<FunctionsClass>(std::forward<Args>(args)...);
 
-    std::lock_guard<std::mutex> guard(this->lock_);
+    std::lock_guard<std::recursive_mutex> guard(this->lock_);
     this->change_pool_.clear();
 }
 
