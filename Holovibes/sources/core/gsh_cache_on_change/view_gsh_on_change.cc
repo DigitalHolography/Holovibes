@@ -7,6 +7,13 @@ static void check_limits_pq(ViewAccuPQ& view_pq)
 {
     int upper_bound = api::get_time_transformation_size() - 1;
 
+    if (upper_bound == 0)
+    {
+        view_pq.start = 0;
+        view_pq.width = 0;
+        return;
+    }
+
     if (view_pq.width > upper_bound)
         view_pq.width = upper_bound;
 
@@ -14,6 +21,10 @@ static void check_limits_pq(ViewAccuPQ& view_pq)
 
     if (upper_bound > 0 && view_pq.start > static_cast<uint>(upper_bound))
         view_pq.start = upper_bound;
+    else if (upper_bound == 0)
+    {
+        view_pq.start = 0;
+    }
 }
 
 template <>
