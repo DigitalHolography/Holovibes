@@ -19,6 +19,8 @@ void ComputePipeRequestOnSync::operator()<TimeStride>(int new_value, Pipe& pipe)
     LOG_UPDATE_ON_SYNC(TimeStride);
 
     pipe.get_batch_env().batch_index = 0;
+
+    request_pipe_refresh();
 }
 
 template <>
@@ -35,6 +37,8 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
         pipe.update_time_transformation_size(1);
         LOG_WARN("Updating #img failed; #img updated to 1");
     }
+
+    request_pipe_refresh();
 }
 
 template <>
