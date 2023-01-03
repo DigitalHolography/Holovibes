@@ -102,6 +102,7 @@ void ImportPanel::import_file(const QString& filename)
         // Import Compute Settings there before init_pipe to
         // Allocate correctly buffer
         input_file->import_compute_settings();
+        input_file->import_info();
 
         parent_->notify();
 
