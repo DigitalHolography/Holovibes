@@ -15,8 +15,14 @@ std::shared_ptr<spdlog::logger> Logger::logger()
     if (logger_ == nullptr)
     {
         logger_ = init_logger("logger", spdlog::level::trace);
+        logger_->flush_on(spdlog::level::trace);
     }
     return logger_;
+}
+
+void Logger::flush()
+{
+    logger_->flush();
 }
 
 // #define LOGGER_PATTERN_OVERRIDE "[%l] [%H:%M:%S.%e] [thread %t] %^%n >> %v%$"
@@ -47,7 +53,7 @@ void Logger::init_sinks()
         std::filesystem::rename(log_path, old_log_path);
     }
 
-    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_mt>(std::chrono::seconds(15));
+    auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_mt>(std::chrono::seconds(15), );
 
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path.string(), true);
     file_sink->set_level(spdlog::level::trace);
