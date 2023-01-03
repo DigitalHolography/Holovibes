@@ -429,6 +429,7 @@ void MainWindow::save_gui()
 void MainWindow::closeEvent(QCloseEvent*)
 {
     api::camera_none();
+    Logger::flush();
 
     save_gui();
     if (save_cs)
