@@ -24,8 +24,10 @@ ComputeWorker::ComputeWorker()
 
 void ComputeWorker::stop()
 {
+    LOG_DEBUG("before stop compute_worker");
     Worker::stop();
     api::get_compute_pipe().request_termination();
+    LOG_DEBUG("after request terimnation");
 }
 
 void ComputeWorker::run()

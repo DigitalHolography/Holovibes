@@ -113,6 +113,7 @@ class PipeRequestOnSync
     inline static bool requests_fail = false;
     inline static bool need_notify = true;
     inline static bool need_pipe_refresh = false;
+    inline static bool clean_pipe = false;
 
   protected:
     static void request_fail()
@@ -129,6 +130,14 @@ class PipeRequestOnSync
 #endif
         need_pipe_refresh = true;
     }
+
+    static void disable_pipe()
+    {
+#ifndef DISABLE_LOG_PIPE
+        LOG_DEBUG("disable pipe refresh");
+#endif
+        clean_pipe = true;
+    }
     static void request_notify()
     {
 #ifndef DISABLE_LOG_PIPE
@@ -140,6 +149,7 @@ class PipeRequestOnSync
   public:
     static void begin_requests()
     {
+        clean_pipe = false;
         requests_fail = false;
         need_pipe_refresh = false;
         need_notify = true;
@@ -148,5 +158,6 @@ class PipeRequestOnSync
     static bool has_requests_fail() { return requests_fail; }
     static bool do_need_pipe_refresh() { return need_pipe_refresh; }
     static bool do_need_notify() { return need_notify; }
+    static bool do_disable_pipe() { return clean_pipe; }
 };
 } // namespace holovibes
