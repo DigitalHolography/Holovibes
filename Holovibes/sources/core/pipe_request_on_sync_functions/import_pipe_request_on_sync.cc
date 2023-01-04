@@ -12,19 +12,6 @@ void ImportPipeRequestOnSync::on_sync<ImportType>(ImportTypeEnum new_value, Impo
     {
         operator()<ImportType>(new_value, pipe);
     }
-    else if (new_value == ImportTypeEnum::None)
-    {
-        // On Camera Stop
-        if (old_value == ImportTypeEnum::Camera)
-        {
-            Holovibes::instance().stop_camera_frame_read();
-        }
-        // On File Stop
-        else if (old_value == ImportTypeEnum::File)
-        {
-            Holovibes::instance().stop_file_frame_read();
-        }
-    }
 
     // FIXME API : miss case when reload
 }
@@ -43,6 +30,7 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
 
         Holovibes::instance().stop_information_display();
         Holovibes::instance().stop_compute();
+        return;
     }
 
     // On Camera Import

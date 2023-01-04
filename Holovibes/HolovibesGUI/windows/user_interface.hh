@@ -69,8 +69,14 @@ class UserInterface
 
     size_t auto_scale_point_threshold_ = 100;
 
+  private:
+    std::atomic_bool update_window_ = false;
+
     // Wrapper to display correct error info
   public:
+    bool get_update_window() { return update_window_.load(); }
+    void can_edit_window() { update_window_ = false; }
+    void cannot_edit_window() { update_window_ = true; }
     gui::ExportPanel* const get_export_panel() const
     {
         if (export_panel != nullptr)

@@ -374,7 +374,7 @@ void FourierTransform::insert_time_transformation_cuts_view()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (view_cache_.get_value<CutsViewEnable>())
+            if (view_cache_.get_value<CutsViewEnabled>())
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;

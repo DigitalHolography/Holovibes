@@ -205,7 +205,7 @@ void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_ty
 
 void ViewPanel::set_unwrapping_2d(const bool value) { api::detail::set_value<Unwrap2DRequested>(value); }
 
-void ViewPanel::update_3d_cuts_view(bool checked) { api::detail::set_value<CutsViewEnable>(checked); }
+void ViewPanel::update_3d_cuts_view(bool checked) { api::detail::set_value<CutsViewEnabled>(checked); }
 
 void ViewPanel::cancel_time_transformation_cuts() { api::detail::set_value<TimeTransformationCutsEnable>(false); }
 

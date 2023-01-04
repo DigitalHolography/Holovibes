@@ -79,7 +79,7 @@ void Converts::insert_to_ushort()
     LOG_FUNC();
 
     insert_main_ushort();
-    if (view_cache_.get_value<CutsViewEnable>())
+    if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_ushort();
     if (view_cache_.get_value<Filter2DViewEnabled>())
         insert_filter2d_ushort();

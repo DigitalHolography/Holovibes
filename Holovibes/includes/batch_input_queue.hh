@@ -13,7 +13,6 @@
 
 #include "cuda_memory.cuh"
 #include "display_queue.hh"
-#include "queue.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "global_state_holder.hh"

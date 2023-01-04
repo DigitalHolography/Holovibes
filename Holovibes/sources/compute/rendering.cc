@@ -109,7 +109,7 @@ void Rendering::insert_log()
 
     if (view_cache_.get_value<ViewXY>().log_enabled)
         insert_main_log();
-    if (view_cache_.get_value<CutsViewEnable>())
+    if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_log();
     if (view_cache_.get_value<ViewFilter2D>().log_enabled)
         insert_filter2d_view_log();
