@@ -71,7 +71,6 @@ class Logger
     static std::shared_ptr<spdlog::logger> logger();
     static bool add_thread(std::thread::id thread_id, std::string thread_name);
     static std::pair<std::string, bool> get_thread_name(size_t thread_id);
-    static void flush();
 
   private:
     static std::shared_ptr<spdlog::logger> init_logger(std::string name, spdlog::level::level_enum);

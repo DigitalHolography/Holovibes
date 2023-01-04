@@ -15,14 +15,8 @@ std::shared_ptr<spdlog::logger> Logger::logger()
     if (logger_ == nullptr)
     {
         logger_ = init_logger("logger", spdlog::level::trace);
-        logger_->flush_on(spdlog::level::trace);
     }
     return logger_;
-}
-
-void Logger::flush()
-{
-    logger_->flush();
 }
 
 // #define LOGGER_PATTERN_OVERRIDE "[%l] [%H:%M:%S.%e] [thread %t] %^%n >> %v%$"
