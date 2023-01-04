@@ -127,7 +127,7 @@ void ComputeGSHOnChange::operator()<TimeTransformationCutsEnable>(bool& new_valu
     LOG_UPDATE_ON_CHANGE(TimeTransformationCutsEnable);
 
     if (new_value == false)
-        api::detail::set_value<CutsViewEnable>(false);
+        api::detail::set_value<CutsViewEnabled>(false);
 }
 
 template <>

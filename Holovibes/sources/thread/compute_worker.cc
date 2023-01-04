@@ -31,7 +31,7 @@ void ComputeWorker::stop()
 void ComputeWorker::run()
 {
     api::get_compute_pipe().exec();
-    LOG_TRACE("Compute worker finallly stop");
+    LOG_TRACE("Compute worker finally stop");
     Holovibes::instance().destroy_pipe();
     Holovibes::instance().destroy_gpu_queues();
 }

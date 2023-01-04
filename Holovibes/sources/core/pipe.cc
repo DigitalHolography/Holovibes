@@ -403,7 +403,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (view_cache_.get_value<CutsViewEnable>())
+            if (view_cache_.get_value<CutsViewEnabled>())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),

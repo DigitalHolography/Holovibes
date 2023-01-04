@@ -1,4 +1,3 @@
-#include <QAction>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>

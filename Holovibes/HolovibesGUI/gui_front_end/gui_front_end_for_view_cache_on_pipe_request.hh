@@ -23,9 +23,9 @@ class GuiFrontEndForViewCacheOnPipeRequest
     void after_method<ChartDisplayEnabled>();
 
     template <>
-    void before_method<CutsViewEnable>();
+    void before_method<CutsViewEnabled>();
     template <>
-    void after_method<CutsViewEnable>();
+    void after_method<CutsViewEnabled>();
 
     template <>
     void before_method<Reticle>();

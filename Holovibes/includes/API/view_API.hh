@@ -11,8 +11,8 @@ inline void set_image_type(ImageTypeEnum value) { return api::detail::set_value<
 inline bool get_fft_shift_enabled() { return api::detail::get_value<FftShiftEnabled>(); }
 inline void set_fft_shift_enabled(bool value) { return api::detail::set_value<FftShiftEnabled>(value); }
 
-inline bool get_cuts_view_enabled() { return api::detail::get_value<CutsViewEnable>(); }
-inline void set_cuts_view_enabled(bool value) { api::detail::set_value<CutsViewEnable>(value); }
+inline bool get_cuts_view_enabled() { return api::detail::get_value<CutsViewEnabled>(); }
+inline void set_cuts_view_enabled(bool value) { api::detail::set_value<CutsViewEnabled>(value); }
 
 inline bool get_lens_view_enabled() { return api::detail::get_value<LensViewEnabled>(); }
 inline void set_lens_view_enabled(bool value) { api::detail::set_value<LensViewEnabled>(value); }

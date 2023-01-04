@@ -5,6 +5,7 @@
 
 namespace holovibes
 {
+class UserInterface;
 class ViewGSHOnChange
 {
   public:
@@ -30,6 +31,14 @@ class ViewGSHOnChange
     template <>
     bool change_accepted<RawViewEnabled>(bool new_value);
     template <>
+    bool change_accepted<CutsViewEnabled>(bool new_value);
+    template <>
+    bool change_accepted<ChartDisplayEnabled>(bool new_value);
+    template <>
+    bool change_accepted<Filter2DViewEnabled>(bool new_value);
+    template <>
+    bool change_accepted<LensViewEnabled>(bool new_value);
+    template <>
     bool change_accepted<ViewAccuP>(const ViewAccuPQ& new_value);
 
   public:
@@ -42,7 +51,11 @@ class ViewGSHOnChange
     template <>
     void operator()<ViewAccuQ>(ViewAccuPQ& new_value);
     template <>
-    void operator()<CutsViewEnable>(bool& new_value);
+    void operator()<RawViewEnabled>(bool& new_value);
+    template <>
+    void operator()<CutsViewEnabled>(bool& new_value);
+    template <>
+    void operator()<ChartDisplayEnabled>(bool& new_value);
     template <>
     void operator()<LensViewEnabled>(bool& new_value);
     template <>

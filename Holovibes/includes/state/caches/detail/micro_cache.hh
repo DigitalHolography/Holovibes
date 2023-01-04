@@ -235,15 +235,20 @@ class MicroCache
                 LOG_TRACE("TRIGGER On Cache {} = ? (unable to cast ref)", Iref->get_key());
 #endif
 
+            LOG_DEBUG("lock {}", Iref->get_key());
             std::lock_guard<std::recursive_mutex> guard(lock_);
             change_pool_[Iparam_to_change] = std::pair{Iref, Iold_value};
+            LOG_DEBUG("unlock {}", Iref->get_key());
         }
 
       public:
         bool has_change_requested() { return change_pool_.size() > 0; }
 
-        void lock() { guard_.reset(new std::lock_guard<std::recursive_mutex>(lock_)); }
-        void unlock() { guard_.reset(nullptr); }
+        void lock() { lock_.lock(); }
+        void unlock() { lock_.unlock(); }
+
+        // void lock() { guard_.reset(new std::lock_guard<std::recursive_mutex>(lock_)); }
+        // void unlock() { guard_.reset(nullptr); }
 
       protected:
         ChangePool change_pool_;
@@ -277,9 +282,11 @@ class MicroCache
             LOG_TRACE("Cache sync {} elements", this->change_pool_.size());
 #endif
 
+            LOG_DEBUG("start lock_guard in cache");
             std::lock_guard<std::recursive_mutex> guard(this->lock_);
 
             this->container_.template call<SetHasBeenSynchronized<false>>();
+            LOG_DEBUG("lock_guard after call");
 
             for (auto change : this->change_pool_)
             {
@@ -290,8 +297,9 @@ class MicroCache
 
             this->container_.template call<OnSync<FunctionsClass, Args...>>(this->change_pool_,
                                                                             std::forward<Args>(args)...);
-
+            LOG_DEBUG("lock_guard after onsync");
             this->change_pool_.clear();
+            LOG_DEBUG("end lock_guard in cache");
         }
 
         template <typename... Args>
@@ -439,37 +447,47 @@ class MicroCache
         Ref() {}
         ~Ref() {}
 
+      private:
+        template <typename T>
+        bool is_change_accepted(typename T::ConstRefType new_value)
+        {
+            FunctionsOnChange functions;
+            if (functions.template change_accepted<T>(new_value) == false)
+            {
+                LOG_WARN("Refused the change on {} with old_value : {} ; new_value : {} ; Skip the change",
+                         typeid(T).name(),
+                         this->BasicMicroCache::template get_type<T>().get_value(),
+                         new_value);
+                return false;
+            }
+            return true;
+        }
+
       public:
         template <typename T>
         void callback_trigger_change_value(typename T::ConstRefType value_for_restore)
         {
+            std::vector<BasicCache*> start_caches;
             try
             {
                 for (auto cache : this->caches_to_sync_)
+                {
+                    start_caches.push_back(cache);
                     cache->lock();
+                }
 
                 FunctionsOnChange functions;
 
-                if (functions.template change_accepted<T>(this->BasicMicroCache::template get_type<T>().get_value()) ==
-                    false)
-                {
-                    LOG_WARN("Refused the change on {} with old_value : {} ; new_value : {} ; Skip the change",
-                             typeid(T).name(),
-                             value_for_restore,
-                             this->BasicMicroCache::template get_type<T>().get_value());
-
-                    this->BasicMicroCache::template get_type<T>().set_value(value_for_restore);
-                    return;
-                }
-
                 functions.template operator()<T>(this->BasicMicroCache::template get_type<T>().get_value());
 
-                for (auto cache : this->caches_to_sync_)
+                for (auto cache : start_caches)
+                {
                     cache->unlock();
+                }
             }
             catch (const std::exception& e)
             {
-                for (auto cache : this->caches_to_sync_)
+                for (auto cache : start_caches)
                     cache->unlock();
 
                 LOG_ERROR("Got an exception with the OnChange functions of {} with old_value : {} ; new_value : {} ; "
@@ -490,7 +508,7 @@ class MicroCache
         void set_value(typename T::ConstRefType value)
         {
             const T& old_value = this->BasicMicroCache::template get_type<T>();
-            if (old_value.has_parameter_change_valuetype(value))
+            if (old_value.has_parameter_change_valuetype(value) && is_change_accepted<T>(value))
             {
                 typename T::ValueType save_for_restore = this->BasicMicroCache::template get_type<T>().get_value();
                 this->BasicMicroCache::template get_type<T>().set_value(value);
@@ -504,6 +522,10 @@ class MicroCache
             return TriggerChangeValue<typename T::ValueType>(
                 [this, old_value = this->BasicMicroCache::template get_type<T>()]()
                 {
+                    if (is_change_accepted<T>(BasicMicroCache::template get_type<T>().get_value()) == false)
+                    {
+                        this->BasicMicroCache::template get_type<T>().set_value(old_value);
+                    }
                     if (old_value.has_parameter_change_valuetype(BasicMicroCache::template get_type<T>().get_value()))
                     {
                         this->callback_trigger_change_value<T>(old_value.get_value());

@@ -1,5 +1,6 @@
 #include "view_gsh_on_change.hh"
 #include "API.hh"
+#include "user_interface.hh"
 
 namespace holovibes
 {
@@ -67,9 +68,9 @@ void ViewGSHOnChange::operator()<ViewAccuY>(ViewAccuXY& new_value)
 }
 
 template <>
-void ViewGSHOnChange::operator()<CutsViewEnable>(bool& new_value)
+void ViewGSHOnChange::operator()<CutsViewEnabled>(bool& new_value)
 {
-    LOG_UPDATE_ON_CHANGE(CutsViewEnable);
+    LOG_UPDATE_ON_CHANGE(CutsViewEnabled);
 
     if (new_value)
     {
@@ -77,6 +78,7 @@ void ViewGSHOnChange::operator()<CutsViewEnable>(bool& new_value)
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
         api::detail::set_value<TimeTransformationCutsEnable>(true);
     }
+    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
@@ -84,8 +86,7 @@ void ViewGSHOnChange::operator()<Filter2DViewEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(Filter2DViewEnabled);
 
-    if (new_value)
-        api::detail::change_value<Filter2D>()->enabled = true;
+    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
@@ -93,14 +94,30 @@ void ViewGSHOnChange::operator()<LensViewEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(LensViewEnabled);
 
-    if (api::get_compute_mode() == ComputeModeEnum::Raw)
-        new_value = false;
+    UserInterface::instance().cannot_edit_window();
+}
+
+template <>
+void ViewGSHOnChange::operator()<RawViewEnabled>(bool& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(RawViewEnabled);
+
+    UserInterface::instance().cannot_edit_window();
+}
+
+template <>
+void ViewGSHOnChange::operator()<ChartDisplayEnabled>(bool& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(ChartDisplayEnabled);
+
+    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 bool ViewGSHOnChange::change_accepted<RawViewEnabled>(bool new_value)
 {
-    return !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());
+    return !UserInterface::instance().get_update_window() &&
+           !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());
 }
 
 template <>
@@ -110,4 +127,29 @@ bool ViewGSHOnChange::change_accepted<ViewAccuP>(const ViewAccuPQ& new_value)
         return false;
     return true;
 }
+
+template <>
+bool ViewGSHOnChange::change_accepted<Filter2DViewEnabled>(bool new_value)
+{
+    return !UserInterface::instance().get_update_window();
+}
+
+template <>
+bool ViewGSHOnChange::change_accepted<CutsViewEnabled>(bool new_value)
+{
+    return !UserInterface::instance().get_update_window();
+}
+
+template <>
+bool ViewGSHOnChange::change_accepted<ChartDisplayEnabled>(bool new_value)
+{
+    return !UserInterface::instance().get_update_window();
+}
+
+template <>
+bool ViewGSHOnChange::change_accepted<LensViewEnabled>(bool new_value)
+{
+    return !UserInterface::instance().get_update_window();
+}
+
 } // namespace holovibes

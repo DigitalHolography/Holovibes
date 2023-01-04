@@ -37,7 +37,7 @@ class FftShiftEnabled : public BoolParameter<false, "fft_shift_enabled">{};
 //! \brief Display the raw interferogram when we are in hologram mode.
 class RawViewEnabled : public BoolParameter<false, "raw_view_enabled">{};
 //! \brief Are slices YZ and XZ enabled
-class CutsViewEnable : public BoolParameter<false, "cuts_view_enabled">{};
+class CutsViewEnabled : public BoolParameter<false, "cuts_view_enabled">{};
 class RenormEnabled : public BoolParameter<true, "renorm_enabled">{};
 class Reticle : public Parameter<ReticleStruct, DefaultLiteral<ReticleStruct>{}, "reticle">{};
 
@@ -57,7 +57,7 @@ using ViewCache = MicroCache<ViewAccuX,
                              Filter2DViewEnabled,
                              FftShiftEnabled,
                              RawViewEnabled,
-                             CutsViewEnable,
+                             CutsViewEnabled,
                              RenormEnabled,
                              Reticle>;
 
