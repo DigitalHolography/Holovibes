@@ -30,6 +30,9 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
 
         Holovibes::instance().stop_information_display();
         Holovibes::instance().stop_compute();
+        // We are currently stopping all worker, so the pipe does not
+        // need to refresh
+        disable_pipe();
         return;
     }
 
