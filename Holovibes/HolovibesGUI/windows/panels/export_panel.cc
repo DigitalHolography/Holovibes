@@ -245,7 +245,7 @@ void ExportPanel::start_record()
     std::string output_path =
         ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
 
-    api::change_record()->file_path = output_path;
+    api::change_record()->file_path = get_record_filename(output_path);
 
     api::change_record()->is_running = true;
 }
