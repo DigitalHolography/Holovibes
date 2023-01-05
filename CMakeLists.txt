@@ -12,6 +12,7 @@ set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
 set(SPDLOG_DIR "${CONAN_SPDLOG_ROOT}/")
 set(OPENCV_DIR "${CONAN_OPENCV_ROOT}/")
+set(EURESYS_DIR "${CMAKE_SOURCE_DIR}/setup_710")
 
 # Used in every sub project
 find_package(Boost REQUIRED
