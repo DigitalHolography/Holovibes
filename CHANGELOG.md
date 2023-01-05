@@ -1,5 +1,11 @@
 ## Changelog
 
+### 11.2.0
+
+* Fix logger flush on quit
+* Import cine file
+* Add setup_710
+
 ### 11.1.4
 
 * Fix Endianness

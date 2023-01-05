@@ -83,6 +83,7 @@ void FrameRecordWorker::run()
     {
         output_frame_file =
             io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
+        LOG_DEBUG("output_frame_file = {}", output_frame_file->file_path_);
 
         output_frame_file->write_header();
 
