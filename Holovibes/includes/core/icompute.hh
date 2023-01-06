@@ -57,8 +57,6 @@ class ICompute
     std::unique_ptr<Queue>& get_raw_view_queue_ptr() { return gpu_raw_view_queue_; }
     std::unique_ptr<Queue>& get_filter2d_view_queue_ptr() { return gpu_filter2d_view_queue_; }
 
-    void request_termination() { termination_requested_ = true; }
-
   public:
     /*! \brief Execute one iteration of the ICompute.
      *
@@ -138,8 +136,6 @@ class ICompute
 
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};
-
-    std::atomic<bool> termination_requested_{false};
 
     PipeAdvancedCache advanced_cache_;
     PipeComputeCache compute_cache_;

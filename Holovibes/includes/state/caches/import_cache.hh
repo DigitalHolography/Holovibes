@@ -24,6 +24,7 @@ class EndFrame : public UIntParameter<0, "end_frame">{};
 class FileNumberOfFrame : public UIntParameter<0, "max_end_frame">{};
 
 class LoopFile : public BoolParameter<true, "loop_file">{};
+class IsGuiEnable : public BoolParameter<true, "is_gui_enable">{};
 class InputFps : public UIntParameter<0, "input_fps">{};
 
 class CurrentCameraKind : public Parameter<CameraKind, CameraKind::None, "current_camera_kind", CameraKind>{};
@@ -37,6 +38,7 @@ using ImportCache = MicroCache<ImportType,
                                EndFrame,
                                FileNumberOfFrame,
                                LoopFile,
+                               IsGuiEnable,
                                InputFps,
                                CurrentCameraKind>;
 

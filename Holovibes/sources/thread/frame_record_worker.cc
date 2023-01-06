@@ -21,6 +21,13 @@ FrameRecordWorker::FrameRecordWorker()
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS) = &processed_fps_;
 }
 
+void FrameRecordWorker::stop()
+{
+    Worker::stop();
+
+    api::detail::change_value<Record>()->is_running = false;
+}
+
 void FrameRecordWorker::integrate_fps_average()
 {
     // An fps of 0 is not relevent. We do not includx it in fps average.
@@ -89,12 +96,6 @@ void FrameRecordWorker::run()
 
             wait_for_frames(*env_.gpu_frame_record_queue_);
 
-            // While wait_for_frames() is running, a stop might be requested and the queue reset.
-            // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
-            // and stop recording if needed.
-            if (stop_requested_)
-                break;
-
             if (env_.nb_frame_skip > 0)
             {
                 env_.gpu_frame_record_queue_->dequeue();
@@ -140,8 +141,6 @@ void FrameRecordWorker::run()
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::RECORD);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
-
-    // LOG_TRACE(record_worker, "Exiting FrameRecordWorker::run()");
 }
 
 void FrameRecordWorker::wait_for_frames(Queue& record_queue)

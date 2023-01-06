@@ -19,22 +19,21 @@ ComputeWorker::ComputeWorker()
     cuda_tools::CusolverHandle::set_stream(stream_);
 
     Holovibes::instance().init_gpu_queues();
-    Holovibes::instance().init_pipe();
-}
-
-void ComputeWorker::stop()
-{
-    LOG_DEBUG("before stop compute_worker");
-    Worker::stop();
-    api::get_compute_pipe().request_termination();
-    LOG_DEBUG("after request terimnation");
+    Holovibes::instance().create_pipe();
+    Holovibes::instance().sync_pipe();
 }
 
 void ComputeWorker::run()
 {
-    api::get_compute_pipe().exec();
-    LOG_TRACE("Compute worker finally stop");
+    while (!stop_requested_)
+    {
+        api::get_compute_pipe().sync_and_refresh();
+        if (!stop_requested_)
+            api::get_compute_pipe().exec();
+    }
+    api::get_compute_pipe().sync_and_refresh();
     Holovibes::instance().destroy_pipe();
     Holovibes::instance().destroy_gpu_queues();
+    LOG_TRACE("Compute worker finally stop");
 }
 } // namespace holovibes::worker

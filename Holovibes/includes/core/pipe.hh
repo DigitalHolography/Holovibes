@@ -61,6 +61,7 @@ class Pipe : public ICompute
      * \param stream The compute stream on which all the ComputeModeEnums are processed
      */
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    void first_sync();
 
     ~Pipe() override;
 
@@ -72,9 +73,6 @@ class Pipe : public ICompute
     compute::Postprocessing& get_postprocess() { return *postprocess_; }
 
   public:
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
-
     /*! \brief Execute one processing iteration.
      *
      * Checks the number of frames in input queue, that must at least be 1.
@@ -153,15 +151,6 @@ class Pipe : public ICompute
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
     FunctionVector fn_compute_vect_;
-
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
 
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;

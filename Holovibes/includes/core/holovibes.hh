@@ -106,6 +106,15 @@ class Holovibes
     std::shared_ptr<camera::ICamera>& get_active_camera() { return active_camera_; }
     const CudaStreams& get_cuda_streams() const { return cuda_streams_; }
 
+    worker::ThreadWorkerController<worker::FileFrameReadWorker>& get_file_frame_read_worker_controller() { return file_frame_read_worker_controller_; }
+    worker::ThreadWorkerController<worker::CameraFrameReadWorker>& get_camera_read_worker_controller() { return camera_read_worker_controller_; }
+    worker::ThreadWorkerController<worker::FrameRecordWorker>& get_frame_record_worker_controller() { return frame_record_worker_controller_; }
+    worker::ThreadWorkerController<worker::ChartRecordWorker>& get_chart_record_worker_controller() { return chart_record_worker_controller_; }
+    worker::ThreadWorkerController<worker::BatchGPIBWorker>& get_batch_gpib_worker_controller() { return batch_gpib_worker_controller_; }
+    worker::ThreadWorkerController<worker::InformationWorker>& get_info_worker_controller() { return info_worker_controller_; }
+    worker::ThreadWorkerController<worker::ComputeWorker>& get_compute_worker_controller() { return compute_worker_controller_; }
+
+
     void init_gpu_queues();
     void destroy_gpu_queues();
 
@@ -140,7 +149,8 @@ class Holovibes
     void start_compute();
     void stop_compute();
 
-    void init_pipe();
+    void create_pipe();
+    void sync_pipe();
     void destroy_pipe();
 
     /*! \brief Reload the cuda streams when the device is reset */

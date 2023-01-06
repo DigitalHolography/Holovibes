@@ -60,6 +60,7 @@ void Holovibes::stop_file_frame_read()
 {
     LOG_DEBUG("stop_file_frame_read");
     file_frame_read_worker_controller_.stop();
+    while (file_frame_read_worker_controller_.is_running());
 }
 
 void Holovibes::start_camera_frame_read()
@@ -106,6 +107,7 @@ void Holovibes::stop_camera_frame_read()
 {
     LOG_FUNC();
     camera_read_worker_controller_.stop();
+    while (camera_read_worker_controller_.is_running());
     active_camera_.reset();
 }
 
@@ -130,9 +132,15 @@ void Holovibes::stop_frame_record()
     LOG_DEBUG("stop_frame_record");
 
     if (api::detail::get_value<ExportScriptPath>() == "")
+    {
         frame_record_worker_controller_.stop();
+        while (frame_record_worker_controller_.is_running());
+    }
     else
+    {
         batch_gpib_worker_controller_.stop();
+        while (batch_gpib_worker_controller_.is_running());
+    }
 }
 
 void Holovibes::start_chart_record()
@@ -145,6 +153,7 @@ void Holovibes::stop_chart_record()
 {
     LOG_DEBUG("stop_chart_record");
     chart_record_worker_controller_.stop();
+    while (chart_record_worker_controller_.is_running());
 }
 
 void Holovibes::start_information_display()
@@ -157,12 +166,19 @@ void Holovibes::stop_information_display()
 {
     LOG_DEBUG("stop_information_display");
     info_worker_controller_.stop();
+    while (info_worker_controller_.is_running());
 }
 
-void Holovibes::init_pipe()
+void Holovibes::create_pipe()
 {
-    LOG_DEBUG("init_pipe");
+    LOG_DEBUG("create_pipe");
     compute_pipe_.reset(new Pipe(*gpu_input_queue_, *gpu_output_queue_, get_cuda_streams().compute_stream));
+}
+
+void Holovibes::sync_pipe()
+{
+    LOG_DEBUG("synch_pipe_on_start");
+    compute_pipe_->first_sync();
 }
 
 void Holovibes::destroy_pipe()
@@ -181,6 +197,8 @@ void Holovibes::stop_compute()
 {
     LOG_DEBUG("stop_compute");
     compute_worker_controller_.stop();
+    // Can't do this because this function is called by the computer worker itself
+    // while (compute_worker_controller_.is_running());
 }
 
 void Holovibes::reload_streams() { cuda_streams_.reload(); }

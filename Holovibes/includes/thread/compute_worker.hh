@@ -30,8 +30,6 @@ class ComputeWorker final : public Worker
      */
     ComputeWorker();
 
-    void stop() override;
-
     void run() override;
 
   private:

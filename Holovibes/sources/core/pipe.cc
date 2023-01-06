@@ -45,7 +45,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     { return batch_env_.batch_index == compute_cache_.get_value<TimeStride>(); };
 
     fn_compute_vect_ = FunctionVector(batch_condition);
-    fn_end_vect_ = FunctionVector(batch_condition);
 
     image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                        image_acc_env_,
@@ -95,12 +94,21 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
 
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS) = &processed_output_fps_;
     processed_output_fps_ = 0;
+}
 
+void Pipe::first_sync()
+{
     call_reload_function_caches();
     refresh();
 }
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+
+#ifndef DISABLE_LOG_PIPE
+#define LOG_PIPE(...) LOG_TRACE(__VA_ARGS__)
+#else
+#define LOG_PIPE(...)
+#endif
 
 // Call only when pipe is created
 void Pipe::call_reload_function_caches()
@@ -120,14 +128,12 @@ void Pipe::call_reload_function_caches()
     if (PipeRequestOnSync::has_requests_fail())
     {
         LOG_ERROR("Failure when making requests after all caches synchronizations 'call_reload_function_caches'");
-        // FIXME : handle pipe requests on sync failure
         return;
     }
     if (PipeRequestOnSync::do_disable_pipe())
     {
         LOG_DEBUG("Disabling pipe ");
         fn_compute_vect_.clear();
-        fn_end_vect_.clear();
     }
     else if (PipeRequestOnSync::do_need_notify())
     {
@@ -135,12 +141,6 @@ void Pipe::call_reload_function_caches()
         GSH::instance().notify();
     }
 }
-
-#ifndef DISABLE_LOG_PIPE
-#define LOG_PIPE(...) LOG_TRACE(__VA_ARGS__)
-#else
-#define LOG_PIPE(...)
-#endif
 
 void Pipe::synchronize_caches_and_make_requests()
 {
@@ -159,15 +159,13 @@ void Pipe::synchronize_caches_and_make_requests()
     if (PipeRequestOnSync::has_requests_fail())
     {
         LOG_ERROR("Failure when making requests after all caches synchronizations");
-        // FIXME : handle pipe requests on sync failure
         return;
     }
 
     if (PipeRequestOnSync::do_disable_pipe())
     {
-        LOG_DEBUG("Disabling pipe ");
+        LOG_DEBUG("Disabling pipe");
         fn_compute_vect_.clear();
-        fn_end_vect_.clear();
     }
     else if (PipeRequestOnSync::do_need_notify())
     {
@@ -187,10 +185,7 @@ bool Pipe::caches_has_change_requested()
 void Pipe::sync_and_refresh()
 {
     if (!caches_has_change_requested())
-    {
-        // LOG_PIPE("Pipe refresh doesn't need refresh : caches already syncs");
         return;
-    }
 
     LOG_PIPE("Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
@@ -306,31 +301,20 @@ void Pipe::refresh()
 
 void Pipe::run_all()
 {
-    sync_and_refresh();
-
     for (FnType& f : fn_compute_vect_)
         f();
-    {
-        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-        for (FnType& f : fn_end_vect_)
-            f();
-        fn_end_vect_.clear();
-    }
 }
 
 void Pipe::exec()
 {
-    while (!termination_requested_)
+    try
     {
-        try
-        {
-            run_all();
-        }
-        catch (CustomException& e)
-        {
-            LOG_ERROR("Pipe error: message: {}", e.what());
-            throw;
-        }
+        run_all();
+    }
+    catch (CustomException& e)
+    {
+        LOG_ERROR("Pipe error: message: {}", e.what());
+        throw;
     }
 }
 
@@ -342,7 +326,7 @@ void Pipe::insert_wait_frames()
         [&]()
         {
             // Wait while the input queue is enough filled
-            while (gpu_input_queue_.is_empty())
+            while (gpu_input_queue_.is_empty() && api::detail::get_value<ImportType>() != ImportTypeEnum::None)
                 continue;
         });
 }
@@ -530,12 +514,6 @@ void Pipe::insert_cuts_record()
         fn_compute_vect_.push_back(
             [&]() { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
     }
-}
-
-void Pipe::insert_fn_end_vect(std::function<void()> function)
-{
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    fn_end_vect_.push_back(function);
 }
 
 } // namespace holovibes

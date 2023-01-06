@@ -121,7 +121,7 @@ struct TypeValue<ProgressType>
     using key = ProgressType;
     struct value
     {
-        const uint* recorded;
+        uint* recorded;
         const uint* to_record;
     };
 };
