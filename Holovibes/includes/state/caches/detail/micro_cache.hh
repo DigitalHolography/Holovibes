@@ -123,6 +123,7 @@ class OnSync
 
             try
             {
+                // LOG_TRACE("Call OnSync with new value : {}; old value : {}", value, old_value->get_value());
                 functions_to_call.template on_sync<T>(value, old_value->get_value(), std::forward<Args>(args)...);
             }
             catch (const std::exception& e)
@@ -481,9 +482,7 @@ class MicroCache
                 functions.template operator()<T>(this->BasicMicroCache::template get_type<T>().get_value());
 
                 for (auto cache : start_caches)
-                {
                     cache->unlock();
-                }
             }
             catch (const std::exception& e)
             {

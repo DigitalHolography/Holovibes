@@ -40,6 +40,8 @@ class FrameRecordWorker final : public Worker
 
     void run() override;
 
+    void stop() override;
+
   private:
     /*! \brief Wait for frames to be present in the record queue
      *

@@ -152,7 +152,12 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    CHECK(size_ > 0);
+    // FIXME - ON STOP
+    if (size_ <= 0)
+    {
+        return;
+        // CHECK(size_ > 0);
+    }
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue

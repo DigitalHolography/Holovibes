@@ -9,6 +9,7 @@
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
 #include "json_macro.hh"
+#include "logger.hh"
 
 #include <cmath>
 

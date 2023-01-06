@@ -22,14 +22,8 @@ void ImportGSHOnChange::operator()<ImportType>(ImportTypeEnum& new_value)
     if (new_value != ImportTypeEnum::None)
     {
         Holovibes::instance().start_compute();
-        Holovibes::instance().start_information_display();
-    }
-    else
-    {
-        api::set_raw_view_enabled(false);
-        api::set_lens_view_enabled(false);
-        api::set_time_transformation_cuts_enable(false);
-        api::change_filter2d()->enabled = false;
+        if (api::detail::get_value<IsGuiEnable>())
+            Holovibes::instance().start_information_display();
     }
 }
 

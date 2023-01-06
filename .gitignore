@@ -69,3 +69,6 @@ venv/
 
 # spdlog
 libs/spdlog/build
+
+#Trash file setup Euresys
+*.bmp

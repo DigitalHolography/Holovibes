@@ -40,16 +40,16 @@ class UserInterface
         return instance;
     }
 
-    ::holovibes::gui::MainWindow* main_window = nullptr;
+    gui::MainWindow* main_window = nullptr;
 
-    std::unique_ptr<::holovibes::gui::RawWindow> xy_window = nullptr;
-    std::unique_ptr<::holovibes::gui::SliceWindow> sliceXZ = nullptr;
-    std::unique_ptr<::holovibes::gui::SliceWindow> sliceYZ = nullptr;
-    std::unique_ptr<::holovibes::gui::RawWindow> lens_window = nullptr;
-    std::unique_ptr<::holovibes::gui::RawWindow> raw_window = nullptr;
-    std::unique_ptr<::holovibes::gui::Filter2DWindow> filter2d_window = nullptr;
-    std::unique_ptr<::holovibes::gui::PlotWindow> plot_window_ = nullptr;
-    std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window = nullptr;
+    std::unique_ptr<gui::RawWindow> xy_window = nullptr;
+    std::unique_ptr<gui::SliceWindow> sliceXZ = nullptr;
+    std::unique_ptr<gui::SliceWindow> sliceYZ = nullptr;
+    std::unique_ptr<gui::RawWindow> lens_window = nullptr;
+    std::unique_ptr<gui::RawWindow> raw_window = nullptr;
+    std::unique_ptr<gui::Filter2DWindow> filter2d_window = nullptr;
+    std::unique_ptr<gui::PlotWindow> plot_window_ = nullptr;
+    std::unique_ptr<gui::AdvancedSettingsWindow> advanced_settings_window = nullptr;
 
     gui::ExportPanel* export_panel = nullptr;
     gui::ASWMainWindowPanel* asw_main_window_panel = nullptr;
@@ -72,11 +72,13 @@ class UserInterface
   private:
     std::atomic_bool update_window_ = false;
 
-    // Wrapper to display correct error info
   public:
     bool get_update_window() { return update_window_.load(); }
     void can_edit_window() { update_window_ = false; }
     void cannot_edit_window() { update_window_ = true; }
+
+    // Wrapper to display correct error info
+  public:
     gui::ExportPanel* const get_export_panel() const
     {
         if (export_panel != nullptr)
