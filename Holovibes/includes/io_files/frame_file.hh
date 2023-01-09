@@ -28,6 +28,8 @@ class FrameFile
     /*! \brief Getter on the total number of frames in the file */
     virtual size_t get_total_nb_frames() const = 0;
 
+    std::string get_file_path() { return file_path_; };
+
   protected:
     /*! \brief Enum representing the opening mode of a file */
     enum class OpeningMode
