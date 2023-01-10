@@ -61,6 +61,6 @@ class CameraOpenCV : public Camera
 
     enum grayscale_method method_;
     // BGR to grayscale colors coeffs [B, G, R]
-    float grayscale_coeffs_[3];
+    std::array<float, 3> grayscale_coeffs_;
 };
 } // namespace camera

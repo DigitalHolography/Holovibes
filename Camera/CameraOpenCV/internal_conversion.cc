@@ -9,26 +9,26 @@ namespace camera
 {
 
 template <typename T>
-void templated_internal_convertColor(cv::Mat& in, cv::Mat& out, float* coeffs, int mat_type)
+void templated_internal_BGR_to_gray(cv::Mat& in, cv::Mat& out, std::array<float, 3> coeffs, int mat_type)
 {
 
     cv::Mat dst(in.rows, in.cols, mat_type);
 
-    Parallel_cvtColor<T> parallel_cvtColor(in, dst, coeffs);
-    cv::parallel_for_(cv::Range(0, in.rows), parallel_cvtColor);
+    Parallel_BGR_to_gray<T> parallel_BGR_to_gray(in, dst, coeffs);
+    cv::parallel_for_(cv::Range(0, in.rows), parallel_BGR_to_gray);
 
     out = dst;
 }
 
-void internal_convertColor(cv::Mat& in, cv::Mat& out, float* coeffs)
+void internal_BGR_to_gray(cv::Mat& in, cv::Mat& out, std::array<float, 3> coeffs)
 {
     switch (in.depth())
     {
     case CV_8U:
-        templated_internal_convertColor<uchar>(in, out, coeffs, CV_8UC1);
+        templated_internal_BGR_to_gray<uchar>(in, out, coeffs, CV_8UC1);
         break;
     case CV_16U:
-        templated_internal_convertColor<ushort>(in, out, coeffs, CV_16UC1);
+        templated_internal_BGR_to_gray<ushort>(in, out, coeffs, CV_16UC1);
         break;
 
     default:

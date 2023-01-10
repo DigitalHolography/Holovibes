@@ -52,16 +52,14 @@ void CameraOpenCV::load_ini_params()
     if (str == "OPENCV")
         method_ = OPENCV;
     else if (str == "MANUAL")
-        method_ = MANUAL;
-    else if (str == "AUTO")
-        method_ = AUTO;
-
-    if (method_ == MANUAL)
     {
+        method_ = MANUAL;
         grayscale_coeffs_[0] = pt.get<float>("grayscale.blue");
         grayscale_coeffs_[1] = pt.get<float>("grayscale.green");
         grayscale_coeffs_[2] = pt.get<float>("grayscale.red");
     }
+    else if (str == "AUTO")
+        method_ = AUTO;
 }
 
 double CameraOpenCV::get_and_check(int param, double value, std::string param_str)
@@ -150,7 +148,7 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
     {
     case AUTO:
     case MANUAL:
-        internal_convertColor(frame_, frame_, grayscale_coeffs_);
+        internal_BGR_to_gray(frame_, frame_, grayscale_coeffs_);
         break;
     case OPENCV:
         cv::cvtColor(frame_, frame_, cv::COLOR_BGR2GRAY);
