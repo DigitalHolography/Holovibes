@@ -23,7 +23,6 @@ static void check_cuda_graphic_card(bool gui)
     int device;
     int nDevices;
     int min_compute_capability = 35;
-    int max_compute_capability = 89;
     int compute_capability;
     cudaError_t status;
     cudaDeviceProp props;
@@ -36,7 +35,7 @@ static void check_cuda_graphic_card(bool gui)
 
         compute_capability = props.major * 10 + props.minor;
 
-        if (compute_capability >= min_compute_capability && compute_capability <= max_compute_capability)
+        if (compute_capability >= min_compute_capability)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";
