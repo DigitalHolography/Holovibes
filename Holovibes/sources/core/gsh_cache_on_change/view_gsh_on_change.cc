@@ -78,46 +78,36 @@ void ViewGSHOnChange::operator()<CutsViewEnabled>(bool& new_value)
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
         api::detail::set_value<TimeTransformationCutsEnable>(true);
     }
-    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 void ViewGSHOnChange::operator()<Filter2DViewEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(Filter2DViewEnabled);
-
-    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 void ViewGSHOnChange::operator()<LensViewEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(LensViewEnabled);
-
-    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 void ViewGSHOnChange::operator()<RawViewEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(RawViewEnabled);
-
-    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 void ViewGSHOnChange::operator()<ChartDisplayEnabled>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(ChartDisplayEnabled);
-
-    UserInterface::instance().cannot_edit_window();
 }
 
 template <>
 bool ViewGSHOnChange::change_accepted<RawViewEnabled>(bool new_value)
 {
-    return !UserInterface::instance().get_update_window() &&
-           !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());
+    return !(new_value && api::get_batch_size() > api::get_gpu_output_queue().get_size());
 }
 
 template <>
@@ -131,25 +121,25 @@ bool ViewGSHOnChange::change_accepted<ViewAccuP>(const ViewAccuPQ& new_value)
 template <>
 bool ViewGSHOnChange::change_accepted<Filter2DViewEnabled>(bool new_value)
 {
-    return !UserInterface::instance().get_update_window();
+    return true;
 }
 
 template <>
 bool ViewGSHOnChange::change_accepted<CutsViewEnabled>(bool new_value)
 {
-    return !UserInterface::instance().get_update_window();
+    return true;
 }
 
 template <>
 bool ViewGSHOnChange::change_accepted<ChartDisplayEnabled>(bool new_value)
 {
-    return !UserInterface::instance().get_update_window();
+    return true;
 }
 
 template <>
 bool ViewGSHOnChange::change_accepted<LensViewEnabled>(bool new_value)
 {
-    return !UserInterface::instance().get_update_window();
+    return true;
 }
 
 } // namespace holovibes

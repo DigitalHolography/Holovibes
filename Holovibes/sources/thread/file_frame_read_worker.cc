@@ -12,7 +12,7 @@ namespace holovibes::worker
 {
 FileFrameReadWorker::FileFrameReadWorker()
     : FrameReadWorker()
-    , current_nb_frames_read(0)
+    , current_nb_frames_read_(0)
     , fps_handler_(api::get_input_fps())
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
@@ -24,7 +24,7 @@ FileFrameReadWorker::FileFrameReadWorker()
 
     to_record_ = api::get_nb_frame_to_read();
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
-    entry.recorded = &current_nb_frames_read;
+    entry.recorded = &current_nb_frames_read_;
     entry.to_record = &to_record_;
 }
 
@@ -49,7 +49,8 @@ void FileFrameReadWorker::run()
 
     try
     {
-        input_file_->set_pos_to_frame(api::get_start_frame());
+
+        input_file_->set_pos_to_frame(api::get_start_frame() - 1);
 
         if (api::detail::get_value<LoadFileInGpu>())
             read_file_in_gpu();
@@ -74,7 +75,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     size_t buffer_nb_frames;
 
     if (api::detail::get_value<LoadFileInGpu>())
-        buffer_nb_frames = api::get_end_frame() - api::get_start_frame();
+        buffer_nb_frames = api::get_nb_frame_to_read();
     else
         buffer_nb_frames = api::detail::get_value<FileBufferSize>();
 
@@ -128,9 +129,12 @@ void FileFrameReadWorker::read_file_in_gpu()
         enqueue_loop(frames_read);
 
         if (api::detail::get_value<LoopFile>())
-            current_nb_frames_read = 0;
+            current_nb_frames_read_ = 1;
         else
+        {
+            LOG_DEBUG("End to read the file, stop because LoopFile == false");
             stop_requested_ = true;
+        }
     }
 }
 
@@ -143,8 +147,7 @@ void FileFrameReadWorker::read_file_batch()
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, api::get_nb_frame_to_read() - current_nb_frames_read);
-
+        size_t frames_to_read = std::min(batch_size, api::get_nb_frame_to_read() - current_nb_frames_read_);
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
 
@@ -152,17 +155,16 @@ void FileFrameReadWorker::read_file_batch()
         enqueue_loop(frames_read);
 
         // Reset to the first frame if needed
-        if (current_nb_frames_read == api::get_nb_frame_to_read())
+        if (current_nb_frames_read_ == api::get_nb_frame_to_read())
         {
-            if (api::detail::get_value<LoopFile>())
+            if (api::detail::get_value<LoopFile>() == false)
             {
-                input_file_->set_pos_to_frame(api::get_start_frame());
-                current_nb_frames_read = 0;
+                LOG_DEBUG("End to read the file, stop because LoopFile == false");
+                stop_requested_ = true;
             }
-            else
-            {
-                stop_requested_ = true; // break
-            }
+
+            input_file_->set_pos_to_frame(api::get_start_frame() - 1);
+            current_nb_frames_read_ = 1;
         }
     }
 }
@@ -248,9 +250,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
                                                frames_enqueued * api::get_import_frame_descriptor().get_frame_size(),
                                            cudaMemcpyDeviceToDevice);
 
-        current_nb_frames_read++;
         processed_frames_++;
         frames_enqueued++;
+        current_nb_frames_read_++;
 
         compute_fps();
     }

@@ -21,11 +21,11 @@ class ImportFilePath : public StringParameter<"", "import_file_path">{};
 class LoadFileInGpu : public BoolParameter<true, "load_in_gpu">{};
 class StartFrame : public UIntParameter<0, "start_frame">{};
 class EndFrame : public UIntParameter<0, "end_frame">{};
-class FileNumberOfFrame : public UIntParameter<0, "max_end_frame">{};
+class FileNumberOfFrame : public UIntParameter<0, "file_number_of_frame">{};
 
 class LoopFile : public BoolParameter<true, "loop_file">{};
 class IsGuiEnable : public BoolParameter<true, "is_gui_enable">{};
-class InputFps : public UIntParameter<0, "input_fps">{};
+class InputFps : public UIntParameter<60, "input_fps">{};
 
 class CurrentCameraKind : public Parameter<CameraKind, CameraKind::None, "current_camera_kind", CameraKind>{};
 // clang-format on

@@ -75,4 +75,5 @@ void ImportPipeRequestOnSync::operator()<CurrentCameraKind>(CameraKind new_value
     {
     }
 }
+
 } // namespace holovibes

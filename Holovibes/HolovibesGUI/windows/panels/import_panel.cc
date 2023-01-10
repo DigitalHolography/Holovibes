@@ -29,8 +29,13 @@ void ImportPanel::on_notify()
     ui_->InputBrowseToolButton->setEnabled(api::get_import_type() == ImportTypeEnum::None);
     ui_->ImportStartPushButton->setEnabled(!api::get_import_file_path().empty());
     ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty());
-    ui_->ImportEndIndexSpinBox->setMaximum(api::get_max_end_frame());
-    ui_->ImportEndIndexSpinBox->setValue(api::get_max_end_frame());
+
+    ui_->ImportStartIndexSpinBox->setMinimum(1);
+    ui_->ImportStartIndexSpinBox->setValue(api::get_start_frame());
+
+    ui_->ImportEndIndexSpinBox->setMaximum(api::get_file_number_of_frames());
+    ui_->ImportEndIndexSpinBox->setMinimum(1);
+    ui_->ImportEndIndexSpinBox->setValue(api::get_end_frame());
 
     if (api::get_import_type() != ImportTypeEnum::None)
         ui_->FileReaderProgressBar->show();
@@ -102,7 +107,12 @@ void ImportPanel::import_file(const QString& filename)
     // We can now launch holovibes over this file
 }
 
-void ImportPanel::import_stop() { api::set_import_type(ImportTypeEnum::None); }
+// clang-format off
+void ImportPanel::import_stop()
+{
+    api::set_import_type(ImportTypeEnum::None);
+}
+// clang-format on
 
 // TODO: review function, we cannot edit UserInterface here (instead of API)
 void ImportPanel::import_start()

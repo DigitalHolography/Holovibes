@@ -29,10 +29,10 @@ inline void set_start_frame(uint value) { api::detail::set_value<StartFrame>(val
 inline uint get_end_frame() { return api::detail::get_value<EndFrame>(); }
 inline void set_end_frame(uint value) { api::detail::set_value<EndFrame>(value); }
 
-inline uint get_nb_frame_to_read() { return api::get_end_frame() - api::get_start_frame(); }
+inline uint get_nb_frame_to_read() { return api::get_end_frame() - api::get_start_frame() + 1; }
 
-inline uint get_max_end_frame() { return api::detail::get_value<FileNumberOfFrame>(); }
-inline void set_max_end_frame(uint value) { api::detail::set_value<FileNumberOfFrame>(value); }
+inline uint get_file_number_of_frames() { return api::detail::get_value<FileNumberOfFrame>(); }
+inline void set_file_number_of_frames(uint value) { api::detail::set_value<FileNumberOfFrame>(value); }
 
 inline bool get_loop_file() { return api::detail::get_value<LoopFile>(); }
 inline void set_loop_file(bool value) { api::detail::set_value<LoopFile>(value); }

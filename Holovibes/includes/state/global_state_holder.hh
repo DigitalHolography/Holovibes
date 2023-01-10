@@ -141,6 +141,7 @@ class GSH
 
     GSHCacheDispatcher cache_dispatcher_;
 
+    // FIXME : HOOW
     mutable std::mutex mutex_;
 };
 

@@ -26,10 +26,11 @@ class ImportGSHOnChange
     void operator()<ImportType>(ImportTypeEnum& new_value);
     template <>
     void operator()<ImportFilePath>(std::string& filename);
-
     template <>
-    bool change_accepted<StartFrame>(uint new_value);
+    void operator()<StartFrame>(uint& new_value);
     template <>
-    bool change_accepted<EndFrame>(uint new_value);
+    void operator()<EndFrame>(uint& new_value);
+    template <>
+    void operator()<FileNumberOfFrame>(uint& new_value);
 };
 } // namespace holovibes
