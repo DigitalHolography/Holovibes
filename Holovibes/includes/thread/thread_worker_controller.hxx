@@ -55,6 +55,8 @@ void ThreadWorkerController<T>::run()
         throw;
     }
 
+    LOG_INFO("Stop worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
+ 
     MutexGuard m_guard(mutex_);
     worker_.reset(nullptr);
 }

@@ -52,15 +52,24 @@ void ImportGSHOnChange::operator()<ImportFilePath>(std::string& filename)
 }
 
 template <>
-bool ImportGSHOnChange::change_accepted<StartFrame>(uint new_value)
+void ImportGSHOnChange::operator()<StartFrame>(uint& new_value)
 {
-    return new_value <= api::get_end_frame();
+    if (api::get_end_frame() < new_value)
+        api::set_end_frame(new_value);
 }
 
 template <>
-bool ImportGSHOnChange::change_accepted<EndFrame>(uint new_value)
+void ImportGSHOnChange::operator()<EndFrame>(uint& new_value)
 {
-    return new_value >= api::get_start_frame();
+    if (api::get_start_frame() > new_value)
+        api::set_start_frame(new_value);
+}
+
+template <>
+void ImportGSHOnChange::operator()<FileNumberOfFrame>(uint& new_value)
+{
+    api::set_start_frame(1);
+    api::set_end_frame(new_value);
 }
 
 } // namespace holovibes

@@ -201,6 +201,32 @@ class MicroCache
   protected:
     class BasicRef;
 
+  public:
+    class RefSingleton
+    {
+      public:
+        friend BasicRef;
+
+      public:
+        static BasicRef& get()
+        {
+            if (instance == nullptr)
+                throw std::runtime_error("No Ref has been set for this cache");
+            return *instance;
+        }
+
+      protected:
+        static void set_main_ref(BasicRef& ref) { instance = &ref; }
+        static void remove_main_ref(BasicRef& ref)
+        {
+            if (instance == &ref)
+                instance = nullptr;
+        }
+
+      private:
+        static inline BasicRef* instance;
+    };
+
   private:
     class BasicCache : public BasicMicroCache
     {
@@ -208,8 +234,15 @@ class MicroCache
         friend class BasicRef;
 
       public:
-        BasicCache();
-        ~BasicCache();
+        BasicCache()
+            : BasicMicroCache()
+            , change_pool_{}
+            , duplicate_container_{}
+        {
+            MicroCache<Params...>::RefSingleton::get().add_cache_to_synchronize(*this);
+        }
+
+        ~BasicCache() { MicroCache<Params...>::RefSingleton::get().remove_cache_to_synchronize(*this); }
 
       protected:
         template <typename MicroCacheToSync>
@@ -235,27 +268,15 @@ class MicroCache
             else
                 LOG_TRACE("TRIGGER On Cache {} = ? (unable to cast ref)", Iref->get_key());
 #endif
-
-            LOG_DEBUG("lock {}", Iref->get_key());
-            std::lock_guard<std::recursive_mutex> guard(lock_);
             change_pool_[Iparam_to_change] = std::pair{Iref, Iold_value};
-            LOG_DEBUG("unlock {}", Iref->get_key());
         }
 
       public:
         bool has_change_requested() { return change_pool_.size() > 0; }
 
-        void lock() { lock_.lock(); }
-        void unlock() { lock_.unlock(); }
-
-        // void lock() { guard_.reset(new std::lock_guard<std::recursive_mutex>(lock_)); }
-        // void unlock() { guard_.reset(nullptr); }
-
       protected:
         ChangePool change_pool_;
         StaticContainer<DuplicatedParameter<Params>...> duplicate_container_;
-        std::recursive_mutex lock_;
-        std::unique_ptr<std::lock_guard<std::recursive_mutex>> guard_;
     };
 
   public:
@@ -283,12 +304,9 @@ class MicroCache
             LOG_TRACE("Cache sync {} elements", this->change_pool_.size());
 #endif
 
-            LOG_DEBUG("start lock_guard in cache");
-            std::lock_guard<std::recursive_mutex> guard(this->lock_);
-
             this->container_.template call<SetHasBeenSynchronized<false>>();
-            LOG_DEBUG("lock_guard after call");
 
+            std::lock_guard<std::recursive_mutex> guard(RefSingleton::get().get_lock());
             for (auto change : this->change_pool_)
             {
                 IParameter* param_to_change = change.first;
@@ -298,13 +316,18 @@ class MicroCache
 
             this->container_.template call<OnSync<FunctionsClass, Args...>>(this->change_pool_,
                                                                             std::forward<Args>(args)...);
-            LOG_DEBUG("lock_guard after onsync");
             this->change_pool_.clear();
-            LOG_DEBUG("end lock_guard in cache");
         }
 
         template <typename... Args>
-        void synchronize_force(Args&&... args);
+        void synchronize_force(Args&&... args)
+        {
+            this->set_all_values(MicroCache<Params...>::RefSingleton::get());
+            this->template call<FunctionsClass>(std::forward<Args>(args)...);
+
+            std::lock_guard<std::recursive_mutex> guard(RefSingleton::get().get_lock());
+            this->change_pool_.clear();
+        }
 
       public:
         // for debugging purpose ONLY
@@ -336,32 +359,6 @@ class MicroCache
                                               std::forward<Args>(args)...);
             }
         }
-    };
-
-  public:
-    class RefSingleton
-    {
-      public:
-        friend BasicRef;
-
-      public:
-        static BasicRef& get()
-        {
-            if (instance == nullptr)
-                throw std::runtime_error("No Ref has been set for this cache");
-            return *instance;
-        }
-
-      protected:
-        static void set_main_ref(BasicRef& ref) { instance = &ref; }
-        static void remove_main_ref(BasicRef& ref)
-        {
-            if (instance == &ref)
-                instance = nullptr;
-        }
-
-      private:
-        static inline BasicRef* instance;
     };
 
   protected:
@@ -426,8 +423,14 @@ class MicroCache
                 LOG_ERROR("Maybe a problem here...");
         }
 
+      public:
+        std::recursive_mutex& get_lock() { return lock_; }
+        void lock() { lock_.lock(); }
+        void unlock() { lock_.unlock(); }
+
       protected:
         std::set<BasicCache*> caches_to_sync_;
+        std::recursive_mutex lock_;
     };
 
   public:
@@ -471,24 +474,11 @@ class MicroCache
             std::vector<BasicCache*> start_caches;
             try
             {
-                for (auto cache : this->caches_to_sync_)
-                {
-                    start_caches.push_back(cache);
-                    cache->lock();
-                }
-
                 FunctionsOnChange functions;
-
                 functions.template operator()<T>(this->BasicMicroCache::template get_type<T>().get_value());
-
-                for (auto cache : start_caches)
-                    cache->unlock();
             }
             catch (const std::exception& e)
             {
-                for (auto cache : start_caches)
-                    cache->unlock();
-
                 LOG_ERROR("Got an exception with the OnChange functions of {} with old_value : {} ; new_value : {} ; "
                           "error : {} ; Skip the change",
                           typeid(T).name(),
@@ -506,6 +496,7 @@ class MicroCache
         template <typename T>
         void set_value(typename T::ConstRefType value)
         {
+            this->lock_.lock();
             const T& old_value = this->BasicMicroCache::template get_type<T>();
             if (old_value.has_parameter_change_valuetype(value) && is_change_accepted<T>(value))
             {
@@ -513,11 +504,13 @@ class MicroCache
                 this->BasicMicroCache::template get_type<T>().set_value(value);
                 callback_trigger_change_value<T>(save_for_restore);
             }
+            this->lock_.unlock();
         }
 
         template <typename T>
         TriggerChangeValue<typename T::ValueType> change_value()
         {
+            this->lock_.lock();
             return TriggerChangeValue<typename T::ValueType>(
                 [this, old_value = this->BasicMicroCache::template get_type<T>()]()
                 {
@@ -529,6 +522,8 @@ class MicroCache
                     {
                         this->callback_trigger_change_value<T>(old_value.get_value());
                     }
+
+                    this->lock_.unlock();
                 },
                 &BasicMicroCache::template get_type<T>().get_value());
         }
@@ -550,33 +545,5 @@ class MicroCache
         return BasicMicroCache::template get_index_of<T>();
     }
 };
-
-template <typename... Params>
-MicroCache<Params...>::BasicCache::BasicCache()
-    : BasicMicroCache()
-    , change_pool_{}
-    , duplicate_container_{}
-    , lock_{}
-{
-    MicroCache<Params...>::RefSingleton::get().add_cache_to_synchronize(*this);
-}
-
-template <typename... Params>
-MicroCache<Params...>::BasicCache::~BasicCache()
-{
-    MicroCache<Params...>::RefSingleton::get().remove_cache_to_synchronize(*this);
-}
-
-template <typename... Params>
-template <typename FunctionsClass>
-template <typename... Args>
-void MicroCache<Params...>::Cache<FunctionsClass>::synchronize_force(Args&&... args)
-{
-    this->set_all_values(MicroCache<Params...>::RefSingleton::get());
-    this->template call<FunctionsClass>(std::forward<Args>(args)...);
-
-    std::lock_guard<std::recursive_mutex> guard(this->lock_);
-    this->change_pool_.clear();
-}
 
 } // namespace holovibes

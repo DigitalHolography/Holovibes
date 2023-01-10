@@ -120,7 +120,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     void enqueue_loop(size_t nb_frames_to_enqueue);
 
   private:
-    uint current_nb_frames_read;
+    uint current_nb_frames_read_;
 
     FpsHandler fps_handler_;
 

@@ -6,34 +6,16 @@
 namespace holovibes::gui
 {
 
-static bool guard_edit_view()
-{
-    if (!UserInterface::instance().get_update_window())
-    {
-        LOG_WARN("Stop change on window to avoid dead lock, retry change");
-        return false;
-    }
-    return true;
-}
-
 template <>
 void GuiFrontEndForViewCacheOnPipeRequest::before_method<ChartDisplayEnabled>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(ChartDisplayEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<ChartDisplayEnabled>())
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        []()
-        {
-            UserInterface::instance().plot_window_.reset(nullptr);
-            UserInterface::instance().can_edit_window();
-        },
+        []() { UserInterface::instance().plot_window_.reset(nullptr); },
         true);
 }
 
@@ -41,10 +23,6 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<ChartDisplayEnabled>()
 {
     LOG_UPDATE_FRONT_END_AFTER(ChartDisplayEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<ChartDisplayEnabled>() == false)
         return;
@@ -56,7 +34,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<ChartDisplayEnabled>()
                 std::make_unique<gui::PlotWindow>(*api::get_compute_pipe().get_chart_env().chart_display_queue_,
                                                   UserInterface::instance().auto_scale_point_threshold_,
                                                   "Chart");
-            UserInterface::instance().can_edit_window();
         },
         true);
 
@@ -71,10 +48,6 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::before_method<CutsViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(CutsViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<CutsViewEnabled>())
         return;
@@ -90,7 +63,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<CutsViewEnabled>()
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::SliceCross);
                 UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Cross);
             }
-            UserInterface::instance().can_edit_window();
         },
         true);
 }
@@ -99,10 +71,6 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<CutsViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_AFTER(CutsViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<CutsViewEnabled>() == false)
         return;
@@ -140,7 +108,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<CutsViewEnabled>()
             auto holo = dynamic_cast<gui::HoloWindow*>(UserInterface::instance().xy_window.get());
             if (holo)
                 holo->update_slice_transforms();
-            UserInterface::instance().can_edit_window();
         },
         true);
 }
@@ -157,11 +124,7 @@ void GuiFrontEndForViewCacheOnPipeRequest::before_method<Reticle>()
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        [=]()
-        {
-            UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle);
-            UserInterface::instance().can_edit_window();
-        },
+        [=]() { UserInterface::instance().xy_window->getOverlayManager().disable_all(gui::KindOfOverlay::Reticle); },
         true);
 }
 
@@ -169,6 +132,7 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<Reticle>()
 {
     LOG_UPDATE_FRONT_END_AFTER(Reticle);
+
     if (!UserInterface::instance().xy_window)
         return;
 
@@ -180,7 +144,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Reticle>()
         {
             UserInterface::instance().xy_window->getOverlayManager().create_overlay<gui::KindOfOverlay::Reticle>();
             UserInterface::instance().xy_window->getOverlayManager().create_default();
-            UserInterface::instance().can_edit_window();
         },
         true);
 }
@@ -189,31 +152,19 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::before_method<LensViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(LensViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<LensViewEnabled>())
         return;
 
-    UserInterface::instance().main_window->synchronize_thread(
-        []()
-        {
-            UserInterface::instance().lens_window.reset(nullptr);
-            UserInterface::instance().can_edit_window();
-        },
-        true);
+    UserInterface::instance().main_window->synchronize_thread([]()
+                                                              { UserInterface::instance().lens_window.reset(nullptr); },
+                                                              true);
 }
 
 template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<LensViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_AFTER(LensViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<LensViewEnabled>() == false)
         return;
@@ -237,7 +188,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<LensViewEnabled>()
                                    api::get_compute_pipe().get_fourier_transforms().get_lens_queue().get(),
                                    0.f,
                                    gui::KindOfView::Lens));
-            UserInterface::instance().can_edit_window();
         },
         true);
 }
@@ -246,31 +196,19 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::before_method<RawViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(RawViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<RawViewEnabled>())
         return;
 
-    UserInterface::instance().main_window->synchronize_thread(
-        []()
-        {
-            UserInterface::instance().raw_window.reset(nullptr);
-            UserInterface::instance().can_edit_window();
-        },
-        true);
+    UserInterface::instance().main_window->synchronize_thread([]()
+                                                              { UserInterface::instance().raw_window.reset(nullptr); },
+                                                              true);
 }
 
 template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<RawViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_AFTER(RawViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::detail::get_value<RawViewEnabled>() == false)
         return;
@@ -292,7 +230,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<RawViewEnabled>()
                                    pos,
                                    QSize(raw_window_width, raw_window_height),
                                    api::get_compute_pipe().get_raw_view_queue_ptr().get()));
-            UserInterface::instance().can_edit_window();
         },
         true);
 }
@@ -301,20 +238,12 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::before_method<Filter2DViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(Filter2DViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::get_filter2d_view_enabled())
         return;
 
     UserInterface::instance().main_window->synchronize_thread(
-        []()
-        {
-            UserInterface::instance().filter2d_window.reset(nullptr);
-            UserInterface::instance().can_edit_window();
-        },
+        []() { UserInterface::instance().filter2d_window.reset(nullptr); },
         true);
 }
 
@@ -322,10 +251,6 @@ template <>
 void GuiFrontEndForViewCacheOnPipeRequest::after_method<Filter2DViewEnabled>()
 {
     LOG_UPDATE_FRONT_END_AFTER(Filter2DViewEnabled);
-    if (guard_edit_view() == false)
-    {
-        return;
-    }
 
     if (api::get_filter2d_view_enabled() == false)
         return;
@@ -347,7 +272,6 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<Filter2DViewEnabled>()
                                    pos,
                                    QSize(filter2d_window_width, filter2d_window_height),
                                    api::get_compute_pipe().get_filter2d_view_queue_ptr().get()));
-            UserInterface::instance().can_edit_window();
         },
         true);
 }

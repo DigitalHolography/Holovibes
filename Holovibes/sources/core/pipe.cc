@@ -302,7 +302,12 @@ void Pipe::refresh()
 void Pipe::run_all()
 {
     for (FnType& f : fn_compute_vect_)
+    {
+        if (api::detail::get_value<ImportType>() == ImportTypeEnum::None)
+            return;
+
         f();
+    }
 }
 
 void Pipe::exec()

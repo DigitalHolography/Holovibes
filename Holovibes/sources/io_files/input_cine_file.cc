@@ -82,12 +82,14 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag
         // This eventually matches the recorded cine but will be invalid for
         // other cine files
         if (std::fseek(file_, 8, SEEK_CUR) != 0)
-            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
+            throw FileException("CINE: Unable to read " + std::to_string(frames_to_read) +
+                                " frames; with code : " + std::to_string(std::ferror(file_)));
 
         frames_read += std::fread(buffer + i * packed_frame_size_, packed_frame_size_, 1, file_);
 
         if (ferror(file_))
-            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
+            throw FileException("CINE: Error while reading " + std::to_string(frames_to_read) +
+                                " frames; with code : " + std::to_string(std::ferror(file_)));
     }
 
     return frames_read;
