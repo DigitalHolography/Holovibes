@@ -12,7 +12,7 @@ template <typename T>
 class Parallel_BGR_to_gray : public cv::ParallelLoopBody
 {
   private:
-    cv::Mat &m_src_rgb_, &m_dst_gray_;
+    cv::Mat &m_src_bgr_, &m_dst_gray_;
     std::array<float, 3> coeffs_;
 
   public:
