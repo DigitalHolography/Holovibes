@@ -23,7 +23,7 @@ static void check_cuda_graphic_card(bool gui)
     int device;
     int nDevices;
     int min_compute_capability = 35;
-    int max_compute_capability = 86;
+    int max_compute_capability = 89;
     int compute_capability;
     cudaError_t status;
     cudaDeviceProp props;
