@@ -6,10 +6,9 @@
  */
 #pragma once
 
-#include <opencv2/videoio.hpp>
-
 #include "camera.hh"
 #include "camera_exception.hh"
+#include "opencv2/videoio.hpp"
 
 namespace camera
 {
@@ -20,6 +19,13 @@ namespace camera
  */
 class CameraOpenCV : public Camera
 {
+    enum grayscale_method
+    {
+        OPENCV,
+        MANUAL,
+        AUTO,
+    };
+
   public:
     CameraOpenCV();
 
@@ -52,5 +58,9 @@ class CameraOpenCV : public Camera
     int deviceID_;
     int apiID_;
     unsigned int fps_;
+
+    enum grayscale_method method_;
+    // BGR to grayscale colors coeffs [B, G, R]
+    std::array<float, 3> grayscale_coeffs_;
 };
 } // namespace camera
