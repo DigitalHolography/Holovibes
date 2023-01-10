@@ -49,17 +49,23 @@ void CameraPhantom::shutdown_camera() { return; }
 CapturedFramesDescriptor CameraPhantom::get_frames()
 {
     ScopedBuffer buffer(*(grabber_->grabbers_[0]));
+
+    for (int i = 1; i < grabber_->grabbers_.length(); ++i)
+        ScopedBuffer stiching(*(grabber_->grabbers_[i]));
+
     uint8_t *bufferPtr = buffer.getInfo<uint8_t *>(gc::BUFFER_INFO_BASE);
-    // size_t imageSize = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_PART_SIZE);
+    size_t imageSize = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_PART_SIZE);
 
     // process available images
     size_t delivered = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
 
     CapturedFramesDescriptor ret;
 
-    ret.on_gpu = false;
+    ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
+
+    ret.region2 = nullptr;
     ret.count2 = 0;
 
     return ret;

@@ -133,7 +133,10 @@ class EHoloGrabber
 
         // Start each sub grabber in reverse order
         for (size_t i = 0; i < grabber_count; i++)
+        {
+            grabbers_[grabber_count - 1 - i]->enableEvent<NewBufferData>();
             grabbers_[grabber_count - 1 - i]->start();
+        }
     }
 
     //void* get_frame()
