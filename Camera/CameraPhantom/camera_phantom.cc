@@ -31,6 +31,7 @@ CameraPhantom::CameraPhantom()
 
 void CameraPhantom::init_camera()
 {
+    grabber_->setup(fps_, fullHeight_, width_, nb_grabbers_, *gentl_);
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
@@ -68,11 +69,14 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
     return ret;
 }
 
-
 void CameraPhantom::load_default_params()
 {
-    nb_buffers_ = 16;
-    nb_images_per_buffer_ = 16;
+    nb_buffers_ = 64;
+    nb_images_per_buffer_ = 4;
+    nb_grabbers_ = 4;
+    fps_ = 100;
+    fullHeight_ = 512;
+    width_ = 512;
 }
 
 void CameraPhantom::load_ini_params()
@@ -80,6 +84,16 @@ void CameraPhantom::load_ini_params()
     const boost::property_tree::ptree& pt = get_ini_pt();
     nb_buffers_ = pt.get<unsigned int>("phantom.nb_buffers", nb_buffers_);
     nb_images_per_buffer_ = pt.get<unsigned int>("phantom.nb_images_per_buffer", nb_images_per_buffer_);
+    nb_grabbers_ = pt.get<unsigned int>("phantom.nb_grabbers", nb_grabbers_);
+    fps_ = pt.get<unsigned int>("phantom.fps", fps_);
+    fullHeight_ = pt.get<unsigned int>("phantom.fullHeight", fullHeight_);
+    width_ = pt.get<unsigned int>("phantom.width", width_);
+
+    if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
+    {
+        nb_grabbers_ = 4;
+        Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
+    }
 }
 
 void CameraPhantom::bind_params() { return; }
