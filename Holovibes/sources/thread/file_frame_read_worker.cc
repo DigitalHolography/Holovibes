@@ -129,7 +129,7 @@ void FileFrameReadWorker::read_file_in_gpu()
         enqueue_loop(frames_read);
 
         if (api::detail::get_value<LoopFile>())
-            current_nb_frames_read_ = 1;
+            current_nb_frames_read_ = 0;
         else
         {
             LOG_DEBUG("End to read the file, stop because LoopFile == false");
@@ -164,7 +164,7 @@ void FileFrameReadWorker::read_file_batch()
             }
 
             input_file_->set_pos_to_frame(api::get_start_frame() - 1);
-            current_nb_frames_read_ = 1;
+            current_nb_frames_read_ = 0;
         }
     }
 }

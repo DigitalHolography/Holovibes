@@ -43,7 +43,7 @@ struct Filter2DStruct
 struct ConvolutionStruct
 {
     bool enabled = false;
-    std::string type; // = UID_CONVOLUTION_TYPE_DEFAULT;
+    std::string type = UID_CONVOLUTION_TYPE_DEFAULT;
     bool divide = false;
     std::vector<float> matrix = {};
 

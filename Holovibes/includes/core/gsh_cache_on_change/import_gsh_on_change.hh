@@ -32,5 +32,12 @@ class ImportGSHOnChange
     void operator()<EndFrame>(uint& new_value);
     template <>
     void operator()<FileNumberOfFrame>(uint& new_value);
+
+    template <>
+    bool change_accepted<StartFrame>(uint new_value);
+    template <>
+    bool change_accepted<EndFrame>(uint new_value);
+    template <>
+    bool change_accepted<FileNumberOfFrame>(uint new_value);
 };
 } // namespace holovibes

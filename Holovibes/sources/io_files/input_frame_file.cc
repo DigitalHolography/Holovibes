@@ -16,11 +16,12 @@ size_t InputFrameFile::read_frames(char* buffer, size_t frames_to_read, int* fla
     if (frames_read != frames_to_read)
     {
         LOG_DEBUG("Couldn't read all needed frames : read {} instead of {}", frames_read, frames_to_read);
-
         frames_read = std::fread(buffer, frame_size_, 1, file_);
 
         if (frames_read != 1)
-            LOG_DEBUG("Couldn't read any images from this file");
+        {
+            LOG_DEBUG("Couldn't read any images from this file {}", std::ftell(file_));
+        }
     }
 
     if (std::ferror(file_) != 0)
