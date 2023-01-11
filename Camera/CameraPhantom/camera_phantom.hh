@@ -34,22 +34,6 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
         : EGrabberCallbackOnDemand(gentl, interfaceIndex, deviceIndex, dataStreamIndex, deviceOpenFlags, remoteRequired)
     {
     }
-
-    /*! \brief Raw pointer to the last frame captured by onNewBufferEvent. */
-    uint8_t* last_ptr_;
-
-  //private:
-    //virtual void onNewBufferEvent(const NewBufferData& data)
-    //{
-    //    /* Using ScopedBuffer will tell the grabber that the buffer is available
-    //     * to store new acquired frames at the end of this scope. This behavior
-    //     * is not an issue as the next time onNewBufferEvent will be called, the
-    //     * previous frame will have already been enqueued in Holovibes input
-    //     * queue.
-    //     */
-    //    ScopedBuffer buffer(*this, data);
-    //    last_ptr_ = static_cast<uint8_t*>(buffer.getUserPointer());
-    //}
 };
 
 /*! \class EHoloGrabber
@@ -97,6 +81,62 @@ class EHoloGrabber
         cudaFreeHost(ptr_);
     }
 
+    void setup(unsigned int fps, unsigned int fullHeight, unsigned int width, unsigned int nb_grabbers, EGenTL& gentl)
+    {
+        grabbers_.root[0][0].reposition(0);
+        grabbers_.root[0][1].reposition(1);
+        grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+
+        if (nb_grabbers == 4)
+        {
+            grabbers_.root[1][0].reposition(2);
+            grabbers_.root[1][1].reposition(3);
+            grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
+        }
+
+        size_t pitch = width * gentl.imageGetBytesPerPixel("Mono8");
+        size_t grabberCount = grabbers_.length();
+        size_t height = fullHeight / grabberCount;
+        size_t stripeHeight = 8;
+        size_t stripePitch = stripeHeight * grabberCount;
+        for (size_t ix = 0; ix < grabberCount; ++ix)
+        {
+            grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
+            grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
+            grabbers_[ix]->setString<RemoteModule>("PixelFormat", "Mono8");
+
+            grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_2YM");
+            grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
+            grabbers_[ix]->setInteger<StreamModule>("LineWidth", pitch);
+            grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
+            grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
+            grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
+            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
+            grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
+            grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+        }
+        grabbers_[0]->setString<RemoteModule>("TriggerMode", "TriggerModeOn"); // camera in triggered mode
+        grabbers_[0]->setString<RemoteModule>("TriggerSource", "SWTRIGGER");   // source of trigger CXP
+        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", "RC");    // tell grabber 0 to send trigger
+
+        /* 100 fps -> 10000us */
+        // float factor = fps / 100;
+        // float cycleMinimumPeriod = 10000 / factor;
+        float cycleMinimumPeriod = 1e6 / fps;
+        std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
+        grabbers_[0]->setString<DeviceModule>("CycleMinimumPeriod",
+                                              CycleMinimumPeriod);               // set the trigger rate to 250K Hz
+        grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
+        grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
+        grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
+
+        /* 100 fps -> 9000us */
+        float factor = fps / 100;
+        float Expvalue = 9000 / factor;
+        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", Expvalue);
+        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", "BalanceWhiteMarkerOff");
+    }
+
     void init(unsigned int nb_buffers)
     {
         nb_buffers_ = nb_buffers;
@@ -107,9 +147,10 @@ class EHoloGrabber
         // Learn more about pinned memory:
         // https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/.
 
-        uint8_t *device_ptr;
+        uint8_t* device_ptr;
 
-        cudaError_t alloc_res = cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+        cudaError_t alloc_res =
+            cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
         cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
 
         if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
@@ -123,7 +164,8 @@ class EHoloGrabber
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
             for (size_t ix = 0; ix < grabber_count; ix++)
-                grabbers_[ix]->announceAndQueue(UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+                grabbers_[ix]->announceAndQueue(
+                    UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
         }
     }
 
@@ -138,18 +180,6 @@ class EHoloGrabber
             grabbers_[grabber_count - 1 - i]->start();
         }
     }
-
-    //void* get_frame()
-    //{
-    //    // For each grabber, if a new frame has been written into memory within
-    //    // FRAME_TIMEOUT ms we call onNewBufferEvent. Otherwise, a timeout
-    //    // exception will be thrown. This part of the code is thus blocking!
-    //    for (size_t i = 0; i < grabbers_.length(); i++)
-    //        grabbers_[i]->processEvent<NewBufferData>(FRAME_TIMEOUT);
-
-    //    // The first and second grabber last_ptr_ is the identical.
-    //    return grabbers_[0]->last_ptr_;
-    //}
 
     void stop()
     {
@@ -170,10 +200,6 @@ class EHoloGrabber
     EGrabbers<EHoloSubGrabber> grabbers_;
 
   private:
-    /*! \brief Unique ptr to the instance of the GenICam GenTL API. */
-    std::unique_ptr<EGenTL> gentl_;
-
-
     /*! \brief The number of buffers used to store frames. It is equivalent to
      * the number of frames to store simultaneously.
      */
@@ -184,7 +210,7 @@ class EHoloGrabber
     unsigned int nb_images_per_buffer_;
 
     /*! \brief A pointer the cuda memory allocated for the buffers.
-    */
+     */
     uint8_t* ptr_;
 };
 
@@ -210,5 +236,9 @@ class CameraPhantom : public Camera
 
     unsigned int nb_buffers_;
     unsigned int nb_images_per_buffer_;
+    unsigned int nb_grabbers_;
+    unsigned int fps_;
+    unsigned int fullHeight_;
+    unsigned int width_;
 };
 } // namespace camera
