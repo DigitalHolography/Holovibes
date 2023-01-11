@@ -72,4 +72,22 @@ void ImportGSHOnChange::operator()<FileNumberOfFrame>(uint& new_value)
     api::set_end_frame(new_value);
 }
 
+template <>
+bool ImportGSHOnChange::change_accepted<StartFrame>(uint new_value)
+{
+    return new_value > 0 && new_value <= api::detail::get_value<FileNumberOfFrame>();
+}
+
+template <>
+bool ImportGSHOnChange::change_accepted<EndFrame>(uint new_value)
+{
+    return new_value > 0 && new_value <= api::detail::get_value<FileNumberOfFrame>();
+}
+
+template <>
+bool ImportGSHOnChange::change_accepted<FileNumberOfFrame>(uint new_value)
+{
+    return new_value > 0;
+}
+
 } // namespace holovibes

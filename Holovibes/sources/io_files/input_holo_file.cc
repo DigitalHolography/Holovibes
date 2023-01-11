@@ -48,6 +48,9 @@ void InputHoloFile::set_pos_to_frame(size_t frame_id)
 
     if (std::fsetpos(file_, &frame_offset) != 0)
         throw FileException("Unable to seek the frame requested");
+
+    if (std::ftell(file_) == -1)
+        LOG_WARN("Fail to set pos to frame id {}", frame_id);
 }
 
 void InputHoloFile::load_header()

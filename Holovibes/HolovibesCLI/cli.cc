@@ -70,12 +70,15 @@ static void start_worker(const OptionsDescriptor& opts)
     if (opts.compute_settings_path)
         api::load_compute_settings(opts.compute_settings_path.value());
 
-    api::set_end_frame(opts.end_frame.value_or(api::detail::get_value<FileNumberOfFrame>()));
-    api::set_start_frame(opts.start_frame.value_or(0));
+    if (opts.end_frame.has_value())
+        api::set_end_frame(opts.end_frame.value());
+
+    if (opts.start_frame.has_value())
+        api::set_start_frame(opts.start_frame.value());
 
     api::detail::set_value<LoadFileInGpu>(opts.gpu);
     api::detail::set_value<InputFps>(opts.fps.value_or(DEFAULT_CLI_FPS));
-    // api::detail::set_value<LoopFile>(false);
+    api::detail::set_value<LoopFile>(true);
 
     size_t input_nb_frames = api::get_end_frame() - api::get_start_frame() + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / api::get_time_stride());
@@ -108,8 +111,6 @@ void start_cli(const OptionsDescriptor& opts)
         print_verbose(opts);
 
     LOG_DEBUG("compute_mode = {}", api::detail::get_value<ComputeMode>());
-
-    api::detail::set_value<ComputeMode>(opts.record_raw ? ComputeModeEnum::Raw : ComputeModeEnum::Hologram);
 
     // FIXME API : maybe this check can go to api
     if (api::get_start_frame() > api::get_end_frame())

@@ -19,9 +19,9 @@ class ImportFrameDescriptor : public Parameter<FrameDescriptor, DefaultLiteral<F
 
 class ImportFilePath : public StringParameter<"", "import_file_path">{};
 class LoadFileInGpu : public BoolParameter<true, "load_in_gpu">{};
-class StartFrame : public UIntParameter<0, "start_frame">{};
-class EndFrame : public UIntParameter<0, "end_frame">{};
-class FileNumberOfFrame : public UIntParameter<0, "file_number_of_frame">{};
+class StartFrame : public UIntParameter<1, "start_frame">{};
+class EndFrame : public UIntParameter<1, "end_frame">{};
+class FileNumberOfFrame : public UIntParameter<1, "file_number_of_frame">{};
 
 class LoopFile : public BoolParameter<true, "loop_file">{};
 class IsGuiEnable : public BoolParameter<true, "is_gui_enable">{};
