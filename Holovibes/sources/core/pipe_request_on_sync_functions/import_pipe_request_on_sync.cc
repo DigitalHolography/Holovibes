@@ -66,7 +66,8 @@ void ImportPipeRequestOnSync::on_sync<CurrentCameraKind>(CameraKind new_value, C
 template <>
 void ImportPipeRequestOnSync::operator()<CurrentCameraKind>(CameraKind new_value, Pipe& pipe)
 {
-    // Stop Camera
+    // Stop and start of the thread appear in the ImportType Sync
+    //  Stop Camera
     if (new_value == CameraKind::None)
     {
     }
