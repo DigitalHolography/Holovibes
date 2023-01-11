@@ -70,6 +70,8 @@ static void start_worker(const OptionsDescriptor& opts)
     if (opts.compute_settings_path)
         api::load_compute_settings(opts.compute_settings_path.value());
 
+    api::detail::set_value<ComputeMode>(opts.record_raw ? ComputeModeEnum::Raw : ComputeModeEnum::Hologram);
+
     if (opts.end_frame.has_value())
         api::set_end_frame(opts.end_frame.value());
 
