@@ -4,8 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
-    
         {
             "name": "Debug Holovibes",
             "type": "cppvsdbg",
@@ -36,7 +34,7 @@
                 "-i",
                 "tests/data/inputs/8frames_1024_1024.holo",
                 "-o",
-                "DaViD.holo"
+                "tests/data/8frames_1024_1024_batch_size_30/ref.holo",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

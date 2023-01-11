@@ -59,7 +59,7 @@ def generate_holo_from(input: str, output: str, cli_argument: str, config: str =
     assert sub.returncode == 0, sub.stderr.decode('utf-8')
 
     t2 = time.time()
-    return (t2 - t1),
+    return (t2 - t1)
 
 
 def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> bool:

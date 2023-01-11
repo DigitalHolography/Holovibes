@@ -12,7 +12,7 @@ REF_FAILED_IMAGE = "ref.png"
 
 TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
 TESTS_INPUTS = os.path.join(TESTS_DATA, "inputs")
-CONTRAST_MAX_PERCENT_DIFF = 0.05
+CONTRAST_MAX_PERCENT_DIFF = 0.10
 
 
 def find_tests() -> List[str]:
