@@ -36,6 +36,8 @@ class CameraFrameReadWorker final : public FrameReadWorker
     /*! \brief The camera giving the images */
     std::shared_ptr<camera::ICamera> camera_;
 
+    uint total_captured_frames_ = 0;
+
     void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const FrameDescriptor& camera_fd);
 };
 } // namespace holovibes::worker

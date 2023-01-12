@@ -75,12 +75,18 @@ class ThreadWorkerController
     void stop();
 
     bool is_running() const { return worker_ != nullptr; }
+    void join() const
+    {
+        while (is_running() == true)
+            ;
+        // FIXME this is better, but for futur us : thread_.join();
+    }
 
   private:
     /*! \brief Method run in the thread
      *
-     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the
-     * worker
+     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset
+     * the worker
      */
     void run();
 

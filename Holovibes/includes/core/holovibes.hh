@@ -104,8 +104,10 @@ class Holovibes
     std::shared_ptr<Queue>& get_gpu_output_queue() { return gpu_output_queue_; }
     std::shared_ptr<Pipe>& get_compute_pipe() { return compute_pipe_; }
     std::shared_ptr<camera::ICamera>& get_active_camera() { return active_camera_; }
+    void set_active_camera(std::shared_ptr<camera::ICamera> camera) { active_camera_ = camera; }
     const CudaStreams& get_cuda_streams() const { return cuda_streams_; }
 
+    // clang-format off
     worker::ThreadWorkerController<worker::FileFrameReadWorker>& get_file_frame_read_worker_controller() { return file_frame_read_worker_controller_; }
     worker::ThreadWorkerController<worker::CameraFrameReadWorker>& get_camera_read_worker_controller() { return camera_read_worker_controller_; }
     worker::ThreadWorkerController<worker::FrameRecordWorker>& get_frame_record_worker_controller() { return frame_record_worker_controller_; }
@@ -113,38 +115,25 @@ class Holovibes
     worker::ThreadWorkerController<worker::BatchGPIBWorker>& get_batch_gpib_worker_controller() { return batch_gpib_worker_controller_; }
     worker::ThreadWorkerController<worker::InformationWorker>& get_info_worker_controller() { return info_worker_controller_; }
     worker::ThreadWorkerController<worker::ComputeWorker>& get_compute_worker_controller() { return compute_worker_controller_; }
-
+    // clang-format on
 
     void init_gpu_queues();
     void destroy_gpu_queues();
 
     void start_file_frame_read();
-    void stop_file_frame_read();
+    void stop_and_join_file_frame_read();
 
-    /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
-     * TODO: refacto (see issue #22)
-     *
-     * \param camera_kind
-     */
     void start_camera_frame_read();
-    void stop_camera_frame_read();
+    void stop_and_join_camera_frame_read();
 
-    /*! \brief Initialize and start the frame record worker controller
-     *
-     * \param path
-     * \param nb_to_record
-     * \param record_mode
-     * \param nb_frames_skip
-     * \param callback
-     */
     void start_frame_record();
-    void stop_frame_record();
+    void stop_and_join_frame_record();
 
     void start_chart_record();
-    void stop_chart_record();
+    void stop_and_join_chart_record();
 
     void start_information_display();
-    void stop_information_display();
+    void stop_and_join_information_display();
 
     void start_compute();
     void stop_compute();

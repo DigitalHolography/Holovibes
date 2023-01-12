@@ -22,9 +22,7 @@ void Holovibes::init_gpu_queues()
     LOG_DEBUG("init_gpu_queues");
 
     gpu_input_queue_.reset(
-        new BatchInputQueue(api::get_input_buffer_size(),
-                            api::get_compute_mode() == ComputeModeEnum::Raw ? 1 : api::get_batch_size(),
-                            api::get_import_frame_descriptor()));
+        new BatchInputQueue(api::get_input_buffer_size(), api::get_batch_size(), api::get_import_frame_descriptor()));
 
     gpu_output_queue_.reset(new Queue(api::detail::get_value<OutputFrameDescriptor>(),
                                       api::detail::get_value<OutputBufferSize>(),
@@ -56,11 +54,11 @@ void Holovibes::start_file_frame_read()
     file_frame_read_worker_controller_.start();
 }
 
-void Holovibes::stop_file_frame_read()
+void Holovibes::stop_and_join_file_frame_read()
 {
     LOG_DEBUG("stop_file_frame_read");
     file_frame_read_worker_controller_.stop();
-    while (file_frame_read_worker_controller_.is_running());
+    file_frame_read_worker_controller_.join();
 }
 
 void Holovibes::start_camera_frame_read()
@@ -69,45 +67,21 @@ void Holovibes::start_camera_frame_read()
 
     try
     {
-        const static std::map<CameraKind, LPCSTR> camera_dictionary = {
-            {CameraKind::Adimec, "CameraAdimec.dll"},
-            {CameraKind::BitflowCyton, "BitflowCyton.dll"},
-            {CameraKind::IDS, "CameraIds.dll"},
-            {CameraKind::Phantom, "CameraPhantom.dll"},
-            {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
-            {CameraKind::xiQ, "CameraXiq.dll"},
-            {CameraKind::xiB, "CameraXib.dll"},
-            {CameraKind::OpenCV, "CameraOpenCV.dll"},
-        };
-        active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(api::get_current_camera_kind()));
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Camera library cannot be loaded. (Exception: {})", e.what());
-        throw;
-    }
-
-    try
-    {
-        // FIXME API : this 2 lines shoud be done in the camera files
-        api::detail::set_value<PixelSize>(active_camera_->get_pixel_size());
-        api::detail::set_value<ImportFrameDescriptor>(active_camera_->get_fd());
-
         camera_read_worker_controller_.start(active_camera_);
     }
     catch (std::exception& e)
     {
         LOG_ERROR("Error at camera frame read start worker. (Exception: {})", e.what());
-        stop_camera_frame_read();
+        stop_and_join_camera_frame_read();
         throw;
     }
 }
 
-void Holovibes::stop_camera_frame_read()
+void Holovibes::stop_and_join_camera_frame_read()
 {
     LOG_FUNC();
     camera_read_worker_controller_.stop();
-    while (camera_read_worker_controller_.is_running());
+    camera_read_worker_controller_.join();
     active_camera_.reset();
 }
 
@@ -127,19 +101,19 @@ void Holovibes::start_frame_record()
         batch_gpib_worker_controller_.start();
 }
 
-void Holovibes::stop_frame_record()
+void Holovibes::stop_and_join_frame_record()
 {
     LOG_DEBUG("stop_frame_record");
 
     if (api::detail::get_value<ExportScriptPath>() == "")
     {
         frame_record_worker_controller_.stop();
-        while (frame_record_worker_controller_.is_running());
+        frame_record_worker_controller_.join();
     }
     else
     {
         batch_gpib_worker_controller_.stop();
-        while (batch_gpib_worker_controller_.is_running());
+        batch_gpib_worker_controller_.join();
     }
 }
 
@@ -149,11 +123,11 @@ void Holovibes::start_chart_record()
     chart_record_worker_controller_.start();
 }
 
-void Holovibes::stop_chart_record()
+void Holovibes::stop_and_join_chart_record()
 {
     LOG_DEBUG("stop_chart_record");
     chart_record_worker_controller_.stop();
-    while (chart_record_worker_controller_.is_running());
+    chart_record_worker_controller_.join();
 }
 
 void Holovibes::start_information_display()
@@ -162,11 +136,11 @@ void Holovibes::start_information_display()
     info_worker_controller_.start();
 }
 
-void Holovibes::stop_information_display()
+void Holovibes::stop_and_join_information_display()
 {
     LOG_DEBUG("stop_information_display");
     info_worker_controller_.stop();
-    while (info_worker_controller_.is_running());
+    info_worker_controller_.join();
 }
 
 void Holovibes::create_pipe()

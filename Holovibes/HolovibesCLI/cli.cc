@@ -123,15 +123,13 @@ void start_cli(const OptionsDescriptor& opts)
     start_worker(opts);
 
     LOG_TRACE("Wait for the record worker to stop ...");
-    while (Holovibes::instance().get_frame_record_worker_controller().is_running())
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    Holovibes::instance().get_frame_record_worker_controller().join();
     LOG_TRACE("record worker stopped ...");
 
     api::detail::set_value<ImportType>(ImportTypeEnum::None);
 
     LOG_TRACE("Wait for the compute worker to stop ...");
-    while (Holovibes::instance().get_compute_worker_controller().is_running())
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    Holovibes::instance().get_compute_worker_controller().join();
     LOG_TRACE("compute worker stopped ...");
 
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);

@@ -45,6 +45,14 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     }
 
     template <>
+    void operator()<ComputeMode>(ComputeModeEnum, Pipe& pipe)
+    {
+        LOG_UPDATE_ON_SYNC(ComputeMode);
+
+        request_pipe_refresh();
+    }
+
+    template <>
     void operator()<Lambda>(float, Pipe& pipe)
     {
         LOG_UPDATE_ON_SYNC(Lambda);

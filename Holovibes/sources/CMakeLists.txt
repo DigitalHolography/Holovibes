@@ -19,6 +19,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     core/gsh_cache_on_change/view_gsh_on_change.cc
 
     core/pipe_request_on_sync_functions/compute_pipe_request_on_sync.cc
+    core/pipe_request_on_sync_functions/advanced_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/export_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/import_pipe_request_on_sync.cc
     core/pipe_request_on_sync_functions/view_pipe_request_on_sync.cc

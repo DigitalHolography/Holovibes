@@ -8,7 +8,7 @@ void ComputePipeRequestOnSync::operator()<BatchSize>(int new_value, Pipe& pipe)
     LOG_UPDATE_ON_SYNC(BatchSize);
 
     pipe.update_spatial_transformation_parameters();
-    pipe.get_gpu_input_queue().resize(new_value);
+    pipe.get_gpu_input_queue().set_new_batch_size(new_value);
 
     request_pipe_refresh();
 }

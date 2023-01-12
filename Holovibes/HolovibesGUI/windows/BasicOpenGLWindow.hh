@@ -65,6 +65,7 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
      * \{
      */
     void resetTransform();
+    void update_bitshift();
     void setScale(float);
     float getScale() const { return scale_; }
     void setTranslate(float x, float y);

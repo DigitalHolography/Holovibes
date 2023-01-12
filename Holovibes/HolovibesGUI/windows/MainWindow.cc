@@ -430,13 +430,9 @@ void MainWindow::closeEvent(QCloseEvent*)
 /* ------------ */
 #pragma region Cameras
 
-void MainWindow::change_camera(CameraKind c)
-{
-    api::set_current_camera_kind(c);
-    shift_screen();
-}
+void MainWindow::change_camera(CameraKind c) { api::set_current_camera_kind(c); }
 
-void MainWindow::camera_none() { api::detail::set_value<ImportType>(ImportTypeEnum::None); }
+void MainWindow::camera_none() { change_camera(CameraKind::None); }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 

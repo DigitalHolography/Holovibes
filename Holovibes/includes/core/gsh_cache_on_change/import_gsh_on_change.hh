@@ -27,6 +27,8 @@ class ImportGSHOnChange
     template <>
     void operator()<ImportFilePath>(std::string& filename);
     template <>
+    void operator()<CurrentCameraKind>(CameraKind& camera);
+    template <>
     void operator()<StartFrame>(uint& new_value);
     template <>
     void operator()<EndFrame>(uint& new_value);

@@ -20,17 +20,13 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<OutputBufferSize>(uint new_value, Pipe& pipe)
-    {
-        // FIXME : Not used
-        // pipe.get_gpu_output_queue().resize(new_value, stream_);
-    }
-
-  public:
+    void operator()<InputBufferSize>(uint new_value, Pipe& pipe);
     template <>
-    void operator()<RenormConstant>(uint, Pipe& pipe)
-    {
-    }
+    void operator()<FileBufferSize>(uint new_value, Pipe& pipe);
+    template <>
+    void operator()<OutputBufferSize>(uint new_value, Pipe& pipe);
+    template <>
+    void operator()<RecordBufferSize>(uint new_value, Pipe& pipe);
 };
 
 } // namespace holovibes

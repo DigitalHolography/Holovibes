@@ -27,7 +27,7 @@ class TimeTransformationCutsBufferSize : public UIntParameter<512, "time_transfo
 class Filter2DSmooth : public Parameter<Filter2DSmoothStruct, DefaultLiteral<Filter2DSmoothStruct>{}, "filter2d_smooth">{};
 class ContrastThreshold : public Parameter<ContrastThresholdStruct, DefaultLiteral<ContrastThresholdStruct>{}, "contrast_threshold">{};
 class RenormConstant : public UIntParameter<5, "renorm_constant">{};
-class RawBitshift : public IntParameter<0, "raw_bitshift">{};
+class RawBitshift : public IntParameter<4, "raw_bitshift">{};
 
 class FrontEnd : public StringParameter<"", "front_end">{};
 

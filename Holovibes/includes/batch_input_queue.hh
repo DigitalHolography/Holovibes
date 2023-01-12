@@ -99,7 +99,8 @@ class BatchInputQueue final : public DisplayQueue
      * Called by the consumer.
      * Empty the queue.
      */
-    void resize(const uint new_batch_size);
+    void set_new_batch_size(uint new_batch_size);
+    void set_new_total_nb_frames(uint new_frame_capacity);
 
     /*! \brief Stop the producer.
      *
@@ -144,7 +145,7 @@ class BatchInputQueue final : public DisplayQueue
      *
      * \param new_batch_size The new number of frames in a batch
      */
-    void create_queue(const uint new_batch_size);
+    void create_queue(const uint new_total_nb_frames, const uint new_batch_size);
 
     /*! \brief Destroy mutexes and streams arrays.
      *
@@ -194,9 +195,6 @@ class BatchInputQueue final : public DisplayQueue
      * With respect to batch size (batch_size_ * max_size_)
      */
     uint total_nb_frames_;
-
-    /*! \brief The total number of frames that can be contained in the queue */
-    std::atomic<uint> frame_capacity_{0};
 
   public:
     /*! \brief Current number of full batches
