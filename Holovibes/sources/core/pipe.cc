@@ -533,7 +533,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            *processed_output_fps_ += compute_cache_.get_batch_size();
+            (*processed_output_fps_) += compute_cache_.get_batch_size();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display

@@ -132,7 +132,6 @@ bool change_camera(CameraKind c)
 
     try
     {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();

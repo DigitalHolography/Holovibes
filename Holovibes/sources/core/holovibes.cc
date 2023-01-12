@@ -37,10 +37,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 {
     camera::FrameDescriptor queue_fd = fd;
 
-    gpu_input_queue_ =
-        std::make_shared<BatchInputQueue>(input_queue_size,
-                                          api::get_compute_mode() == Computation::Raw ? 1 : api::get_batch_size(),
-                                          queue_fd);
+    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,
