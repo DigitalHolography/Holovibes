@@ -68,7 +68,6 @@ void AdvancedSettingsWindow::set_ui_values()
     if (specific_panel_ != nullptr)
         specific_panel_->set_ui_values();
 
-    UserInterface::instance().has_been_updated = true;
     this->close();
 }
 

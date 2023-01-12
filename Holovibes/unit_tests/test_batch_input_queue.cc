@@ -212,7 +212,7 @@ TEST(BatchInputQueueTest, SimpleResizeSame)
 
     // Resize
     const uint new_batch_size = 2;
-    queue.resize(new_batch_size);
+    queue.set_new_batch_size(new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0ilan\0"
@@ -243,7 +243,7 @@ TEST(BatchInputQueueTest, SimpleResizeGreater)
 
     // Resize
     const uint new_batch_size = 4;
-    queue.resize(new_batch_size);
+    queue.set_new_batch_size(new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0ilan\0" and "anto\0kaci\0"
@@ -276,7 +276,7 @@ TEST(BatchInputQueueTest, SimpleResizeLower)
 
     // Resize
     const uint new_batch_size = 1;
-    queue.resize(new_batch_size);
+    queue.set_new_batch_size(new_batch_size);
     ASSERT_EQ(queue.get_size(), 0);
 
     // Enqueue "theo\0"
@@ -310,7 +310,7 @@ void consumer(holovibes::BatchInputQueue& queue,
             holovibes::Queue copy_queue(fd, queue.get_total_nb_frames());
             batch_size = std::min(batch_size * 2, max_batch_size);
             queue.copy_multiple(copy_queue);
-            queue.resize(batch_size);
+            queue.set_new_batch_size(batch_size);
         }
         else
             dequeue_helper(queue, batch_size);
@@ -621,6 +621,6 @@ TEST(BatchInputQueueTest, ResizeQueueSizeNotMatcingBatchSize)
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames);
 
     constexpr uint new_batch_size = 6;
-    queue.resize(new_batch_size);
+    queue.set_new_batch_size(new_batch_size);
     ASSERT_EQ(queue.get_total_nb_frames(), total_nb_frames - (total_nb_frames % new_batch_size));
 }

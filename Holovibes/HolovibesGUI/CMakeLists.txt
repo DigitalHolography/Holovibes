@@ -23,6 +23,7 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     gui_front_end/gui_front_end_for_export_cache_on_pipe_request.cc
     gui_front_end/gui_front_end_for_view_cache_on_pipe_request.cc
     gui_front_end/gui_front_end_for_compute_cache_on_pipe_request.cc
+    gui_front_end/gui_front_end_for_advanced_cache_on_pipe_request.cc
 
     gui.cc
     other/gui_curve_plot.cc

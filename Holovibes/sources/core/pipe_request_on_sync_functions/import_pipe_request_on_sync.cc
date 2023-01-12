@@ -4,13 +4,6 @@
 
 namespace holovibes
 {
-
-template <>
-void ImportPipeRequestOnSync::on_sync<ImportType>(ImportTypeEnum new_value, ImportTypeEnum old_value, Pipe& pipe)
-{
-    operator()<ImportType>(new_value, pipe);
-}
-
 template <>
 void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, Pipe& pipe)
 {
@@ -30,13 +23,13 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
 
     if (new_value == ImportTypeEnum::None)
     {
-        Holovibes::instance().stop_camera_frame_read();
-        Holovibes::instance().stop_file_frame_read();
+        Holovibes::instance().stop_and_join_camera_frame_read();
+        Holovibes::instance().stop_and_join_file_frame_read();
 
-        Holovibes::instance().stop_frame_record();
-        Holovibes::instance().stop_chart_record();
+        Holovibes::instance().stop_and_join_frame_record();
+        Holovibes::instance().stop_and_join_chart_record();
 
-        Holovibes::instance().stop_information_display();
+        Holovibes::instance().stop_and_join_information_display();
         Holovibes::instance().stop_compute();
 
         // We are currently stopping all worker, so the pipe does not
@@ -56,25 +49,4 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
         Holovibes::instance().start_file_frame_read();
     }
 }
-
-template <>
-void ImportPipeRequestOnSync::on_sync<CurrentCameraKind>(CameraKind new_value, CameraKind old_value, Pipe& pipe)
-{
-    operator()<CurrentCameraKind>(new_value, pipe);
-}
-
-template <>
-void ImportPipeRequestOnSync::operator()<CurrentCameraKind>(CameraKind new_value, Pipe& pipe)
-{
-    // Stop and start of the thread appear in the ImportType Sync
-    //  Stop Camera
-    if (new_value == CameraKind::None)
-    {
-    }
-    // Start Camera
-    else
-    {
-    }
-}
-
 } // namespace holovibes

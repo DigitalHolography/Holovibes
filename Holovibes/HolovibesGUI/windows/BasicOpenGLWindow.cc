@@ -199,17 +199,24 @@ void BasicOpenGLWindow::setTransform()
         QMatrix4x4 m(glm::value_ptr(mvp));
         Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
         Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
-
-        if (kind_of_view == KindOfView::Raw)
-        {
-            Program->setUniformValue(Program->uniformLocation("bitshift"), api::get_raw_bitshift());
-            return;
-        }
-        else
-            Program->setUniformValue(Program->uniformLocation("bitshift"), 0);
-
         Program->release();
     }
+
+    update_bitshift();
+}
+
+void BasicOpenGLWindow::update_bitshift()
+{
+    if (Program == false)
+        return;
+
+    Program->bind();
+    if (kind_of_view == KindOfView::Raw)
+        Program->setUniformValue(Program->uniformLocation("bitshift"), api::get_raw_bitshift());
+    else
+        Program->setUniformValue(Program->uniformLocation("bitshift"), 0);
+
+    Program->release();
 }
 
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)

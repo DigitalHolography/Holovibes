@@ -63,7 +63,7 @@ void RawWindow::initializeGL()
     Vao.bind();
     Program->bind();
 
-#pragma region Texture
+#pragma region Textureiform
     glGenBuffers(1, &Pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
     size_t size;

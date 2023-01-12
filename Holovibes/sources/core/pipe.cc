@@ -336,6 +336,41 @@ void Pipe::insert_wait_frames()
         });
 }
 
+void Pipe::insert_raw_record()
+{
+    if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::RAW)
+    {
+        if (api::detail::get_value<ExportRecordDontLoseFrame>())
+            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
+
+        fn_compute_vect_.push_back(
+            [&]() {
+                gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
+                                               compute_cache_.get_value<BatchSize>());
+            });
+    }
+}
+
+void Pipe::insert_dequeue_input()
+{
+    fn_compute_vect_.push_back(
+        [&]()
+        {
+            processed_output_fps_ += compute_cache_.get_value<BatchSize>();
+
+            // FIXME: It seems this enqueue is useless because the RawWindow use
+            // the gpu input queue for display
+            /* safe_enqueue_output(
+            **    gpu_output_queue_,
+            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+            **    "Can't enqueue the input frame in gpu_output_queue");
+            */
+
+            // Dequeue a batch
+            gpu_input_queue_.dequeue();
+        });
+}
+
 void Pipe::insert_reset_batch_index()
 {
     fn_compute_vect_.conditional_push_back([&]() { batch_env_.batch_index = 0; });
@@ -369,26 +404,6 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 {
     if (!output_queue.enqueue(frame, stream_))
         throw EnqueueException(error);
-}
-
-void Pipe::insert_dequeue_input()
-{
-    fn_compute_vect_.push_back(
-        [&]()
-        {
-            processed_output_fps_ += compute_cache_.get_value<BatchSize>();
-
-            // FIXME: It seems this enqueue is useless because the RawWindow use
-            // the gpu input queue for display
-            /* safe_enqueue_output(
-            **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-            **    "Can't enqueue the input frame in gpu_output_queue");
-            */
-
-            // Dequeue a batch
-            gpu_input_queue_.dequeue();
-        });
 }
 
 void Pipe::insert_output_enqueue_hologram_mode()
@@ -468,21 +483,6 @@ void Pipe::insert_raw_view()
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
                 gpu_input_queue_.copy_multiple(*get_raw_view_queue_ptr());
-            });
-    }
-}
-
-void Pipe::insert_raw_record()
-{
-    if (api::detail::get_value<Record>().get_record_type_if_is_running() == RecordStruct::RecordType::RAW)
-    {
-        if (api::detail::get_value<ExportRecordDontLoseFrame>())
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_value<BatchSize>()); });
-
-        fn_compute_vect_.push_back(
-            [&]() {
-                gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
-                                               compute_cache_.get_value<BatchSize>());
             });
     }
 }

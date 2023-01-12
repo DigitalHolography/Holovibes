@@ -12,9 +12,9 @@ CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> ca
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = camera_->get_name();
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT) = "FIXME Camera Format";
 
-    to_record_ = api::get_nb_frame_to_read();
+    to_record_ = 0;
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
-    entry.recorded = &processed_frames_;
+    entry.recorded = &total_captured_frames_;
     entry.to_record = &to_record_;
 }
 
@@ -52,8 +52,6 @@ void CameraFrameReadWorker::run()
     {
         LOG_ERROR("[CAPTURE] {}", e.what());
     }
-
-    camera_.reset();
 }
 
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
@@ -73,6 +71,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
         api::get_gpu_input_queue().enqueue(ptr, copy_kind);
     }
 
+    total_captured_frames_ += captured_fd.count1 + captured_fd.count2;
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
 
