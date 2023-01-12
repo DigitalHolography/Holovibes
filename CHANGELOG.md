@@ -1,5 +1,10 @@
 ## Changelog
 
+### 11.3.0
+
+* Add high_framerate with euresys and phantom
+* Use a config file inside of holovibes directly
+
 ### 11.2.0
 
 * Fix logger flush on quit

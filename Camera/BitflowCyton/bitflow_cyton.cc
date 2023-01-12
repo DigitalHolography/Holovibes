@@ -212,17 +212,37 @@ void CameraPhantomBitflow::shutdown_camera()
     free(frames);
 }
 
+// tour overflow
+// captured = 1
+// old_captured = 2
+// nb_frames = 3
+//
+
+// tour normal
+// captured 5
+// old_captured 0
+// nb_frames 5
+// pas besoin de region 2
+
+
+// tour circular buffer // nb buffer 10
+// captured 5
+// old_captured 8
+// nb_frames
+
+
+
 CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
 {
     /* Get update on the total number of images  */
     CiSignalQueueSize(boards[0], &eod_signal, &captured);
 
     BFU32 nb_frames = captured - old_captured;
-    if (captured < old_captured)
+    if (captured < old_captured) // nb_frames overflow
     {
         nb_frames = 0xffffffff - old_captured + captured;
     }
-    if (nb_frames >= nb_buffers || nb_frames == 0)
+    if (nb_frames >= nb_buffers || nb_frames == 0) // si pas de frame on renvoit rien OU plus de frame que de buffer on give up
     {
         old_captured = captured;
         return CapturedFramesDescriptor(nullptr, 0);
