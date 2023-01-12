@@ -253,9 +253,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
                                                "${BUILD_DIR}/json_patches_holofile/"
 
-    # Copy euresys setup directory
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${EURESYS_DIR}" "${BUILD_DIR}/setup_710"
-
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
