@@ -93,7 +93,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              view_cache_);
 
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS) = &processed_output_fps_;
-    processed_output_fps_ = 0;
 }
 
 void Pipe::first_sync()
