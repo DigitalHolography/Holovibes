@@ -11,30 +11,17 @@ void AdvancedPipeRequestOnSync::operator()<InputBufferSize>(uint new_value, Pipe
 }
 
 template <>
-void AdvancedPipeRequestOnSync::operator()<FileBufferSize>(uint new_value, Pipe& pipe)
-{
-    LOG_UPDATE_ON_SYNC(FileBufferSize);
-    // if (pipe.get_gpu_output_queue())
-    //     pipe.get_gpu_output_queue().set_new_total_nb_frames(new_value);
-    // request_pipe_refresh();
-}
-
-template <>
 void AdvancedPipeRequestOnSync::operator()<OutputBufferSize>(uint new_value, Pipe& pipe)
 {
     LOG_UPDATE_ON_SYNC(OutputBufferSize);
-    // if (pipe.get_gpu_output_queue())
-    //     pipe.get_gpu_output_queue().set_new_total_nb_frames(new_value);
-    // request_pipe_refresh();
+    pipe.get_gpu_output_queue().resize(new_value);
+    request_pipe_refresh();
 }
 
 template <>
-void AdvancedPipeRequestOnSync::operator()<RecordBufferSize>(uint new_value, Pipe& pipe)
+void AdvancedPipeRequestOnSync::operator()<TimeTransformationCutsBufferSize>(uint new_value, Pipe& pipe)
 {
-    LOG_UPDATE_ON_SYNC(RecordBufferSize);
-    // if (pipe.get_gpu_output_queue())
-    //     pipe.get_gpu_output_queue().set_new_total_nb_frames(new_value);
-    // request_pipe_refresh();
+    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationCutsEnable>(pipe);
 }
 
 } // namespace holovibes

@@ -17,7 +17,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
 {
     auto& entry = GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE);
     entry.size = &size_;
-    entry.max_size = &max_size_;
+    entry.max_size = &total_nb_frames_;
 
     // Set priority of streams
     // Set batch_size and max_size

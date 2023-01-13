@@ -57,6 +57,8 @@ class ICompute
     std::unique_ptr<Queue>& get_raw_view_queue_ptr() { return gpu_raw_view_queue_; }
     std::unique_ptr<Queue>& get_filter2d_view_queue_ptr() { return gpu_filter2d_view_queue_; }
 
+    cuda_tools::CufftHandle& get_spatial_transformation_plan() { return spatial_transformation_plan_; }
+
   public:
     /*! \brief Execute one iteration of the ICompute.
      *
@@ -71,21 +73,6 @@ class ICompute
     virtual void exec() = 0;
 
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
-
-  public:
-    bool update_time_transformation_size(uint time_transformation_size);
-
-  private:
-    void update_time_transformation_size_resize(uint time_transformation_size);
-
-  public:
-    /*! \name Resources management
-     * \{
-     */
-    void update_spatial_transformation_parameters();
-    void init_cuts();
-    void dispose_cuts();
-    /*! \} */
 
   protected:
     /*! \brief Reference on the input queue */

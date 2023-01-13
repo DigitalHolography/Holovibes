@@ -2,6 +2,7 @@
 #include "API.hh"
 #include "gui.hh"
 #include "MainWindow.hh"
+#include "user_interface.hh"
 
 #include "gui_front_end.hh"
 
@@ -14,6 +15,10 @@ void start_gui(int argc, char** argv, const std::string filename)
     ExportCacheFrontEndMethods::link_front_end<GuiFrontEndForExportCacheOnPipeRequest>();
     ViewCacheFrontEndMethods::link_front_end<GuiFrontEndForViewCacheOnPipeRequest>();
     AdvancedCacheFrontEndMethods::link_front_end<GuiFrontEndForAdvancedCacheOnPipeRequest>();
+
+    FrontEndMethodsCallback::set([](std::function<void(void)>& f)
+                                 { UserInterface::instance().main_window->synchronize_thread([=]() { f(); }, true); });
+
     api::detail::set_value<FrontEnd>("HolovibesGUI");
 
     api::detail::set_value<ExportRecordDontLoseFrame>(false);

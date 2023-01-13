@@ -104,9 +104,8 @@ class Queue final : public DisplayQueue
     /*! \brief Empty the Queue and change its size.
      *
      * \param size The new size of the Queue
-     * \param stream
      */
-    void resize(const unsigned int size, const cudaStream_t stream);
+    void resize(const unsigned int size);
 
     /*! \brief Enqueue method
      *

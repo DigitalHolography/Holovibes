@@ -112,7 +112,10 @@ template <>
 struct TypeValue<FpsType>
 {
     using key = FpsType;
-    using value = uint*;
+    struct value
+    {
+        uint image_processed = 0;
+    };
 };
 
 template <>
@@ -121,8 +124,8 @@ struct TypeValue<ProgressType>
     using key = ProgressType;
     struct value
     {
-        uint* recorded;
-        const uint* to_record;
+        uint* recorded = nullptr;
+        const uint* to_record = nullptr;
     };
 };
 
@@ -132,8 +135,8 @@ struct TypeValue<QueueType>
     using key = QueueType;
     struct value
     {
-        const std::atomic<uint>* size;
-        const uint* max_size;
+        const std::atomic<uint>* size = nullptr;
+        const uint* max_size = nullptr;
     };
 };
 

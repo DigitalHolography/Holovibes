@@ -32,8 +32,6 @@ class FrameReadWorker : public Worker
     float current_display_rate = 30.0f;
     float time_to_wait = 33.0f;
 
-    ImportCache::Cache<> import_cache_;
-
     const cudaStream_t stream_;
 };
 } // namespace holovibes::worker

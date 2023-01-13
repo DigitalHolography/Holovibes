@@ -50,7 +50,7 @@ using entities::Span;
 //! technically useless, but it's a great plus in order to don't take care of witch cache we refering to
 
 // clang-format off
-class GSHAdvancedCache : public AdvancedCache::Ref<>{};
+class GSHAdvancedCache : public AdvancedCache::Ref<AdvancedGSHOnChange>{};
 class GSHComputeCache : public ComputeCache::Ref<ComputeGSHOnChange>{};
 class GSHImportCache : public ImportCache::Ref<ImportGSHOnChange>{};
 class GSHExportCache : public ExportCache::Ref<>{};

@@ -15,9 +15,6 @@ void GuiFrontEndForImportCacheOnPipeRequest::before_method<ImportType>()
 
     if (api::detail::get_value<ImportType>() == ImportTypeEnum::None)
     {
-        UserInterface::instance().main_window->synchronize_thread(
-            [=]()
-            {
                 UserInterface::instance().xy_window.reset(nullptr);
                 UserInterface::instance().sliceXZ.reset(nullptr);
                 UserInterface::instance().sliceYZ.reset(nullptr);
@@ -29,7 +26,6 @@ void GuiFrontEndForImportCacheOnPipeRequest::before_method<ImportType>()
                     api::set_raw_view_enabled(false);
 
                 UserInterface::instance().plot_window_.reset(nullptr);
-            }, true);
     }
 }
 
