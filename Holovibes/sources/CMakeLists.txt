@@ -13,7 +13,8 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     API/CUDA_API.cc
     API/display_API.cc
 
-    core/gsh_cache_on_change/common_on_change.cc
+    core/gsh_cache_on_change/common_gsh_on_change.cc
+    core/gsh_cache_on_change/advanced_gsh_on_change.cc
     core/gsh_cache_on_change/compute_gsh_on_change.cc
     core/gsh_cache_on_change/import_gsh_on_change.cc
     core/gsh_cache_on_change/view_gsh_on_change.cc

@@ -12,12 +12,7 @@ void GuiFrontEndForAdvancedCacheOnPipeRequest::after_method<RawBitshift>()
 {
     LOG_UPDATE_FRONT_END_BEFORE(RawBitshift);
 
-    UserInterface::instance().main_window->synchronize_thread(
-        [=]()
-        {
-            if (UserInterface::instance().xy_window)
-                UserInterface::instance().xy_window->update_bitshift();
-        },
-        true);
+    if (UserInterface::instance().xy_window)
+        UserInterface::instance().xy_window->update_bitshift();
 }
 } // namespace holovibes::gui

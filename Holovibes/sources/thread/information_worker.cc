@@ -88,17 +88,17 @@ void InformationWorker::run()
 void InformationWorker::compute_fps(const long long waited_time)
 {
     auto& fps_map = GSH::fast_updates_map<FpsType>;
-    FastUpdatesHolder<FpsType>::const_iterator it;
-    if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
-        input_fps_ = std::round(*it->second * (1000.f / waited_time));
+    for (auto& [key, value] : fps_map.get_map())
+    {
+        if (key == FpsType::INPUT_FPS)
+            input_fps_ = std::round(value.image_processed * (1000.f / waited_time));
+        else if (key == FpsType::OUTPUT_FPS)
+            output_fps_ = std::round(value.image_processed * (1000.f / waited_time));
+        else if (key == FpsType::SAVING_FPS)
+            saving_fps_ = std::round(value.image_processed * (1000.f / waited_time));
 
-    if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
-        output_fps_ = std::round(*it->second * (1000.f / waited_time));
-
-    if ((it = fps_map.find(FpsType::SAVING_FPS)) != fps_map.end())
-        saving_fps_ = std::round(*it->second * (1000.f / waited_time));
-
-    it->second = 0;
+        value.image_processed = 0;
+    }
 }
 
 void InformationWorker::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
@@ -137,6 +137,22 @@ void InformationWorker::display_gui_information()
             to_display << *value.size << "/" << *value.max_size << "\n";
         else
             to_display << "?? / ?? \n";
+
+        if (is_input_queue_ok_ && key == QueueType::INPUT_QUEUE)
+        {
+            float coef = (float)*value.max_size / (float)*value.size;
+
+            if (last_input_queue_state_ == false && coef < 0.60f)
+            {
+                last_input_queue_state_ = true;
+                is_input_queue_ok_(true);
+            }
+            else if (last_input_queue_state_ == true && coef > 0.80f)
+            {
+                last_input_queue_state_ = false;
+                is_input_queue_ok_(false);
+            }
+        }
     }
 
     if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))

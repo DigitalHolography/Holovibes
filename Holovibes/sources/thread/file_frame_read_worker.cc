@@ -10,6 +10,41 @@
 
 namespace holovibes::worker
 {
+
+template <>
+void AdvancedFileRequestOnSync::operator()<FileBufferSize>(uint, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync FileFrameReadWorker");
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<InputFps>(uint new_value, FileFrameReadWorker& file_worker)
+{
+    file_worker.get_fps_handler().set_new_fps_target(new_value);
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<StartFrame>(uint, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync StartFrame");
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<EndFrame>(uint, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync EndFrame");
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<LoadFileInGpu>(bool, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync LoadFileInGpu");
+}
+
 FileFrameReadWorker::FileFrameReadWorker()
     : FrameReadWorker()
     , current_nb_frames_read_(0)
@@ -26,10 +61,17 @@ FileFrameReadWorker::FileFrameReadWorker()
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
     entry.recorded = &current_nb_frames_read_;
     entry.to_record = &to_record_;
+
+    import_cache_.synchronize_force(*this);
+    advanced_cache_.synchronize_force(*this);
 }
 
 FileFrameReadWorker::~FileFrameReadWorker()
 {
+    cudaXFree(gpu_packed_buffer_);
+    cudaXFree(gpu_frame_buffer_);
+    cudaXFreeHost(cpu_frame_buffer_);
+
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::READ);
@@ -37,10 +79,6 @@ FileFrameReadWorker::~FileFrameReadWorker()
 
 void FileFrameReadWorker::run()
 {
-    if (!init_frame_buffers())
-        return;
-
-    // FIXME FASTUPDATEMAP
     auto fd = api::detail::get_value<ImportFrameDescriptor>();
     std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
                                         std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
@@ -49,7 +87,6 @@ void FileFrameReadWorker::run()
 
     try
     {
-
         input_file_->set_pos_to_frame(api::get_start_frame() - 1);
 
         if (api::detail::get_value<LoadFileInGpu>())
@@ -64,10 +101,6 @@ void FileFrameReadWorker::run()
 
     // No more enqueue, thus release the producer ressources
     api::get_gpu_input_queue().stop_producer();
-
-    cudaXFree(gpu_packed_buffer_);
-    cudaXFree(gpu_frame_buffer_);
-    cudaXFreeHost(cpu_frame_buffer_);
 }
 
 bool FileFrameReadWorker::init_frame_buffers()
@@ -81,6 +114,7 @@ bool FileFrameReadWorker::init_frame_buffers()
 
     size_t buffer_size = api::get_import_frame_descriptor().get_frame_size() * buffer_nb_frames;
 
+    cudaXFreeHost(cpu_frame_buffer_);
     cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
 
     std::string error_message = "";
@@ -93,6 +127,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         return false;
     }
 
+    cudaXFree(gpu_frame_buffer_);
     error_code = cudaXRMalloc(&gpu_frame_buffer_, buffer_size);
 
     if (error_code != cudaSuccess)
@@ -103,6 +138,7 @@ bool FileFrameReadWorker::init_frame_buffers()
         return false;
     }
 
+    cudaXFree(gpu_packed_buffer_);
     error_code = cudaXRMalloc(&gpu_packed_buffer_, api::get_import_frame_descriptor().get_frame_size());
 
     if (error_code != cudaSuccess)
@@ -126,6 +162,9 @@ void FileFrameReadWorker::read_file_in_gpu()
 
     while (!stop_requested_)
     {
+        import_cache_.synchronize(*this);
+        advanced_cache_.synchronize(*this);
+
         enqueue_loop(frames_read);
 
         if (api::detail::get_value<LoopFile>())
@@ -140,14 +179,17 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = api::detail::get_value<FileBufferSize>();
+    const unsigned int file_buffer_size = api::detail::get_value<FileBufferSize>();
 
     fps_handler_.begin();
 
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, api::get_nb_frame_to_read() - current_nb_frames_read_);
+        import_cache_.synchronize(*this);
+        advanced_cache_.synchronize(*this);
+
+        size_t frames_to_read = std::min(file_buffer_size, api::get_nb_frame_to_read() - current_nb_frames_read_);
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
 
@@ -171,7 +213,6 @@ void FileFrameReadWorker::read_file_batch()
 
 size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 {
-    // Read
     size_t frames_read = 0;
     int flag_packed;
 
@@ -250,7 +291,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
                                                frames_enqueued * api::get_import_frame_descriptor().get_frame_size(),
                                            cudaMemcpyDeviceToDevice);
 
-        processed_frames_for_fps_++;
+        GSH::fast_updates_map<FpsType>.get_entry(FpsType::INPUT_FPS).image_processed += 1;
         frames_enqueued++;
         current_nb_frames_read_++;
     }

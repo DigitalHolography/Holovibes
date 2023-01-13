@@ -100,7 +100,7 @@ TEST(SimpleQueueResize, QueueResize)
     ASSERT_EQ(q.get_max_size(), 2);
 
     unsigned int new_size = 10;
-    q.resize(new_size, stream); // Resize here, empty the queue
+    q.resize(new_size); // Resize here, empty the queue
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), new_size);
 }
@@ -200,7 +200,7 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.resize(2, stream); // reset, same size
+    q.resize(2); // reset, same size
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
 

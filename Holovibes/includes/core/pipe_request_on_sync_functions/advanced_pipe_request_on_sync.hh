@@ -22,11 +22,9 @@ class AdvancedPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<InputBufferSize>(uint new_value, Pipe& pipe);
     template <>
-    void operator()<FileBufferSize>(uint new_value, Pipe& pipe);
-    template <>
     void operator()<OutputBufferSize>(uint new_value, Pipe& pipe);
     template <>
-    void operator()<RecordBufferSize>(uint new_value, Pipe& pipe);
+    void operator()<TimeTransformationCutsBufferSize>(uint new_value, Pipe& pipe);
 };
 
 } // namespace holovibes

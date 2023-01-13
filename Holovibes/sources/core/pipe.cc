@@ -92,7 +92,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                              compute_cache_,
                                                              view_cache_);
 
-    GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS) = &processed_output_fps_;
+    GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS);
 }
 
 void Pipe::first_sync()
@@ -355,15 +355,8 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            processed_output_fps_ += compute_cache_.get_value<BatchSize>();
-
-            // FIXME: It seems this enqueue is useless because the RawWindow use
-            // the gpu input queue for display
-            /* safe_enqueue_output(
-            **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
-            **    "Can't enqueue the input frame in gpu_output_queue");
-            */
+            GSH::fast_updates_map<FpsType>.get_entry(FpsType::OUTPUT_FPS).image_processed +=
+                compute_cache_.get_value<BatchSize>();
 
             // Dequeue a batch
             gpu_input_queue_.dequeue();
@@ -410,7 +403,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
     fn_compute_vect_.conditional_push_back(
         [&]()
         {
-            processed_output_fps_++;
+            GSH::fast_updates_map<FpsType>.get_entry(FpsType::OUTPUT_FPS).image_processed += 1;
 
             safe_enqueue_output(gpu_output_queue_,
                                 buffers_.gpu_output_frame.get(),

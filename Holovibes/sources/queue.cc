@@ -49,7 +49,7 @@ Queue::Queue(const FrameDescriptor& fd,
 
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
-void Queue::resize(const unsigned int size, const cudaStream_t stream)
+void Queue::resize(unsigned int size)
 {
     MutexGuard mGuard(mutex_);
 
@@ -61,9 +61,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
         throw std::logic_error("Could not resize queue");
     }
 
-    // Needed if input is embedded into a bigger square
-    cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
-    cudaXStreamSynchronize(stream);
+    cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
     size_ = 0;
     start_index_ = 0;
@@ -114,12 +112,12 @@ void Queue::enqueue_multiple_aux(
 {
     cudaXMemcpyAsync(out, in, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
 
-     if (is_big_endian_)
-         endianness_conversion(reinterpret_cast<ushort*>(out),
-                               reinterpret_cast<ushort*>(out),
-                               nb_elts,
-                               fd_.get_frame_res(),
-                               stream);
+    if (is_big_endian_)
+        endianness_conversion(reinterpret_cast<ushort*>(out),
+                              reinterpret_cast<ushort*>(out),
+                              nb_elts,
+                              fd_.get_frame_res(),
+                              stream);
 }
 
 void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream)

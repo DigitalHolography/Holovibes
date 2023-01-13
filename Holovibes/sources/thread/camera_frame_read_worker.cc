@@ -72,7 +72,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     }
 
     total_captured_frames_ += captured_fd.count1 + captured_fd.count2;
-    processed_frames_for_fps_ += captured_fd.count1 + captured_fd.count2;
+    GSH::fast_updates_map<FpsType>.get_entry(FpsType::INPUT_FPS).image_processed +=
+        captured_fd.count1 + captured_fd.count2;
 
     api::get_gpu_input_queue().sync_current_batch();
 }
