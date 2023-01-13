@@ -21,11 +21,8 @@ class FrameReadWorker : public Worker
     virtual ~FrameReadWorker();
 
   protected:
-    void compute_fps();
-
     /*! \brief The current fps */
-    uint current_fps_;
-    uint processed_frames_;
+    uint processed_frames_for_fps_;
     uint to_record_;
 
     /*! \brief Useful for Input fps value. */

@@ -112,7 +112,7 @@ template <>
 struct TypeValue<FpsType>
 {
     using key = FpsType;
-    using value = const uint*;
+    using value = uint*;
 };
 
 template <>

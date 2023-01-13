@@ -250,11 +250,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
                                                frames_enqueued * api::get_import_frame_descriptor().get_frame_size(),
                                            cudaMemcpyDeviceToDevice);
 
-        processed_frames_++;
+        processed_frames_for_fps_++;
         frames_enqueued++;
         current_nb_frames_read_++;
-
-        compute_fps();
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to

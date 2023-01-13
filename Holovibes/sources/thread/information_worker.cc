@@ -90,17 +90,15 @@ void InformationWorker::compute_fps(const long long waited_time)
     auto& fps_map = GSH::fast_updates_map<FpsType>;
     FastUpdatesHolder<FpsType>::const_iterator it;
     if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
-        input_fps_ = *it->second;
+        input_fps_ = std::round(*it->second * (1000.f / waited_time));
 
     if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
-    {
         output_fps_ = std::round(*it->second * (1000.f / waited_time));
-    }
 
     if ((it = fps_map.find(FpsType::SAVING_FPS)) != fps_map.end())
-    {
         saving_fps_ = std::round(*it->second * (1000.f / waited_time));
-    }
+
+    it->second = 0;
 }
 
 void InformationWorker::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
