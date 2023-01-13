@@ -24,9 +24,10 @@ class InformationWorker final : public Worker
     void run() override;
 
     static inline std::function<void(const std::string&)> display_info_text_function_;
-
-    /*! \brief The function used to update the progress displayed */
     static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
+
+    static inline std::function<void(bool)> is_input_queue_ok_;
+    bool last_input_queue_state_ = true;
 
   private:
     /*! \brief The map associating an indication type with its name */

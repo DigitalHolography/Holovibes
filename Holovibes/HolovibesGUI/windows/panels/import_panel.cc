@@ -11,6 +11,8 @@
 #include "API.hh"
 
 #include "user_interface.hh"
+#include "information_worker.hh"
+#include <QtGui/QPalette>
 
 namespace api = ::holovibes::api;
 
@@ -20,6 +22,21 @@ ImportPanel::ImportPanel(QWidget* parent)
     : Panel(parent)
 {
     UserInterface::instance().import_panel = this;
+
+    // ::holovibes::worker::InformationWorker::is_input_queue_ok_ = [&](bool value)
+    // {
+    //     UserInterface::instance().main_window->synchronize_thread(
+    //         [&]()
+    //         {
+    //             QPalette palette = ui_->FileReaderProgressBar->palette();
+    //             if (value)
+    //                 palette.setColor(QPalette::Highlight, Qt::blue);
+    //             else
+    //                 palette.setColor(QPalette::Highlight, Qt::red);
+    //             ui_->FileReaderProgressBar->setPalette(palette);
+    //         },
+    //         true);
+    // };
 }
 
 ImportPanel::~ImportPanel() {}
@@ -27,8 +44,12 @@ ImportPanel::~ImportPanel() {}
 void ImportPanel::on_notify()
 {
     ui_->InputBrowseToolButton->setEnabled(api::get_import_type() == ImportTypeEnum::None);
-    ui_->ImportStartPushButton->setEnabled(!api::get_import_file_path().empty());
-    ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty());
+
+    ui_->ImportStartPushButton->setEnabled(!api::get_import_file_path().empty() &&
+                                           api::get_import_type() == ImportTypeEnum::None);
+
+    ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty() &&
+                                          api::get_import_type() != ImportTypeEnum::None);
 
     ui_->ImportStartIndexSpinBox->setMinimum(1);
     ui_->ImportStartIndexSpinBox->setValue(api::get_start_frame());
@@ -81,30 +102,10 @@ void ImportPanel::import_browse_file()
 
 void ImportPanel::import_file(const QString& filename)
 {
-    // Insert the newly getted path in it
     ui_->ImportPathLineEdit->clear();
     ui_->ImportPathLineEdit->insert(filename);
 
     api::detail::set_value<ImportFilePath>(filename.toStdString());
-
-    // FIXME API - FIXME ERROR RECOVERY
-    // Start importing the chosen
-    //    try
-    //    {
-    //    }
-    // catch (const io_files::FileException& e)
-    //{
-    //    // In case of bad format, we triggered the user
-    //    QMessageBox messageBox;
-    //    messageBox.critical(nullptr, "File Error", e.what());
-    //    LOG_ERROR("Catch {}", e.what());
-    //    // Holovibes cannot be launched over this file
-    //    set_start_stop_buttons(false);
-    //    return;
-    //}
-    //
-
-    // We can now launch holovibes over this file
 }
 
 // clang-format off
@@ -120,13 +121,7 @@ void ImportPanel::import_start()
     parent_->shift_screen();
     ui_->FileReaderProgressBar->show();
 
-    // Ensure that all vars are well sync
-    api::set_input_fps(ui_->ImportInputFpsSpinBox->value());
     api::set_load_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());
-    api::set_start_frame(ui_->ImportStartIndexSpinBox->value());
-    api::set_end_frame(ui_->ImportEndIndexSpinBox->value());
-    api::set_import_file_path(ui_->ImportPathLineEdit->text().toStdString());
-
     api::set_import_type(ImportTypeEnum::File);
 }
 

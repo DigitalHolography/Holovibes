@@ -137,6 +137,22 @@ void InformationWorker::display_gui_information()
             to_display << *value.size << "/" << *value.max_size << "\n";
         else
             to_display << "?? / ?? \n";
+
+        if (is_input_queue_ok_ && key == QueueType::INPUT_QUEUE)
+        {
+            float coef = (float)*value.max_size / (float)*value.size;
+
+            if (last_input_queue_state_ == false && coef < 0.60f)
+            {
+                last_input_queue_state_ = true;
+                is_input_queue_ok_(true);
+            }
+            else if (last_input_queue_state_ == true && coef > 0.80f)
+            {
+                last_input_queue_state_ = false;
+                is_input_queue_ok_(false);
+            }
+        }
     }
 
     if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))

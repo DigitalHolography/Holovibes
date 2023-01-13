@@ -67,6 +67,12 @@ class ImportFileRequestOnSync
   public:
     template <>
     void operator()<InputFps>(uint, FileFrameReadWorker&);
+    template <>
+    void operator()<StartFrame>(uint, FileFrameReadWorker&);
+    template <>
+    void operator()<EndFrame>(uint, FileFrameReadWorker&);
+    template <>
+    void operator()<LoadFileInGpu>(bool, FileFrameReadWorker&);
 };
 
 class FpsHandler

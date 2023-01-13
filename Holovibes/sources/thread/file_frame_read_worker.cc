@@ -12,7 +12,7 @@ namespace holovibes::worker
 {
 
 template <>
-void AdvancedFileRequestOnSync::operator()<FileBufferSize>(uint new_value, FileFrameReadWorker& file_worker)
+void AdvancedFileRequestOnSync::operator()<FileBufferSize>(uint, FileFrameReadWorker& file_worker)
 {
     if (file_worker.init_frame_buffers() == false)
         throw std::runtime_error("Error in init_frame_buffers() while sync FileFrameReadWorker");
@@ -22,6 +22,27 @@ template <>
 void ImportFileRequestOnSync::operator()<InputFps>(uint new_value, FileFrameReadWorker& file_worker)
 {
     file_worker.get_fps_handler().set_new_fps_target(new_value);
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<StartFrame>(uint, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync StartFrame");
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<EndFrame>(uint, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync EndFrame");
+}
+
+template <>
+void ImportFileRequestOnSync::operator()<LoadFileInGpu>(bool, FileFrameReadWorker& file_worker)
+{
+    if (file_worker.init_frame_buffers() == false)
+        throw std::runtime_error("Error in init_frame_buffers() while sync LoadFileInGpu");
 }
 
 FileFrameReadWorker::FileFrameReadWorker()
