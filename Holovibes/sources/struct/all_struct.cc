@@ -219,7 +219,12 @@ void ComputeSettings::Dump(const std::string& filename)
     this->Update();
     to_json(compute_json, *this);
 
-    auto path_path = std::filesystem::path(holovibes::settings::dump_filepath) / (filename + ".json");
+    std::filesystem::path dump_folder = std::filesystem::path(holovibes::settings::dump_filepath);
+    if (!std::filesystem::exists(dump_folder))
+    {
+        std::filesystem::create_directories(dump_folder);
+    }
+    auto path_path = dump_folder / (filename + ".json");
     auto file_content = std::ofstream(path_path, std::ifstream::out);
     file_content << std::setw(1) << compute_json;
 }
