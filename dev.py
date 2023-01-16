@@ -121,6 +121,10 @@ def cmake(args: GoalArgs) -> int:
 
 @goal
 def build(args: GoalArgs) -> int:
+    build_mode = build_utils.get_build_mode(args.build_mode)
+
+    if build_mode == "Debug":
+        subprocess.call("cp -R Camera/configs debug_config/cameras_config")
     return conan_build_goal(args, "--build")
 
 
