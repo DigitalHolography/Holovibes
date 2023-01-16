@@ -27,7 +27,7 @@ class InformationWorker final : public Worker
     static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
 
     static inline std::function<void(bool)> is_input_queue_ok_;
-    bool last_input_queue_state_ = true;
+    bool last_input_queue_state_ = false;
 
   private:
     /*! \brief The map associating an indication type with its name */

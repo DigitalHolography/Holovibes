@@ -306,7 +306,7 @@ class MicroCache
 
             this->container_.template call<SetHasBeenSynchronized<false>>();
 
-            std::lock_guard<std::recursive_mutex> guard(RefSingleton::get().get_lock());
+            RefSingleton::get().lock();
             for (auto change : this->change_pool_)
             {
                 IParameter* param_to_change = change.first;
@@ -317,6 +317,7 @@ class MicroCache
             this->container_.template call<OnSync<FunctionsClass, Args...>>(this->change_pool_,
                                                                             std::forward<Args>(args)...);
             this->change_pool_.clear();
+            RefSingleton::get().unlock();
         }
 
         template <typename... Args>
@@ -325,8 +326,18 @@ class MicroCache
             this->set_all_values(MicroCache<Params...>::RefSingleton::get());
             this->template call<FunctionsClass>(std::forward<Args>(args)...);
 
-            std::lock_guard<std::recursive_mutex> guard(RefSingleton::get().get_lock());
+            RefSingleton::get().lock();
             this->change_pool_.clear();
+            RefSingleton::get().unlock();
+        }
+
+        void set_value_only_W()
+        {
+            this->set_all_values(MicroCache<Params...>::RefSingleton::get());
+
+            RefSingleton::get().lock();
+            this->change_pool_.clear();
+            RefSingleton::get().unlock();
         }
 
       public:
@@ -424,9 +435,16 @@ class MicroCache
         }
 
       public:
-        std::recursive_mutex& get_lock() { return lock_; }
-        void lock() { lock_.lock(); }
-        void unlock() { lock_.unlock(); }
+        void lock()
+        {
+            lock_.lock();
+            LOG_DEBUG("LOCK REF by thread {}", std::this_thread::get_id());
+        }
+        void unlock()
+        {
+            lock_.unlock();
+            LOG_DEBUG("UNLOCK REF by thread {}", std::this_thread::get_id());
+        }
 
       protected:
         std::set<BasicCache*> caches_to_sync_;
@@ -496,7 +514,7 @@ class MicroCache
         template <typename T>
         void set_value(typename T::ConstRefType value)
         {
-            this->lock_.lock();
+            this->lock();
             const T& old_value = this->BasicMicroCache::template get_type<T>();
             if (old_value.has_parameter_change_valuetype(value) && is_change_accepted<T>(value))
             {
@@ -504,13 +522,13 @@ class MicroCache
                 this->BasicMicroCache::template get_type<T>().set_value(value);
                 callback_trigger_change_value<T>(save_for_restore);
             }
-            this->lock_.unlock();
+            this->unlock();
         }
 
         template <typename T>
         TriggerChangeValue<typename T::ValueType> change_value()
         {
-            this->lock_.lock();
+            this->lock();
             return TriggerChangeValue<typename T::ValueType>(
                 [this, old_value = this->BasicMicroCache::template get_type<T>()]()
                 {
@@ -523,7 +541,7 @@ class MicroCache
                         this->callback_trigger_change_value<T>(old_value.get_value());
                     }
 
-                    this->lock_.unlock();
+                    this->unlock();
                 },
                 &BasicMicroCache::template get_type<T>().get_value());
         }

@@ -27,7 +27,23 @@ namespace holovibes::worker
 
 class FileFrameReadWorker;
 
-class AdvancedFileRequestOnSync
+class FileRequestOnSync
+{
+  public:
+    static void begin_requests() { need_refresh_ = false; }
+
+    static bool do_need_refresh() { return need_refresh_; }
+    static void need_refresh() { need_refresh_ = true; }
+
+    static bool has_requests_fail() { return requests_fail_; }
+    static void request_fail() { requests_fail_ = true; }
+
+  private:
+    static inline bool need_refresh_ = false;
+    static inline bool requests_fail_ = false;
+};
+
+class AdvancedFileRequestOnSync : public FileRequestOnSync
 {
   public:
     template <typename T>
@@ -48,7 +64,7 @@ class AdvancedFileRequestOnSync
     void operator()<FileBufferSize>(uint, FileFrameReadWorker&);
 };
 
-class ImportFileRequestOnSync
+class ImportFileRequestOnSync : public FileRequestOnSync
 {
   public:
     template <typename T>
@@ -65,6 +81,8 @@ class ImportFileRequestOnSync
     }
 
   public:
+    template <>
+    void operator()<ImportFrameDescriptor>(const FrameDescriptor&, FileFrameReadWorker&);
     template <>
     void operator()<InputFps>(uint, FileFrameReadWorker&);
     template <>
@@ -151,23 +169,20 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Init the cpu_buffer and gpu_buffer */
     bool init_frame_buffers();
 
+    void refresh();
+
     FpsHandler& get_fps_handler() { return fps_handler_; }
 
+    char* get_cpu_frame_buffer() { return cpu_frame_buffer_; }
+    void set_cpu_frame_buffer(char* buffer) { cpu_frame_buffer_ = buffer; }
+
+    char* get_gpu_frame_buffer() { return gpu_frame_buffer_; }
+    void set_gpu_frame_buffer(char* buffer) { gpu_frame_buffer_ = buffer; }
+
+    char* get_gpu_packed_buffer() { return gpu_packed_buffer_; }
+    void set_gpu_packed_buffer(char* buffer) { gpu_packed_buffer_ = buffer; }
+
   private:
-    /*! \brief Load all the frames of the file in the gpu
-     *
-     * Read all the frames in cpu and copy them in gpu.
-     * Then enqueue the frames one by one in the gpu_input_queue
-     */
-    void read_file_in_gpu();
-
-    /*! \brief Load the frames of the file by batch into the gpu
-     *
-     * Read batch in cpu and copy it in gpu.
-     * Then enqueue the frames one by one in the gpu_input_queue
-     */
-    void read_file_batch();
-
     /*! \brief Read frames in cpu and copy in gpu
      *
      * \param frames_to_read The number of frames to read
@@ -187,11 +202,11 @@ class FileFrameReadWorker final : public FrameReadWorker
     FpsHandler fps_handler_;
 
     /*! \brief CPU buffer in which the frames are temporarly stored */
-    char* cpu_frame_buffer_;
+    char* cpu_frame_buffer_ = nullptr;
     /*! \brief GPU buffer in which the frames are temporarly stored */
-    char* gpu_frame_buffer_;
+    char* gpu_frame_buffer_ = nullptr;
     /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
-    char* gpu_packed_buffer_;
+    char* gpu_packed_buffer_ = nullptr;
 
     FileImportCache import_cache_;
     FileAdvancedCache advanced_cache_;

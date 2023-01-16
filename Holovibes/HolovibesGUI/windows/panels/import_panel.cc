@@ -23,20 +23,20 @@ ImportPanel::ImportPanel(QWidget* parent)
 {
     UserInterface::instance().import_panel = this;
 
-    // ::holovibes::worker::InformationWorker::is_input_queue_ok_ = [&](bool value)
-    // {
-    //     UserInterface::instance().main_window->synchronize_thread(
-    //         [&]()
-    //         {
-    //             QPalette palette = ui_->FileReaderProgressBar->palette();
-    //             if (value)
-    //                 palette.setColor(QPalette::Highlight, Qt::blue);
-    //             else
-    //                 palette.setColor(QPalette::Highlight, Qt::red);
-    //             ui_->FileReaderProgressBar->setPalette(palette);
-    //         },
-    //         true);
-    // };
+    ::holovibes::worker::InformationWorker::is_input_queue_ok_ = [&](bool value)
+    {
+        UserInterface::instance().main_window->synchronize_thread(
+            [&]()
+            {
+                QPalette palette = ui_->FileReaderProgressBar->palette();
+                if (value)
+                    palette.setColor(QPalette::Highlight, Qt::cyan);
+                else
+                    palette.setColor(QPalette::Highlight, Qt::red);
+                ui_->FileReaderProgressBar->setPalette(palette);
+            },
+            true);
+    };
 }
 
 ImportPanel::~ImportPanel() {}
@@ -51,11 +51,16 @@ void ImportPanel::on_notify()
     ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty() &&
                                           api::get_import_type() != ImportTypeEnum::None);
 
+    ui_->ImportInputFpsSpinBox->setMinimum(1);
+    ui_->ImportInputFpsSpinBox->setMaximum(std::numeric_limits<int>::max());
+    ui_->ImportInputFpsSpinBox->setValue(api::get_input_fps());
+
     ui_->ImportStartIndexSpinBox->setMinimum(1);
+    ui_->ImportStartIndexSpinBox->setMaximum(api::get_end_frame());
     ui_->ImportStartIndexSpinBox->setValue(api::get_start_frame());
 
-    ui_->ImportEndIndexSpinBox->setMaximum(api::get_file_number_of_frames());
     ui_->ImportEndIndexSpinBox->setMinimum(1);
+    ui_->ImportEndIndexSpinBox->setMaximum(api::get_file_number_of_frames());
     ui_->ImportEndIndexSpinBox->setValue(api::get_end_frame());
 
     if (api::get_import_type() != ImportTypeEnum::None)
@@ -108,26 +113,19 @@ void ImportPanel::import_file(const QString& filename)
     api::detail::set_value<ImportFilePath>(filename.toStdString());
 }
 
-// clang-format off
-void ImportPanel::import_stop()
-{
-    api::set_import_type(ImportTypeEnum::None);
-}
-// clang-format on
+void ImportPanel::import_stop() { api::set_import_type(ImportTypeEnum::None); }
 
-// TODO: review function, we cannot edit UserInterface here (instead of API)
 void ImportPanel::import_start()
 {
     parent_->shift_screen();
-    ui_->FileReaderProgressBar->show();
-
-    api::set_load_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());
     api::set_import_type(ImportTypeEnum::File);
 }
 
 void ImportPanel::import_start_spinbox_update() { api::set_start_frame(ui_->ImportStartIndexSpinBox->value()); }
 
 void ImportPanel::import_end_spinbox_update() { api::set_end_frame(ui_->ImportEndIndexSpinBox->value()); }
+
+void ImportPanel::import_load_in_gpu(bool value) { api::set_load_in_gpu(value); }
 
 void ImportPanel::on_input_fps_change(int value) { api::set_input_fps(value); }
 

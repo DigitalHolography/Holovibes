@@ -140,14 +140,14 @@ void InformationWorker::display_gui_information()
 
         if (is_input_queue_ok_ && key == QueueType::INPUT_QUEUE)
         {
-            float coef = (float)*value.max_size / (float)*value.size;
+            float coef = (float)*value.size / (float)*value.max_size;
 
-            if (last_input_queue_state_ == false && coef < 0.60f)
+            if (last_input_queue_state_ == false && coef < 0.80f)
             {
                 last_input_queue_state_ = true;
                 is_input_queue_ok_(true);
             }
-            else if (last_input_queue_state_ == true && coef > 0.80f)
+            else if (last_input_queue_state_ == true && coef > 0.90f)
             {
                 last_input_queue_state_ = false;
                 is_input_queue_ok_(false);
@@ -194,7 +194,7 @@ void InformationWorker::display_gui_information()
     display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
-        if (value.recorded != nullptr && value.to_record != nullptr)
-            update_progress_function_(key, *value.recorded, *value.to_record);
+        if (value.recorded != nullptr)
+            update_progress_function_(key, *value.recorded, value.to_record);
 }
 } // namespace holovibes::worker

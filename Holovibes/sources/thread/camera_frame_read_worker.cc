@@ -12,10 +12,9 @@ CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> ca
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = camera_->get_name();
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT) = "FIXME Camera Format";
 
-    to_record_ = 0;
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ);
     entry.recorded = &total_captured_frames_;
-    entry.to_record = &to_record_;
+    entry.to_record = 0;
 }
 
 CameraFrameReadWorker::~CameraFrameReadWorker()
