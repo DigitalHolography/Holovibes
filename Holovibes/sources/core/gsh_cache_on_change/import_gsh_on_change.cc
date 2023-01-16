@@ -21,11 +21,7 @@ void ImportGSHOnChange::operator()<ImportType>(ImportTypeEnum& new_value)
     LOG_UPDATE_ON_CHANGE(ImportType);
 
     if (new_value != ImportTypeEnum::None)
-    {
         Holovibes::instance().start_compute();
-        if (api::detail::get_value<IsGuiEnable>())
-            Holovibes::instance().start_information_display();
-    }
 }
 
 template <>

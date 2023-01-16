@@ -34,14 +34,12 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    auto& nb_to_record = export_cache_.get_value<Record>().nb_to_record;
     env_.current_nb_points_recorded = 0;
-
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::RECORD);
     entry.recorded = &env_.current_nb_points_recorded;
-    entry.to_record = &nb_to_record;
+    entry.to_record = export_cache_.get_value<Record>().nb_to_record;
 
-    while (env_.current_nb_points_recorded < nb_to_record)
+    while (env_.current_nb_points_recorded < export_cache_.get_value<Record>().nb_to_record)
     {
         // FIXME : This should be a trigger
         while (env_.chart_record_queue_->size() <= env_.current_nb_points_recorded && !stop_requested_)

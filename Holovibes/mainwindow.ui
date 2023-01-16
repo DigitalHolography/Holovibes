@@ -2460,9 +2460,6 @@
                 <property name="minimum">
                  <number>1</number>
                 </property>
-                <property name="maximum">
-                 <number>2100000000</number>
-                </property>
                 <property name="value">
                  <number>1</number>
                 </property>
@@ -2484,9 +2481,6 @@
                 </property>
                 <property name="minimum">
                  <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>2100000000</number>
                 </property>
                 <property name="value">
                  <number>60</number>
@@ -3408,6 +3402,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>ImportInputFpsSpinBox</tabstop>
   <tabstop>ImportStartIndexSpinBox</tabstop>
   <tabstop>ImportEndIndexSpinBox</tabstop>
+  <tabstop>import_load_in_gpu</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -4804,6 +4799,12 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>LoadFileInGpuCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>import_load_in_gpu(bool)</slot>
+  </connection>
+  <connection>
    <sender>actionImportExport</sender>
    <signal>changed()</signal>
    <receiver>ImportExportFrame</receiver>
@@ -5242,6 +5243,7 @@ p, li { white-space: pre-wrap; }
   <slot>import_stop()</slot>
   <slot>import_start_spinbox_update(int)</slot>
   <slot>import_end_spinbox_update()</slot>
+  <slot>import_load_in_gpu(bool)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>

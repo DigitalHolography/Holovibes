@@ -51,6 +51,8 @@ class ImportPanel : public Panel
     /*! \brief Handles the ui end index*/
     void import_end_spinbox_update();
 
+    void import_load_in_gpu(bool value);
+
     /*! \brief Handles the ui input fps changes
      *
      * \param value the new value to set

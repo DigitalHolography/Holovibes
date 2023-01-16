@@ -125,7 +125,7 @@ struct TypeValue<ProgressType>
     struct value
     {
         uint* recorded = nullptr;
-        const uint* to_record = nullptr;
+        uint to_record;
     };
 };
 

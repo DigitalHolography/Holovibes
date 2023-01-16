@@ -41,5 +41,7 @@ class ComputeGSHOnChange
     void operator()<TimeTransformationCutsEnable>(bool& new_value);
     template <>
     void operator()<Filter2D>(Filter2DStruct& new_value);
+    template <>
+    void operator()<SpaceTransformation>(SpaceTransformationEnum& new_value);
 };
 } // namespace holovibes

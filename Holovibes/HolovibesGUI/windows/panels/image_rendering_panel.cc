@@ -89,6 +89,7 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().divide);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
         ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
+    ui_->KernelQuickSelectComboBox->setEnabled(true);
 
     FrameDescriptor fd = api::get_import_frame_descriptor();
     ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));

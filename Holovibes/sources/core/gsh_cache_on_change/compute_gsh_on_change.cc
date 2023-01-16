@@ -20,7 +20,10 @@ static void load_convolution_matrix(ConvolutionStruct& convo)
         return;
 
     if (api::get_convolution().type == UID_CONVOLUTION_TYPE_DEFAULT)
+    {
+        api::change_convolution()->enabled = false;
         return;
+    }
 
     std::filesystem::path dir(get_exe_dir());
     dir = dir / "convolution_kernels" / convo.type;
@@ -155,4 +158,12 @@ void ComputeGSHOnChange::operator()<Filter2D>(Filter2DStruct& new_value)
         api::set_filter2d_view_enabled(false);
 }
 
+template <>
+void ComputeGSHOnChange::operator()<SpaceTransformation>(SpaceTransformationEnum& new_value)
+{
+    if (new_value == SpaceTransformationEnum::FFT1)
+        api::detail::set_value<FftShiftEnabled>(true);
+    else
+        api::detail::set_value<FftShiftEnabled>(false);
+}
 } // namespace holovibes

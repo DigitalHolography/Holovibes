@@ -37,6 +37,8 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
         disable_pipe();
         return;
     }
+    else
+        Holovibes::instance().start_information_display();
 
     // On Camera Import
     if (new_value == ImportTypeEnum::Camera)

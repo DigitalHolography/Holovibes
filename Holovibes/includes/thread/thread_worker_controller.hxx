@@ -13,9 +13,14 @@ template <WorkerDerived T>
 template <typename... Args>
 void ThreadWorkerController<T>::start(Args&&... args)
 {
-    stop();
-
     MutexGuard m_guard(mutex_);
+
+    if (is_running() == true)
+    {
+        LOG_DEBUG("Restarting Worker of type {}", typeid(T).name());
+        worker_ = std::make_unique<T>(args...);
+        return;
+    }
 
     LOG_DEBUG("Starting Worker of type {}", typeid(T).name());
 
@@ -56,7 +61,7 @@ void ThreadWorkerController<T>::run()
     }
 
     LOG_INFO("Stop worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
- 
+
     MutexGuard m_guard(mutex_);
     worker_.reset(nullptr);
 }

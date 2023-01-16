@@ -75,8 +75,6 @@ void ViewGSHOnChange::operator()<CutsViewEnabled>(bool& new_value)
     if (new_value)
     {
         api::detail::set_value<TimeTransformationCutsEnable>(true);
-        api::detail::change_value<ViewYZ>()->contrast.enabled = true;
-        api::detail::change_value<ViewXZ>()->contrast.enabled = true;
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
     }
@@ -88,7 +86,6 @@ void ViewGSHOnChange::operator()<Filter2DViewEnabled>(bool& new_value)
     LOG_UPDATE_ON_CHANGE(Filter2DViewEnabled);
     if (new_value)
     {
-        api::detail::change_value<ViewFilter2D>()->contrast.enabled = true;
         api::get_compute_pipe().get_rendering().request_view_exec_contrast(WindowKind::ViewFilter2D);
     }
 }

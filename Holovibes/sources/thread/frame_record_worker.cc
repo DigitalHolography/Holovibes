@@ -16,7 +16,7 @@ FrameRecordWorker::FrameRecordWorker()
 {
     auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::RECORD);
     entry.recorded = &env_.current_nb_frames_recorded;
-    entry.to_record = &export_cache_.get_value<Record>().nb_to_record;
+    entry.to_record = export_cache_.get_value<Record>().nb_to_record;
 
     GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
 }
@@ -29,7 +29,6 @@ FrameRecordWorker::~FrameRecordWorker()
 
 void FrameRecordWorker::run()
 {
-    const auto& nb_to_record = export_cache_.get_value<Record>().nb_to_record;
     env_.current_nb_frames_recorded = 0;
     env_.nb_frame_skip = export_cache_.get_value<Record>().nb_to_skip;
 
@@ -39,7 +38,7 @@ void FrameRecordWorker::run()
 
     output_frame_file = io_files::OutputFrameFileFactory::create(export_cache_.get_value<Record>().file_path,
                                                                  env_.gpu_frame_record_queue_->get_fd(),
-                                                                 nb_to_record);
+                                                                 export_cache_.get_value<Record>().nb_to_record);
 
     output_frame_file->write_header();
 
@@ -48,7 +47,8 @@ void FrameRecordWorker::run()
 
     Chrono chrono;
 
-    while (nb_to_record == 0 || env_.current_nb_frames_recorded < nb_to_record)
+    while (export_cache_.get_value<Record>().nb_to_record == 0 ||
+           env_.current_nb_frames_recorded < export_cache_.get_value<Record>().nb_to_record)
     {
         if (stop_requested_)
             break;
