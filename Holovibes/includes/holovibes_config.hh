@@ -4,10 +4,19 @@
  */
 #pragma once
 
-#include "camera_config.hh"
+#include <string>
+#include <filesystem>
 
 namespace holovibes::settings
 {
+#define __HOLOVIBES_VERSION__ "11.2.0"
+#define __APPNAME__ "Holovibes"
+
+#define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path(getenv("AppData")) / __APPNAME__)
+
+#define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__ / __HOLOVIBES_VERSION__)
+
+
 #define __COMPUTE_CONFIG_FILENAME__ "compute_settings.json"
 #define __USER_CONFIG_FILENAME__ "user_settings.json"
 #define __LOGS_DIR__ "logs"
