@@ -57,16 +57,8 @@ class ImageRenderingPanel : public Panel
      * \param checked true: enable, false: disable
      */
     void update_filter2d_view(bool checked);
-    /*! \brief Modifies filter2d n1 (first value)
-     *
-     * \param n The new filter2d n1 value
-     */
-    void set_filter2d_n1(int n);
-    /*! \brief Modifies filter2d n2 (second value)
-     *
-     * \param n The new filter2d n2 value
-     */
-    void set_filter2d_n2(int n);
+
+    void update_filter2d_n();
 
     /*! \brief Modifies space transform calculation
      *
@@ -81,19 +73,11 @@ class ImageRenderingPanel : public Panel
 
     /*! \brief Changes the time transformation size from ui value */
     void set_time_transformation_size();
-    /*! \brief Modifies wave length (lambda)
-     *
-     * \param value The new value of lambda
-     */
-    void set_wavelength(double value);
-    /*! \brief Modifies z from ui value
-     *
-     * \param value The new value of z
-     */
-    void set_z(double value);
-    /*! \brief Increment z by 1 on key shortcut */
+
+    void update_wavelength();
+
+    void update_z_distance();
     void increment_z();
-    /*! \brief Decrement z by 1 on key shortcut */
     void decrement_z();
 
     /*! \brief Enable the convolution mode
@@ -117,13 +101,13 @@ class ImageRenderingPanel : public Panel
      *
      * \param value the new value
      */
-    void set_z_step(double value);
+    void set_z_distance_step(double value);
 
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
 
   public:
-    double z_step_ = 0.005f;
+    double z_distance_step_ = 0.005f;
 };
 } // namespace holovibes::gui

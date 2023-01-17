@@ -3402,7 +3402,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>ImportInputFpsSpinBox</tabstop>
   <tabstop>ImportStartIndexSpinBox</tabstop>
   <tabstop>ImportEndIndexSpinBox</tabstop>
-  <tabstop>import_load_in_gpu</tabstop>
+  <tabstop>update_load_in_gpu</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -3696,9 +3696,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ContrastMaxDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_contrast_max(double)</slot>
+   <slot>update_contrast_current_windows_range()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>378</x>
@@ -3728,9 +3728,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WaveLengthDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_wavelength(double)</slot>
+   <slot>update_wavelength()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -3744,9 +3744,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImgAccuSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_accumulation_level(int)</slot>
+   <slot>update_accumulation_level()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>380</x>
@@ -3778,7 +3778,7 @@ p, li { white-space: pre-wrap; }
    <sender>ZDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_z(double)</slot>
+   <slot>update_z_distance()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -3872,9 +3872,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PRedSpinBox_Composite</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals()</slot>
+   <slot>update_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>500</x>
@@ -3888,9 +3888,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PBlueSpinBox_Composite</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished(int)</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals()</slot>
+   <slot>update_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -3984,9 +3984,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_R</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished(double)</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_weights()</slot>
+   <slot>update_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -4000,9 +4000,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_G</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished(double)</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_weights()</slot>
+   <slot>update_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -4080,9 +4080,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_hue_freq_min</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished(int)</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_h_min()</slot>
+   <slot>update_composite_intervals_hsv_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>498</x>
@@ -4096,9 +4096,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_B</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished(double)</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_weights()</slot>
+   <slot>update_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -4192,9 +4192,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_value_freq_max</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_v_max()</slot>
+   <slot>update_composite_intervals_hsv_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -4224,9 +4224,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_value_freq_min</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_v_min()</slot>
+   <slot>update_composite_intervals_hsv_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>500</x>
@@ -4240,9 +4240,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_hue_freq_max</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_h_max()</slot>
+   <slot>update_composite_intervals_hsv_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>591</x>
@@ -4288,9 +4288,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_saturation_freq_max</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_s_max()</slot>
+   <slot>update_composite_intervals_hsv_s_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
@@ -4384,9 +4384,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>reticle_scale(double)</slot>
+   <slot>update_reticle_scale()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>387</x>
@@ -4432,9 +4432,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_hue_blur_kernel_size</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>actualize_kernel_size_blur()</slot>
+   <slot>update_kernel_blur_size()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>591</x>
@@ -4448,9 +4448,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_saturation_freq_min</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>CompositePanel</receiver>
-   <slot>set_composite_intervals_hsv_s_min()</slot>
+   <slot>update_composite_intervals_hsv_s_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>500</x>
@@ -4512,9 +4512,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ContrastMinDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_contrast_min(double)</slot>
+   <slot>update_contrast_current_windows_range()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>318</x>
@@ -4738,7 +4738,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportStartIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_start_spinbox_update()</slot>
+   <slot>update_start_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -4754,7 +4754,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportEndIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_end_spinbox_update()</slot>
+   <slot>update_end_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -4802,7 +4802,7 @@ p, li { white-space: pre-wrap; }
    <sender>LoadFileInGpuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_load_in_gpu(bool)</slot>
+   <slot>update_load_in_gpu(bool)</slot>
   </connection>
   <connection>
    <sender>actionImportExport</sender>
@@ -4854,9 +4854,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Filter2DN1SpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_filter2d_n1(int)</slot>
+   <slot>update_filter2d_n()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>79</x>
@@ -4870,9 +4870,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Filter2DN2SpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_filter2d_n2(int)</slot>
+   <slot>update_filter2d_n()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>174</x>
@@ -4918,9 +4918,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_p_accu()</slot>
+   <slot>update_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>324</x>
@@ -4934,9 +4934,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>XAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_x_accu()</slot>
+   <slot>update_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>324</x>
@@ -4950,9 +4950,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>YAccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_y_accu()</slot>
+   <slot>update_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>324</x>
@@ -4966,9 +4966,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_p(int)</slot>
+   <slot>update_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4982,9 +4982,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>XSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_x_y()</slot>
+   <slot>update_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>313</x>
@@ -4998,9 +4998,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>YSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_x_y()</slot>
+   <slot>update_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>313</x>
@@ -5014,9 +5014,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Q_SpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_q(int)</slot>
+   <slot>update_q_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
@@ -5030,9 +5030,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Q_AccSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_q_acc()</slot>
+   <slot>update_q_accu()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>430</x>
@@ -5174,9 +5174,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImportInputFpsSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>on_input_fps_change(int)</slot>
+   <slot>update_fps()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>889</x>
@@ -5207,14 +5207,12 @@ p, li { white-space: pre-wrap; }
  </connections>
  <slots>
   <slot>set_compute_mode(int)</slot>
-  <slot>set_p(int)</slot>
-  <slot>set_wavelength(double)</slot>
-  <slot>set_z(double)</slot>
+  <slot>update_wavelength()</slot>
+  <slot>update_z_distance()</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>request_exec_contrast_current_window()</slot>
-  <slot>set_contrast_min(double)</slot>
-  <slot>set_contrast_max(double)</slot>
+  <slot>update_contrast_range()</slot>
   <slot>invert_contrast(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
@@ -5241,9 +5239,9 @@ p, li { white-space: pre-wrap; }
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
-  <slot>import_start_spinbox_update(int)</slot>
-  <slot>import_end_spinbox_update()</slot>
-  <slot>import_load_in_gpu(bool)</slot>
+  <slot>update_start_index(int)</slot>
+  <slot>update_end_index()</slot>
+  <slot>update_load_in_gpu(bool)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
@@ -5251,7 +5249,7 @@ p, li { white-space: pre-wrap; }
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
-  <slot>set_accumulation_level(int)</slot>
+  <slot>update_accumulation_level()</slot>
   <slot>set_unwrapping_2d(bool)</slot>
   <slot>reload_ini()</slot>
   <slot>browse_import_ini()</slot>
@@ -5264,29 +5262,27 @@ p, li { white-space: pre-wrap; }
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>set_time_transformation_size()</slot>
-  <slot>set_p_accu()</slot>
-  <slot>set_x_accu()</slot>
-  <slot>set_y_accu()</slot>
-  <slot>set_x_y()</slot>
-  <slot>set_q(int)</slot>
-  <slot>set_q_acc()</slot>
-  <slot>set_composite_weights()</slot>
+  <slot>update_x_accu()</slot>
+  <slot>update_y_accu()</slot>
+  <slot>update_p_accu()</slot>
+  <slot>update_q_accu()</slot>
+  <slot>update_composite_weights()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
-  <slot>set_composite_intervals()</slot>
-  <slot>set_composite_intervals_hsv_h_min()</slot>
-  <slot>set_composite_intervals_hsv_h_max()</slot>
-  <slot>set_composite_intervals_hsv_s_min()</slot>
-  <slot>set_composite_intervals_hsv_s_max()</slot>
-  <slot>set_composite_intervals_hsv_v_min()</slot>
-  <slot>set_composite_intervals_hsv_v_max()</slot>
+  <slot>update_composite_intervals()</slot>
+  <slot>update_composite_intervals_hsv_h_min()</slot>
+  <slot>update_composite_intervals_hsv_h_max()</slot>
+  <slot>update_composite_intervals_hsv_s_min()</slot>
+  <slot>update_composite_intervals_hsv_s_max()</slot>
+  <slot>update_composite_intervals_hsv_v_min()</slot>
+  <slot>update_composite_intervals_hsv_v_max()</slot>
   <slot>slide_update_threshold_h_min()</slot>
   <slot>slide_update_threshold_h_max()</slot>
   <slot>slide_update_threshold_s_min()</slot>
   <slot>slide_update_threshold_s_max()</slot>
   <slot>slide_update_threshold_v_min()</slot>
   <slot>slide_update_threshold_v_max()</slot>
-  <slot>actualize_kernel_size_blur()</slot>
+  <slot>update_kernel_blur_size()</slot>
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
   <slot>set_composite_area()</slot>
@@ -5294,17 +5290,16 @@ p, li { white-space: pre-wrap; }
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
-  <slot>reticle_scale(double)</slot>
+  <slot>update_reticle_scale()</slot>
   <slot>set_auto_refresh_contrast(bool)</slot>
   <slot>set_frame_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
-  <slot>set_filter2d_n1(int)</slot>
-  <slot>set_filter2d_n2(int)</slot>
+  <slot>update_filter2d_n()</slot>
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
   <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
-  <slot>on_input_fps_change(int)</slot>
+  <slot>update_fps()</slot>
  </slots>
 </ui>

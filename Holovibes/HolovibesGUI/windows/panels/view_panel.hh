@@ -72,26 +72,13 @@ class ViewPanel : public Panel
      */
     void update_raw_view(bool value);
 
-    /*! \brief Modifies x and y from ui values */
-    void set_x_y();
-    /*! \brief Modifies x accumulation from ui value */
-    void set_x_accu();
-    /*! \brief Modifies y accumulation from ui value */
-    void set_y_accu();
+    void update_x_accu();
+    void update_y_accu();
+    void update_p_accu();
+    void update_q_accu();
 
-    /*! \brief Modifies p from ui value */
-    void set_p(int value);
-    /*! \brief Increment p by 1 on key shortcut */
-    void increment_p();
-    /*! \brief Decrement p by 1 on key shortcut */
-    void decrement_p();
-    /*! \brief Modifies p accumulation from ui value */
-    void set_p_accu();
-
-    /*! \brief Modifies q accumulation from ui value */
-    void set_q(int value);
-    /*! \brief Modifies q accumulation from ui value */
-    void set_q_acc();
+    void increment_p_index();
+    void decrement_p_index();
 
     /*! \brief Rotates the current selected output display window (ViewXY or ViewXZ or ViewYZ) */
     void rotateTexture();
@@ -109,15 +96,16 @@ class ViewPanel : public Panel
      *
      * \param value The new level value
      */
-    void set_accumulation_level(int value);
+    void update_accumulation_level();
 
     /*! \brief Enables or Disables the contrast mode and update the current focused window
      *
      * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
-    /*! \brief Enalbles auto-contrast */
+
     void request_exec_contrast_current_window();
+    void update_contrast_current_windows_range();
 
     /*! \brief Enables or Disables auto refresh contrast
      *
@@ -130,18 +118,6 @@ class ViewPanel : public Panel
      */
     void invert_contrast(bool value);
 
-    /*! \brief Modifies the min contrast value on the current window
-     *
-     * \param value The new min contrast value
-     */
-    void set_contrast_min(double value);
-
-    /*! \brief Modifies the max contrast value on the current window
-     *
-     * \param value the new max contrast value
-     */
-    void set_contrast_max(double value);
-
     /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
      *
      * \param value true: enable, false: disable
@@ -153,11 +129,12 @@ class ViewPanel : public Panel
      * \param value true: create, false: remove
      */
     void display_reticle(bool value);
+
     /*! \brief Modifies reticle scale in ]0, 1[
      *
      * \param value The new reticle scale
      */
-    void reticle_scale(double value);
+    void update_reticle_scale();
 
   private:
     QShortcut* p_left_shortcut_;

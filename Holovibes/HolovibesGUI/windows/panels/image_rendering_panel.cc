@@ -37,7 +37,7 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
-void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
+void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_distance_step_); }
 
 void ImageRenderingPanel::on_notify()
 {
@@ -70,7 +70,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
-    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->ZDoubleSpinBox->setSingleStep(z_distance_step_);
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
@@ -103,7 +103,7 @@ void ImageRenderingPanel::on_notify()
 
 void ImageRenderingPanel::load_gui(const json& j_us)
 {
-    z_step_ = json_get_or_default(j_us, z_step_, "gui settings", "z step");
+    z_distance_step_ = json_get_or_default(j_us, z_distance_step_, "gui settings", "z step");
     bool h = json_get_or_default(j_us, isHidden(), "panels", "image rendering hidden");
     ui_->actionImage_rendering->setChecked(!h);
     setHidden(h);
@@ -111,7 +111,7 @@ void ImageRenderingPanel::load_gui(const json& j_us)
 
 void ImageRenderingPanel::save_gui(json& j_us)
 {
-    j_us["gui settings"]["z step"] = z_step_;
+    j_us["gui settings"]["z step"] = z_distance_step_;
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
@@ -123,12 +123,11 @@ void ImageRenderingPanel::update_time_stride() { api::set_time_stride(ui_->TimeS
 
 void ImageRenderingPanel::set_filter2d(bool checked) { api::change_filter2d()->enabled = checked; }
 
-void ImageRenderingPanel::set_filter2d_n1(int n) { api::detail::change_value<Filter2D>()->inner_radius = n; }
-
-void ImageRenderingPanel::set_filter2d_n2(int n)
+void ImageRenderingPanel::update_filter2d_n()
 {
-    ui_->Filter2DN1SpinBox->setMaximum(n - 1);
-    api::detail::change_value<Filter2D>()->outer_radius = n;
+    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
+    api::detail::change_value<Filter2D>()->inner_radius = ui_->Filter2DN1SpinBox->value();
+    api::detail::change_value<Filter2D>()->outer_radius = ui_->Filter2DN2SpinBox->value();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -174,13 +173,13 @@ void ImageRenderingPanel::set_time_transformation_size()
     api::set_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
 }
 
-void ImageRenderingPanel::set_wavelength(const double value) { api::set_lambda(value * 1.0e-9f); }
+void ImageRenderingPanel::update_wavelength() { api::set_lambda(ui_->WaveLengthDoubleSpinBox->value() * 1.0e-9f); }
 
-void ImageRenderingPanel::set_z(const double value) { api::set_z_distance(value); }
+void ImageRenderingPanel::update_z_distance() { api::set_z_distance(ui_->ZDoubleSpinBox->value()); }
 
-void ImageRenderingPanel::increment_z() { set_z(api::get_z_distance() + z_step_); }
+void ImageRenderingPanel::increment_z() { api::set_z_distance(api::get_z_distance() + z_distance_step_); }
 
-void ImageRenderingPanel::decrement_z() { set_z(api::get_z_distance() - z_step_); }
+void ImageRenderingPanel::decrement_z() { api::set_z_distance(api::get_z_distance() - z_distance_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value) { api::change_convolution()->enabled = value; }
 
@@ -191,9 +190,9 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value) { api::change_convolution()->divide = value; }
 
-void ImageRenderingPanel::set_z_step(double value)
+void ImageRenderingPanel::set_z_distance_step(double value)
 {
-    z_step_ = value;
+    z_distance_step_ = value;
     ui_->ZDoubleSpinBox->setSingleStep(value);
 }
 

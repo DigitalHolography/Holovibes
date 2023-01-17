@@ -33,7 +33,7 @@ class ASWMainWindowPanel : public AdvancedSettingsWindowPanel
   private:
     // parent_ is only use to access getters and setters
     MainWindow* parent_;
-    QDoubleSpinBoxLayout* z_step_;
+    QDoubleSpinBoxLayout* z_distance_step_;
     QIntSpinBoxLayout* record_frame_step_;
 };
 } // namespace holovibes::gui

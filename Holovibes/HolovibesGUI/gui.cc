@@ -16,8 +16,25 @@ void start_gui(int argc, char** argv, const std::string filename)
     ViewCacheFrontEndMethods::link_front_end<GuiFrontEndForViewCacheOnPipeRequest>();
     AdvancedCacheFrontEndMethods::link_front_end<GuiFrontEndForAdvancedCacheOnPipeRequest>();
 
-    FrontEndMethodsCallback::set([](std::function<void(void)>& f)
-                                 { UserInterface::instance().main_window->synchronize_thread([=]() { f(); }, true); });
+    FrontEndMethodsCallback::set_caller(
+        [](std::function<void(void)>& f)
+        { UserInterface::instance().main_window->synchronize_thread([f]() { f(); }, true); });
+
+    FrontEndMethodsCallback::set_before_sync(
+        []()
+        {
+            UserInterface::instance().main_window->synchronize_thread(
+                []() { UserInterface::instance().main_window->lock_gui(); },
+                true);
+        });
+
+    FrontEndMethodsCallback::set_after_sync(
+        []()
+        {
+            UserInterface::instance().main_window->synchronize_thread(
+                []() { UserInterface::instance().main_window->unlock_gui(); },
+                true);
+        });
 
     api::detail::set_value<FrontEnd>("HolovibesGUI");
 
