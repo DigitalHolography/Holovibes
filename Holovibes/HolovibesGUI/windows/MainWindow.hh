@@ -66,6 +66,26 @@ class MainWindow : public QMainWindow, public Observer
 
     Ui::MainWindow* get_ui();
 
+    void lock_gui()
+    {
+        for (auto& panel : panels_)
+        {
+            panel->setEnabled(false);
+            // panel->setAttribute(Qt::WA_TransparentForMouseEvents);
+            // panel->setAttribute(Qt::WA_InputMethodTransparent);
+        }
+    }
+
+    void unlock_gui()
+    {
+        for (auto& panel : panels_)
+        {
+            panel->setEnabled(true);
+            // panel->setAttribute(Qt::WAMou);
+            // panel->setAttribute(Qt::WA_InputMethodEnabled);
+        }
+    }
+
   public slots:
     void on_notify();
     /*! \brief Give a function to execute to the main thread with a signal

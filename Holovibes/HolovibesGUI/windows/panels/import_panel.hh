@@ -46,17 +46,13 @@ class ImportPanel : public Panel
     void import_stop();
 
     /*! \brief Handles the ui start index */
-    void import_start_spinbox_update();
+    void update_start_index();
 
     /*! \brief Handles the ui end index*/
-    void import_end_spinbox_update();
+    void update_end_index();
 
-    void import_load_in_gpu(bool value);
+    void update_load_in_gpu(bool value);
 
-    /*! \brief Handles the ui input fps changes
-     *
-     * \param value the new value to set
-     */
-    void on_input_fps_change(int value);
+    void update_fps();
 };
 } // namespace holovibes::gui

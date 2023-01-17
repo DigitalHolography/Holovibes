@@ -26,28 +26,28 @@ class CompositePanel : public Panel
 
   public slots:
     /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
-    void set_composite_intervals();
+    void update_composite_intervals();
 
     /*! \brief Modifies HSV Hue min frequence */
-    void set_composite_intervals_hsv_h_min();
+    void update_composite_intervals_hsv_h_min();
 
     /*! \brief Modifies HSV Hue max frequence*/
-    void set_composite_intervals_hsv_h_max();
+    void update_composite_intervals_hsv_h_max();
 
     /*! \brief Modifies HSV Saturation min frequence */
-    void set_composite_intervals_hsv_s_min();
+    void update_composite_intervals_hsv_s_min();
 
     /*! \brief Modifies HSV Saturation max frequence */
-    void set_composite_intervals_hsv_s_max();
+    void update_composite_intervals_hsv_s_max();
 
     /*! \brief Modifies HSV Value min frequence */
-    void set_composite_intervals_hsv_v_min();
+    void update_composite_intervals_hsv_v_min();
 
     /*! \brief Modifies HSV Value min frequence */
-    void set_composite_intervals_hsv_v_max();
+    void update_composite_intervals_hsv_v_max();
 
     /*! \brief Modifies the RGV from ui values */
-    void set_composite_weights();
+    void update_composite_weights();
 
     /*! \brief Automatic equalization (Auto-constrast)
      *
@@ -86,9 +86,11 @@ class CompositePanel : public Panel
     void actualize_checkbox_h_gaussian_blur();
 
     /*! \brief Modified Hue blur size from ui value */
-    void actualize_kernel_size_blur();
+    void update_kernel_blur_size();
 
     /*! \brief Make the ui composite overlay visible */
     void set_composite_area();
 };
 } // namespace holovibes::gui
+
+

@@ -223,27 +223,31 @@ void ViewPanel::update_raw_view(bool checked) { api::set_raw_view_enabled(checke
 
 void ViewPanel::close_windows() {}
 
-void ViewPanel::set_x_y()
+void ViewPanel::update_x_accu()
 {
     api::detail::change_value<ViewAccuX>()->start = ui_->XSpinBox->value();
-    api::detail::change_value<ViewAccuY>()->start = ui_->YSpinBox->value();
+    api::change_view_accu_x()->width = ui_->XAccSpinBox->value();
 }
 
-void ViewPanel::set_x_accu() { api::change_view_accu_x()->width = ui_->XAccSpinBox->value(); }
+void ViewPanel::update_y_accu()
+{
+    api::detail::change_value<ViewAccuY>()->start = ui_->YSpinBox->value();
+    api::change_view_accu_y()->width = ui_->YAccSpinBox->value();
+}
 
-void ViewPanel::set_y_accu() { api::change_view_accu_y()->width = ui_->YAccSpinBox->value(); }
+void ViewPanel::update_p_accu()
+{
+    api::change_view_accu_p()->width = ui_->PAccSpinBox->value();
+    api::change_view_accu_p()->start = ui_->PSpinBox->value();
+}
+void ViewPanel::increment_p_index() { api::change_view_accu_p()->start += 1; }
+void ViewPanel::decrement_p_index() { api::change_view_accu_p()->start -= 1; }
 
-void ViewPanel::set_p(int value) { api::change_view_accu_p()->start = value; }
-
-void ViewPanel::increment_p() { set_p(api::get_view_accu_p().start + 1); }
-
-void ViewPanel::decrement_p() { set_p(api::get_view_accu_p().start - 1); }
-
-void ViewPanel::set_p_accu() { api::change_view_accu_p()->width = ui_->PAccSpinBox->value(); }
-
-void ViewPanel::set_q(int value) { api::change_view_accu_q()->start = value; }
-
-void ViewPanel::set_q_acc() { api::change_view_accu_q()->width = ui_->Q_AccSpinBox->value(); }
+void ViewPanel::update_q_accu()
+{
+    api::change_view_accu_q()->start = ui_->Q_SpinBox->value();
+    api::change_view_accu_q()->width = ui_->Q_AccSpinBox->value();
+}
 
 void ViewPanel::rotateTexture()
 {
@@ -274,9 +278,9 @@ void ViewPanel::flipTexture()
 
 void ViewPanel::set_log_scale(const bool value) { api::change_current_view()->log_enabled = value; }
 
-void ViewPanel::set_accumulation_level(int value)
+void ViewPanel::update_accumulation_level()
 {
-    api::change_current_view_as_view_xyz()->output_image_accumulation = value;
+    api::change_current_view_as_view_xyz()->output_image_accumulation = ui_->ImgAccuSpinBox->value();
 }
 
 void ViewPanel::set_contrast_mode(bool value) { api::change_current_view()->contrast.enabled = value; }
@@ -287,9 +291,11 @@ void ViewPanel::set_auto_refresh_contrast(bool value) { api::change_current_view
 
 void ViewPanel::invert_contrast(bool value) { api::change_current_view()->contrast.invert = value; }
 
-void ViewPanel::set_contrast_min(const double value) { api::set_current_window_contrast_min(value); }
-
-void ViewPanel::set_contrast_max(const double value) { api::set_current_window_contrast_max(value); }
+void ViewPanel::update_contrast_current_windows_range()
+{
+    api::set_current_window_contrast_min(ui_->ContrastMinDoubleSpinBox->value());
+    api::set_current_window_contrast_max(ui_->ContrastMaxDoubleSpinBox->value());
+}
 
 void ViewPanel::toggle_renormalize(bool value)
 {
@@ -305,5 +311,8 @@ void ViewPanel::toggle_renormalize(bool value)
 
 void ViewPanel::display_reticle(bool value) { api::change_reticle()->display_enabled = value; }
 
-void ViewPanel::reticle_scale(double value) { api::change_reticle()->scale = value; }
+void ViewPanel::update_reticle_scale()
+{
+    api::change_reticle()->scale = ui_->ReticleScaleDoubleSpinBox->value();
+}
 } // namespace holovibes::gui

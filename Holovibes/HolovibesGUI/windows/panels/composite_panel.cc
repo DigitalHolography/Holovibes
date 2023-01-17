@@ -105,7 +105,7 @@ void CompositePanel::on_notify()
     ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
 }
 
-void CompositePanel::set_composite_intervals()
+void CompositePanel::update_composite_intervals()
 {
     // PRedSpinBox_Composite value cannont be higher than PBlueSpinBox_Composite
     ui_->PRedSpinBox_Composite->setValue(
@@ -116,37 +116,37 @@ void CompositePanel::set_composite_intervals()
     api::change_composite_rgb()->frame_index.max = ui_->PBlueSpinBox_Composite->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_h_min()
+void CompositePanel::update_composite_intervals_hsv_h_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_hue_freq_min->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_h_max()
+void CompositePanel::update_composite_intervals_hsv_h_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_hue_freq_max->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_s_min()
+void CompositePanel::update_composite_intervals_hsv_s_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_saturation_freq_min->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_s_max()
+void CompositePanel::update_composite_intervals_hsv_s_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_saturation_freq_max->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_v_min()
+void CompositePanel::update_composite_intervals_hsv_v_min()
 {
     api::change_composite_hsv()->s.frame_index.min = ui_->SpinBox_value_freq_min->value();
 }
 
-void CompositePanel::set_composite_intervals_hsv_v_max()
+void CompositePanel::update_composite_intervals_hsv_v_max()
 {
     api::change_composite_hsv()->s.frame_index.max = ui_->SpinBox_value_freq_max->value();
 }
 
-void CompositePanel::set_composite_weights()
+void CompositePanel::update_composite_weights()
 {
     api::change_composite_rgb()->weight.r = (ui_->WeightSpinBox_R->value());
     api::change_composite_rgb()->weight.g = (ui_->WeightSpinBox_G->value());
@@ -338,7 +338,7 @@ void CompositePanel::actualize_checkbox_h_gaussian_blur()
     api::change_composite_hsv()->h.blur.enabled = ui_->checkBox_h_gaussian_blur->isChecked();
 }
 
-void CompositePanel::actualize_kernel_size_blur()
+void CompositePanel::update_kernel_blur_size()
 {
     api::change_composite_hsv()->h.blur.kernel_size = ui_->SpinBox_hue_blur_kernel_size->value();
 }

@@ -3,6 +3,7 @@
 // FIXME Check for tweakme spdlog : maybe a bad idea ?
 
 #define DISABLE_LOG_FUNC
+#define DISABLE_LOG_LOCK_MICROCACHE
 // #define DISABLE_LOG_UPDATE_MAP_ENTRY
 // #define DISABLE_LOG_TRIGGER_CACHE
 // #define DISABLE_LOG_TRIGGER_REF

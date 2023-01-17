@@ -17,6 +17,12 @@
 #include "static_container.hh"
 #include "micro_cache_trigger.hh"
 
+#ifndef DISABLE_LOG_LOCK_MICROCACHE
+#define LOG_LOCK_MICROCACHE(...) LOG_DEBUG(__VA_ARGS__)
+#else
+#define LOG_LOCK_MICROCACHE(...)
+#endif
+
 // FIXME methods of Callback FunctionsClass could be static
 
 namespace holovibes
@@ -304,9 +310,16 @@ class MicroCache
             LOG_TRACE("Cache sync {} elements", this->change_pool_.size());
 #endif
 
+            constexpr bool has_before = requires(FunctionsClass function) { function.before_sync(); };
+            constexpr bool has_after = requires(FunctionsClass function) { function.after_sync(); };
+            FunctionsClass function;
+
             this->container_.template call<SetHasBeenSynchronized<false>>();
 
+            if constexpr (has_before)
+                function.before_sync();
             RefSingleton::get().lock();
+
             for (auto change : this->change_pool_)
             {
                 IParameter* param_to_change = change.first;
@@ -317,18 +330,31 @@ class MicroCache
             this->container_.template call<OnSync<FunctionsClass, Args...>>(this->change_pool_,
                                                                             std::forward<Args>(args)...);
             this->change_pool_.clear();
+
             RefSingleton::get().unlock();
+            if constexpr (has_after)
+                function.after_sync();
         }
 
         template <typename... Args>
         void synchronize_force(Args&&... args)
         {
-            this->set_all_values(MicroCache<Params...>::RefSingleton::get());
-            this->template call<FunctionsClass>(std::forward<Args>(args)...);
+            constexpr bool has_before = requires(FunctionsClass function) { function.before_sync(); };
+            constexpr bool has_after = requires(FunctionsClass function) { function.after_sync(); };
+            FunctionsClass function;
 
+            this->set_all_values(MicroCache<Params...>::RefSingleton::get());
+
+            if constexpr (has_before)
+                function.before_sync();
             RefSingleton::get().lock();
+
+            this->template call<FunctionsClass>(std::forward<Args>(args)...);
             this->change_pool_.clear();
+
             RefSingleton::get().unlock();
+            if constexpr (has_after)
+                function.after_sync();
         }
 
         void set_value_only_W()
@@ -437,13 +463,14 @@ class MicroCache
       public:
         void lock()
         {
+            LOG_LOCK_MICROCACHE("Want to LOCK");
             lock_.lock();
-            LOG_DEBUG("LOCK REF by thread {}", std::this_thread::get_id());
+            LOG_LOCK_MICROCACHE("LOCK REF");
         }
         void unlock()
         {
             lock_.unlock();
-            LOG_DEBUG("UNLOCK REF by thread {}", std::this_thread::get_id());
+            LOG_LOCK_MICROCACHE("UNLOCK REF");
         }
 
       protected:

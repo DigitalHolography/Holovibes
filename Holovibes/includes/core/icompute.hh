@@ -11,13 +11,13 @@
 namespace holovibes
 {
 // clang-format off
-using PipeAdvancedCache = AdvancedCache::Cache<PipeRequestOnSyncWrapper<AdvancedPipeRequestOnSync, AdvancedCacheFrontEndMethods>>;
-using PipeComputeCache = ComputeCache::Cache<PipeRequestOnSyncWrapper<ComputePipeRequestOnSync, ComputeCacheFrontEndMethods>>;
-using PipeImportCache = ImportCache::Cache<PipeRequestOnSyncWrapper<ImportPipeRequestOnSync, ImportCacheFrontEndMethods>>;
-using PipeExportCache = ExportCache::Cache<PipeRequestOnSyncWrapper<ExportPipeRequestOnSync, ExportCacheFrontEndMethods>>;
-using PipeCompositeCache = CompositeCache::Cache<PipeRequestOnSyncWrapper<CompositePipeRequestOnSync, CompositeCacheFrontEndMethods>>;
-using PipeViewCache = ViewCache::Cache<PipeRequestOnSyncWrapper<ViewPipeRequestOnSync, ViewCacheFrontEndMethods>>;
-using PipeZoneCache = ZoneCache::Cache<PipeRequestOnSyncWrapper<DefaultPipeRequestOnSync, ZoneCacheFrontEndMethods>>;
+using PipeAdvancedCache = AdvancedCache::Cache<PipeSyncFrontEndWrapper<AdvancedPipeRequestOnSync, AdvancedCacheFrontEndMethods>>;
+using PipeComputeCache = ComputeCache::Cache<PipeSyncFrontEndWrapper<ComputePipeRequestOnSync, ComputeCacheFrontEndMethods>>;
+using PipeImportCache = ImportCache::Cache<PipeSyncFrontEndWrapper<ImportPipeRequestOnSync, ImportCacheFrontEndMethods>>;
+using PipeExportCache = ExportCache::Cache<PipeSyncFrontEndWrapper<ExportPipeRequestOnSync, ExportCacheFrontEndMethods>>;
+using PipeCompositeCache = CompositeCache::Cache<PipeSyncFrontEndWrapper<CompositePipeRequestOnSync, CompositeCacheFrontEndMethods>>;
+using PipeViewCache = ViewCache::Cache<PipeSyncFrontEndWrapper<ViewPipeRequestOnSync, ViewCacheFrontEndMethods>>;
+using PipeZoneCache = ZoneCache::Cache<PipeSyncFrontEndWrapper<DefaultPipeRequestOnSync, ZoneCacheFrontEndMethods>>;
 // clang-format on
 
 /*! \class ICompute
