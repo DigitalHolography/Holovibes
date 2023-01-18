@@ -45,6 +45,9 @@ void InformationWorker::run()
 
     while (!stop_requested_)
     {
+        if (!display_info_text_function_)
+            continue;
+
         chrono.stop();
 
         auto waited_time = chrono.get_milliseconds();
@@ -77,9 +80,9 @@ void InformationWorker::run()
             compute_throughput(output_frame_res, input_frame_size, record_frame_size);
 
             chrono.start();
-        }
 
-        display_gui_information();
+            display_gui_information();
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }

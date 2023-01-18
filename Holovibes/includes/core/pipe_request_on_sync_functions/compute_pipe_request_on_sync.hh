@@ -85,11 +85,6 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
     }
 
     template <>
-    void operator()<TimeTransformation>(TimeTransformationEnum, Pipe& pipe)
-    {
-        LOG_UPDATE_ON_SYNC(TimeTransformation);
-
-        request_pipe_refresh();
-    }
+    void operator()<TimeTransformation>(TimeTransformationEnum, Pipe& pipe);
 };
 } // namespace holovibes

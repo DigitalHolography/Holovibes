@@ -144,4 +144,14 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
     request_pipe_refresh();
 }
 
+template <>
+void ComputePipeRequestOnSync::operator()<TimeTransformation>(TimeTransformationEnum, Pipe& pipe)
+{
+    LOG_UPDATE_ON_SYNC(TimeTransformation);
+
+    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationSize>(pipe);
+
+    request_pipe_refresh();
+}
+
 } // namespace holovibes
