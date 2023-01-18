@@ -1,5 +1,10 @@
 ## Changelog
 
+### 11.4.0
+
+* Add GPIO support with euresys frame grabbers
+* Rework .ini files for s710
+
 ### 11.3.0
 
 * Add high_framerate with euresys and phantom
