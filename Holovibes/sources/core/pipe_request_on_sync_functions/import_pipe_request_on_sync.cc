@@ -23,11 +23,12 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
 
     if (new_value == ImportTypeEnum::None)
     {
+        // Stop the record
+        api::detail::change_value<Record>()->is_running = false;
+        pipe.get_export_cache().virtual_synchronize_W<Record>(pipe);
+
         Holovibes::instance().stop_and_join_camera_frame_read();
         Holovibes::instance().stop_and_join_file_frame_read();
-
-        Holovibes::instance().stop_and_join_frame_record();
-        Holovibes::instance().stop_and_join_chart_record();
 
         Holovibes::instance().stop_and_join_information_display();
         Holovibes::instance().stop_compute();

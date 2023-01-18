@@ -25,7 +25,6 @@ class InformationWorker final : public Worker
 
     static inline std::function<void(const std::string&)> display_info_text_function_;
     static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
-
     static inline std::function<void(bool)> is_input_queue_ok_;
     bool last_input_queue_state_ = false;
 

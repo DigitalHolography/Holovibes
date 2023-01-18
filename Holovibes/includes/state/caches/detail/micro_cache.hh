@@ -111,7 +111,13 @@ template <typename FunctionClass, typename... Args>
 class OnSync
 {
   public:
-    FunctionClass functions_to_call;
+    OnSync(FunctionClass& functions)
+        : functions_(functions)
+    {
+    }
+
+  protected:
+    FunctionClass& functions_;
 
   public:
     template <typename T>
@@ -130,7 +136,7 @@ class OnSync
             try
             {
                 // LOG_TRACE("Call OnSync with new value : {}; old value : {}", value, old_value->get_value());
-                functions_to_call.template on_sync<T>(value, old_value->get_value(), std::forward<Args>(args)...);
+                functions_.template on_sync<T>(value, old_value->get_value(), std::forward<Args>(args)...);
             }
             catch (const std::exception& e)
             {
@@ -299,6 +305,25 @@ class MicroCache
         }
 
       public:
+        void lock_ref_and_front_end(FunctionsClass& functions)
+        {
+            constexpr bool has_lock_front_end = requires(FunctionsClass functions_) { functions_.lock_front_end(); };
+            if constexpr (has_lock_front_end) functions.lock_front_end();
+            RefSingleton::get().lock();
+        }
+
+        void unlock_ref_and_front_end(FunctionsClass& functions)
+        {
+            constexpr bool has_unlock_front_end = requires(FunctionsClass functions_)
+            {
+                functions_.unlock_front_end();
+            };
+            RefSingleton::get().unlock();
+            if constexpr (has_unlock_front_end)
+                functions.unlock_front_end();
+        }
+
+      public:
         // Synchronize this cache with the cache ref using the pool change
         template <typename... Args>
         void synchronize(Args&&... args)
@@ -310,15 +335,11 @@ class MicroCache
             LOG_TRACE("Cache sync {} elements", this->change_pool_.size());
 #endif
 
-            constexpr bool has_before = requires(FunctionsClass function) { function.before_sync(); };
-            constexpr bool has_after = requires(FunctionsClass function) { function.after_sync(); };
-            FunctionsClass function;
+            FunctionsClass functions;
 
             this->container_.template call<SetHasBeenSynchronized<false>>();
 
-            if constexpr (has_before)
-                function.before_sync();
-            RefSingleton::get().lock();
+            lock_ref_and_front_end(functions);
 
             for (auto change : this->change_pool_)
             {
@@ -327,56 +348,44 @@ class MicroCache
                 param_to_change->sync_with(ref_param);
             }
 
-            this->container_.template call<OnSync<FunctionsClass, Args...>>(this->change_pool_,
-                                                                            std::forward<Args>(args)...);
+            OnSync<FunctionsClass, Args...> on_sync_caller(functions);
+
+            this->container_.template operator()<OnSync<FunctionsClass, Args...>>(on_sync_caller,
+                                                                                  this->change_pool_,
+                                                                                  std::forward<Args>(args)...);
+
             this->change_pool_.clear();
 
-            RefSingleton::get().unlock();
-            if constexpr (has_after)
-                function.after_sync();
+            unlock_ref_and_front_end(functions);
         }
 
         template <typename... Args>
         void synchronize_force(Args&&... args)
         {
-            constexpr bool has_before = requires(FunctionsClass function) { function.before_sync(); };
-            constexpr bool has_after = requires(FunctionsClass function) { function.after_sync(); };
-            FunctionsClass function;
+            FunctionsClass functions;
+
+            lock_ref_and_front_end(functions);
 
             this->set_all_values(MicroCache<Params...>::RefSingleton::get());
 
-            if constexpr (has_before)
-                function.before_sync();
-            RefSingleton::get().lock();
-
-            this->template call<FunctionsClass>(std::forward<Args>(args)...);
+            this->container_.operator()(functions, std::forward<Args>(args)...);
             this->change_pool_.clear();
 
-            RefSingleton::get().unlock();
-            if constexpr (has_after)
-                function.after_sync();
+            unlock_ref_and_front_end(functions);
         }
 
-        void set_value_only_W()
-        {
-            this->set_all_values(MicroCache<Params...>::RefSingleton::get());
-
-            RefSingleton::get().lock();
-            this->change_pool_.clear();
-            RefSingleton::get().unlock();
-        }
-
-      public:
         // for debugging purpose ONLY
         template <typename T, typename... Args>
         void virtual_synchronize_W(Args&&... args)
         {
+            FunctionsClass functions;
+
+            lock_ref_and_front_end(functions);
 
             auto& param_to_change = BasicMicroCache::template get_type<T>();
             IParameter* Iparam_to_change = &param_to_change;
             if (this->change_pool_.contains(Iparam_to_change) == false)
             {
-                FunctionsClass functions;
                 functions.template operator()<T>(param_to_change.get_value(), std::forward<Args>(args)...);
             }
             else
@@ -390,11 +399,14 @@ class MicroCache
                 LOG_TRACE("Call On Sync (Forced) {} = {}", param_to_change.get_key(), param_to_change.get_value());
 #endif
 
-                FunctionsClass functions;
                 functions.template on_sync<T>(param_to_change.get_value(),
                                               old_value.get_value(),
                                               std::forward<Args>(args)...);
+
+                this->change_pool_.erase(Iparam_to_change);
             }
+
+            unlock_ref_and_front_end(functions);
         }
     };
 
