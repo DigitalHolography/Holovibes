@@ -22,6 +22,8 @@ using namespace Euresys;
  * by the same thread calling get_frames (camera frame read worker) as we do not
  * need to capture multiple frames at once.
  */
+
+// FIXME Delete this class
 class EHoloSubGrabber : public EGrabberCallbackOnDemand
 {
   public:
@@ -55,7 +57,7 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
 class EHoloGrabber
 {
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer)
+    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format)
         : grabbers_(gentl)
         , nb_images_per_buffer_(nb_images_per_buffer)
     {
@@ -67,7 +69,7 @@ class EHoloGrabber
         grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
         width_ = grabbers_[0]->getWidth();
         height_ = grabbers_[0]->getHeight() * grabbers_.length();
-        depth_ = gentl.imageGetBytesPerPixel(grabbers_[0]->getPixelFormat());
+        depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
@@ -81,7 +83,14 @@ class EHoloGrabber
         cudaFreeHost(ptr_);
     }
 
-    void setup(unsigned int fps, unsigned int fullHeight, unsigned int width, unsigned int nb_grabbers, EGenTL& gentl)
+    void setup(unsigned int fullHeight,
+               unsigned int width,
+               unsigned int nb_grabbers,
+               std::string& triggerSource,
+               float exposureTime,
+               std::string& cycleMinimumPeriod,
+               std::string& pixelFormat,
+               EGenTL& gentl)
     {
         grabbers_.root[0][0].reposition(0);
         grabbers_.root[0][1].reposition(1);
@@ -94,7 +103,7 @@ class EHoloGrabber
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
         }
 
-        size_t pitch = width * gentl.imageGetBytesPerPixel("Mono8");
+        size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
         size_t grabberCount = grabbers_.length();
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
@@ -103,7 +112,7 @@ class EHoloGrabber
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
             grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
-            grabbers_[ix]->setString<RemoteModule>("PixelFormat", "Mono8");
+            grabbers_[ix]->setString<RemoteModule>("PixelFormat", pixelFormat);
 
             grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_2YM");
             grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
@@ -116,24 +125,28 @@ class EHoloGrabber
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
         grabbers_[0]->setString<RemoteModule>("TriggerMode", "TriggerModeOn"); // camera in triggered mode
-        grabbers_[0]->setString<RemoteModule>("TriggerSource", "SWTRIGGER");   // source of trigger CXP
-        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", "RC");    // tell grabber 0 to send trigger
+        grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
+        std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
+        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
 
         /* 100 fps -> 10000us */
         // float factor = fps / 100;
         // float cycleMinimumPeriod = 10000 / factor;
-        float cycleMinimumPeriod = 1e6 / fps;
-        std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
-        grabbers_[0]->setString<DeviceModule>("CycleMinimumPeriod",
-                                              CycleMinimumPeriod);               // set the trigger rate to 250K Hz
-        grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
-        grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
-        grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
+        // float cycleMinimumPeriod = 1e6 / fps;
+        // std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
+        if (triggerSource == "SWTRIGGER")
+        {
+            grabbers_[0]->setString<DeviceModule>("CycleMinimumPeriod",
+                                                  cycleMinimumPeriod);               // set the trigger rate to 250K Hz
+            grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
+            grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
+            grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
+        }
 
         /* 100 fps -> 9000us */
-        float factor = fps / 100;
-        float Expvalue = 9000 / factor;
-        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", Expvalue);
+        // float factor = fps / 100;
+        // float Expvalue = 9000 / factor;
+        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", "BalanceWhiteMarkerOff");
     }
 
@@ -237,8 +250,12 @@ class CameraPhantom : public Camera
     unsigned int nb_buffers_;
     unsigned int nb_images_per_buffer_;
     unsigned int nb_grabbers_;
-    unsigned int fps_;
     unsigned int fullHeight_;
     unsigned int width_;
+    std::string trigger_source_;
+    std::string trigger_selector_;
+    float exposure_time_;
+    std::string cycle_minimum_period_;
+    std::string pixel_format_;
 };
 } // namespace camera

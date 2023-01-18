@@ -24,14 +24,21 @@ CameraPhantom::CameraPhantom()
     }
 
     gentl_ = std::make_unique<Euresys::EGenTL>();
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_);
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_, pixel_format_);
 
     init_camera();
 }
 
 void CameraPhantom::init_camera()
 {
-    grabber_->setup(fps_, fullHeight_, width_, nb_grabbers_, *gentl_);
+    grabber_->setup(fullHeight_,
+                    width_,
+                    nb_grabbers_,
+                    trigger_source_,
+                    exposure_time_,
+                    cycle_minimum_period_,
+                    pixel_format_,
+                    *gentl_);
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
@@ -74,20 +81,28 @@ void CameraPhantom::load_default_params()
     nb_buffers_ = 64;
     nb_images_per_buffer_ = 4;
     nb_grabbers_ = 4;
-    fps_ = 100;
     fullHeight_ = 512;
     width_ = 512;
+    trigger_source_ = "SWTRIGGER";
+    trigger_selector_ = "ExposureStart";
+    exposure_time_ = 9000;
+    cycle_minimum_period_ = "10000.0";
+    pixel_format_ = "Mono8";
 }
 
 void CameraPhantom::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
-    nb_buffers_ = pt.get<unsigned int>("phantom.nb_buffers", nb_buffers_);
-    nb_images_per_buffer_ = pt.get<unsigned int>("phantom.nb_images_per_buffer", nb_images_per_buffer_);
-    nb_grabbers_ = pt.get<unsigned int>("phantom.nb_grabbers", nb_grabbers_);
-    fps_ = pt.get<unsigned int>("phantom.fps", fps_);
-    fullHeight_ = pt.get<unsigned int>("phantom.fullHeight", fullHeight_);
-    width_ = pt.get<unsigned int>("phantom.width", width_);
+    nb_buffers_ = pt.get<unsigned int>("phantom.NbBuffers", nb_buffers_);
+    nb_images_per_buffer_ = pt.get<unsigned int>("phantom.NbImagesPerBuffer", nb_images_per_buffer_);
+    nb_grabbers_ = pt.get<unsigned int>("phantom.NbGrabbers", nb_grabbers_);
+    fullHeight_ = pt.get<unsigned int>("phantom.FullHeight", fullHeight_);
+    width_ = pt.get<unsigned int>("phantom.Width", width_);
+    trigger_source_ = pt.get<std::string>("phantom.TriggerSource", trigger_source_);
+    trigger_selector_ = pt.get<std::string>("phantom.TriggerSelector", trigger_selector_);
+    exposure_time_ = pt.get<float>("phantom.ExposureTime", exposure_time_);
+    cycle_minimum_period_ = pt.get<std::string>("phantom.CycleMinimumPeriod", cycle_minimum_period_);
+    pixel_format_ = pt.get<std::string>("phantom.PixelFormat", pixel_format_);
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
     {
