@@ -116,8 +116,9 @@ void FileFrameReadWorker::run()
     while (!stop_requested_)
     {
         // refresh
-        import_cache_.synchronize(*this);
-        advanced_cache_.synchronize(*this);
+        import_cache_.try_synchronize(*this);
+        advanced_cache_.try_synchronize(*this);
+
         if (FileRequestOnSync::has_requests_fail() || FileRequestOnSync::do_need_refresh() || first_time)
         {
             if (FileRequestOnSync::has_requests_fail() || init_frame_buffers() == false)

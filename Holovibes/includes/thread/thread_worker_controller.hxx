@@ -15,52 +15,48 @@ void ThreadWorkerController<T>::start(Args&&... args)
 {
     MutexGuard m_guard(mutex_);
 
-    if (is_running() == true)
-    {
-        LOG_DEBUG("Restarting Worker of type {}", typeid(T).name());
-        worker_ = std::make_unique<T>(args...);
-        return;
-    }
-
     LOG_DEBUG("Starting Worker of type {}", typeid(T).name());
 
     worker_ = std::make_unique<T>(args...);
-    thread_ = std::thread(&ThreadWorkerController::run, this);
-    Logger::add_thread(thread_.get_id(), typeid(T).name());
+    async_fun_ = std::async(std::launch::async, &ThreadWorkerController::run, this);
 
-    LOG_INFO("Worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
+    LOG_INFO("Worker of type {} started", typeid(T).name());
 }
 
 template <WorkerDerived T>
 void ThreadWorkerController<T>::stop()
 {
+    LOG_DEBUG("Call stop of Worker of type {}", typeid(T).name());
     {
         MutexGuard m_guard(mutex_);
 
         if (worker_ != nullptr)
+        {
+            LOG_DEBUG("Request stop of Worker of type {}", typeid(T).name());
             worker_->stop();
+        }
+        else
+        {
+            LOG_WARN("Will NOT stop of Worker of type {}", typeid(T).name());
+        }
     }
-
-    if (thread_.joinable() && thread_.get_id() != std::this_thread::get_id())
-        thread_.join();
 }
 
 template <WorkerDerived T>
 void ThreadWorkerController<T>::run()
 {
+    Logger::add_thread(std::this_thread::get_id(), typeid(T).name());
+
     try
     {
         worker_->run();
-        callback_();
     }
     catch (const std::exception& e)
     {
-        error_callback_(e);
-        LOG_ERROR("Uncaught exception in Worker of type {} : {}", typeid(T).name(), e.what());
-        throw;
+        LOG_ERROR("Exception in Worker {} of type {}", typeid(T).name(), e.what());
     }
 
-    LOG_INFO("Stop worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
+    LOG_INFO("Stop worker of type {}", typeid(T).name());
 
     MutexGuard m_guard(mutex_);
     worker_.reset(nullptr);

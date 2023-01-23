@@ -129,12 +129,8 @@ void Pipe::call_reload_function_caches()
         LOG_ERROR("Failure when making requests after all caches synchronizations 'call_reload_function_caches'");
         return;
     }
-    if (PipeRequestOnSync::do_disable_pipe())
-    {
-        LOG_DEBUG("Disabling pipe ");
-        fn_compute_vect_.clear();
-    }
-    else if (PipeRequestOnSync::do_need_notify())
+
+    if (PipeRequestOnSync::do_need_notify())
     {
         LOG_DEBUG("Pipe call notify 'call_reload_function_caches'");
         GSH::instance().notify();
@@ -161,12 +157,7 @@ void Pipe::synchronize_caches_and_make_requests()
         return;
     }
 
-    if (PipeRequestOnSync::do_disable_pipe())
-    {
-        LOG_DEBUG("Disabling pipe");
-        fn_compute_vect_.clear();
-    }
-    else if (PipeRequestOnSync::do_need_notify())
+    if (PipeRequestOnSync::do_need_notify())
     {
         LOG_DEBUG("Pipe call notify 'call_reload_function_caches'");
         GSH::instance().notify();
@@ -189,7 +180,7 @@ void Pipe::sync_and_refresh()
     LOG_PIPE("Pipe refresh : Call caches ...");
     synchronize_caches_and_make_requests();
 
-    if (!PipeRequestOnSync::do_need_pipe_refresh() || PipeRequestOnSync::do_disable_pipe())
+    if (!PipeRequestOnSync::do_need_pipe_refresh())
     {
         LOG_PIPE(
             "Pipe refresh doesn't need refresh : the cache refresh havn't make change that require a pipe refresh");
@@ -223,6 +214,9 @@ void Pipe::refresh()
      */
 
     fn_compute_vect_.clear();
+
+    if (api::detail::get_value<ImportType>() == ImportTypeEnum::None)
+        return;
 
     /* Begin insertions */
 

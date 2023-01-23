@@ -69,7 +69,9 @@ class Parameter : public IParameter
     {
     }
 
-    virtual ~Parameter() override {}
+    virtual ~Parameter() override
+    {
+    }
 
     operator ConstRefType() const { return value_; }
 

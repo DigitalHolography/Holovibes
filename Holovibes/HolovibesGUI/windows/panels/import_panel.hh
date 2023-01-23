@@ -51,7 +51,7 @@ class ImportPanel : public Panel
     /*! \brief Handles the ui end index*/
     void update_end_index();
 
-    void update_load_in_gpu(bool value);
+    void update_load_in_gpu(const bool value);
 
     void update_fps();
 };

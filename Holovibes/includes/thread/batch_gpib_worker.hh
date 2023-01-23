@@ -32,8 +32,6 @@ class BatchGPIBWorker final : public Worker
      */
     BatchGPIBWorker();
 
-    void stop() override;
-
     void run() override;
 
   private:
@@ -58,6 +56,8 @@ class BatchGPIBWorker final : public Worker
     std::string format_batch_output(const unsigned int index);
 
   private:
+    // FIXME STOP
+
     /*! \brief Instance of the frame record worker used if RecordStruct::RecordType is RAW or HOLOGRAM */
     std::unique_ptr<FrameRecordWorker> frame_record_worker_;
 

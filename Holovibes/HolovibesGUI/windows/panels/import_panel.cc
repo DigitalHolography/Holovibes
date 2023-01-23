@@ -125,7 +125,7 @@ void ImportPanel::update_start_index() { api::set_start_frame(ui_->ImportStartIn
 
 void ImportPanel::update_end_index() { api::set_end_frame(ui_->ImportEndIndexSpinBox->value()); }
 
-void ImportPanel::update_load_in_gpu(bool value) { api::set_load_in_gpu(value); }
+void ImportPanel::update_load_in_gpu(const bool value) { api::set_load_in_gpu(value); }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 

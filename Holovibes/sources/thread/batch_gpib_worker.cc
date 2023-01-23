@@ -29,17 +29,6 @@ BatchGPIBWorker::BatchGPIBWorker()
     }
 }
 
-void BatchGPIBWorker::stop()
-{
-    Worker::stop();
-
-    if (frame_record_worker_)
-        frame_record_worker_->stop();
-
-    if (chart_record_worker_)
-        chart_record_worker_->stop();
-}
-
 void BatchGPIBWorker::run()
 {
     unsigned int file_index = 1;

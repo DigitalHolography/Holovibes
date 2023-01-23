@@ -11,12 +11,12 @@ void ExportPipeRequestOnSync::operator()<Record>(const RecordStruct& new_value, 
     {
         if (new_value.record_type == RecordStruct::RecordType::CHART)
         {
-            Holovibes::instance().stop_and_join_chart_record();
+            Holovibes::instance().stop_chart_record();
             pipe.get_chart_env().chart_record_queue_.reset(nullptr);
         }
         else
         {
-            Holovibes::instance().stop_and_join_frame_record();
+            Holovibes::instance().stop_frame_record();
             pipe.get_frame_record_env().gpu_frame_record_queue_.reset(nullptr);
         }
         request_pipe_refresh();

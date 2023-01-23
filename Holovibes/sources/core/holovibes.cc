@@ -54,11 +54,10 @@ void Holovibes::start_file_frame_read()
     file_frame_read_worker_controller_.start();
 }
 
-void Holovibes::stop_and_join_file_frame_read()
+void Holovibes::stop_file_frame_read()
 {
     LOG_DEBUG("stop_file_frame_read");
     file_frame_read_worker_controller_.stop();
-    file_frame_read_worker_controller_.join();
 }
 
 void Holovibes::start_camera_frame_read()
@@ -72,16 +71,15 @@ void Holovibes::start_camera_frame_read()
     catch (std::exception& e)
     {
         LOG_ERROR("Error at camera frame read start worker. (Exception: {})", e.what());
-        stop_and_join_camera_frame_read();
+        stop_camera_frame_read();
         throw;
     }
 }
 
-void Holovibes::stop_and_join_camera_frame_read()
+void Holovibes::stop_camera_frame_read()
 {
     LOG_FUNC();
     camera_read_worker_controller_.stop();
-    camera_read_worker_controller_.join();
     active_camera_.reset();
 }
 
@@ -101,20 +99,15 @@ void Holovibes::start_frame_record()
         batch_gpib_worker_controller_.start();
 }
 
-void Holovibes::stop_and_join_frame_record()
+
+void Holovibes::stop_frame_record()
 {
     LOG_DEBUG("stop_frame_record");
 
     if (api::detail::get_value<ExportScriptPath>() == "")
-    {
         frame_record_worker_controller_.stop();
-        frame_record_worker_controller_.join();
-    }
     else
-    {
         batch_gpib_worker_controller_.stop();
-        batch_gpib_worker_controller_.join();
-    }
 }
 
 void Holovibes::start_chart_record()
@@ -123,11 +116,10 @@ void Holovibes::start_chart_record()
     chart_record_worker_controller_.start();
 }
 
-void Holovibes::stop_and_join_chart_record()
+void Holovibes::stop_chart_record()
 {
     LOG_DEBUG("stop_chart_record");
     chart_record_worker_controller_.stop();
-    chart_record_worker_controller_.join();
 }
 
 void Holovibes::start_information_display()
@@ -136,11 +128,10 @@ void Holovibes::start_information_display()
     info_worker_controller_.start();
 }
 
-void Holovibes::stop_and_join_information_display()
+void Holovibes::stop_information_display()
 {
     LOG_DEBUG("stop_information_display");
     info_worker_controller_.stop();
-    info_worker_controller_.join();
 }
 
 void Holovibes::create_pipe()

@@ -43,7 +43,7 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-    while (!stop_requested_)
+    while (stop_requested_.load() == false)
     {
         if (!display_info_text_function_)
             continue;
@@ -80,9 +80,9 @@ void InformationWorker::run()
             compute_throughput(output_frame_res, input_frame_size, record_frame_size);
 
             chrono.start();
-
-            display_gui_information();
         }
+
+        display_gui_information();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }

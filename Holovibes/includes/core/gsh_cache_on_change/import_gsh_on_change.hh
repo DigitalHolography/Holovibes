@@ -23,6 +23,8 @@ class ImportGSHOnChange
     template <>
     void operator()<ImportFrameDescriptor>(FrameDescriptor& new_value);
     template <>
+    bool change_accepted<ImportType>(ImportTypeEnum new_value);
+    template <>
     void operator()<ImportType>(ImportTypeEnum& new_value);
     template <>
     void operator()<ImportFilePath>(std::string& filename);
