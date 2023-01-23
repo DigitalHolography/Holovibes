@@ -3888,7 +3888,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PBlueSpinBox_Composite</sender>
-   <signal>editingFinished(int)</signal>
+   <signal>valueChanged()</signal>
    <receiver>CompositePanel</receiver>
    <slot>update_composite_intervals()</slot>
    <hints>
@@ -3984,7 +3984,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_R</sender>
-   <signal>editingFinished(double)</signal>
+   <signal>valueChanged()</signal>
    <receiver>CompositePanel</receiver>
    <slot>update_composite_weights()</slot>
    <hints>
@@ -4000,7 +4000,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_G</sender>
-   <signal>editingFinished(double)</signal>
+   <signal>valueChanged()</signal>
    <receiver>CompositePanel</receiver>
    <slot>update_composite_weights()</slot>
    <hints>
@@ -4080,7 +4080,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>SpinBox_hue_freq_min</sender>
-   <signal>editingFinished(int)</signal>
+   <signal>valueChanged()</signal>
    <receiver>CompositePanel</receiver>
    <slot>update_composite_intervals_hsv_h_min()</slot>
    <hints>
@@ -4096,7 +4096,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>WeightSpinBox_B</sender>
-   <signal>editingFinished(double)</signal>
+   <signal>valueChanged()</signal>
    <receiver>CompositePanel</receiver>
    <slot>update_composite_weights()</slot>
    <hints>

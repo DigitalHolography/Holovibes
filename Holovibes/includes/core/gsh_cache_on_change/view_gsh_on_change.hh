@@ -40,6 +40,10 @@ class ViewGSHOnChange
     bool change_accepted<LensViewEnabled>(bool new_value);
     template <>
     bool change_accepted<ViewAccuP>(const ViewAccuPQ& new_value);
+    template <>
+    bool change_accepted<ViewAccuX>(const ViewAccuXY& new_value);
+    template <>
+    bool change_accepted<ViewAccuY>(const ViewAccuXY& new_value);
 
   public:
     template <>

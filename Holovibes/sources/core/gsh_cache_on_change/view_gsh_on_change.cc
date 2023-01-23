@@ -44,27 +44,27 @@ void ViewGSHOnChange::operator()<ViewAccuQ>(ViewAccuPQ& new_value)
 }
 
 template <>
+bool ViewGSHOnChange::change_accepted<ViewAccuX>(const ViewAccuXY& new_value)
+{
+    return new_value.start <= api::get_import_frame_descriptor().width;
+}
+
+template <>
+bool ViewGSHOnChange::change_accepted<ViewAccuY>(const ViewAccuXY& new_value)
+{
+    return new_value.start <= api::get_import_frame_descriptor().height;
+}
+
+template <>
 void ViewGSHOnChange::operator()<ViewAccuX>(ViewAccuXY& new_value)
 {
     LOG_UPDATE_ON_CHANGE(ViewAccuX);
-
-    if (new_value.start > api::get_import_frame_descriptor().width)
-    {
-        LOG_WARN("New X start value was rejected because it's out of bound");
-        new_value.start = api::detail::get_value<ViewAccuX>().start;
-    }
 }
 
 template <>
 void ViewGSHOnChange::operator()<ViewAccuY>(ViewAccuXY& new_value)
 {
     LOG_UPDATE_ON_CHANGE(ViewAccuY);
-
-    if (new_value.start > api::get_import_frame_descriptor().height)
-    {
-        LOG_WARN("New X start value was rejected because it's out of bound");
-        new_value.start = api::detail::get_value<ViewAccuY>().start;
-    }
 }
 
 template <>

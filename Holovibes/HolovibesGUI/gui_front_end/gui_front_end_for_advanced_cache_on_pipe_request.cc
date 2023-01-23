@@ -15,4 +15,5 @@ void GuiFrontEndForAdvancedCacheOnPipeRequest::after_method<RawBitshift>()
     if (UserInterface::instance().xy_window)
         UserInterface::instance().xy_window->update_bitshift();
 }
+
 } // namespace holovibes::gui

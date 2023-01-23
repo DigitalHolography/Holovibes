@@ -12,7 +12,7 @@ class Pipe;
 namespace holovibes
 {
 
-class FrontEndMethodsCallback
+class FrontEndCallbackOnSync
 {
   public:
     static void set_caller(std::function<void(std::function<void(void)>&)> f) { caller_ = f; }
@@ -49,27 +49,27 @@ template <typename PipeRequest, typename FrontEndMethods>
 class PipeSyncFrontEndWrapper
 {
   public:
-    void lock_front_end() { FrontEndMethodsCallback::call_lock_front_end(); }
-    void unlock_front_end() { FrontEndMethodsCallback::call_unlock_front_end(); }
+    void lock_front_end() { FrontEndCallbackOnSync::call_lock_front_end(); }
+    void unlock_front_end() { FrontEndCallbackOnSync::call_unlock_front_end(); }
 
     template <typename T>
     void operator()(typename T::ConstRefType new_value, Pipe& pipe)
     {
         FrontEndMethods method;
-        FrontEndMethodsCallback::call([&]() { method.template before_method<T>(); });
+        FrontEndCallbackOnSync::call([&]() { method.template before_method<T>(); });
         PipeRequest pipe_request;
         pipe_request.template operator()<T>(new_value, pipe);
-        FrontEndMethodsCallback::call([&]() { method.template after_method<T>(); });
+        FrontEndCallbackOnSync::call([&]() { method.template after_method<T>(); });
     }
 
     template <typename T>
     void on_sync(typename T::ConstRefType new_value, typename T::ConstRefType old_value, Pipe& pipe)
     {
         FrontEndMethods method;
-        FrontEndMethodsCallback::call([&]() { method.template before_method<T>(); });
+        FrontEndCallbackOnSync::call([&]() { method.template before_method<T>(); });
         PipeRequest pipe_request;
         pipe_request.template on_sync<T>(new_value, old_value, pipe);
-        FrontEndMethodsCallback::call([&]() { method.template after_method<T>(); });
+        FrontEndCallbackOnSync::call([&]() { method.template after_method<T>(); });
     }
 };
 

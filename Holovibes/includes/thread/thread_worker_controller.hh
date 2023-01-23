@@ -71,6 +71,8 @@ class ThreadWorkerController
 
     /*! \brief Mutex used to prevent data races */
     std::mutex mutex_;
+
+    std::function<void(void)> callback_at_stop_;
 };
 } // namespace holovibes::worker
 

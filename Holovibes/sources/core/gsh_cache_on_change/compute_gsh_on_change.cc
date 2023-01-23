@@ -16,14 +16,8 @@ void ComputeGSHOnChange::operator()<Convolution>(ConvolutionStruct& new_value)
 
 static void load_convolution_matrix(ConvolutionStruct& convo)
 {
-    if (api::get_convolution().enabled == false)
+    if (api::get_convolution().enabled == false || api::get_convolution().type == UID_CONVOLUTION_TYPE_DEFAULT)
         return;
-
-    if (api::get_convolution().type == UID_CONVOLUTION_TYPE_DEFAULT)
-    {
-        api::change_convolution()->enabled = false;
-        return;
-    }
 
     std::filesystem::path dir(get_exe_dir());
     dir = dir / "convolution_kernels" / convo.type;

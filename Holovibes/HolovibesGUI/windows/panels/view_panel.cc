@@ -28,11 +28,11 @@ ViewPanel::ViewPanel(QWidget* parent)
     UserInterface::instance().view_panel = this;
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
     p_left_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
+    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p_index()));
 
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p_index()));
 }
 
 ViewPanel::~ViewPanel()

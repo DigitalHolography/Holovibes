@@ -62,7 +62,7 @@ void ImageRenderingPanel::on_notify()
     // Changing time_transformation_size with time transformation cuts is
     // supported by the pipe, but some modifications have to be done in
     // SliceWindow, OpenGl buffers.
-    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
+    ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw);
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
@@ -177,9 +177,17 @@ void ImageRenderingPanel::update_wavelength() { api::set_lambda(ui_->WaveLengthD
 
 void ImageRenderingPanel::update_z_distance() { api::set_z_distance(ui_->ZDoubleSpinBox->value()); }
 
-void ImageRenderingPanel::increment_z() { api::set_z_distance(api::get_z_distance() + z_distance_step_); }
+void ImageRenderingPanel::increment_z()
+{
+    if (UserInterface::instance().main_window->is_locked == false)
+        api::set_z_distance(api::get_z_distance() + z_distance_step_);
+}
 
-void ImageRenderingPanel::decrement_z() { api::set_z_distance(api::get_z_distance() - z_distance_step_); }
+void ImageRenderingPanel::decrement_z()
+{
+    if (UserInterface::instance().main_window->is_locked == false)
+        api::set_z_distance(api::get_z_distance() - z_distance_step_);
+}
 
 void ImageRenderingPanel::set_convolution_mode(const bool value) { api::change_convolution()->enabled = value; }
 

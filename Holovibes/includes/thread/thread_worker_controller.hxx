@@ -15,6 +15,19 @@ void ThreadWorkerController<T>::start(Args&&... args)
 {
     MutexGuard m_guard(mutex_);
 
+    if (async_fun_.valid())
+    {
+        LOG_DEBUG("Restarting Worker of type {}", typeid(T).name());
+        callback_at_stop_ = [&]()
+        {
+            LOG_DEBUG("Callback for restarting Worker of type {}", typeid(T).name());
+            callback_at_stop_ = []() {};
+            worker_ = std::make_unique<T>(args...);
+            ThreadWorkerController<T>::run();
+        };
+        return;
+    }
+
     LOG_DEBUG("Starting Worker of type {}", typeid(T).name());
 
     worker_ = std::make_unique<T>(args...);
@@ -26,7 +39,6 @@ void ThreadWorkerController<T>::start(Args&&... args)
 template <WorkerDerived T>
 void ThreadWorkerController<T>::stop()
 {
-    LOG_DEBUG("Call stop of Worker of type {}", typeid(T).name());
     {
         MutexGuard m_guard(mutex_);
 
@@ -34,10 +46,6 @@ void ThreadWorkerController<T>::stop()
         {
             LOG_DEBUG("Request stop of Worker of type {}", typeid(T).name());
             worker_->stop();
-        }
-        else
-        {
-            LOG_WARN("Will NOT stop of Worker of type {}", typeid(T).name());
         }
     }
 }
@@ -47,18 +55,14 @@ void ThreadWorkerController<T>::run()
 {
     Logger::add_thread(std::this_thread::get_id(), typeid(T).name());
 
-    try
-    {
-        worker_->run();
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Exception in Worker {} of type {}", typeid(T).name(), e.what());
-    }
+    worker_->run();
 
     LOG_INFO("Stop worker of type {}", typeid(T).name());
 
     MutexGuard m_guard(mutex_);
     worker_.reset(nullptr);
+
+    if (callback_at_stop_)
+        callback_at_stop_();
 }
 } // namespace holovibes::worker
