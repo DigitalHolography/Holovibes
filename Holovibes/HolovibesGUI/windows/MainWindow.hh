@@ -66,23 +66,32 @@ class MainWindow : public QMainWindow, public Observer
 
     Ui::MainWindow* get_ui();
 
+    static inline std::atomic<bool> is_locked = false;
+
+    // We have to disable Qt event, only when using Qt as UI because Qt ask to use the Main Thread to interact with all
+    // windows which lead to dead lock. If we use another UI lib thoses do not need to be implemented
+    // Thoses Event are recaptured when there is no need to interact with Qt Windows.
     void lock_gui()
     {
+        is_locked = true;
         for (auto& panel : panels_)
         {
-            panel->setEnabled(false);
-            // panel->setAttribute(Qt::WA_TransparentForMouseEvents);
-            // panel->setAttribute(Qt::WA_InputMethodTransparent);
+            // panel->setEnabled(false);
+            panel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+            panel->setAttribute(Qt::WA_InputMethodTransparent, true);
+            panel->setAttribute(Qt::WA_InputMethodEnabled, false);
         }
     }
 
     void unlock_gui()
     {
+        is_locked = false;
         for (auto& panel : panels_)
         {
-            panel->setEnabled(true);
-            // panel->setAttribute(Qt::WAMou);
-            // panel->setAttribute(Qt::WA_InputMethodEnabled);
+            // panel->setEnabled(true);
+            panel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+            panel->setAttribute(Qt::WA_InputMethodTransparent, false);
+            panel->setAttribute(Qt::WA_InputMethodEnabled, true);
         }
     }
 

@@ -48,8 +48,7 @@ void ImportPanel::on_notify()
     ui_->ImportStartPushButton->setEnabled(!api::get_import_file_path().empty() &&
                                            api::get_import_type() == ImportTypeEnum::None);
 
-    ui_->ImportStopPushButton->setEnabled(!api::get_import_file_path().empty() &&
-                                          api::get_import_type() != ImportTypeEnum::None);
+    ui_->ImportStopPushButton->setEnabled(api::get_import_type() != ImportTypeEnum::None);
 
     ui_->ImportInputFpsSpinBox->setMinimum(1);
     ui_->ImportInputFpsSpinBox->setMaximum(std::numeric_limits<int>::max());
@@ -111,6 +110,8 @@ void ImportPanel::import_file(const QString& filename)
     ui_->ImportPathLineEdit->insert(filename);
 
     api::detail::set_value<ImportFilePath>(filename.toStdString());
+
+    on_notify();
 }
 
 void ImportPanel::import_stop() { api::set_import_type(ImportTypeEnum::None); }

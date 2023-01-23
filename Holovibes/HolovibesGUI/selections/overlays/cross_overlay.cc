@@ -3,7 +3,7 @@
 #include "API.hh"
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
-
+#include "user_interface.hh"
 #include "holovibes.hh"
 #include "API.hh"
 
@@ -194,7 +194,7 @@ void CrossOverlay::keyPress(QKeyEvent* e)
 
 void CrossOverlay::move(QMouseEvent* e)
 {
-    if (!locked_)
+    if (!locked_ && UserInterface::instance().main_window->is_locked == false)
     {
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;

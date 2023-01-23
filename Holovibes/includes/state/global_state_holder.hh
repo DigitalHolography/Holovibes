@@ -53,10 +53,10 @@ using entities::Span;
 class GSHAdvancedCache : public AdvancedCache::Ref<AdvancedGSHOnChange>{};
 class GSHComputeCache : public ComputeCache::Ref<ComputeGSHOnChange>{};
 class GSHImportCache : public ImportCache::Ref<ImportGSHOnChange>{};
-class GSHExportCache : public ExportCache::Ref<>{};
-class GSHCompositeCache : public CompositeCache::Ref<>{};
+class GSHExportCache : public ExportCache::Ref<DefaultGSHOnChange>{};
+class GSHCompositeCache : public CompositeCache::Ref<DefaultGSHOnChange>{};
 class GSHViewCache : public ViewCache::Ref<ViewGSHOnChange>{};
-class GSHZoneCache : public ZoneCache::Ref<>{};
+class GSHZoneCache : public ZoneCache::Ref<DefaultGSHOnChange>{};
 // clang-format on
 
 using GSHCacheDispatcher = CacheDispatcher<GSHAdvancedCache,

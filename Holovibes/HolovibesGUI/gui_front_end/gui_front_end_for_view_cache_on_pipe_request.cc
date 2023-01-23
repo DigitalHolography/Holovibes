@@ -70,10 +70,9 @@ void GuiFrontEndForViewCacheOnPipeRequest::after_method<CutsViewEnabled>()
 
     // To clamp window size
     const ushort nImg = api::get_time_transformation_size();
-    uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-    if (time_transformation_size > UserInterface::instance().get_view_panel()->time_transformation_cuts_window_max_size)
-        time_transformation_size = UserInterface::instance().get_view_panel()->time_transformation_cuts_window_max_size;
+    uint time_transformation_size = std::max(
+        256u,
+        std::min(UserInterface::instance().get_view_panel()->time_transformation_cuts_window_max_size, (uint)nImg));
 
     UserInterface::instance().sliceXZ.reset(
         new gui::SliceWindow("XZ view",

@@ -16,11 +16,11 @@ void start_gui(int argc, char** argv, const std::string filename)
     ViewCacheFrontEndMethods::link_front_end<GuiFrontEndForViewCacheOnPipeRequest>();
     AdvancedCacheFrontEndMethods::link_front_end<GuiFrontEndForAdvancedCacheOnPipeRequest>();
 
-    FrontEndMethodsCallback::set_caller(
+    FrontEndCallbackOnSync::set_caller(
         [](std::function<void(void)>& f)
         { UserInterface::instance().main_window->synchronize_thread([f]() { f(); }, true); });
 
-    FrontEndMethodsCallback::set_lock_front_end(
+    FrontEndCallbackOnSync::set_lock_front_end(
         []()
         {
             UserInterface::instance().main_window->synchronize_thread(
@@ -28,7 +28,7 @@ void start_gui(int argc, char** argv, const std::string filename)
                 true);
         });
 
-    FrontEndMethodsCallback::set_unlock_front_end(
+    FrontEndCallbackOnSync::set_unlock_front_end(
         []()
         {
             UserInterface::instance().main_window->synchronize_thread(

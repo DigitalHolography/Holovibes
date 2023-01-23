@@ -2,6 +2,7 @@
 #include "slice_cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "API.hh"
+#include "user_interface.hh"
 
 namespace holovibes::gui
 {
@@ -76,14 +77,21 @@ void SliceCrossOverlay::keyPress(QKeyEvent* e)
 
 void SliceCrossOverlay::move(QMouseEvent* e)
 {
-    if (!locked_)
+    if (!locked_ && UserInterface::instance().main_window->is_locked == false)
     {
         auto kView = parent_->getKindOfView();
 
         pIndex_ = getMousePos(e->pos());
 
-        uint p = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
-        api::change_view_accu_p()->start = p;
+        // FIXME : not sure
+        if (kView == KindOfView::SliceXZ)
+        {
+            api::change_view_accu_p()->start = pIndex_.y();
+        }
+        else
+        {
+            api::change_view_accu_p()->start = pIndex_.x();
+        }
     }
 }
 
