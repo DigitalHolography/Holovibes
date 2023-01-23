@@ -32,13 +32,6 @@ class PipeRequestOnSync
         need_pipe_refresh = true;
     }
 
-    static void disable_pipe()
-    {
-#ifndef DISABLE_LOG_PIPE
-        LOG_DEBUG("disable pipe refresh");
-#endif
-        clean_pipe = true;
-    }
     static void request_notify()
     {
 #ifndef DISABLE_LOG_PIPE
@@ -59,6 +52,5 @@ class PipeRequestOnSync
     static bool has_requests_fail() { return requests_fail; }
     static bool do_need_pipe_refresh() { return need_pipe_refresh; }
     static bool do_need_notify() { return need_notify; }
-    static bool do_disable_pipe() { return clean_pipe; }
 };
 } // namespace holovibes

@@ -121,19 +121,19 @@ class Holovibes
     void destroy_gpu_queues();
 
     void start_file_frame_read();
-    void stop_and_join_file_frame_read();
+    void stop_file_frame_read();
 
     void start_camera_frame_read();
-    void stop_and_join_camera_frame_read();
+    void stop_camera_frame_read();
 
     void start_frame_record();
-    void stop_and_join_frame_record();
+    void stop_frame_record();
 
     void start_chart_record();
-    void stop_and_join_chart_record();
+    void stop_chart_record();
 
     void start_information_display();
-    void stop_and_join_information_display();
+    void stop_information_display();
 
     void start_compute();
     void stop_compute();
@@ -154,19 +154,17 @@ class Holovibes
     /*! \brief Construct the holovibes object. */
     Holovibes() = default;
 
-    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_frame_read_worker_controller_{
-        THREAD_READER_PRIORITY};
-    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_{
-        THREAD_READER_PRIORITY};
+    worker::ThreadWorkerController<worker::FileFrameReadWorker> file_frame_read_worker_controller_{};
+    worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_{};
     std::shared_ptr<camera::ICamera> active_camera_{nullptr};
 
-    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_{THREAD_RECORDER_PRIORITY};
-    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_{THREAD_RECORDER_PRIORITY};
-    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_{THREAD_RECORDER_PRIORITY};
+    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_{};
+    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_{};
+    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_{};
 
-    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_{THREAD_DISPLAY_PRIORITY};
+    worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_{};
 
-    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_{THREAD_COMPUTE_PRIORITY};
+    worker::ThreadWorkerController<worker::ComputeWorker> compute_worker_controller_{};
     std::shared_ptr<Pipe> compute_pipe_{nullptr};
 
     std::shared_ptr<BatchInputQueue> gpu_input_queue_{nullptr};

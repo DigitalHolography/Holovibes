@@ -7,6 +7,8 @@ namespace holovibes
 template <>
 void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, Pipe& pipe)
 {
+    LOG_UPDATE_ON_SYNC(ImportType);
+
     if (new_value == ImportTypeEnum::None)
     {
         // Shut down all windows
@@ -27,19 +29,16 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
         api::detail::change_value<Record>()->is_running = false;
         pipe.get_export_cache().virtual_synchronize_W<Record>(pipe);
 
-        Holovibes::instance().stop_and_join_camera_frame_read();
-        Holovibes::instance().stop_and_join_file_frame_read();
+        Holovibes::instance().stop_camera_frame_read();
+        Holovibes::instance().stop_file_frame_read();
 
-        Holovibes::instance().stop_and_join_information_display();
+        Holovibes::instance().stop_information_display();
         Holovibes::instance().stop_compute();
-
-        // We are currently stopping all worker, so the pipe does not
-        // need to refresh
-        disable_pipe();
-        return;
     }
     else
-        Holovibes::instance().start_information_display();
+    {
+       Holovibes::instance().start_information_display();
+    }
 
     // On Camera Import
     if (new_value == ImportTypeEnum::Camera)

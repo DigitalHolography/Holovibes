@@ -20,7 +20,7 @@ void start_gui(int argc, char** argv, const std::string filename)
         [](std::function<void(void)>& f)
         { UserInterface::instance().main_window->synchronize_thread([f]() { f(); }, true); });
 
-    FrontEndMethodsCallback::set_before_sync(
+    FrontEndMethodsCallback::set_lock_front_end(
         []()
         {
             UserInterface::instance().main_window->synchronize_thread(
@@ -28,7 +28,7 @@ void start_gui(int argc, char** argv, const std::string filename)
                 true);
         });
 
-    FrontEndMethodsCallback::set_after_sync(
+    FrontEndMethodsCallback::set_unlock_front_end(
         []()
         {
             UserInterface::instance().main_window->synchronize_thread(

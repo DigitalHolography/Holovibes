@@ -24,33 +24,33 @@ class FrontEndMethodsCallback
             return f();
     }
 
-    static void set_before_sync(std::function<void(void)> f) { before_sync_ = f; }
-    static void call_before_sync()
+    static void set_lock_front_end(std::function<void(void)> f) { lock_front_end_ = f; }
+    static void call_lock_front_end()
     {
-        if (before_sync_)
-            return before_sync_();
+        if (lock_front_end_)
+            return lock_front_end_();
     }
 
-    static void set_after_sync(std::function<void(void)> f) { after_sync_ = f; }
-    static void call_after_sync()
+    static void set_unlock_front_end(std::function<void(void)> f) { unlock_front_end_ = f; }
+    static void call_unlock_front_end()
     {
-        if (after_sync_)
-            return after_sync_();
+        if (unlock_front_end_)
+            return unlock_front_end_();
     }
 
   private:
     static inline std::function<void(std::function<void(void)>&)> caller_;
 
-    static inline std::function<void(void)> before_sync_;
-    static inline std::function<void(void)> after_sync_;
+    static inline std::function<void(void)> lock_front_end_;
+    static inline std::function<void(void)> unlock_front_end_;
 };
 
 template <typename PipeRequest, typename FrontEndMethods>
 class PipeSyncFrontEndWrapper
 {
   public:
-    void before_sync() { FrontEndMethodsCallback::call_before_sync(); }
-    void after_sync() { FrontEndMethodsCallback::call_after_sync(); }
+    void lock_front_end() { FrontEndMethodsCallback::call_lock_front_end(); }
+    void unlock_front_end() { FrontEndMethodsCallback::call_unlock_front_end(); }
 
     template <typename T>
     void operator()(typename T::ConstRefType new_value, Pipe& pipe)

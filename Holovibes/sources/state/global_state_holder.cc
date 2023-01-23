@@ -137,6 +137,7 @@ void GSH::convert_json(json& data, GSH::ComputeSettingsVersion from)
                       }
                       catch (const std::exception&)
                       {
+                          LOG_WARN("Could not apply json path {}", static_cast<int>(converter.to) + 2);
                       }
                   });
 }

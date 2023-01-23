@@ -4,7 +4,7 @@
 
 #define DISABLE_LOG_FUNC
 #define DISABLE_LOG_LOCK_MICROCACHE
-// #define DISABLE_LOG_UPDATE_MAP_ENTRY
+#define DISABLE_LOG_UPDATE_MAP_ENTRY
 // #define DISABLE_LOG_TRIGGER_CACHE
 // #define DISABLE_LOG_TRIGGER_REF
 // #define DISABLE_LOG_GSH_ON_CHANGE
@@ -68,7 +68,11 @@
         abort();                                                                                                       \
     }
 
+#ifndef DISABLE_LOG_FUNC
 #define LOG_FUNC(...) LOG_TRACE("-> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")", __FUNCTION__, __VA_ARGS__)
+#else
+#define LOG_FUNC(...)
+#endif
 
 constexpr const char* get_file_name(const char* path)
 {

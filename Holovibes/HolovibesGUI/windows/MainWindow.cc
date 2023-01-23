@@ -142,8 +142,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    Holovibes::instance().start_information_display();
-
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
 

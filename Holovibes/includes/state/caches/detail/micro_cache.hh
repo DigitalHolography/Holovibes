@@ -158,10 +158,9 @@ class MicroCache
     {
       public:
         BasicMicroCache()
-            : key_container_{}
-            , container_{}
+            : container_{}
         {
-            container_.template call<FillMapKeyParams>(key_container_);
+            // container_.template call<FillMapKeyParams>(key_container_);
         }
 
       public:
@@ -172,8 +171,8 @@ class MicroCache
         }
 
       public:
-        const MapKeyParams& get_map_key() const { return key_container_; }
-        MapKeyParams& get_map_key() { return key_container_; }
+        // const MapKeyParams& get_map_key() const { return key_container_; }
+        // MapKeyParams& get_map_key() { return key_container_; }
 
         StaticContainer<Params...>& get_container() { return container_; }
 
@@ -254,7 +253,9 @@ class MicroCache
             MicroCache<Params...>::RefSingleton::get().add_cache_to_synchronize(*this);
         }
 
-        ~BasicCache() { MicroCache<Params...>::RefSingleton::get().remove_cache_to_synchronize(*this); }
+        virtual ~BasicCache() {}
+
+        void remove_cache_from_ref() { MicroCache<Params...>::RefSingleton::get().remove_cache_to_synchronize(*this); }
 
       protected:
         template <typename MicroCacheToSync>
@@ -295,6 +296,7 @@ class MicroCache
     template <typename FunctionsClass = DefaultFunctionsOnSync>
     class Cache : public BasicCache
     {
+
       public:
         Cache() = default;
 
@@ -304,7 +306,15 @@ class MicroCache
             synchronize_force(std::forward<Args>(args)...);
         }
 
-      public:
+        ~Cache() override
+        {
+            FunctionsClass functions;
+            lock_ref_and_front_end(functions);
+            this->remove_cache_from_ref();
+            unlock_ref_and_front_end(functions);
+        }
+
+      protected:
         void lock_ref_and_front_end(FunctionsClass& functions)
         {
             constexpr bool has_lock_front_end = requires(FunctionsClass functions_) { functions_.lock_front_end(); };
@@ -324,6 +334,16 @@ class MicroCache
         }
 
       public:
+        template <typename... Args>
+        bool try_synchronize(Args&&... args)
+        {
+            if (RefSingleton::get().try_lock() == false)
+                return false;
+            synchronize(std::forward<Args>(args)...);
+            RefSingleton::get().unlock();
+            return true;
+        }
+
         // Synchronize this cache with the cache ref using the pool change
         template <typename... Args>
         void synchronize(Args&&... args)
@@ -473,6 +493,13 @@ class MicroCache
         }
 
       public:
+        bool try_lock()
+        {
+            bool res = lock_.try_lock();
+            LOG_LOCK_MICROCACHE("Try to LOCK, got : {}", res ? "LOCK", "couldn't");
+            return res;
+        }
+
         void lock()
         {
             LOG_LOCK_MICROCACHE("Want to LOCK");

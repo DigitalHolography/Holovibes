@@ -16,6 +16,20 @@ void ImportGSHOnChange::operator()<ImportFrameDescriptor>(FrameDescriptor& new_v
 }
 
 template <>
+bool ImportGSHOnChange::change_accepted<ImportType>(ImportTypeEnum new_value)
+{
+    if (new_value == ImportTypeEnum::File)
+        if (api::detail::get_value<ImportFilePath>() == "")
+            return false;
+
+    if (new_value == ImportTypeEnum::Camera)
+        if (api::detail::get_value<CurrentCameraKind>() == CameraKind::None)
+            return false;
+
+    return true;
+}
+
+template <>
 void ImportGSHOnChange::operator()<ImportType>(ImportTypeEnum& new_value)
 {
     LOG_UPDATE_ON_CHANGE(ImportType);
