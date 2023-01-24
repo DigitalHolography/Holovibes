@@ -12,6 +12,8 @@
 #include "rect.hh"
 
 #include "global_state_holder.hh"
+#include "icompute.hh"
+
 namespace holovibes
 {
 class Queue;
@@ -19,7 +21,7 @@ struct CoreBuffersEnv;
 struct ImageAccEnv;
 } // namespace holovibes
 
-/*! \brief Contains all functions and structure for computations variables */
+/*! \brief Contains all functions and structure for ComputeModeEnums variables */
 namespace holovibes::compute
 {
 /*! \class ImageAccumulation
@@ -36,9 +38,9 @@ class ImageAccumulation
     ImageAccumulation(FunctionVector& fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
-                      const camera::FrameDescriptor& fd,
+                      const FrameDescriptor& fd,
                       const cudaStream_t& stream,
-                      ViewCache::Cache& view_cache);
+                      PipeViewCache& view_cache);
 
     /*! \brief Enqueue the image accumulation.
      *
@@ -63,17 +65,11 @@ class ImageAccumulation
                          const unsigned int image_acc_level,
                          const size_t frame_res);
 
-    /*! \brief Insert the average computation of the float frame. */
+    /*! \brief Insert the average ComputeModeEnum of the float frame. */
     void insert_compute_average();
 
     /*! \brief Insert the copy of the corrected buffer into the float buffer. */
     void insert_copy_accumulation_result();
-
-    /*! \brief Handle the allocation of a accumulation queue and average frame */
-    void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
-                                     cuda_tools::UniquePtr<float>& gpu_average_frame,
-                                     const unsigned int accumulation_level,
-                                     const camera::FrameDescriptor fd);
 
   private:
     /*! \brief Vector function in which we insert the processing */
@@ -86,10 +82,10 @@ class ImageAccumulation
     const CoreBuffersEnv& buffers_;
 
     /*! \brief Describes the frame size */
-    const camera::FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform  pipe computation */
+    const FrameDescriptor& fd_;
+    /*! \brief Compute stream to perform  pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
-    ViewCache::Cache& view_cache_;
+    PipeViewCache& view_cache_;
 };
 } // namespace holovibes::compute

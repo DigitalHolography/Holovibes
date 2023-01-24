@@ -19,8 +19,9 @@ class FastUpdatesHolder
 
   public:
     using Key = T;
-    using Value = std::shared_ptr<FastUpdateTypeValue<T>>;
+    using Value = FastUpdateTypeValue<T>;
     using const_iterator = typename std::unordered_map<Key, Value>::const_iterator;
+    using iterator = typename std::unordered_map<Key, Value>::iterator;
 
     /*!
      * \brief Create a fast update entry object in the map of type T
@@ -29,15 +30,19 @@ class FastUpdatesHolder
      * \param overwrite it there a need to overwrite the previous entry ?
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    Value create_entry(Key key, bool overwrite = false)
+    Value& create_entry(Key key, bool overwrite = false)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!overwrite && map_.contains(key))
-            throw std::runtime_error("Key is already present in map");
+        {
+            LOG_WARN("Key is already defined in the map {}", typeid(T).name());
+        }
 
-        map_[key] = std::make_shared<FastUpdateTypeValue<T>>();
+        map_[key] = FastUpdateTypeValue<T>();
 
-        LOG_DEBUG("New FastUpdatesHolder<{}> entry: 0x{}", typeid(T).name(), map_[key]);
+#ifndef DISABLE_LOG_UPDATE_MAP_ENTRY
+        LOG_DEBUG("New FastUpdatesHolder<{}> {}", typeid(T).name(), key);
+#endif
 
         return map_[key];
     }
@@ -48,7 +53,7 @@ class FastUpdatesHolder
      * \param key The key of an enum T from the fast_updates_types.hh
      * \return std::shared_ptr<Value> The pointer returned to the entry in the map
      */
-    Value get_entry(Key key) const { return map_.at(key); }
+    Value& get_entry(Key key) { return map_.at(key); }
 
     /*!
      * \brief Remove an entry from the map
@@ -82,7 +87,9 @@ class FastUpdatesHolder
     const_iterator begin() { return map_.begin(); }
     const_iterator end() { return map_.end(); }
 
-    const_iterator find(Key key) { return map_.find(key); }
+    const_iterator find(Key key) const { return map_.find(key); }
+
+    std::unordered_map<Key, Value>& get_map() { return map_; }
 
   protected:
     std::mutex mutex_;

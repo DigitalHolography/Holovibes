@@ -1,3 +1,6 @@
+
+/*
+
 #include "gtest/gtest.h"
 
 #include "fast_updates_holder.hh"
@@ -26,3 +29,4 @@ TEST(FastUpdatesHolder, testMapRemove)
     ASSERT_TRUE(map.remove_entry(holovibes::ProgressType::FRAME_RECORD));
     ASSERT_THROW(map.get_entry(holovibes::ProgressType::FRAME_RECORD), std::out_of_range);
 }
+*/

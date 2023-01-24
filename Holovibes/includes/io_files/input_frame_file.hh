@@ -43,7 +43,6 @@ class InputFrameFile : public FrameFile
     bool get_has_footer();
 
   protected:
-
     /*! \brief Indicates if the file has a footer */
     bool has_footer;
 
@@ -62,7 +61,7 @@ class InputFrameFile : public FrameFile
     {
     }
 
-    /*! \brief The size in bytes of a frame. Stored here to avoid computation at each call to read_frames */
+    /*! \brief The size in bytes of a frame. Stored here to avoid ComputeModeEnum at each call to read_frames */
     size_t frame_size_;
 
     /*! \brief The true size in bytes of a frame if image is packed (e.g. 10bit or 12bit ...) */

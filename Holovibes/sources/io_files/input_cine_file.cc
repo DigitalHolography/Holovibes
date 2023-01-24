@@ -4,8 +4,8 @@
 
 #include "input_cine_file.hh"
 #include "file_exception.hh"
-
 #include "global_state_holder.hh"
+#include "API.hh"
 
 namespace holovibes::io_files
 {
@@ -38,7 +38,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
     fd_.width = std::abs(bitmap_info_header_.bi_width);
     fd_.height = std::abs(bitmap_info_header_.bi_height);
     fd_.depth = bitmap_info_header_.bi_bit_count / 8;
-    fd_.byteEndian = camera::Endianness::LittleEndian;
+    fd_.byteEndian = Endianness::LittleEndian;
 
     frame_size_ = fd_.get_frame_size();
     packed_frame_size_ = bitmap_info_header_.bi_size_image;
@@ -48,7 +48,7 @@ void InputCineFile::import_compute_settings() {}
 
 void InputCineFile::import_info() const
 {
-    GSH::instance().set_pixel_size(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
+    api::detail::set_value<PixelSize>(1e6 / static_cast<float>(bitmap_info_header_.bi_x_pels_per_meter));
 }
 
 void InputCineFile::set_pos_to_frame(size_t frame_id)
@@ -82,12 +82,14 @@ size_t InputCineFile::read_frames(char* buffer, size_t frames_to_read, int* flag
         // This eventually matches the recorded cine but will be invalid for
         // other cine files
         if (std::fseek(file_, 8, SEEK_CUR) != 0)
-            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
+            throw FileException("CINE: Unable to read " + std::to_string(frames_to_read) +
+                                " frames; with code : " + std::to_string(std::ferror(file_)));
 
         frames_read += std::fread(buffer + i * packed_frame_size_, packed_frame_size_, 1, file_);
 
         if (ferror(file_))
-            throw FileException("Unable to read " + std::to_string(frames_to_read) + " frames");
+            throw FileException("CINE: Error while reading " + std::to_string(frames_to_read) +
+                                " frames; with code : " + std::to_string(std::ferror(file_)));
     }
 
     return frames_read;

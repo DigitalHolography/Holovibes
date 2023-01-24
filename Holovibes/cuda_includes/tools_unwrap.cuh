@@ -132,25 +132,25 @@ void phase_increase(const cuComplex* cur,
 void unwrap_2d(float* input,
                const cufftHandle plan2d,
                holovibes::UnwrappingResources_2d* res,
-               const camera::FrameDescriptor& fd,
+               const holovibes::FrameDescriptor& fd,
                float* output,
                const cudaStream_t stream);
 
 /*! \brief Gradient calculation for unwrap_2d calculations */
 void gradient_unwrap_2d(const cufftHandle plan2d,
                         holovibes::UnwrappingResources_2d* res,
-                        const camera::FrameDescriptor& fd,
+                        const holovibes::FrameDescriptor& fd,
                         const cudaStream_t stream);
 
 /*! \brief Eq calculation for unwrap_2d calculations */
 void eq_unwrap_2d(const cufftHandle plan2d,
                   holovibes::UnwrappingResources_2d* res,
-                  const camera::FrameDescriptor& fd,
+                  const holovibes::FrameDescriptor& fd,
                   const cudaStream_t stream);
 
 /*! \brief Phi calculation for unwrap_2d calculations */
 void phi_unwrap_2d(const cufftHandle plan2d,
                    holovibes::UnwrappingResources_2d* res,
-                   const camera::FrameDescriptor& fd,
+                   const holovibes::FrameDescriptor& fd,
                    float* output,
                    const cudaStream_t stream);

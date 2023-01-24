@@ -45,7 +45,7 @@ void CameraPhantom::init_camera()
     fd_.width = grabber_->width_;
     fd_.height = grabber_->height_;
     fd_.depth = grabber_->depth_;
-    fd_.byteEndian = Endianness::LittleEndian;
+    fd_.byteEndian = holovibes::Endianness::LittleEndian;
 }
 
 void CameraPhantom::start_acquisition() { grabber_->start(); }

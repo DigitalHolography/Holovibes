@@ -3,11 +3,11 @@
  * Interface for all cameras.*/
 #pragma once
 
+#include "frame_desc.hh"
+
 /*! \brief Contains all function and structure reference to camera usage */
 namespace camera
 {
-struct FrameDescriptor;
-
 /*! \struct CapturedFramesDescriptor
  *
  * \brief Simple struct to represent a single or mutiple frames located either in host memory or in device memory.
@@ -103,7 +103,7 @@ class ICamera
     virtual ~ICamera() {}
 
     /*! \brief Get the frame descriptor (frame format) */
-    virtual const FrameDescriptor& get_fd() const = 0;
+    virtual const holovibes::FrameDescriptor& get_fd() const = 0;
 
     /*! \brief Get the pixel size */
     virtual const float get_pixel_size() const = 0;

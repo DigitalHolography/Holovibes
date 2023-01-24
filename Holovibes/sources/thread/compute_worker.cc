@@ -2,6 +2,7 @@
 
 #include "holovibes.hh"
 #include "pipe.hh"
+#include "API.hh"
 
 #include "cublas_handle.hh"
 #include "cufft_handle.hh"
@@ -9,29 +10,29 @@
 
 namespace holovibes::worker
 {
-ComputeWorker::ComputeWorker(std::atomic<std::shared_ptr<Pipe>>& pipe, std::atomic<std::shared_ptr<Queue>>& output)
+ComputeWorker::ComputeWorker()
     : Worker()
-    , pipe_(pipe)
-    , output_(output)
     , stream_(Holovibes::instance().get_cuda_streams().compute_stream)
 {
     cuda_tools::CublasHandle::set_stream(stream_);
     cuda_tools::CufftHandle::set_stream(stream_);
     cuda_tools::CusolverHandle::set_stream(stream_);
-}
 
-void ComputeWorker::stop()
-{
-    Worker::stop();
-
-    pipe_.load()->request_termination();
+    Holovibes::instance().init_gpu_queues();
+    Holovibes::instance().create_pipe();
+    Holovibes::instance().sync_pipe();
 }
 
 void ComputeWorker::run()
 {
-    pipe_.load()->exec();
-
-    pipe_.store(nullptr);
-    output_.store(nullptr);
+    while (!stop_requested_)
+    {
+        api::get_compute_pipe().sync_and_refresh();
+        if (!stop_requested_)
+            api::get_compute_pipe().exec();
+    }
+    api::get_compute_pipe().sync_and_refresh();
+    Holovibes::instance().destroy_pipe();
+    Holovibes::instance().destroy_gpu_queues();
 }
 } // namespace holovibes::worker

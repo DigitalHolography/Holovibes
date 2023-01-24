@@ -13,7 +13,6 @@
 
 #include "cuda_memory.cuh"
 #include "display_queue.hh"
-#include "queue.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "global_state_holder.hh"
@@ -39,7 +38,7 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const FrameDescriptor& fd);
 
     ~BatchInputQueue();
 
@@ -100,7 +99,8 @@ class BatchInputQueue final : public DisplayQueue
      * Called by the consumer.
      * Empty the queue.
      */
-    void resize(const uint new_batch_size);
+    void set_new_batch_size(uint new_batch_size);
+    void set_new_total_nb_frames(uint new_frame_capacity);
 
     /*! \brief Stop the producer.
      *
@@ -136,7 +136,7 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_total_nb_frames() const { return total_nb_frames_; }
 
-    const camera::FrameDescriptor& get_fd() const { return fd_; }
+    const FrameDescriptor& get_fd() const { return fd_; }
 
   private: /* Private methods */
     /*! \brief Set size attributes and create mutexes and streams arrays.
@@ -145,7 +145,7 @@ class BatchInputQueue final : public DisplayQueue
      *
      * \param new_batch_size The new number of frames in a batch
      */
-    void create_queue(const uint new_batch_size);
+    void create_queue(const uint new_total_nb_frames, const uint new_batch_size);
 
     /*! \brief Destroy mutexes and streams arrays.
      *
@@ -183,22 +183,18 @@ class BatchInputQueue final : public DisplayQueue
   private: /* Private attributes */
     cuda_tools::UniquePtr<char> data_{nullptr};
 
-    /*! \brief FastUpdatesHolder entry */
-    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
-
     /*! \brief The current number of frames in the queue
      *
      * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
-    std::atomic<uint>& curr_nb_frames_;
+    uint curr_nb_frames_;
+
     /*! \brief The total number of frames that can be contained in the queue according to batch size
      *
      * With respect to batch size (batch_size_ * max_size_)
      */
-    std::atomic<uint>& total_nb_frames_;
-    /*! \brief The total number of frames that can be contained in the queue */
-    std::atomic<uint> frame_capacity_{0};
+    uint total_nb_frames_;
 
   public:
     /*! \brief Current number of full batches

@@ -1,4 +1,5 @@
 #include "holovibes.hh"
+#include "API.hh"
 #include "icompute.hh"
 #include "tools.hh"
 #include "chrono.hh"
@@ -42,8 +43,11 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-    while (!stop_requested_)
+    while (stop_requested_.load() == false)
     {
+        if (!display_info_text_function_)
+            continue;
+
         chrono.stop();
 
         auto waited_time = chrono.get_milliseconds();
@@ -51,8 +55,8 @@ void InformationWorker::run()
         {
             compute_fps(waited_time);
 
-            std::shared_ptr<Queue> gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> gpu_input_queue = Holovibes::instance().get_gpu_input_queue();
+            std::shared_ptr<Queue>& gpu_output_queue = api::get_gpu_output_queue_ptr();
+            std::shared_ptr<BatchInputQueue>& gpu_input_queue = api::get_gpu_input_queue_ptr();
 
             if (gpu_output_queue && gpu_input_queue)
             {
@@ -60,10 +64,11 @@ void InformationWorker::run()
                 input_frame_size = gpu_input_queue->get_fd().get_frame_size();
             }
 
-            std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe_nothrow();
+            auto& pipe = api::get_compute_pipe_ptr();
             if (pipe != nullptr)
             {
-                std::unique_ptr<Queue>& gpu_frame_record_queue = pipe->get_frame_record_queue();
+                std::unique_ptr<Queue>& gpu_frame_record_queue =
+                    api::get_compute_pipe().get_frame_record_env().gpu_frame_record_queue_;
                 if (gpu_frame_record_queue)
                     record_frame_size = gpu_frame_record_queue->get_fd().get_frame_size();
             }
@@ -86,27 +91,23 @@ void InformationWorker::run()
 void InformationWorker::compute_fps(const long long waited_time)
 {
     auto& fps_map = GSH::fast_updates_map<FpsType>;
-    FastUpdatesHolder<FpsType>::const_iterator it;
-    if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
-        input_fps_ = it->second->load();
-
-    if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
+    for (auto& [key, value] : fps_map.get_map())
     {
-        output_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0); // TODO Remove
-    }
+        if (key == FpsType::INPUT_FPS)
+            input_fps_ = std::round(value.image_processed * (1000.f / waited_time));
+        else if (key == FpsType::OUTPUT_FPS)
+            output_fps_ = std::round(value.image_processed * (1000.f / waited_time));
+        else if (key == FpsType::SAVING_FPS)
+            saving_fps_ = std::round(value.image_processed * (1000.f / waited_time));
 
-    if ((it = fps_map.find(FpsType::SAVING_FPS)) != fps_map.end())
-    {
-        saving_fps_ = std::round(it->second->load() * (1000.f / waited_time));
-        it->second->store(0); // TODO Remove
+        value.image_processed = 0;
     }
 }
 
 void InformationWorker::compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size)
 {
     input_throughput_ = input_fps_ * input_frame_size;
-    output_throughput_ = output_fps_ * output_frame_res * GSH::instance().get_time_transformation_size();
+    output_throughput_ = output_fps_ * output_frame_res * api::detail::get_value<TimeTransformationSize>();
     saving_throughput_ = saving_fps_ * record_frame_size;
 }
 
@@ -125,10 +126,9 @@ void InformationWorker::display_gui_information()
     std::string str;
     str.reserve(512);
     std::stringstream to_display(str);
-    auto& fps_map = GSH::fast_updates_map<FpsType>;
 
     for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
-        to_display << indication_type_to_string_.at(key) << ":\n  " << *value << "\n";
+        to_display << indication_type_to_string_.at(key) << ":\n  " << value << "\n";
 
     for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
     {
@@ -136,31 +136,50 @@ void InformationWorker::display_gui_information()
             continue;
 
         to_display << queue_type_to_string_.at(key) << ":\n  ";
-        to_display << value->first.load() << "/" << value->second.load() << "\n";
+        if (value.size != nullptr && value.max_size != nullptr)
+            to_display << *value.size << "/" << *value.max_size << "\n";
+        else
+            to_display << "?? / ?? \n";
+
+        if (is_input_queue_ok_ && key == QueueType::INPUT_QUEUE)
+        {
+            float coef = (float)*value.size / (float)*value.max_size;
+
+            if (last_input_queue_state_ == false && coef < 0.80f)
+            {
+                last_input_queue_state_ = true;
+                is_input_queue_ok_(true);
+            }
+            else if (last_input_queue_state_ == true && coef > 0.90f)
+            {
+                last_input_queue_state_ = false;
+                is_input_queue_ok_(false);
+            }
+        }
     }
 
-    if (fps_map.contains(FpsType::INPUT_FPS))
+    if (GSH::fast_updates_map<FpsType>.contains(FpsType::INPUT_FPS))
     {
         to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":\n  " << input_fps_ << "\n";
     }
 
-    if (fps_map.contains(FpsType::OUTPUT_FPS))
+    if (GSH::fast_updates_map<FpsType>.contains(FpsType::OUTPUT_FPS))
     {
         to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":\n  " << output_fps_ << "\n";
     }
 
-    if (fps_map.contains(FpsType::SAVING_FPS))
+    if (GSH::fast_updates_map<FpsType>.contains(FpsType::SAVING_FPS))
     {
         to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":\n  " << saving_fps_ << "\n";
     }
 
-    if (fps_map.contains(FpsType::OUTPUT_FPS))
+    if (GSH::fast_updates_map<FpsType>.contains(FpsType::OUTPUT_FPS))
     {
         to_display << "Input Throughput\n  " << format_throughput(input_throughput_, "B/s") << "\n";
         to_display << "Output Throughput\n  " << format_throughput(output_throughput_, "Voxels/s") << "\n";
     }
 
-    if (fps_map.contains(FpsType::SAVING_FPS))
+    if (GSH::fast_updates_map<FpsType>.contains(FpsType::SAVING_FPS))
     {
         to_display << "Saving Throughput\n  " << format_throughput(saving_throughput_, "B/s") << "\n";
     }
@@ -173,11 +192,13 @@ void InformationWorker::display_gui_information()
                << "  " << engineering_notation(total, 3) + "B total\n";
 
     // #TODO change this being called every frame to only being called to update the value if needed
-    to_display << "\nz boundary: " << Holovibes::instance().get_boundary() << "m\n";
+    to_display << "\nz boundary: " << api::get_z_boundary() << "m\n";
 
-    display_info_text_function_(to_display.str());
+    if (display_info_text_function_)
+        display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
-        update_progress_function_(key, value->first.load(), value->second.load());
+        if (value.recorded != nullptr)
+            update_progress_function_(key, *value.recorded, value.to_record);
 }
 } // namespace holovibes::worker

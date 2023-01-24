@@ -10,17 +10,19 @@
 #include "shift_corners.cuh"
 #include "map.cuh"
 
+#include "API.hh"
+
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes::compute
 {
 Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
                                CoreBuffersEnv& buffers,
-                               const camera::FrameDescriptor& input_fd,
+                               const FrameDescriptor& input_fd,
                                const cudaStream_t& stream,
-                               ComputeCache::Cache& compute_cache,
-                               ViewCache::Cache& view_cache,
-                               AdvancedCache::Cache& advanced_cache)
+                               PipeAdvancedCache& advanced_cache,
+                               PipeComputeCache& compute_cache,
+                               PipeViewCache& view_cache)
     : gpu_kernel_buffer_()
     , cuComplex_buffer_()
     , hsv_arr_()
@@ -30,13 +32,90 @@ Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
     , fd_(input_fd)
     , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
     , stream_(stream)
+    , advanced_cache_(advanced_cache)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
-    , advanced_cache_(advanced_cache)
 {
 }
 
-void Postprocessing::init()
+static std::vector<float> get_convolution_matrix()
+{
+    std::filesystem::path dir(get_exe_dir());
+    dir = dir / "convolution_kernels" / api::detail::get_value<Convolution>().type;
+    std::string path = dir.string();
+
+    std::vector<float> tmp_matrix;
+    uint matrix_width = 0;
+    uint matrix_height = 0;
+    uint matrix_z = 1;
+
+    // Doing this the C way cause it's faster
+    FILE* c_file;
+    fopen_s(&c_file, path.c_str(), "r");
+
+    if (c_file == nullptr)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid file path");
+    }
+
+    // Read kernel dimensions
+    if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid kernel dimensions");
+    }
+
+    size_t matrix_size = matrix_width * matrix_height * matrix_z;
+    tmp_matrix.resize(matrix_size);
+
+    // Read kernel values
+    for (size_t i = 0; i < matrix_size; ++i)
+    {
+        if (fscanf_s(c_file, "%f", &tmp_matrix[i]) != 1)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Missing values");
+        }
+    }
+
+    fclose(c_file);
+
+    // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+    const uint output_width = api::get_output_frame_descriptor().width;
+    const uint output_height = api::get_output_frame_descriptor().height;
+    const uint size = output_width * output_height;
+
+    // The convo matrix is centered and padded with 0 since the kernel is
+    // usally smaller than the output Example: kernel size is (2, 2) and
+    // output size is (4, 4) The kernel is represented by 'x' and
+    //  | 0 | 0 | 0 | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | 0 | 0 | 0 |
+    const uint first_col = (output_width / 2) - (matrix_width / 2);
+    const uint last_col = (output_width / 2) + (matrix_width / 2);
+    const uint first_row = (output_height / 2) - (matrix_height / 2);
+    const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+    std::vector<float> convolution_matrix;
+
+    convolution_matrix.clear();
+    convolution_matrix.resize(size, 0.0f);
+
+    uint kernel_indice = 0;
+    for (uint i = first_row; i < last_row; i++)
+    {
+        for (uint j = first_col; j < last_col; j++)
+        {
+            convolution_matrix[i * output_width + j] = tmp_matrix[kernel_indice];
+            kernel_indice++;
+        }
+    }
+    return convolution_matrix;
+}
+
+void Postprocessing::init_convolution()
 {
     LOG_FUNC();
 
@@ -45,15 +124,16 @@ void Postprocessing::init()
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);
-
     // No need for memset here since it will be memset in the actual convolution
     cuComplex_buffer_.resize(frame_res);
-
     gpu_kernel_buffer_.resize(frame_res);
+
+    std::vector<float> convolution_matrix = get_convolution_matrix();
+
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_convo_matrix_const_ref().data(),
+                                   convolution_matrix.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -69,7 +149,7 @@ void Postprocessing::init()
     hsv_arr_.resize(frame_res * 3);
 }
 
-void Postprocessing::dispose()
+void Postprocessing::dispose_convolution()
 {
     LOG_FUNC();
 
@@ -79,7 +159,6 @@ void Postprocessing::dispose()
     hsv_arr_.reset(nullptr);
 }
 
-// Inserted
 void Postprocessing::convolution_composite()
 {
     LOG_FUNC();
@@ -97,7 +176,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -107,7 +186,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -117,7 +196,7 @@ void Postprocessing::convolution_composite()
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
-                       compute_cache_.get_divide_convolution_enabled(),
+                       compute_cache_.get_value<Convolution>().divide,
                        true,
                        stream_);
 
@@ -131,10 +210,10 @@ void Postprocessing::insert_convolution()
 {
     LOG_FUNC();
 
-    if (!compute_cache_.get_convolution_enabled() || compute_cache_.get_convo_matrix_const_ref().empty())
+    if (compute_cache_.get_value<Convolution>().is_enabled() == false)
         return;
 
-    if (view_cache_.get_img_type() != ImgType::Composite)
+    if (compute_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -145,7 +224,7 @@ void Postprocessing::insert_convolution()
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   compute_cache_.get_divide_convolution_enabled(),
+                                   compute_cache_.get_value<Convolution>().divide,
                                    true,
                                    stream_);
             });
@@ -160,19 +239,19 @@ void Postprocessing::insert_renormalize()
 {
     LOG_FUNC();
 
-    if (!view_cache_.get_renorm_enabled())
+    if (!view_cache_.get_value<RenormEnabled>())
         return;
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (view_cache_.get_img_type() == ImgType::Composite)
+            if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
                 frame_res *= 3;
             gpu_normalize(buffers_.gpu_postprocess_frame.get(),
                           reduce_result_.get(),
                           frame_res,
-                          advanced_cache_.get_renorm_constant(),
+                          advanced_cache_.get_value<RenormConstant>(),
                           stream_);
         });
 }

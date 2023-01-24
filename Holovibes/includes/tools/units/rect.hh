@@ -8,7 +8,8 @@
 #include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
+#include "logger.hh"
 
 #include <cmath>
 
@@ -200,6 +201,9 @@ class Rect
   private:
     Point<T> src_;
     Point<T> dst_;
+
+  public:
+    bool operator!=(const Rect& rhs) const { return false; }
 };
 
 /*! \brief Rectangle in the OpenGL coordinates [-1;1] */
@@ -219,8 +223,8 @@ std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
 
 // clang-format off
 SERIALIZE_JSON_ENUM(Axis, {
-    {HORIZONTAL, "HORIZONTAL"},
-    {VERTICAL, "VERTICAL"},
+    {Axis::HORIZONTAL, "HORIZONTAL"},
+    {Axis::VERTICAL, "VERTICAL"},
 })
 
 // Temporary situation needed to not touch all template classes in the units tools

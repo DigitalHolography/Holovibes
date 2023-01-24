@@ -104,18 +104,114 @@
  *  Note: for complex type parameters with commas in template parameters please use a 'using' directive
  */
 
-template <typename T>
-inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
-{
-    return os << "vector";
-}
-
 #ifdef _DEBUG
 #define LOG_UPDATE(var) LOG_DEBUG("Update {} : {} -> {}", #var, var.obj, cache_truth<ref_t>->var);
 #else
 #define LOG_UPDATE(var)
 #endif
 
+#define _SYNC_VAR_INIT(type, var, val)                                                                                 \
+    var.obj = cache_reference<ref_t>->var;                                                                             \
+    var.to_update = false;
+
+#define _IF_NEED_SYNC_VAR_INIT(type, var, val)                                                                         \
+    if (var.to_update)                                                                                                 \
+    {                                                                                                                  \
+        var.obj = cache_reference<ref_t>->var;                                                                         \
+        var.to_update = false;                                                                                         \
+    }
+
+#define _DEFINE_VAR_INIT(type, var, val) alignas(std::hardware_constructive_interference_size) type var = val;
+
+#define _DEFINE_CACHE_VAR_INIT(type, var, val)                                                                         \
+    struct var##_t                                                                                                     \
+    {                                                                                                                  \
+        type obj = val;                                                                                                \
+        volatile bool to_update;                                                                                       \
+    };                                                                                                                 \
+    var##_t var;
+
+#define _GETTER_INIT(type, var, val)                                                                                   \
+    inline type get_##var() const noexcept { return var.obj; }                                                         \
+    inline const auto& get_##var##_const_ref() const noexcept { return var.obj; }
+
+#define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
+    inline void set_##var(const type& _val)                                                                            \
+    {                                                                                                                  \
+        var = _val;                                                                                                    \
+        trigger_##var();                                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline type get_##var() const noexcept { return var; }                                                             \
+                                                                                                                       \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    inline const auto& get_##var##_const_ref() const noexcept { return var; }                                          \
+                                                                                                                       \
+    void trigger_##var()                                                                                               \
+    {                                                                                                                  \
+        for (cache_t * cache : micro_caches<cache_t>)                                                                  \
+            cache->var.to_update = true;                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
+    /* this shared pointer is used so that the trigger is called at the destruction of the pointer, when the value is  \
+     * sure to be modified*/                                                                                           \
+    inline auto get_##var##_ref()                                                                                      \
+    {                                                                                                                  \
+        return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
+    }
+
+#define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \
+    struct name                                                                                                        \
+    {                                                                                                                  \
+        struct Ref;                                                                                                    \
+        struct Cache;                                                                                                  \
+        using ref_t = Ref;                                                                                             \
+        using cache_t = Cache;                                                                                         \
+        struct Ref : MicroCache                                                                                        \
+        {                                                                                                              \
+          private:                                                                                                     \
+            MAP(_DEFINE_VAR_INIT, __VA_ARGS__);                                                                        \
+                                                                                                                       \
+          public:                                                                                                      \
+            Ref(const Ref&) = delete;                                                                                  \
+            Ref& operator=(const Ref&) = delete;                                                                       \
+            Ref() { cache_reference<ref_t> = this; }                                                                   \
+            ~Ref() { cache_reference<ref_t> = nullptr; }                                                               \
+                                                                                                                       \
+          public:                                                                                                      \
+            MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
+                                                                                                                       \
+            friend struct Cache;                                                                                       \
+        };                                                                                                             \
+                                                                                                                       \
+        struct Cache : MicroCache                                                                                      \
+        {                                                                                                              \
+          private:                                                                                                     \
+            MAP(_DEFINE_CACHE_VAR_INIT, __VA_ARGS__);                                                                  \
+                                                                                                                       \
+          public:                                                                                                      \
+            Cache(const Cache&) = delete;                                                                              \
+            Cache& operator=(const Cache&) = delete;                                                                   \
+            Cache()                                                                                                    \
+            {                                                                                                          \
+                CHECK(cache_reference<ref_t> != nullptr, "You must register a reference cache for class: {}", #name)   \
+                MAP(_SYNC_VAR_INIT, __VA_ARGS__);                                                                      \
+                micro_caches<cache_t>.insert(this);                                                                    \
+            }                                                                                                          \
+            ~Cache() { micro_caches<cache_t>.erase(this); }                                                            \
+                                                                                                                       \
+          public:                                                                                                      \
+            MAP(_GETTER_INIT, __VA_ARGS__);                                                                            \
+            void synchronize() { MAP(_IF_NEED_SYNC_VAR_INIT, __VA_ARGS__); }                                           \
+            void synchronize_force() { MAP(_SYNC_VAR_INIT, __VA_ARGS__); }                                             \
+                                                                                                                       \
+            friend struct Ref;                                                                                         \
+        };                                                                                                             \
+    };
+
+/*
 #define _SYNC_VAR(type, var)                                                                                           \
     var.obj = cache_reference<ref_t>->var;                                                                             \
     var.to_update = false;
@@ -193,7 +289,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
           public:                                                                                                      \
             Cache()                                                                                                    \
             {                                                                                                          \
-                CHECK(cache_reference<ref_t> != nullptr, "You must register a reference cache for class: {}", #name)   \
+                CHECK(cache_reference<ref_t> != nullptr, "You must register a reference cache for class: {}", #name);  \
                 MAP(_SYNC_VAR, __VA_ARGS__);                                                                           \
                 micro_caches<cache_t>.insert(this);                                                                    \
             }                                                                                                          \
@@ -205,103 +301,4 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
             friend struct Ref;                                                                                         \
         };                                                                                                             \
     };
-
-/*---------------------------------------------------------------------*/
-
-#define _SYNC_VAR_INIT(type, var, val)                                                                                 \
-    var.obj = cache_reference<ref_t>->var;                                                                             \
-    var.to_update = false;
-
-#define _IF_NEED_SYNC_VAR_INIT(type, var, val)                                                                         \
-    if (var.to_update)                                                                                                 \
-    {                                                                                                                  \
-        var.obj = cache_reference<ref_t>->var;                                                                         \
-        var.to_update = false;                                                                                         \
-    }
-
-#define _DEFINE_VAR_INIT(type, var, val) alignas(std::hardware_constructive_interference_size) type var = val;
-
-#define _DEFINE_CACHE_VAR_INIT(type, var, val)                                                                         \
-    struct var##_t                                                                                                     \
-    {                                                                                                                  \
-        type obj = val;                                                                                                \
-        volatile bool to_update;                                                                                       \
-    };                                                                                                                 \
-    var##_t var;
-
-#define _GETTER_INIT(type, var, val)                                                                                   \
-    inline type get_##var() const noexcept { return var.obj; }                                                         \
-    inline const auto& get_##var##_const_ref() const noexcept { return var.obj; }
-
-#define _GETTER_SETTER_TRIGGER_INIT(type, var, val)                                                                    \
-    inline void set_##var(const type& _val)                                                                            \
-    {                                                                                                                  \
-        var = _val;                                                                                                    \
-        trigger_##var();                                                                                               \
-    }                                                                                                                  \
-                                                                                                                       \
-    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline type get_##var() const noexcept { return var; }                                                             \
-                                                                                                                       \
-    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    inline const auto& get_##var##_const_ref() const noexcept { return var; }                                          \
-                                                                                                                       \
-    void trigger_##var()                                                                                               \
-    {                                                                                                                  \
-        for (cache_t * cache : micro_caches<cache_t>)                                                                  \
-            cache->var.to_update = true;                                                                               \
-    }                                                                                                                  \
-                                                                                                                       \
-    /* inline prevents MSVC from brain-dying, dunno why */                                                             \
-    /* this shared pointer is used so that the trigger is called at the destruction of the pointer, when the value is  \
-     * sure to be modified*/                                                                                           \
-    inline auto get_##var##_ref()                                                                                      \
-    {                                                                                                                  \
-        return std::shared_ptr<type>{&var, [&](type*) { trigger_##var(); }};                                           \
-    }
-
-#define NEW_INITIALIZED_MICRO_CACHE(name, ...)                                                                         \
-    struct name                                                                                                        \
-    {                                                                                                                  \
-        struct Ref;                                                                                                    \
-        struct Cache;                                                                                                  \
-        using ref_t = Ref;                                                                                             \
-        using cache_t = Cache;                                                                                         \
-        struct Ref : MicroCache                                                                                        \
-        {                                                                                                              \
-          private:                                                                                                     \
-            MAP(_DEFINE_VAR_INIT, __VA_ARGS__);                                                                        \
-                                                                                                                       \
-          public:                                                                                                      \
-            MAP(_GETTER_SETTER_TRIGGER_INIT, __VA_ARGS__);                                                             \
-                                                                                                                       \
-            Ref(const Ref&) = delete;                                                                                  \
-            Ref& operator=(const Ref&) = delete;                                                                       \
-            Ref() { cache_reference<ref_t> = this; }                                                                   \
-            ~Ref() { cache_reference<ref_t> = nullptr; }                                                               \
-                                                                                                                       \
-            friend struct Cache;                                                                                       \
-        };                                                                                                             \
-                                                                                                                       \
-        struct Cache : MicroCache                                                                                      \
-        {                                                                                                              \
-          private:                                                                                                     \
-            MAP(_DEFINE_CACHE_VAR_INIT, __VA_ARGS__);                                                                  \
-                                                                                                                       \
-          public:                                                                                                      \
-            Cache(const Cache&) = delete;                                                                              \
-            Cache& operator=(const Cache&) = delete;                                                                   \
-            Cache()                                                                                                    \
-            {                                                                                                          \
-                CHECK(cache_reference<ref_t> != nullptr, "You must register a reference cache for class: {}", #name)   \
-                MAP(_SYNC_VAR_INIT, __VA_ARGS__);                                                                      \
-                micro_caches<cache_t>.insert(this);                                                                    \
-            }                                                                                                          \
-            ~Cache() { micro_caches<cache_t>.erase(this); }                                                            \
-                                                                                                                       \
-            void synchronize() { MAP(_IF_NEED_SYNC_VAR_INIT, __VA_ARGS__); }                                           \
-                                                                                                                       \
-            MAP(_GETTER_INIT, __VA_ARGS__);                                                                            \
-            friend struct Ref;                                                                                         \
-        };                                                                                                             \
-    };
+*/

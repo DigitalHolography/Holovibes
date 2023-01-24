@@ -20,10 +20,10 @@ class FrameFile
 {
   public:
     /*! \brief Getter on the frame descriptor of the file */
-    camera::FrameDescriptor get_frame_descriptor() { return fd_; }
+    FrameDescriptor get_frame_descriptor() { return fd_; }
 
     /*! \brief Getter on the frame descriptor of the file */
-    const camera::FrameDescriptor& get_frame_descriptor() const { return fd_; }
+    const FrameDescriptor& get_frame_descriptor() const { return fd_; }
 
     /*! \brief Getter on the total number of frames in the file */
     virtual size_t get_total_nb_frames() const = 0;
@@ -53,7 +53,7 @@ class FrameFile
     /*! \brief The path of the file */
     const std::string file_path_;
     /*! \brief Frame descriptor associated to the file */
-    camera::FrameDescriptor fd_;
+    FrameDescriptor fd_;
     /*! \brief Pointer associated to the file. C way because it is faster */
     std::FILE* file_ = nullptr;
 };

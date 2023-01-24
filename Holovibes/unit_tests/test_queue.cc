@@ -7,6 +7,8 @@
 #include "frame_desc.hh"
 #include "cuda_memory.cuh"
 
+using namespace holovibes;
+
 static constexpr cudaStream_t stream = 0;
 
 /*! \brief Get the element at a specific position in the queue */
@@ -40,7 +42,7 @@ static std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
 
 TEST(QueueTest, SimpleInstantiatingTest)
 {
-    camera::FrameDescriptor fd = {64, 64, 1, camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, 1, Endianness::BigEndian};
     holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED, 64, 64, 1);
     // WARNING: Set false because the queue is used in a CLI mode
     ASSERT_EQ(0.0, 0.0);
@@ -48,14 +50,14 @@ TEST(QueueTest, SimpleInstantiatingTest)
 
 TEST(ZeroQueueInstantiation, ZeroQueue)
 {
-    camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {4, 4, sizeof(char), Endianness::BigEndian};
     ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth),
                  std::logic_error);
 }
 
 TEST(QueueEmpty, QueueIsFullTest)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     ASSERT_FALSE(q.is_full());
@@ -63,7 +65,7 @@ TEST(QueueEmpty, QueueIsFullTest)
 
 TEST(QueueNotFull, QueueIsFullTest)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     char* new_elt = new char[fd.get_frame_res()];
 
@@ -77,7 +79,7 @@ TEST(QueueNotFull, QueueIsFullTest)
 
 TEST(QueueFull, QueueIsFull)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* new_elt = new char[fd.get_frame_res()];
@@ -92,20 +94,20 @@ TEST(QueueFull, QueueIsFull)
 
 TEST(SimpleQueueResize, QueueResize)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), 2);
 
     unsigned int new_size = 10;
-    q.resize(new_size, stream); // Resize here, empty the queue
+    q.resize(new_size); // Resize here, empty the queue
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_max_size(), new_size);
 }
 
 TEST(EnqueueCheckValues, QueueEnqueue)
 {
-    camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {1, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elt1 = 'a';
@@ -131,7 +133,7 @@ TEST(EnqueueCheckValues, QueueEnqueue)
 
 TEST(SimpleEnqueues, QueueEnqueue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
 
@@ -167,7 +169,7 @@ TEST(SimpleEnqueues, QueueEnqueue)
 
 TEST(EnqueueNotSquare, QueueEnqueue)
 {
-    camera::FrameDescriptor fd = {56, 17, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {56, 17, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     ASSERT_EQ(q.get_size(), 0);
 
@@ -182,7 +184,7 @@ TEST(EnqueueNotSquare, QueueEnqueue)
 
 TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {1, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char elts[] = {'a', 'b', 'c'};
@@ -198,7 +200,7 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
     ASSERT_EQ(*get_element_from_queue(q, 1), elts[1]);
     ASSERT_EQ(q.get_start_index(), 1);
 
-    q.resize(2, stream); // reset, same size
+    q.resize(2); // reset, same size
     ASSERT_EQ(q.get_size(), 0);
     ASSERT_EQ(q.get_start_index(), 0);
 
@@ -216,7 +218,7 @@ TEST(MultipleEnqueueCheckValues, QueueMultipleEnqueue)
 
 TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {1, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {1, 1, sizeof(char), Endianness::BigEndian};
     constexpr uint queue_size = 3;
     holovibes::Queue q(fd, queue_size, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -236,7 +238,7 @@ TEST(MultipleEnqueueOddSize, QueueMultipleEnqueue)
 
 TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
@@ -252,7 +254,7 @@ TEST(SimpleMultipleEnqueue, QueueMultipleEnqueue)
 
 TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
@@ -284,7 +286,7 @@ TEST(CircularMultipleEnqueue, QueueMultipleEnqueue)
 
 TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 3;
@@ -299,7 +301,7 @@ TEST(OversizedMultipleEnqueue, QueueMultipleEnqueue)
 
 TEST(FullMultipleEnqueue, QueueMultipleEnqueue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     unsigned int nb_elts = 2;
@@ -319,7 +321,7 @@ TEST(FullMultipleEnqueue, QueueMultipleEnqueue)
 TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // 2 frames of a resolution of 3
@@ -334,7 +336,7 @@ TEST(MultipleEnqueueNonSquare, QueueMultipleEnqueue)
 
 TEST(EmptyDequeue, QueueDequeue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     // empty queue
@@ -343,7 +345,7 @@ TEST(EmptyDequeue, QueueDequeue)
 
 TEST(DequeueOneFrame, QueueDequeue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* new_elt = new char[fd.get_frame_res()];
@@ -376,7 +378,7 @@ TEST(DequeueOneFrame, QueueDequeue)
 
 TEST(DequeueMultipleFrames, QueueDequeue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* new_elt = new char[fd.get_frame_res() * 2];
@@ -400,7 +402,7 @@ TEST(DequeueMultipleFrames, QueueDequeue)
 
 TEST(DequeueTooManyFrames, QueueDequeue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* new_elt = new char[fd.get_frame_res() * 2];
@@ -415,7 +417,7 @@ TEST(DequeueTooManyFrames, QueueDequeue)
 
 TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {64, 64, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* buff = new char[fd.get_frame_res()];
@@ -430,7 +432,7 @@ TEST(SimpleDequeueValueEmpty, QueueDequeueValue)
 TEST(SimpleDequeueValue, QueueDequeueValue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* res = new char[fd.get_frame_res()];
@@ -448,7 +450,7 @@ TEST(SimpleDequeueValue, QueueDequeueValue)
 TEST(ComplexDequeueValue, QueueDequeueValue)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
     char* res = new char[fd.get_frame_res()];
@@ -478,7 +480,7 @@ TEST(ComplexDequeueValue, QueueDequeueValue)
 
 TEST(EmptyCopyMultiple, QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {4, 4, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -488,7 +490,7 @@ TEST(EmptyCopyMultiple, QueueCopyMultiple)
 TEST(SimpleCopyMultiple, QueueCopyMultiple)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -517,7 +519,7 @@ TEST(SimpleCopyMultiple, QueueCopyMultiple)
 TEST(MoreElementCopyMultiple, QueueCopyMultiple)
 {
     // 3 * 1 = 3 is the length of a string of two character + null character
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 2, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -546,7 +548,7 @@ TEST(MoreElementCopyMultiple, QueueCopyMultiple)
 
 TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -569,7 +571,7 @@ TEST(DstOverflowCopyMultiple, DISABLED_QueueCopyMultiple)
 
 TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -604,7 +606,7 @@ TEST(CircularSrcCopyMultiple, QueueCopyMultiple)
 
 TEST(CircularDstCopyMultiple, QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -631,7 +633,7 @@ TEST(CircularDstCopyMultiple, QueueCopyMultiple)
 
 TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {3, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {3, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 4, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 
@@ -660,7 +662,7 @@ TEST(CircularDstSrcCopyMultiple, QueueCopyMultiple)
 
 TEST(ManyDstOverflow, DISABLED_QueueCopyMultiple)
 {
-    camera::FrameDescriptor fd = {2, 1, sizeof(char), camera::Endianness::BigEndian};
+    FrameDescriptor fd = {2, 1, sizeof(char), Endianness::BigEndian};
     holovibes::Queue q_src(fd, 11, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
     holovibes::Queue q_dst(fd, 3, holovibes::QueueType::UNDEFINED, fd.width, fd.height, fd.depth);
 

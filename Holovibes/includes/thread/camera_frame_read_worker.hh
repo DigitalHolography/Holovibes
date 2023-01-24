@@ -15,6 +15,26 @@ struct CapturedFramesDescriptor;
 
 namespace holovibes::worker
 {
+
+class CameraFrameReadWorker;
+
+class ImportCameraRequestOnSync
+{
+  public:
+    template <typename T>
+    void operator()(typename T::ConstRefType, CameraFrameReadWorker&)
+    {
+    }
+
+    template <typename T>
+    void on_sync(typename T::ConstRefType new_value,
+                 [[maybe_unused]] typename T::ConstRefType,
+                 CameraFrameReadWorker& camera_worker)
+    {
+        operator()<T>(new_value, camera_worker);
+    }
+};
+
 /*! \class CameraFrameReadWorker
  *
  * \brief Class used to read frames from a camera
@@ -25,10 +45,11 @@ class CameraFrameReadWorker final : public FrameReadWorker
     /*! \brief Constructor
      *
      * \param camera The camera used
-     * \param gpu_input_queue The input queue
      */
-    CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
-                          std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera);
+    ~CameraFrameReadWorker();
+
+    using CameraImportCache = ImportCache::Cache<ImportCameraRequestOnSync>;
 
     void run() override;
 
@@ -36,6 +57,10 @@ class CameraFrameReadWorker final : public FrameReadWorker
     /*! \brief The camera giving the images */
     std::shared_ptr<camera::ICamera> camera_;
 
-    void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const camera::FrameDescriptor& camera_fd);
+    CameraImportCache import_cache_;
+
+    uint total_captured_frames_ = 0;
+
+    void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const FrameDescriptor& camera_fd);
 };
 } // namespace holovibes::worker

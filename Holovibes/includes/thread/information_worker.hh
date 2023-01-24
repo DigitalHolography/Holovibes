@@ -24,9 +24,9 @@ class InformationWorker final : public Worker
     void run() override;
 
     static inline std::function<void(const std::string&)> display_info_text_function_;
-
-    /*! \brief The function used to update the progress displayed */
     static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
+    static inline std::function<void(bool)> is_input_queue_ok_;
+    bool last_input_queue_state_ = false;
 
   private:
     /*! \brief The map associating an indication type with its name */
@@ -46,14 +46,14 @@ class InformationWorker final : public Worker
 
     /*! \brief Compute throughput (input, output, saving) according to the information container
      *
-     * \param cd Compute descriptor used for computations
+     * \param cd Compute descriptor used for ComputeModeEnums
      * \param output_frame_res Frame resolution of output images
      * \param input_frame_size Frame size of input images
      * \param record_frame_size Frame size of record images
      */
     void compute_throughput(size_t output_frame_res, size_t input_frame_size, size_t record_frame_size);
 
-    /*! \brief Refresh side informations according to new computations */
+    /*! \brief Refresh side informations according to new ComputeModeEnums */
     void display_gui_information();
 
     /*! \brief Input fps */
