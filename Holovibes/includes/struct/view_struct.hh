@@ -25,7 +25,7 @@ struct ViewContrast
     bool auto_refresh = true;
     bool invert = false;
     float min = 1.f;
-    float max = 65535.f;
+    float max = 1.f;
 
     SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
 

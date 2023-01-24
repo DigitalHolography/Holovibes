@@ -96,7 +96,8 @@ class Rendering
     void insert_request_exec_contrast();
 
     /*! \brief insert the constrast on a view */
-    void insert_apply_contrast(WindowKind view);
+    template <WindowKind view>
+    void insert_apply_contrast();
 
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);

@@ -520,12 +520,6 @@
            <property name="title">
             <string>Convolve</string>
            </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
            <layout class="QGridLayout" name="gridLayout_8">
             <property name="leftMargin">
              <number>2</number>
@@ -4367,22 +4361,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ConvoCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>ImageRenderingPanel</receiver>
-   <slot>set_convolution_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>702</x>
-     <y>69</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>681</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ViewPanel</receiver>
@@ -5244,7 +5222,6 @@ p, li { white-space: pre-wrap; }
   <slot>update_load_in_gpu(bool)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
-  <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution(bool)</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>

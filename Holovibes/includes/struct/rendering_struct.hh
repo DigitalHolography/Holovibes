@@ -42,17 +42,15 @@ struct Filter2DStruct
  */
 struct ConvolutionStruct
 {
-    bool enabled = false;
     std::string type = UID_CONVOLUTION_TYPE_DEFAULT;
     bool divide = false;
-    std::vector<float> matrix = {};
 
-    SERIALIZE_JSON_STRUCT(ConvolutionStruct, enabled, type, divide)
+    SERIALIZE_JSON_STRUCT(ConvolutionStruct, type, divide)
 
-    bool operator!=(const ConvolutionStruct& rhs) const
-    {
-        return enabled != rhs.enabled || divide != rhs.divide || type != rhs.type || matrix != rhs.matrix;
-    }
+    bool operator!=(const ConvolutionStruct& rhs) const { return divide != rhs.divide || type != rhs.type; }
+
+    bool is_enabled() const { return type != UID_CONVOLUTION_TYPE_DEFAULT; }
+    void disable() { type = UID_CONVOLUTION_TYPE_DEFAULT; }
 };
 
 /*! \class Rendering

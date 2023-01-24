@@ -73,7 +73,7 @@ void ImportFileRequestOnSync::operator()<LoadFileInGpu>(bool, FileFrameReadWorke
 
 FileFrameReadWorker::FileFrameReadWorker()
     : FrameReadWorker()
-    , current_nb_frames_read_(0)
+    , current_nb_frames_computed_(0)
     , fps_handler_(api::get_input_fps())
     , cpu_frame_buffer_(nullptr)
     , gpu_frame_buffer_(nullptr)
@@ -83,7 +83,7 @@ FileFrameReadWorker::FileFrameReadWorker()
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE) = "File";
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT) = "FIXME File Format";
 
-    GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ).recorded = &current_nb_frames_read_;
+    GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::READ).recorded = &current_nb_frames_computed_;
 }
 
 FileFrameReadWorker::~FileFrameReadWorker()
@@ -108,56 +108,33 @@ void FileFrameReadWorker::run()
                                         std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
     GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true) = input_descriptor_info;
 
-    bool first_time = true;
-    size_t frames_read = 0;
-
+    frames_read_ = 0;
     fps_handler_.begin();
+
+    refresh();
 
     while (!stop_requested_)
     {
-        // refresh
-        import_cache_.try_synchronize(*this);
-        advanced_cache_.try_synchronize(*this);
+        enqueue_loop();
 
-        if (FileRequestOnSync::has_requests_fail() || FileRequestOnSync::do_need_refresh() || first_time)
-        {
-            if (FileRequestOnSync::has_requests_fail() || init_frame_buffers() == false)
-            {
-                LOG_ERROR("Error while allocating the buffers, exitting...");
-                stop_requested_ = true;
-                api::set_import_type(ImportTypeEnum::None);
-                break;
-            }
-
-            input_file_->set_pos_to_frame(api::get_start_frame() - 1);
-
-            if (api::detail::get_value<LoadFileInGpu>())
-                frames_read = read_copy_file(api::get_nb_frame_to_read());
-
-            first_time = false;
-            FileRequestOnSync::begin_requests();
-
-            current_nb_frames_read_ = 0;
-            GSH::fast_updates_map<ProgressType>.get_entry(ProgressType::READ).to_record = api::get_nb_frame_to_read();
-        }
+        if (stop_requested_)
+            break;
 
         // Get Frame with LoadFileInGpu == false
         if (api::detail::get_value<LoadFileInGpu>() == false)
         {
             size_t frames_to_read = std::min(api::detail::get_value<FileBufferSize>(),
-                                             api::get_nb_frame_to_read() - current_nb_frames_read_);
-            frames_read = read_copy_file(frames_to_read);
+                                             api::get_nb_frame_to_read() - current_nb_frames_computed_);
+            frames_read_ = read_copy_file(frames_to_read);
         }
 
-        // Compute
-        enqueue_loop(frames_read);
-
         // Loop
-        if (api::detail::get_value<LoadFileInGpu>() == true || current_nb_frames_read_ == api::get_nb_frame_to_read())
+        if (api::detail::get_value<LoadFileInGpu>() == true ||
+            current_nb_frames_computed_ == api::get_nb_frame_to_read())
         {
             if (api::detail::get_value<LoopFile>())
             {
-                current_nb_frames_read_ = 0;
+                current_nb_frames_computed_ = 0;
                 if (api::detail::get_value<LoadFileInGpu>() == false)
                     input_file_->set_pos_to_frame(api::get_start_frame() - 1);
             }
@@ -172,7 +149,35 @@ void FileFrameReadWorker::run()
     api::get_gpu_input_queue().stop_producer();
 }
 
-void FileFrameReadWorker::refresh() {}
+bool FileFrameReadWorker::refresh()
+{
+    import_cache_.try_synchronize(*this);
+    advanced_cache_.try_synchronize(*this);
+
+    if (FileRequestOnSync::has_requests_fail() || FileRequestOnSync::do_need_refresh())
+    {
+        if (FileRequestOnSync::has_requests_fail() || init_frame_buffers() == false)
+        {
+            LOG_ERROR("Error while allocating the buffers, exitting...");
+            stop_requested_ = true;
+            api::set_import_type(ImportTypeEnum::None);
+            return true;
+        }
+
+        input_file_->set_pos_to_frame(api::get_start_frame() - 1);
+
+        if (api::detail::get_value<LoadFileInGpu>())
+            frames_read_ = read_copy_file(api::get_nb_frame_to_read());
+
+        FileRequestOnSync::begin_requests();
+
+        current_nb_frames_computed_ = 0;
+        GSH::fast_updates_map<ProgressType>.get_entry(ProgressType::READ).to_record = api::get_nb_frame_to_read();
+        return true;
+    }
+
+    return false;
+}
 
 bool FileFrameReadWorker::init_frame_buffers()
 {
@@ -208,20 +213,20 @@ bool FileFrameReadWorker::init_frame_buffers()
 
 size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
 {
-    size_t frames_read = 0;
+    size_t frames_read_ = 0;
     int flag_packed;
 
     try
     {
         uint frame_size = api::get_import_frame_descriptor().get_frame_size();
-        frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
-        size_t frames_total_size = frames_read * frame_size;
+        frames_read_ = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
+        size_t frames_total_size = frames_read_ * frame_size;
 
         if (flag_packed != 8 && flag_packed != 16)
         {
             const FrameDescriptor& fd = api::detail::get_value<ImportFrameDescriptor>();
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
-            for (size_t i = 0; i < frames_read; ++i)
+            for (size_t i = 0; i < frames_read_; ++i)
             {
                 // Memcopy in the gpu buffer
                 cudaXMemcpyAsync(gpu_packed_buffer_,
@@ -259,15 +264,17 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         LOG_ERROR("{}", e.what());
     }
 
-    return frames_read;
+    return frames_read_;
 }
 
-void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
+void FileFrameReadWorker::enqueue_loop()
 {
     size_t frames_enqueued = 0;
-
-    while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
+    while (frames_enqueued < frames_read_ && !stop_requested_)
     {
+        if (refresh())
+            break;
+
         fps_handler_.wait();
 
         if (api::detail::get_value<ExportRecordDontLoseFrame>())
@@ -275,12 +282,11 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             while (Holovibes::instance().get_gpu_input_queue()->get_size() ==
                        Holovibes::instance().get_gpu_input_queue()->get_total_nb_frames() &&
                    !stop_requested_)
-            {
-            }
+                ;
         }
 
         if (stop_requested_)
-            break;
+            return;
 
         api::get_gpu_input_queue().enqueue(gpu_frame_buffer_ +
                                                frames_enqueued * api::get_import_frame_descriptor().get_frame_size(),
@@ -288,7 +294,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         GSH::fast_updates_map<FpsType>.get_entry(FpsType::INPUT_FPS).image_processed += 1;
         frames_enqueued++;
-        current_nb_frames_read_++;
+        current_nb_frames_computed_++;
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
