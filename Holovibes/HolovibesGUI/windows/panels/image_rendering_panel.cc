@@ -84,9 +84,8 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN2SpinBox->setValue(api::get_filter2d().outer_radius);
 
     // Convolution
-    ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == ComputeModeEnum::Hologram);
-    ui_->ConvoCheckBox->setChecked(api::get_convolution().enabled);
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().enabled && api::get_convolution().divide);
+    ui_->DivideConvoCheckBox->setEnabled(api::get_convolution().is_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api::get_convolution().divide);
     ui_->KernelQuickSelectComboBox->setCurrentIndex(
         ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution().type)));
     ui_->KernelQuickSelectComboBox->setEnabled(true);
@@ -188,8 +187,6 @@ void ImageRenderingPanel::decrement_z()
     if (UserInterface::instance().main_window->is_locked == false)
         api::set_z_distance(api::get_z_distance() - z_distance_step_);
 }
-
-void ImageRenderingPanel::set_convolution_mode(const bool value) { api::change_convolution()->enabled = value; }
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {

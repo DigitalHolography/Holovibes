@@ -194,7 +194,8 @@ void InformationWorker::display_gui_information()
     // #TODO change this being called every frame to only being called to update the value if needed
     to_display << "\nz boundary: " << api::get_z_boundary() << "m\n";
 
-    display_info_text_function_(to_display.str());
+    if (display_info_text_function_)
+        display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
         if (value.recorded != nullptr)

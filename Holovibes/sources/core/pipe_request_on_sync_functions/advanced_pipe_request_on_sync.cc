@@ -21,7 +21,7 @@ void AdvancedPipeRequestOnSync::operator()<OutputBufferSize>(uint new_value, Pip
 template <>
 void AdvancedPipeRequestOnSync::operator()<TimeTransformationCutsBufferSize>(uint new_value, Pipe& pipe)
 {
-    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationCutsEnable>(pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, pipe);
 }
 
 } // namespace holovibes

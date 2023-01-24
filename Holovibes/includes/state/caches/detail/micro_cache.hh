@@ -394,9 +394,8 @@ class MicroCache
             unlock_ref_and_front_end(functions);
         }
 
-        // for debugging purpose ONLY
         template <typename T, typename... Args>
-        void virtual_synchronize_W(Args&&... args)
+        void virtual_synchronize(bool only_if_needed, Args&&... args)
         {
             FunctionsClass functions;
 
@@ -406,7 +405,8 @@ class MicroCache
             IParameter* Iparam_to_change = &param_to_change;
             if (this->change_pool_.contains(Iparam_to_change) == false)
             {
-                functions.template operator()<T>(param_to_change.get_value(), std::forward<Args>(args)...);
+                if (only_if_needed == false)
+                    functions.template operator()<T>(param_to_change.get_value(), std::forward<Args>(args)...);
             }
             else
             {

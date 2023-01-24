@@ -169,7 +169,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Init the cpu_buffer and gpu_buffer */
     bool init_frame_buffers();
 
-    void refresh();
+    bool refresh();
 
     FpsHandler& get_fps_handler() { return fps_handler_; }
 
@@ -191,13 +191,12 @@ class FileFrameReadWorker final : public FrameReadWorker
     size_t read_copy_file(size_t frames_to_read);
 
     /*! \brief Enqueue frames_read in the gpu_input_queue with a speed related to the given fps
-     *
-     * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to gpu_input_queue
      */
-    void enqueue_loop(size_t nb_frames_to_enqueue);
+    void enqueue_loop();
 
   private:
-    uint current_nb_frames_read_;
+    uint current_nb_frames_computed_;
+    size_t frames_read_ = 0;
 
     FpsHandler fps_handler_;
 

@@ -80,7 +80,7 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 
     pipe.get_time_transformation_env().gpu_time_transformation_queue->resize(new_value);
 
-    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationCutsEnable>(pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, pipe);
 
     request_pipe_refresh();
 }
@@ -90,14 +90,16 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 {
     LOG_UPDATE_ON_SYNC(Convolution);
 
-    if (new_value.enabled == false)
-        pipe.get_postprocess().dispose();
-    else if (new_value.enabled == true)
-        pipe.get_postprocess().init();
+    pipe.get_import_cache().virtual_synchronize<ImportType>(true, pipe);
 
-    pipe.get_view_cache().virtual_synchronize_W<ViewXY>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewXZ>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewYZ>(pipe);
+    if (new_value.is_enabled() == false)
+        pipe.get_postprocess().dispose_convolution();
+    else if (new_value.is_enabled() == true)
+        pipe.get_postprocess().init_convolution();
+
+    pipe.get_view_cache().virtual_synchronize<ViewXY>(false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, pipe);
     request_pipe_refresh();
 }
 
@@ -138,8 +140,8 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
         pipe.get_buffers().gpu_output_frame_yz.resize(fd_yz.get_frame_res());
     }
 
-    pipe.get_view_cache().virtual_synchronize_W<ViewXZ>(pipe);
-    pipe.get_view_cache().virtual_synchronize_W<ViewYZ>(pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, pipe);
 
     request_pipe_refresh();
 }
@@ -149,7 +151,7 @@ void ComputePipeRequestOnSync::operator()<TimeTransformation>(TimeTransformation
 {
     LOG_UPDATE_ON_SYNC(TimeTransformation);
 
-    pipe.get_compute_cache().virtual_synchronize_W<TimeTransformationSize>(pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationSize>(false, pipe);
 
     request_pipe_refresh();
 }

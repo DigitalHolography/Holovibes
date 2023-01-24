@@ -39,10 +39,10 @@ class Postprocessing
                    PipeViewCache& view_cache);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
-    void init();
+    void init_convolution();
 
     /*! \brief Free the ressources for the postprocessing */
-    void dispose();
+    void dispose_convolution();
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
     void insert_convolution();

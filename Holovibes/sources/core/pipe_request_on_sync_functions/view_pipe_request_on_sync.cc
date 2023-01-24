@@ -46,13 +46,12 @@ void ViewPipeRequestOnSync::on_sync<ViewXY>(const ViewXYZ& new_value, const View
     {
         if (new_value.contrast.enabled == true)
             pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXY);
-        request_pipe_refresh();
     }
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         view_xy_refresh(new_value, pipe);
-        request_pipe_refresh();
     }
+    request_pipe_refresh();
 }
 
 template <>
@@ -89,13 +88,12 @@ void ViewPipeRequestOnSync::on_sync<ViewXZ>(const ViewXYZ& new_value, const View
     {
         if (new_value.contrast.enabled == true)
             pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewXZ);
-        request_pipe_refresh();
     }
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         view_xz_refresh(new_value, pipe);
-        request_pipe_refresh();
     }
+    request_pipe_refresh();
 }
 
 template <>
@@ -132,14 +130,13 @@ void ViewPipeRequestOnSync::on_sync<ViewYZ>(const ViewXYZ& new_value, const View
     {
         if (new_value.contrast.enabled == true)
             pipe.get_rendering().request_view_exec_contrast(WindowKind::ViewYZ);
-        request_pipe_refresh();
     }
 
     if (new_value.is_image_accumulation_enabled() != old_value.is_image_accumulation_enabled())
     {
         view_yz_refresh(new_value, pipe);
-        request_pipe_refresh();
     }
+    request_pipe_refresh();
 }
 
 template <>

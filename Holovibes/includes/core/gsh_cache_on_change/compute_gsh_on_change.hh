@@ -28,8 +28,6 @@ class ComputeGSHOnChange
 
   public:
     template <>
-    void operator()<Convolution>(ConvolutionStruct& new_value);
-    template <>
     void operator()<ComputeMode>(ComputeModeEnum& new_value);
     template <>
     void operator()<ImageType>(ImageTypeEnum& new_value);

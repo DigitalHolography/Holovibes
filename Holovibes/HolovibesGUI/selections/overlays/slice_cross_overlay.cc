@@ -83,15 +83,7 @@ void SliceCrossOverlay::move(QMouseEvent* e)
 
         pIndex_ = getMousePos(e->pos());
 
-        // FIXME : not sure
-        if (kView == KindOfView::SliceXZ)
-        {
-            api::change_view_accu_p()->start = pIndex_.y();
-        }
-        else
-        {
-            api::change_view_accu_p()->start = pIndex_.x();
-        }
+        api::change_view_accu_p()->start = (kView == KindOfView::SliceXZ) ? pIndex_.y() : pIndex_.x();
     }
 }
 

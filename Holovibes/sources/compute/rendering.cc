@@ -173,31 +173,20 @@ void Rendering::insert_filter2d_view_log()
     }
 }
 
-void Rendering::insert_contrast()
-{
-    LOG_FUNC();
-
-    // FIXME API : All thoses function should be a unique job/lambda
-    insert_request_exec_contrast();
-    insert_apply_contrast(WindowKind::ViewXY);
-    insert_apply_contrast(WindowKind::ViewXZ);
-    insert_apply_contrast(WindowKind::ViewYZ);
-    insert_apply_contrast(WindowKind::ViewFilter2D);
-}
-
-void Rendering::insert_apply_contrast(WindowKind view)
+template <WindowKind View>
+void Rendering::insert_apply_contrast()
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
-        [=]()
+        [&]()
         {
             float* input = nullptr;
             uint size = 0;
             ViewWindow wind;
 
             // FIXME API : View should be class inherit to remove thoses if
-            if (view == WindowKind::ViewXY)
+            if constexpr (View == WindowKind::ViewXY)
             {
                 if (api::get_view_xy().contrast.enabled == false)
                     return;
@@ -207,7 +196,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 wind = view_cache_.get_value<ViewXY>();
             }
 
-            else if (view == WindowKind::ViewXZ)
+            else if constexpr (View == WindowKind::ViewXZ)
             {
                 if (api::get_cuts_view_enabled() == false)
                     return;
@@ -219,7 +208,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 wind = view_cache_.get_value<ViewXZ>();
             }
 
-            else if (view == WindowKind::ViewYZ)
+            else if constexpr (View == WindowKind::ViewYZ)
             {
                 if (api::get_cuts_view_enabled() == false)
                     return;
@@ -231,7 +220,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
                 wind = view_cache_.get_value<ViewYZ>();
             }
 
-            else if (view == WindowKind::ViewFilter2D)
+            else if constexpr (View == WindowKind::ViewFilter2D)
             {
                 if (api::get_filter2d_view_enabled() == false)
                     return;
@@ -244,8 +233,8 @@ void Rendering::insert_apply_contrast(WindowKind view)
             }
 
             constexpr ushort dynamic_range = 65535;
-            float min = min = wind.contrast.min;
-            float max = max = wind.contrast.max;
+            float min = wind.contrast.min;
+            float max = wind.contrast.max;
 
             if (wind.contrast.invert)
             {
@@ -255,6 +244,18 @@ void Rendering::insert_apply_contrast(WindowKind view)
 
             apply_contrast_correction(input, size, dynamic_range, min, max, stream_);
         });
+}
+
+void Rendering::insert_contrast()
+{
+    LOG_FUNC();
+
+    // FIXME API : All thoses function should be a unique job/lambda
+    insert_request_exec_contrast();
+    insert_apply_contrast<WindowKind::ViewXY>();
+    insert_apply_contrast<WindowKind::ViewXZ>();
+    insert_apply_contrast<WindowKind::ViewYZ>();
+    insert_apply_contrast<WindowKind::ViewFilter2D>();
 }
 
 void Rendering::insert_request_exec_contrast()
@@ -394,15 +395,19 @@ void Rendering::autocontrast_caller(
     case WindowKind::ViewXY:
         GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().contrast.min = percent_min_max_[0];
         GSH::instance().get_view_cache().get_value_ref_W<ViewXY>().contrast.max = percent_min_max_[1];
+        break;
     case WindowKind::ViewXZ:
         GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().contrast.min = percent_min_max_[0];
         GSH::instance().get_view_cache().get_value_ref_W<ViewXZ>().contrast.max = percent_min_max_[1];
+        break;
     case WindowKind::ViewYZ:
         GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().contrast.min = percent_min_max_[0];
         GSH::instance().get_view_cache().get_value_ref_W<ViewYZ>().contrast.max = percent_min_max_[1];
+        break;
     case WindowKind::ViewFilter2D:
         GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().contrast.min = percent_min_max_[0];
         GSH::instance().get_view_cache().get_value_ref_W<ViewFilter2D>().contrast.max = percent_min_max_[1];
+        break;
     }
 }
 } // namespace holovibes::compute
