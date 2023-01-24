@@ -4362,7 +4362,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>valueChanged()</signal>
    <receiver>ViewPanel</receiver>
    <slot>update_reticle_scale()</slot>
    <hints>
@@ -4832,7 +4832,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Filter2DN1SpinBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
    <slot>update_filter2d_n()</slot>
    <hints>
@@ -4848,7 +4848,7 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>Filter2DN2SpinBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
    <slot>update_filter2d_n()</slot>
    <hints>

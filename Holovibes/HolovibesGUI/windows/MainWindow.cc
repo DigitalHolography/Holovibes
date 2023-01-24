@@ -450,8 +450,9 @@ void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 
 void MainWindow::configure_camera()
 {
-    QDesktopServices::openUrl(
-        QUrl::fromLocalFile(QString::fromStdString(Holovibes::instance().get_active_camera()->get_ini_name())));
+    if (Holovibes::instance().get_active_camera() != nullptr)
+        QDesktopServices::openUrl(
+            QUrl::fromLocalFile(QString::fromStdString(Holovibes::instance().get_active_camera()->get_ini_name())));
 }
 #pragma endregion
 /* ------------ */

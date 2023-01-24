@@ -37,12 +37,7 @@ class ComputePipeRequestOnSync : public PipeRequestOnSync
 
   public:
     template <>
-    void operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe)
-    {
-        LOG_UPDATE_ON_SYNC(Filter2D);
-
-        request_pipe_refresh();
-    }
+    void operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe);
 
     template <>
     void operator()<ComputeMode>(ComputeModeEnum, Pipe& pipe)

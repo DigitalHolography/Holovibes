@@ -80,7 +80,7 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
 
     pipe.get_time_transformation_env().gpu_time_transformation_queue->resize(new_value);
 
-    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, false, pipe);
 
     request_pipe_refresh();
 }
@@ -90,16 +90,14 @@ void ComputePipeRequestOnSync::operator()<Convolution>(const ConvolutionStruct& 
 {
     LOG_UPDATE_ON_SYNC(Convolution);
 
-    pipe.get_import_cache().virtual_synchronize<ImportType>(true, pipe);
-
     if (new_value.is_enabled() == false)
         pipe.get_postprocess().dispose_convolution();
     else if (new_value.is_enabled() == true)
         pipe.get_postprocess().init_convolution();
 
-    pipe.get_view_cache().virtual_synchronize<ViewXY>(false, pipe);
-    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, pipe);
-    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewXY>(false, false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, false, pipe);
     request_pipe_refresh();
 }
 
@@ -140,8 +138,8 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationCutsEnable>(bool new
         pipe.get_buffers().gpu_output_frame_yz.resize(fd_yz.get_frame_res());
     }
 
-    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, pipe);
-    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewXZ>(false, false, pipe);
+    pipe.get_view_cache().virtual_synchronize<ViewYZ>(false, false, pipe);
 
     request_pipe_refresh();
 }
@@ -151,7 +149,17 @@ void ComputePipeRequestOnSync::operator()<TimeTransformation>(TimeTransformation
 {
     LOG_UPDATE_ON_SYNC(TimeTransformation);
 
-    pipe.get_compute_cache().virtual_synchronize<TimeTransformationSize>(false, pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationSize>(false, false, pipe);
+
+    request_pipe_refresh();
+}
+
+template <>
+void ComputePipeRequestOnSync::operator()<Filter2D>(const Filter2DStruct&, Pipe& pipe)
+{
+    LOG_UPDATE_ON_SYNC(Filter2D);
+
+    pipe.get_view_cache().virtual_synchronize<ViewFilter2D>(false, false, pipe);
 
     request_pipe_refresh();
 }

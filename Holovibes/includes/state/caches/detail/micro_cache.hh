@@ -125,6 +125,9 @@ class OnSync
     {
         if (value.get_has_been_synchronized() == true)
         {
+            if (pool.contains(&value) == false)
+                LOG_ERROR("Not supposed to end here : ChangePool does not contains T ; T = {}", typeid(T).name());
+
             IDuplicatedParameter* Iold_value = pool[&value].second;
             DuplicatedParameter<T>* old_value = dynamic_cast<DuplicatedParameter<T>*>(Iold_value);
             if (old_value == nullptr)
@@ -395,7 +398,7 @@ class MicroCache
         }
 
         template <typename T, typename... Args>
-        void virtual_synchronize(bool only_if_needed, Args&&... args)
+        void virtual_synchronize(bool only_if_in_pool, bool only_if_needed_by_sync, Args&&... args)
         {
             FunctionsClass functions;
 
@@ -405,11 +408,17 @@ class MicroCache
             IParameter* Iparam_to_change = &param_to_change;
             if (this->change_pool_.contains(Iparam_to_change) == false)
             {
-                if (only_if_needed == false)
+                if (only_if_in_pool == false)
                     functions.template operator()<T>(param_to_change.get_value(), std::forward<Args>(args)...);
             }
             else
             {
+                if (only_if_needed_by_sync)
+                {
+                    if (BasicMicroCache::template get_type<T>().get_has_been_synchronized() == false)
+                        return;
+                }
+
                 auto& old_value = this->duplicate_container_.template get<DuplicatedParameter<T>>();
                 old_value.set_value(param_to_change);
                 IParameter* ref_param = this->change_pool_[Iparam_to_change].first;
@@ -423,7 +432,7 @@ class MicroCache
                                               old_value.get_value(),
                                               std::forward<Args>(args)...);
 
-                this->change_pool_.erase(Iparam_to_change);
+                // this->change_pool_.erase(Iparam_to_change);
             }
 
             unlock_ref_and_front_end(functions);

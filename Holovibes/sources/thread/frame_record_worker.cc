@@ -33,10 +33,11 @@ void FrameRecordWorker::run()
     env_.nb_frame_skip = export_cache_.get_value<Record>().nb_to_skip;
 
     const size_t output_frame_size = env_.gpu_frame_record_queue_->get_fd().get_frame_size();
-    
-    io_files::OutputFrameFile* output_frame_file = io_files::OutputFrameFileFactory::create(export_cache_.get_value<Record>().file_path,
-                                                                 env_.gpu_frame_record_queue_->get_fd(),
-                                                                 export_cache_.get_value<Record>().nb_to_record);
+
+    io_files::OutputFrameFile* output_frame_file =
+        io_files::OutputFrameFileFactory::create(export_cache_.get_value<Record>().file_path,
+                                                 env_.gpu_frame_record_queue_->get_fd(),
+                                                 export_cache_.get_value<Record>().nb_to_record);
 
     output_frame_file->write_header();
 

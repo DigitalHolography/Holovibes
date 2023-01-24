@@ -18,16 +18,16 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
         api::change_filter2d()->enabled = false;
     }
     // Make sure all windows are in the right state
-    pipe.get_view_cache().virtual_synchronize<RawViewEnabled>(true, pipe);
-    pipe.get_view_cache().virtual_synchronize<LensViewEnabled>(true, pipe);
-    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(true, pipe);
-    pipe.get_compute_cache().virtual_synchronize<Filter2D>(true, pipe);
+    pipe.get_view_cache().virtual_synchronize<RawViewEnabled>(false, false, pipe);
+    pipe.get_view_cache().virtual_synchronize<LensViewEnabled>(false, false, pipe);
+    pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, false, pipe);
+    pipe.get_compute_cache().virtual_synchronize<Filter2D>(false, false, pipe);
 
     if (new_value == ImportTypeEnum::None)
     {
         // Stop the record
         api::detail::change_value<Record>()->is_running = false;
-        pipe.get_export_cache().virtual_synchronize<Record>(true, pipe);
+        pipe.get_export_cache().virtual_synchronize<Record>(false, false, pipe);
 
         Holovibes::instance().stop_camera_frame_read();
         Holovibes::instance().stop_file_frame_read();

@@ -240,8 +240,16 @@ void ViewPanel::update_p_accu()
     api::change_view_accu_p()->width = ui_->PAccSpinBox->value();
     api::change_view_accu_p()->start = ui_->PSpinBox->value();
 }
-void ViewPanel::increment_p_index() { api::change_view_accu_p()->start += 1; }
-void ViewPanel::decrement_p_index() { api::change_view_accu_p()->start -= 1; }
+void ViewPanel::increment_p_index()
+{
+    if (UserInterface::instance().main_window->is_locked == false)
+        api::change_view_accu_p()->start += 1;
+}
+void ViewPanel::decrement_p_index()
+{
+    if (UserInterface::instance().main_window->is_locked == false)
+        api::change_view_accu_p()->start -= 1;
+}
 
 void ViewPanel::update_q_accu()
 {
@@ -311,8 +319,5 @@ void ViewPanel::toggle_renormalize(bool value)
 
 void ViewPanel::display_reticle(bool value) { api::change_reticle()->display_enabled = value; }
 
-void ViewPanel::update_reticle_scale()
-{
-    api::change_reticle()->scale = ui_->ReticleScaleDoubleSpinBox->value();
-}
+void ViewPanel::update_reticle_scale() { api::change_reticle()->scale = ui_->ReticleScaleDoubleSpinBox->value(); }
 } // namespace holovibes::gui

@@ -15,7 +15,7 @@ void ThreadWorkerController<T>::start(Args&&... args)
 {
     MutexGuard m_guard(mutex_);
 
-    if (async_fun_.valid())
+    if (async_fun_.valid() && worker_ != nullptr)
     {
         LOG_DEBUG("Restarting Worker of type {}", typeid(T).name());
         callback_at_stop_ = [&]()
