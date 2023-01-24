@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include <future>
+
 namespace holovibes::worker
 {
 // Fast forward declaration
@@ -22,40 +24,19 @@ template <WorkerDerived T>
 class ThreadWorkerController
 {
   public:
-    /*! \brief Default constructor */
-    ThreadWorkerController() = default;
+    ThreadWorkerController() {}
 
     /*! \brief Destructor
      *
      * Stop the thread if it is running
      */
-    ~ThreadWorkerController();
+    ~ThreadWorkerController() { stop(); }
 
     /*! \brief Deleted copy constructor */
     ThreadWorkerController(const ThreadWorkerController<T>&) = delete;
 
     /*! \brief Deleted copy operator */
     ThreadWorkerController& operator=(const ThreadWorkerController<T>&) = delete;
-
-    /*! \brief Set the function executed at the end of the thread
-     *
-     * This method must be called before the start method
-     */
-    void set_callback(std::function<void()> callback);
-
-    /*! \brief Set the function executed when an exception unwind the thread stack
-     *
-     * This method must be called before the start method
-     */
-    void set_error_callback(std::function<void(const std::exception&)> error_callback);
-
-    /*! \brief Set the priority of the thread
-     *
-     * This method must be called before the start method
-     *
-     * \param priority Priority level of the thread
-     */
-    void set_priority(int priority);
 
     /*! \brief Construct the associated worker and start the thread
      *
@@ -73,24 +54,25 @@ class ThreadWorkerController
     void stop();
 
     bool is_running() const { return worker_ != nullptr; }
+    void join() { async_fun_.wait(); }
 
   private:
     /*! \brief Method run in the thread
      *
-     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset the
-     * worker
+     * \details  Call the run method of the associated worker, the callback at the end of the execution and reset
+     * the worker
      */
     void run();
 
     /*! \brief The pointer to the worker that should be controlled */
     std::unique_ptr<T> worker_ = nullptr;
-    /*! \brief The thread associated to the worker */
-    std::thread thread_;
-    /*! \brief The function called at the end of the execution of the thread */
-    std::function<void()> callback_ = []() {};
-    std::function<void(const std::exception&)> error_callback_ = [](auto) {};
+
+    std::future<void> async_fun_;
+
     /*! \brief Mutex used to prevent data races */
     std::mutex mutex_;
+
+    std::function<void(void)> callback_at_stop_;
 };
 } // namespace holovibes::worker
 

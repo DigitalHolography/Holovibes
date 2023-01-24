@@ -18,17 +18,20 @@ namespace holovibes::api
 
 void after_load_checks()
 {
-    if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
-        GSH::instance().set_filter2d_n1(GSH::instance().get_filter2d_n1() - 1);
-    if (GSH::instance().get_time_transformation_size() < 1)
-        GSH::instance().set_time_transformation_size(1);
+    if (api::detail::get_value<Filter2D>().inner_radius >= api::detail::get_value<Filter2D>().outer_radius)
+        api::detail::change_value<Filter2D>()->inner_radius = api::detail::get_value<Filter2D>().inner_radius - 1;
+    if (api::detail::get_value<TimeTransformationSize>() < 1)
+        api::detail::set_value<TimeTransformationSize>(1);
+
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (GSH::instance().get_p().start >= GSH::instance().get_time_transformation_size())
-        GSH::instance().set_p_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_q().start >= GSH::instance().get_time_transformation_size())
-        GSH::instance().set_q_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
-        GSH::instance().set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);
+    if (api::detail::get_value<ViewAccuP>().start >= api::detail::get_value<TimeTransformationSize>())
+        api::detail::change_value<ViewAccuP>()->start = 0;
+    if (api::detail::get_value<ViewAccuQ>().start >= api::detail::get_value<TimeTransformationSize>())
+        api::detail::change_value<ViewAccuQ>()->start = 0;
+    if (api::detail::get_value<ContrastThreshold>().frame_index_offset >
+        api::detail::get_value<TimeTransformationSize>() - 1)
+        api::detail::change_value<ContrastThreshold>()->frame_index_offset =
+            (api::detail::get_value<TimeTransformationSize>() - 1);
 }
 
 void load_compute_settings(const std::string& json_path)
@@ -57,7 +60,6 @@ void load_compute_settings(const std::string& json_path)
     LOG_INFO("Compute settings loaded from : {}", json_path);
 
     after_load_checks();
-    pipe_refresh();
 }
 
 // clang-format off
@@ -85,4 +87,5 @@ void save_compute_settings(const std::string& json_path)
 
     LOG_DEBUG("Compute settings overwritten at : {}", json_path);
 }
+
 } // namespace holovibes::api

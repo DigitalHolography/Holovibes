@@ -11,8 +11,6 @@
 #include "gpib_controller.hh"
 #include "gpib_exceptions.hh"
 
-#include "enum_record_mode.hh"
-
 #include "frame_record_worker.hh"
 #include "chart_record_worker.hh"
 
@@ -28,17 +26,11 @@ class BatchGPIBWorker final : public Worker
     /*!
      * \param batch_input_path Batch input path that details commands to process
      * \param output_path Output record path
-     * \param nb_frames_to_record Number of frames to record for a signle record command
+     * \param nb_to_record Number of frames to record for a signle record command
      * \param record_mode The record mode used for all the batch (RAW, HOLOGRAM, CHART)
      * \param Option passed to the frame record: resize saved images (linear interpolation)
      */
-    BatchGPIBWorker(const std::string& batch_input_path,
-                    const std::string& output_path,
-                    unsigned int nb_frames_to_record,
-                    RecordMode record_mode,
-                    const unsigned int output_buffer_size);
-
-    void stop() override;
+    BatchGPIBWorker();
 
     void run() override;
 
@@ -64,22 +56,12 @@ class BatchGPIBWorker final : public Worker
     std::string format_batch_output(const unsigned int index);
 
   private:
-    /*! \brief Output record path */
-    const std::string output_path_;
+    // FIXME STOP
 
-    /*! \brief Number of frames to record for a signle record command */
-    const unsigned int nb_frames_to_record_;
-
-    /*! \brief The record mode used for all the batch (RAW, HOLOGRAM, CHART) */
-    const RecordMode record_mode_;
-
-    /*! \brief The max output buffer size */
-    const unsigned int output_buffer_size_;
-
-    /*! \brief Instance of the frame record worker used if RecordMode is RAW or HOLOGRAM */
+    /*! \brief Instance of the frame record worker used if RecordStruct::RecordType is RAW or HOLOGRAM */
     std::unique_ptr<FrameRecordWorker> frame_record_worker_;
 
-    /*! \brief Instance of the chart record worker used if RecordMode is CHART */
+    /*! \brief Instance of the chart record worker used if RecordStruct::RecordType is CHART */
     std::unique_ptr<ChartRecordWorker> chart_record_worker_;
 
     /*! \brief Batch commands that are parsed from the batch input file */
@@ -87,5 +69,7 @@ class BatchGPIBWorker final : public Worker
 
     /*! \brief Instance of the gpib interface used to communicate with external instruments with GPIB protocol */
     std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
+
+    ExportCache::Cache<> export_cache_;
 };
 } // namespace holovibes::worker

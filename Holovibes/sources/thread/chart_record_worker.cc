@@ -2,26 +2,27 @@
 #include "chart_point.hh"
 
 #include "holovibes.hh"
+#include "API.hh"
 #include "icompute.hh"
 #include "tools.hh"
 
 namespace holovibes::worker
 {
-ChartRecordWorker::ChartRecordWorker(const std::string& path, const unsigned int nb_frames_to_record)
+ChartRecordWorker::ChartRecordWorker()
     : Worker()
-    , path_(get_record_filename(path))
-    , nb_frames_to_record_(nb_frames_to_record)
+    , env_(api::get_compute_pipe().get_chart_env())
+    , export_cache_()
 {
 }
 
 void ChartRecordWorker::run()
 {
-    std::ofstream of(path_);
+    std::ofstream of(export_cache_.get_value<Record>().file_path);
 
     // Header displaying
-    of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << GSH::instance().get_p_index()
-       << ", lambda : " << GSH::instance().get_lambda() << ", z : " << GSH::instance().get_z_distance() << "]"
-       << std::endl;
+    of << "[#img : " << api::detail::get_value<TimeTransformationSize>()
+       << ", p : " << api::detail::get_value<ViewAccuP>().start << ", lambda : " << api::detail::get_value<Lambda>()
+       << ", z : " << api::detail::get_value<ZDistance>() << "]" << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "
@@ -33,39 +34,30 @@ void ChartRecordWorker::run()
        << "Column 7 : std(signal) / avg(signal)"
        << "]" << std::endl;
 
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_record_chart(nb_frames_to_record_);
-    while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
-        continue;
+    env_.current_nb_points_recorded = 0;
+    auto& entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::RECORD);
+    entry.recorded = &env_.current_nb_points_recorded;
+    entry.to_record = export_cache_.get_value<Record>().nb_to_record;
 
-    auto& chart_queue = *pipe->get_chart_record_queue();
-
-    auto entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
-
-    std::atomic<unsigned int>& i = entry->first;
-    std::atomic<unsigned int>& nb_frames_to_record = entry->second;
-    i = 0;
-    nb_frames_to_record = nb_frames_to_record_;
-
-    for (; i < nb_frames_to_record_; ++i)
+    while (env_.current_nb_points_recorded < export_cache_.get_value<Record>().nb_to_record)
     {
-        while (chart_queue.size() <= i && !stop_requested_)
+        // FIXME : This should be a trigger
+        while (env_.chart_record_queue_->size() <= env_.current_nb_points_recorded && !stop_requested_)
             continue;
         if (stop_requested_)
             break;
 
-        ChartPoint& point = chart_queue[i];
+        ChartPoint& point = env_.chart_record_queue_->operator[](env_.current_nb_points_recorded);
         of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0') << point.avg_signal << ","
            << point.avg_noise << "," << point.avg_signal_div_avg_noise << "," << point.log_avg_signal_div_avg_noise
            << "," << point.std_signal << "," << point.std_signal_div_avg_noise << "," << point.std_signal_div_avg_signal
            << std::endl;
+
+        // Maybe ?
+        env_.current_nb_points_recorded++;
     }
 
-    pipe->request_disable_record_chart();
-    while (pipe->get_disable_chart_record_requested() && !stop_requested_)
-        continue;
-
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::RECORD);
 }
 
 } // namespace holovibes::worker

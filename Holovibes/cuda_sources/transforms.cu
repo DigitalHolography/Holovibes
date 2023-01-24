@@ -1,6 +1,6 @@
 #include "transforms.cuh"
 
-using camera::FrameDescriptor;
+using holovibes::FrameDescriptor;
 
 __global__ void kernel_quadratic_lens(
     cuComplex* output, const uint lens_side_size, const float lambda, const float dist, const float pixel_size)

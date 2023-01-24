@@ -2,6 +2,38 @@
 
 // FIXME Check for tweakme spdlog : maybe a bad idea ?
 
+#define DISABLE_LOG_FUNC
+#define DISABLE_LOG_LOCK_MICROCACHE
+#define DISABLE_LOG_UPDATE_MAP_ENTRY
+// #define DISABLE_LOG_TRIGGER_CACHE
+// #define DISABLE_LOG_TRIGGER_REF
+// #define DISABLE_LOG_GSH_ON_CHANGE
+// #define DISABLE_LOG_SYNC_MICROCACHE
+// #define DISABLE_LOG_PIPE
+// #define DISABLE_LOG_UPDATE_ON_SYNC
+// #define DISABLE_LOG_UPDATE_FRONT_END
+// #define DISABLE_LOG_UPDATE_ON_CHANGE
+
+#ifndef DISABLE_LOG_UPDATE_ON_SYNC
+#define LOG_UPDATE_ON_SYNC(type) LOG_TRACE("UPDATE OnSync : " #type);
+#else
+#define LOG_UPDATE_ON_SYNC(type)
+#endif
+
+#ifndef DISABLE_LOG_UPDATE_FRONT_END
+#define LOG_UPDATE_FRONT_END_BEFORE(type) LOG_TRACE("UPDATE FrontEnd before : " #type);
+#define LOG_UPDATE_FRONT_END_AFTER(type) LOG_TRACE("UPDATE FrontEnd after : " #type);
+#else
+#define LOG_UPDATE_FRONT_END_BEFORE(type)
+#define LOG_UPDATE_FRONT_END_AFTER(type)
+#endif
+
+#ifndef DISABLE_LOG_UPDATE_ON_CHANGE
+#define LOG_UPDATE_ON_CHANGE(type) LOG_TRACE("UPDATE OnChange : " #type);
+#else
+#define LOG_UPDATE_ON_CHANGE(type)
+#endif
+
 #include <exception>
 #include <fstream>
 #include <functional>
@@ -36,7 +68,11 @@
         abort();                                                                                                       \
     }
 
+#ifndef DISABLE_LOG_FUNC
 #define LOG_FUNC(...) LOG_TRACE("-> {}(" INTERNAL_LOGGER_GET_FUNC_FMT(__VA_ARGS__) ")", __FUNCTION__, __VA_ARGS__)
+#else
+#define LOG_FUNC(...)
+#endif
 
 constexpr const char* get_file_name(const char* path)
 {

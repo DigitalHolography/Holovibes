@@ -6,7 +6,7 @@
 namespace holovibes::io_files
 {
 OutputFrameFile*
-OutputFrameFileFactory::create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+OutputFrameFileFactory::create(const std::string& file_path, const FrameDescriptor& fd, uint64_t img_nb)
 {
     if (file_path.ends_with(".holo"))
         return new OutputHoloFile(file_path, fd, img_nb);

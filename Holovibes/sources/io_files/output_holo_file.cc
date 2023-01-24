@@ -6,7 +6,7 @@
 
 namespace holovibes::io_files
 {
-OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
+OutputHoloFile::OutputHoloFile(const std::string& file_path, const FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , HoloFile()
 {
@@ -22,7 +22,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.img_width = fd_.width;
     holo_file_header_.img_height = fd_.height;
     holo_file_header_.img_nb = img_nb;
-    holo_file_header_.endianness = camera::Endianness::LittleEndian;
+    holo_file_header_.endianness = Endianness::LittleEndian;
 
     holo_file_header_.total_data_size = fd_.get_frame_size() * img_nb;
 
@@ -35,10 +35,10 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
     try
     {
-        auto j_fi =
-            json{{"pixel_pitch", {{"x", GSH::instance().get_pixel_size()}, {"y", GSH::instance().get_pixel_size()}}},
-                 {"input_fps", input_fps},
-                 {"contiguous", contiguous}};
+        auto j_fi = json{
+            {"pixel_pitch", {{"x", api::detail::get_value<PixelSize>()}, {"y", api::detail::get_value<PixelSize>()}}},
+            {"input_fps", input_fps},
+            {"contiguous", contiguous}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);

@@ -20,12 +20,12 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const CoreBuffersEnv& buffers,
                    const TimeTransformationEnv& time_transformation_env,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
-                   const camera::FrameDescriptor& input_fd,
+                   const FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache,
-                   CompositeCache::Cache& composite_cache,
-                   ViewCache::Cache& view_cache,
-                   ZoneCache::Cache& zone_cache)
+                   PipeComputeCache& compute_cache,
+                   PipeCompositeCache& composite_cache,
+                   PipeViewCache& view_cache,
+                   PipeZoneCache& zone_cache)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -46,19 +46,20 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
     LOG_FUNC(unwrap_2d_requested);
 
     insert_compute_p_accu();
-    if (view_cache_.get_img_type() == ImgType::Composite)
+    if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Composite)
         insert_to_composite();
-    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Modulus) // img type in ui : magnitude
         insert_to_modulus();
-    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
+    else if (compute_cache_.get_value<ImageType>() ==
+             ImageTypeEnum::SquaredModulus) // img type in ui : squared magnitude
         insert_to_squaredmodulus();
-    else if (view_cache_.get_img_type() == ImgType::Argument)
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::Argument)
         insert_to_argument(unwrap_2d_requested);
-    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
+    else if (compute_cache_.get_value<ImageType>() == ImageTypeEnum::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
-        view_cache_.get_img_type() != ImgType::Composite)
+    if (compute_cache_.get_value<TimeTransformation>() == TimeTransformationEnum::PCA &&
+        compute_cache_.get_value<ImageType>() != ImageTypeEnum::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -78,9 +79,9 @@ void Converts::insert_to_ushort()
     LOG_FUNC();
 
     insert_main_ushort();
-    if (view_cache_.get_cuts_view_enabled())
+    if (view_cache_.get_value<CutsViewEnabled>())
         insert_slice_ushort();
-    if (view_cache_.get_filter2d_view_enabled())
+    if (view_cache_.get_value<Filter2DViewEnabled>())
         insert_filter2d_ushort();
 }
 
@@ -91,12 +92,12 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            ViewPQ p = view_cache_.get_p();
+            ViewAccuPQ p = view_cache_.get_value<ViewAccuP>();
             pmin_ = p.start;
             if (p.width != 0)
-                pmax_ = std::max(
-                    0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_time_transformation_size())));
+                pmax_ = std::max(0,
+                                 std::min<int>(pmin_ + p.width,
+                                               static_cast<int>(compute_cache_.get_value<TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -143,16 +144,13 @@ void Converts::insert_to_composite()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            CompositeRGB rgb_struct = composite_cache_.get_rgb();
-            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_time_transformation_size()))
-                return;
+            CompositeRGBStruct rgb_struct = composite_cache_.get_value<CompositeRGB>();
 
-            if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
+            if (composite_cache_.get_value<CompositeKind>() == CompositeKindEnum::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     buffers_.gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    composite_cache_.get_composite_auto_weights(),
+                    composite_cache_.get_value<CompositeAutoWeights>(),
                     rgb_struct.frame_index.min,
                     rgb_struct.frame_index.max,
                     rgb_struct.weight.r,
@@ -165,14 +163,14 @@ void Converts::insert_to_composite()
                     fd_.width,
                     fd_.height,
                     stream_,
-                    compute_cache_.get_time_transformation_size(),
-                    composite_cache_.get_hsv_const_ref());
+                    compute_cache_.get_value<TimeTransformationSize>(),
+                    composite_cache_.get_value<CompositeHSV>());
 
-            if (composite_cache_.get_composite_auto_weights())
+            if (composite_cache_.get_value<CompositeAutoWeights>())
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,
-                                    zone_cache_.get_composite_zone(),
+                                    zone_cache_.get_value<CompositeZone>(),
                                     rgb_struct.weight.r,
                                     rgb_struct.weight.g,
                                     rgb_struct.weight.b,
@@ -241,8 +239,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
     {
         if (!unwrap_res_)
             unwrap_res_.reset(
-                new UnwrappingResources(compute_cache_.get_unwrap_history_size(), fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(compute_cache_.get_unwrap_history_size());
+                new UnwrappingResources(compute_cache_.get_value<UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(compute_cache_.get_value<UnwrapHistorySize>());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()

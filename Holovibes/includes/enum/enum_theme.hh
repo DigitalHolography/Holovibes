@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
@@ -24,5 +24,7 @@ SERIALIZE_JSON_ENUM(Theme, {
     {Theme::Dark, "DARK"},
 })
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const Theme& value) { return os << json{value}; }
 
 } // namespace holovibes

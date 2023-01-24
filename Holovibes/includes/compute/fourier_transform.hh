@@ -13,6 +13,7 @@
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "global_state_holder.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
@@ -34,13 +35,13 @@ class FourierTransform
     /*! \brief Constructor */
     FourierTransform(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
-                     const camera::FrameDescriptor& fd,
+                     const FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
-                     holovibes::ComputeCache::Cache& compute_cache,
-                     ViewCache::Cache& view_cache,
-                     Filter2DCache::Cache& filter2d_cache_);
+                     PipeAdvancedCache& advanced_cache,
+                     PipeComputeCache& compute_cache,
+                     PipeViewCache& view_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft();
@@ -105,16 +106,16 @@ class FourierTransform
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */
-    const camera::FrameDescriptor& fd_;
+    const FrameDescriptor& fd_;
     /*! \brief Pland 2D. Used by FFTs (1, 2, filter2D). */
     cuda_tools::CufftHandle& spatial_transformation_plan_;
     /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief Compute stream to perform  pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
-    ComputeCache::Cache& compute_cache_;
-    ViewCache::Cache& view_cache_;
-    Filter2DCache::Cache& filter2d_cache_;
+    PipeAdvancedCache& advanced_cache_;
+    PipeComputeCache& compute_cache_;
+    PipeViewCache& view_cache_;
 };
 } // namespace holovibes::compute

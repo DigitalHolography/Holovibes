@@ -591,8 +591,8 @@ extern "C"
                          // [ch1 pixel byte high] [ch2 pixel byte low] [ch2 pixel byte high] [ch3 pixel byte low] [ch3
                          // pixel byte high] [ch4 pixel byte low] [ch4 pixel byte high] 16 bits (depacked) raw data from
                          // 4 channels (e.g. sCMOS cameras)
-        XI_RAW32 = 15,      // 32 bits per pixel raw data from sensor in integer format (LSB first). 4 bytes (LSB first)
-                            // pixel (depacked) raw data
+        XI_RAW32 = 15,   // 32 bits per pixel raw data from sensor in integer format (LSB first). 4 bytes (LSB first)
+                         // pixel (depacked) raw data
         XI_RAW32FLOAT = 16, // 32 bits per pixel raw data from sensor in single-precision floating point format. 4 bytes
                             // per pixel (depacked) raw data
 
@@ -930,8 +930,8 @@ extern "C"
     {
         XI_TEMP_ELEM_TEC1 = 11,           // TEC1 = TEC/Peltier that is closest to the image sensor
         XI_TEMP_ELEM_TEC2 = 12,           // TEC2 = TEC/Peltier location depends on camera model
-        XI_TEMP_ELEM_FAN1 = 31,           // Temperature element fan current or rotation (FAN1 = Fan)
-        XI_TEMP_ELEM_FAN1_THRS_TEMP = 32, // Temperature element fan start rotation threshold temperature
+        XI_TEMP_ELEM_FAN1 = 31,           // Temperature element fan current or rot (FAN1 = Fan)
+        XI_TEMP_ELEM_FAN1_THRS_TEMP = 32, // Temperature element fan start rot threshold temperature
 
     } XI_TEMP_ELEMENT_SELECTOR;
 

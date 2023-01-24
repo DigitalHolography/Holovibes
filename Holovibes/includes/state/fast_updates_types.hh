@@ -16,12 +16,12 @@
  * };
  */
 
+#include "types.hh"
+#include "json_macro.hh"
+#include "logger.hh"
+
 namespace holovibes
 {
-
-/*! \name Key types of the FastUpdatesHolder class
- * \{
- */
 
 enum class IndicationType
 {
@@ -39,9 +39,8 @@ enum class FpsType
 
 enum class ProgressType
 {
-    FILE_READ,
-    FRAME_RECORD,
-    CHART_RECORD,
+    READ,
+    RECORD,
 };
 
 enum class QueueType
@@ -51,13 +50,50 @@ enum class QueueType
     OUTPUT_QUEUE,
     RECORD_QUEUE,
 };
+
+// clang-format off
+SERIALIZE_JSON_ENUM(IndicationType, {
+    {IndicationType::IMG_SOURCE, "IMG_SOURCE"},
+    {IndicationType::INPUT_FORMAT, "INPUT_FORMAT"},
+    {IndicationType::OUTPUT_FORMAT, "OUTPUT_FORMAT"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const IndicationType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(FpsType, {
+    {FpsType::INPUT_FPS, "INPUT_FPS"},
+    {FpsType::OUTPUT_FPS, "OUTPUT_FPS"},
+    {FpsType::SAVING_FPS, "SAVING_FPS"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const FpsType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(ProgressType, {
+    {ProgressType::READ, "READ"},
+    {ProgressType::RECORD, "RECORD"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const ProgressType& value) { return os << json{value}; }
+
+// clang-format off
+SERIALIZE_JSON_ENUM(QueueType, {
+    {QueueType::UNDEFINED, "UNDEFINED"},
+    {QueueType::INPUT_QUEUE, "INPUT_QUEUE"},
+    {QueueType::OUTPUT_QUEUE, "OUTPUT_QUEUE"},
+    {QueueType::RECORD_QUEUE, "RECORD_QUEUE"},
+})
+// clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const QueueType& value) { return os << json{value}; }
 } // namespace holovibes
 
-/*! \} */
-
-namespace holovibes::_internal
+namespace holovibes::internal
 {
-
 template <typename T>
 struct TypeValue
 {
@@ -76,24 +112,35 @@ template <>
 struct TypeValue<FpsType>
 {
     using key = FpsType;
-    using value = std::atomic<uint>;
+    struct value
+    {
+        uint image_processed = 0;
+    };
 };
 
 template <>
 struct TypeValue<ProgressType>
 {
     using key = ProgressType;
-    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+    struct value
+    {
+        uint* recorded = nullptr;
+        uint to_record;
+    };
 };
 
 template <>
 struct TypeValue<QueueType>
 {
     using key = QueueType;
-    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+    struct value
+    {
+        const std::atomic<uint>* size = nullptr;
+        const uint* max_size = nullptr;
+    };
 };
 
-} // namespace holovibes::_internal
+} // namespace holovibes::internal
 namespace holovibes
 {
 
@@ -104,7 +151,7 @@ namespace holovibes
  *  please do not use before checking is_fast_update_key_type
  */
 template <typename T>
-using FastUpdateTypeValue = typename _internal::TypeValue<T>::value;
+using FastUpdateTypeValue = typename internal::TypeValue<T>::value;
 
 /*!
  * \brief compile time boolean to check if the type T matches a key type of the FastUpdateHolder map class

@@ -13,8 +13,65 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/Ninja/Debug",
             "environment": [],
-            "externalConsole": false,
-            "preLaunchTask": "Build"
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build",
+            "env": {
+                "Path": "${env:Path};C:\\Qt\\Qt6.2.1\\6.2.1\\msvc2019_64\\bin"
+            }
+        },
+        {
+            "name": "Debug TEST 1024*1024 BatchSize=30",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "./bin/Ninja/Debug/Holovibes.exe",
+            "args": [
+                "-n",
+                "2",
+                "-s",
+                "3",
+                "-c",
+                "tests/data/8frames_1024_1024_batch_size_30/holovibes.json",
+                "-i",
+                "tests/data/inputs/8frames_1024_1024.holo",
+                "-o",
+                "tests/data/8frames_1024_1024_batch_size_30/last_generated_output.holo",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build",
+            "env": {
+                "Path": "${env:Path};C:\\Qt\\Qt6.2.1\\6.2.1\\msvc2019_64\\bin"
+            }
+        },
+        {
+            "name": "Debug TEST 8frames_64_64_raw_option",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "./bin/Ninja/Debug/Holovibes.exe",
+            "args": [
+                "-s",
+                "8",
+                "-e",
+                "8",
+                "-n",
+                "10",
+                "-c",
+                "tests/data/8frames_64_64_raw_option/holovibes.json",
+                "-i",
+                "tests/data/inputs/8frames_64_64.holo",
+                "-o",
+                "tests/data/8frames_64_64_raw_option/last_generated_output.holo"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build",
+            "env": {
+                "Path": "${env:Path};C:\\Qt\\Qt6.2.1\\6.2.1\\msvc2019_64\\bin"
+            }
         }
     ]
 }

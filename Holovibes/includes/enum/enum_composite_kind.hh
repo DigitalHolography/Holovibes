@@ -4,25 +4,27 @@
  */
 #pragma once
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
-/*! \enum CompositeKind
+/*! \enum CompositeKindEnum
  *
  * \brief Represents the kind of composite image
  */
-enum class CompositeKind
+enum class CompositeKindEnum
 {
     RGB = 0, /*!< Composite in RGB */
     HSV      /*!< Composite in HSV */
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(CompositeKind, {
-    {CompositeKind::RGB, "RGB"},
-    {CompositeKind::HSV, "HSV"},
+SERIALIZE_JSON_ENUM(CompositeKindEnum, {
+    {CompositeKindEnum::RGB, "RGB"},
+    {CompositeKindEnum::HSV, "HSV"},
 })
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const CompositeKindEnum& value) { return os << json{value}; }
 
 } // namespace holovibes

@@ -54,22 +54,25 @@ namespace holovibes
 class Pipe : public ICompute
 {
   public:
-    /*! \brief Allocate CPU/GPU ressources for computation.
+    /*! \brief Allocate CPU/GPU ressources for ComputeModeEnum.
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the ComputeModeEnums are processed
      */
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    void first_sync();
 
     ~Pipe() override;
 
-    /*! \brief Get the lens queue to display it. */
-    std::unique_ptr<Queue>& get_lens_queue() override;
+  public:
+    compute::ImageAccumulation& get_image_accumulation() { return *image_accumulation_; }
+    compute::FourierTransform& get_fourier_transforms() { return *fourier_transforms_; }
+    compute::Rendering& get_rendering() { return *rendering_; }
+    compute::Converts& get_converts() { return *converts_; }
+    compute::Postprocessing& get_postprocess() { return *postprocess_; }
 
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
-
+  public:
     /*! \brief Execute one processing iteration.
      *
      * Checks the number of frames in input queue, that must at least be 1.
@@ -81,18 +84,30 @@ class Pipe : public ICompute
      */
     void exec() override;
 
+    void sync_and_refresh();
+
+  private:
+    void refresh();
+    void call_reload_function_caches();
     /*! \brief Enqueue the main FunctionVector according to the requests. */
-    void refresh() override;
+    void synchronize_caches_and_make_requests();
 
-  protected:
-    /*! \brief Make requests at the beginning of the refresh.
+  private:
+    /*! \brief Iterates and executes function of the pipe.
      *
-     * Make the allocation of buffers when it is requested.
-     *
-     * \return return false if an allocation failed.
+     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
      */
-    bool make_requests();
+    void run_all();
 
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
+
+    bool caches_has_change_requested();
+
+  public:
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
@@ -111,7 +126,7 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
+    /*! \brief Request the ComputeModeEnum of a autocontrast if the contrast and the contrast refresh is enabled */
     void insert_request_autocontrast();
 
     void insert_raw_view();
@@ -137,36 +152,12 @@ class Pipe : public ICompute
     /*! \brief Vector of functions that will be executed in the exec() function. */
     FunctionVector fn_compute_vect_;
 
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
-
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
 
-    std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
-    /*! \brief Iterates and executes function of the pipe.
-     *
-     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
-     */
-    void run_all();
-
-    /*! \brief Force contiguity on record queue when cli is active.
-     *
-     * \param nb_elm_to_add the number of elements that might be added in the record queue
-     */
-    void keep_contiguous(int nb_elm_to_add) const;
-
-    /*! \brief Updates all attribute caches with the reference held by GSH */
-    void synchronize_caches();
+    uint processed_output_fps_;
 };
 } // namespace holovibes
