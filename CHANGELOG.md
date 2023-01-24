@@ -1,5 +1,10 @@
 ## Changelog
 
+### 11.5.0
+
+* Separte gui,api and cli
+* Rework caches system
+
 ### 11.4.0
 
 * Add GPIO support with euresys frame grabbers
