@@ -322,32 +322,36 @@ void Rendering::insert_request_exec_contrast()
     fn_compute_vect_.conditional_push_back(lambda);
 }
 
-void Rendering::insert_clear_image_accumulation()
+void Rendering::clear_image_accumulation()
 {
     LOG_FUNC();
 
-    auto lambda_clear_image_accumulation = [&]()
+    if (has_requested_view_clear_image_accumulation(WindowKind::ViewXY))
     {
-        if (has_requested_view_clear_image_accumulation(WindowKind::ViewXY))
+        reset_view_clear_image_accumulation(WindowKind::ViewXY);
+        if (api::get_compute_pipe().get_image_acc_env().gpu_accumulation_xy_queue != nullptr)
         {
-            reset_view_clear_image_accumulation(WindowKind::ViewXY);
             api::get_compute_pipe().get_image_acc_env().gpu_accumulation_xy_queue->clear();
         }
+    }
 
-        if (has_requested_view_clear_image_accumulation(WindowKind::ViewXZ))
+    if (has_requested_view_clear_image_accumulation(WindowKind::ViewXZ))
+    {
+        reset_view_clear_image_accumulation(WindowKind::ViewXZ);
+        if (api::get_compute_pipe().get_image_acc_env().gpu_accumulation_xz_queue != nullptr)
         {
-            reset_view_clear_image_accumulation(WindowKind::ViewXZ);
             api::get_compute_pipe().get_image_acc_env().gpu_accumulation_xz_queue->clear();
         }
+    }
 
-        if (has_requested_view_clear_image_accumulation(WindowKind::ViewYZ))
+    if (has_requested_view_clear_image_accumulation(WindowKind::ViewYZ))
+    {
+        reset_view_clear_image_accumulation(WindowKind::ViewYZ);
+        if (api::get_compute_pipe().get_image_acc_env().gpu_accumulation_yz_queue != nullptr)
         {
-            reset_view_clear_image_accumulation(WindowKind::ViewYZ);
             api::get_compute_pipe().get_image_acc_env().gpu_accumulation_yz_queue->clear();
         }
-    };
-
-    fn_compute_vect_.conditional_push_back(lambda_clear_image_accumulation);
+    }
 }
 
 void Rendering::autocontrast_caller(

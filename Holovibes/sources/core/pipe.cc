@@ -270,7 +270,6 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
     rendering_->insert_contrast();
-    rendering_->insert_clear_image_accumulation();
 
     converts_->insert_to_ushort();
 
