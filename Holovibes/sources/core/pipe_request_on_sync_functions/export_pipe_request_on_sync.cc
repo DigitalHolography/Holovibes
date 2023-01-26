@@ -1,4 +1,5 @@
 #include "API.hh"
+#include "user_interface.hh"
 namespace holovibes
 {
 
@@ -20,7 +21,9 @@ void ExportPipeRequestOnSync::operator()<Record>(const RecordStruct& new_value, 
             pipe.get_frame_record_env().gpu_frame_record_queue_.reset(nullptr);
         }
         request_pipe_refresh();
-        UserInterface::instance().get_info_panel().set_visible_record_progress(false);
+        UserInterface::instance().main_window->synchronize_thread(
+            []() { UserInterface::instance().info_panel->set_visible_record_progress(false); });
+
         return;
     }
 
@@ -62,7 +65,8 @@ void ExportPipeRequestOnSync::operator()<Record>(const RecordStruct& new_value, 
         Holovibes::instance().start_frame_record();
     }
 
-    UserInterface::instance().get_info_panel().set_visible_record_progress(true);
+    UserInterface::instance().main_window->synchronize_thread(
+        []() { UserInterface::instance().info_panel->set_visible_record_progress(true); });
     request_pipe_refresh();
 }
 
