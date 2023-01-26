@@ -53,29 +53,37 @@ void ComputePipeRequestOnSync::operator()<TimeTransformationSize>(uint new_value
     pipe.get_time_transformation_env().gpu_p_acc_buffer.resize(pipe.get_gpu_input_queue().get_fd().get_frame_res() *
                                                                new_value);
 
-    if (pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::NONE)
-        return;
-
-    if (pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::STFT ||
-        pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
+    if (pipe.get_compute_cache().get_value<TimeTransformation>() != TimeTransformationEnum::NONE)
     {
-        /* CUFFT plan1d realloc */
-        int inembed_stft[1] = {static_cast<int>(new_value)};
 
-        int zone_size = static_cast<int>(pipe.get_gpu_input_queue().get_fd().get_frame_res());
+        if (pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::STFT ||
+            pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
+        {
+            /* CUFFT plan1d realloc */
+            int inembed_stft[1] = {static_cast<int>(new_value)};
 
-        pipe.get_time_transformation_env()
-            .stft_plan
-            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
-    }
+            int zone_size = static_cast<int>(pipe.get_gpu_input_queue().get_fd().get_frame_res());
 
-    if (pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::PCA ||
-        pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
-    {
-        // Pre allocate all the buffer only when n changes to avoid 1 allocation
-        pipe.get_time_transformation_env().pca_cov.resize(new_value * new_value);
-        pipe.get_time_transformation_env().pca_eigen_values.resize(new_value);
-        pipe.get_time_transformation_env().pca_dev_info.resize(1);
+            pipe.get_time_transformation_env().stft_plan.planMany(1,
+                                                                  inembed_stft,
+                                                                  inembed_stft,
+                                                                  zone_size,
+                                                                  1,
+                                                                  inembed_stft,
+                                                                  zone_size,
+                                                                  1,
+                                                                  CUFFT_C2C,
+                                                                  zone_size);
+        }
+
+        if (pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::PCA ||
+            pipe.get_compute_cache().get_value<TimeTransformation>() == TimeTransformationEnum::SSA_STFT)
+        {
+            // Pre allocate all the buffer only when n changes to avoid 1 allocation
+            pipe.get_time_transformation_env().pca_cov.resize(new_value * new_value);
+            pipe.get_time_transformation_env().pca_eigen_values.resize(new_value);
+            pipe.get_time_transformation_env().pca_dev_info.resize(1);
+        }
     }
 
     pipe.get_time_transformation_env().gpu_time_transformation_queue->resize(new_value);

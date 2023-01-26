@@ -203,4 +203,17 @@ void ViewPipeRequestOnSync::operator()<LensViewEnabled>(bool new_value, Pipe& pi
 
     request_pipe_refresh();
 }
+
+template <>
+void ViewPipeRequestOnSync::operator()<RenormEnabled>(bool new_value, Pipe& pipe)
+{
+    LOG_UPDATE_ON_SYNC(LensViewEnabled);
+    if (new_value == false)
+    {
+        pipe.get_rendering().clear_image_accumulation();
+    }
+
+    request_pipe_refresh();
+}
+
 } // namespace holovibes

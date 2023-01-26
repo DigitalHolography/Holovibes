@@ -47,6 +47,9 @@ class ViewPipeRequestOnSync : public PipeRequestOnSync
     template <>
     void operator()<ViewYZ>(const ViewXYZ&, Pipe& pipe);
 
+    template <>
+    void operator()<RenormEnabled>(bool new_value, Pipe& pipe);
+
   public:
     template <>
     void operator()<ViewFilter2D>(const ViewWindow&, Pipe& pipe)

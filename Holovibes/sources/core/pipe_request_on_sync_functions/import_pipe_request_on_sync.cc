@@ -20,6 +20,7 @@ void ImportPipeRequestOnSync::operator()<ImportType>(ImportTypeEnum new_value, P
     // Make sure all windows are in the right state
     pipe.get_view_cache().virtual_synchronize<RawViewEnabled>(false, false, pipe);
     pipe.get_view_cache().virtual_synchronize<LensViewEnabled>(false, false, pipe);
+    pipe.get_view_cache().virtual_synchronize<Filter2DViewEnabled>(false, false, pipe);
     pipe.get_compute_cache().virtual_synchronize<TimeTransformationCutsEnable>(false, false, pipe);
     pipe.get_compute_cache().virtual_synchronize<Filter2D>(false, false, pipe);
 

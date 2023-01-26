@@ -36,6 +36,8 @@ class ComputeGSHOnChange
     template <>
     void operator()<TimeStride>(int& new_value);
     template <>
+    void operator()<TimeTransformationSize>(uint& new_value);
+    template <>
     void operator()<TimeTransformationCutsEnable>(bool& new_value);
     template <>
     void operator()<Filter2D>(Filter2DStruct& new_value);
