@@ -95,6 +95,8 @@ void FrameRecordWorker::run()
 
     delete output_frame_file;
     delete[] frame_buffer;
+
+    api::detail::change_value<Record>()->is_running = false;
 }
 
 void FrameRecordWorker::wait_for_frames(Queue& record_queue)

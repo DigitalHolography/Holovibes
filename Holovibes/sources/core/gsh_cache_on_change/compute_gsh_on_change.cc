@@ -33,6 +33,24 @@ void ComputeGSHOnChange::operator()<TimeStride>(int& new_value)
 }
 
 template <>
+void ComputeGSHOnChange::operator()<TimeTransformationSize>(uint& new_value)
+{
+    LOG_UPDATE_ON_CHANGE(TimeStride);
+
+    auto z_struct = api::detail::get_value<ViewAccuP>();
+    if (z_struct.width + z_struct.start >= new_value)
+    {
+        z_struct.width = (new_value > 0) ? new_value - 1 : 0;
+        auto upper_bound = new_value - z_struct.width;
+        if (z_struct.start >= upper_bound)
+        {
+            z_struct.start = (upper_bound > 0) ? upper_bound - 1 : 0;
+            api::detail::set_value<ViewAccuP>(z_struct);
+        }
+    }
+}
+
+template <>
 void ComputeGSHOnChange::operator()<TimeTransformationCutsEnable>(bool& new_value)
 {
     LOG_UPDATE_ON_CHANGE(TimeTransformationCutsEnable);
@@ -64,6 +82,21 @@ void ComputeGSHOnChange::operator()<Filter2D>(Filter2DStruct& new_value)
 
     if (new_value.enabled == false)
         api::set_filter2d_view_enabled(false);
+
+    if (new_value.inner_radius >= new_value.outer_radius)
+    {
+        new_value.inner_radius = new_value.outer_radius - 1;
+    }
+
+    if (new_value.outer_radius < 1)
+    {
+        new_value.outer_radius = 1;
+    }
+
+    if (new_value.inner_radius < 1)
+    {
+        new_value.inner_radius = 0;
+    }
 }
 
 template <>

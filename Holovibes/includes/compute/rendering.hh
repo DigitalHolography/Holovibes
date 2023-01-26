@@ -58,7 +58,7 @@ class Rendering
     void insert_log();
     /*! \brief insert the functions relative to the contrast. */
     void insert_contrast();
-    void insert_clear_image_accumulation();
+    void clear_image_accumulation();
 
   public:
     void request_view_exec_contrast(WindowKind window) { view_exec_contrast_[static_cast<int>(window)] = true; }
