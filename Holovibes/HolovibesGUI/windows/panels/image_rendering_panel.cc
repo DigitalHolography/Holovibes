@@ -74,14 +74,17 @@ void ImageRenderingPanel::on_notify()
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
+
     ui_->Filter2D->setChecked(api::get_filter2d().enabled);
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d().enabled);
     ui_->Filter2DView->setChecked(api::get_filter2d_view_enabled());
+
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d().enabled);
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d().enabled);
-    ui_->Filter2DN1SpinBox->setValue(api::get_filter2d().inner_radius);
-    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d().enabled);
+
     ui_->Filter2DN2SpinBox->setValue(api::get_filter2d().outer_radius);
+    ui_->Filter2DN1SpinBox->setMaximum(api::get_filter2d().outer_radius);
+    ui_->Filter2DN1SpinBox->setValue(api::get_filter2d().inner_radius);
 
     // Convolution
     ui_->DivideConvoCheckBox->setEnabled(api::get_convolution().is_enabled());
@@ -124,7 +127,6 @@ void ImageRenderingPanel::set_filter2d(bool checked) { api::change_filter2d()->e
 
 void ImageRenderingPanel::update_filter2d_n()
 {
-    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     api::detail::change_value<Filter2D>()->inner_radius = ui_->Filter2DN1SpinBox->value();
     api::detail::change_value<Filter2D>()->outer_radius = ui_->Filter2DN2SpinBox->value();
 }

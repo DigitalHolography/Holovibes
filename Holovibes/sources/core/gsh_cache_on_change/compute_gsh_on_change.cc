@@ -82,6 +82,21 @@ void ComputeGSHOnChange::operator()<Filter2D>(Filter2DStruct& new_value)
 
     if (new_value.enabled == false)
         api::set_filter2d_view_enabled(false);
+
+    if (new_value.inner_radius >= new_value.outer_radius)
+    {
+        new_value.inner_radius = new_value.outer_radius - 1;
+    }
+
+    if (new_value.outer_radius < 1)
+    {
+        new_value.outer_radius = 1;
+    }
+
+    if (new_value.inner_radius < 1)
+    {
+        new_value.inner_radius = 0;
+    }
 }
 
 template <>

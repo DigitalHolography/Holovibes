@@ -23,11 +23,16 @@ Filter2DWindow::Filter2DWindow(std::string name, QPoint p, QSize s, DisplayQueue
 
 Filter2DWindow::~Filter2DWindow()
 {
+    /* Code before
     if (cuResource)
     {
         cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
         cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
     }
+    */
+
+    cudaDestroySurfaceObject(cuSurface);
+    cudaFreeArray(cuArray);
 }
 
 void Filter2DWindow::initShaders()
