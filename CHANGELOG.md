@@ -1,5 +1,11 @@
 ## Changelog
 
+### 11.6.0
+* Fix record view advanced
+* Fix Filter2dView crash on stop
+* Fix #img when no TimeTransform
+* Fix Renormalize
+
 ### 11.5.0
 
 * Separte gui,api and cli
