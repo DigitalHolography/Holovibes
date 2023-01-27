@@ -6,9 +6,7 @@
 
 #include "cuComplex.h"
 #include "cuda_runtime.h"
-
-using uint = unsigned int;
-using ushort = unsigned short;
+#include "core/types.hh"
 
 /*! \brief This function applies a mask to a number of frames
  *

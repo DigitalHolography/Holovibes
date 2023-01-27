@@ -13,19 +13,16 @@
 
 namespace holovibes
 {
-using camera::Endianness;
-using camera::FrameDescriptor;
 
-Queue::Queue(const camera::FrameDescriptor& fd,
+Queue::Queue(const FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
              unsigned int input_width,
              unsigned int input_height,
              unsigned int bytes_per_pixel)
     : DisplayQueue(fd)
-    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
-    , size_(fast_updates_entry_->first)
-    , max_size_(fast_updates_entry_->second)
+    , size_(0)
+    , max_size_(max_size)
     , type_(type)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
@@ -34,13 +31,13 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , bytes_per_pixel(bytes_per_pixel)
     , has_overridden_(false)
 {
-    max_size_ = max_size;
-    size_ = 0;
+    auto& entry = GSH::fast_updates_map<QueueType>.create_entry(type, true);
+    entry.size = &size_;
+    entry.max_size = &max_size_;
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
-
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 
@@ -52,7 +49,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
-void Queue::resize(const unsigned int size, const cudaStream_t stream)
+void Queue::resize(unsigned int size)
 {
     MutexGuard mGuard(mutex_);
 
@@ -64,9 +61,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
         throw std::logic_error("Could not resize queue");
     }
 
-    // Needed if input is embedded into a bigger square
-    cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
-    cudaXStreamSynchronize(stream);
+    cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
     size_ = 0;
     start_index_ = 0;
@@ -80,7 +75,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     char* new_elt_adress = data_.get() + (end_ * fd_.get_frame_size());
 
     cudaError_t cuda_status;
-    // No async needed for Qt buffer
+    // No async needed for ?? buffer
     cuda_status = cudaMemcpyAsync(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind, stream);
     // cuda_status = cudaMemcpy(new_elt_adress, elt, fd_.get_frame_size(), cuda_kind);
 
@@ -117,12 +112,12 @@ void Queue::enqueue_multiple_aux(
 {
     cudaXMemcpyAsync(out, in, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
 
-     if (is_big_endian_)
-         endianness_conversion(reinterpret_cast<ushort*>(out),
-                               reinterpret_cast<ushort*>(out),
-                               nb_elts,
-                               fd_.get_frame_res(),
-                               stream);
+    if (is_big_endian_)
+        endianness_conversion(reinterpret_cast<ushort*>(out),
+                              reinterpret_cast<ushort*>(out),
+                              nb_elts,
+                              fd_.get_frame_res(),
+                              stream);
 }
 
 void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream)
@@ -182,7 +177,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-        dest.size_.store(dest.max_size_.load());
+        dest.size_.store(dest.max_size_);
         dest.has_overridden_ = true;
     }
 
@@ -307,7 +302,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
     if (size_ > max_size_)
     {
         start_index_ = (start_index_ + size_ - max_size_) % max_size_;
-        size_.store(max_size_.load());
+        size_.store(max_size_);
         has_overridden_ = true;
     }
 

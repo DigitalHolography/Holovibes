@@ -8,7 +8,7 @@
 #include "file_exception.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
-#include "all_struct.hh"
+#include "json_macro.hh"
 #include "API.hh"
 #include "global_state_holder.hh"
 #include "internals_struct.hh"
@@ -48,6 +48,9 @@ void InputHoloFile::set_pos_to_frame(size_t frame_id)
 
     if (std::fsetpos(file_, &frame_offset) != 0)
         throw FileException("Unable to seek the frame requested");
+
+    if (std::ftell(file_) == -1)
+        LOG_WARN("Fail to set pos to frame id {}", frame_id);
 }
 
 void InputHoloFile::load_header()
@@ -78,7 +81,7 @@ void InputHoloFile::load_fd()
     fd_.width = holo_file_header_.img_width;
     fd_.height = holo_file_header_.img_height;
     fd_.depth = holo_file_header_.bits_per_pixel / 8;
-    fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
+    fd_.byteEndian = holo_file_header_.endianness ? Endianness::BigEndian : Endianness::LittleEndian;
     LOG_TRACE("Exiting InputHoloFile::load_fd");
 }
 void InputHoloFile::load_footer()
@@ -172,14 +175,7 @@ void InputHoloFile::import_info() const
     if (!has_footer)
         return;
 
-    try
-    {
-        // Pixel are considered square
-        GSH::instance().set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
-    }
-    catch (std::exception&)
-    {
-    }
+    api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
 }
 
 } // namespace holovibes::io_files

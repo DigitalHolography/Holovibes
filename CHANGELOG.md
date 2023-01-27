@@ -1,5 +1,26 @@
 ## Changelog
 
+### 11.6.0
+* Fix record view advanced
+* Fix Filter2dView crash on stop
+* Fix #img when no TimeTransform
+* Fix Renormalize
+
+### 11.5.0
+
+* Separte gui,api and cli
+* Rework caches system
+
+### 11.4.0
+
+* Add GPIO support with euresys frame grabbers
+* Rework .ini files for s710
+
+### 11.3.0
+
+* Add high_framerate with euresys and phantom
+* Use a config file inside of holovibes directly
+
 ### 11.2.0
 
 * Fix logger flush on quit

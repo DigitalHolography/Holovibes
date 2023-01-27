@@ -57,22 +57,24 @@ double ConversionData::fd_to_real(int val, Axis axis) const
     CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
     auto fd = window_->getFd();
     float pix_size;
+
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
-        pix_size = (GSH::instance().get_lambda() * GSH::instance().get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (api::detail::get_value<Lambda>() * api::detail::get_value<ZDistance>()) /
+                   (fd.width * api::detail::get_value<PixelSize>() * 1e-6);
     else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
-        pix_size = (GSH::instance().get_lambda() * GSH::instance().get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (api::detail::get_value<Lambda>() * api::detail::get_value<ZDistance>()) /
+                   (fd.width * api::detail::get_value<PixelSize>() * 1e-6);
     }
     else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
-        pix_size = (GSH::instance().get_lambda() * GSH::instance().get_z_distance()) /
-                   (fd.height * GSH::instance().get_pixel_size() * 1e-6);
+        pix_size = (api::detail::get_value<Lambda>() * api::detail::get_value<ZDistance>()) /
+                   (fd.height * api::detail::get_value<PixelSize>() * 1e-6);
     }
     else
     {
-        pix_size = std::pow(GSH::instance().get_lambda(), 2) / 50E-9; // 50nm is an arbitrary value
+        // FIXME magic value
+        pix_size = std::pow(api::detail::get_value<Lambda>(), 2) / 50E-9; // 50nm is an arbitrary value
     }
 
     return val * pix_size;

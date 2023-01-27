@@ -62,18 +62,18 @@ set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
     includes/state/
+    includes/state/caches
+    includes/state/caches/detail
+    includes/API
+
     includes/compute/
     includes/core/
+    includes/core/pipe_request_on_sync_functions
+    includes/core/gsh_cache_on_change
+    
     includes/enum/
     includes/struct/
-    includes/gui/other/
-    includes/gui/selections/
-    includes/gui/selections/interfaces/
-    includes/gui/selections/overlays/
-    includes/gui/windows/
-    includes/gui/windows/panels/
-    includes/gui/windows/AdvancedSettingsWindowTools
-    includes/gui/windows/AdvancedSettingsWindowTools/panels
+
     includes/io_files/
     includes/thread/
     includes/tools/
@@ -83,6 +83,19 @@ set(INTERNAL_INCLUDES
     includes/tools/exception/
     includes/tools/logger/
 
+    HolovibesCLI/
+
+    HolovibesGUI/
+    HolovibesGUI/utilities/
+    HolovibesGUI/gui_front_end
+    HolovibesGUI/other/
+    HolovibesGUI/selections/
+    HolovibesGUI/selections/interfaces/
+    HolovibesGUI/selections/overlays/
+    HolovibesGUI/windows/
+    HolovibesGUI/windows/panels/
+    HolovibesGUI/windows/AdvancedSettingsWindowTools
+    HolovibesGUI/windows/AdvancedSettingsWindowTools/panels
 
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
@@ -132,6 +145,9 @@ target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLU
 # need to be compiled to the target
 add_subdirectory(sources)
 add_subdirectory(includes)
+
+add_subdirectory(HolovibesCLI)
+add_subdirectory(HolovibesGUI)
 
 # Precompile header (to remove)
 if(COMMAND target_precompile_headers)
@@ -186,7 +202,6 @@ set(SRC_TESTS
     unit_tests/test_batch_input_queue.cc
     unit_tests/test_subsample_frame.cc
     unit_tests/test_fast_updates_holder.cc
-    unit_tests/test_micro_cache.cc
     # Add your test files here
 )
 
@@ -252,9 +267,6 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
                                                "${BUILD_DIR}/convolution_kernels/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
                                                "${BUILD_DIR}/json_patches_holofile/"
-
-    # Copy euresys setup directory
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${EURESYS_DIR}" "${BUILD_DIR}/setup_710"
 
 
     # Copy camera libs

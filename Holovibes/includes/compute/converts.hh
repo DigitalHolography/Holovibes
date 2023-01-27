@@ -13,6 +13,7 @@
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
+#include "icompute.hh"
 
 namespace holovibes
 {
@@ -37,12 +38,12 @@ class Converts
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan2d,
-             const camera::FrameDescriptor& input_fd,
+             const FrameDescriptor& input_fd,
              const cudaStream_t& stream,
-             ComputeCache::Cache& compute_cache,
-             CompositeCache::Cache& composite_cache,
-             ViewCache::Cache& view_cache,
-             ZoneCache::Cache& zone_cache);
+             PipeComputeCache& compute_cache,
+             PipeCompositeCache& composite_cache,
+             PipeViewCache& view_cache,
+             PipeZoneCache& zone_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested);
@@ -78,7 +79,7 @@ class Converts
     /*! \brief Insert the convertion Float => Unsigned Short in slices. */
     void insert_slice_ushort();
 
-    /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
+    /*! \brief Insert the convertion Float => Unsigned Short of ViewFilter2D View. */
     void insert_filter2d_ushort();
 
     /*! \brief p_index */
@@ -100,16 +101,13 @@ class Converts
     /*! \brief Plan 2D. Used for unwrapping. */
     cuda_tools::CufftHandle& plan_unwrap_2d_;
     /*! \brief Describes the input frame size */
-    const camera::FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform pipe computation */
+    const FrameDescriptor& fd_;
+    /*! \brief Compute stream to perform pipe ComputeModeEnum */
     const cudaStream_t& stream_;
 
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    CompositeCache::Cache& composite_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ViewCache::Cache& view_cache_;
-    ZoneCache::Cache& zone_cache_;
+    PipeComputeCache& compute_cache_;
+    PipeCompositeCache& composite_cache_;
+    PipeViewCache& view_cache_;
+    PipeZoneCache& zone_cache_;
 };
 } // namespace holovibes::compute

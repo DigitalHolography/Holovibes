@@ -1,40 +1,53 @@
 #include <cassert>
 
 #include "holovibes.hh"
+#include "API.hh"
 
 #include "batch_input_queue.hh"
 
 namespace holovibes
 {
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd)
+BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const FrameDescriptor& fd)
     : DisplayQueue(fd)
-    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
-    , curr_nb_frames_(fast_updates_entry_->first)
-    , total_nb_frames_(fast_updates_entry_->second)
-    , frame_capacity_(total_nb_frames)
+    , curr_nb_frames_(0)
+    , total_nb_frames_(0)
+    , size_(0)
+    , batch_size_(0)
+    , max_size_(0)
 {
-    curr_nb_frames_ = 0;
-    total_nb_frames_ = total_nb_frames;
+    auto& entry = GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE);
+    entry.size = &size_;
+    entry.max_size = &total_nb_frames_;
 
     // Set priority of streams
     // Set batch_size and max_size
-    create_queue(batch_size);
+    create_queue(total_nb_frames, batch_size);
 }
 
 BatchInputQueue::~BatchInputQueue()
 {
+    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
     destroy_mutexes_streams();
     // data is free as it is a UniquePtr.
-
-    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
-void BatchInputQueue::create_queue(const uint new_batch_size)
+void BatchInputQueue::create_queue(const uint new_total_nb_frames, const uint new_batch_size)
 {
+    // No action on any batch must be proceed
+    const std::lock_guard<std::mutex> lock(m_producer_busy_);
+
+    // Critical section between the enqueue (producer) & the resize (consumer)
+
+    // Every mutexes must be unlocked here.
+
+    // Destroy all streams and mutexes that must be all unlocked
+    destroy_mutexes_streams();
+
     CHECK(new_batch_size > 0, "Batch size cannot be 0.");
 
     batch_size_ = new_batch_size;
-    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
+    // making total_nb_frames_ a multiple of batchsize
+    total_nb_frames_ = new_total_nb_frames - (new_total_nb_frames % batch_size_);
 
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
@@ -47,6 +60,8 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
         cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
+
+    make_empty();
 }
 
 void BatchInputQueue::sync_current_batch() const
@@ -152,7 +167,12 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    CHECK(size_ > 0);
+    // FIXME - ON STOP
+    if (size_ <= 0)
+    {
+        return;
+        // CHECK(size_ > 0);
+    }
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -200,24 +220,19 @@ void BatchInputQueue::dequeue_update_attr()
     curr_nb_frames_ -= batch_size_;
 }
 
-void BatchInputQueue::resize(const uint new_batch_size)
+void BatchInputQueue::set_new_batch_size(uint new_batch_size)
 {
-    // No action on any batch must be proceed
-    const std::lock_guard<std::mutex> lock(m_producer_busy_);
+    if (new_batch_size == batch_size_)
+        return;
+    create_queue(total_nb_frames_, new_batch_size);
+}
 
-    // Critical section between the enqueue (producer) & the resize (consumer)
-
-    // Every mutexes must be unlocked here.
-
-    // Destroy all streams and mutexes that must be all unlocked
-    destroy_mutexes_streams();
-
-    // Create all streams and mutexes
-    create_queue(new_batch_size);
-
-    make_empty();
-
-    // End of critical section
+void BatchInputQueue::set_new_total_nb_frames(uint new_total_nb_frames)
+{
+    new_total_nb_frames = new_total_nb_frames - (new_total_nb_frames % batch_size_);
+    if (new_total_nb_frames == total_nb_frames_)
+        return;
+    create_queue(new_total_nb_frames, batch_size_);
 }
 
 void BatchInputQueue::copy_multiple(Queue& dest) { copy_multiple(dest, batch_size_); }
@@ -282,7 +297,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     if (dest.size_ > dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-        dest.size_.store(dest.max_size_.load());
+        dest.size_.store(dest.max_size_);
         dest.has_overridden_ = true;
     }
 }

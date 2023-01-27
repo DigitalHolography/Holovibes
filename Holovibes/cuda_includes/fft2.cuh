@@ -28,5 +28,5 @@ void fft_2(cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            const cufftHandle plan2d,
-           const camera::FrameDescriptor& fd,
+           const holovibes::FrameDescriptor& fd,
            const cudaStream_t stream);

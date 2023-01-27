@@ -5,15 +5,15 @@
 #pragma once
 
 #include <map>
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
-/*! \enum TimeTransformation
+/*! \enum TimeTransformationEnum
  *
  * \brief Time transformation algorithm to apply
  */
-enum class TimeTransformation
+enum class TimeTransformationEnum
 {
     STFT = 0, /*!< Short-time Fourier transformation */
     PCA,      /*!< Principal component analysis */
@@ -22,13 +22,16 @@ enum class TimeTransformation
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(TimeTransformation, {
-    {TimeTransformation::STFT, "STFT"},
-    {TimeTransformation::PCA, "PCA"},
-    {TimeTransformation::NONE, "NONE"},
-    {TimeTransformation::SSA_STFT, "SSA_STFT"},
-    {TimeTransformation::NONE, "None"}, // Compat
+SERIALIZE_JSON_ENUM(TimeTransformationEnum, {
+    {TimeTransformationEnum::STFT, "STFT"},
+    {TimeTransformationEnum::PCA, "PCA"},
+    {TimeTransformationEnum::NONE, "NONE"},
+    {TimeTransformationEnum::SSA_STFT, "SSA_STFT"},
+    {TimeTransformationEnum::NONE, "None"}, // Compat
 
-})
+});
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const TimeTransformationEnum& value) { return os << json{value}; }
+
 } // namespace holovibes

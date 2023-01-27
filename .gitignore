@@ -72,3 +72,5 @@ libs/spdlog/build
 
 #  Debug config folder
 debug_config/
+#Trash file setup Euresys
+*.bmp

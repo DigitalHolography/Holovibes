@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "logger.hh"
+
 /*! \brief #TODO Add a description for this namespace */
 namespace holovibes::worker
 {
@@ -18,7 +20,7 @@ class Worker
     Worker() = default;
 
     /*! \brief Stop the execution of the worker */
-    virtual void stop();
+    void stop() { stop_requested_ = true; }
 
     /*! \brief Core method of the worker, main method of its execution */
     virtual void run() = 0;

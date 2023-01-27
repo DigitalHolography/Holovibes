@@ -48,7 +48,7 @@ class Queue final : public DisplayQueue
      * \param max_size The max size of the queue
      * \param type The type of the queue
      */
-    Queue(const camera::FrameDescriptor& fd,
+    Queue(const FrameDescriptor& fd,
           const unsigned int max_size,
           QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,
@@ -104,9 +104,8 @@ class Queue final : public DisplayQueue
     /*! \brief Empty the Queue and change its size.
      *
      * \param size The new size of the Queue
-     * \param stream
      */
-    void resize(const unsigned int size, const cudaStream_t stream);
+    void resize(const unsigned int size);
 
     /*! \brief Enqueue method
      *
@@ -115,7 +114,7 @@ class Queue final : public DisplayQueue
      *
      * If the maximum element number has been reached, the Queue overwrite the first frame.
      *
-     * The memcpy are synch for Qt.
+     * The memcpy are synch for ??.
      *
      * \param elt Pointer to element to enqueue
      * \param stream
@@ -225,11 +224,6 @@ class Queue final : public DisplayQueue
     /*! \brief Mutex to lock the queue */
     mutable std::mutex mutex_;
 
-    /*! \name FastUpdatesHolder entry and all variables linked to it
-     * \{
-     */
-    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
-
     /*! \brief Size of the queue (number of frames currently stored in the queue)
      *
      * This attribute is atomic because it is required by the wait frames function.
@@ -237,10 +231,9 @@ class Queue final : public DisplayQueue
      * for a specific size of the queue. Using an atomic avoid locking the queue.
      * This is only used by the concurrent queue. However, it is needed to be declare in the regular queue.
      */
-    std::atomic<unsigned int>& size_;
-
+    std::atomic<uint> size_;
     /*! \brief Maximum size of the queue (capacity) */
-    std::atomic<unsigned int>& max_size_;
+    uint max_size_;
 
     /* \} */
 

@@ -40,7 +40,7 @@ void apply_zone_std_sum(const float* input,
  * \param height The height of the input image.
  * \param signal_zone Coordinates of the signal zone to use.
  * \param noise_zone Coordinates of the noise zone to use.
- * \return ChartPoint containing all computations for one point of chart
+ * \return ChartPoint containing all ComputeModeEnums for one point of chart
  */
 holovibes::ChartPoint make_chart_plot(float* input,
                                       const uint width,

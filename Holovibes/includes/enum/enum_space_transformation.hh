@@ -6,15 +6,15 @@
 
 #include <map>
 
-#include "all_struct.hh"
+#include "json_macro.hh"
 
 namespace holovibes
 {
-/*! \enum SpaceTransformation
+/*! \enum SpaceTransformationEnum
  *
  * \brief Rendering mode for Hologram (Space transformation)
  */
-enum class SpaceTransformation
+enum class SpaceTransformationEnum
 {
     NONE = 0, /*!< Nothing Applied */
     FFT1,     /*!< Fresnel Transform */
@@ -22,13 +22,17 @@ enum class SpaceTransformation
 };
 
 // clang-format off
-SERIALIZE_JSON_ENUM(SpaceTransformation, {
-    {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FFT1, "FFT1"},
-    {SpaceTransformation::FFT2, "FFT2"},
-    {SpaceTransformation::FFT1, "1FFT"}, // Compat
-    {SpaceTransformation::FFT2, "2FFT"}, // Compat
-    {SpaceTransformation::NONE, "None"}, // Compat
+SERIALIZE_JSON_ENUM(SpaceTransformationEnum,
+{
+    {SpaceTransformationEnum::NONE, "NONE"},
+    {SpaceTransformationEnum::FFT1, "FFT1"},
+    {SpaceTransformationEnum::FFT2, "FFT2"},
+    {SpaceTransformationEnum::FFT1, "1FFT"}, // Compat
+    {SpaceTransformationEnum::FFT2, "2FFT"}, // Compat
+    {SpaceTransformationEnum::NONE, "None"}, // Compat
 })
 // clang-format on
+
+inline std::ostream& operator<<(std::ostream& os, const SpaceTransformationEnum& value) { return os << json{value}; }
+
 } // namespace holovibes

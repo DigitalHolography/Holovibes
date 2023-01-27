@@ -4,7 +4,7 @@
 
 #include <cufftXt.h>
 
-using camera::FrameDescriptor;
+using holovibes::FrameDescriptor;
 
 void filter2D(cuComplex* input,
               const float* mask,
