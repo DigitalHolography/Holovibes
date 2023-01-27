@@ -13,7 +13,6 @@ void check_cuda_graphic_card()
     int device;
     int nDevices;
     int min_compute_capability = 35;
-    int max_compute_capability = 86;
     int compute_capability;
     cudaError_t status;
     cudaDeviceProp props;
@@ -26,7 +25,7 @@ void check_cuda_graphic_card()
 
         compute_capability = props.major * 10 + props.minor;
 
-        if (compute_capability >= min_compute_capability && compute_capability <= max_compute_capability)
+        if (compute_capability >= min_compute_capability)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";
@@ -35,7 +34,7 @@ void check_cuda_graphic_card()
         error_message = "No CUDA graphic card detected.\n"
                         "You will not be able to run Holovibes.\n"
                         "Try to update your graphic drivers.";
-
+ 
     throw std::runtime_error(error_message);
 }
 } // namespace holovibes::api
