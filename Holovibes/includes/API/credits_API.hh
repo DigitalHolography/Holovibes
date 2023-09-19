@@ -9,6 +9,13 @@ inline const std::string get_credits()
 
            "Developers:\n\n"
 
+           "Oscar Morand\n"
+           "Jules Guillou\n"
+           "Samuel Gonçalves\n"
+           "Edgar Delaporte\n"
+           "Paul Duhot\n"
+           "Thomas Xu\n"
+
            "Adrien Langou\n"
            "Julien Nicolle\n"
            "Sacha Bellier\n"

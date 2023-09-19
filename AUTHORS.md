@@ -1,5 +1,11 @@
 ## Authors
 
+- Oscar Morand
+- Jules Guillou
+- Samuel Gonçalves
+- Edgar Delaporte
+- Paul Duhot
+- Thomas Xu
 - Adrien Langou
 - Julien Nicolle
 - Sacha Bellier
