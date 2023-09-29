@@ -38,6 +38,7 @@ class HolovibesConan(ConanFile):
         "openssl/1.1.1q",  # needed to overwrite qt bad dependency
         "freetype/2.11.0",  # needed to overwrite qt bad dependency
         "spdlog/1.10.0",
+        "libpng/1.6.37",
     )
 
     default_options = (
