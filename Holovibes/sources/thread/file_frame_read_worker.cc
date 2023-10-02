@@ -6,6 +6,44 @@
 
 #include "holovibes.hh"
 #include "global_state_holder.hh"
+#include "API.hh"
+
+namespace api = ::holovibes::api;
+
+namespace holovibes::worker
+{
+FileFrameReadWorker::FpsHandler::FpsHandler(unsigned int fps)
+    : enqueue_interval_((1 / static_cast<double>(fps)))
+{
+}
+
+void FileFrameReadWorker::FpsHandler::begin() { begin_time_ = std::chrono::high_resolution_clock::now(); }
+
+void FileFrameReadWorker::FpsHandler::wait()
+{
+    /* end_time should only be being_time + enqueue_interval_ aka the time point
+     * for the next enqueue
+     * However the wasted_time is substracted to get the correct next enqueue
+     * time point
+     */
+    enqueue_interval_ = std::chrono::duration<double>(1 / static_cast<double>(api::get_input_fps()));
+    auto end_time = (begin_time_ + enqueue_interval_) - wasted_time_;
+
+    // Wait until the next enqueue time point is reached
+    while (std::chrono::high_resolution_clock::now() < end_time)
+    {
+    }
+
+    /* Wait is done, it might have been too long (descheduling...)
+     *
+     * Set the begin_time (now) for the next enqueue
+     * And compute the wasted time (real time point - theoretical time point)
+     */
+    auto now = std::chrono::high_resolution_clock::now();
+    wasted_time_ = now - end_time;
+    begin_time_ = now;
+}
+} // namespace holovibes::worker
 
 namespace holovibes::worker
 {
@@ -86,6 +124,7 @@ void FileFrameReadWorker::run()
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);

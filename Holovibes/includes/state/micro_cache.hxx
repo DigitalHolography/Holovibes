@@ -53,10 +53,7 @@
  *         	void trigger_a()
  *          {
  *          	for (cache_t * cache : micro_caches<cache_t>)
- *             	{
- *                 	for (cache_t cache : micro_caches<cache_t>)
  *                     	cache->a.to_update = true;
- *             	}
  *         	}
  *
  * 			Ref(const Ref&) = delete; \
@@ -77,7 +74,10 @@
  *          a_t a;
  *
  * 		  public:
- * 			Cache(const Cache&) = delete; \ Cache& operator=(const Cache&) = delete; Cache()
+ * 			Cache(const Cache&) = delete;
+ *          Cache& operator=(const Cache&) = delete;
+ * 
+ *          Cache()
  *          {
  *              a.obj = <ref_t>.a.obj;
  *              a.to_update = false;
