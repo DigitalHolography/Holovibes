@@ -6,7 +6,7 @@ bump2version==1.0.1
 certifi==2021.10.8
 charset-normalizer==2.0.9
 colorama==0.4.4
-conan==1.52.0
+conan==1.57.0
 distro==1.6.0
 fasteners==0.16.3
 idna==3.3
