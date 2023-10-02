@@ -229,6 +229,6 @@ void ImportPanel::import_end_spinbox_update()
     }
 }
 
-void ImportPanel::on_input_fps_change(int value) { api::set_input_fps(value); }
+void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
 } // namespace holovibes::gui
