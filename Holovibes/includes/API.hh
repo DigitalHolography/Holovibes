@@ -29,6 +29,7 @@ namespace holovibes::api
  * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
  */
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename);
+
 /*! \brief Launchs the reading of a given inputed file
  *
  * \param file_path location of the file to read

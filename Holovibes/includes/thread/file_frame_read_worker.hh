@@ -50,6 +50,8 @@ class FileFrameReadWorker final : public FrameReadWorker
     class FpsHandler
     {
       public:
+        /// @brief Construct the FPS handler.
+        /// @param fps Useless, now fps are retrieved in real-time. Left here for compatibility.
         FpsHandler(unsigned int fps);
 
         /*! \brief Begin the process of fps handling */

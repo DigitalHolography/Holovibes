@@ -5173,9 +5173,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ImportInputFpsSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>on_input_fps_change(int)</slot>
+   <slot>update_fps()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>889</x>
