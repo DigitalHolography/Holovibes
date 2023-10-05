@@ -55,22 +55,22 @@ __global__ static void kernel_composite(
 __global__ static void kernel_sum_one_line(float* input,
                                            const uint frame_res,
                                            const uchar pixel_depth,
-                                           const uint line_size,
+                                           const uint fd_line_size,
                                            const rect zone,
                                            float* sums_per_line)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < pixel_depth * zone.h)
     {
-        uchar offset = id % pixel_depth;
-        ushort line = id / pixel_depth;
+        uchar offset = id % pixel_depth; // offset e [0, 2] (RGB channel)
+        ushort line = id / pixel_depth;  // line e [0, nb_line]
         line += zone.y;
-        uint index_begin = line_size * line + zone.x;
+        uint index_begin = fd_line_size * line + zone.x;
         uint index_end = index_begin + zone.w;
         if (index_end > frame_res)
             index_end = frame_res;
         float sum = 0;
-        while (index_begin < index_end)
+        while (index_begin < index_end) // FIXME change to a real kernel reduce
             sum += input[pixel_depth * (index_begin++) + offset];
         sums_per_line[id] = sum;
     }
@@ -106,8 +106,8 @@ __global__ static void kernel_normalize_array(float* input, uint nb_pixels, uint
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < pixel_depth * nb_pixels)
-        input[id] /= averages[id % 3] / 1000;
-    // The /1000 is used to have the result in [0;1000]
+        input[id] = (input[id] / averages[id % 3]) * 1000;
+    // The * 1000 is used to have the result in [0;1000]
     // instead of [0;1] for a better contrast control
 }
 
@@ -189,48 +189,47 @@ void rgb(cuComplex* input,
 
 void postcolor_normalize(float* output,
                          const size_t frame_res,
-                         const uint real_line_size,
+                         const uint fd_line_size,
                          holovibes::units::RectFd selection,
                          const float weight_r,
                          const float weight_g,
                          const float weight_b,
                          const cudaStream_t stream)
 {
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-
     rect zone = {selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height()};
-    check_zone(zone, frame_res, real_line_size);
-    const ushort line_size = zone.w;
-    const ushort lines = zone.h;
+    check_zone(zone, frame_res, fd_line_size);
     float* averages = nullptr;
     float* sums_per_line = nullptr;
     const uchar pixel_depth = 3;
     cudaXMalloc(&averages, sizeof(float) * pixel_depth);
-    cudaXMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
+    cudaXMalloc(&sums_per_line, sizeof(float) * zone.h * pixel_depth);
 
-    blocks = map_blocks_to_problem(lines * pixel_depth, threads);
+    const uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(zone.h * pixel_depth, threads);
+
     kernel_sum_one_line<<<blocks, threads, 0, stream>>>(output,
                                                         frame_res,
                                                         pixel_depth,
-                                                        real_line_size,
+                                                        fd_line_size,
                                                         zone,
                                                         sums_per_line);
     cudaCheckError();
 
     blocks = map_blocks_to_problem(pixel_depth, threads);
     kernel_average_float_array<<<blocks, threads, 0, stream>>>(sums_per_line,
-                                                               lines,
-                                                               lines * line_size,
+                                                               zone.h,
+                                                               zone.h * zone.w,
                                                                pixel_depth,
                                                                averages);
     cudaCheckError();
 
+    //kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b); // Using a kernel for this simple operation may preserve the stream pipeline
+    //cudaCheckError();
+
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-    kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b);
-    cudaCheckError();
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(output, frame_res, pixel_depth, averages);
     cudaCheckError();
+
     cudaXFree(averages);
     cudaXFree(sums_per_line);
 }
