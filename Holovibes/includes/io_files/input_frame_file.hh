@@ -42,8 +42,10 @@ class InputFrameFile : public FrameFile
     /*! \brief getter of has_footer */
     bool get_has_footer();
 
-  protected:
+    /*! \brief getter of frame_size_ */
+    size_t get_frame_size();
 
+  protected:
     /*! \brief Indicates if the file has a footer */
     bool has_footer;
 
@@ -70,4 +72,6 @@ class InputFrameFile : public FrameFile
 };
 
 inline bool InputFrameFile::get_has_footer() { return has_footer; }
+
+inline size_t InputFrameFile::get_frame_size() { return frame_size_; }
 } // namespace holovibes::io_files
