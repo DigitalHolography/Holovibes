@@ -297,7 +297,7 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
  * \param weight_g the new value of Green
  * \param weight_b the new value of blue
  */
-void set_composite_weights(uint weight_r, uint weight_g, uint weight_b);
+void set_composite_weights(double weight_r, double weight_g, double weight_b);
 
 /*! \brief Switchs between to RGB mode
  *

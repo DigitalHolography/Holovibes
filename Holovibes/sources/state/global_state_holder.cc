@@ -176,7 +176,7 @@ void GSH::set_rgb_p(Span<int> span, bool notify)
         this->notify();
 }
 
-void GSH::set_weight_rgb(int r, int g, int b)
+void GSH::set_weight_rgb(double r, double g, double b)
 {
     set_weight_r(r);
     set_weight_g(g);
