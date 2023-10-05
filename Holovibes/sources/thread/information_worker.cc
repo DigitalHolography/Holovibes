@@ -5,6 +5,7 @@
 #include <cuda_runtime.h>
 #include <chrono>
 #include "global_state_holder.hh"
+#include <nvml.h>
 
 namespace holovibes::worker
 {
@@ -120,6 +121,92 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     return ss.str();
 }
 
+std::string gpu_load()
+{
+    std::stringstream ss;
+    ss << "GPU load: \n  ";
+    nvmlReturn_t result;
+    nvmlDevice_t device;
+    nvmlUtilization_t gpuLoad;
+
+    // Initialize NVML
+    result = nvmlInit();
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        return ss.str();
+    }
+
+    // Get the device handle (assuming only one GPU is present)
+    result = nvmlDeviceGetHandleByIndex(0, &device);
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        nvmlShutdown();
+        return ss.str();
+    }
+
+    // Query GPU load
+    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        nvmlShutdown();
+        return ss.str();
+    }
+
+    // Print GPU load
+    ss << gpuLoad.gpu << "%";
+
+    // Shutdown NVML
+    nvmlShutdown();
+
+    return ss.str();
+}
+
+std::string gpu_memory_load()
+{
+    std::stringstream ss;
+    ss << "GPU memory controller load: \n  ";
+    nvmlReturn_t result;
+    nvmlDevice_t device;
+    nvmlUtilization_t gpuLoad;
+
+    // Initialize NVML
+    result = nvmlInit();
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        return ss.str();
+    }
+
+    // Get the device handle (assuming only one GPU is present)
+    result = nvmlDeviceGetHandleByIndex(0, &device);
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        nvmlShutdown();
+        return ss.str();
+    }
+
+    // Query GPU load
+    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
+    if (result != NVML_SUCCESS)
+    {
+        ss << "Could not load GPU usage";
+        nvmlShutdown();
+        return ss.str();
+    }
+
+    // Print GPU load
+    ss << gpuLoad.memory << "%";
+
+    // Shutdown NVML
+    nvmlShutdown();
+
+    return ss.str();
+}
+
 void InformationWorker::display_gui_information()
 {
     std::string str;
@@ -171,6 +258,9 @@ void InformationWorker::display_gui_information()
     to_display << "GPU memory:\n"
                << std::string("  ") << engineering_notation(free, 3) << "B free,\n"
                << "  " << engineering_notation(total, 3) + "B total\n";
+
+    to_display << gpu_load() << '\n';
+    to_display << gpu_memory_load() << '\n';
 
     // #TODO change this being called every frame to only being called to update the value if needed
     to_display << "\nz boundary: " << Holovibes::instance().get_boundary() << "m\n";

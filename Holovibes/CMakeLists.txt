@@ -152,6 +152,7 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     cufft
     cublas
     cusolver
+    nvml
 
     CUDA::cuda_driver
 
