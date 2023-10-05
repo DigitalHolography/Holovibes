@@ -208,7 +208,9 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     {
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
-        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        const int maxSize = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
+        ui_->Filter2DN2SpinBox->setMaximum(maxSize);
+        api::set_filter2d_n2(maxSize);
     }
     else
         update_filter2d_view(false);

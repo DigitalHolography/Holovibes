@@ -83,10 +83,6 @@ void FileFrameReadWorker::run()
     try
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
-        const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-        // sets the filter_2d_n2 so the frame fits in the lens diameter by default
-        const int s = (fd.width > fd.height ? fd.width : fd.height) / 2 * sqrt(2);
-        GSH::instance().set_filter2d_n2(s);
     }
     catch (const io_files::FileException& e)
     {
@@ -130,7 +126,6 @@ void FileFrameReadWorker::run()
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
-
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
