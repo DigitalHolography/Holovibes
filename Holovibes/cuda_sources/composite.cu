@@ -32,8 +32,8 @@ void check_zone(rect& zone, const uint frame_res, const int line_size)
     }
 }
 } // namespace
-__global__ static void kernel_composite(
-    cuComplex* input, float* output, const uint frame_res, size_t range, const float* colors)
+__global__ static void
+kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t range, const float* colors)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
@@ -96,11 +96,11 @@ kernel_average_float_array(float* input, uint size, uint nb_elements, uint offse
     }
 }
 
-__global__ static void kernel_divide_by_weight(float* input, float weight_r, float weight_g, float weight_b)
+__global__ static void kernel_divide_by_weight(float* input, holovibes::RGBWeights weights)
 {
-    input[0] /= weight_r;
-    input[1] /= weight_g;
-    input[2] /= weight_b;
+    input[0] /= weights.r;
+    input[1] /= weights.g;
+    input[2] /= weights.b;
 }
 __global__ static void kernel_normalize_array(float* input, uint nb_pixels, uint pixel_depth, float* averages)
 {
@@ -111,13 +111,8 @@ __global__ static void kernel_normalize_array(float* input, uint nb_pixels, uint
     // instead of [0;1] for a better contrast control
 }
 
-__global__ static void kernel_precompute_colors(float* colors,
-                                                size_t red,
-                                                size_t blue,
-                                                size_t range,
-                                                float weight_r,
-                                                float weight_g,
-                                                float weight_b)
+__global__ static void
+kernel_precompute_colors(float* colors, size_t red, size_t blue, size_t range, holovibes::RGBWeights weights)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < range)
@@ -125,27 +120,27 @@ __global__ static void kernel_precompute_colors(float* colors,
         double hue = double(id) / double(range); // hue e [0,1]
         if (hue < 0.25)
         {
-            colors[id * 3 + 0] = weight_r;
-            colors[id * 3 + 1] = (hue / 0.25) * weight_g;
+            colors[id * 3 + 0] = weights.r;
+            colors[id * 3 + 1] = (hue / 0.25) * weights.g;
             colors[id * 3 + 2] = 0;
         }
         else if (hue < 0.5)
         {
-            colors[id * 3 + 0] = (1 - (hue - 0.25) / 0.25) * weight_r;
-            colors[id * 3 + 1] = weight_g;
+            colors[id * 3 + 0] = (1 - (hue - 0.25) / 0.25) * weights.r;
+            colors[id * 3 + 1] = weights.g;
             colors[id * 3 + 2] = 0;
         }
         else if (hue < 0.75)
         {
             colors[id * 3 + 0] = 0;
-            colors[id * 3 + 1] = weight_g;
-            colors[id * 3 + 2] = ((hue - 0.5) / 0.25) * weight_b;
+            colors[id * 3 + 1] = weights.g;
+            colors[id * 3 + 2] = ((hue - 0.5) / 0.25) * weights.b;
         }
         else
         {
             colors[id * 3 + 0] = 0;
-            colors[id * 3 + 1] = (1 - (hue - 0.75) / 0.25) * weight_g;
-            colors[id * 3 + 2] = weight_b;
+            colors[id * 3 + 1] = (1 - (hue - 0.75) / 0.25) * weights.g;
+            colors[id * 3 + 2] = weights.b;
         }
     }
 }
@@ -156,9 +151,7 @@ void rgb(cuComplex* input,
          bool auto_weights,
          const ushort min,
          const ushort max,
-         const float weight_r,
-         const float weight_g,
-         const float weight_b,
+         holovibes::RGBWeights weights,
          const cudaStream_t stream)
 {
     ushort range = std::abs(static_cast<short>(max - min)) + 1;
@@ -170,16 +163,15 @@ void rgb(cuComplex* input,
     holovibes::cuda_tools::UniquePtr<float> colors(colors_size);
 
     if (auto_weights)
-        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(), min, max, range, 1, 1, 1); // (1,1,1) = raw colors
+    {
+        holovibes::RGBWeights raw_color = {0};
+        raw_color.r = 1;
+        raw_color.g = 1;
+        raw_color.b = 1; // (1,1,1) = raw colors
+        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(), min, max, range, raw_color);
+    }
     else
-        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(),
-                                                                 min,
-                                                                 max,
-                                                                 range,
-                                                                 weight_r,
-                                                                 weight_g,
-                                                                 weight_b);
-
+        kernel_precompute_colors<<<blocks, threads, 0, stream>>>(colors.get(), min, max, range, weights);
 
     blocks = map_blocks_to_problem(frame_res, threads);
     kernel_composite<<<blocks, threads, 0, stream>>>(input, output, frame_res, range, colors.get());
@@ -191,9 +183,7 @@ void postcolor_normalize(float* output,
                          const size_t frame_res,
                          const uint fd_line_size,
                          holovibes::units::RectFd selection,
-                         const float weight_r,
-                         const float weight_g,
-                         const float weight_b,
+                         holovibes::RGBWeights weights,
                          const cudaStream_t stream)
 {
     rect zone = {selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height()};
@@ -223,8 +213,8 @@ void postcolor_normalize(float* output,
                                                                averages);
     cudaCheckError();
 
-    //kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b); // Using a kernel for this simple operation may preserve the stream pipeline
-    //cudaCheckError();
+    // kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b); // Using a kernel for this
+    // simple operation may preserve the stream pipeline cudaCheckError();
 
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(output, frame_res, pixel_depth, averages);

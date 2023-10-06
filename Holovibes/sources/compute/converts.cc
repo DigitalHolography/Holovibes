@@ -155,9 +155,7 @@ void Converts::insert_to_composite()
                     composite_cache_.get_composite_auto_weights(),
                     rgb_struct.frame_index.min,
                     rgb_struct.frame_index.max,
-                    rgb_struct.weight.r,
-                    rgb_struct.weight.g,
-                    rgb_struct.weight.b,
+                    rgb_struct.weight,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -173,9 +171,7 @@ void Converts::insert_to_composite()
                                     fd_.get_frame_res(),
                                     fd_.width,
                                     zone_cache_.get_composite_zone(),
-                                    rgb_struct.weight.r,
-                                    rgb_struct.weight.g,
-                                    rgb_struct.weight.b,
+                                    rgb_struct.weight,
                                     stream_);
         });
 }

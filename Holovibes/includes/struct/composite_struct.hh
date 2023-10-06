@@ -10,6 +10,7 @@
 
 namespace holovibes
 {
+
 /*! \class CompositeP
  *
  * \brief Class that represents CompositeP
