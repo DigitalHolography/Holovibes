@@ -18,10 +18,20 @@
 #include "compute_worker.hh"
 
 #include "common.cuh"
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+
+#include <spdlog/spdlog.h>
+#include <string>
+
+#pragma region Settings configuration
+#define REALTIME_SETTINGS holovibes::settings::InputFPS, holovibes::settings::InputFilePath
+#define ALL_SETTINGS REALTIME_SETTINGS
+#pragma endregion
 
 // Threads priority
 constexpr int THREAD_COMPUTE_PRIORITY = THREAD_PRIORITY_TIME_CRITICAL;
@@ -157,9 +167,7 @@ class Holovibes
      * \param callback
      */
     void start_file_frame_read(
-        const std::string& file_path,
         bool loop,
-        unsigned int fps,
         unsigned int first_frame_id,
         unsigned int nb_frames_to_read,
         bool load_file_in_gpu,
@@ -241,9 +249,38 @@ class Holovibes
 
     void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
 
+    /**
+     * @brief Update a setting. The actual application of the update
+     * might ve delayed until a certain event occurs.
+     * @tparam T The type of tho update.
+     * @param setting The new value of the setting.
+     */
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        spdlog::info("[Holovibes] [update_setting] {}", typeid(T).name());
+
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+
+        file_read_worker_controller_.update_setting(setting);
+    }
+
+    template <typename T>
+    inline T get_setting()
+    {
+        auto all_settings = std::tuple_cat(realtime_settings_.settings_);
+        return std::get<T>(all_settings);
+    }
+
   private:
     /*! \brief Construct the holovibes object. */
-    Holovibes() = default;
+    Holovibes()
+        : realtime_settings_(std::make_tuple(settings::InputFPS{60}, settings::InputFilePath{std::string("")}))
+    {
+    }
 
     worker::ThreadWorkerController<worker::FileFrameReadWorker> file_read_worker_controller_;
     worker::ThreadWorkerController<worker::CameraFrameReadWorker> camera_read_worker_controller_;
@@ -267,6 +304,8 @@ class Holovibes
     /*! \} */
 
     CudaStreams cuda_streams_;
+
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes
 

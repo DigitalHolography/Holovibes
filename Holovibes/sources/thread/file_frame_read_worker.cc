@@ -10,79 +10,19 @@
 
 namespace api = ::holovibes::api;
 
-namespace holovibes::worker
-{
-FileFrameReadWorker::FpsHandler::FpsHandler(unsigned int fps)
-    : enqueue_interval_((1 / static_cast<double>(fps)))
-{
-}
-
-void FileFrameReadWorker::FpsHandler::begin() { begin_time_ = std::chrono::high_resolution_clock::now(); }
-
-void FileFrameReadWorker::FpsHandler::wait()
-{
-    /* end_time should only be being_time + enqueue_interval_ aka the time point
-     * for the next enqueue
-     * However the wasted_time is substracted to get the correct next enqueue
-     * time point
-     */
-    enqueue_interval_ = std::chrono::duration<double>(1 / static_cast<double>(api::get_input_fps()));
-    auto end_time = (begin_time_ + enqueue_interval_) - wasted_time_;
-
-    // Wait until the next enqueue time point is reached
-    while (std::chrono::high_resolution_clock::now() < end_time)
-    {
-    }
-
-    /* Wait is done, it might have been too long (descheduling...)
-     *
-     * Set the begin_time (now) for the next enqueue
-     * And compute the wasted time (real time point - theoretical time point)
-     */
-    auto now = std::chrono::high_resolution_clock::now();
-    wasted_time_ = now - end_time;
-    begin_time_ = now;
-}
-} // namespace holovibes::worker
-
 // sqrt for filter_2d
 #include <cmath>
 
 namespace holovibes::worker
 {
-FileFrameReadWorker::FileFrameReadWorker(const std::string& file_path,
-                                         bool loop,
-                                         unsigned int fps,
-                                         unsigned int first_frame_id,
-                                         unsigned int total_nb_frames_to_read,
-                                         bool load_file_in_gpu,
-                                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
-    : FrameReadWorker(gpu_input_queue)
-    , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
-    , current_nb_frames_read_(fast_updates_entry_->first)
-    , total_nb_frames_to_read_(fast_updates_entry_->second)
-    , file_path_(file_path)
-    , loop_(loop)
-    , fps_handler_(FileFrameReadWorker::FpsHandler(fps))
-    , first_frame_id_(first_frame_id)
-    , load_file_in_gpu_(load_file_in_gpu)
-    , input_file_(nullptr)
-    , frame_size_(0)
-    , cpu_frame_buffer_(nullptr)
-    , gpu_frame_buffer_(nullptr)
-    , gpu_packed_buffer_(nullptr)
-{
-    current_nb_frames_read_ = 0;
-    total_nb_frames_to_read_ = total_nb_frames_to_read;
-    file_read_cache_.synchronize();
-}
 
 void FileFrameReadWorker::run()
 {
     LOG_FUNC();
     try
     {
-        input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
+        auto file_path = onrestart_settings_.get<settings::InputFilePath>().value;
+        input_file_.reset(io_files::InputFrameFileFactory::open(file_path));
         const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
         const int s = (fd.width > fd.height ? fd.width : fd.height) / 2 * sqrt(2);
@@ -130,7 +70,6 @@ void FileFrameReadWorker::run()
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
-
 
     cudaXFree(gpu_packed_buffer_);
     cudaXFree(gpu_frame_buffer_);
@@ -198,8 +137,6 @@ bool FileFrameReadWorker::init_frame_buffers()
 
 void FileFrameReadWorker::read_file_in_gpu()
 {
-    fps_handler_.begin();
-
     // Read and copy the entire file
     size_t frames_read = read_copy_file(total_nb_frames_to_read_);
 
@@ -217,8 +154,6 @@ void FileFrameReadWorker::read_file_in_gpu()
 void FileFrameReadWorker::read_file_batch()
 {
     const unsigned int batch_size = file_read_cache_.get_file_buffer_size();
-
-    fps_handler_.begin();
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -309,7 +244,8 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        fps_handler_.wait();
+        // fps_handler_.wait();
+        fps_limiter_.wait(realtime_settings_.get<settings::InputFPS>().value);
 
         if (Holovibes::instance().is_cli)
         {

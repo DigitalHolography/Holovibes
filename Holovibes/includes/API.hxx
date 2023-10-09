@@ -247,8 +247,25 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
     GSH::instance().set_time_transformation_cuts_output_buffer_size(value);
 }
 
-inline uint get_input_fps() { return GSH::instance().get_input_fps(); }
-inline void set_input_fps(uint value) { GSH::instance().set_input_fps(value); }
+inline uint get_input_fps()
+{
+    return holovibes::Holovibes::instance().template get_setting<holovibes::settings::InputFPS>().value;
+}
+
+inline void set_input_fps(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFPS{value});
+}
+
+inline std::string get_input_file_path()
+{
+    return holovibes::Holovibes::instance().template get_setting<holovibes::settings::InputFilePath>().value;
+}
+
+inline void set_input_file_path(std::string value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilePath{value});
+}
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 

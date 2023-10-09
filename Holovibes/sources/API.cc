@@ -1238,10 +1238,9 @@ void import_stop()
     set_is_computation_stopped(true);
 }
 
-bool import_start(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame)
+bool import_start(size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 {
-    LOG_FUNC(file_path, fps, first_frame, last_frame, load_file_in_gpu);
+    LOG_FUNC(first_frame, last_frame, load_file_in_gpu);
 
     set_is_computation_stopped(false);
 
@@ -1253,9 +1252,7 @@ bool import_start(
 
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
-        Holovibes::instance().start_file_frame_read(file_path,
-                                                    true,
-                                                    fps,
+        Holovibes::instance().start_file_frame_read(true,
                                                     static_cast<unsigned int>(first_frame - 1),
                                                     static_cast<unsigned int>(last_frame - first_frame + 1),
                                                     load_file_in_gpu);

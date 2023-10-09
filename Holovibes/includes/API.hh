@@ -40,8 +40,7 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
  * \return true on success
  * \return false on failure
  */
-bool import_start(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame);
+bool import_start(size_t first_frame, bool load_file_in_gpu, size_t last_frame);
 
 /*! \brief Stops the display */
 void import_stop();

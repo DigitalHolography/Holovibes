@@ -5188,6 +5188,12 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+    <sender>ImportPathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ImportPanel</receiver>
+    <slot>update_import_file_path()</slot>
+  </connection>
+  <connection>
    <sender>actionOpenCV</sender>
    <signal>triggered(bool)</signal>
    <receiver>MainWindow</receiver>

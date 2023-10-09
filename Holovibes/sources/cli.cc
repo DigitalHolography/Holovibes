@@ -248,9 +248,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.start_compute_worker();
 
     // Thread 3
-    holovibes.start_file_frame_read(opts.input_path.value(),
-                                    true,
-                                    opts.fps.value_or(DEFAULT_CLI_FPS),
+    holovibes.start_file_frame_read(true,
                                     holovibes::GSH::instance().get_start_frame() - 1,
                                     static_cast<uint>(input_nb_frames),
                                     opts.gpu);

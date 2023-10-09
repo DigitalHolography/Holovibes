@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "input_frame_file_factory.hh"
 #include "API.hh"
+#include <spdlog/spdlog.h>
 
 namespace api = ::holovibes::api;
 
@@ -148,20 +149,11 @@ void ImportPanel::import_start()
 
     parent_->shift_screen();
 
-    // Get all the useful ui items
-    QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
-
-    // Now stored in GSH
-    // QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
-
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
     QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    std::string file_path = import_line_edit->text().toStdString();
-
-    bool res_import_start = api::import_start(file_path,
-                                              api::get_input_fps(),
+    bool res_import_start = api::import_start(
                                               start_spinbox->value(),
                                               load_file_gpu_box->isChecked(),
                                               end_spinbox->value());
@@ -230,5 +222,7 @@ void ImportPanel::import_end_spinbox_update()
 }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
+
+void ImportPanel::update_import_file_path() { api::set_input_file_path(ui_->ImportPathLineEdit->text().toStdString()); }
 
 } // namespace holovibes::gui

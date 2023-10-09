@@ -60,5 +60,10 @@ class ImportPanel : public Panel
     /*! \brief Handles the ui input fps changes
      */
     void update_fps();
+
+    /**
+     * @brief Handles the update of the import file path in the UI.
+    */
+   void update_import_file_path();
 };
 } // namespace holovibes::gui
