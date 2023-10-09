@@ -36,11 +36,20 @@ void CompositePanel::on_notify()
 
     ui_->RenormalizationCheckBox->setChecked(api::get_composite_auto_weights());
 
+    // RGB
     QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_p_red());
     QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_p_blue());
+    /*
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_weight_r());
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_weight_g());
     QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_weight_b());
+    */
+    ui_->WeightSpinBox_R->setValue(api::get_weight_r());
+    ui_->WeightSpinBox_G->setValue(api::get_weight_g());
+    ui_->WeightSpinBox_B->setValue(api::get_weight_b());
+     // -- RGB
+
+    // HSV
     ui_->CompositePanel->actualize_frequency_channel_v();
 
     QSpinBoxQuietSetValue(ui_->SpinBox_hue_freq_min, api::get_composite_p_min_h());
@@ -69,20 +78,24 @@ void CompositePanel::on_notify()
     QSliderQuietSetValue(ui_->horizontalSlider_value_threshold_max,
                          static_cast<int>(api::get_slider_v_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_v_max();
+    // -- HSV
 
     bool rgbMode = ui_->radioButton_rgb->isChecked();
 
     auto show_rgb = [this, rgbMode]()
     {
-        ui_->groupBox->setVisible(rgbMode);
-        ui_->groupBox_5->setVisible(rgbMode || ui_->RenormalizationCheckBox->isChecked());
+        ui_->groupBox->setVisible(rgbMode); // Frequency channel
+        ui_->groupBox_5->setVisible(rgbMode || ui_->RenormalizationCheckBox->isChecked()); // Color equalization box
     };
 
     auto show_hsv = [this, rgbMode]()
     {
-        ui_->groupBox_hue->setHidden(rgbMode);
-        ui_->groupBox_saturation->setHidden(rgbMode);
-        ui_->groupBox_value->setHidden(rgbMode);
+        //ui_->groupBox_hue->setHidden(rgbMode);
+        //ui_->groupBox_saturation->setHidden(rgbMode);
+        //ui_->groupBox_value->setHidden(rgbMode);
+        ui_->groupBox_hue->setVisible(!rgbMode);
+        ui_->groupBox_saturation->setVisible(!rgbMode);
+        ui_->groupBox_value->setVisible(!rgbMode);
     };
 
     if (rgbMode)
@@ -162,6 +175,11 @@ void CompositePanel::set_composite_weights()
 void CompositePanel::set_composite_auto_weights(bool value)
 {
     api::set_composite_auto_weights(value);
+
+    ui_->WeightSpinBox_R->setEnabled(!value);
+    ui_->WeightSpinBox_G->setEnabled(!value);
+    ui_->WeightSpinBox_B->setEnabled(!value);
+
     ui_->ViewPanel->set_auto_contrast();
 }
 

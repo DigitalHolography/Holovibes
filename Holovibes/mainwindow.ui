@@ -2194,8 +2194,14 @@
               </item>
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
+                <property name="minimum">
+                    <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                    <double>100.000000000000000</double>
+                </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.010000000000000</double>
                 </property>
                </widget>
               </item>
@@ -2208,8 +2214,14 @@
               </item>
               <item row="2" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
+                <property name="minimum">
+                    <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.010000000000000</double>
                 </property>
                </widget>
               </item>
@@ -2222,8 +2234,14 @@
               </item>
               <item row="3" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
+                <property name="minimum">
+                    <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.010000000000000</double>
                 </property>
                </widget>
               </item>

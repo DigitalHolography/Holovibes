@@ -155,9 +155,7 @@ void Converts::insert_to_composite()
                     composite_cache_.get_composite_auto_weights(),
                     rgb_struct.frame_index.min,
                     rgb_struct.frame_index.max,
-                    rgb_struct.weight.r,
-                    rgb_struct.weight.g,
-                    rgb_struct.weight.b,
+                    rgb_struct.weight,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
@@ -168,15 +166,25 @@ void Converts::insert_to_composite()
                     compute_cache_.get_time_transformation_size(),
                     composite_cache_.get_hsv_const_ref());
 
-            if (composite_cache_.get_composite_auto_weights())
+            if (composite_cache_.get_composite_auto_weights()) {
+                const uchar pixel_depth = 3;
+                const int factor = 10;
+                float* averages = new float[pixel_depth];
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
                                     fd_.get_frame_res(),
                                     fd_.width,
                                     zone_cache_.get_composite_zone(),
-                                    rgb_struct.weight.r,
-                                    rgb_struct.weight.g,
-                                    rgb_struct.weight.b,
+                                    pixel_depth,
+                                    rgb_struct.weight,
+                                    averages,
                                     stream_);
+                if (pixel_depth >= 3) {
+                    double max = std::max(std::max(averages[0], averages[1]), averages[2]);
+                    GSH::instance().set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                (static_cast<double>(averages[1]) / max) * factor,
+                                (static_cast<double>(averages[2]) / max) * factor);
+                }
+            }
         });
 }
 

@@ -23,6 +23,8 @@ __global__ void kernel_quadratic_lens(
         csquare = c * (x * x + y * y);
         output[index].x = cosf(csquare);
         output[index].y = sinf(csquare);
+        //output[index].x = ((float)i) / (float)lens_side_size * 2 - 1;
+        //output[index].y = ((float)j) / (float)lens_side_size * 2 - 1;
     }
 }
 
