@@ -3,6 +3,8 @@
 #include "unique_ptr.hh"
 #include "composite.cuh"
 
+#include "logger.hh"
+
 struct rect
 {
     int x;
@@ -183,15 +185,16 @@ void postcolor_normalize(float* output,
                          const size_t frame_res,
                          const uint fd_line_size,
                          holovibes::units::RectFd selection,
+                         const uchar pixel_depth,
                          holovibes::RGBWeights weights,
+                         float* averages,
                          const cudaStream_t stream)
 {
     rect zone = {selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height()};
     check_zone(zone, frame_res, fd_line_size);
-    float* averages = nullptr;
+    float* gpu_averages = nullptr;
     float* sums_per_line = nullptr;
-    const uchar pixel_depth = 3;
-    cudaXMalloc(&averages, sizeof(float) * pixel_depth);
+    cudaXMalloc(&gpu_averages, sizeof(float) * pixel_depth);
     cudaXMalloc(&sums_per_line, sizeof(float) * zone.h * pixel_depth);
 
     const uint threads = get_max_threads_1d();
@@ -210,16 +213,18 @@ void postcolor_normalize(float* output,
                                                                zone.h,
                                                                zone.h * zone.w,
                                                                pixel_depth,
-                                                               averages);
+                                                               gpu_averages);
     cudaCheckError();
 
     // kernel_divide_by_weight<<<1, 1, 0, stream>>>(averages, weight_r, weight_g, weight_b); // Using a kernel for this
     // simple operation may preserve the stream pipeline cudaCheckError();
 
+    cudaXMemcpyAsync(averages, gpu_averages, sizeof(float) * pixel_depth, cudaMemcpyDeviceToHost, stream);
+
     blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-    kernel_normalize_array<<<blocks, threads, 0, stream>>>(output, frame_res, pixel_depth, averages);
+    kernel_normalize_array<<<blocks, threads, 0, stream>>>(output, frame_res, pixel_depth, gpu_averages);
     cudaCheckError();
 
-    cudaXFree(averages);
+    cudaXFree(gpu_averages);
     cudaXFree(sums_per_line);
 }
