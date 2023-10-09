@@ -50,7 +50,6 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  * \param convolution_enabled Is convolution enabled
  * \param convo_matrix Input matrix used for convolution
  * \param divide_convolution_enabled
- * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
  * \param pixel_size Size of a pixel in micron. Depends on camera or input file.
  * \param unwrap_history_size Max size of unwrapping corrections in number of images.
@@ -72,7 +71,6 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (bool, convolution_enabled, false),
                             (std::vector<float>, convo_matrix, {}),
                             (bool, divide_convolution_enabled, false),
-                            // (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw),
                             (float, pixel_size, 12.0f),
                             (uint, unwrap_history_size, 1),

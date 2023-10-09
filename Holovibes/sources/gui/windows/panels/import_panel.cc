@@ -31,6 +31,8 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->ImportExportFrame->setHidden(h);
 
     ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
+    update_fps(); // Required as it is called `OnEditedFinished` only.
+
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
 }
 
@@ -153,10 +155,8 @@ void ImportPanel::import_start()
     QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    bool res_import_start = api::import_start(
-                                              start_spinbox->value(),
-                                              load_file_gpu_box->isChecked(),
-                                              end_spinbox->value());
+    bool res_import_start =
+        api::import_start(start_spinbox->value(), load_file_gpu_box->isChecked(), end_spinbox->value());
 
     if (res_import_start)
     {

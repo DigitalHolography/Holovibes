@@ -113,7 +113,8 @@ void ComputeSettings::Update()
 
 void AdvancedSettings::BufferSizes::Load()
 {
-    GSH::instance().set_file_buffer_size(this->file);
+    //GSH::instance().set_file_buffer_size(this->file);
+    Holovibes::instance().update_setting(settings::FileBufferSize{this->file});
     GSH::instance().set_input_buffer_size(this->input);
     GSH::instance().set_output_buffer_size(this->output);
     GSH::instance().set_record_buffer_size(this->record);

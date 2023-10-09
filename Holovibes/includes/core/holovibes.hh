@@ -29,7 +29,9 @@
 #include <string>
 
 #pragma region Settings configuration
-#define REALTIME_SETTINGS holovibes::settings::InputFPS, holovibes::settings::InputFilePath
+#define REALTIME_SETTINGS                                                                                              \
+    holovibes::settings::InputFPS, holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize,            \
+        holovibes::settings::LoopOnInputFile
 #define ALL_SETTINGS REALTIME_SETTINGS
 #pragma endregion
 
@@ -158,16 +160,12 @@ class Holovibes
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
-     * \param file_path
-     * \param loop
-     * \param fps
      * \param first_frame_id
      * \param nb_frames_to_read
      * \param load_file_in_gpu
      * \param callback
      */
     void start_file_frame_read(
-        bool loop,
         unsigned int first_frame_id,
         unsigned int nb_frames_to_read,
         bool load_file_in_gpu,
@@ -278,7 +276,10 @@ class Holovibes
   private:
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{60}, settings::InputFilePath{std::string("")}))
+        : realtime_settings_(std::make_tuple(settings::InputFPS{60},
+                                             settings::InputFilePath{std::string("")},
+                                             settings::FileBufferSize{1024},
+                                             settings::LoopOnInputFile{true}))
     {
     }
 

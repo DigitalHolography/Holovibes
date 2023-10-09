@@ -41,8 +41,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 }
 
 // TODO(julesguillou): Why using input fps here?
-void Holovibes::start_file_frame_read(bool loop,
-                                      unsigned int first_frame_id,
+void Holovibes::start_file_frame_read(unsigned int first_frame_id,
                                       unsigned int nb_frames_to_read,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
@@ -57,8 +56,11 @@ void Holovibes::start_file_frame_read(bool loop,
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
 
-    file_read_worker_controller_
-        .start(loop, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_, all_settings);
+    file_read_worker_controller_.start(first_frame_id,
+                                       nb_frames_to_read,
+                                       load_file_in_gpu,
+                                       gpu_input_queue_,
+                                       all_settings);
 }
 
 void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)

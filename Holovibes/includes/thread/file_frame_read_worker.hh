@@ -8,7 +8,7 @@
 
 #define REALTIME_SETTINGS holovibes::settings::InputFPS
 
-#define ONRESTART_SETTINGS holovibes::settings::InputFilePath
+#define ONRESTART_SETTINGS holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize, holovibes::settings::LoopOnInputFile
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
@@ -44,15 +44,13 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Constructor
      *
      * \param file_path  The file path
-     * \param loop Whether the reading should loop
      * \param first_frame_id Id of the first frame to read
      * \param total_nb_frames_to_read Total number of frames to read
      * \param load_file_in_gpu Whether the file should be load in gpu
      * \param gpu_input_queue The input queue
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FileFrameReadWorker(bool loop,
-                        unsigned int first_frame_id,
+    FileFrameReadWorker(unsigned int first_frame_id,
                         unsigned int total_nb_frames_to_read,
                         bool load_file_in_gpu,
                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
@@ -61,7 +59,6 @@ class FileFrameReadWorker final : public FrameReadWorker
         , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
-        , loop_(loop)
         , first_frame_id_(first_frame_id)
         , load_file_in_gpu_(load_file_in_gpu)
         , input_file_(nullptr)
@@ -74,7 +71,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     {
         current_nb_frames_read_ = 0;
         total_nb_frames_to_read_ = total_nb_frames_to_read;
-        file_read_cache_.synchronize();
     }
 
     void run() override;
@@ -140,8 +136,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Total number of frames to read at the beginning of the process */
     std::atomic<unsigned int>& total_nb_frames_to_read_;
 
-    /*! \brief Whether the reading should start over when meeting the end of the file */
-    bool loop_;
     /*! \brief Id of the first frame to read */
     unsigned int first_frame_id_;
     /*! \brief Whether the entire file should be loaded in the gpu */
@@ -157,8 +151,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Tmp GPU buffer in which the frames are temporarly stored to convert data from packed bits to 16bit */
     char* gpu_packed_buffer_;
 
-    FileReadCache::Cache file_read_cache_;
-
     FPSLimiter fps_limiter_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
@@ -166,5 +158,3 @@ class FileFrameReadWorker final : public FrameReadWorker
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::worker
-
-#include "file_frame_read_worker.hxx"

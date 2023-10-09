@@ -227,7 +227,11 @@ inline uint get_end_frame() { return GSH::instance().get_end_frame(); }
 inline void set_end_frame(uint value) { GSH::instance().set_end_frame(value); }
 
 inline uint get_file_buffer_size() { return GSH::instance().get_file_buffer_size(); }
-inline void set_file_buffer_size(uint value) { GSH::instance().set_file_buffer_size(value); }
+inline void set_file_buffer_size(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FileBufferSize{value});
+    GSH::instance().set_file_buffer_size(value);
+}
 
 inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }
 inline void set_input_buffer_size(uint value) { GSH::instance().set_input_buffer_size(value); }
@@ -249,7 +253,7 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 
 inline uint get_input_fps()
 {
-    return holovibes::Holovibes::instance().template get_setting<holovibes::settings::InputFPS>().value;
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFPS>().value;
 }
 
 inline void set_input_fps(uint value)
@@ -259,12 +263,22 @@ inline void set_input_fps(uint value)
 
 inline std::string get_input_file_path()
 {
-    return holovibes::Holovibes::instance().template get_setting<holovibes::settings::InputFilePath>().value;
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFilePath>().value;
 }
 
 inline void set_input_file_path(std::string value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilePath{value});
+}
+
+inline bool get_loop_on_input_file()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::LoopOnInputFile>().value;
+}
+
+inline void set_loop_on_input_file(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::LoopOnInputFile{value});
 }
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };

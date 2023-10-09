@@ -1252,8 +1252,9 @@ bool import_start(size_t first_frame, bool load_file_in_gpu, size_t last_frame)
 
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
-        Holovibes::instance().start_file_frame_read(true,
-                                                    static_cast<unsigned int>(first_frame - 1),
+        // TODO remove
+        Holovibes::instance().update_setting(settings::LoopOnInputFile{true});
+        Holovibes::instance().start_file_frame_read(static_cast<unsigned int>(first_frame - 1),
                                                     static_cast<unsigned int>(last_frame - first_frame + 1),
                                                     load_file_in_gpu);
     }

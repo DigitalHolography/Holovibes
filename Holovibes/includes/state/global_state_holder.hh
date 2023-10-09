@@ -174,8 +174,6 @@ class GSH
 
     inline bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
 
-    // inline uint get_input_fps() const { return compute_cache_.get_input_fps(); };
-
     inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
     inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
@@ -475,8 +473,6 @@ class GSH
     inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
     inline void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
-
-    // inline void set_input_fps(uint value) { compute_cache_.set_input_fps(value); };
 
     inline void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
 

@@ -83,7 +83,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     if (load_file_in_gpu_)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
-        buffer_nb_frames = file_read_cache_.get_file_buffer_size();
+        buffer_nb_frames = onrestart_settings_.get<settings::FileBufferSize>().value;
 
     size_t buffer_size = frame_size_ * buffer_nb_frames;
 
@@ -144,7 +144,7 @@ void FileFrameReadWorker::read_file_in_gpu()
     {
         enqueue_loop(frames_read);
 
-        if (loop_)
+        if (onrestart_settings_.get<settings::LoopOnInputFile>().value)
             current_nb_frames_read_ = 0;
         else
             stop_requested_ = true;
@@ -153,7 +153,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = file_read_cache_.get_file_buffer_size();
+    const unsigned int batch_size = onrestart_settings_.get<settings::FileBufferSize>().value;
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -169,7 +169,7 @@ void FileFrameReadWorker::read_file_batch()
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
         {
-            if (loop_)
+            if (onrestart_settings_.get<settings::LoopOnInputFile>().value)
             {
                 input_file_->set_pos_to_frame(first_frame_id_);
                 current_nb_frames_read_ = 0;
