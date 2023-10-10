@@ -10,7 +10,8 @@
 
 #define ONRESTART_SETTINGS                                                                                             \
     holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize, holovibes::settings::LoopOnInputFile,     \
-        holovibes::settings::LoadFileInGPU
+        holovibes::settings::LoadFileInGPU, holovibes::settings::InputFileStartIndex,                                  \
+        holovibes::settings::InputFileEndIndex
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
@@ -44,22 +45,14 @@ class FileFrameReadWorker final : public FrameReadWorker
 {
   public:
     /*! \brief Constructor
-     *
-     * \param file_path  The file path
-     * \param first_frame_id Id of the first frame to read
-     * \param total_nb_frames_to_read Total number of frames to read
      * \param gpu_input_queue The input queue
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FileFrameReadWorker(unsigned int first_frame_id,
-                        unsigned int total_nb_frames_to_read,
-                        std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
-                        InitSettings settings)
+    FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue, InitSettings settings)
         : FrameReadWorker(gpu_input_queue)
         , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
-        , first_frame_id_(first_frame_id)
         , input_file_(nullptr)
         , frame_size_(0)
         , cpu_frame_buffer_(nullptr)
@@ -69,7 +62,8 @@ class FileFrameReadWorker final : public FrameReadWorker
         , onrestart_settings_(settings)
     {
         current_nb_frames_read_ = 0;
-        total_nb_frames_to_read_ = total_nb_frames_to_read;
+        total_nb_frames_to_read_ = onrestart_settings_.get<settings::InputFileEndIndex>().value -
+                                   onrestart_settings_.get<settings::InputFileStartIndex>().value;
     }
 
     void run() override;
@@ -135,8 +129,6 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Total number of frames to read at the beginning of the process */
     std::atomic<unsigned int>& total_nb_frames_to_read_;
 
-    /*! \brief Id of the first frame to read */
-    unsigned int first_frame_id_;
     /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
     /*! \brief Size of an input frame */

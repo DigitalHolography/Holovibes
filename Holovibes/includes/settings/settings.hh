@@ -41,14 +41,14 @@ DECLARE_SETTING(FileBufferSize, size_t)
 DECLARE_SETTING(LoopOnInputFile, bool)
 
 /**
- *@brief Index of the last frame to read from the input file (excluded).
- */
-DECLARE_SETTING(EndIndex, size_t)
-
-/**
  *@brief Index of the first frame to read from the input file (excluded).
  */
-DECLARE_SETTING(StartIndex, size_t)
+DECLARE_SETTING(InputFileStartIndex, size_t)
+
+/**
+ *@brief Index of the last frame to read from the input file (included).
+ */
+DECLARE_SETTING(InputFileEndIndex, size_t)
 
 /**
  * @brief The setting that specifies if we load input file entirely in GPU

@@ -10,6 +10,7 @@
 #include "compute_settings_struct.hh"
 #include "global_state_holder.hh"
 #include <iomanip>
+#include <spdlog/spdlog.h>
 
 #include "logger.hh"
 
@@ -50,6 +51,7 @@ void load_compute_settings(const std::string& json_path)
         LOG_ERROR("{} is an invalid compute settings", json_path);
         return;
     }
+
 
     compute_settings.Load();
     compute_settings.Dump("cli_load_compute_settings");

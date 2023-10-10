@@ -31,7 +31,8 @@
 #pragma region Settings configuration
 #define REALTIME_SETTINGS                                                                                              \
     holovibes::settings::InputFPS, holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize,            \
-        holovibes::settings::LoopOnInputFile, holovibes::settings::LoadFileInGPU
+        holovibes::settings::LoopOnInputFile, holovibes::settings::LoadFileInGPU,                                      \
+        holovibes::settings::InputFileStartIndex, holovibes::settings::InputFileEndIndex
 #define ALL_SETTINGS REALTIME_SETTINGS
 #pragma endregion
 
@@ -160,15 +161,9 @@ class Holovibes
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
-     * \param first_frame_id
-     * \param nb_frames_to_read
-     * \param load_file_in_gpu
      * \param callback
      */
-    void start_file_frame_read(
-        unsigned int first_frame_id,
-        unsigned int nb_frames_to_read,
-        const std::function<void()>& callback = []() {});
+    void start_file_frame_read(const std::function<void()>& callback = []() {});
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
      * TODO: refacto (see issue #22)
@@ -279,7 +274,9 @@ class Holovibes
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
                                              settings::LoopOnInputFile{true},
-                                             settings::LoadFileInGPU{false}))
+                                             settings::LoadFileInGPU{false},
+                                             settings::InputFileStartIndex{0},
+                                             settings::InputFileEndIndex{60}))
     {
     }
 

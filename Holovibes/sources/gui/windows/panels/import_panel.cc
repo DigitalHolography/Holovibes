@@ -151,11 +151,7 @@ void ImportPanel::import_start()
 
     parent_->shift_screen();
 
-    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-
-    bool res_import_start =
-        api::import_start(start_spinbox->value(), end_spinbox->value());
+    bool res_import_start = api::import_start();
 
     if (res_import_start)
     {
@@ -224,6 +220,13 @@ void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->
 
 void ImportPanel::update_import_file_path() { api::set_input_file_path(ui_->ImportPathLineEdit->text().toStdString()); }
 
-void ImportPanel::update_load_file_in_gpu() { api::set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked());}
+void ImportPanel::update_load_file_in_gpu() { api::set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked()); }
+
+void ImportPanel::update_input_file_start_index()
+{
+    api::set_input_file_start_index(ui_->ImportStartIndexSpinBox->value());
+}
+
+void ImportPanel::update_input_file_end_index() { api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value()); }
 
 } // namespace holovibes::gui

@@ -5178,6 +5178,18 @@ p, li { white-space: pre-wrap; }
     <slot>update_load_file_in_gpu()</slot>
   </connection>
   <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_start_index()</slot>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_end_index()</slot>
+  </connection>
+  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>

@@ -18,6 +18,10 @@ namespace holovibes::worker
 
 void FileFrameReadWorker::run()
 {
+    onrestart_settings_.apply_updates();
+    total_nb_frames_to_read_ = onrestart_settings_.get<settings::InputFileEndIndex>().value -
+                               onrestart_settings_.get<settings::InputFileStartIndex>().value;
+
     LOG_FUNC();
     try
     {
@@ -51,7 +55,7 @@ void FileFrameReadWorker::run()
 
     try
     {
-        input_file_->set_pos_to_frame(first_frame_id_);
+        input_file_->set_pos_to_frame(onrestart_settings_.get<settings::InputFileStartIndex>().value);
 
         if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
             read_file_in_gpu();
@@ -171,7 +175,7 @@ void FileFrameReadWorker::read_file_batch()
         {
             if (onrestart_settings_.get<settings::LoopOnInputFile>().value)
             {
-                input_file_->set_pos_to_frame(first_frame_id_);
+                input_file_->set_pos_to_frame(onrestart_settings_.get<settings::InputFileStartIndex>().value);
                 current_nb_frames_read_ = 0;
             }
             else

@@ -1238,9 +1238,9 @@ void import_stop()
     set_is_computation_stopped(true);
 }
 
-bool import_start(size_t first_frame, size_t last_frame)
+bool import_start()
 {
-    LOG_FUNC(first_frame, last_frame);
+    LOG_FUNC();
 
     set_is_computation_stopped(false);
 
@@ -1254,8 +1254,7 @@ bool import_start(size_t first_frame, size_t last_frame)
                                                api::get_input_buffer_size());
         // TODO remove
         Holovibes::instance().update_setting(settings::LoopOnInputFile{true});
-        Holovibes::instance().start_file_frame_read(static_cast<unsigned int>(first_frame - 1),
-                                                    static_cast<unsigned int>(last_frame - first_frame + 1));
+        Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
     {
