@@ -2436,13 +2436,13 @@
                  </sizepolicy>
                 </property>
                 <property name="minimum">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <property name="maximum">
                  <number>2100000000</number>
                 </property>
                 <property name="value">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                </widget>
               </item>
@@ -4743,7 +4743,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportStartIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_start_spinbox_update()</slot>
+   <slot>update_input_file_start_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -4759,7 +4759,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportEndIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_end_spinbox_update()</slot>
+   <slot>update_input_file_end_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -5264,8 +5264,8 @@ p, li { white-space: pre-wrap; }
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
-  <slot>import_start_spinbox_update(int)</slot>
-  <slot>import_end_spinbox_update()</slot>
+  <slot>update_input_file_start_index(int)</slot>
+  <slot>update_input_file_end_index(int)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>

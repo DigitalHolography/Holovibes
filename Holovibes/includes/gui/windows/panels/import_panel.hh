@@ -51,12 +51,6 @@ class ImportPanel : public Panel
     /*! \brief Reset ui and stop holovibes' compute worker and file read worker */
     void import_stop();
 
-    /*! \brief Handles the ui input fps */
-    void import_start_spinbox_update();
-
-    /*! \brief Handles the ui output fps */
-    void import_end_spinbox_update();
-
     /*! \brief Handles the ui input fps changes
      */
     void update_fps();

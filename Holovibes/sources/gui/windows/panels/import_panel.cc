@@ -185,37 +185,6 @@ void ImportPanel::import_start()
     }
 }
 
-void ImportPanel::import_start_spinbox_update()
-{
-    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-
-    api::set_start_frame(start_spinbox->value());
-
-    start_spinbox->setValue(api::get_start_frame());
-
-    if (api::get_start_frame() > api::get_end_frame())
-    {
-        QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-        end_spinbox->setValue(api::get_start_frame());
-        import_end_spinbox_update();
-    }
-}
-
-void ImportPanel::import_end_spinbox_update()
-{
-    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-
-    api::set_end_frame(end_spinbox->value());
-    end_spinbox->setValue(api::get_end_frame());
-
-    if (api::get_end_frame() < api::get_start_frame())
-    {
-        QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-        start_spinbox->setValue(api::get_end_frame());
-        import_start_spinbox_update();
-    }
-}
-
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
 void ImportPanel::update_import_file_path() { api::set_input_file_path(ui_->ImportPathLineEdit->text().toStdString()); }
@@ -224,9 +193,34 @@ void ImportPanel::update_load_file_in_gpu() { api::set_load_file_in_gpu(ui_->Loa
 
 void ImportPanel::update_input_file_start_index()
 {
-    api::set_input_file_start_index(ui_->ImportStartIndexSpinBox->value());
+    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+
+    api::set_input_file_start_index(start_spinbox->value());
+
+    start_spinbox->setValue(api::get_input_file_start_index());
+
+    if (api::get_input_file_start_index() > api::get_input_file_end_index())
+    {
+        QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
+        end_spinbox->setValue(api::get_input_file_start_index());
+        update_input_file_end_index();
+    }
 }
 
-void ImportPanel::update_input_file_end_index() { api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value()); }
+void ImportPanel::update_input_file_end_index() 
+{ 
+    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
+
+    api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value());
+
+    end_spinbox->setValue(api::get_input_file_end_index());
+
+    if (api::get_input_file_start_index() > api::get_input_file_end_index())
+    {
+        QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
+        start_spinbox->setValue(api::get_input_file_end_index());
+        update_input_file_start_index();
+    }
+}
 
 } // namespace holovibes::gui

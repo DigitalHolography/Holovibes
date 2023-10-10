@@ -220,12 +220,6 @@ inline bool get_composite_p_activated_v() { return GSH::instance().get_composite
 inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
 inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
 
-inline uint get_start_frame() { return GSH::instance().get_start_frame(); }
-inline void set_start_frame(uint value) { GSH::instance().set_start_frame(value); }
-
-inline uint get_end_frame() { return GSH::instance().get_end_frame(); }
-inline void set_end_frame(uint value) { GSH::instance().set_end_frame(value); }
-
 inline uint get_file_buffer_size() { return GSH::instance().get_file_buffer_size(); }
 inline void set_file_buffer_size(uint value)
 {

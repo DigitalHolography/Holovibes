@@ -75,22 +75,21 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
             name,
             nb_frames);
     };
-
-    uint start_frame = opts.start_frame.value_or(1);
-    if (!is_between(start_frame, (uint)1, nb_frames))
+    uint start_frame = opts.start_frame.value_or(0);
+    if (!is_between(start_frame, (uint)0, nb_frames - 1))
     {
         err_message("start_frame", start_frame, "-s");
         return 2;
     }
-    holovibes::GSH::instance().set_start_frame(start_frame);
+    holovibes::api::set_input_file_start_index(start_frame);
 
     uint end_frame = opts.end_frame.value_or(nb_frames);
-    if (!is_between(end_frame, (uint)1, nb_frames))
+    if (!is_between(end_frame, (uint)1, nb_frames - 1))
     {
         err_message("end_frame", end_frame, "-e");
         return 2;
     }
-    holovibes::api::set_end_frame(end_frame);
+    holovibes::api::set_input_file_end_index(end_frame);
 
     if (start_frame > end_frame)
     {
