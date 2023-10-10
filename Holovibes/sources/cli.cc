@@ -249,8 +249,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 
     // Thread 3
     holovibes.start_file_frame_read(holovibes::GSH::instance().get_start_frame() - 1,
-                                    static_cast<uint>(input_nb_frames),
-                                    opts.gpu);
+                                    static_cast<uint>(input_nb_frames));
 
     return 0;
 }

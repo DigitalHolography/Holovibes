@@ -31,7 +31,7 @@
 #pragma region Settings configuration
 #define REALTIME_SETTINGS                                                                                              \
     holovibes::settings::InputFPS, holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize,            \
-        holovibes::settings::LoopOnInputFile
+        holovibes::settings::LoopOnInputFile, holovibes::settings::LoadFileInGPU
 #define ALL_SETTINGS REALTIME_SETTINGS
 #pragma endregion
 
@@ -168,7 +168,6 @@ class Holovibes
     void start_file_frame_read(
         unsigned int first_frame_id,
         unsigned int nb_frames_to_read,
-        bool load_file_in_gpu,
         const std::function<void()>& callback = []() {});
 
     /*! \brief Sets the right camera settings, then starts the camera_read_worker (image acquisition)
@@ -279,7 +278,8 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{60},
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
-                                             settings::LoopOnInputFile{true}))
+                                             settings::LoopOnInputFile{true},
+                                             settings::LoadFileInGPU{false}))
     {
     }
 

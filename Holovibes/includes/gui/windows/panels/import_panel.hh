@@ -65,5 +65,10 @@ class ImportPanel : public Panel
      * @brief Handles the update of the import file path in the UI.
     */
    void update_import_file_path();
+
+   /**
+    * @brief Handles the update of the load file in GPU in the UI.
+   */
+  void update_load_file_in_gpu();
 };
 } // namespace holovibes::gui

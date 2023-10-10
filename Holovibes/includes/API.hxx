@@ -281,6 +281,16 @@ inline void set_loop_on_input_file(bool value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::LoopOnInputFile{value});
 }
 
+inline bool get_load_file_in_gpu()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::LoadFileInGPU>().value;
+}
+
+inline void set_load_file_in_gpu(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::LoadFileInGPU{value});
+}
+
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 
 inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };

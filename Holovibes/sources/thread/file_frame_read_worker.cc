@@ -53,7 +53,7 @@ void FileFrameReadWorker::run()
     {
         input_file_->set_pos_to_frame(first_frame_id_);
 
-        if (load_file_in_gpu_)
+        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
             read_file_in_gpu();
         else
             read_file_batch();
@@ -80,7 +80,7 @@ bool FileFrameReadWorker::init_frame_buffers()
 {
     size_t buffer_nb_frames;
 
-    if (load_file_in_gpu_)
+    if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
         buffer_nb_frames = total_nb_frames_to_read_;
     else
         buffer_nb_frames = onrestart_settings_.get<settings::FileBufferSize>().value;
@@ -93,7 +93,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough CPU RAM to read file";
 
-        if (load_file_in_gpu_)
+        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -107,7 +107,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough GPU DRAM to read file";
 
-        if (load_file_in_gpu_)
+        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -122,7 +122,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough GPU DRAM to read file";
 
-        if (load_file_in_gpu_)
+        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -273,7 +273,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file in in the buffer,
     // so we don't have to sync
-    if (load_file_in_gpu_ == false)
+    if (onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
         gpu_input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker

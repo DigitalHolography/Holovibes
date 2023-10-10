@@ -8,7 +8,9 @@
 
 #define REALTIME_SETTINGS holovibes::settings::InputFPS
 
-#define ONRESTART_SETTINGS holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize, holovibes::settings::LoopOnInputFile
+#define ONRESTART_SETTINGS                                                                                             \
+    holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize, holovibes::settings::LoopOnInputFile,     \
+        holovibes::settings::LoadFileInGPU
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
@@ -46,13 +48,11 @@ class FileFrameReadWorker final : public FrameReadWorker
      * \param file_path  The file path
      * \param first_frame_id Id of the first frame to read
      * \param total_nb_frames_to_read Total number of frames to read
-     * \param load_file_in_gpu Whether the file should be load in gpu
      * \param gpu_input_queue The input queue
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     FileFrameReadWorker(unsigned int first_frame_id,
                         unsigned int total_nb_frames_to_read,
-                        bool load_file_in_gpu,
                         std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue,
                         InitSettings settings)
         : FrameReadWorker(gpu_input_queue)
@@ -60,7 +60,6 @@ class FileFrameReadWorker final : public FrameReadWorker
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
         , first_frame_id_(first_frame_id)
-        , load_file_in_gpu_(load_file_in_gpu)
         , input_file_(nullptr)
         , frame_size_(0)
         , cpu_frame_buffer_(nullptr)
@@ -138,8 +137,6 @@ class FileFrameReadWorker final : public FrameReadWorker
 
     /*! \brief Id of the first frame to read */
     unsigned int first_frame_id_;
-    /*! \brief Whether the entire file should be loaded in the gpu */
-    bool load_file_in_gpu_;
     /*! \brief The input file in which the frames are read */
     std::unique_ptr<io_files::InputFrameFile> input_file_;
     /*! \brief Size of an input frame */

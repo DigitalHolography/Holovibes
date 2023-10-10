@@ -5172,6 +5172,12 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+    <sender>LoadFileInGpuCheckBox</sender>
+    <signal>stateChanged()</signal>
+    <receiver>ImportPanel</receiver>
+    <slot>update_load_file_in_gpu()</slot>
+  </connection>
+  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
