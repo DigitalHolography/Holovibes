@@ -116,6 +116,7 @@ void compute_percentile_xy_view(const float* gpu_input,
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }
+
 void compute_percentile_yz_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,
