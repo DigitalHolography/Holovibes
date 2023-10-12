@@ -37,6 +37,21 @@ struct Rendering
         SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius)
     };
 
+    /*! \class Filter
+     *
+     * \brief Class that represents Input Filter
+     */
+    struct Filter
+    {
+        bool enabled = false;
+        std::string type;
+
+        void Update();
+        void Load();
+
+        SERIALIZE_JSON_STRUCT(Filter, enabled, type);
+    };
+
     /*! \class Convolution
      *
      * \brief Class that represents Convolution
@@ -63,11 +78,13 @@ struct Rendering
     float lambda = 852e-9f;
     float propagation_distance = 1.5f;
     Convolution convolution;
+    Filter input_filter;
 
     void Update();
     void Load();
 
     SERIALIZE_JSON_STRUCT(Rendering,
+                          input_filter,
                           image_mode,
                           batch_size,
                           time_transformation_stride,

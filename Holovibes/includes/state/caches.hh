@@ -48,7 +48,9 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  * \param lambda Wave length of the laser
  * \param z_distance z value used by fresnel transform
  * \param convolution_enabled Is convolution enabled
+ * \param filter_enabled Is filter enabled
  * \param convo_matrix Input matrix used for convolution
+ * \param input_filter Input filter used for view
  * \param divide_convolution_enabled
  * \param input_fps The input FPS FIXME: move to ImportCache
  * \param compute_mode Mode of computation of the image
@@ -57,8 +59,9 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
  * Determines how far, meaning how many iterations back, phase corrections
  * are taken in order to be applied to the current phase image.
  * \param is_computation_stopped Is the computation stopped
- * \param renorm_enabled Postprocessing renorm enabled
  * \param time_transformation_cuts_output_buffer_size Max size of time transformation cuts queue in number of images.
+ * TODO
+ * \param renorm_enabled Postprocessing renorm enabled
  * \param renorm_constant postprocessing remormalize multiplication constant
  */
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
@@ -70,7 +73,9 @@ NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (float, lambda, 852e-9f),
                             (float, z_distance, 1.50f),
                             (bool, convolution_enabled, false),
+                            (bool, filter_enabled, false),
                             (std::vector<float>, convo_matrix, {}),
+                            (std::vector<float>, input_filter, {}),
                             (bool, divide_convolution_enabled, false),
                             (uint, input_fps, 60),
                             (Computation, compute_mode, Computation::Raw),

@@ -145,6 +145,20 @@ MainWindow::MainWindow(QWidget* parent)
         ui_->KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
+    // Fill the input filter combo box with files from input_filters
+    // directory
+    std::filesystem::path input_filters_path(get_exe_dir());
+    input_filters_path = input_filters_path / "input_filters";
+    if (std::filesystem::exists(input_filters_path))
+    {
+        QVector<QString> files;
+        files.push_back(QString(UID_FILTER_TYPE_DEFAULT));
+        for (const auto& file : std::filesystem::directory_iterator(input_filters_path))
+            files.push_back(QString(file.path().filename().string().c_str()));
+        std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
+        ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
+    }
+
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();

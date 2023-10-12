@@ -199,7 +199,7 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
         uint matrix_height = 0;
         uint matrix_z = 1;
 
-        // Doing this the C way cause it's faster
+        // Doing this the C way because it's faster
         FILE* c_file;
         fopen_s(&c_file, path.c_str(), "r");
 
@@ -283,6 +283,106 @@ void GSH::disable_convolution()
 {
     compute_cache_.get_convo_matrix_ref()->clear();
     compute_cache_.set_convolution_enabled(false);
+}
+
+// TODO : use image and not .txt
+static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
+{
+    auto& holo = Holovibes::instance();
+
+    try
+    {
+        auto path_file = dir / "input_filters" / file;
+        std::string path = path_file.string();
+
+        std::vector<float> filter;
+        uint filter_width = 0;
+        uint filter_height = 0;
+
+        // Doing this the C way because it's faster
+        FILE* c_file;
+        fopen_s(&c_file, path.c_str(), "r");
+
+        if (c_file == nullptr)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid file path");
+        }
+
+        // Read filter dimensions
+        if (fscanf_s(c_file, "%u %u;", &filter_width, &filter_height) != 2)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid filter dimensions");
+        }
+
+        size_t filter_size = filter_width * filter_height;
+        filter.resize(filter_size);
+
+        // Read filter values
+        for (size_t i = 0; i < filter_size; ++i)
+        {
+            if (fscanf_s(c_file, "%f", &filter[i]) != 1)
+            {
+                fclose(c_file);
+                throw std::runtime_error("Missing values");
+            }
+        }
+
+        fclose(c_file);
+
+        // Reshape the vector as a (nx,ny) rectangle
+        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+        const uint size = output_width * output_height;
+
+        // The input filter is centered and padded with 0 since the filter is
+        // usally smaller than the output Example: filter size is (2, 2) and
+        // output size is (4, 4) The filter is represented by 'x' and
+        //  | 0 | 0 | 0 | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | 0 | 0 | 0 |
+        const uint first_col = (output_width / 2) - (filter_width / 2);
+        const uint last_col = (output_width / 2) + (filter_width / 2);
+        const uint first_row = (output_height / 2) - (filter_height / 2);
+        const uint last_row = (output_height / 2) + (filter_height / 2);
+
+        input_filter->resize(size, 0.0f);
+
+        uint filter_indice = 0;
+        for (uint i = first_row; i < last_row; i++)
+        {
+            for (uint j = first_col; j < last_col; j++)
+            {
+                (*input_filter)[i * output_width + j] = filter[filter_indice];
+                filter_indice++;
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        input_filter->clear();
+        LOG_ERROR("Couldn't load input filter : {}", e.what());
+    }
+}
+
+void GSH::enable_filter(std::optional<std::string> file)
+{
+    compute_cache_.set_filter_enabled(true);
+    compute_cache_.get_input_filter_ref()->clear();
+
+    // There is no file None.txt for convolution
+    if (file && file.value() != "None")
+        load_input_filter(compute_cache_.get_input_filter_ref(), file.value());
+}
+
+void GSH::set_filter_enabled(bool value) { compute_cache_.set_filter_enabled(value); }
+
+void GSH::disable_filter()
+{
+    compute_cache_.get_input_filter_ref()->clear();
+    compute_cache_.set_filter_enabled(false);
 }
 
 #pragma endregion

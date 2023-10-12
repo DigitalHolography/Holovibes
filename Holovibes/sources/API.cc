@@ -1043,6 +1043,56 @@ void set_divide_convolution(const bool value)
 
 #pragma endregion
 
+#pragma region Filter
+
+void enable_filter(const std::string& filename)
+{
+    LOG_FUNC();
+
+    GSH::instance().enable_filter(filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt
+                                                                      : std::make_optional(filename));
+
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+    {
+        // Refresh because the current filter might have change.
+        pipe_refresh();
+        return;
+    }
+
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_filter();
+        // Wait for the filter to be enabled for notify
+        while (pipe->get_filter_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        disable_filter();
+        LOG_ERROR("Catch {}", e.what());
+    }
+}
+
+void disable_filter()
+{
+
+    GSH::instance().disable_convolution();
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_convolution();
+        while (pipe->get_disable_convolution_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+    }
+}
+
+#pragma endregion
+
 #pragma region Reticle
 
 void display_reticle(bool value)

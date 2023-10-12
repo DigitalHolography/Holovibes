@@ -1,6 +1,7 @@
 #pragma once
 
 #define UID_CONVOLUTION_TYPE_DEFAULT "None"
+#define UID_FILTER_TYPE_DEFAULT "None"
 
 // without namespace
 #include "tools.hh"
@@ -83,6 +84,7 @@ class UserInterfaceDescriptor
     std::string batch_input_directory_{"C:\\"};
 
     std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
+    std::string filter_name{UID_FILTER_TYPE_DEFAULT};
 
     CameraKind kCamera = CameraKind::NONE;
 };
