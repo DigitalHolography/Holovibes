@@ -20,7 +20,7 @@ thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream
 {
     float* raw_gpu_input_copy;
     // TODO: cudaXMallocAsync with the stream
-    cudaXMalloc(&raw_gpu_input_copy, frame_res * sizeof(float));
+    cudaSafeCall(cudaMalloc(&raw_gpu_input_copy, frame_res * sizeof(float)));
     return thrust::device_ptr<float>(raw_gpu_input_copy);
 }
 

@@ -85,14 +85,11 @@ void CompositePanel::on_notify()
     auto show_rgb = [this, rgbMode]()
     {
         ui_->groupBox->setVisible(rgbMode); // Frequency channel
-        ui_->groupBox_5->setVisible(rgbMode || ui_->RenormalizationCheckBox->isChecked()); // Color equalization box
+        //ui_->groupBox_5->setVisible(rgbMode || !ui_->RenormalizationCheckBox->isChecked()); // Color equalization box
     };
 
     auto show_hsv = [this, rgbMode]()
     {
-        //ui_->groupBox_hue->setHidden(rgbMode);
-        //ui_->groupBox_saturation->setHidden(rgbMode);
-        //ui_->groupBox_value->setHidden(rgbMode);
         ui_->groupBox_hue->setVisible(!rgbMode);
         ui_->groupBox_saturation->setVisible(!rgbMode);
         ui_->groupBox_value->setVisible(!rgbMode);
