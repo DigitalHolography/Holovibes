@@ -120,7 +120,7 @@ kernel_precompute_colors(float* colors, size_t red, size_t blue, size_t range, h
     if (id < range)
     {
         double hue = double(id) / double(range); // hue e [0,1]
-        //hue *= double(range) / double(range-1);
+        hue *= double(range) / double(range-1);
         if (hue < 0.25)
         {
             colors[id * 3 + 0] = weights.r;
