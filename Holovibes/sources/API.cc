@@ -13,6 +13,7 @@ void pipe_refresh()
 
     try
     {
+        
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -184,6 +185,7 @@ void init_image_mode(QPoint& position, QSize& size)
 
 void create_pipe()
 {
+    LOG_FUNC();
     try
     {
         Holovibes::instance().start_compute();
