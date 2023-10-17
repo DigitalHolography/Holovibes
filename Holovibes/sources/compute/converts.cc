@@ -171,11 +171,10 @@ void Converts::insert_to_composite()
                 const int factor = 10;
                 float* averages = new float[pixel_depth];
                 postcolor_normalize(buffers_.gpu_postprocess_frame,
-                                    fd_.get_frame_res(),
+                                    fd_.height,
                                     fd_.width,
                                     zone_cache_.get_composite_zone(),
                                     pixel_depth,
-                                    rgb_struct.weight,
                                     averages,
                                     stream_);
                 if (pixel_depth >= 3) {
