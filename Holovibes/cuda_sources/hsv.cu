@@ -14,6 +14,8 @@
 #include "reduce.cuh"
 #include "unique_ptr.hh"
 
+#include "logger.hh"
+
 #define SAMPLING_FREQUENCY 1
 /*
  * \brief Convert an array of HSV normalized float to an array of RGB normalized
@@ -115,10 +117,10 @@ void fill_frequencies_arrays(float* gpu_omega_arr,
                              const int time_transformation_size)
 {
     const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
+    uint blocks = map_blocks_to_problem(frame_res, threads); // FIXME frame_res -> time_transformation_size ?
 
     double step = SAMPLING_FREQUENCY / (double)time_transformation_size;
-    size_t after_mid_index = time_transformation_size / (double)2.0 + (double)1.0;
+    size_t after_mid_index = (time_transformation_size / (double)2.0) + (double)1.0;
 
     kernel_fill_part_frequency_axis<<<blocks, threads, 0, stream>>>(0, after_mid_index, step, 0, gpu_omega_arr);
     double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
@@ -135,6 +137,7 @@ void fill_frequencies_arrays(float* gpu_omega_arr,
 /*
 ** \brief Compute H component of hsv.
 */
+/*
 __global__ void kernel_compute_and_fill_h(const cuComplex* input,
                                           float* output,
                                           const size_t frame_res,
@@ -157,6 +160,7 @@ __global__ void kernel_compute_and_fill_h(const cuComplex* input,
             float input_elm = fabsf(input[i * frame_res + id].x);
             min = fminf(min, input_elm);
             output[index_H] += input_elm * omega_arr[i];
+            output[index_H] += input_elm;
             summ_p += input_elm;
         }
 
@@ -164,11 +168,52 @@ __global__ void kernel_compute_and_fill_h(const cuComplex* input,
         output[index_H] /= summ_p;
     }
 }
+*/
+
+__global__ void kernel_compute_and_fill_h(const cuComplex* input,
+                                          float* output,
+                                          const size_t frame_res,
+                                          const size_t min_index,
+                                          const size_t max_index,
+                                          const size_t total_index,
+                                          const size_t omega_size,
+                                          const float* omega_arr)
+{
+    const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+    if (id < frame_res)
+    {
+        const size_t index_H = id * 3;
+
+        // First we compute the mean of the data
+        float summ_p = 0;
+        for (size_t i = min_index; i <= max_index; ++i)
+        {
+            float input_elm = fabsf(input[i * frame_res + id].x);
+            summ_p += input_elm;
+        }
+        float mean = summ_p / total_index;
+
+        // Then we can compute the mean of the deviations (data - mean)
+        float deviation_sum = 0;
+        for (size_t i = min_index; i <= max_index; ++i)
+        {
+            float input_elm = fabsf(input[i * frame_res + id].x);
+            float deviation = (input_elm - mean);
+            deviation *= deviation;
+            deviation_sum += deviation;
+        }
+        float deviation_mean = deviation_sum / total_index;
+
+        // The stadard deviation is the square root of the mean of deviations
+        output[index_H] = sqrtf(deviation_mean);
+    }
+}
 
 /*
 ** \brief Compute S component of hsv.
 ** Could be factorized with H but I kept it like this for the clarity
 */
+
 __global__ void kernel_compute_and_fill_s(const cuComplex* input,
                                           float* output,
                                           const size_t frame_res,
@@ -197,25 +242,33 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* input,
 
         output[index_S] -= total_index * min;
         output[index_S] /= summ_p;
+        //printf("%f\n", output[index_S]);
     }
 }
 
 /*
 ** \brief Compute V component of hsv.
 */
-__global__ void kernel_compute_and_fill_v(
-    const cuComplex* input, float* output, const size_t frame_res, const size_t min_index, const size_t max_index)
+
+__global__ void kernel_compute_and_fill_v(const cuComplex* input,
+                                        float* output, 
+                                        const size_t frame_res, 
+                                        const size_t min_index, 
+                                        const size_t max_index)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
     {
         const size_t index_V = id * 3 + 2;
         output[index_V] = 0;
+
         for (size_t i = min_index; i <= max_index; ++i)
         {
             float input_elm = fabsf(input[i * frame_res + id].x);
             output[index_V] += input_elm;
         }
+
+        output[index_V] /= (max_index - min_index + 1);
     }
 }
 
@@ -246,7 +299,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                                                               omega_arr_size,
                                                               gpu_omega_arr);
 
-    if (hsv_struct.s.frame_index.activated)
+    if (hsv_struct.s.frame_index.activated) // FIXME, set saturation to 1 
         kernel_compute_and_fill_s<<<blocks, threads, 0, stream>>>(gpu_input,
                                                                   gpu_output,
                                                                   frame_res,
@@ -363,6 +416,8 @@ void apply_percentile_and_threshold(float* gpu_arr,
     threshold_top_bottom<<<blocks, threads, 0, stream>>>(gpu_arr, percent_out[0], percent_out[1], frame_res);
 }
 
+/*
+// FIXME, not a gaussian blur
 void apply_gaussian_blur(
     float* gpu_arr, uint height, uint width, const holovibes::CompositeHSV& hsv_struct, const cudaStream_t stream)
 {
@@ -373,7 +428,7 @@ void apply_gaussian_blur(
     cudaXMemsetAsync(gpu_convolution_matrix, 0, frame_res * sizeof(float), stream);
 
     float* blur_matrix;
-    const float kernel_size = hsv_struct.h.blur.enabled;
+    const float kernel_size = hsv_struct.h.blur.kernel_size;
     cudaXMallocHost(&blur_matrix, kernel_size * sizeof(float));
     float blur_value = 1.0f / (float)(kernel_size * kernel_size);
     unsigned min_pos_kernel = height / 2 - kernel_size / 2;
@@ -417,7 +472,7 @@ void apply_gaussian_blur(
                        gpu_kernel,
                        false,
                        false,
-                       stream);
+                       stream); 
     cudaCheckError();
 
     cudaXFreeHost(blur_matrix);
@@ -425,6 +480,89 @@ void apply_gaussian_blur(
     cudaXFree(gpu_cuComplex_buffer);
     cudaXFree(gpu_convolution_matrix);
     cudaXFree(gpu_kernel);
+}
+*/
+
+void apply_blur(
+    float* gpu_arr, uint height, uint width, const holovibes::CompositeHSV& hsv_struct, const cudaStream_t stream)
+{
+    size_t frame_res = height * width;
+
+    float* gpu_float_blur_matrix;
+    cudaSafeCall(cudaMalloc(&gpu_float_blur_matrix, frame_res * sizeof(float)));
+    cudaSafeCall(cudaMemsetAsync(gpu_float_blur_matrix, 0, frame_res * sizeof(float), stream));
+
+    float* blur_matrix;
+    const float kernel_size = hsv_struct.h.blur.kernel_size;
+    cudaSafeCall(cudaMallocHost(&blur_matrix, kernel_size * sizeof(float)));
+    float blur_value = 1.0f / (float)(kernel_size * kernel_size);
+    unsigned min_pos_kernel_y = height / 2 - kernel_size / 2;
+    unsigned min_pos_kernel_x = width / 2 - kernel_size / 2;
+    for (size_t i = 0; i < kernel_size; i++)
+        blur_matrix[i] = blur_value;
+
+    for (size_t i = 0; i < kernel_size; i++)
+    {
+        cudaXMemcpyAsync(gpu_float_blur_matrix + min_pos_kernel_x + width * (i + min_pos_kernel_y),
+                         blur_matrix,
+                         kernel_size * sizeof(float),
+                         cudaMemcpyHostToDevice,
+                         stream);
+    }
+
+    float* cpu_float_blur_matrix = new float[frame_res];
+    cudaSafeCall(cudaMemcpyAsync(cpu_float_blur_matrix, gpu_float_blur_matrix, frame_res * sizeof(float), cudaMemcpyDeviceToHost, stream));
+
+    /* // Debug kernel on CPU
+    bool kernel_line = false;
+    for (size_t i = 0; i < frame_res; i++){
+        if (*(cpu_float_blur_matrix + i) > 0.0f) {
+            if (!kernel_line)
+                printf("(%u) ", i % width);
+            kernel_line = true;
+            printf("%.2f ", *(cpu_float_blur_matrix + i));
+        }
+        if (kernel_line && i > 0 && i % width == 0) {
+            printf("\n");
+            kernel_line = false;
+        }
+    }
+    printf("\n");
+    */
+
+    cuComplex* gpu_complex_blur_matrix;
+    cudaSafeCall(cudaMalloc(&gpu_complex_blur_matrix, frame_res * sizeof(cuComplex)));
+    cudaSafeCall(cudaMemcpy2DAsync(gpu_complex_blur_matrix,
+                                   sizeof(cuComplex),
+                                   gpu_float_blur_matrix,
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyDeviceToDevice,
+                                   stream));
+
+    shift_corners(gpu_complex_blur_matrix, 1, width, height, stream);
+
+    CufftHandle handle{static_cast<int>(width), static_cast<int>(height), CUFFT_C2C};
+    cufftSafeCall(cufftExecC2C(handle, gpu_complex_blur_matrix, gpu_complex_blur_matrix, CUFFT_FORWARD));
+
+    cuComplex* gpu_cuComplex_buffer;
+    cudaSafeCall(cudaMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex)));
+
+    convolution_kernel(gpu_arr,
+                       nullptr,
+                       gpu_cuComplex_buffer,
+                       &handle,
+                       frame_res,
+                       gpu_complex_blur_matrix,
+                       false,
+                       false,
+                       stream); 
+    cudaCheckError();
+
+    cudaXFree(gpu_cuComplex_buffer);
+    cudaXFree(gpu_float_blur_matrix);
+    cudaXFree(gpu_complex_blur_matrix);
 }
 
 void hsv_normalize(
@@ -467,7 +605,7 @@ void apply_operations_on_h(float* gpu_arr,
                                                          frame_res);
     if (hsv_struct.h.blur.enabled)
     {
-        apply_gaussian_blur(gpu_arr, height, width, hsv_struct, stream);
+        apply_blur(gpu_arr, height, width, hsv_struct, stream);
     }
 
     hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max, stream);
@@ -487,6 +625,7 @@ void apply_operations_on_s(float* gpu_arr,
     uint blocks = map_blocks_to_problem(frame_res, threads);
     float* gpu_arr_s = gpu_arr + frame_res;
 
+    /*
     apply_percentile_and_threshold(gpu_arr_s,
                                    frame_res,
                                    width,
@@ -503,6 +642,10 @@ void apply_operations_on_s(float* gpu_arr,
                                                          frame_res);
 
     hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max, stream);
+    */
+
+    const auto lambda = [] __device__(const float pixel){ return 1.0f; };
+    map_generic(gpu_arr_s, gpu_arr_s, frame_res, lambda, stream);
 }
 
 void apply_operations_on_v(float* gpu_arr,
@@ -550,13 +693,12 @@ void hsv(const cuComplex* gpu_input,
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
     float* gpu_omega_arr = nullptr;
-    cudaXMalloc(&gpu_omega_arr,
-                sizeof(float) * time_transformation_size * 2); // w1[] && w2[]
+    cudaSafeCall(cudaMalloc(&gpu_omega_arr, sizeof(float) * time_transformation_size * 2)); // w1[] && w2[]
 
     fill_frequencies_arrays(gpu_omega_arr, frame_res, stream, time_transformation_size);
 
     float* tmp_hsv_arr;
-    cudaXMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
+    cudaSafeCall(cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3)); // HSV temp array
 
     compute_and_fill_hsv(gpu_input, gpu_output, frame_res, gpu_omega_arr, time_transformation_size, hsv_struct, stream);
 

@@ -18,10 +18,9 @@ void rgb(cuComplex* input,
          const cudaStream_t stream);
 
 void postcolor_normalize(float* output,
-                         const size_t frame_res,
-                         const uint real_line_size,
-                         holovibes::units::RectFd selection,
-                         const uchar pixel_depth,
-                         holovibes::RGBWeights weights,
-                         float* averages,
-                         const cudaStream_t stream);
+                              const uint fd_height,
+                              const uint fd_width,
+                              holovibes::units::RectFd selection,
+                              const uchar pixel_depth,
+                              float* averages,
+                              const cudaStream_t stream);
