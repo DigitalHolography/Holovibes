@@ -208,7 +208,12 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     {
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
-        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        const int size_max = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
+        ui_->Filter2DN2SpinBox->setMaximum(size_max);
+        // sets the filter_2d_n2 so the frame fits in the lens diameter by default
+        api::set_filter2d_n2(size_max);
+        ui_->Filter2DN2SpinBox->setValue(size_max);
+
     }
     else
         update_filter2d_view(false);

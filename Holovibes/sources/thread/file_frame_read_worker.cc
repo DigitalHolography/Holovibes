@@ -84,9 +84,6 @@ void FileFrameReadWorker::run()
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
         const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-        // sets the filter_2d_n2 so the frame fits in the lens diameter by default
-        const int s = (fd.width > fd.height ? fd.width : fd.height) / 2 * sqrt(2);
-        GSH::instance().set_filter2d_n2(s);
     }
     catch (const io_files::FileException& e)
     {
