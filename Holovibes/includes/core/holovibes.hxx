@@ -11,8 +11,9 @@ inline std::shared_ptr<Queue> Holovibes::get_gpu_output_queue() { return gpu_out
 inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe()
 {
     auto loaded = compute_pipe_.load();
-    if (!loaded)
+    if (!loaded){
         throw std::runtime_error("Pipe is not initialized");
+        }
     return loaded;
 }
 

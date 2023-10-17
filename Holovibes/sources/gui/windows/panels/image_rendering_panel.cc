@@ -82,7 +82,9 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
-    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
+    // Might need to find a better fix one day or another
+    try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
+    catch(const std::exception& e) {}
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);

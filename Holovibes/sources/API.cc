@@ -13,7 +13,7 @@ void pipe_refresh()
 
     try
     {
-        
+    
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)

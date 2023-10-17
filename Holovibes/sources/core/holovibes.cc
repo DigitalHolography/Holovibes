@@ -184,7 +184,6 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
-
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
     {
@@ -192,10 +191,8 @@ void Holovibes::init_pipe()
         if (GSH::instance().get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
-
     gpu_output_queue_.store(
         std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
-
     if (!compute_pipe_.load())
     {
         compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
@@ -220,7 +217,6 @@ void Holovibes::start_compute(const std::function<void()>& callback)
      * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
      */
     CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
-
     try
     {
         init_pipe();
