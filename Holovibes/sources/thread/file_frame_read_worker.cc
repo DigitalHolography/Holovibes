@@ -83,7 +83,6 @@ void FileFrameReadWorker::run()
     try
     {
         input_file_.reset(io_files::InputFrameFileFactory::open(file_path_));
-        const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
     }
     catch (const io_files::FileException& e)
     {
