@@ -30,6 +30,7 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->ImportExportFrame->setHidden(h);
 
     ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
+    update_fps();
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
 }
 
