@@ -55,7 +55,7 @@ struct rect
 };
 
 /**
- * @brief Check that the selected zone is not out of bounds, if so replace it to take the entiere image 
+ * @brief Check that the selected zone is not out of bounds, if so replace it to take the entiere image
  * @param zone The selected zone on the UI
  * @param frame_res The total number of pixel in one frame
  * @param line_size The length of one frame line
@@ -79,7 +79,7 @@ static void check_zone(rect& zone, const uint frame_res, const int line_size)
  * @param frame_res The total number of pixel in one frame
  * @param range The number of frame on depth (max - min)
  * @param colors The computed color buffer
- * @return 
+ * @return
  */
 __global__ static void
 kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t range, const float* colors)
@@ -101,13 +101,13 @@ kernel_composite(cuComplex* input, float* output, const uint frame_res, size_t r
 }
 
 /**
- * @brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color gradient on a position
+ * @brief Compute the actual color of the pixel based on the depth of the frame, equivalent to sampling the rgb color
+ * gradient on a position
  * @param colors The buffer to fill (range * 3 * sizeof(float))
  * @param range The number of frame on depth (max - min)
  * @param weights The weights entered on the UI
  */
-__global__ static void
-kernel_precompute_colors(float* colors, size_t range, holovibes::RGBWeights weights)
+__global__ static void kernel_precompute_colors(float* colors, size_t range, holovibes::RGBWeights weights)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < range)
@@ -223,7 +223,7 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
     RGBPixel* begin = image;
     RGBPixel* end = begin + image_res;
     RGBPixel* result = begin; // In-place transform.
-    auto normalize = [rgb_average] __device__(RGBPixel val)
+    auto normalize = [rgb_average] __host__ __device__(RGBPixel val)
     {
         val.r /= rgb_average.r;
         val.g /= rgb_average.g;
@@ -246,12 +246,12 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
  * @param stream The used cuda stream
  */
 void postcolor_normalize(float* output,
-                              const uint fd_height,
-                              const uint fd_width,
-                              holovibes::units::RectFd selection,
-                              const uchar pixel_depth,
-                              float* averages,
-                              const cudaStream_t stream)
+                         const uint fd_height,
+                         const uint fd_width,
+                         holovibes::units::RectFd selection,
+                         const uchar pixel_depth,
+                         float* averages,
+                         const cudaStream_t stream)
 {
 
     RGBPixel* rgb_output = (RGBPixel*)output;
@@ -296,7 +296,7 @@ void postcolor_normalize(float* output,
     // ====== Get the average RGB value of the zone (stored in the contiguous buffer) ======
     // =====================================================================================
     auto execution_policy = thrust::cuda::par.on(stream);
-    auto add = [] __device__(RGBPixel acc, RGBPixel val) { return acc + val; };
+    auto add = [] __host__ __device__(RGBPixel acc, RGBPixel val) { return acc + val; };
     RGBPixel acc = {0, 0, 0};
     acc = thrust::reduce(execution_policy, gpu_zone_data, gpu_zone_data + zone_size, acc, add);
     acc = acc / zone_size;
