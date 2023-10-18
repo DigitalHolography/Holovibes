@@ -81,7 +81,10 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
+    // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
+    // Might need to find a better fix one day or another
+    try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
+    catch(const std::exception& e) {}
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -208,7 +211,12 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     {
         // Set the input box related to the filter2d
         const camera::FrameDescriptor& fd = api::get_fd();
-        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        const int size_max = floor((fmax(fd.width, fd.height) / 2) * M_SQRT2);
+        ui_->Filter2DN2SpinBox->setMaximum(size_max);
+        // sets the filter_2d_n2 so the frame fits in the lens diameter by default
+        api::set_filter2d_n2(size_max);
+        ui_->Filter2DN2SpinBox->setValue(size_max);
+
     }
     else
         update_filter2d_view(false);

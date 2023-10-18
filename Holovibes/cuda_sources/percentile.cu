@@ -20,7 +20,7 @@ thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream
 {
     float* raw_gpu_input_copy;
     // TODO: cudaXMallocAsync with the stream
-    cudaXMalloc(&raw_gpu_input_copy, frame_res * sizeof(float));
+    cudaSafeCall(cudaMalloc(&raw_gpu_input_copy, frame_res * sizeof(float)));
     return thrust::device_ptr<float>(raw_gpu_input_copy);
 }
 
@@ -116,6 +116,7 @@ void compute_percentile_xy_view(const float* gpu_input,
     if (thrust_gpu_input_copy.get() != nullptr)
         cudaXFree(thrust_gpu_input_copy.get()); // TODO: cudaXFreeAsync
 }
+
 void compute_percentile_yz_view(const float* gpu_input,
                                 const uint width,
                                 const uint height,

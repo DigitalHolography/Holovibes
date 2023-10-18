@@ -209,7 +209,9 @@ void MainWindow::on_notify()
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
                                    (api::get_img_type() != ImgType::Composite));
+
     resize(baseSize());
+
     adjustSize();
 }
 

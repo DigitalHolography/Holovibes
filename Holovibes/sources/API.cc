@@ -13,6 +13,7 @@ void pipe_refresh()
 
     try
     {
+    
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -28,6 +29,13 @@ const std::string get_credits()
            "\n\n"
 
            "Developers:\n\n"
+
+           "Oscar Morand\n"
+           "Paul Duhot\n"
+           "Thomas Xu\n"
+           "Jules Guillou\n"
+           "Samuel Goncalves\n"
+           "Edgar Delaporte\n"
 
            "Adrien Langou\n"
            "Julien Nicolle\n"
@@ -177,6 +185,7 @@ void init_image_mode(QPoint& position, QSize& size)
 
 void create_pipe()
 {
+    LOG_FUNC();
     try
     {
         Holovibes::instance().start_compute();
@@ -509,7 +518,6 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
             const ::camera::FrameDescriptor& fd = get_fd();
             ushort lens_window_width = fd.width;
             ushort lens_window_height = fd.height;
-
             get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
 
             UserInterfaceDescriptor::instance().lens_window.reset(
@@ -686,7 +694,7 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
     pipe_refresh();
 }
 
-void set_composite_weights(uint weight_r, uint weight_g, uint weight_b)
+void set_composite_weights(double weight_r, double weight_g, double weight_b)
 {
     GSH::instance().set_weight_rgb(weight_r, weight_g, weight_b);
     pipe_refresh();

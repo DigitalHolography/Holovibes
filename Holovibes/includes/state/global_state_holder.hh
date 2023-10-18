@@ -527,11 +527,11 @@ class GSH
 
     void set_rgb_p(Span<int> span, bool notify = false);
 
-    inline void set_weight_r(float value) { composite_cache_.get_rgb_ref()->weight.r = value; }
-    inline void set_weight_g(float value) { composite_cache_.get_rgb_ref()->weight.g = value; }
-    inline void set_weight_b(float value) { composite_cache_.get_rgb_ref()->weight.b = value; }
+    inline void set_weight_r(double value) { composite_cache_.get_rgb_ref()->weight.r = value; }
+    inline void set_weight_g(double value) { composite_cache_.get_rgb_ref()->weight.g = value; }
+    inline void set_weight_b(double value) { composite_cache_.get_rgb_ref()->weight.b = value; }
 
-    void set_weight_rgb(int r, int g, int b);
+    void set_weight_rgb(double r, double g, double b);
 
     // HSV
     void set_composite_p_h(Span<uint> span, bool notify = false);
