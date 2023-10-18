@@ -16,51 +16,52 @@ namespace api = ::holovibes::api;
 namespace holovibes::worker
 {
 
+void FileFrameReadWorker::open_file()
+{
+    auto file_path = setting<settings::InputFilePath>();
+    input_file_.reset(io_files::InputFrameFileFactory::open(file_path));
+    fd_ = input_file_->get_frame_descriptor();
+    frame_size_ = fd_.value().get_frame_size();
+}
+
+void FileFrameReadWorker::read_file()
+{
+    if (setting<settings::LoadFileInGPU>())
+        read_file_in_gpu();
+    else
+        read_file_batch();
+}
+
 void FileFrameReadWorker::run()
 {
-    onrestart_settings_.apply_updates();
-    total_nb_frames_to_read_ = onrestart_settings_.get<settings::InputFileEndIndex>().value -
-                               onrestart_settings_.get<settings::InputFileStartIndex>().value;
+    spdlog::trace("[FileFrameReadWorker] [run]");
 
-    LOG_FUNC();
+    onrestart_settings_.apply_updates();
+    total_nb_frames_to_read_ = setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>();
+
+    // Open file.
     try
     {
-        auto file_path = onrestart_settings_.get<settings::InputFilePath>().value;
-        input_file_.reset(io_files::InputFrameFileFactory::open(file_path));
-        const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-        // sets the filter_2d_n2 so the frame fits in the lens diameter by default
-        const int s = (fd.width > fd.height ? fd.width : fd.height) / 2 * sqrt(2);
-        GSH::instance().set_filter2d_n2(s);
+        open_file();
     }
     catch (const io_files::FileException& e)
     {
         LOG_ERROR("{}", e.what());
         return;
     }
-    const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
-    frame_size_ = fd.get_frame_size();
+    // const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
+    // frame_size_ = fd.get_frame_size();
 
     if (!init_frame_buffers())
         return;
 
-    std::string input_descriptor_info = std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
-                                        std::string(" - ") + std::to_string(fd.depth * 8) + std::string("bit");
-
-    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
-    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
-    *entry1 = "File";
-    *entry2 = input_descriptor_info;
-
-    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    insert_fast_update_map_entries();
 
     try
     {
-        input_file_->set_pos_to_frame(onrestart_settings_.get<settings::InputFileStartIndex>().value);
+        input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>());
 
-        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
-            read_file_in_gpu();
-        else
-            read_file_batch();
+        read_file();
     }
     catch (const io_files::FileException& e)
     {
@@ -70,26 +71,20 @@ void FileFrameReadWorker::run()
     // No more enqueue, thus release the producer ressources
     gpu_input_queue_.load()->stop_producer();
 
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+    remove_fast_update_map_entries();
+    free_frame_buffers();
+}
 
-    cudaXFree(gpu_packed_buffer_);
-    cudaXFree(gpu_frame_buffer_);
-    cudaXFreeHost(cpu_frame_buffer_);
+size_t FileFrameReadWorker::get_buffer_nb_frames()
+{
+    if (setting<settings::LoadFileInGPU>())
+        return total_nb_frames_to_read_;
+    return setting<settings::FileBufferSize>();
 }
 
 bool FileFrameReadWorker::init_frame_buffers()
 {
-    size_t buffer_nb_frames;
-
-    if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
-        buffer_nb_frames = total_nb_frames_to_read_;
-    else
-        buffer_nb_frames = onrestart_settings_.get<settings::FileBufferSize>().value;
-
-    size_t buffer_size = frame_size_ * buffer_nb_frames;
+    size_t buffer_size = frame_size_ * get_buffer_nb_frames();
 
     cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
 
@@ -97,7 +92,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough CPU RAM to read file";
 
-        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
+        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -111,7 +106,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough GPU DRAM to read file";
 
-        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
+        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -126,7 +121,7 @@ bool FileFrameReadWorker::init_frame_buffers()
     {
         std::string error_message = "Not enough GPU DRAM to read file";
 
-        if (onrestart_settings_.get<settings::LoadFileInGPU>().value)
+        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
             error_message += " (consider disabling \"Load file in GPU\" option)";
 
         LOG_ERROR("{}", error_message);
@@ -139,6 +134,35 @@ bool FileFrameReadWorker::init_frame_buffers()
     return true;
 }
 
+void FileFrameReadWorker::free_frame_buffers()
+{
+    cudaXFree(gpu_packed_buffer_);
+    cudaXFree(gpu_frame_buffer_);
+    cudaXFreeHost(cpu_frame_buffer_);
+}
+
+void FileFrameReadWorker::insert_fast_update_map_entries()
+{
+    std::string input_descriptor_info = std::to_string(fd_.value().width) + std::string("x") +
+                                        std::to_string(fd_.value().height) + std::string(" - ") +
+                                        std::to_string(fd_.value().depth * 8) + std::string("bit");
+
+    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    *entry1 = "File";
+    *entry2 = input_descriptor_info;
+
+    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+}
+
+void FileFrameReadWorker::remove_fast_update_map_entries()
+{
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+}
+
 void FileFrameReadWorker::read_file_in_gpu()
 {
     // Read and copy the entire file
@@ -148,7 +172,7 @@ void FileFrameReadWorker::read_file_in_gpu()
     {
         enqueue_loop(frames_read);
 
-        if (onrestart_settings_.get<settings::LoopOnInputFile>().value)
+        if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
             current_nb_frames_read_ = 0;
         else
             stop_requested_ = true;
@@ -157,7 +181,8 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = onrestart_settings_.get<settings::FileBufferSize>().value;
+    const unsigned int batch_size =
+        setting<settings::FileBufferSize>(); // onrestart_settings_.get<settings::FileBufferSize>().value;
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -173,9 +198,10 @@ void FileFrameReadWorker::read_file_batch()
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
         {
-            if (onrestart_settings_.get<settings::LoopOnInputFile>().value)
+            if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
             {
-                input_file_->set_pos_to_frame(onrestart_settings_.get<settings::InputFileStartIndex>().value);
+                size_t frame_id = setting<settings::InputFileStartIndex>();
+                input_file_->set_pos_to_frame(frame_id);
                 current_nb_frames_read_ = 0;
             }
             else
@@ -249,7 +275,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         // fps_handler_.wait();
-        fps_limiter_.wait(realtime_settings_.get<settings::InputFPS>().value);
+        fps_limiter_.wait(setting<settings::InputFPS>()); // realtime_settings_.get<settings::InputFPS>().value);
 
         if (Holovibes::instance().is_cli)
         {
@@ -277,7 +303,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file in in the buffer,
     // so we don't have to sync
-    if (onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
+    if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
         gpu_input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker
