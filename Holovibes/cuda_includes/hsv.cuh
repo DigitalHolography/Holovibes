@@ -8,6 +8,12 @@
 #include "composite_struct.hh"
 typedef unsigned int uint;
 
+enum HSV {
+    H = 0,
+    S = 1,
+    V = 2
+};
+
 void from_distinct_components_to_interweaved_components(const float* src,
                                                         float* dst,
                                                         size_t frame_res,
