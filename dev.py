@@ -286,19 +286,20 @@ def release(args: GoalArgs) -> int:
         print("Please specify part of version to bump")
         return 1
 
-    cmd = []
-    generator = build_utils.get_generator(args.generator)
-    build_mode = build_utils.get_build_mode(args.build_mode)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
     bump_part = args.goal_args[0]
     args.goal_args = []
 
-    if build_mode != "Release":
-        print("Can only create release with a Release build")
-        return 1
-
     if build_utils.bump_all_versions(bump_part):
         return 1
+
+
+@goal
+def prepare(args: GoalArgs) -> int:
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    args.build_mode = "Release"
+    args.goal_args = []
 
     if os.path.isdir(build_dir):
         print("Build directory found, Running clean goal before release")
