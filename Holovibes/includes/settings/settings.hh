@@ -6,6 +6,8 @@
  */
 
 #include <string>
+#include <optional>
+#include "enum/enum_record_mode.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -55,4 +57,42 @@ DECLARE_SETTING(InputFileEndIndex, size_t)
  * before sending it to the compute pipeline input queue.
  */
 DECLARE_SETTING(LoadFileInGPU, bool)
-} // namespace holovibes::settings
+
+/**
+ * @brief The setting that specifies the path of the file where to record
+ * the frames.
+ */
+DECLARE_SETTING(RecordFilePath, std::string)
+
+/**
+ * @brief The setting that specifies the number of frames to record.
+ */
+DECLARE_SETTING(RecordFrameCount, std::optional<size_t>)
+
+/**
+ * @brief The setting that specifies the mode of the record.
+*/
+DECLARE_SETTING(RecordMode, holovibes::RecordMode)
+
+/**
+ * @brief The setting that specifies the number of frames to skip before
+ * starting the record.
+*/
+DECLARE_SETTING(RecordFrameSkip, size_t)
+
+/**
+ * @brief The setting that specifies the size of the output buffer.
+ */
+DECLARE_SETTING(OutputBufferSize, size_t)
+
+/**
+ * @brief The setting that specifies whether the batch mode is enabled or not.
+ * If it is enabled, a batch script is read and executed.
+*/
+DECLARE_SETTING(BatchEnabled, bool)
+
+/**
+ * @brief The setting that specifies the path of the batch script to execute.
+*/
+DECLARE_SETTING(BatchFilePath, std::string)
+} // namespace holovibes::setsetings

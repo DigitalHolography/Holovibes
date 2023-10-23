@@ -20,6 +20,7 @@
 #include "common.cuh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
+#include "utils/custom_type_traits.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
@@ -29,11 +30,27 @@
 #include <string>
 
 #pragma region Settings configuration
-#define REALTIME_SETTINGS                                                                                              \
-    holovibes::settings::InputFPS, holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize,            \
-        holovibes::settings::LoopOnInputFile, holovibes::settings::LoadFileInGPU,                                      \
-        holovibes::settings::InputFileStartIndex, holovibes::settings::InputFileEndIndex
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::InputFPS,                 \
+    holovibes::settings::InputFilePath,            \
+    holovibes::settings::FileBufferSize,           \
+    holovibes::settings::LoopOnInputFile,          \
+    holovibes::settings::LoadFileInGPU,            \
+    holovibes::settings::InputFileStartIndex,      \
+    holovibes::settings::InputFileEndIndex,        \
+    holovibes::settings::RecordFilePath,           \
+    holovibes::settings::RecordFrameCount,         \
+    holovibes::settings::RecordMode,               \
+    holovibes::settings::RecordFrameSkip,          \
+    holovibes::settings::OutputBufferSize,         \
+    holovibes::settings::BatchEnabled,             \
+    holovibes::settings::BatchFilePath
+
 #define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
 #pragma endregion
 
 // Threads priority
@@ -188,12 +205,7 @@ class Holovibes
      * \param nb_frames_skip
      * \param callback
      */
-    void start_frame_record(
-        const std::string& path,
-        std::optional<unsigned int> nb_frames_to_record,
-        RecordMode record_mode,
-        unsigned int nb_frames_skip = 0,
-        const std::function<void()>& callback = []() {});
+    void start_frame_record(const std::function<void()>& callback = []() {});
 
     void stop_frame_record();
 
@@ -253,11 +265,13 @@ class Holovibes
         spdlog::info("[Holovibes] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
             realtime_settings_.update_setting(setting);
-        }
 
-        file_read_worker_controller_.update_setting(setting);
+        if constexpr (has_setting<T, worker::FileFrameReadWorker>::value)
+            file_read_worker_controller_.update_setting(setting);
+
+        if constexpr (has_setting<T, worker::CameraFrameReadWorker>::value)
+            frame_record_worker_controller_.update_setting(setting);
     }
 
     template <typename T>
@@ -276,7 +290,14 @@ class Holovibes
                                              settings::LoopOnInputFile{true},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
-                                             settings::InputFileEndIndex{60}))
+                                             settings::InputFileEndIndex{60},
+                                             settings::RecordFilePath{std::string("")},
+                                             settings::RecordFrameCount{0},
+                                             settings::RecordMode{RecordMode::NONE},
+                                             settings::RecordFrameSkip{0},
+                                             settings::OutputBufferSize{1024},
+                                             settings::BatchEnabled{false},
+                                             settings::BatchFilePath{std::string("")}))
     {
     }
 

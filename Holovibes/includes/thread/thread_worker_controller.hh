@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "utils/custom_type_traits.hh"
 
 namespace holovibes::worker
 {
@@ -85,7 +86,7 @@ class ThreadWorkerController
     inline void update_setting(S setting)
     {
         if (!worker_)
-          return;
+            return;
 
         spdlog::info("[ThreadWorkerController] [update_setting] {}", typeid(S).name());
         worker_->update_setting(setting);

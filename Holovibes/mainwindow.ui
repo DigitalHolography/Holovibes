@@ -5190,6 +5190,48 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+    <sender>BatchGroupBox</sender>
+    <signal>toggled()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_batch_enabled()</slot>
+  </connection>
+  <connection>
+    <sender>NumberOfFramesCheckBox</sender>
+    <signal>stateChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_frame_count_enabled()</slot>
+  </connection>
+  <connection>
+    <sender>NumberOfFramesSpinBox</sender>
+    <signal>valueChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_frame_count()</slot>
+  </connection>
+  <connection>
+    <sender>OutputFilePathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_file_path()</slot>
+  </connection>
+  <connection>
+    <sender>BatchInputPathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_batch_file_path()</slot>
+  </connection>
+  <connection>
+    <sender>RecordExtComboBox</sender>
+    <signal>currentTextChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_file_extension(QString)</slot>
+  </connection>
+  <connection>
+    <sender>RecordImageModeComboBox</sender>
+    <signal>currentTextChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_mode()</slot>
+  </connection>
+  <connection>
     <sender>LoadFileInGpuCheckBox</sender>
     <signal>stateChanged()</signal>
     <receiver>ImportPanel</receiver>
@@ -5345,6 +5387,7 @@ p, li { white-space: pre-wrap; }
   <slot>open_advanced_settings()</slot>
   <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
+  <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>
  </slots>
 </ui>

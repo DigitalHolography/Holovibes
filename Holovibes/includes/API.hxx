@@ -1,6 +1,7 @@
 #pragma once
 
 #include "API.hh"
+#include "enum_record_mode.hh"
 
 namespace holovibes::api
 {
@@ -230,8 +231,8 @@ inline void set_file_buffer_size(uint value)
 inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }
 inline void set_input_buffer_size(uint value) { GSH::instance().set_input_buffer_size(value); }
 
-inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_size(); }
-inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }
+// inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_size(); }
+// inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }
 
 inline uint get_record_buffer_size() { return GSH::instance().get_record_buffer_size(); }
 inline void set_record_buffer_size(uint value) { GSH::instance().set_record_buffer_size(value); }
@@ -243,6 +244,76 @@ inline uint get_time_transformation_cuts_output_buffer_size()
 inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
     GSH::instance().set_time_transformation_cuts_output_buffer_size(value);
+}
+
+inline bool get_batch_enabled()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::BatchEnabled>().value;
+}
+
+inline void set_batch_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchEnabled{value});
+}
+
+inline std::optional<std::string> get_batch_file_path()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::BatchFilePath>().value;
+}
+
+inline void set_batch_file_path(std::string value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchFilePath{value});
+}
+
+inline std::string get_record_file_path()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordFilePath>().value;
+}
+
+inline void set_record_file_path(std::string value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordFilePath{value});
+}
+
+inline std::optional<size_t> get_record_frame_count()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordFrameCount>().value;
+}
+
+inline void set_record_frame_count(std::optional<size_t> value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordFrameCount{value});
+}
+
+inline RecordMode get_record_mode()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordMode>().value;
+}
+
+inline void set_record_mode(RecordMode value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordMode{value});
+}
+
+inline size_t get_record_frame_skip()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordFrameSkip>().value;
+}
+
+inline void set_record_frame_skip(size_t value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordFrameSkip{value});
+}
+
+inline size_t get_output_buffer_size()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::OutputBufferSize>().value;
+}
+
+inline void set_output_buffer_size(size_t value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::OutputBufferSize{value});
 }
 
 inline uint get_input_fps()

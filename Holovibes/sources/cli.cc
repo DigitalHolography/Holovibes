@@ -229,10 +229,13 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
 
-    holovibes.start_frame_record(opts.output_path.value(),
-                                 record_nb_frames,
-                                 opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM,
-                                 nb_frames_skip);
+    holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
+    holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
+    holovibes.update_setting(holovibes::settings::RecordMode{opts.record_raw ? holovibes::RecordMode::RAW
+                                                                             : holovibes::RecordMode::HOLOGRAM});
+    holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
+
+    holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.
     while ((!holovibes.get_compute_pipe()->get_hologram_record_requested()) &&

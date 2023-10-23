@@ -13,8 +13,21 @@
 
 #include "enum_record_mode.hh"
 
+#include "settings/settings_container.hh"
+#include "settings/settings.hh"
+
 #include "frame_record_worker.hh"
 #include "chart_record_worker.hh"
+
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::InputFilePath,            \
+    holovibes::settings::RecordFilePath,           \
+    holovibes::settings::RecordFrameCount,         \
+    holovibes::settings::RecordMode,               \
+    holovibes::settings::OutputBufferSize
+
+#define ALL_SETTINGS ONRESTART_SETTINGS
+
 
 namespace holovibes::worker
 {
@@ -22,6 +35,7 @@ namespace holovibes::worker
  *
  * \brief Class used for batch functionality (chart or frame record multiple times)
  */
+
 class BatchGPIBWorker final : public Worker
 {
   public:
@@ -30,19 +44,43 @@ class BatchGPIBWorker final : public Worker
      * \param output_path Output record path
      * \param nb_frames_to_record Number of frames to record for a signle record command
      * \param record_mode The record mode used for all the batch (RAW, HOLOGRAM, CHART)
-     * \param Option passed to the frame record: resize saved images (linear interpolation)
+     * \param output_buffer_size The siwe of the output buffer
      */
+
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     BatchGPIBWorker(const std::string& batch_input_path,
-                    const std::string& output_path,
-                    unsigned int nb_frames_to_record,
-                    RecordMode record_mode,
-                    const unsigned int output_buffer_size);
+                    InitSettings settings)
+        : Worker()
+        , onrestart_settings_(settings)
+        {
+          try
+          {
+              parse_file(batch_input_path);
+          }
+          catch (const std::exception& exception)
+          {
+              LOG_ERROR("Catch {}", exception.what());
+              batch_cmds_.clear();
+          }
+        }
 
     void stop() override;
 
     void run() override;
 
   private:
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }
+    }
+
     /*! \brief Parse the different commands in the file to put them in batch_cmds_
      *
      * \param batch_input_path File that contains all batch commands
@@ -64,17 +102,6 @@ class BatchGPIBWorker final : public Worker
     std::string format_batch_output(const unsigned int index);
 
   private:
-    /*! \brief Output record path */
-    const std::string output_path_;
-
-    /*! \brief Number of frames to record for a signle record command */
-    const unsigned int nb_frames_to_record_;
-
-    /*! \brief The record mode used for all the batch (RAW, HOLOGRAM, CHART) */
-    const RecordMode record_mode_;
-
-    /*! \brief The max output buffer size */
-    const unsigned int output_buffer_size_;
 
     /*! \brief Instance of the frame record worker used if RecordMode is RAW or HOLOGRAM */
     std::unique_ptr<FrameRecordWorker> frame_record_worker_;
@@ -87,5 +114,11 @@ class BatchGPIBWorker final : public Worker
 
     /*! \brief Instance of the gpib interface used to communicate with external instruments with GPIB protocol */
     std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
+
+    /**
+     * @brief Contains all the settings of the worker that should be updated
+     * on restart.
+     */
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::worker

@@ -5,16 +5,22 @@
 #pragma once
 
 #pragma region Settings configuration
+// clang-format off
 
-#define REALTIME_SETTINGS holovibes::settings::InputFPS
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::InputFPS                  \
 
-#define ONRESTART_SETTINGS                                                                                             \
-    holovibes::settings::InputFilePath, holovibes::settings::FileBufferSize, holovibes::settings::LoopOnInputFile,     \
-        holovibes::settings::LoadFileInGPU, holovibes::settings::InputFileStartIndex,                                  \
-        holovibes::settings::InputFileEndIndex
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::InputFilePath,            \
+    holovibes::settings::FileBufferSize,           \
+    holovibes::settings::LoopOnInputFile,          \
+    holovibes::settings::LoadFileInGPU,            \
+    holovibes::settings::InputFileStartIndex,      \
+    holovibes::settings::InputFileEndIndex
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
+// clang-format on
 #pragma endregion
 
 #include "frame_read_worker.hh"
@@ -233,4 +239,13 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
+
+
 } // namespace holovibes::worker
+
+namespace holovibes {
+template <typename T>
+struct has_setting<T, worker::FileFrameReadWorker> : is_any_of<T, ALL_SETTINGS>
+{
+};
+}

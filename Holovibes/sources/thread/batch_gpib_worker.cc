@@ -9,32 +9,10 @@
 #include "logger.hh"
 #include "gpib_exceptions.hh"
 #include "chrono.hh"
+#include "holovibes.hh"
 
 namespace holovibes::worker
 {
-BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
-                                 const std::string& output_path,
-                                 unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 const unsigned int output_buffer_size)
-    : Worker()
-    , output_path_(output_path)
-    , nb_frames_to_record_(nb_frames_to_record)
-    , record_mode_(record_mode)
-    , output_buffer_size_(output_buffer_size)
-    , frame_record_worker_(nullptr)
-    , chart_record_worker_(nullptr)
-{
-    try
-    {
-        parse_file(batch_input_path);
-    }
-    catch (const std::exception& exception)
-    {
-        LOG_ERROR("Catch {}", exception.what());
-        batch_cmds_.clear();
-    }
-}
 
 void BatchGPIBWorker::stop()
 {
@@ -65,19 +43,24 @@ void BatchGPIBWorker::run()
             else if (cmd.type == gpib::BatchCommand::CAPTURE)
             {
                 std::string formatted_path = format_batch_output(file_index);
-
+                auto record_mode_ = setting<settings::RecordMode>();
+                auto nb_frames_to_record_ = setting<settings::RecordFrameCount>();
+                auto output_buffer_size_ = setting<settings::OutputBufferSize>();
                 if (record_mode_ == RecordMode::CHART)
                 {
-                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_);
+                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_.value());
                     chart_record_worker_->run();
                 }
                 else // Frame Record
                 {
-                    frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
-                                                                               nb_frames_to_record_,
-                                                                               record_mode_,
-                                                                               0,
-                                                                               output_buffer_size_);
+                    auto all_settings = std::make_tuple(holovibes::settings::RecordFilePath{formatted_path},
+                                                        holovibes::settings::RecordFrameCount{nb_frames_to_record_},
+                                                        holovibes::settings::RecordMode{record_mode_},
+                                                        holovibes::settings::RecordFrameSkip{0},
+                                                        holovibes::settings::OutputBufferSize{output_buffer_size_});
+                    frame_record_worker_ =
+                        std::make_unique<FrameRecordWorker>(all_settings,
+                                                            Holovibes::instance().get_cuda_streams().recorder_stream);
                     frame_record_worker_->run();
                 }
 
@@ -205,6 +188,7 @@ std::string BatchGPIBWorker::format_batch_output(const unsigned int index)
     file_index = convert.str();
 
     std::vector<std::string> path_tokens;
+    auto output_path_ = setting<settings::RecordFilePath>();
     boost::split(path_tokens, output_path_, boost::is_any_of("."));
 
     std::string res = path_tokens[0] + "_" + file_index;

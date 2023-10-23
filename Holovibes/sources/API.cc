@@ -13,7 +13,7 @@ void pipe_refresh()
 
     try
     {
-    
+
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -1140,17 +1140,18 @@ void set_record_mode(const std::string& text)
 
     // TODO: Dictionnary
     if (text == "Chart")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
+        set_record_mode(RecordMode::CHART);
     else if (text == "Processed Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
+        set_record_mode(RecordMode::HOLOGRAM);
     else if (text == "Raw Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
+        set_record_mode(RecordMode::RAW);
     else if (text == "3D Cuts XZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
+        set_record_mode(RecordMode::CUTS_XZ);
     else if (text == "3D Cuts YZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
-    else
-        throw std::exception("Record mode not handled");
+        set_record_mode(RecordMode::CUTS_YZ);
+    else {
+        LOG_ERROR("Unknown record mode {}", text);
+    }
 }
 
 bool start_record_preconditions(const bool batch_enabled,
@@ -1179,33 +1180,31 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
-void start_record(const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback)
+void start_record(std::function<void()> callback)
 {
+    bool batch_enabled = Holovibes::instance().get_setting<settings::BatchEnabled>().value;
+    std::string batch_input_path = Holovibes::instance().get_setting<settings::BatchFilePath>().value;
+    std::string output_path = Holovibes::instance().get_setting<settings::RecordFilePath>().value;
+    std::optional<size_t> nb_frames_to_record = Holovibes::instance().get_setting<settings::RecordFrameCount>().value;
+    RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value; 
+
     if (batch_enabled)
     {
         Holovibes::instance().start_batch_gpib(batch_input_path,
                                                output_path,
                                                nb_frames_to_record.value(),
-                                               UserInterfaceDescriptor::instance().record_mode_,
+                                               record_mode,
                                                callback);
     }
     else
     {
-        if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+        if (record_mode == RecordMode::CHART)
         {
             Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
         }
         else
         {
-            Holovibes::instance().start_frame_record(output_path,
-                                                     nb_frames_to_record,
-                                                     UserInterfaceDescriptor::instance().record_mode_,
-                                                     0,
-                                                     callback);
+           Holovibes::instance().start_frame_record(callback);
         }
     }
 }

@@ -146,11 +146,7 @@ bool start_record_preconditions(const bool batch_enabled,
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void start_record(const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback);
+void start_record(std::function<void()> callback);
 
 /*! \brief Stops recording
  *

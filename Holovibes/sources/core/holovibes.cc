@@ -49,10 +49,7 @@ void Holovibes::start_file_frame_read(const std::function<void()>& callback)
     file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
 
-    // realtime_settings_.update_setting(settings::InputFPS{fps});
-
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-
     file_read_worker_controller_.start(gpu_input_queue_, all_settings);
 }
 
@@ -115,11 +112,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 {
     start_frame_record(path, nb_frames_to_record, false, nb_frames_skip);
 */
-void Holovibes::start_frame_record(const std::string& path,
-                                   std::optional<unsigned int> nb_frames_to_record,
-                                   RecordMode record_mode,
-                                   unsigned int nb_frames_skip,
-                                   const std::function<void()>& callback)
+void Holovibes::start_frame_record(const std::function<void()>& callback)
 {
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
@@ -130,11 +123,10 @@ void Holovibes::start_frame_record(const std::string& path,
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    frame_record_worker_controller_.start(path,
-                                          nb_frames_to_record,
-                                          record_mode,
-                                          nb_frames_skip,
-                                          GSH::instance().get_output_buffer_size());
+
+
+    auto all_settings = std::tuple_cat(realtime_settings_.settings_);
+    frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -161,11 +153,21 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
     batch_gpib_worker_controller_.set_callback(callback);
     batch_gpib_worker_controller_.set_error_callback(error_callback_);
     batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+
+    auto all_settings = std::make_tuple(settings::InputFPS{60},
+                                             settings::InputFilePath{std::string("")},
+                                             settings::FileBufferSize{1024},
+                                             settings::LoopOnInputFile{true},
+                                             settings::LoadFileInGPU{false},
+                                             settings::InputFileStartIndex{0},
+                                             settings::InputFileEndIndex{60},
+                                             settings::RecordFilePath{output_path},
+                                             settings::RecordFrameCount{nb_frames_to_record},
+                                             settings::RecordMode{record_mode},
+                                             settings::RecordFrameSkip{0},
+                                             settings::OutputBufferSize{GSH::instance().get_output_buffer_size()});
     batch_gpib_worker_controller_.start(batch_input_path,
-                                        output_path,
-                                        nb_frames_to_record,
-                                        record_mode,
-                                        GSH::instance().get_output_buffer_size());
+                                        all_settings);
 }
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
