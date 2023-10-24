@@ -332,11 +332,11 @@ def preRelease(args: GoalArgs) -> int:
     args.build_mode = "Release"
     args.goal_args = []
 
-    #if os.path.isdir(build_dir):
-    #    print("Build directory found, Running clean goal before release")
-    #    sys.stdout.flush()
-    #    if clean(args):
-    #        return 1
+    if os.path.isdir(build_dir):
+        print("Build directory found, Running clean goal before release")
+        sys.stdout.flush()
+        if clean(args):
+            return 1
 
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
