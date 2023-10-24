@@ -2,6 +2,7 @@
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
 #include "composite.cuh"
+#include "rgb.cuh"
 #include "map.cuh"
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
