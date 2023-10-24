@@ -283,29 +283,60 @@ def clean(args: GoalArgs) -> int:
 @goal
 def release(args: GoalArgs) -> int:
     if len(args.goal_args) <= 0:
-        print("Please specify part of version to bump")
+        print("Please specify part of version to bump (major/minor/patch)")
         return 1
 
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
     bump_part = args.goal_args[0]
+    args.build_mode = "Release"
     args.goal_args = []
 
     if build_utils.bump_all_versions(bump_part):
         return 1
-
-
-@goal
-def prepare(args: GoalArgs) -> int:
-    cmd = []
-    generator = build_utils.get_generator(args.generator)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
-    args.build_mode = "Release"
-    args.goal_args = []
 
     if os.path.isdir(build_dir):
         print("Build directory found, Running clean goal before release")
         sys.stdout.flush()
         if clean(args):
             return 1
+
+    if not os.path.isdir(INSTALLER_OUTPUT):
+        os.mkdir(INSTALLER_OUTPUT)
+
+    # run goal conan, cmake, build, test and
+    # Get libs paths and add them to the installer file
+    conan_build_goal(args, option="--install")
+
+    paths = build_utils.get_lib_paths()
+    nvcc_path = build_utils.get_cmake_variable(
+        build_dir, 'CMAKE_CUDA_COMPILER')
+    build_dir = os.path.join(build_dir, "Release")
+
+    # Temporary fix
+    paths["cuda"] = os.path.abspath(
+        os.path.join(os.path.dirname(nvcc_path), '..'))
+
+    build_utils.create_release_file(paths, build_dir)
+
+    return subprocess.call(["iscc", ISCC_FILE])
+
+
+@goal
+def preRelease(args: GoalArgs) -> int:
+    cmd = []
+    generator = build_utils.get_generator(args.generator)
+    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    args.build_mode = "Release"
+    args.goal_args = []
+
+    #if os.path.isdir(build_dir):
+    #    print("Build directory found, Running clean goal before release")
+    #    sys.stdout.flush()
+    #    if clean(args):
+    #        return 1
 
     if not os.path.isdir(INSTALLER_OUTPUT):
         os.mkdir(INSTALLER_OUTPUT)
