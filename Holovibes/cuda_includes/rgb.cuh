@@ -7,7 +7,43 @@
 #include "common.cuh"
 #include "composite_struct.hh"
 
-// Computes 3 different p slices and put them in each color
+/**
+ * @brief A struct to represent a RGB pixel.
+ */
+struct RGBPixel
+{
+    float r;
+    float g;
+    float b;
+
+    RGBPixel __host__ __device__ operator+(const RGBPixel& other) const
+    {
+        RGBPixel result;
+        result.r = this->r + other.r;
+        result.g = this->g + other.g;
+        result.b = this->b + other.b;
+        return result;
+    }
+
+    RGBPixel __host__ __device__ operator/(float scalar) const
+    {
+        RGBPixel result;
+        result.r = this->r / scalar;
+        result.g = this->g / scalar;
+        result.b = this->b / scalar;
+        return result;
+    }
+
+    RGBPixel __host__ __device__ operator*(float scalar) const
+    {
+        RGBPixel result;
+        result.r = this->r * scalar;
+        result.g = this->g * scalar;
+        result.b = this->b * scalar;
+        return result;
+    }
+};
+
 void rgb(cuComplex* input,
          float* output,
          const size_t frame_res,

@@ -3,6 +3,7 @@
 #include "unique_ptr.hh"
 #include "composite.cuh"
 #include "map.cuh"
+#include "rgb.cuh"
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>

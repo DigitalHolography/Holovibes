@@ -167,7 +167,8 @@ void Converts::insert_to_composite()
                     compute_cache_.get_time_transformation_size(),
                     composite_cache_.get_hsv_const_ref());
 
-            if (composite_cache_.get_composite_auto_weights()) {
+            if (composite_cache_.get_composite_auto_weights())
+            {
                 const uchar pixel_depth = 3;
                 const int factor = 10;
                 float* averages = new float[pixel_depth];
@@ -178,11 +179,12 @@ void Converts::insert_to_composite()
                                     pixel_depth,
                                     averages,
                                     stream_);
-                if (pixel_depth >= 3) {
+                if (pixel_depth >= 3)
+                {
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
                     GSH::instance().set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                (static_cast<double>(averages[1]) / max) * factor,
-                                (static_cast<double>(averages[2]) / max) * factor);
+                                                   (static_cast<double>(averages[1]) / max) * factor,
+                                                   (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
         });

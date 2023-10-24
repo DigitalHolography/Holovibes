@@ -7,6 +7,7 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     fft2.cu
     filter2D.cu
     hsv.cu
+    rgb.cu
     percentile.cu
     stft.cu
     texture_update.cu
