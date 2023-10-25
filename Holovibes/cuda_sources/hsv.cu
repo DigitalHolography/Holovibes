@@ -14,16 +14,18 @@
 #include "map.cuh"
 #include "reduce.cuh"
 #include "unique_ptr.hh"
-
 #include "logger.hh"
+
+#include <thrust/extrema.h>
+#include <thrust/execution_policy.h>
 
 #define SAMPLING_FREQUENCY 1
 
-/*
- * \brief Convert an array of HSV normalized float to an array of RGB normalized
- * float i.e.: with "[  ]" a pixel: [HSV][HSV][HSV][HSV] -> [RGB][RGB][RGB][RGB]
- * NVdia function
- */
+
+/// @brief Convert an array of HSV normalized float [0,1] to an array of RGB float [0,65536]
+/// @param src Input hsv array (contiguous pixel on x: [h1,...,hn,s1,...,sn,v1,...,vn])
+/// @param dst Output rgb array (contiguous rgb channels: [r1,g1,b1,...,rn,gn,bn])
+/// @param frame_res Total number of pixels on one frame
 __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -102,77 +104,48 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
     cudaCheckError();
 }
 
-__device__ int fast_power(int base, int exponent)
+
+/// @brief Compute the moment n of a pixel : sum of input[z] * func(z) between z1 and z2
+/// @param input The input cuComplex buffer
+/// @param output The output float buffer
+/// @param frame_res The total number of pixels in one frame
+/// @param min_index z1
+/// @param max_index z2
+/// @param func the function to call on z
+template <typename FUNC>
+__global__ void kernel_compute_moment(
+    const cuComplex* input, float* output, size_t frame_res, size_t min_index, size_t max_index, FUNC func)
 {
-    if (exponent == 0)
-        return 1;
-    if (exponent == 1)
-        return base;
-
-    int result = fast_power(base, exponent / 2);
-    result *= result;
-
-    if (exponent % 2 == 1)
-        result *= base;
-
-    return result;
-}
-
-/**
- * @brief Compute the moment n of a pixel : sum of I(z) * z^n between z1 and z2
- * @param input The input cuComplex buffer
- * @param output The output float buffer
- * @param frame_res The total number of pixels in one frame
- * @param min_index z1
- * @param max_index z2
- * @param moment_n The exponent (n)
- * @param channel_index The index of the specified channel (H = 0, S = 1, V = 2)
- */
-__global__ void kernel_compute_moment(const cuComplex* input,
-                                      float* output,
-                                      const size_t frame_res,
-                                      const size_t min_index,
-                                      const size_t max_index,
-                                      const size_t moment_n,
-                                      const size_t channel_index)
-{
-    const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
     {
-        const size_t index = channel_index * frame_res + id;
         float res = 0.0f;
 
         for (size_t z = min_index; z <= max_index; ++z)
         {
             float input_elm = fabsf(input[z * frame_res + id].x);
 
-            res += input_elm * fast_power(z, moment_n);
+            res += input_elm * func(z);
         }
 
         const size_t range = max_index - min_index + 1;
-        output[index] = (res / (float)range);
+        output[id] = (res / (float)range);
     }
 }
 
+template <typename FUNC>
 void compute_moment(const cuComplex* input,
                     float* output,
-                    const size_t frame_res,
-                    const size_t min_index,
-                    const size_t max_index,
-                    const size_t moment_n,
-                    const size_t channel_index,
+                    size_t frame_res,
+                    size_t min_index,
+                    size_t max_index,
+                    FUNC func,
                     const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    kernel_compute_moment<<<blocks, threads, 0, stream>>>(input,
-                                                          output,
-                                                          frame_res,
-                                                          min_index,
-                                                          max_index,
-                                                          moment_n,
-                                                          channel_index);
+    kernel_compute_moment<<<blocks, threads, 0, stream>>>(input, output, frame_res, min_index, max_index, func);
     cudaCheckError();
 }
 
@@ -185,8 +158,12 @@ void compute_and_fill_h(const cuComplex* gpu_input,
     const uint min_h_index = hsv_struct.h.frame_index.min;
     const uint max_h_index = hsv_struct.h.frame_index.max;
 
+    float* gpu_h_output = gpu_output + HSV::H * frame_res;
+
     // Hue is the moment 1 (average)
-    compute_moment(gpu_input, gpu_output, frame_res, min_h_index, max_h_index, 1, HSV::H, stream);
+    auto func_moment_one = [] __device__(size_t z) -> size_t { return z; };
+
+    compute_moment(gpu_input, gpu_h_output, frame_res, min_h_index, max_h_index, func_moment_one, stream);
 }
 
 void compute_and_fill_s(const cuComplex* gpu_input,
@@ -200,8 +177,12 @@ void compute_and_fill_s(const cuComplex* gpu_input,
     const uint max_s_index =
         hsv_struct.s.frame_index.activated ? hsv_struct.s.frame_index.max : hsv_struct.h.frame_index.max;
 
+    float* gpu_s_output = gpu_output + HSV::S * frame_res;
+
     // Saturation is the moment 2 (variance)
-    compute_moment(gpu_input, gpu_output, frame_res, min_s_index, max_s_index, 2, HSV::S, stream);
+    auto func_moment_two = [] __device__(size_t z) -> size_t { return z * z; };
+
+    compute_moment(gpu_input, gpu_s_output, frame_res, min_s_index, max_s_index, func_moment_two, stream);
 }
 
 void compute_and_fill_v(const cuComplex* gpu_input,
@@ -215,8 +196,12 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     const uint max_v_index =
         hsv_struct.v.frame_index.activated ? hsv_struct.v.frame_index.max : hsv_struct.h.frame_index.max;
 
+    float* gpu_v_output = gpu_output + HSV::V * frame_res;
+
     // Value is the moment 0
-    compute_moment(gpu_input, gpu_output, frame_res, min_v_index, max_v_index, 0, HSV::V, stream);
+    auto func_moment_zero = [] __device__(size_t z) -> size_t { return 1; };
+
+    compute_moment(gpu_input, gpu_v_output, frame_res, min_v_index, max_v_index, func_moment_zero, stream);
 }
 
 void compute_and_fill_hsv(const cuComplex* gpu_input,
@@ -298,6 +283,7 @@ void apply_blur(
     cudaXFree(gpu_complex_blur_matrix);
 }
 
+
 void hsv_normalize(
     float* const gpu_arr, const uint frame_res, float* const gpu_min, float* const gpu_max, const cudaStream_t stream)
 {
@@ -306,8 +292,11 @@ void hsv_normalize(
 
     const auto lambda = [gpu_min, gpu_max] __device__(const float pixel)
     { return (pixel - *gpu_min) * (1 / (*gpu_max - *gpu_min)); };
-    map_generic(gpu_arr, gpu_arr, frame_res, lambda, stream);
+
+    auto exec_policy = thrust::cuda::par.on(stream);
+    thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, lambda);
 }
+
 
 void apply_operations_on_h(float* gpu_arr,
                            uint height,
@@ -419,7 +408,7 @@ void hsv(const cuComplex* gpu_input,
     const uint frame_res = height * width;
 
     float* tmp_hsv_arr = nullptr;
-    cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * time_transformation_size * sizeof(float)));
+    cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
     compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream);
 
     {
