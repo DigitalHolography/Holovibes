@@ -1200,7 +1200,7 @@ void start_record(std::function<void()> callback)
     {
         if (record_mode == RecordMode::CHART)
         {
-            Holovibes::instance().start_chart_record(output_path, nb_frames_to_record.value(), callback);
+            Holovibes::instance().start_chart_record(callback);
         }
         else
         {

@@ -48,7 +48,9 @@ void BatchGPIBWorker::run()
                 auto output_buffer_size_ = setting<settings::OutputBufferSize>();
                 if (record_mode_ == RecordMode::CHART)
                 {
-                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(formatted_path, nb_frames_to_record_.value());
+                    auto all_settings = std::make_tuple(holovibes::settings::RecordFilePath{formatted_path},
+                                                        holovibes::settings::RecordFrameCount{nb_frames_to_record_});
+                    chart_record_worker_ = std::make_unique<ChartRecordWorker>(all_settings);
                     chart_record_worker_->run();
                 }
                 else // Frame Record

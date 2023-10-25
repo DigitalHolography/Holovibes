@@ -131,14 +131,14 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
 
-void Holovibes::start_chart_record(const std::string& path,
-                                   const unsigned int nb_points_to_record,
-                                   const std::function<void()>& callback)
+void Holovibes::start_chart_record(const std::function<void()>& callback)
 {
     chart_record_worker_controller_.set_callback(callback);
     chart_record_worker_controller_.set_error_callback(error_callback_);
     chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-    chart_record_worker_controller_.start(path, nb_points_to_record);
+
+    auto all_settings = std::tuple_cat(realtime_settings_.settings_);
+    chart_record_worker_controller_.start(all_settings);
 }
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }

@@ -209,10 +209,7 @@ class Holovibes
 
     void stop_frame_record();
 
-    void start_chart_record(
-        const std::string& path,
-        const unsigned int nb_points_to_record,
-        const std::function<void()>& callback = []() {});
+    void start_chart_record(const std::function<void()>& callback = []() {});
 
     void stop_chart_record();
 
