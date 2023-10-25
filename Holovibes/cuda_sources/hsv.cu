@@ -105,7 +105,7 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
 }
 
 
-/// @brief Compute the moment n of a pixel : sum of input[z] * func(z) between z1 and z2
+/// @brief Compute the sum depth of a pixel : sum of input[z] * func(z) between z1 and z2
 /// @param input The input cuComplex buffer
 /// @param output The output float buffer
 /// @param frame_res The total number of pixels in one frame
@@ -113,7 +113,7 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
 /// @param max_index z2
 /// @param func the function to call on z
 template <typename FUNC>
-__global__ void kernel_compute_moment(
+__global__ void kernel_compute_sum_depth(
     const cuComplex* input, float* output, size_t frame_res, size_t min_index, size_t max_index, FUNC func)
 {
     size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -134,7 +134,7 @@ __global__ void kernel_compute_moment(
 }
 
 template <typename FUNC>
-void compute_moment(const cuComplex* input,
+void compute_sum_depth(const cuComplex* input,
                     float* output,
                     size_t frame_res,
                     size_t min_index,
@@ -145,7 +145,7 @@ void compute_moment(const cuComplex* input,
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    kernel_compute_moment<<<blocks, threads, 0, stream>>>(input, output, frame_res, min_index, max_index, func);
+    kernel_compute_sum_depth<<<blocks, threads, 0, stream>>>(input, output, frame_res, min_index, max_index, func);
     cudaCheckError();
 }
 
@@ -163,7 +163,7 @@ void compute_and_fill_h(const cuComplex* gpu_input,
     // Hue is the moment 1 (average)
     auto func_moment_one = [] __device__(size_t z) -> size_t { return z; };
 
-    compute_moment(gpu_input, gpu_h_output, frame_res, min_h_index, max_h_index, func_moment_one, stream);
+    compute_sum_depth(gpu_input, gpu_h_output, frame_res, min_h_index, max_h_index, func_moment_one, stream);
 }
 
 void compute_and_fill_s(const cuComplex* gpu_input,
@@ -182,7 +182,7 @@ void compute_and_fill_s(const cuComplex* gpu_input,
     // Saturation is the moment 2 (variance)
     auto func_moment_two = [] __device__(size_t z) -> size_t { return z * z; };
 
-    compute_moment(gpu_input, gpu_s_output, frame_res, min_s_index, max_s_index, func_moment_two, stream);
+    compute_sum_depth(gpu_input, gpu_s_output, frame_res, min_s_index, max_s_index, func_moment_two, stream);
 }
 
 void compute_and_fill_v(const cuComplex* gpu_input,
@@ -201,7 +201,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     // Value is the moment 0
     auto func_moment_zero = [] __device__(size_t z) -> size_t { return 1; };
 
-    compute_moment(gpu_input, gpu_v_output, frame_res, min_v_index, max_v_index, func_moment_zero, stream);
+    compute_sum_depth(gpu_input, gpu_v_output, frame_res, min_v_index, max_v_index, func_moment_zero, stream);
 }
 
 void compute_and_fill_hsv(const cuComplex* gpu_input,
