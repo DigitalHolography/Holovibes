@@ -6,6 +6,7 @@
 #include "compute_bundles_2d.hh"
 #include "tools_conversion.cuh"
 #include "composite.cuh"
+#include "rgb.cuh"
 #include "hsv.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
