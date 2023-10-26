@@ -22,10 +22,6 @@
 #define SAMPLING_FREQUENCY 1
 
 
-/// @brief Convert an array of HSV normalized float [0,1] to an array of RGB float [0,65536]
-/// @param src Input hsv array (contiguous pixel on x: [h1,...,hn,s1,...,sn,v1,...,vn])
-/// @param dst Output rgb array (contiguous rgb channels: [r1,g1,b1,...,rn,gn,bn])
-/// @param frame_res Total number of pixels on one frame
 __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -95,6 +91,11 @@ __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* ds
     }
 }
 
+/// @brief Convert an array of HSV normalized float [0,1] to an array of RGB float [0,65536]
+/// @param src Input hsv array (contiguous pixel on x: [h1,...,hn,s1,...,sn,v1,...,vn])
+/// @param dst Output rgb array (contiguous rgb channels: [r1,g1,b1,...,rn,gn,bn])
+/// @param frame_res Total number of pixels on one frame
+/// @param stream The used cuda stream
 void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res, const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
@@ -104,14 +105,6 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
     cudaCheckError();
 }
 
-
-/// @brief Compute the sum depth of a pixel : sum of input[z] * func(z) between z1 and z2
-/// @param input The input cuComplex buffer
-/// @param output The output float buffer
-/// @param frame_res The total number of pixels in one frame
-/// @param min_index z1
-/// @param max_index z2
-/// @param func the function to call on z
 template <typename FUNC>
 __global__ void kernel_compute_sum_depth(
     const cuComplex* input, float* output, size_t frame_res, size_t min_index, size_t max_index, FUNC func)
@@ -133,14 +126,21 @@ __global__ void kernel_compute_sum_depth(
     }
 }
 
+/// @brief Compute the sum depth of a pixel : sum of input[z] * func(z) between z1 and z2
+/// @param input The input cuComplex buffer
+/// @param output The output float buffer
+/// @param frame_res The total number of pixels in one frame
+/// @param min_index z1
+/// @param max_index z2
+/// @param func the function to call on z
 template <typename FUNC>
 void compute_sum_depth(const cuComplex* input,
-                    float* output,
-                    size_t frame_res,
-                    size_t min_index,
-                    size_t max_index,
-                    FUNC func,
-                    const cudaStream_t stream)
+                       float* output,
+                       size_t frame_res,
+                       size_t min_index,
+                       size_t max_index,
+                       FUNC func,
+                       const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -204,6 +204,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     compute_sum_depth(gpu_input, gpu_v_output, frame_res, min_v_index, max_v_index, func_moment_zero, stream);
 }
 
+/// @brief Compute the hsv values of each pixel, each channel use his own lambda function that describe the calculus done on z
 void compute_and_fill_hsv(const cuComplex* gpu_input,
                           float* gpu_output,
                           const size_t frame_res,
@@ -215,8 +216,9 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
     compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream);
 }
 
+// Apply a box blur on the specified array
 void apply_blur(
-    float* gpu_arr, uint height, uint width, const holovibes::CompositeHSV& hsv_struct, const cudaStream_t stream)
+    float* gpu_arr, uint height, uint width, float kernel_size, const cudaStream_t stream)
 {
     size_t frame_res = height * width;
 
@@ -225,7 +227,6 @@ void apply_blur(
     cudaSafeCall(cudaMemsetAsync(gpu_float_blur_matrix, 0, frame_res * sizeof(float), stream));
 
     float* blur_matrix;
-    const float kernel_size = hsv_struct.h.blur.kernel_size;
     cudaSafeCall(cudaMallocHost(&blur_matrix, kernel_size * sizeof(float)));
     float blur_value = 1.0f / (float)(kernel_size * kernel_size);
     unsigned min_pos_kernel_y = height / 2 - kernel_size / 2;
@@ -283,7 +284,6 @@ void apply_blur(
     cudaXFree(gpu_complex_blur_matrix);
 }
 
-
 void hsv_normalize(
     float* const gpu_arr, const uint frame_res, float* const gpu_min, float* const gpu_max, const cudaStream_t stream)
 {
@@ -296,7 +296,6 @@ void hsv_normalize(
     auto exec_policy = thrust::cuda::par.on(stream);
     thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, lambda);
 }
-
 
 void apply_operations_on_h(float* gpu_arr,
                            uint height,
@@ -325,9 +324,11 @@ void apply_operations_on_h(float* gpu_arr,
                          hsv_struct.h.slider_threshold.max,
                          frame_res,
                          stream);
+
+    // H channel has a blur option
     if (hsv_struct.h.blur.enabled)
     {
-        apply_blur(gpu_arr, height, width, hsv_struct, stream);
+        apply_blur(gpu_arr, height, width, hsv_struct.h.blur.kernel_size, stream);
     }
 
     hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max, stream);
@@ -397,6 +398,31 @@ void apply_operations_on_v(float* gpu_arr,
     hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max, stream);
 }
 
+/// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
+void apply_operations_on_hsv(float* tmp_hsv_arr,
+                           const uint height,
+                           const uint width,
+                           const holovibes::CompositeHSV& hsv_struct,
+                           const cudaStream_t stream)
+{
+    // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
+    holovibes::cuda_tools::UniquePtr<float> gpu_min(1);
+    holovibes::cuda_tools::UniquePtr<float> gpu_max(1);
+
+    apply_operations_on_h(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
+    apply_operations_on_s(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
+    apply_operations_on_v(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
+}
+
+
+/// @brief Create rgb color by using hsv computation and then converting to rgb
+/// @param gpu_input complex input buffer, on gpu side, size = width * height * time_transformation_size
+/// @param gpu_output float output buffer, on gpu side, size = width * height * 3
+/// @param width Width of the frame
+/// @param height Height of the frame
+/// @param stream Cuda stream used
+/// @param time_transformation_size Depth of the frame cube
+/// @param hsv_struct Struct containing all the UI parameters
 void hsv(const cuComplex* gpu_input,
          float* gpu_output,
          const uint width,
@@ -411,15 +437,7 @@ void hsv(const cuComplex* gpu_input,
     cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
     compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream);
 
-    {
-        // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
-        holovibes::cuda_tools::UniquePtr<float> gpu_min(1);
-        holovibes::cuda_tools::UniquePtr<float> gpu_max(1);
-
-        apply_operations_on_h(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
-        apply_operations_on_s(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
-        apply_operations_on_v(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
-    }
+    apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
 
     normalized_convert_hsv_to_rgb(tmp_hsv_arr, gpu_output, frame_res, stream);
 
