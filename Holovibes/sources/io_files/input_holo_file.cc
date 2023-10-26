@@ -125,6 +125,26 @@ void InputHoloFile::load_footer()
     LOG_TRACE("Exiting InputHoloFile::load_footer");
 }
 
+void rec_fill_default_json(json& dst, json& src)
+{
+    for(auto dst_el = dst.begin(); dst_el != dst.end(); ++dst_el)
+    {
+        if (src.contains(dst_el.key()))
+        {
+            auto src_el = src.find(dst_el.key());
+            if (dst_el->is_object())
+            {
+                rec_fill_default_json(*dst_el, *src_el);
+            }
+            else
+            {
+                dst.at(dst_el.key()) = src_el.value();
+            }
+        }
+        // else : nothing to do, we keep the dst default json
+    }
+}
+
 void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC();
@@ -153,13 +173,19 @@ void InputHoloFile::import_compute_settings()
     else
         LOG_ERROR("HOLO file version not supported!");
 
+    std::ifstream ifs(holovibes::settings::compute_settings_filepath);
+    auto footer_json = json::parse(ifs);
+    auto full_meta_data_ = json::parse("{}");
+    full_meta_data_["compute_settings"] = footer_json;
+    rec_fill_default_json(full_meta_data_, meta_data_);
+
     if (!has_footer)
     {
-        from_json(meta_data_, raw_footer_);
+        from_json(full_meta_data_, raw_footer_);
     }
     else
     {
-        from_json(meta_data_["compute_settings"], raw_footer_);
+        from_json(full_meta_data_["compute_settings"], raw_footer_);
     }
 
     // update GSH with the footer values

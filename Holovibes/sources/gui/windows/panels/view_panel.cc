@@ -200,7 +200,7 @@ void ViewPanel::load_gui(const json& j_us)
     bool h = json_get_or_default(j_us, isHidden(), "panels", "view hidden", isHidden());
     ui_->actionView->setChecked(!h);
     setHidden(h);
-
+ 
     time_transformation_cuts_window_max_size =
         json_get_or_default(j_us, 512, "windows", "time transformation cuts window max size");
 }

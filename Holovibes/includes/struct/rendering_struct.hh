@@ -49,7 +49,7 @@ struct Rendering
         void Update();
         void Load();
 
-        SERIALIZE_JSON_STRUCT(Filter, enabled, type);
+        SERIALIZE_JSON_STRUCT(Filter, enabled, type)
     };
 
     /*! \class Convolution
