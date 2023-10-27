@@ -143,35 +143,6 @@ void Holovibes::start_chart_record(const std::function<void()>& callback)
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 
-void Holovibes::start_batch_gpib(const std::string& batch_input_path,
-                                 const std::string& output_path,
-                                 unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 const std::function<void()>& callback)
-{
-    batch_gpib_worker_controller_.stop();
-    batch_gpib_worker_controller_.set_callback(callback);
-    batch_gpib_worker_controller_.set_error_callback(error_callback_);
-    batch_gpib_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-
-    auto all_settings = std::make_tuple(settings::InputFPS{60},
-                                             settings::InputFilePath{std::string("")},
-                                             settings::FileBufferSize{1024},
-                                             settings::LoopOnInputFile{true},
-                                             settings::LoadFileInGPU{false},
-                                             settings::InputFileStartIndex{0},
-                                             settings::InputFileEndIndex{60},
-                                             settings::RecordFilePath{output_path},
-                                             settings::RecordFrameCount{nb_frames_to_record},
-                                             settings::RecordMode{record_mode},
-                                             settings::RecordFrameSkip{0},
-                                             settings::OutputBufferSize{GSH::instance().get_output_buffer_size()});
-    batch_gpib_worker_controller_.start(batch_input_path,
-                                        all_settings);
-}
-
-void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }
-
 void Holovibes::start_information_display(const std::function<void()>& callback)
 {
     info_worker_controller_.set_callback(callback);
@@ -238,7 +209,6 @@ void Holovibes::stop_compute()
 {
     frame_record_worker_controller_.stop();
     chart_record_worker_controller_.stop();
-    batch_gpib_worker_controller_.stop();
     compute_worker_controller_.stop();
 }
 

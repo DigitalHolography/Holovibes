@@ -14,7 +14,6 @@
 #include "information_worker.hh"
 #include "chart_record_worker.hh"
 #include "frame_record_worker.hh"
-#include "batch_gpib_worker.hh"
 #include "compute_worker.hh"
 
 #include "common.cuh"
@@ -213,15 +212,6 @@ class Holovibes
 
     void stop_chart_record();
 
-    void start_batch_gpib(
-        const std::string& batch_input_path,
-        const std::string& output_path,
-        unsigned int nb_frames_to_record,
-        RecordMode record_mode,
-        const std::function<void()>& callback = []() {});
-
-    void stop_batch_gpib();
-
     void start_information_display(const std::function<void()>& callback = []() {});
 
     void stop_information_display();
@@ -304,8 +294,6 @@ class Holovibes
 
     worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
     worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
-
-    worker::ThreadWorkerController<worker::BatchGPIBWorker> batch_gpib_worker_controller_;
 
     worker::ThreadWorkerController<worker::InformationWorker> info_worker_controller_;
 

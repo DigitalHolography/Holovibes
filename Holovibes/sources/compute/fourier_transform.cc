@@ -33,8 +33,7 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
                                    holovibes::TimeTransformationEnv& time_transformation_env,
                                    const cudaStream_t& stream,
                                    ComputeCache::Cache& compute_cache,
-                                   ViewCache::Cache& view_cache,
-                                   Filter2DCache::Cache& filter2d_cache)
+                                   ViewCache::Cache& view_cache)
     : gpu_lens_(nullptr)
     , lens_side_size_(std::max(fd.height, fd.width))
     , gpu_lens_queue_(nullptr)
@@ -46,39 +45,45 @@ FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
     , stream_(stream)
     , compute_cache_(compute_cache)
     , view_cache_(view_cache)
-    , filter2d_cache_(filter2d_cache)
 {
     gpu_lens_.resize(fd_.get_frame_res());
 }
 
-void FourierTransform::insert_fft()
+void FourierTransform::insert_fft(float* gpu_filter2d_mask,
+                                  const uint width,
+                                  const uint height,
+                                  const uint radius_low,
+                                  const uint radius_high,
+                                  const uint smooth_low,
+                                  const uint smooth_high,
+                                  const SpaceTransformation space_transformation,
+                                  const bool filter2d_enabled)
 {
     LOG_FUNC();
 
-    if (view_cache_.get_filter2d_enabled())
+    if (filter2d_enabled)
     {
-        update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
-                                     fd_.width,
-                                     fd_.height,
-                                     filter2d_cache_.get_filter2d_n1(),
-                                     filter2d_cache_.get_filter2d_n2(),
-                                     filter2d_cache_.get_filter2d_smooth_low(),
-                                     filter2d_cache_.get_filter2d_smooth_high(),
+        update_filter2d_circles_mask(gpu_filter2d_mask,
+                                     width,
+                                     height,
+                                     radius_low,
+                                     radius_high,
+                                     smooth_low,
+                                     smooth_high,
                                      stream_);
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation
-        if (compute_cache_.get_space_transformation() != SpaceTransformation::FFT2)
+        if (space_transformation != SpaceTransformation::FFT2)
             insert_filter2d();
     }
 
-    if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT1)
+    if (space_transformation == SpaceTransformation::FFT1)
         insert_fft1();
-    else if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
+    else if (space_transformation == SpaceTransformation::FFT2)
         insert_fft2();
-    if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT1 ||
-        compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
-        fn_compute_vect_.push_back([=]() { enqueue_lens(); });
+    if (space_transformation == SpaceTransformation::FFT1 || space_transformation == SpaceTransformation::FFT2)
+        fn_compute_vect_.push_back([=]() { enqueue_lens(space_transformation); });
 }
 
 void FourierTransform::insert_filter2d()
@@ -176,7 +181,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 }
 
 // Inserted
-void FourierTransform::enqueue_lens()
+void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
 {
     // LOG-USELESS LOG_FUNC();
 
@@ -188,26 +193,27 @@ void FourierTransform::enqueue_lens()
 
         // For optimisation purposes, when FFT2 is activated, lens is shifted
         // We have to shift it again to ensure a good display
-        if (compute_cache_.get_space_transformation() == SpaceTransformation::FFT2)
+        if (space_transformation == SpaceTransformation::FFT2)
             shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.get_frame_res(), stream_);
     }
 }
 
-void FourierTransform::insert_time_transform()
+void FourierTransform::insert_time_transform(const TimeTransformation time_transformation,
+                                             const uint time_transformation_size)
 {
     LOG_FUNC();
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
+    if (time_transformation == TimeTransformation::STFT)
     {
         insert_stft();
     }
-    else if (compute_cache_.get_time_transformation() == TimeTransformation::PCA)
+    else if (time_transformation == TimeTransformation::PCA)
     {
         insert_pca();
     }
-    else if (compute_cache_.get_time_transformation() == TimeTransformation::SSA_STFT)
+    else if (time_transformation == TimeTransformation::SSA_STFT)
     {
         insert_ssa_stft();
     }
@@ -219,7 +225,7 @@ void FourierTransform::insert_time_transform()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
                 auto& q = time_transformation_env_.gpu_time_transformation_queue;
-                size_t size = compute_cache_.get_time_transformation_size() * fd_.get_frame_res() * sizeof(cuComplex);
+                size_t size = time_transformation_size * fd_.get_frame_res() * sizeof(cuComplex);
 
                 cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
             });
@@ -345,7 +351,7 @@ void FourierTransform::insert_ssa_stft()
         });
 }
 
-void FourierTransform::insert_store_p_frame()
+void FourierTransform::insert_store_p_frame(uint p_start)
 {
     LOG_FUNC();
 
@@ -358,32 +364,39 @@ void FourierTransform::insert_store_p_frame()
              * with respect to the host but never overlap with kernel execution*/
             cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
                              (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                                 view_cache_.get_p().start * frame_res,
+                                 p_start * frame_res,
                              sizeof(cuComplex) * frame_res,
                              cudaMemcpyDeviceToDevice,
                              stream_);
         });
 }
 
-void FourierTransform::insert_time_transformation_cuts_view()
+void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
+                                                            bool cuts_view_enabled,
+                                                            holovibes::ViewXY x,
+                                                            holovibes::ViewXY y,
+                                                            uint output_image_acc_xz,
+                                                            uint output_image_acc_yz,
+                                                            float* gpu_postprocess_frame_xz,
+                                                            float* gpu_postprocess_frame_yz,
+                                                            holovibes::ImgType img_type,
+                                                            uint time_transformation_size)
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (view_cache_.get_cuts_view_enabled())
+            if (cuts_view_enabled)
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;
 
                 // Conservation of the coordinates when cursor is outside of the
                 // window
-                const ushort width = fd_.width;
-                const ushort height = fd_.height;
+                const ushort width = fd.width;
+                const ushort height = fd.height;
 
-                ViewXY x = view_cache_.get_x();
-                ViewXY y = view_cache_.get_y();
                 if (x.start < width && y.start < height)
                 {
                     {
@@ -392,18 +405,18 @@ void FourierTransform::insert_time_transformation_cuts_view()
                     }
                     // -----------------------------------------------------
                     time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                                   buffers_.gpu_postprocess_frame_xz.get(),
-                                                   buffers_.gpu_postprocess_frame_yz.get(),
+                                                   gpu_postprocess_frame_xz,
+                                                   gpu_postprocess_frame_yz,
                                                    mouse_posx,
                                                    mouse_posy,
                                                    mouse_posx + x.width,
                                                    mouse_posy + y.width,
                                                    width,
                                                    height,
-                                                   compute_cache_.get_time_transformation_size(),
-                                                   view_cache_.get_xz_const_ref().output_image_accumulation,
-                                                   view_cache_.get_yz_const_ref().output_image_accumulation,
-                                                   view_cache_.get_img_type(),
+                                                   time_transformation_size,
+                                                   output_image_acc_xz,
+                                                   output_image_acc_yz,
+                                                   img_type,
                                                    stream_);
                 }
             }

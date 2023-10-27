@@ -2,7 +2,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     camera_dll.cc
     cli.cc
     compute_settings.cc
-    gpib_dll.cc
     options_parser.cc
     function_vector.cc
     queue.cc
@@ -73,7 +72,6 @@ target_sources("${PROJECT_NAME}_lib" PRIVATE
     io_files/output_frame_file_factory.cc
     io_files/output_frame_file.cc
 
-    thread/batch_gpib_worker.cc
     thread/camera_frame_read_worker.cc
     thread/chart_record_worker.cc
     thread/compute_worker.cc

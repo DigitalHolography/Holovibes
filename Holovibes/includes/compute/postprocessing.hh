@@ -32,10 +32,7 @@ class Postprocessing
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& fd,
-                   const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache,
-                   ViewCache::Cache& view_cache,
-                   AdvancedCache::Cache& advanced_cache);
+                   const cudaStream_t& streame);
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -44,14 +41,23 @@ class Postprocessing
     void dispose();
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
-    void insert_convolution();
+    void insert_convolution(bool convolution_enabled,
+                            const std::vector<float> convo_matrix,
+                            holovibes::ImgType img_type,
+                            float* gpu_postprocess_frame,
+                            float* gpu_convolution_buffer,
+                            bool divide_convolution_enabled);
 
     /*! \brief Insert the normalization function. */
-    void insert_renormalize();
+    void insert_renormalize(bool renorm_enabled,
+                            holovibes::ImgType img_type,
+                            float* gpu_postprocess_frame,
+                            unsigned int renorm_constant);
 
   private:
     /*! \brief Used only when the image is composite convolution to do a convolution on each component */
-    void convolution_composite();
+    void
+    convolution_composite(float* gpu_postprocess_frame, float* gpu_convolution_buffer, bool divide_convolution_enabled);
 
     cuda_tools::UniquePtr<cuComplex> gpu_kernel_buffer_;
     cuda_tools::UniquePtr<cuComplex> cuComplex_buffer_;
@@ -75,9 +81,5 @@ class Postprocessing
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief All view related variables, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-    ViewCache::Cache& view_cache_;
-    AdvancedCache::Cache& advanced_cache_;
 };
 } // namespace holovibes::compute

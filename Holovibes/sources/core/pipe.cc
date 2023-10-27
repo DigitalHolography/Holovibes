@@ -60,8 +60,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                                       time_transformation_env_,
                                                                       stream_,
                                                                       compute_cache_,
-                                                                      view_cache_,
-                                                                      filter2d_cache_);
+                                                                      view_cache_);
     rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                       buffers_,
                                                       chart_env_,
@@ -81,17 +80,11 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
                                                     plan_unwrap_2d_,
                                                     input.get_fd(),
                                                     stream_,
-                                                    compute_cache_,
-                                                    composite_cache_,
-                                                    view_cache_,
-                                                    zone_cache_);
+                                                    view_cache_);
     postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                              buffers_,
                                                              input.get_fd(),
-                                                             stream_,
-                                                             compute_cache_,
-                                                             view_cache_,
-                                                             advanced_cache_);
+                                                             stream_);
 
     *processed_output_fps_ = 0;
     update_time_transformation_size_requested_ = true;
@@ -422,7 +415,15 @@ void Pipe::refresh()
     converts_->insert_complex_conversion(gpu_input_queue_);
 
     // Spatial transform
-    fourier_transforms_->insert_fft();
+    fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
+                                    gpu_input_queue_.get_fd().width,
+                                    gpu_input_queue_.get_fd().height,
+                                    filter2d_cache_.get_filter2d_n1(),
+                                    filter2d_cache_.get_filter2d_n2(),
+                                    filter2d_cache_.get_filter2d_smooth_low(),
+                                    filter2d_cache_.get_filter2d_smooth_high(),
+                                    compute_cache_.get_space_transformation(),
+                                    view_cache_.get_filter2d_enabled());
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -436,19 +437,48 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // time transform
-    fourier_transforms_->insert_time_transform();
-    fourier_transforms_->insert_time_transformation_cuts_view();
+    fourier_transforms_->insert_time_transform(compute_cache_.get_time_transformation(),
+                                               compute_cache_.get_time_transformation_size());
+    fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
+                                                              view_cache_.get_cuts_view_enabled(),
+                                                              view_cache_.get_x(),
+                                                              view_cache_.get_y(),
+                                                              view_cache_.get_xz_const_ref().output_image_accumulation,
+                                                              view_cache_.get_yz_const_ref().output_image_accumulation,
+                                                              buffers_.gpu_postprocess_frame_xz.get(),
+                                                              buffers_.gpu_postprocess_frame_yz.get(),
+                                                              view_cache_.get_img_type(),
+                                                              compute_cache_.get_time_transformation_size());
     insert_cuts_record();
 
     // Used for phase increase
-    fourier_transforms_->insert_store_p_frame();
+    fourier_transforms_->insert_store_p_frame(view_cache_.get_p().start);
 
-    converts_->insert_to_float(unwrap_2d_requested_);
+    converts_->insert_to_float(unwrap_2d_requested_,
+                               view_cache_.get_img_type(),
+                               compute_cache_.get_time_transformation(),
+                               buffers_.gpu_postprocess_frame.get(),
+                               view_cache_.get_p(),
+                               compute_cache_.get_time_transformation_size(),
+                               composite_cache_.get_rgb(),
+                               composite_cache_.get_composite_kind(),
+                               composite_cache_.get_composite_auto_weights(),
+                               composite_cache_.get_hsv_const_ref(),
+                               zone_cache_.get_composite_zone(),
+                               compute_cache_.get_unwrap_history_size());
 
     insert_filter2d_view();
 
-    postprocess_->insert_convolution();
-    postprocess_->insert_renormalize();
+    postprocess_->insert_convolution(compute_cache_.get_convolution_enabled(),
+                                     compute_cache_.get_convo_matrix_const_ref(),
+                                     view_cache_.get_img_type(),
+                                     buffers_.gpu_postprocess_frame.get(),
+                                     buffers_.gpu_convolution_buffer.get(),
+                                     compute_cache_.get_divide_convolution_enabled());
+    postprocess_->insert_renormalize(view_cache_.get_renorm_enabled(),
+                                     view_cache_.get_img_type(),
+                                     buffers_.gpu_postprocess_frame.get(),
+                                     advanced_cache_.get_renorm_constant());
 
     image_accumulation_->insert_image_accumulation();
 

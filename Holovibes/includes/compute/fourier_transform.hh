@@ -39,23 +39,39 @@ class FourierTransform
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
                      holovibes::ComputeCache::Cache& compute_cache,
-                     ViewCache::Cache& view_cache,
-                     Filter2DCache::Cache& filter2d_cache_);
+                     ViewCache::Cache& view_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
-    void insert_fft();
+    void insert_fft(float* gpu_filter2d_mask,
+                    const uint width,
+                    const uint height,
+                    const uint radius_low,
+                    const uint radius_high,
+                    const uint smooth_low,
+                    const uint smooth_high,
+                    const SpaceTransformation space_transformation,
+                    const bool filter2d_enabled);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
-    void insert_store_p_frame();
+    void insert_store_p_frame(uint p_start);
 
     /*! \brief Get Lens Queue used to display the Fresnel lens. */
     std::unique_ptr<Queue>& get_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
-    void insert_time_transform();
+    void insert_time_transform(TimeTransformation time_transformation, const uint time_transformation_size);
 
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
-    void insert_time_transformation_cuts_view();
+    void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
+                                              bool cuts_view_enabled,
+                                              holovibes::ViewXY x,
+                                              holovibes::ViewXY y,
+                                              uint output_image_acc_xz,
+                                              uint output_image_acc_yz,
+                                              float* gpu_postprocess_frame_xz,
+                                              float* gpu_postprocess_frame_yz,
+                                              holovibes::ImgType img_type,
+                                              uint time_transformation_size);
 
   private:
     /*! \brief Enqueue the call to filter2d cuda function. */
@@ -71,7 +87,7 @@ class FourierTransform
      *
      * It will enqueue the lens, and normalize it, in order to display it correctly later.
      */
-    void enqueue_lens();
+    void enqueue_lens(SpaceTransformation space_transformation);
 
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
@@ -115,6 +131,6 @@ class FourierTransform
 
     ComputeCache::Cache& compute_cache_;
     ViewCache::Cache& view_cache_;
-    Filter2DCache::Cache& filter2d_cache_;
+    // Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace holovibes::compute

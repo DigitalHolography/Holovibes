@@ -39,13 +39,21 @@ class Converts
              cuda_tools::CufftHandle& plan2d,
              const camera::FrameDescriptor& input_fd,
              const cudaStream_t& stream,
-             ComputeCache::Cache& compute_cache,
-             CompositeCache::Cache& composite_cache,
-             ViewCache::Cache& view_cache,
-             ZoneCache::Cache& zone_cache);
+             ViewCache::Cache& view_cache);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
-    void insert_to_float(bool unwrap_2d_requested);
+    void insert_to_float(bool unwrap_2d_requested,
+                         ImgType img_type,
+                         TimeTransformation time_transformation,
+                         float* buffers_gpu_postprocess_frame,
+                         ViewPQ p,
+                         uint time_transformation_size,
+                         holovibes::CompositeRGB rgb,
+                         CompositeKind composite_kind,
+                         bool composite_auto_weights,
+                         const holovibes::CompositeHSV& composite_hsv,
+                         holovibes::units::RectFd composite_zone,
+                         unsigned int unwrap_history_size);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
     void insert_to_ushort();
@@ -55,22 +63,28 @@ class Converts
 
   private:
     /*! \brief Set pmin_ and pmax_ according to p accumulation. */
-    void insert_compute_p_accu();
+    void insert_compute_p_accu(uint time_transformation_size, ViewPQ p);
 
     /*! \brief Insert the convertion Complex => Modulus */
-    void insert_to_modulus();
+    void insert_to_modulus(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Squared Modulus */
-    void insert_to_squaredmodulus();
+    void insert_to_squaredmodulus(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Composite */
-    void insert_to_composite();
+    void insert_to_composite(holovibes::CompositeRGB rgb,
+                             uint time_transformation_size,
+                             holovibes::CompositeKind composite_kind,
+                             float* gpu_postprocess_frame,
+                             bool composite_auto_weights,
+                             const holovibes::CompositeHSV& hsv,
+                             holovibes::units::RectFd composite_zone);
 
     /*! \brief Insert the convertion Complex => Argument */
-    void insert_to_argument(bool unwrap_2d_requested);
+    void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Phase increase */
-    void insert_to_phase_increase(bool unwrap_2d_requested);
+    void insert_to_phase_increase(bool unwrap_2d_requested, unsigned int unwrap_history_size, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Float => Unsigned Short in XY window */
     void insert_main_ushort();
@@ -105,11 +119,6 @@ class Converts
     const cudaStream_t& stream_;
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    CompositeCache::Cache& composite_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ViewCache::Cache& view_cache_;
-    ZoneCache::Cache& zone_cache_;
 };
 } // namespace holovibes::compute
