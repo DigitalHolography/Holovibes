@@ -21,4 +21,5 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     test_reduce.cu
     unpack.cu
     apply_mask.cu
+    input_filter.cu
 )

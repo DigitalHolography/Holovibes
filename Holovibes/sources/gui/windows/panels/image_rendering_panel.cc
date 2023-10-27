@@ -234,13 +234,6 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
-    LOG_FUNC();
-
-    if (!api::get_filter_enabled())
-        return;
-
-    LOG_INFO("FILTER ENABLED");
-
     UserInterfaceDescriptor::instance().filter_name = value.toStdString();
     
     api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
