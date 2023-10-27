@@ -14,9 +14,12 @@ namespace holovibes
 {
 class InputFilter
 {
-    float* gpu_filter;
-    size_t width;
-    size_t height;
+    std::vector<float> gpu_filter;
+    unsigned int width;
+    unsigned int height;
+
+    // Returns the pure image as a char buffer AND sets the width and height of the object
+    char* read_bmp(std::string path);
 
     void normalize_filter(const cudaStream_t stream);
 
