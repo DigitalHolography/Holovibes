@@ -25,7 +25,7 @@ class InputFilter
     void interpolate_filter(size_t fd_width, size_t fd_height, const cudaStream_t stream);
 
   public:
-    InputFilter(std::string path);
+    InputFilter(std::shared_ptr<std::vector<float>> cache_image, std::string path);
 
     InputFilter(InputFilter& InputFilter) = default;
 
