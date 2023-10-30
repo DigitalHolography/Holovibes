@@ -5,52 +5,53 @@ namespace holovibes
 
 
 // Returns the pure image as a char buffer AND sets the width and height of the object
-unsigned char* InputFilter::read_bmp(const char* path)
+void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
 {
     FILE* f = fopen(path, "rb"); // we do it in pure c because we are S P E E D.
-    if (f == NULL)
+    if(f == NULL)
     {
-        LOG_ERROR("Cannot open image");
+        LOG_ERROR("InputFilter::read_bmp: IO error");
         exit(0);
     }
 
     // read the 54-byte header
     unsigned char info[54];
-    try
+    int e;
+    e = fread(info, sizeof(unsigned char), 54, f);
+    if(e < 0)
     {
-        fread(info, sizeof(unsigned char), 54, f);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR(e.what());
+        LOG_ERROR("InputFilter::read_bmp: IO error");
+        exit(0);
     }
 
     // extract image height and width from header
     width = *(int*)&info[18];
     height = *(int*)&info[22];
 
-    // allocate a byte per pixel
+    // reallocate a byte per pixel
     int size = width * height;
-    unsigned char* data = new unsigned char[size];
+    cache_image->resize(size);
 
-    // read the rest of the data at once
-
+    // read the rest of the data pixel by pixel
     unsigned char* pixel = new unsigned char[3];
+    float color;
     for(int i = 0; i < size; i++){
-        try
+        // Read 3 bytes (r, g and b)
+        e = fread(pixel, sizeof(unsigned char), 3, f);
+        if(e < 0)
         {
-            fread(pixel, sizeof(unsigned char), 3, f); 
-            data[i] = ((pixel[0] + pixel[1] + pixel[2]) / 3);
+            LOG_ERROR("InputFilter::read_bmp: IO error");
+            exit(0);
         }
-        catch(const std::exception& e)
-        {
-            LOG_ERROR(e.what());
-        }
+        // Convert to shade of grey with magic numbers (channel-dependant luminance perception)
+        color = pixel[0] * 0.0722f + pixel[1] * 0.7152f + pixel[2] * 0.2126f;
+        // Flatten in [0,1]
+        color /= 255;
+
+        cache_image->at(i) = color;
     }
 
     fclose(f);
-
-    return data;
 }
 
 void get_min_max(float* filter, size_t frame_res, float* min, float* max)
@@ -62,18 +63,6 @@ void get_min_max(float* filter, size_t frame_res, float* min, float* max)
             *max = val;
         if (val < *min)
             *min = val;
-    }
-}
-
-void InputFilter::normalize_filter(float* filter, size_t frame_res)
-{
-    float min = 1.0f;
-    float max = 0.0f;
-    get_min_max(filter, frame_res, &min, &max);
-
-    for (size_t i = 0; i < frame_res; i++)
-    {
-        filter[i] = (filter[i] - min) / (max - min);
     }
 }
 
@@ -93,9 +82,9 @@ void InputFilter::interpolate_filter(
 
             // Get the coordinates of the 4 neighboring pixels
             size_t floor_x = static_cast<size_t>(floorf(input_x_float));
-            size_t ceil_x = min(fd_width - 1, static_cast<size_t>(ceilf(input_x_float)));
+            size_t ceil_x = fmin(fd_width - 1, static_cast<size_t>(ceilf(input_x_float)));
             size_t floor_y = static_cast<size_t>(floorf(input_y_float));
-            size_t ceil_y = min(fd_height - 1, static_cast<size_t>(ceilf(input_y_float)));
+            size_t ceil_y = fmin(fd_height - 1, static_cast<size_t>(ceilf(input_y_float)));
 
             // Get the values of the 4 neighboring pixels
             float v00 = filter_input[floor_y * width + floor_x];
