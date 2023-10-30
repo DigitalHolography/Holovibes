@@ -18,14 +18,16 @@ class InputFilter
     unsigned int height;
 
     // Returns the pure image as a char buffer AND sets the width and height of the object
-    unsigned char* read_bmp(char* path);
+    unsigned char* read_bmp(const char* path);
 
     void normalize_filter(const cudaStream_t stream);
 
     void interpolate_filter(size_t fd_width, size_t fd_height, const cudaStream_t stream);
 
   public:
-    InputFilter(std::shared_ptr<std::vector<float>> cache_image, std::string path);
+    InputFilter(std::shared_ptr<std::vector<float>> cache_image, std::string path){
+      read_bmp(path.c_str());
+    }
 
     InputFilter(InputFilter& InputFilter) = default;
 

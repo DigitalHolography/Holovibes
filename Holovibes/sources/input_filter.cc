@@ -4,7 +4,7 @@ namespace holovibes
 {
 
 // Returns the pure image as a char buffer AND sets the width and height of the object
-unsigned char* InputFilter::read_bmp(char* path){
+unsigned char* InputFilter::read_bmp(const char* path){
     FILE* f = fopen(path, "rb"); // we do it in pure c because we are S P E E D.
     if (f == NULL){
         LOG_ERROR("Cannot open image");
