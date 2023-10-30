@@ -17,7 +17,7 @@ class InputFilter
     unsigned int width;
     unsigned int height;
 
-    // Returns the pure image as a char buffer AND sets the width and height of the object
+    // Returns the pure image in shades of grey as a char buffer AND sets the width and height of the object
     unsigned char* read_bmp(const char* path);
 
     void normalize_filter(const cudaStream_t stream);
