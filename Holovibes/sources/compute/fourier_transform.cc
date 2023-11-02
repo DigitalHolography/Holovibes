@@ -9,6 +9,7 @@
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "filter2D.cuh"
+#include "input_filter.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "transforms.cuh"
@@ -65,6 +66,15 @@ void FourierTransform::insert_fft()
                                      filter2d_cache_.get_filter2d_smooth_low(),
                                      filter2d_cache_.get_filter2d_smooth_high(),
                                      stream_);
+
+        if (compute_cache_.get_filter_enabled())
+        {
+            apply_filter(buffers_.gpu_filter2d_mask,
+                         compute_cache_.get_input_filter_const_ref().data(),
+                         fd_.width,
+                         fd_.height,
+                         stream_);
+        }
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation

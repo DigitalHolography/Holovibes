@@ -152,10 +152,10 @@ MainWindow::MainWindow(QWidget* parent)
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
-        files.push_back(QString(UID_FILTER_TYPE_DEFAULT));
         for (const auto& file : std::filesystem::directory_iterator(input_filters_path))
             files.push_back(QString(file.path().filename().string().c_str()));
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
+        files.push_front(QString(UID_FILTER_TYPE_DEFAULT));
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 

@@ -1,13 +1,31 @@
 #include "input_filter.cuh"
 
-#include <thrust/transform.h>
-#include <thrust/execution_policy.h>
+#include "cuda_memory.cuh"
+#include "shift_corners.cuh"
 
-void apply_filter(float* gpu_filter, cuComplex* gpu_input, size_t frame_res, const cudaStream_t stream)
+void __global__ kernel_multiply_filters(float* gpu_filter2d_mask, float* gpu_input_filter, size_t frame_res)
 {
-    /*auto exec_policy = thrust::cuda::par.on(stream);
+    const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+    if (id < frame_res)
+    {
+        gpu_filter2d_mask[id] *= gpu_input_filter[id];
+    }
+}
 
-    auto mult_func = []  __device__ (cuComplex a, float b) {return make_cuComplex(a.x * b, a.y * b)};
+void apply_filter(
+    float* gpu_filter2d_mask, const float* input_filter, size_t width, size_t height, const cudaStream_t stream)
+{
+    size_t frame_res = width * height;
 
-    thrust::transform(exec_policy, gpu_input, gpu_input + frame_res, gpu_filter, mult_func);*/
+    float* gpu_input_filter;
+    cudaXMalloc(&gpu_input_filter, frame_res * sizeof(float));
+    cudaXMemcpyAsync(gpu_input_filter, input_filter, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream);
+
+    shift_corners(gpu_input_filter, 1, width, height, stream);
+
+    const uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_multiply_filters<<<blocks, threads, 0, stream>>>(gpu_filter2d_mask, gpu_input_filter, frame_res);
+
+    cudaXFree(gpu_input_filter);
 }
