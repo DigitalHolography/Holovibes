@@ -121,8 +121,9 @@ void InputFilter::write_bmp(std::shared_ptr<std::vector<float>> cache_image, con
     {
         for (size_t j = 0; j < width; j++)
         {
-            myfile << cache_image->at(i * width + j) << std::endl;
+            myfile << std::format("{:1.1} ", cache_image->at(i * width + j));
         }
+        myfile << std::endl;
     }
     myfile.close();
 }
@@ -161,20 +162,39 @@ void bilinear_interpolation(
             float v10 = filter_input[ceil_y * width + floor_x];
             float v11 = filter_input[ceil_y * width + ceil_x];
 
-            if (y == 5)
-            {
-                LOG_INFO(std::to_string(v00) + " " + std::to_string(v01) + " " + std::to_string(v10) + " " + std::to_string(v11));
-            }
-
             // Compute the value of the output pixel using bilinear interpolation
-            float q1 = v00 * (ceil_x - input_x_float) + v01 * (input_x_float - floor_x);
-            float q2 = v10 * (ceil_x - input_x_float) + v11 * (input_x_float - floor_x);
-            float q = q1 * (ceil_y - input_y_float) + q2 * (input_y_float - floor_y);
+            float q = 0.0f;
+            if (ceil_x == floor_x)
+            {
+                if (ceil_y == floor_y)
+                {
+                    // Very special case where all the points coincide
+                    q = v00;
+                }
+                else
+                {
+                    // we can interchange v00 with v01 and v10 with v11 as floor_x and ceil_x coincide
+                    q = v00 * (ceil_y - input_y_float) + v10 * (input_y_float - floor_y);
+                }
+            }
+            else
+            {
+                if (ceil_y == floor_y)
+                {
+                    // we can interchange v00 with v10 and v01 with v11 as floor_y and ceil_y coincide
+                    q = v00 * (ceil_x - input_x_float) + v01 * (input_x_float - floor_x);
+                }
+                else
+                {
+                    // General case
+                    float q1 = v00 * (ceil_x - input_x_float) + v01 * (input_x_float - floor_x);
+                    float q2 = v10 * (ceil_x - input_x_float) + v11 * (input_x_float - floor_x);
+                    q = q1 * (ceil_y - input_y_float) + q2 * (input_y_float - floor_y);
+                }
+            }
 
             // Set the output pixel value
             filter_output[y * fd_width + x] = q;
-            //if (q > 0.1 || q < 0)
-            //    LOG_INFO("value = " + std::to_string(q));
         }
     }
 }

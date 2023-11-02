@@ -61,8 +61,8 @@ class InputFilter
   public:
     InputFilter(std::shared_ptr<std::vector<float>> cache_image, std::string path, size_t fd_width, size_t fd_height){
       read_bmp(cache_image, path.c_str());
-      //interpolate_filter(cache_image, fd_width, fd_height);
-      write_bmp(cache_image, path.c_str());
+      interpolate_filter(cache_image, fd_width, fd_height);
+      //write_bmp(cache_image, path.c_str());
     }
 
     InputFilter(InputFilter& InputFilter) = default;
