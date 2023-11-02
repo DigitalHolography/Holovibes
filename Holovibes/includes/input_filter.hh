@@ -12,6 +12,39 @@
 
 namespace holovibes
 {
+  
+const int MIN_RGB=0;
+const int MAX_RGB=255;
+const int BMP_IDENTIFICATOR_SIZE=2;
+
+// Windows BMP-specific format data
+struct bmp_identificator
+{
+    unsigned char identificator[BMP_IDENTIFICATOR_SIZE];
+};
+
+struct bmp_header
+{
+	unsigned int file_size;
+	unsigned short creator1;
+	unsigned short creator2;
+	unsigned int bmp_offset;
+};
+
+struct bmp_device_independant_info
+{
+  unsigned int header_size;
+  int width;
+  int height;
+  unsigned short num_planes;
+  unsigned short bits_per_pixel;
+  unsigned int compression;
+  unsigned int bmp_byte_size;
+  int hres;
+  int vres;
+  unsigned int num_colors;
+  unsigned int num_important_colors;
+};
 class InputFilter
 {
     unsigned int width;
