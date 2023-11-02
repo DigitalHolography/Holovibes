@@ -3,8 +3,6 @@
 namespace holovibes
 {
 
-
-// Returns the pure image as a char buffer AND sets the width and height of the object
 void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
 {
     FILE* f = fopen(path, "rb"); // we do it in pure c because we are S P E E D.
