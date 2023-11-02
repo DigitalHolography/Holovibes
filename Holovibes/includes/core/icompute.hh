@@ -63,6 +63,9 @@ struct CoreBuffersEnv
     cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
     /*! \brief Filter2d mask applied to gpu_spatial_transformation_buffer */
     cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
+
+    /*! \brief InputFilter mask */
+    cuda_tools::UniquePtr<float> gpu_input_filter_mask = nullptr;
 };
 
 /*! \struct BatchEnv

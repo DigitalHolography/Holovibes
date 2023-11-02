@@ -446,6 +446,7 @@ void handle_update_exception()
     api::set_p_index(0);
     api::set_time_transformation_size(1);
     api::disable_convolution();
+    api::disable_filter();
 }
 
 void set_filter2d(bool checked)
@@ -802,6 +803,8 @@ void close_critical_compute()
 {
     if (get_convolution_enabled())
         disable_convolution();
+    if (get_filter_enabled())
+        disable_filter();
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
@@ -1076,13 +1079,12 @@ void enable_filter(const std::string& filename)
 
 void disable_filter()
 {
-
-    GSH::instance().disable_convolution();
+    GSH::instance().disable_filter();
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request_disable_convolution();
-        while (pipe->get_disable_convolution_requested())
+        pipe->request_disable_filter();
+        while (pipe->get_disable_filter_requested())
             continue;
     }
     catch (const std::exception& e)

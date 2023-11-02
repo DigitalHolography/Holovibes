@@ -44,7 +44,7 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
         // Convert to shade of grey with magic numbers (channel-dependant luminance perception)
         color = pixel[0] * 0.0722f + pixel[1] * 0.7152f + pixel[2] * 0.2126f;
         // Flatten in [0,1]
-        color /= 255;
+        color /= 255.0f;
 
         cache_image->at(i) = color;
     }
@@ -52,19 +52,20 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
     fclose(f);
 }
 
-void get_min_max(float* filter, size_t frame_res, float* min, float* max)
+void InputFilter::write_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
 {
-    for (size_t i = 0; i < frame_res; i++)
+    for (size_t i = 0; i < height; i++)
     {
-        float val = filter[i];
-        if (val > *max)
-            *max = val;
-        if (val < *min)
-            *min = val;
+        //printf("%.1f ", cache_image->at(i * width));
+        /*
+        for (size_t j = 0; j < width; j++)
+        {
+        }
+        */
     }
 }
 
-void InputFilter::interpolate_filter(
+void bilinear_interpolation(
     float* filter_input, float* filter_output, size_t width, size_t height, size_t fd_width, size_t fd_height)
 {
     float w_ratio = (float)width / (float)fd_width;
@@ -101,6 +102,16 @@ void InputFilter::interpolate_filter(
     }
 }
 
-void InputFilter::apply_filter(cuComplex* gpu_input, size_t fd_width, size_t fd_height, const cudaStream_t stream) {}
+void InputFilter::interpolate_filter(std::shared_ptr<std::vector<float>> cache_image, size_t fd_width, size_t fd_height)
+{
+    std::vector<float> copy_filter(cache_image->begin(), cache_image->end());
+
+    cache_image->resize(fd_width * fd_height);
+
+    bilinear_interpolation(copy_filter.data(), cache_image->data(), width, height, fd_width, fd_height);
+
+    width = fd_width;
+    height = fd_height;
+}
 
 } // namespace holovibes
