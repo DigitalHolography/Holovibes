@@ -1,5 +1,8 @@
 #include "input_filter.hh"
 
+#include <iostream>
+#include <fstream>
+
 namespace holovibes
 {
 void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
@@ -112,22 +115,31 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
 
 void InputFilter::write_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
 {
+    std::ofstream myfile;
+    myfile.open("image.txt");
     for (size_t i = 0; i < height; i++)
     {
-        //printf("%.1f ", cache_image->at(i * width));
-        /*
         for (size_t j = 0; j < width; j++)
         {
+            myfile << cache_image->at(i * width + j) << std::endl;
         }
-        */
     }
+    myfile.close();
 }
 
 void bilinear_interpolation(
     float* filter_input, float* filter_output, size_t width, size_t height, size_t fd_width, size_t fd_height)
 {
+    LOG_INFO("width = " + std::to_string(width));
+    LOG_INFO("height = " + std::to_string(height));
+    LOG_INFO("fd_width = " + std::to_string(fd_width));
+    LOG_INFO("fd_height = " + std::to_string(fd_height));
+
     float w_ratio = (float)width / (float)fd_width;
     float h_ratio = (float)height / (float)fd_height;
+
+    LOG_INFO("w_ration = " + std::to_string(w_ratio));
+    LOG_INFO("h_ration = " + std::to_string(h_ratio));
 
     for (size_t y = 0; y < fd_height; y++)
     {
@@ -139,15 +151,20 @@ void bilinear_interpolation(
 
             // Get the coordinates of the 4 neighboring pixels
             size_t floor_x = static_cast<size_t>(floorf(input_x_float));
-            size_t ceil_x = fmin(fd_width - 1, static_cast<size_t>(ceilf(input_x_float)));
+            size_t ceil_x = fmin(width - 1, static_cast<size_t>(ceilf(input_x_float)));
             size_t floor_y = static_cast<size_t>(floorf(input_y_float));
-            size_t ceil_y = fmin(fd_height - 1, static_cast<size_t>(ceilf(input_y_float)));
+            size_t ceil_y = fmin(height - 1, static_cast<size_t>(ceilf(input_y_float)));
 
             // Get the values of the 4 neighboring pixels
             float v00 = filter_input[floor_y * width + floor_x];
             float v01 = filter_input[floor_y * width + ceil_x];
             float v10 = filter_input[ceil_y * width + floor_x];
             float v11 = filter_input[ceil_y * width + ceil_x];
+
+            if (y == 5)
+            {
+                LOG_INFO(std::to_string(v00) + " " + std::to_string(v01) + " " + std::to_string(v10) + " " + std::to_string(v11));
+            }
 
             // Compute the value of the output pixel using bilinear interpolation
             float q1 = v00 * (ceil_x - input_x_float) + v01 * (input_x_float - floor_x);
@@ -156,6 +173,8 @@ void bilinear_interpolation(
 
             // Set the output pixel value
             filter_output[y * fd_width + x] = q;
+            //if (q > 0.1 || q < 0)
+            //    LOG_INFO("value = " + std::to_string(q));
         }
     }
 }
@@ -165,6 +184,7 @@ void InputFilter::interpolate_filter(std::shared_ptr<std::vector<float>> cache_i
     std::vector<float> copy_filter(cache_image->begin(), cache_image->end());
 
     cache_image->resize(fd_width * fd_height);
+    std::fill(cache_image->begin(), cache_image->end(), 0.0f);
 
     bilinear_interpolation(copy_filter.data(), cache_image->data(), width, height, fd_width, fd_height);
 

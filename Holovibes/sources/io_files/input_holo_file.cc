@@ -173,18 +173,18 @@ void InputHoloFile::import_compute_settings()
     else
         LOG_ERROR("HOLO file version not supported!");
 
-    std::ifstream ifs(holovibes::settings::compute_settings_filepath);
-    auto footer_json = json::parse(ifs);
-    auto full_meta_data_ = json::parse("{}");
-    full_meta_data_["compute_settings"] = footer_json;
-    rec_fill_default_json(full_meta_data_, meta_data_);
-
     if (!has_footer)
     {
-        from_json(full_meta_data_, raw_footer_);
+        from_json(meta_data_, raw_footer_);
     }
     else
     {
+        auto full_meta_data_ = json::parse("{}");
+        raw_footer_.Update();
+        to_json(full_meta_data_, raw_footer_);
+        full_meta_data_["compute_settings"] = full_meta_data_;
+        rec_fill_default_json(full_meta_data_, meta_data_);
+
         from_json(full_meta_data_["compute_settings"], raw_footer_);
     }
 
