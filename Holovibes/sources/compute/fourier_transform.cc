@@ -70,6 +70,7 @@ void FourierTransform::insert_fft()
         if (compute_cache_.get_filter_enabled())
         {
             apply_filter(buffers_.gpu_filter2d_mask,
+                         buffers_.gpu_input_filter_mask,
                          compute_cache_.get_input_filter_const_ref().data(),
                          fd_.width,
                          fd_.height,

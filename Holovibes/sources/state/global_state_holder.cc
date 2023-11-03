@@ -315,6 +315,8 @@ void GSH::enable_filter(std::optional<std::string> file)
     // There is no file None.txt for filtering
     if (file && file.value() != "None")
         load_input_filter(compute_cache_.get_input_filter_ref(), file.value());
+    else
+        disable_filter();
 }
 
 void GSH::set_filter_enabled(bool value) { compute_cache_.set_filter_enabled(value); }

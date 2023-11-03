@@ -131,16 +131,8 @@ void InputFilter::write_bmp(std::shared_ptr<std::vector<float>> cache_image, con
 void bilinear_interpolation(
     float* filter_input, float* filter_output, size_t width, size_t height, size_t fd_width, size_t fd_height)
 {
-    LOG_INFO("width = " + std::to_string(width));
-    LOG_INFO("height = " + std::to_string(height));
-    LOG_INFO("fd_width = " + std::to_string(fd_width));
-    LOG_INFO("fd_height = " + std::to_string(fd_height));
-
     float w_ratio = (float)width / (float)fd_width;
     float h_ratio = (float)height / (float)fd_height;
-
-    LOG_INFO("w_ration = " + std::to_string(w_ratio));
-    LOG_INFO("h_ration = " + std::to_string(h_ratio));
 
     for (size_t y = 0; y < fd_height; y++)
     {
