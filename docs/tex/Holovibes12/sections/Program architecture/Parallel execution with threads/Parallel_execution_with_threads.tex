@@ -1,0 +1,13 @@
+Our program relies on multiple crucial asynchronous threads to record input frames into CPU memory, copy these frames into GPU memory, process the data stream, export output frames, and display to and query from the user interface. Some others threads are used to create plots from the output data, perform sequential series of measurements, and communicate with external scientific instruments.
+
+\subsubsection*{Main thread}
+\input{sections/Program architecture/Parallel execution with threads/Main_thread}
+
+\subsubsection*{Input thread}
+\input{sections/Program architecture/Parallel execution with threads/Input_thread}
+
+\subsubsection*{Compute thread}
+\input{sections/Program architecture/Parallel execution with threads/Compute_thread}
+
+\subsubsection*{Record thread}
+\input{sections/Program architecture/Parallel execution with threads/Record_thread}

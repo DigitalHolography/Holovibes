@@ -1,0 +1,41 @@
+%\begin{ExportCache}
+
+\subsection{ExportCache}
+\begin{itemize}
+    \item Record
+    \item ExportScriptPath
+    \item OutputFrameDescriptor
+    \item ExportRecordDontLoseFrame
+\end{itemize}
+
+\subsubsection{Record}
+\noindent
+Type : Struct Record \{ std::string : file\_path, uint : nb\_to\_record, uint : nb\_to\_skip, bool : is\_running, enum RecordType \{ NONE or CHART or RAW or HOLOGRAM or CUTS\_XZ or CUTS\_YZ \} : record\_type \}\\
+Unit : Struct\\
+DefaultValue : \{ "", 0, 0, false, RAW\}\\
+Pre-Condition : None\\
+Description : Holds all information record related\\
+
+\subsubsection{ExportScriptPath}
+\noindent
+Type : String\\
+Unit : file path\\
+DefaultValue : ""\\
+Pre-Condition : None\\
+Description : Script gpib used on record\\
+
+\subsubsection{OutputFrameDescriptor}
+\noindent
+Type : Struct FrameDescriptor \{ ushort : width, ushort: height, uint : depth, Enum Endiannes \{ LittleEndian or BigEndian\} : byteEndian \}\\
+Unit : struct\\
+DefaultValue : \{ 0, 0, 0, LittleEndian\}\\
+Pre-Condition : Describes record frames format\\
+
+\subsubsection{ExportRecordDontLoseFrame}
+\noindent
+Type : Boolean\\
+Unit : \\
+DefaultValue : false\\
+Pre-Condition : None\\
+Description : Enforce Holovibes to wait frames on record\\
+%\end{ExportCache}

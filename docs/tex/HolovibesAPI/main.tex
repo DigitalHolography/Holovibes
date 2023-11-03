@@ -1,0 +1,211 @@
+\documentclass[
+ reprint,
+ superscriptaddress,
+ amsmath,
+ amssymb,
+ aps,
+]{revtex4-2}
+
+\usepackage[colorlinks = true,
+            linkcolor = blue,
+            urlcolor  = blue,
+            citecolor = blue,
+            anchorcolor = blue]
+            {hyperref}%
+            
+\usepackage{graphicx}% Include figure files
+\graphicspath{ {./Assets/} }
+
+\usepackage{dcolumn}%
+\usepackage{bm}% bold math
+\usepackage{titlesec}
+
+\usepackage{listings}
+
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\small,% basic font setting \small, \tiny, \footnsiz. \normalsize
+}
+
+\newcommand{\entryparam}[6]{
+\subsubsection{#1}
+\noindent
+Type : #2\\
+Unit : #3\\
+Default-Value : #4\\
+Pre-Condition : #5\\
+Description : #6\\ }
+
+\begin{document}
+
+\title{Application programming interface of the Holovibes rendering engine}
+
+\author{Julien Nicolle}
+\author{Damien Didier}
+\author{Sacha Bellier}
+\author{David Chemaly}
+\author{Adrien Langou}
+\author{Philippe Bernet}
+\author{Eliott Bouhana}
+\author{Fabien Colmagro}
+\author{Marius Dubosc}
+\author{Guillaume Poisson}
+\author{Michael Atlan}
+\affiliation{
+Centre National de la Recherche Scientifique (CNRS) UMR 7587, Institut Langevin. Paris Sciences et Lettres (PSL) University, Universit\'e Pierre et Marie Curie (UPMC), Universit\'e Paris 7. \'Ecole Sup\'erieure de Physique et de Chimie Industrielles ESPCI Paris - 1 rue Jussieu. 75005 Paris. France
+}
+
+\date{\today}
+
+\begin{abstract}
+This document describes the application programming interface (API) of the digital hologram rendering engine of the holovibes software. Guidelines for practical implementation of the API include a description of its logic, entry points, and usage. This software interface controls high bitrate digital hologram rendering and temporal demodulation from interference pattern streams from cameras or files by graphics processing units.
+\end{abstract}
+
+\maketitle
+
+\tableofcontents
+
+\section{\label{sec:intro} Introduction}
+
+Holovibes is a digital hologram streaming software.\\
+The increasing availability of ultra-fast cameras and graphic processing units (GPU) parallel computing power fuel the development of non-invasive digital holographic techniques that will predictably drive the democratization of compute-intensive imaging in real-time \cite{Leutenegger2011Real, samson2011video, Bencteux2015Holographic, Puyo2020Realtime}.
+An application programming interface (API) is a way for two or more computer programs to communicate with each other. It is a type of software interface, offering a service to other pieces of software.[1] A document or standard that describes how to build or uses such a connection or interface is called an API specification. A computer system that meets this standard is said to implement or expose an API. The term API may refer either to the specification or to the implementation.\\
+In contrast to a user interface, which connects a computer to a person, an application programming interface connects computers or pieces of software to each other. It is not intended to be used directly by a person (the end user) other than a computer programmer who is incorporating it into the software. An API is often made up of different parts which act as tools or services that are available to the programmer. A program or a programmer that uses one of these parts is said to call that portion of the API. The calls that make up the API are also known as subroutines, methods, requests, or endpoints. An API specification defines these calls, meaning that it explains how to use or implement them.\\
+One purpose of APIs is to hide the internal details of how a system works, exposing only those parts a programmer will find useful and keeping them consistent even if the internal details later change. An API may be custom-built for a particular pair of systems, or it may be a shared standard allowing interoperability among many systems.\\
+Our API work for the most part as a proxy to something called the 'Microcache' which is basically a container containing all states of all variables. Firstly, we will describe all entry points to the API. Then we will explain the execution flow of the API. It is recommended to read that part as it provides an in depth explanation of logs system and how to use the API.\\
+The API is divided into different smaller 'cache'. These are inherent to how we handle different aggregate of variable. Technically you do not care about what is the cache that stores a particular variable, however, it could be useful to know because each cache as a specific theme (one for which windows are visible / another for compute settings ...) 
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\linewidth]{Holovibes, Microcache Pipeline.png}
+    \caption{Caption}
+    \label{fig_pipeline}
+\end{figure*}
+
+\section{API logic}
+
+\subsection{Getters/Setters}
+Before explaining all functions that are available, we will explain how our logic of getters / setters(Common method name in OOP[Object Oriented Programming] to get and set a specific field inside class, here our caches) works.\\
+Our setters especially are complex because we want to execute all the 'Microcache' variable each time a variable changes and after all requests from the client are handled. For this, we have 3 types, two are really common : 
+
+\begin{lstlisting}
+T get_value<T>();
+void set_value<T>(const T&);
+\end{lstlisting}
+
+The first one is for getting the value, you need 
+
+\section{API Entry Points}
+All the caches that we are speaking about are (remember that you don't have to know this to use the API, they are only useful to determine the theme of a variable)
+\begin{itemize}
+    \item AdvancedCache 
+    \item ComputeCache
+    \item ImportCache
+    \item ExportCache
+    %\item CompositeCache
+    \item ViewCache
+    %\item ZoneCache
+\end{itemize}
+
+Input variables / Computation settings
+\input{CacheDocumentation/AdvancedCache}
+\input{CacheDocumentation/ComputeCache}
+\input{CacheDocumentation/ImportCache}
+\input{CacheDocumentation/ExportCache}
+%\input{CacheDocumentation/CompositeCache}
+\input{CacheDocumentation/ViewCache}
+%\input{CacheDocumentation/ZoneCache}
+
+\input{FrontEndAPI}
+\input{MicrocachePipeline}
+
+\section{New Data Types Created For Holovibes}
+\subsection{Namespace Units}
+Units is a namespace that contains RectFds.
+\subsubsection{RectFds}
+RectFds is a class that define a framedescriptor, it is a templated class by FdPixel, 
+\subsubsection{Smooth}
+RectFds is a class that define a framedescriptor
+\subsubsection{Smooth2}
+
+
+% ---
+% ONECOLUMN STARTS
+\onecolumngrid
+\hfill
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+% LINE AND SPACING
+
+\section{Accessing and using the API}
+
+\subsection{Connect a Front-end}
+
+\subsection{Simplest use case}
+To launch the API, there is almost only one variable that is important : InputType (in the InputCache)
+This variable has 3 states
+\begin{itemize}
+    \item None : In that case, Holovibes is stopped and no worker is created.
+    \item File : In that case Holovibes runs using the data stream from the file.
+    \item Camera : In that case Holovibes runs using the data stream from the configured camera.
+\end{itemize}
+
+Remember that to change this value, you can use this
+\begin{lstlisting}
+    api::detail::set_value<ImportType>(ImportTypeEnum::File);
+    or
+    api::set_import_type(ImportTypeEnum::File);
+\end{lstlisting}
+
+\textbf{If you never change the value of \texttt{InputType}, Holovibes will never run.}
+
+But only set it up is not sufficient, because you will need at least the stream to use.
+If you are using a file, just set the \verb|ImportFilePath| variable
+\begin{lstlisting}
+    api::detail::set_value<ImportFilePath>("path/to/file.holo");
+    or
+    api::set_import_file_path("path/to/file.holo");
+\end{lstlisting}
+
+Of course you will need to do this before setting the import type variable.
+
+% This part is not finish and need to be tested %
+
+After following this section, you should have something like this
+\begin{lstlisting}
+    api::set_import_file_path("test.holo");
+    api::set_import_type(ImportTypeEnum::File);
+\end{lstlisting}
+
+\subsection{Link a front-end}
+
+
+% LINE AND SPACING
+\noindent\rule[0.5ex]{\linewidth}{1pt}
+\hfill
+\twocolumngrid
+% TWO COLUMN RESTARTS
+% ---
+
+\section{Conclusion}
+
+This document describes the application programming interface (API) of the digital hologram rendering engine of the holovibes software. Guidelines for practical implementation of the API include a description of its logic, entry points, and usage. This software interface controls high bitrate digital hologram rendering and temporal demodulation from interference pattern streams from cameras or files by graphics processing units.\\
+
+An application programming interface (API) is a way for two or more computer programs to communicate with each other. It is a type of software interface, offering a service to other pieces of software.[1] A document or standard that describes how to build or use such a connection or interface is called an API specification. A computer system that meets this standard is said to implement or expose an API. The term API may refer either to the specification or to the implementation.\\
+In contrast to a user interface, which connects a computer to a person, an application programming interface connects computers or pieces of software to each other. It is not intended to be used directly by a person (the end user) other than a computer programmer who is incorporating it into the software. An API is often made up of different parts which act as tools or services that are available to the programmer. A program or a programmer that uses one of these parts is said to call that portion of the API. The calls that make up the API are also known as subroutines, methods, requests, or endpoints. An API specification defines these calls, meaning that it explains how to use or implement them.\\
+One purpose of APIs is to hide the internal details of how a system works, exposing only those parts a programmer will find useful and keeping them consistent even if the internal details later change. An API may be custom-built for a particular pair of systems, or it may be a shared standard allowing interoperability among many systems.\\
+Our API work for the most part as a proxy to something called the 'Microcache' which is a container of all states of all variables. We will first describe all entry points of the API. Then we will explain the 'Microcache' pipeline flow.\\
+The API is divided into different smaller 'Microcache'. These are inherent to how we handle different aggregate of variables. Technically you do not need to know what cache stores a specific variable, however, it could be usefull to know because each cache as a specific theme (one for which windows are visible / another for compute settings ...) 
+
+\section{Acknowledgements}
+
+This work was supported by the French National research agency (ANR LIDARO and Laboratory of Excellence ANR-10-LABX-24), and the (\href{http://www.digitalholography.org}{digital holography foundation}).\\
+
+
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
+
+
+
+\end{document}

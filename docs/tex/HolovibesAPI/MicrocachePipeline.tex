@@ -1,0 +1,37 @@
+\section{Microcache pipeline}
+
+
+
+Firstly, most of the API functions are functions that used the Microcache pipeline. That why we are explaining it here.
+
+\subsection{Microcache}
+While Holovibes is computing your are able to change some of the computations setting, like the SpaceTransformation functions, the z distance, ...
+The problem was that all of these variables are able to change only when Holovibes finish to do all current computation. Some variables doesn't do so much difficulties, like the z distance which can change almost anytime. But other like BatchSize need to free memory, allocate a new buffer, ...
+And all of this cannot be done until we end using data stored in those buffers.
+So we made Microcache which allow to specify all 'callbacks like functions' for each type of variable. With this system we are able to say that z distance can be change immediately, and vice versa for variables like batch size, which need to change buffers size, the Microcache is able to wait for that all the currents computed images to finish in order to apply the changes.
+
+Don't be confused there is the Microcache's pipeline that we are describing here but there is also the compute pipe in Holovibes. The compute pipe it's just a list of all functions that will be applied for each batch of frames(of size BatchSize).
+
+For each variables to see what has to be done, we run through a pipeline which is describe below.
+
+\subsection{Pipeline}
+
+
+This example show a preview of the Microcache's pipeline, each time a variable is changed or set, the hole pipeline is triggered.
+
+Firstly if the variable doesn't change, because a pipeline run is costly, nothing will happen. If you want to force the all pipeline to be executed for a variable, a way to reload if you think that a setting is not correctly apply for example.
+
+% This has to be check %
+If you want to do it on import type for example(that what we use on the classic GUI to reload when start is repressed).
+
+
+\begin{lstlisting}
+    GSH::instance().import_cache()
+    .force_trigger_param_W<ImportType>();
+\end{lstlisting}
+
+Then the 'change\_accepted' function is call, this function should not log a warning because in that case the new value is discard. You can check the different variables to see theirs conditions.
+
+The 'OnChange' function will not be really use full for you. But it like preproccess the given value in order to re range it or to change other variables in reaction this change. For example when BatchSize change may be TimeStride need to change in order to work. It will in this function that the new value of TimeStride is set if the new value of BatchSize need it. 
+
+By the way if you are linking a custom front end using the FrontEnd API, yours functions will be execute at the 'OnSync' function call. the before method will be before Holovibes OnSync method and yours front-end after method will be after the Holovibes one.

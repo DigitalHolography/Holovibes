@@ -1,0 +1,25 @@
+\input{figures/Comparison_camera}
+
+We introduced several software optimisations to reduce the processing time and increase the input throughput to reconstruct a better quality image. Most of them are good practices and more advanced bottlenecks were identified using NVIDIA Nsight Systems software.
+
+\subsection{Asynchronous concurrent input queue}
+\input{sections/Optimisations/Asynchronous_concurrent_input_queue}
+
+\subsection{Loading and processing input images as batches}
+\input{sections/Optimisations/Loading_and_processing_input_images_as_batches}
+
+\subsection{Leveraging CUDA streams}
+\input{sections/Optimisations/Leveraging_CUDA_streams}
+
+\subsection{Avoiding interruptions of high-speed cameras}
+\input{sections/Optimisations/Avoiding_interruptions_of_high-speed_cameras}
+
+\subsection{Limiting CPU-GPU synchronisations}
+\input{sections/Optimisations/Limiting_CPU-GPU_synchronisations}
+
+\subsection{Handling non-square input frames}
+\input{sections/Optimisations/Handling_non-square_input_frames}
+
+\subsection{Minimising data allocations and transfers}
+\input{sections/Optimisations/Minimising_data_allocations_and_transfers}
+
