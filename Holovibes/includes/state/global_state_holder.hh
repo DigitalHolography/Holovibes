@@ -82,6 +82,7 @@ class GSH
     inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
+    inline bool get_filter_enabled() const noexcept { return compute_cache_.get_filter_enabled(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
     {
         return compute_cache_.get_convo_matrix_const_ref();
@@ -318,9 +319,14 @@ class GSH
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_stride(uint value);
+
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
+
+    void disable_filter();
+    void enable_filter(std::optional<std::string> file);
+    void set_filter_enabled(bool value);
 
     inline void set_space_transformation(const SpaceTransformation value) noexcept
     {

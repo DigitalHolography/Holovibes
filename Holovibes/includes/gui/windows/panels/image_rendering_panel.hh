@@ -67,6 +67,12 @@ class ImageRenderingPanel : public Panel
      * \param n The new filter2d n2 value
      */
     void set_filter2d_n2(int n);
+    
+    /*! \brief Modifies input filter
+     *
+     * \param value The new filter to apply
+     */
+    void update_input_filter(const QString& value);
 
     /*! \brief Modifies space transform calculation
      *

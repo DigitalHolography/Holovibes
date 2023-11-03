@@ -5,7 +5,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
-#include "hsv.cuh"
+#include "tools_hsv.cuh"
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
 #include "map.cuh"

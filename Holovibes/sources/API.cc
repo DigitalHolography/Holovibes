@@ -448,6 +448,7 @@ void handle_update_exception()
     api::set_p_index(0);
     api::set_time_transformation_size(1);
     api::disable_convolution();
+    api::disable_filter();
 }
 
 void set_filter2d(bool checked)
@@ -804,6 +805,8 @@ void close_critical_compute()
 {
     if (get_convolution_enabled())
         disable_convolution();
+    if (get_filter_enabled())
+        disable_filter();
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
@@ -1041,6 +1044,55 @@ void set_divide_convolution(const bool value)
 
     set_divide_convolution_enabled(value);
     pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Filter
+
+void enable_filter(const std::string& filename)
+{
+    LOG_FUNC();
+
+    GSH::instance().enable_filter(filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt
+                                                                      : std::make_optional(filename));
+
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+    {
+        // Refresh because the current filter might have change.
+        pipe_refresh();
+        return;
+    }
+
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_filter();
+        // Wait for the filter to be enabled for notify
+        while (pipe->get_filter_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        disable_filter();
+        LOG_ERROR("Catch {}", e.what());
+    }
+}
+
+void disable_filter()
+{
+    GSH::instance().disable_filter();
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_filter();
+        while (pipe->get_disable_filter_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+    }
 }
 
 #pragma endregion

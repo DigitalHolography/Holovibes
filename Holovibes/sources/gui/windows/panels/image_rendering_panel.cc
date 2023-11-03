@@ -81,10 +81,20 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
     // Might need to find a better fix one day or another
     try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
     catch(const std::exception& e) {}
+
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
+
+    // Filter
+    ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
+        QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -230,6 +240,15 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
     api::set_filter2d_n2(n);
+}
+
+void ImageRenderingPanel::update_input_filter(const QString& value)
+{
+    UserInterfaceDescriptor::instance().filter_name = value.toStdString();
+    
+    api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
+
+    parent_->notify();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)

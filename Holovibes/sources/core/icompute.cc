@@ -99,6 +99,9 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
         err++;
 
+    if (!buffers_.gpu_input_filter_mask.resize(output_buffer_size))
+        err++;
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
@@ -421,9 +424,21 @@ void ICompute::request_convolution()
     request_refresh();
 }
 
+void ICompute::request_filter()
+{
+    filter_requested_ = true;
+    request_refresh();
+}
+
 void ICompute::request_disable_convolution()
 {
     disable_convolution_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_disable_filter()
+{
+    disable_filter_requested_ = true;
     request_refresh();
 }
 } // namespace holovibes

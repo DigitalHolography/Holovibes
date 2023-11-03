@@ -170,6 +170,7 @@ inline bool get_is_computation_stopped() { return GSH::instance().get_is_computa
 inline void set_is_computation_stopped(bool value) { GSH::instance().set_is_computation_stopped(value); }
 
 inline bool get_convolution_enabled() { return GSH::instance().get_convolution_enabled(); }
+inline bool get_filter_enabled() { return GSH::instance().get_filter_enabled(); }
 
 inline bool get_divide_convolution_enabled() { return GSH::instance().get_divide_convolution_enabled(); }
 inline void set_divide_convolution_enabled(bool value) { return GSH::instance().set_divide_convolution_enabled(value); }
