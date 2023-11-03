@@ -140,6 +140,14 @@ bool Pipe::make_requests()
         disable_convolution_requested_ = false;
     }
 
+    if (disable_filter_requested_)
+    {
+        LOG_DEBUG("disable_filter_requested");
+
+        postprocess_->dispose();
+        disable_filter_requested_ = false;
+    }
+
     if (request_disable_lens_view_)
     {
         LOG_DEBUG("request_disable_lens_view");
@@ -213,6 +221,15 @@ bool Pipe::make_requests()
 
         postprocess_->init();
         convolution_requested_ = false;
+    }
+
+    if (filter_requested_)
+    {
+        LOG_DEBUG("filter_requested");
+
+        // TODO
+        //fourier_transforms_->init();
+        filter_requested_ = false;
     }
 
     if (output_resize_requested_.load() != std::nullopt)

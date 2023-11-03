@@ -125,6 +125,26 @@ void InputHoloFile::load_footer()
     LOG_TRACE("Exiting InputHoloFile::load_footer");
 }
 
+void rec_fill_default_json(json& dst, json& src)
+{
+    for(auto dst_el = dst.begin(); dst_el != dst.end(); ++dst_el)
+    {
+        if (src.contains(dst_el.key()))
+        {
+            auto src_el = src.find(dst_el.key());
+            if (dst_el->is_object())
+            {
+                rec_fill_default_json(*dst_el, *src_el);
+            }
+            else
+            {
+                dst.at(dst_el.key()) = src_el.value();
+            }
+        }
+        // else : nothing to do, we keep the dst default json
+    }
+}
+
 void InputHoloFile::import_compute_settings()
 {
     LOG_FUNC();
@@ -159,7 +179,13 @@ void InputHoloFile::import_compute_settings()
     }
     else
     {
-        from_json(meta_data_["compute_settings"], raw_footer_);
+        auto full_meta_data_ = json::parse("{}");
+        raw_footer_.Update();
+        to_json(full_meta_data_, raw_footer_);
+        full_meta_data_["compute_settings"] = full_meta_data_;
+        rec_fill_default_json(full_meta_data_, meta_data_);
+
+        from_json(full_meta_data_["compute_settings"], raw_footer_);
     }
 
     // update GSH with the footer values

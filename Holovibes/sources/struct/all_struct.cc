@@ -43,6 +43,12 @@ void Rendering::Convolution::Update()
     this->divide = GSH::instance().get_divide_convolution_enabled();
 }
 
+void Rendering::Filter::Update()
+{
+    this->enabled = GSH::instance().get_filter_enabled();
+    this->type = UserInterfaceDescriptor::instance().filter_name;
+}
+
 void Rendering::Filter2D::Update()
 {
     this->enabled = GSH::instance().get_filter2d_enabled();
@@ -62,6 +68,7 @@ void Rendering::Update()
     this->lambda = GSH::instance().get_lambda();
     this->propagation_distance = GSH::instance().get_z_distance();
     this->convolution.Update();
+    this->input_filter.Update();
 }
 
 void AdvancedSettings::BufferSizes::Update()
@@ -192,6 +199,12 @@ void Rendering::Convolution::Load()
     GSH::instance().set_divide_convolution_enabled(this->divide);
 }
 
+void Rendering::Filter::Load()
+{
+    GSH::instance().set_filter_enabled(this->enabled);
+    UserInterfaceDescriptor::instance().filter_name = this->type;
+}
+
 void Rendering::Filter2D::Load()
 {
     GSH::instance().set_filter2d_enabled(this->enabled);
@@ -211,6 +224,7 @@ void Rendering::Load()
     GSH::instance().set_lambda(this->lambda);
     GSH::instance().set_z_distance(this->propagation_distance);
     this->convolution.Load();
+    this->input_filter.Load();
 }
 
 void ComputeSettings::Dump(const std::string& filename)

@@ -158,6 +158,8 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         pipe->request_convolution();
     }
 
+    // TODO : Add filter
+
     pipe->request_update_batch_size();
     pipe->request_update_time_stride();
     pipe->request_update_time_transformation_size();

@@ -63,6 +63,9 @@ struct CoreBuffersEnv
     cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
     /*! \brief Filter2d mask applied to gpu_spatial_transformation_buffer */
     cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
+
+    /*! \brief InputFilter mask */
+    cuda_tools::UniquePtr<float> gpu_input_filter_mask = nullptr;
 };
 
 /*! \struct BatchEnv
@@ -210,7 +213,9 @@ class ICompute
     void request_disable_frame_record();
     void request_clear_img_acc();
     void request_convolution();
+    void request_filter();
     void request_disable_convolution();
+    void request_disable_filter();
 
     /*! \brief Execute one iteration of the ICompute.
      *
@@ -257,6 +262,8 @@ class ICompute
     bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
     bool get_convolution_requested() const { return convolution_requested_; }
     bool get_disable_convolution_requested() const { return convolution_requested_; }
+    bool get_filter_requested() const { return filter_requested_; }
+    bool get_disable_filter_requested() const { return filter_requested_; }
 
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
@@ -367,6 +374,8 @@ class ICompute
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
+    std::atomic<bool> filter_requested_{false};
+    std::atomic<bool> disable_filter_requested_{false};
 
     ComputeCache::Cache compute_cache_;
     ExportCache::Cache export_cache_;

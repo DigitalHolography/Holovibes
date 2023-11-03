@@ -7,6 +7,7 @@
 
 #include "holovibes.hh"
 #include "API.hh"
+#include "input_filter.hh"
 
 namespace holovibes
 {
@@ -199,7 +200,7 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
         uint matrix_height = 0;
         uint matrix_z = 1;
 
-        // Doing this the C way cause it's faster
+        // Doing this the C way because it's faster
         FILE* c_file;
         fopen_s(&c_file, path.c_str(), "r");
 
@@ -283,6 +284,47 @@ void GSH::disable_convolution()
 {
     compute_cache_.get_convo_matrix_ref()->clear();
     compute_cache_.set_convolution_enabled(false);
+}
+
+// TODO : use image and not .txt
+// TO BE CONTINUED
+static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
+{
+    auto& holo = Holovibes::instance();
+
+    try
+    {
+        auto path_file = dir / "input_filters" / file;
+        InputFilter(input_filter,
+                    path_file.string(),
+                    holo.get_gpu_output_queue()->get_fd().width,
+                    holo.get_gpu_output_queue()->get_fd().height);
+    }
+    catch (std::exception& e)
+    {
+        input_filter->clear();
+        LOG_ERROR("Couldn't load input filter : {}", e.what());
+    }
+}
+
+void GSH::enable_filter(std::optional<std::string> file)
+{
+    compute_cache_.set_filter_enabled(true);
+    compute_cache_.get_input_filter_ref()->clear();
+
+    // There is no file None.txt for filtering
+    if (file && file.value() != "None")
+        load_input_filter(compute_cache_.get_input_filter_ref(), file.value());
+    else
+        disable_filter();
+}
+
+void GSH::set_filter_enabled(bool value) { compute_cache_.set_filter_enabled(value); }
+
+void GSH::disable_filter()
+{
+    compute_cache_.get_input_filter_ref()->clear();
+    compute_cache_.set_filter_enabled(false);
 }
 
 #pragma endregion
