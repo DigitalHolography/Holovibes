@@ -529,6 +529,7 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
+    LOG_CRITICAL("caca");
     if (api::get_compute_mode() == Computation::Raw)
     {
         LOG_ERROR("Cannot set view image type in raw mode");
@@ -536,7 +537,6 @@ void MainWindow::set_view_image_type(const QString& value)
     }
 
     const std::string& str = value.toStdString();
-
     if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
     {
         refresh_view_mode();

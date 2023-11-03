@@ -45,7 +45,25 @@
     holovibes::settings::RecordFrameSkip,          \
     holovibes::settings::OutputBufferSize,         \
     holovibes::settings::BatchEnabled,             \
-    holovibes::settings::BatchFilePath
+    holovibes::settings::BatchFilePath,            \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::X,                        \
+    holovibes::settings::Y,                        \
+    holovibes::settings::P,                        \
+    holovibes::settings::Q,                        \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2d,                 \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::ChartDisplayEnabled,      \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::RawViewEnabled,           \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ReticleScale
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -257,8 +275,12 @@ class Holovibes
         if constexpr (has_setting<T, worker::FileFrameReadWorker>::value)
             file_read_worker_controller_.update_setting(setting);
 
-        if constexpr (has_setting<T, worker::CameraFrameReadWorker>::value)
+        if constexpr (has_setting<T, worker::FrameRecordWorker>::value)
             frame_record_worker_controller_.update_setting(setting);
+
+        if constexpr (has_setting<T, Pipe>::value) {
+            compute_pipe_.load()->update_setting(setting);
+        }
     }
 
     template <typename T>
@@ -269,6 +291,16 @@ class Holovibes
     }
 
   private:
+
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_.settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
+
     /*! \brief Construct the holovibes object. */
     Holovibes()
         : realtime_settings_(std::make_tuple(settings::InputFPS{60},
@@ -284,7 +316,26 @@ class Holovibes
                                              settings::RecordFrameSkip{0},
                                              settings::OutputBufferSize{1024},
                                              settings::BatchEnabled{false},
-                                             settings::BatchFilePath{std::string("")}))
+                                             settings::BatchFilePath{std::string("")},
+                                             settings::ImageType{ImgType::Modulus},
+                                             settings::X{ViewXY{}},
+                                             settings::Y{ViewXY{}},
+                                             settings::P{ViewPQ{}},
+                                             settings::Q{ViewPQ{}},
+                                             settings::XY{ViewXYZ{}},
+                                             settings::XZ{ViewXYZ{}},
+                                             settings::YZ{ViewXYZ{}},
+                                             settings::Filter2d{ViewWindow{}},
+                                             settings::LensViewEnabled{false},
+                                             settings::ChartDisplayEnabled{false},
+                                             settings::Filter2dEnabled{false},
+                                             settings::Filter2dViewEnabled{false},
+                                             settings::FftShiftEnabled{false},
+                                             settings::RawViewEnabled{false},
+                                             settings::CutsViewEnabled{false},
+                                             settings::RenormEnabled{true},
+                                             settings::ReticleScale{0.5f},
+                                             settings::ReticleDisplayEnabled{false}))
     {
     }
 

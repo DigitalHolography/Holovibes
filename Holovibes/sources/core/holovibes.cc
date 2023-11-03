@@ -169,7 +169,8 @@ void Holovibes::init_pipe()
     {
         compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
-                                                   get_cuda_streams().compute_stream));
+                                                   get_cuda_streams().compute_stream,
+                                                   realtime_settings_.settings_));
     }
 }
 
@@ -178,6 +179,7 @@ void Holovibes::start_compute_worker(const std::function<void()>& callback)
     compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
+
     compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 }
 

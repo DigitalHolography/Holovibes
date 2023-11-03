@@ -37,84 +37,6 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 
 using camera::FrameDescriptor;
 
-Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
-    : ICompute(input, output, stream)
-    , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
-{
-    ConditionType batch_condition = [&]() -> bool
-    { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
-
-    fn_compute_vect_ = FunctionVector(batch_condition);
-    fn_end_vect_ = FunctionVector(batch_condition);
-
-    image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
-                                                                       image_acc_env_,
-                                                                       buffers_,
-                                                                       input.get_fd(),
-                                                                       stream_,
-                                                                       view_cache_);
-    fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
-                                                                      buffers_,
-                                                                      input.get_fd(),
-                                                                      spatial_transformation_plan_,
-                                                                      time_transformation_env_,
-                                                                      stream_,
-                                                                      compute_cache_,
-                                                                      view_cache_);
-    rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
-                                                      buffers_,
-                                                      chart_env_,
-                                                      image_acc_env_,
-                                                      time_transformation_env_,
-                                                      input.get_fd(),
-                                                      output.get_fd(),
-                                                      stream_,
-                                                      compute_cache_,
-                                                      export_cache_,
-                                                      view_cache_,
-                                                      advanced_cache_,
-                                                      zone_cache_);
-    converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
-                                                    buffers_,
-                                                    time_transformation_env_,
-                                                    plan_unwrap_2d_,
-                                                    input.get_fd(),
-                                                    stream_,
-                                                    view_cache_);
-    postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
-                                                             buffers_,
-                                                             input.get_fd(),
-                                                             stream_);
-
-    *processed_output_fps_ = 0;
-    update_time_transformation_size_requested_ = true;
-
-    try
-    {
-        refresh();
-    }
-    catch (const holovibes::CustomException& e)
-    {
-        // If refresh() fails the compute descriptor settings will be
-        // changed to something that should make refresh() work
-        // (ex: lowering the GPU memory usage)
-        LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-        LOG_WARN("Exception: {}", e.what());
-        try
-        {
-            refresh();
-        }
-        catch (const holovibes::CustomException& e)
-        {
-            // If it still didn't work holovibes is probably going to freeze
-            // and the only thing you can do is restart it manually
-            LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-            LOG_ERROR("Exception: {}", e.what());
-            throw e;
-        }
-    }
-}
-
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
 bool Pipe::make_requests()
@@ -480,8 +402,21 @@ void Pipe::refresh()
                                      buffers_.gpu_postprocess_frame.get(),
                                      advanced_cache_.get_renorm_constant());
 
-    image_accumulation_->insert_image_accumulation();
-
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!
+    // !! ICI LA LAL ALLALALAL view cache en argumment en bas!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!
+    auto insert = [&]()
+    {
+        image_accumulation_->insert_image_accumulation(view_cache_.get_xy_const_ref(),
+                                                       *buffers_.gpu_postprocess_frame,
+                                                       buffers_.gpu_postprocess_frame_size,
+                                                       view_cache_.get_xz_const_ref(),
+                                                       *buffers_.gpu_postprocess_frame_xz,
+                                                       view_cache_.get_yz_const_ref(),
+                                                       *buffers_.gpu_postprocess_frame_yz,
+                                                       view_cache_);
+    };
+    insert();
     rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();

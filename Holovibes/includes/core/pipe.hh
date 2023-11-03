@@ -16,6 +16,35 @@
 #include "postprocessing.hh"
 #include "function_vector.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::X,                        \
+    holovibes::settings::Y,                        \
+    holovibes::settings::P,                        \
+    holovibes::settings::Q,                        \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2d,                 \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::ChartDisplayEnabled,      \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::RawViewEnabled,           \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ReticleScale
+#define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 /*! \class Pipe
@@ -60,7 +89,83 @@ class Pipe : public ICompute
      * \param output Output queue where computed frames will be stored.
      * \param stream The compute stream on which all the computations are processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
+    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
+        : ICompute(input, output, stream)
+        , realtime_settings_(settings)
+        , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
+    {
+        ConditionType batch_condition = [&]() -> bool
+        { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
+
+        fn_compute_vect_ = FunctionVector(batch_condition);
+        fn_end_vect_ = FunctionVector(batch_condition);
+
+        image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
+                                                                           image_acc_env_,
+                                                                           buffers_,
+                                                                           input.get_fd(),
+                                                                           stream_,
+                                                                           view_cache_,
+                                                                           realtime_settings_.settings_);
+        fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
+                                                                          buffers_,
+                                                                          input.get_fd(),
+                                                                          spatial_transformation_plan_,
+                                                                          time_transformation_env_,
+                                                                          stream_,
+                                                                          compute_cache_,
+                                                                          view_cache_);
+        rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
+                                                          buffers_,
+                                                          chart_env_,
+                                                          image_acc_env_,
+                                                          time_transformation_env_,
+                                                          input.get_fd(),
+                                                          output.get_fd(),
+                                                          stream_,
+                                                          compute_cache_,
+                                                          export_cache_,
+                                                          view_cache_,
+                                                          advanced_cache_,
+                                                          zone_cache_);
+        converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
+                                                        buffers_,
+                                                        time_transformation_env_,
+                                                        plan_unwrap_2d_,
+                                                        input.get_fd(),
+                                                        stream_,
+                                                        view_cache_);
+        postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_);
+
+        *processed_output_fps_ = 0;
+        update_time_transformation_size_requested_ = true;
+
+        try
+        {
+            refresh();
+        }
+        catch (const holovibes::CustomException& e)
+        {
+            // If refresh() fails the compute descriptor settings will be
+            // changed to something that should make refresh() work
+            // (ex: lowering the GPU memory usage)
+            LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
+            LOG_WARN("Exception: {}", e.what());
+            try
+            {
+                refresh();
+            }
+            catch (const holovibes::CustomException& e)
+            {
+                // If it still didn't work holovibes is probably going to freeze
+                // and the only thing you can do is restart it manually
+                LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
+                LOG_ERROR("Exception: {}", e.what());
+                throw e;
+            }
+        }
+    }
 
     ~Pipe() override;
 
@@ -83,6 +188,28 @@ class Pipe : public ICompute
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
+
+    /**
+     * @brief Contains all the settings of the worker that should be updated
+     * on restart.
+     */
+    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        spdlog::info("[Pipe] [update_setting] {}", typeid(T).name());
+        
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, compute::ImageAccumulation>::value)
+        {
+            image_accumulation_->update_setting(setting);
+        }
+    }
 
   protected:
     /*! \brief Make requests at the beginning of the refresh.
@@ -170,3 +297,11 @@ class Pipe : public ICompute
     void synchronize_caches();
 };
 } // namespace holovibes
+
+
+namespace holovibes {
+template <typename T>
+struct has_setting<T, Pipe> : is_any_of<T, ALL_SETTINGS>
+{
+};
+}

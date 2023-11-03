@@ -8,6 +8,8 @@
 #include <string>
 #include <optional>
 #include "enum/enum_record_mode.hh"
+#include "struct/view_struct.hh"
+#include "enum/enum_window_kind.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -95,4 +97,30 @@ DECLARE_SETTING(BatchEnabled, bool)
  * @brief The setting that specifies the path of the batch script to execute.
 */
 DECLARE_SETTING(BatchFilePath, std::string)
+
+//ex view_cache
+/**
+ * @brief The setting that specifies the type of the image displayed.
+*/
+DECLARE_SETTING(ImageType, ImgType)
+DECLARE_SETTING(X, ViewXY)
+DECLARE_SETTING(Y, ViewXY)
+DECLARE_SETTING(P, ViewPQ)
+DECLARE_SETTING(Q, ViewPQ)
+DECLARE_SETTING(XY, ViewXYZ)
+DECLARE_SETTING(XZ, ViewXYZ)
+DECLARE_SETTING(YZ, ViewXYZ)
+DECLARE_SETTING(Filter2d, ViewWindow)
+DECLARE_SETTING(CurrentWindow, holovibes::WindowKind)
+DECLARE_SETTING(LensViewEnabled, bool)
+DECLARE_SETTING(ChartDisplayEnabled, bool)
+DECLARE_SETTING(Filter2dEnabled, bool)
+DECLARE_SETTING(Filter2dViewEnabled, bool)
+DECLARE_SETTING(FftShiftEnabled, bool)
+DECLARE_SETTING(RawViewEnabled, bool)
+DECLARE_SETTING(CutsViewEnabled, bool)
+DECLARE_SETTING(RenormEnabled, bool)
+DECLARE_SETTING(ReticleScale, float)
+DECLARE_SETTING(ReticleDisplayEnabled, bool)
+
 } // namespace holovibes::setsetings

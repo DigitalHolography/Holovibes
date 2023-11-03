@@ -19,27 +19,29 @@ using cuda_tools::UniquePtr;
 
 namespace holovibes::compute
 {
-ImageAccumulation::ImageAccumulation(FunctionVector& fn_compute_vect,
-                                     ImageAccEnv& image_acc_env,
-                                     const CoreBuffersEnv& buffers,
-                                     const camera::FrameDescriptor& fd,
-                                     const cudaStream_t& stream,
-                                     ViewCache::Cache& view_cache)
-    : fn_compute_vect_(fn_compute_vect)
-    , image_acc_env_(image_acc_env)
-    , buffers_(buffers)
-    , fd_(fd)
-    , stream_(stream)
-    , view_cache_(view_cache)
-{
-}
 
-void ImageAccumulation::insert_image_accumulation()
+
+void ImageAccumulation::insert_image_accumulation(const holovibes::ViewXYZ& const_view_xy,
+                                                  float& gpu_postprocess_frame,
+                                                  unsigned int& gpu_postprocess_frame_size,
+                                                  const holovibes::ViewXYZ& const_view_xz,
+                                                  float& gpu_postprocess_frame_xz,
+                                                  const holovibes::ViewXYZ& const_view_yz,
+                                                  float& gpu_postprocess_frame_yz,
+                                                  holovibes::ViewCache::Cache& view_cache)
 {
     LOG_FUNC();
 
-    insert_compute_average();
-    insert_copy_accumulation_result();
+    insert_compute_average(gpu_postprocess_frame,
+                           gpu_postprocess_frame_size,
+                           gpu_postprocess_frame_xz,
+                           gpu_postprocess_frame_yz);
+    insert_copy_accumulation_result(const_view_xy,
+                                    &gpu_postprocess_frame,
+                                    const_view_xz,
+                                    &gpu_postprocess_frame_xz,
+                                    const_view_yz,
+                                    &gpu_postprocess_frame_yz);
 }
 
 void ImageAccumulation::allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
@@ -139,7 +141,7 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
     {
         // Enqueue the computed frame in the accumulation queue
         gpu_accumulation_queue->enqueue(gpu_input_frame, stream_);
-
+        LOG_DEBUG("Enqueue frame in accumulation queue");
         // Compute the average and store it in the output frame
         accumulate_images(static_cast<float*>(gpu_accumulation_queue->get_data()),
                           gpu_ouput_average_frame,
@@ -148,44 +150,53 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
                           image_acc_level,
                           frame_res,
                           stream_);
+        LOG_DEBUG("Compute average");
     }
 }
 
-void ImageAccumulation::insert_compute_average()
+void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
+                                               unsigned int& gpu_postprocess_frame_size,
+                                               float& gpu_postprocess_frame_xz,
+                                               float& gpu_postprocess_frame_yz)
 {
     LOG_FUNC();
 
     auto compute_average_lambda = [&]()
     {
         // XY view
-        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_xy_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_xy_queue && setting<settings::XY>().output_image_accumulation > 1)
             compute_average(image_acc_env_.gpu_accumulation_xy_queue,
-                            buffers_.gpu_postprocess_frame.get(),
+                            &gpu_postprocess_frame,
                             image_acc_env_.gpu_float_average_xy_frame.get(),
-                            view_cache_.get_xy().output_image_accumulation,
+                            setting<settings::XY>().output_image_accumulation,
                             buffers_.gpu_postprocess_frame_size);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_xz_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_xz_queue && setting<settings::XZ>().output_image_accumulation > 1)
             compute_average(image_acc_env_.gpu_accumulation_xz_queue,
                             buffers_.gpu_postprocess_frame_xz.get(),
                             image_acc_env_.gpu_float_average_xz_frame,
-                            view_cache_.get_xz().output_image_accumulation,
+                            setting<settings::XZ>().output_image_accumulation,
                             image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_res());
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_yz_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_yz_queue && setting<settings::YZ>().output_image_accumulation > 1)
             compute_average(image_acc_env_.gpu_accumulation_yz_queue,
                             buffers_.gpu_postprocess_frame_yz.get(),
                             image_acc_env_.gpu_float_average_yz_frame,
-                            view_cache_.get_yz().output_image_accumulation,
+                            setting<settings::YZ>().output_image_accumulation,
                             image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_res());
     };
 
     fn_compute_vect_.conditional_push_back(compute_average_lambda);
 }
 
-void ImageAccumulation::insert_copy_accumulation_result()
+void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ& const_view_xy,
+                                                        float* gpu_postprocess_frame,
+                                                        const holovibes::ViewXYZ& const_view_xz,
+                                                        float* gpu_postprocess_frame_xz,
+                                                        const holovibes::ViewXYZ& const_view_yz,
+                                                        float* gpu_postprocess_frame_yz)
 {
     LOG_FUNC();
 
