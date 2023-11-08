@@ -88,6 +88,8 @@ void endianness_conversion(
 void float_to_ushort(
     const float* const input, ushort* const output, const size_t size, const cudaStream_t stream, const uint shift = 0);
 
+void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream);
+
 void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, const cudaStream_t stream);
 
 /*! \brief Converts and tranfers data from input_queue to gpu_input_buffer

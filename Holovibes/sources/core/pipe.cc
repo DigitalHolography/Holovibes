@@ -605,20 +605,16 @@ void Pipe::insert_filter2d_view()
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
+                int width = gpu_output_queue_.get_fd().width;
+                int height = gpu_output_queue_.get_fd().height;
+
                 float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
-                                 buffers_.gpu_postprocess_frame.get(),
+                                 buffers_.gpu_filter2d_mask.get(),
                                  buffers_.gpu_postprocess_frame_size,
                                  stream_);
 
-                int width = gpu_output_queue_.get_fd().width;
-                int height = gpu_output_queue_.get_fd().height;
-                CufftHandle handle{width, height, CUFFT_C2C};
-
-                cufftSafeCall(cufftExecC2C(handle,
-                                           buffers_.gpu_complex_filter2d_frame.get(),
-                                           buffers_.gpu_complex_filter2d_frame.get(),
-                                           CUFFT_FORWARD));
                 shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
+
                 complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
                                    buffers_.gpu_complex_filter2d_frame.get(),
                                    0,
