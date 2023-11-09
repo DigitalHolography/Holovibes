@@ -298,7 +298,12 @@ void ViewPanel::update_raw_view(bool checked)
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
+void ViewPanel::set_x_y()
+{
+    api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
+    
+    parent_->notify();
+}
 
 void ViewPanel::set_x_accu()
 {

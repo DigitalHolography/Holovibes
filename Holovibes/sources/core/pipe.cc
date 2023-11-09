@@ -363,8 +363,8 @@ void Pipe::refresh()
                                                compute_cache_.get_time_transformation_size());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
                                                               view_cache_.get_cuts_view_enabled(),
-                                                              view_cache_.get_x(),
-                                                              view_cache_.get_y(),
+                                                              setting<settings::X>(),
+                                                              setting<settings::Y>(),
                                                               view_cache_.get_xz_const_ref().output_image_accumulation,
                                                               view_cache_.get_yz_const_ref().output_image_accumulation,
                                                               buffers_.gpu_postprocess_frame_xz.get(),

@@ -595,7 +595,9 @@ void set_p_accu_level(uint p_value)
 
 void set_x_accu_level(uint x_value)
 {
-    GSH::instance().set_x_accu_level(x_value);
+    auto x = Holovibes::instance().get_setting<settings::X>().value;
+    x.width = x_value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x});
     pipe_refresh();
 }
 
@@ -605,14 +607,18 @@ void set_x_cuts(uint value)
     const auto& fd = holo.get_gpu_input_queue()->get_fd();
     if (value < fd.width)
     {
-        GSH::instance().set_x_cuts(value);
+        auto x = Holovibes::instance().get_setting<settings::X>().value;
+        x.start = value;
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x});
         pipe_refresh();
     }
 }
 
 void set_y_accu_level(uint y_value)
 {
-    GSH::instance().set_y_accu_level(y_value);
+    auto y = Holovibes::instance().get_setting<settings::Y>().value;
+    y.width = y_value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y});
     pipe_refresh();
 }
 
@@ -622,17 +628,30 @@ void set_y_cuts(uint value)
     const auto& fd = holo.get_gpu_input_queue()->get_fd();
     if (value < fd.height)
     {
-        GSH::instance().set_y_cuts(value);
+        auto y = Holovibes::instance().get_setting<settings::Y>().value;
+        y.start = value;
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y});
         pipe_refresh();
     }
 }
 
 void set_x_y(uint x, uint y)
 {
+    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+    auto x_ = Holovibes::instance().get_setting<settings::X>().value;
+    if (x < Holovibes::instance().get_gpu_input_queue()->get_fd().width){
+        x_.start = x;
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x_});
+    }
 
-    GSH::instance().set_x_cuts(x);
-    GSH::instance().set_y_cuts(y);
+    auto y_ = Holovibes::instance().get_setting<settings::Y>().value;
+    if (y < Holovibes::instance().get_gpu_input_queue()->get_fd().width){
+        y_.start = y;
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y_});
+    }
     pipe_refresh();
+    
 }
 
 void set_q_index(uint value)

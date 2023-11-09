@@ -295,6 +295,18 @@ class Pipe : public ICompute
 
     /*! \brief Updates all attribute caches with the reference held by GSH */
     void synchronize_caches();
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
 };
 } // namespace holovibes
 

@@ -12,7 +12,10 @@ inline SpaceTransformation get_space_transformation() { return GSH::instance().g
 
 inline TimeTransformation get_time_transformation() { return GSH::instance().get_time_transformation(); }
 
-inline ImgType get_img_type() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::ImageType>().value; }
+inline ImgType get_img_type()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::ImageType>().value;
+}
 inline void set_img_type(ImgType type)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ImageType{type});
@@ -72,8 +75,8 @@ inline void set_filter2d_smooth_high(int value) { GSH::instance().set_filter2d_s
 inline float get_display_rate() { return GSH::instance().get_display_rate(); }
 inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
 
-inline ViewXY get_x(void) { return GSH::instance().get_x(); }
-inline ViewXY get_y(void) { return GSH::instance().get_y(); }
+inline ViewXY get_x(void) { return holovibes::Holovibes::instance().get_setting<settings::X>().value; }
+inline ViewXY get_y(void) { return holovibes::Holovibes::instance().get_setting<settings::Y>().value; }
 
 inline uint get_img_accu_xy_level() { return GSH::instance().get_xy_img_accu_level(); }
 inline void set_img_accu_xy_level(uint value) { GSH::instance().set_xy_img_accu_level(value); }
@@ -89,13 +92,11 @@ inline ViewPQ get_q(void) { return GSH::instance().get_q(); }
 
 inline int get_p_accu_level() { return GSH::instance().get_p_accu_level(); }
 
-inline uint get_x_cuts() { return GSH::instance().get_x_cuts(); }
+inline uint get_x_cuts() { return holovibes::Holovibes::instance().get_setting<settings::X>().value.start; }
 
-inline int get_x_accu_level() { return GSH::instance().get_x_accu_level(); }
+inline uint get_y_cuts() { return holovibes::Holovibes::instance().get_setting<settings::Y>().value.start; }
 
-inline uint get_y_cuts() { return GSH::instance().get_y_cuts(); }
-
-inline int get_y_accu_level() { return GSH::instance().get_y_accu_level(); }
+inline int get_y_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::Y>().value.width; }
 
 inline uint get_q_index() { return GSH::instance().get_q_index(); }
 
@@ -378,6 +379,11 @@ inline size_t get_input_file_end_index()
 inline void set_input_file_end_index(size_t value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value});
+}
+
+inline int get_x_accu_level()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::X>().value.width;
 }
 
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };

@@ -27,8 +27,8 @@ void Views::Update()
 {
     this->image_type = GSH::instance().get_img_type();
     this->fft_shift = GSH::instance().get_fft_shift_enabled();
-    this->x = GSH::instance().get_x();
-    this->y = GSH::instance().get_y();
+    this->x = holovibes::Holovibes::instance().get_setting<holovibes::settings::X>().value; //GSH::instance().get_x();
+    this->y = holovibes::Holovibes::instance().get_setting<holovibes::settings::Y>().value;
     this->z = GSH::instance().get_p();
     this->z2 = GSH::instance().get_q();
     this->window.Update();

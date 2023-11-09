@@ -91,14 +91,6 @@ class GSH
     inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
     inline ImgType get_img_type() const noexcept { return view_cache_.get_img_type(); }
 
-    inline ViewXY get_x() const noexcept { return view_cache_.get_x(); }
-    inline int get_x_accu_level() const noexcept { return view_cache_.get_x().width; }
-    inline int get_x_cuts() const noexcept { return view_cache_.get_x().start; }
-
-    inline ViewXY get_y() const noexcept { return view_cache_.get_y(); }
-    inline int get_y_accu_level() const noexcept { return view_cache_.get_y().width; }
-    inline int get_y_cuts() const noexcept { return view_cache_.get_y().start; }
-
     inline ViewPQ get_p() const noexcept { return view_cache_.get_p(); }
     inline int get_p_accu_level() const noexcept { return view_cache_.get_p().width; }
     inline uint get_p_index() const noexcept { return view_cache_.get_p().start; }
