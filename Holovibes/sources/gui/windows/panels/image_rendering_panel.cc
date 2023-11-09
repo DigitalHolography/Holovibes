@@ -244,6 +244,8 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
+    LOG_FUNC();
+
     UserInterfaceDescriptor::instance().filter_name = value.toStdString();
     
     api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
@@ -252,12 +254,14 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 }
 
 void ImageRenderingPanel::refresh_input_filter(){
+    LOG_FUNC();
+
     auto filename = UserInterfaceDescriptor::instance().filter_name;
     
     if (filename == UID_FILTER_TYPE_DEFAULT)
         return;
 
-    load_input_filter(compute_cache_.get_input_filter_ref(), filename)
+    GSH::load_input_filter(GSH::instance().get_input_filter_ref(), filename);
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)

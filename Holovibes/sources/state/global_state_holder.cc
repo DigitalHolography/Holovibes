@@ -287,7 +287,7 @@ void GSH::disable_convolution()
 }
 
 // works with 24bits BITMAP images
-static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
+void GSH::load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
 {
     auto& holo = Holovibes::instance();
 

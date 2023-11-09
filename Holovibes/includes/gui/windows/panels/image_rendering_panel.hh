@@ -76,7 +76,7 @@ class ImageRenderingPanel : public Panel
 
     /*! \brief Refreshed the input filter iff one was passed before
      */
-    void refresh_input_filter()
+    void refresh_input_filter();
 
     /*! \brief Modifies space transform calculation
      *
