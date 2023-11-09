@@ -608,11 +608,6 @@ void Pipe::insert_filter2d_view()
                 int width = gpu_output_queue_.get_fd().width;
                 int height = gpu_output_queue_.get_fd().height;
 
-                float_to_complex(buffers_.gpu_complex_filter2d_frame.get(),
-                                 buffers_.gpu_filter2d_mask.get(),
-                                 buffers_.gpu_postprocess_frame_size,
-                                 stream_);
-
                 shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
 
                 complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
