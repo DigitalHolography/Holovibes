@@ -83,6 +83,7 @@ class GSH
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
     inline bool get_filter_enabled() const noexcept { return compute_cache_.get_filter_enabled(); }
+    inline std::shared_ptr<std::vector<float>> get_input_filter_ref() const noexcept { compute_cache_.get_input_filter_ref(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
     {
         return compute_cache_.get_convo_matrix_const_ref();

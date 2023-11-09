@@ -251,6 +251,15 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
     parent_->notify();
 }
 
+void ImageRenderingPanel::refresh_input_filter(){
+    auto filename = UserInterfaceDescriptor::instance().filter_name;
+    
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+        return;
+
+    load_input_filter(compute_cache_.get_input_filter_ref(), filename)
+}
+
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
     if (api::get_compute_mode() == Computation::Raw ||

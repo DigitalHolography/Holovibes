@@ -286,8 +286,7 @@ void GSH::disable_convolution()
     compute_cache_.set_convolution_enabled(false);
 }
 
-// TODO : use image and not .txt
-// TO BE CONTINUED
+// works with 24bits BITMAP images
 static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
 {
     auto& holo = Holovibes::instance();
