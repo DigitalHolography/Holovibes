@@ -29,7 +29,7 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode

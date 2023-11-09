@@ -24,11 +24,13 @@ Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
 
 Filter2DWindow::~Filter2DWindow()
 {
+#ifdef NDEBUG
     if (cuResource)
     {
         cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
         cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
     }
+#endif
 }
 
 void Filter2DWindow::initShaders()
