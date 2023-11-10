@@ -805,8 +805,6 @@ void close_critical_compute()
 {
     if (get_convolution_enabled())
         disable_convolution();
-    if (get_filter_enabled())
-        disable_filter();
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});

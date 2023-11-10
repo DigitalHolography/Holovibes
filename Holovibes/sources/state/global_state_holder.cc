@@ -274,7 +274,7 @@ void GSH::enable_convolution(std::optional<std::string> file)
     compute_cache_.get_convo_matrix_ref()->clear();
 
     // There is no file None.txt for convolution
-    if (file && file.value() != "None")
+    if (file && file.value() != UID_CONVOLUTION_TYPE_DEFAULT)
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
@@ -312,7 +312,7 @@ void GSH::enable_filter(std::optional<std::string> file)
     compute_cache_.get_input_filter_ref()->clear();
 
     // There is no file None.txt for filtering
-    if (file && file.value() != "None")
+    if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
         load_input_filter(compute_cache_.get_input_filter_ref(), file.value());
     else
         disable_filter();
