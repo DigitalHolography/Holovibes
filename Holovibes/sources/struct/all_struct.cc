@@ -201,7 +201,7 @@ void Rendering::Convolution::Load()
 
 void Rendering::Filter::Load()
 {
-    GSH::instance().set_filter_enabled(this->enabled);
+    GSH::instance().set_filter_enabled(this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
     UserInterfaceDescriptor::instance().filter_name = this->type;
 }
 

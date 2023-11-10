@@ -24,11 +24,13 @@ Filter2DWindow::Filter2DWindow(QPoint p, QSize s, DisplayQueue* q)
 
 Filter2DWindow::~Filter2DWindow()
 {
+#ifdef NDEBUG
     if (cuResource)
     {
         cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
         cudaSafeCall(cudaGraphicsUnregisterResource(cuResource));
     }
+#endif
 }
 
 void Filter2DWindow::initShaders()
@@ -37,7 +39,7 @@ void Filter2DWindow::initShaders()
     Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
     Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
     Program->link();
-    overlay_manager_.create_default();
+    //overlay_manager_.create_default();
 }
 
 void Filter2DWindow::initializeGL()

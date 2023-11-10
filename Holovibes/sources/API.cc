@@ -805,11 +805,12 @@ void close_critical_compute()
 {
     if (get_convolution_enabled())
         disable_convolution();
-    if (get_filter_enabled())
-        disable_filter();
 
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
+
+    if (get_filter2d_view_enabled())
+        set_filter2d_view(false, 0);
 
     Holovibes::instance().stop_compute();
 }
@@ -1057,13 +1058,12 @@ void enable_filter(const std::string& filename)
     GSH::instance().enable_filter(filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt
                                                                       : std::make_optional(filename));
 
-    if (filename == UID_FILTER_TYPE_DEFAULT)
-    {
-        // Refresh because the current filter might have change.
-        pipe_refresh();
-        return;
-    }
+    // Refresh because the current filter might have change.
+    pipe_refresh();
 
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+        return;
+    
     try
     {
         auto pipe = get_compute_pipe();
