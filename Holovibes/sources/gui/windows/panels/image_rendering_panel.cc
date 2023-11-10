@@ -93,8 +93,15 @@ void ImageRenderingPanel::on_notify()
     // Filter
     ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
+    if (!api::get_filter_enabled())
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+    }
+    else
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+    }
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -143,6 +150,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
         /* Close windows & destory thread compute */
         api::close_windows();
         api::close_critical_compute();
+
+        api::change_window(static_cast<int>(WindowKind::XYview));
 
         const bool res = api::set_holographic_mode(parent_->window_max_size);
 

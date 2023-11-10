@@ -811,6 +811,9 @@ void close_critical_compute()
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
 
+    if (get_filter2d_view_enabled())
+        set_filter2d_view(false, 0);
+
     Holovibes::instance().stop_compute();
 }
 
