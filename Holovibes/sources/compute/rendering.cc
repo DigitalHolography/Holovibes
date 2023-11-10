@@ -46,13 +46,13 @@ Rendering::Rendering(FunctionVector& fn_compute_vect,
 
 Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
-void Rendering::insert_fft_shift()
+void Rendering::insert_fft_shift(ImgType img_type)
 {
     LOG_FUNC();
 
     if (view_cache_.get_fft_shift_enabled())
     {
-        if (view_cache_.get_img_type() == ImgType::Composite)
+        if (img_type == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),

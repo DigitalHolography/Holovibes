@@ -146,7 +146,9 @@ bool Pipe::make_requests()
         if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
         {
             success_allocation = false;
-            GSH::instance().set_p_index(0);
+            auto P = setting<settings::P>();
+            P.start = 0;
+            realtime_settings_.update_setting(settings::P{P});
             GSH::instance().set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
@@ -360,7 +362,8 @@ void Pipe::refresh()
 
     // time transform
     fourier_transforms_->insert_time_transform(compute_cache_.get_time_transformation(),
-                                               compute_cache_.get_time_transformation_size());
+                                               compute_cache_.get_time_transformation_size(),
+                                               setting<settings::Q>());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
                                                               view_cache_.get_cuts_view_enabled(),
                                                               setting<settings::X>(),
@@ -369,18 +372,18 @@ void Pipe::refresh()
                                                               view_cache_.get_yz_const_ref().output_image_accumulation,
                                                               buffers_.gpu_postprocess_frame_xz.get(),
                                                               buffers_.gpu_postprocess_frame_yz.get(),
-                                                              view_cache_.get_img_type(),
+                                                              setting<settings::ImageType>(),
                                                               compute_cache_.get_time_transformation_size());
     insert_cuts_record();
 
     // Used for phase increase
-    fourier_transforms_->insert_store_p_frame(view_cache_.get_p().start);
+    fourier_transforms_->insert_store_p_frame(setting<settings::P>().start);
 
     converts_->insert_to_float(unwrap_2d_requested_,
-                               view_cache_.get_img_type(),
+                               setting<settings::ImageType>(),
                                compute_cache_.get_time_transformation(),
                                buffers_.gpu_postprocess_frame.get(),
-                               view_cache_.get_p(),
+                               setting<settings::P>(),
                                compute_cache_.get_time_transformation_size(),
                                composite_cache_.get_rgb(),
                                composite_cache_.get_composite_kind(),
@@ -393,12 +396,12 @@ void Pipe::refresh()
 
     postprocess_->insert_convolution(compute_cache_.get_convolution_enabled(),
                                      compute_cache_.get_convo_matrix_const_ref(),
-                                     view_cache_.get_img_type(),
+                                     setting<settings::ImageType>(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),
                                      compute_cache_.get_divide_convolution_enabled());
     postprocess_->insert_renormalize(view_cache_.get_renorm_enabled(),
-                                     view_cache_.get_img_type(),
+                                     setting<settings::ImageType>(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      advanced_cache_.get_renorm_constant());
 
@@ -417,7 +420,7 @@ void Pipe::refresh()
                                                        view_cache_);
     };
     insert();
-    rendering_->insert_fft_shift();
+    rendering_->insert_fft_shift(setting<settings::ImageType>());
     rendering_->insert_chart();
     rendering_->insert_log();
 

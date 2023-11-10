@@ -38,8 +38,7 @@ class FourierTransform
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
-                     holovibes::ComputeCache::Cache& compute_cache,
-                     ViewCache::Cache& view_cache);
+                     holovibes::ComputeCache::Cache& compute_cache);
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft(float* gpu_filter2d_mask,
@@ -59,7 +58,9 @@ class FourierTransform
     std::unique_ptr<Queue>& get_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
-    void insert_time_transform(TimeTransformation time_transformation, const uint time_transformation_size);
+    void insert_time_transform(const TimeTransformation time_transformation,
+                               const uint time_transformation_size,
+                               ViewPQ view_q);
 
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
@@ -81,7 +82,7 @@ class FourierTransform
     void insert_fft1();
 
     /*! \brief Compute lens and enqueue the call to fft2 cuda function. */
-    void insert_fft2();
+    void insert_fft2(bool filter2d_enabled);
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *
@@ -98,7 +99,7 @@ class FourierTransform
      */
     void insert_pca();
 
-    void insert_ssa_stft();
+    void insert_ssa_stft(ViewPQ view_q);
 
     /*! \brief Roi zone of Filter 2D */
     units::RectFd filter2d_zone_;
@@ -130,7 +131,6 @@ class FourierTransform
     const cudaStream_t& stream_;
 
     ComputeCache::Cache& compute_cache_;
-    ViewCache::Cache& view_cache_;
     // Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace holovibes::compute

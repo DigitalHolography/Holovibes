@@ -50,7 +50,7 @@ class Rendering
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
-    void insert_fft_shift();
+    void insert_fft_shift(ImgType img_type);
     /*! \brief insert the functions relative to noise and signal chart. */
     void insert_chart();
     /*! \brief insert the functions relative to the log10. */

@@ -29,8 +29,8 @@ void Views::Update()
     this->fft_shift = GSH::instance().get_fft_shift_enabled();
     this->x = holovibes::Holovibes::instance().get_setting<holovibes::settings::X>().value; //GSH::instance().get_x();
     this->y = holovibes::Holovibes::instance().get_setting<holovibes::settings::Y>().value;
-    this->z = GSH::instance().get_p();
-    this->z2 = GSH::instance().get_q();
+    this->z = holovibes::Holovibes::instance().get_setting<holovibes::settings::P>().value;
+    this->z2 = holovibes::Holovibes::instance().get_setting<holovibes::settings::Q>().value;
     this->window.Update();
     this->renorm = GSH::instance().get_renorm_enabled();
     this->reticle.Update();

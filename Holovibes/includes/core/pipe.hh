@@ -114,8 +114,7 @@ class Pipe : public ICompute
                                                                           spatial_transformation_plan_,
                                                                           time_transformation_env_,
                                                                           stream_,
-                                                                          compute_cache_,
-                                                                          view_cache_);
+                                                                          compute_cache_);
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,

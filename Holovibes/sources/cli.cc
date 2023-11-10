@@ -189,7 +189,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= holovibes::api::get_img_accu_xy_level() && !requested_autocontrast)
+                if (progress->first >= holovibes::api::get_xy_img_accu_level() && !requested_autocontrast)
                 {
                     holovibes.get_compute_pipe()->request_autocontrast(holovibes::api::get_current_window_type());
                     requested_autocontrast = true;

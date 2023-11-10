@@ -585,13 +585,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     pipe_refresh();
 }
 
-void set_p_accu_level(uint p_value)
-{
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-    GSH::instance().set_p_accu_level(p_value);
-    pipe_refresh();
-}
 
 void set_x_accu_level(uint x_value)
 {
@@ -656,18 +649,34 @@ void set_x_y(uint x, uint y)
 
 void set_q_index(uint value)
 {
-    GSH::instance().set_q_index(value);
+    auto q = Holovibes::instance().get_setting<settings::Q>().value;
+    q.start = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Q{q});
     pipe_refresh();
 }
 
 void set_q_accu_level(uint value)
 {
-    GSH::instance().set_q_accu_level(value);
+    auto q = Holovibes::instance().get_setting<settings::Q>().value;
+    q.width = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Q{q});
     pipe_refresh();
 }
 void set_p_index(uint value)
 {
-    GSH::instance().set_p_index(value);
+    auto p = Holovibes::instance().get_setting<settings::P>().value;
+    p.start = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::P{p});
+    pipe_refresh();
+}
+
+void set_p_accu_level(uint p_value)
+{
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+
+    auto p = Holovibes::instance().get_setting<settings::P>().value;
+    p.width = p_value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::P{p});
     pipe_refresh();
 }
 

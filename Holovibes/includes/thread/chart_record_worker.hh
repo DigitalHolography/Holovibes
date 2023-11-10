@@ -11,9 +11,12 @@
 
 #define ONRESTART_SETTINGS               \
   holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount 
+  holovibes::settings::RecordFrameCount
 
-#define ALL_SETTINGS ONRESTART_SETTINGS
+#define REALTIME_SETTINGS                 \
+  holovibes::settings::P
+
+#define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
 
 namespace holovibes::worker
 {
@@ -32,6 +35,7 @@ class ChartRecordWorker final : public Worker
     ChartRecordWorker(InitSettings settings)
     : Worker()
     , onrestart_settings_(settings)
+    , realtime_settings_(settings)
     {
       std::string file_path = setting<settings::RecordFilePath>();
       file_path = get_record_filename(file_path);
@@ -57,6 +61,10 @@ class ChartRecordWorker final : public Worker
         {
             onrestart_settings_.update_setting(setting);
         }
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
     }
 
   private:
@@ -70,6 +78,10 @@ class ChartRecordWorker final : public Worker
         {
             return onrestart_settings_.get<T>().value;
         }
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
     }
 
     /**
@@ -77,6 +89,8 @@ class ChartRecordWorker final : public Worker
      * on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::worker
 
