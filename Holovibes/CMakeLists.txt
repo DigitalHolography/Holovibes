@@ -91,7 +91,15 @@ target_compile_options(Holovibes PRIVATE
         --extended-lambda
         -Xcudafe --diag_suppress=field_without_dll_interface
     >
-    # /W3
+    $<$<COMPILE_LANGUAGE:CXX>:
+        /W3
+    >
+)
+
+target_compile_definitions(Holovibes PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:
+        _CRT_SECURE_NO_WARNINGS
+    >
 )
 
 if(COMMAND target_precompile_headers)
