@@ -21,7 +21,7 @@ Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     , display_(false)
     , parent_(parent)
 {
-    LOG_FUNC();
+    // LOG_FUNC();
 }
 
 Overlay::~Overlay()
@@ -71,15 +71,15 @@ void Overlay::keyPress(QKeyEvent*) {}
 
 void Overlay::initProgram()
 {
-    LOG_FUNC();
+    // LOG_FUNC();
     parent_->makeCurrent();
     initializeOpenGLFunctions();
     Program_ = std::make_unique<QOpenGLShaderProgram>();
     Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.overlay.glsl"));
     Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.color.glsl"));
     Vao_.create();
-    if (!Program_->bind())
-        LOG_ERROR("Shader error : {}", Program_->log().toStdString());
+    // if (!Program_->bind())
+    //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());
     init();
     Program_->release();
 }
@@ -96,6 +96,6 @@ void Overlay::print()
 {
     std::ostringstream zone_oss;
     zone_oss << zone_;
-    LOG_INFO("Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
+    // LOG_INFO("Kind: {}, zone: {}, active: {}, display: {}", kOverlay_, zone_oss.str(), active_, display_);
 }
 } // namespace holovibes::gui

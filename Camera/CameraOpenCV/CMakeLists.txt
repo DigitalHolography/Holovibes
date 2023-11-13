@@ -14,9 +14,9 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
-
     Boost::boost
-    opencv::videoio
+    opencv_videoio
+    spdlog::spdlog_header_only
 )
 
 # Generate the dll file in build/Debug or build/Release

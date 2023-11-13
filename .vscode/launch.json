@@ -8,13 +8,11 @@
             "name": "Debug Holovibes",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "./Holovibes.exe",
+            "program": "${workspaceFolder}/build/RelWithDebInfo/Holovibes.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/bin/Ninja/Debug",
-            "environment": [],
-            "externalConsole": false,
-            "preLaunchTask": "Build"
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CMake: build"
         }
     ]
 }

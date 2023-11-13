@@ -26,7 +26,10 @@ string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=fiel
 
 # "/W3"                     : Activate almost all warningd
 # "/WX"                     : Transform all warnings into errors
-string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
+#string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
+
+#disable all warnings
+string(APPEND CMAKE_CXX_FLAGS " /w")
 
 # ---------------------------------------------------------------------
 # Includes and linkages
@@ -110,6 +113,10 @@ set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
 
 target_include_directories("${PROJECT_NAME}_cuda_lib" PRIVATE ${CUDA_EXTERNAL_INCLUDES} ${INTERNAL_INCLUDES})
 
+target_link_libraries("${PROJECT_NAME}_cuda_lib" PRIVATE
+    spdlog::spdlog_header_only
+)
+
 add_subdirectory(cuda_sources) # Add cuda sources to the target
 # ---------------------------------------------------------------------
 # Target "${PROJECT_NAME}_lib"
@@ -146,7 +153,7 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    opencv::videoio
+    opencv_videoio
     opengl::opengl
 
     cufft
@@ -155,6 +162,7 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     nvml
 
     CUDA::cuda_driver
+    spdlog::spdlog_header_only
 
     "${PROJECT_NAME}_cuda_lib"
 )
@@ -269,4 +277,7 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "${BUILD_DIR}/holovibes_logo.png"
+
+    # windeployqt
+    COMMAND Qt6::windeployqt --dir "${BUILD_DIR}" "${BUILD_DIR}/${PROJECT_NAME}.exe"
 )
