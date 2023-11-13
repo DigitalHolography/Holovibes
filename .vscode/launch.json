@@ -8,7 +8,7 @@
             "name": "Debug Holovibes",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/RelWithDebInfo/Holovibes.exe",
+            "program": "${workspaceFolder}/build/Holovibes.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -1,53 +1,25 @@
-project(Holovibes CXX CUDA)
-
-# ---------------------------------------------------------------------
-# Options and utils
-# ---------------------------------------------------------------------
-
-# compile_commands.json for vscode
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Force cmake to generate MOC from *.ui files for Qt
-cmake_policy(SET CMP0100 NEW)
-
-# Qt file generators
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
-
-### CUDA Flags
 
 # "--extended-lambda"                                      : enable __device__ lambda
 # "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
 string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
 
-### C++ Flags
-
 # "/W3"                     : Activate almost all warningd
 # "/WX"                     : Transform all warnings into errors
-#string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
-
-#disable all warnings
-string(APPEND CMAKE_CXX_FLAGS " /w")
+string(APPEND CMAKE_CXX_FLAGS " /W3")
 
 # ---------------------------------------------------------------------
 # Includes and linkages
 # ---------------------------------------------------------------------
 
 # Packages
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
-find_package(opengl_system REQUIRED)
-find_package(GTest REQUIRED)
-find_package(glm REQUIRED)
-find_package(nlohmann_json REQUIRED)
 
 # Includes
-function(target_include_external_dirs target type)
-    foreach(dir ${ARGN})
-        target_compile_options(${target} ${type} "/external:I${dir}")
-    endforeach()
-endfunction()
+# function(target_include_external_dirs target type)
+#     foreach(dir ${ARGN})
+#         target_compile_options(${target} ${type} "/external:I${dir}")
+#     endforeach()
+# endfunction()
 
 SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
@@ -85,8 +57,6 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
     includes/tools/logger/
-
-
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )
@@ -123,16 +93,12 @@ add_subdirectory(cuda_sources) # Add cuda sources to the target
 # ---------------------------------------------------------------------
 
 add_library("${PROJECT_NAME}_lib" STATIC
-     # CMake will automatically generate C++ headers
-     # (ui_xxx.h) from the following QT .ui files.
-     # Add the relevent .hh in Holovibes/includes/CMakeList.txt
-
      mainwindow.ui
      advancedsettingswindow.ui
      plotwindow.ui
 )
 
-target_include_external_dirs("${PROJECT_NAME}_cuda_lib" INTERFACE ${EXTERNAL_INCLUDES})
+target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${EXTERNAL_INCLUDES})
 target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLUDES})
 
 # Add sources to the target and includes that
@@ -155,15 +121,12 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Widgets
     opencv_videoio
     opengl::opengl
-
     cufft
     cublas
     cusolver
     nvml
-
     CUDA::cuda_driver
     spdlog::spdlog_header_only
-
     "${PROJECT_NAME}_cuda_lib"
 )
 
@@ -174,110 +137,41 @@ add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
         "${CMAKE_CURRENT_BINARY_DIR}/Holovibes_autogen/include/"
 )
 
-# On MSVC, the Boost headers contains #pragma directives pointing to the
-# corresponding libraries, automatically linking them.
-if(MSVC)
-    target_link_directories("${PROJECT_NAME}_lib" PUBLIC "${Boost_LIBRARY_DIRS}")
-else()
-    target_link_libraries("${PROJECT_NAME}_lib" PUBLIC Boost::program_options)
-endif(MSVC)
-
-# ---------------------------------------------------------------------
-# Target unit_tests (unit tests)
-# ---------------------------------------------------------------------
-
-set(SRC_TESTS
-    unit_tests/test_example.cc
-    unit_tests/test_queue.cc
-    unit_tests/test_chart.cc
-    unit_tests/test_reduce.cc
-    unit_tests/test_map.cc
-    unit_tests/test_batch_input_queue.cc
-    unit_tests/test_subsample_frame.cc
-    unit_tests/test_fast_updates_holder.cc
-    unit_tests/test_micro_cache.cc
-    # Add your test files here
-)
-
-enable_testing()
-find_package(Threads)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
-
-    message(STATUS "TESTS: Unit tests enabled")
-    set(TEST_NAME "gtests")
-
-    # Create an executable with all sources and lib needed
-    add_executable(${TEST_NAME} ${SRC_TESTS})
-
-    target_link_libraries(${TEST_NAME} PRIVATE
-        "${PROJECT_NAME}_lib"
-        GTest::gtest
-        GTest::gtest_main
-    )
-
-    set_target_properties(${TEST_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
-
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} "--gtest_color=yes")
-    set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
-
-else()
-    message(STATUS "TESTS: Unit tests disabled in Release mode")
-endif()
-
-
-
 # ---------------------------------------------------------------------
 # Target Holovibes
 # ---------------------------------------------------------------------
 
-add_executable("${PROJECT_NAME}"
-    # mainwindow.ui
-    # advancedsettingswindow.ui
-    # plotwindow.ui
-
+add_executable(Holovibes
     Holovibes.rc
     Holovibes.qrc
-
     sources/main.cc
 )
 
-target_link_libraries("${PROJECT_NAME}" PRIVATE "${PROJECT_NAME}_lib")
-
-# Generate Holovibes.exe in build/Debug or build/Release
-set_target_properties("${PROJECT_NAME}" PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
-)
-
+target_link_libraries(Holovibes PRIVATE "${PROJECT_NAME}_lib")
 
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
 
-add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
+add_custom_command(TARGET Holovibes POST_BUILD
     # Copy shaders and convolution kernels and json patch
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/"
-                                               "${BUILD_DIR}/convolution_kernels/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/"
-                                               "${BUILD_DIR}/input_filters/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
-                                               "${BUILD_DIR}/json_patches_holofile/"
-
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/input_filters/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
 
     # Copy camera libs
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "${BUILD_DIR}/uEye_api_64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
     # Copy not all but some resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/"
-                                               "${BUILD_DIR}/resources/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
 
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "${BUILD_DIR}/holovibes_logo.png"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
 
-    # windeployqt
-    COMMAND Qt6::windeployqt --dir "${BUILD_DIR}" "${BUILD_DIR}/${PROJECT_NAME}.exe"
+    # Deploy Qt
+    COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>
 )

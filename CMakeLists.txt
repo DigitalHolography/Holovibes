@@ -1,35 +1,32 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(Holovibes)
+project(Holovibes
+	VERSION 0.1
+	DESCRIPTION "Holovibes"
+	LANGUAGES CXX CUDA
+)
 
-# Create all the FindXXX.cmake needed for the project
-# set(CONAN_CMAKE_SILENT_OUTPUT ON)
-# include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+# Export compile_commands.json so IDE can use it for code completion.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
-set(BUILD_DIR "${CMAKE_BINARY_DIR}/$<CONFIG>")
-# set(SPDLOG_DIR "${CONAN_SPDLOG_ROOT}/")
-# set(OPENCV_DIR "${CONAN_OPENCV_ROOT}/")
-set(EURESYS_DIR "${CMAKE_SOURCE_DIR}/setup_710")
 
-# Used in every sub project
-find_package(Boost REQUIRED
-	COMPONENTS
-	program_options
-)
+# All packages used by the project.
+find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(OpenCV REQUIRED)
-
-# Add spdlog to include path || don't move it bellow
 find_package(CUDAToolkit 11.5 REQUIRED)
 find_package(spdlog REQUIRED)
-# include_directories("${SPDLOG_DIR}/include")
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
+find_package(opengl_system REQUIRED)
+find_package(GTest REQUIRED)
+find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(Threads)
 
-
-set(EXTERNAL_INCLUDES
-    ${opencv_INCLUDE_DIRS}
-)
+# https://doc.qt.io/qt-6/qt-standard-project-setup.html
+qt_standard_project_setup()
 
 add_subdirectory(Camera)
 add_subdirectory(GPIB)
