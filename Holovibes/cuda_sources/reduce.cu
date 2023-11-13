@@ -12,9 +12,9 @@
  */
 #define FULL_MASK 0xffffffff
 /*! \brief Number of threads handle by an unique warp */
-static constexpr uint warp_size = 32;
+// static constexpr uint warp_size = 32;
 /*! \brief Maximum number of threads in one block */
-static constexpr uint max_block_size = 1024;
+// static constexpr uint max_block_size = 1024;
 
 /*! \brief Reduce warp kernel
  *
@@ -155,6 +155,6 @@ void gpu_reduce(const float* const input, double* const result, const uint size,
 
     // Each thread works at least on 2 pixels
     kernel_reduce<float, double, optimal_block_size * 2>
-        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), 0, stream>>>(input, result, size);
+        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), stream>>>(input, result, size);
     cudaCheckError();
 }
