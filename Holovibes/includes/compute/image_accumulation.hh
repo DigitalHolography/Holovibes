@@ -75,7 +75,6 @@ class ImageAccumulation
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
-        , view_cache_(view_cache)
         , realtime_settings_(settings)
     {
     }
@@ -84,14 +83,10 @@ class ImageAccumulation
      *
      * Should be called just after gpu_float_buffer is computed
      */
-    void insert_image_accumulation(const holovibes::ViewXYZ& const_view_xy,
-                                   float& gpu_postprocess_frame,
+    void insert_image_accumulation(float& gpu_postprocess_frame,
                                    unsigned int& gpu_postprocess_frame_size,
-                                   const holovibes::ViewXYZ& const_view_xz,
                                    float& gpu_postprocess_frame_xz,
-                                   const holovibes::ViewXYZ& const_view_yz,
-                                   float& gpu_postprocess_frame_yz,
-                                   holovibes::ViewCache::Cache& view_cache);
+                                   float& gpu_postprocess_frame_yz);
     /*! \brief Allocate ressources for image accumulation if requested */
     void init();
 
@@ -163,8 +158,6 @@ class ImageAccumulation
     const camera::FrameDescriptor& fd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
-
-    ViewCache::Cache& view_cache_;
 
     DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

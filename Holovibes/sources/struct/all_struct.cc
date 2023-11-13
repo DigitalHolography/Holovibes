@@ -11,9 +11,9 @@ namespace holovibes
 
 void Windows::Update()
 {
-    this->xy = GSH::instance().get_xy();
-    this->yz = GSH::instance().get_yz();
-    this->xz = GSH::instance().get_xz();
+    this->xy = holovibes::Holovibes::instance().get_setting<holovibes::settings::XY>().value;
+    this->yz = holovibes::Holovibes::instance().get_setting<holovibes::settings::YZ>().value;
+    this->xz = holovibes::Holovibes::instance().get_setting<holovibes::settings::XZ>().value;
     this->filter2d = GSH::instance().get_filter2d();
 }
 
@@ -161,9 +161,9 @@ void ComputeSettings::Load()
 
 void Windows::Load()
 {
-    GSH::instance().set_xy(this->xy);
-    GSH::instance().set_yz(this->yz);
-    GSH::instance().set_xz(this->xz);
+    holovibes::Holovibes::instance().update_setting(settings::XY{this->xy});
+    holovibes::Holovibes::instance().update_setting(settings::XZ{this->xz});
+    holovibes::Holovibes::instance().update_setting(settings::YZ{this->yz});
     GSH::instance().set_filter2d(this->filter2d);
 }
 
@@ -177,10 +177,10 @@ void Views::Load()
 {
     GSH::instance().set_img_type(this->image_type);
     GSH::instance().set_fft_shift_enabled(this->fft_shift);
-    GSH::instance().set_x(this->x);
-    GSH::instance().set_y(this->y);
-    GSH::instance().set_p(this->z);
-    GSH::instance().set_q(this->z2);
+    holovibes::Holovibes::instance().update_setting(settings::X{this->x});
+    holovibes::Holovibes::instance().update_setting(settings::Y{this->y});
+    holovibes::Holovibes::instance().update_setting(settings::P{this->z});
+    holovibes::Holovibes::instance().update_setting(settings::Q{this->z2});
     this->window.Load();
     GSH::instance().set_renorm_enabled(this->renorm);
     this->reticle.Load();

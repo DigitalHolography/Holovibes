@@ -278,8 +278,10 @@ class Holovibes
         if constexpr (has_setting<T, worker::FrameRecordWorker>::value)
             frame_record_worker_controller_.update_setting(setting);
 
-        if constexpr (has_setting<T, Pipe>::value) {
-            compute_pipe_.load()->update_setting(setting);
+        if (compute_pipe_.load() != nullptr)
+        {
+            if constexpr (has_setting<T, Pipe>::value)
+                compute_pipe_.load()->update_setting(setting);
         }
     }
 

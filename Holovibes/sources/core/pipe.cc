@@ -368,8 +368,8 @@ void Pipe::refresh()
                                                               view_cache_.get_cuts_view_enabled(),
                                                               setting<settings::X>(),
                                                               setting<settings::Y>(),
-                                                              view_cache_.get_xz_const_ref().output_image_accumulation,
-                                                              view_cache_.get_yz_const_ref().output_image_accumulation,
+                                                              setting<settings::XZ>().output_image_accumulation,
+                                                              setting<settings::YZ>().output_image_accumulation,
                                                               buffers_.gpu_postprocess_frame_xz.get(),
                                                               buffers_.gpu_postprocess_frame_yz.get(),
                                                               setting<settings::ImageType>(),
@@ -410,14 +410,10 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!
     auto insert = [&]()
     {
-        image_accumulation_->insert_image_accumulation(view_cache_.get_xy_const_ref(),
-                                                       *buffers_.gpu_postprocess_frame,
+        image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
                                                        buffers_.gpu_postprocess_frame_size,
-                                                       view_cache_.get_xz_const_ref(),
                                                        *buffers_.gpu_postprocess_frame_xz,
-                                                       view_cache_.get_yz_const_ref(),
-                                                       *buffers_.gpu_postprocess_frame_yz,
-                                                       view_cache_);
+                                                       *buffers_.gpu_postprocess_frame_yz);
     };
     insert();
     rendering_->insert_fft_shift(setting<settings::ImageType>());

@@ -378,8 +378,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             get_compute_pipe()->get_stft_slice_queue(0).get(),
             gui::KindOfView::SliceXZ));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(GSH::instance().get_xz_rot());
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(GSH::instance().get_xz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rot());
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_flip_enabled());
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
@@ -387,8 +387,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             get_compute_pipe()->get_stft_slice_queue(1).get(),
             gui::KindOfView::SliceYZ));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(GSH::instance().get_yz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rot());
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_flip_enabled());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
         GSH::instance().set_cuts_view_enabled(true);
@@ -866,13 +866,13 @@ void rotateTexture()
     change_angle();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_xy_rot());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_xy_rot());
     else if (UserInterfaceDescriptor::instance().sliceXZ &&
              GSH::instance().get_current_window_type() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(GSH::instance().get_xz_rot());
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rot());
     else if (UserInterfaceDescriptor::instance().sliceYZ &&
              GSH::instance().get_current_window_type() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(GSH::instance().get_yz_rot());
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rot());
 }
 
 static void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
@@ -882,13 +882,13 @@ void flipTexture()
     change_flip();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_xy_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_flip_enabled());
     else if (UserInterfaceDescriptor::instance().sliceXZ &&
              GSH::instance().get_current_window_type() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(GSH::instance().get_xz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_flip_enabled());
     else if (UserInterfaceDescriptor::instance().sliceYZ &&
              GSH::instance().get_current_window_type() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(GSH::instance().get_yz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_flip_enabled());
 }
 
 #pragma endregion

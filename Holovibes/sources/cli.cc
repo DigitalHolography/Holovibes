@@ -172,7 +172,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
     // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !holovibes::GSH::instance().get_xy_contrast_auto_refresh();
+    bool requested_autocontrast = !holovibes::api::get_xy_contrast_auto_refresh();
 
     while (holovibes::GSH::instance().get_frame_record_enabled())
     {
@@ -226,8 +226,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
-        nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
+    if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
+        nb_frames_skip = holovibes::api::get_xy_img_accu_level();
 
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});

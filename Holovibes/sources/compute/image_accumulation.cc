@@ -21,14 +21,10 @@ namespace holovibes::compute
 {
 
 
-void ImageAccumulation::insert_image_accumulation(const holovibes::ViewXYZ& const_view_xy,
-                                                  float& gpu_postprocess_frame,
+void ImageAccumulation::insert_image_accumulation(float& gpu_postprocess_frame,
                                                   unsigned int& gpu_postprocess_frame_size,
-                                                  const holovibes::ViewXYZ& const_view_xz,
                                                   float& gpu_postprocess_frame_xz,
-                                                  const holovibes::ViewXYZ& const_view_yz,
-                                                  float& gpu_postprocess_frame_yz,
-                                                  holovibes::ViewCache::Cache& view_cache)
+                                                  float& gpu_postprocess_frame_yz)
 {
     LOG_FUNC();
 
@@ -36,11 +32,11 @@ void ImageAccumulation::insert_image_accumulation(const holovibes::ViewXYZ& cons
                            gpu_postprocess_frame_size,
                            gpu_postprocess_frame_xz,
                            gpu_postprocess_frame_yz);
-    insert_copy_accumulation_result(const_view_xy,
+    insert_copy_accumulation_result(setting<settings::XY>(),
                                     &gpu_postprocess_frame,
-                                    const_view_xz,
+                                    setting<settings::XZ>(),
                                     &gpu_postprocess_frame_xz,
-                                    const_view_yz,
+                                    setting<settings::YZ>(),
                                     &gpu_postprocess_frame_yz);
 }
 
@@ -70,37 +66,37 @@ void ImageAccumulation::init()
     LOG_FUNC();
 
     // XY view
-    if (GSH::instance().get_xy_img_accu_enabled())
+    if (setting<settings::XY>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = GSH::instance().get_img_type() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float);
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
                                     image_acc_env_.gpu_float_average_xy_frame,
-                                    GSH::instance().get_xy_img_accu_level(),
+                                    setting<settings::XY>().output_image_accumulation,
                                     new_fd);
     }
 
     // XZ view
-    if (GSH::instance().get_xz_img_accu_enabled())
+    if (setting<settings::XZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
         new_fd.height = GSH::instance().get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
-                                    GSH::instance().get_xz_img_accu_level(),
+                                    setting<settings::XZ>().output_image_accumulation,
                                     new_fd);
     }
 
     // YZ view
-    if (GSH::instance().get_yz_img_accu_enabled())
+    if (setting<settings::YZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
         new_fd.width = GSH::instance().get_time_transformation_size();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
-                                    GSH::instance().get_yz_img_accu_level(),
+                                    setting<settings::YZ>().output_image_accumulation,
                                     new_fd);
     }
 }
@@ -109,11 +105,11 @@ void ImageAccumulation::dispose()
 {
     LOG_FUNC();
 
-    if (!GSH::instance().get_xy_img_accu_enabled())
+    if (!(setting<settings::XY>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
-    if (!GSH::instance().get_xz_img_accu_enabled())
+    if (!(setting<settings::XZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
-    if (!GSH::instance().get_yz_img_accu_enabled())
+    if (!(setting<settings::YZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 }
 
@@ -121,11 +117,11 @@ void ImageAccumulation::clear()
 {
     LOG_FUNC();
 
-    if (GSH::instance().get_xy_img_accu_enabled())
+    if (setting<settings::XY>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_xy_queue->clear();
-    if (GSH::instance().get_xz_img_accu_enabled())
+    if (setting<settings::XZ>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_xz_queue->clear();
-    if (GSH::instance().get_yz_img_accu_enabled())
+    if (setting<settings::YZ>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_yz_queue->clear();
 }
 
@@ -203,7 +199,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
     auto copy_accumulation_result = [&]()
     {
         // XY view
-        if (image_acc_env_.gpu_accumulation_xy_queue && view_cache_.get_xy_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_xy_queue && setting<settings::XY>().output_image_accumulation > 1)
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                              image_acc_env_.gpu_float_average_xy_frame,
                              image_acc_env_.gpu_accumulation_xy_queue->get_fd().get_frame_size(),
@@ -211,7 +207,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
                              stream_);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && view_cache_.get_xz_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_xz_queue && setting<settings::XZ>().output_image_accumulation > 1)
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz,
                              image_acc_env_.gpu_float_average_xz_frame,
                              image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_size(),
@@ -219,7 +215,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
                              stream_);
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && view_cache_.get_yz_const_ref().output_image_accumulation > 1)
+        if (image_acc_env_.gpu_accumulation_yz_queue && setting<settings::YZ>().output_image_accumulation > 1)
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz,
                              image_acc_env_.gpu_float_average_yz_frame,
                              image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_size(),

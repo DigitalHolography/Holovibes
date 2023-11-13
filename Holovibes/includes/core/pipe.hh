@@ -91,7 +91,7 @@ class Pipe : public ICompute
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
-        : ICompute(input, output, stream)
+        : ICompute(input, output, stream, settings)
         , realtime_settings_(settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
@@ -127,7 +127,8 @@ class Pipe : public ICompute
                                                           export_cache_,
                                                           view_cache_,
                                                           advanced_cache_,
-                                                          zone_cache_);
+                                                          zone_cache_,
+                                                          realtime_settings_.settings_);
         converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                         buffers_,
                                                         time_transformation_env_,
@@ -198,6 +199,9 @@ class Pipe : public ICompute
     inline void update_setting(T setting)
     {
         spdlog::info("[Pipe] [update_setting] {}", typeid(T).name());
+        //Pipe* caca = reinterpret_cast<Pipe*>(this);
+        //if (caca == nullptr)
+        //    return;
         
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
@@ -208,6 +212,17 @@ class Pipe : public ICompute
         {
             image_accumulation_->update_setting(setting);
         }
+
+        if constexpr (has_setting<T, compute::Rendering>::value)
+        {
+            rendering_->update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, ICompute>::value)
+        {
+            update_setting_icompute(setting);
+        }
+
     }
 
   protected:

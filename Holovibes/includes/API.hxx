@@ -92,7 +92,7 @@ inline ViewXYZ get_xy() { return holovibes::Holovibes::instance().get_setting<se
 inline bool get_xy_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.horizontal_flip; }
 inline float get_xy_rot() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.rotation; }
 inline uint get_xy_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.output_image_accumulation; }
-inline bool get_xy_log_scale_slice_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.log_enabled; }
+inline bool get_xy_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.log_enabled; }
 inline bool get_xy_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled; }
 inline bool get_xy_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.contrast.auto_refresh; }
 inline bool get_xy_contrast_invert() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.contrast.invert; }
@@ -121,7 +121,7 @@ inline void set_xy_img_accu_level(uint value) {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
 }
 
-inline void set_xy_log_scale_slice_enabled(bool value) noexcept {
+inline void set_xy_log_enabled(bool value) noexcept {
     auto xy = Holovibes::instance().get_setting<settings::XY>().value;
     xy.log_enabled = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
@@ -165,7 +165,7 @@ inline ViewXYZ get_xz() { return holovibes::Holovibes::instance().get_setting<se
 inline bool get_xz_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.horizontal_flip; }
 inline float get_xz_rot() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.rotation; }
 inline uint get_xz_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.output_image_accumulation; }
-inline bool get_xz_log_scale_slice_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.log_enabled; }
+inline bool get_xz_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.log_enabled; }
 inline bool get_xz_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.contrast.enabled; }
 inline bool get_xz_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.contrast.auto_refresh; }
 inline bool get_xz_contrast_invert() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.contrast.invert; }
@@ -192,7 +192,7 @@ inline void set_xz_img_accu_level(uint value) {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline void set_xz_log_scale_slice_enabled(bool value) noexcept {
+inline void set_xz_log_enabled(bool value) noexcept {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.log_enabled = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
@@ -235,7 +235,7 @@ inline ViewXYZ get_yz() { return holovibes::Holovibes::instance().get_setting<se
 inline bool get_yz_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.horizontal_flip; }
 inline float get_yz_rot() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.rotation; }
 inline uint get_yz_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.output_image_accumulation; }
-inline bool get_yz_log_scale_slice_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.log_enabled; }
+inline bool get_yz_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.log_enabled; }
 inline bool get_yz_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.contrast.enabled; }
 inline bool get_yz_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.contrast.auto_refresh; }
 inline bool get_yz_contrast_invert() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.contrast.invert; }
@@ -262,7 +262,7 @@ inline void set_yz_img_accu_level(uint value) {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
-inline void set_yz_log_scale_slice_enabled(bool value) noexcept {
+inline void set_yz_log_enabled(bool value) noexcept {
     auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
     yz.log_enabled = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
@@ -386,12 +386,6 @@ inline void set_renorm_enabled(bool value) { GSH::instance().set_renorm_enabled(
 
 inline bool get_fft_shift_enabled() { return GSH::instance().get_fft_shift_enabled(); }
 inline void set_fft_shift_enabled(bool value) { GSH::instance().set_fft_shift_enabled(value); }
-
-inline bool get_log_scale_slice_xy_enabled() { return GSH::instance().get_xy_log_scale_slice_enabled(); }
-
-inline bool get_log_scale_slice_xz_enabled() { return GSH::instance().get_xz_log_scale_slice_enabled(); }
-
-inline bool get_log_scale_slice_yz_enabled() { return GSH::instance().get_yz_log_scale_slice_enabled(); }
 
 inline bool get_contrast_enabled() { return GSH::instance().get_contrast_enabled(); }
 
