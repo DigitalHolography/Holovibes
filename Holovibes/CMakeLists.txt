@@ -1,3 +1,4 @@
+# Where to look for .ui files.
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 SET(CUDA_EXTERNAL_INCLUDES
@@ -40,6 +41,9 @@ set(INTERNAL_INCLUDES
     "${CAMERA_DIR}/include/"
 )
 
+# ---------------------------------------------------------------------
+# The executable
+# ---------------------------------------------------------------------
 file(GLOB_RECURSE SOURCES sources/*.cc)
 file(GLOB_RECURSE HEADERS includes/*.hh)
 file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
@@ -109,7 +113,6 @@ endif()
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
-
 add_custom_command(TARGET Holovibes POST_BUILD
     # Copy shaders and convolution kernels and json patch
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
@@ -130,5 +133,81 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
 
     # Deploy Qt
-    COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>
+    COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
 )
+
+# ---------------------------------------------------------------------
+# Install
+# ---------------------------------------------------------------------
+install(TARGETS Holovibes
+    RUNTIME DESTINATION .
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/shaders/"
+    DESTINATION shaders
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/convolution_kernels/"
+    DESTINATION convolution_kernels
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/input_filters/"
+    DESTINATION input_filters
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
+    DESTINATION json_patches_holofile
+    COMPONENT application
+)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
+    DESTINATION resources
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/Holovibes.ico"
+    DESTINATION .
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/holovibes_logo.png"
+    DESTINATION .
+    COMPONENT application
+)
+
+# COPY ALL DLLS TO INSTALL DIR USING A REGEX
+install(DIRECTORY "${CMAKE_BINARY_DIR}"
+    DESTINATION .
+    COMPONENT application
+    FILES_MATCHING PATTERN "*.dll"
+)
+
+# ---------------------------------------------------------------------
+# Packaging
+# ---------------------------------------------------------------------
+set(INSTALL_DIRECTORY "Holovibes/Holovibes${PROJECT_VERSION}")
+
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
+set(CPACK_COMPONENTS_ALL application)
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
+
+# set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "$INSTDIR/shaders/"
+#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" "$INSTDIR/convolution_kernels/"
+#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" "$INSTDIR/input_filters/"
+#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" "$INSTDIR/json_patches_holofile/"
+#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "$INSTDIR/xiapi64.dll"
+#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "$INSTDIR/uEye_api_64.dll"
+#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "$INSTDIR/dcamapi.dll"
+#     ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" "$INSTDIR/resources/"
+#     ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "$INSTDIR/Holovibes.ico"
+#     ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "$INSTDIR/holovibes_logo.png"
+# )
+
+include(CPack)
