@@ -489,7 +489,7 @@ class ICompute
     std::atomic<bool> convolution_requested_{false};
     std::atomic<bool> disable_convolution_requested_{false};
 
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
     ComputeCache::Cache compute_cache_;
     ExportCache::Cache export_cache_;

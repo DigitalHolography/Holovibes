@@ -13,37 +13,6 @@
 
 namespace holovibes::compute
 {
-Rendering::Rendering(FunctionVector& fn_compute_vect,
-                     const CoreBuffersEnv& buffers,
-                     ChartEnv& chart_env,
-                     const ImageAccEnv& image_acc_env,
-                     const TimeTransformationEnv& time_transformation_env,
-                     const camera::FrameDescriptor& input_fd,
-                     const camera::FrameDescriptor& output_fd,
-                     const cudaStream_t& stream,
-                     ComputeCache::Cache& compute_cache,
-                     ExportCache::Cache& export_cache,
-                     ViewCache::Cache& view_cache,
-                     AdvancedCache::Cache& advanced_cache,
-                     ZoneCache::Cache& zone_cache)
-    : fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , chart_env_(chart_env)
-    , time_transformation_env_(time_transformation_env)
-    , image_acc_env_(image_acc_env)
-    , input_fd_(input_fd)
-    , fd_(output_fd)
-    , stream_(stream)
-    , compute_cache_(compute_cache)
-    , export_cache_(export_cache)
-    , view_cache_(view_cache)
-    , advanced_cache_(advanced_cache)
-    , zone_cache_(zone_cache)
-{
-    // Hold 2 float values (min and max)
-    cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
-}
-
 Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift(ImgType img_type)
@@ -120,6 +89,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
 {
     LOG_FUNC();
 
+    spdlog::critical("INSERT_CONTRAST autocontrast_request: {}", autocontrast_request.load());
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
                                 autocontrast_slice_xz_request,
@@ -127,8 +97,11 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 autocontrast_filter2d_request);
 
     // Apply contrast on the main view
-    if (view_cache_.get_xy().contrast.enabled)
+    if (setting<settings::XY>().contrast.enabled) {
+        spdlog::critical("[Rendering] [insert_contrast] XYview contrast enabled {}",
+                         setting<settings::XY>().contrast.enabled);
         insert_apply_contrast(WindowKind::XYview);
+    }
 
     // Apply contrast on cuts if needed
     if (view_cache_.get_cuts_view_enabled())
@@ -136,7 +109,6 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
         if (view_cache_.get_xz().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
         if (view_cache_.get_yz().contrast.enabled)
-
             insert_apply_contrast(WindowKind::YZview);
     }
 

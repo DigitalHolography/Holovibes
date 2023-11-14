@@ -159,7 +159,7 @@ class ImageAccumulation
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
 

@@ -148,9 +148,9 @@ class GSH
 
     inline WindowKind get_current_window_type() const noexcept { return view_cache_.get_current_window(); }
 
-    inline bool get_contrast_auto_refresh() const noexcept { return get_current_window().contrast.auto_refresh; }
+    bool get_contrast_auto_refresh() const noexcept;
     inline bool get_contrast_invert() const noexcept { return get_current_window().contrast.invert; }
-    inline bool get_contrast_enabled() const noexcept { return get_current_window().contrast.enabled; }
+    bool get_contrast_enabled() const noexcept;
 
     bool is_current_window_xyz_type() const;
 

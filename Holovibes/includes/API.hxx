@@ -130,7 +130,10 @@ inline void set_xy_log_enabled(bool value) noexcept {
 inline void set_xy_contrast_enabled(bool value) noexcept {
     auto xy = Holovibes::instance().get_setting<settings::XY>().value;
     xy.contrast.enabled = value;
+    spdlog::critical("[API] before update set_xy_contrast_enabled -> {}", Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled);
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
+    spdlog::critical("[API] end update set_xy_contrast_enabled -> {}", Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled);
+    pipe_refresh();
 }
 
 inline void set_xy_contrast_auto_refresh(bool value) noexcept

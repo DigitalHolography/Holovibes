@@ -108,10 +108,87 @@ void GSH::set_time_stride(uint value)
         compute_cache_.set_time_stride(value - value % compute_cache_.get_batch_size());
 }
 
-void GSH::set_contrast_enabled(bool contrast_enabled) { get_current_window()->contrast.enabled = contrast_enabled; }
+bool GSH::get_contrast_enabled() const noexcept {
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+        case WindowKind::XYview:
+            //spdlog::critical("get_contrast_enabled xy : {}", api::get_xy_contrast_enabled());
+            return api::get_xy_contrast_enabled();
+            break;
+        case WindowKind::XZview:
+            return api::get_xz_contrast_enabled();
+            break;
+        case WindowKind::YZview:
+            return api::get_yz_contrast_enabled();
+            break;
+        //TODO : set_filter2d_contrast_enabled
+        default:
+            break;
+    }
+    return get_current_window().contrast.enabled; 
+}
+
+void GSH::set_contrast_enabled(bool contrast_enabled) {
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+        case WindowKind::XYview:
+            spdlog::critical("[GSH from API] set contrast enabled xy : {}", contrast_enabled);
+            api::set_xy_contrast_enabled(contrast_enabled);
+            break;
+        case WindowKind::XZview:
+            api::set_xz_contrast_enabled(contrast_enabled);
+            break;
+        case WindowKind::YZview:
+            api::set_yz_contrast_enabled(contrast_enabled);
+            break;
+        //TODO : set_filter2d_contrast_enabled
+        default:
+            break;
+    }
+}
+
+bool GSH::get_contrast_auto_refresh() const noexcept {
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+        case WindowKind::XYview:
+            //spdlog::critical("get_contrast_auto_refresh xy : {}", api::get_xy_contrast_auto_refresh());
+            return api::get_xy_contrast_auto_refresh();
+            break;
+        case WindowKind::XZview:
+            return api::get_xz_contrast_auto_refresh();
+            break;
+        case WindowKind::YZview:
+            return api::get_yz_contrast_auto_refresh();
+            break;
+        //TODO : set_filter2d_contrast_auto_refresh
+        default:
+            break;
+    }
+    return get_current_window().contrast.auto_refresh; 
+}
 
 void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
 {
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+        case WindowKind::XYview:
+            spdlog::critical("set_contrast_auto_refresh xy : {}", contrast_auto_refresh);
+            api::set_xy_contrast_auto_refresh(contrast_auto_refresh);
+            break;
+        case WindowKind::XZview:
+            api::set_xz_contrast_auto_refresh(contrast_auto_refresh);
+            break;
+        case WindowKind::YZview:
+            api::set_yz_contrast_auto_refresh(contrast_auto_refresh);
+            break;
+        //TODO : set_filter2d_contrast_auto
+        default:
+            break;
+    }
     get_current_window()->contrast.auto_refresh = contrast_auto_refresh;
 }
 

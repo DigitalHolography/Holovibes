@@ -898,6 +898,7 @@ void flipTexture()
 void set_contrast_mode(bool value)
 {
     GSH::instance().set_contrast_enabled(value);
+    spdlog::critical("[API from viewpanel] set_contrast_mode: {}", value);
     pipe_refresh();
 }
 

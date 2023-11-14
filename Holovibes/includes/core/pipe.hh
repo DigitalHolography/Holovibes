@@ -193,16 +193,13 @@ class Pipe : public ICompute
      * @brief Contains all the settings of the worker that should be updated
      * on restart.
      */
-    DelayedSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
     template <typename T>
     inline void update_setting(T setting)
     {
         spdlog::info("[Pipe] [update_setting] {}", typeid(T).name());
-        //Pipe* caca = reinterpret_cast<Pipe*>(this);
-        //if (caca == nullptr)
-        //    return;
-        
+
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);
@@ -212,12 +209,10 @@ class Pipe : public ICompute
         {
             image_accumulation_->update_setting(setting);
         }
-
         if constexpr (has_setting<T, compute::Rendering>::value)
         {
             rendering_->update_setting(setting);
         }
-
         if constexpr (has_setting<T, ICompute>::value)
         {
             update_setting_icompute(setting);
