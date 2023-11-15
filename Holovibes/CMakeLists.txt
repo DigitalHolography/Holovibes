@@ -49,16 +49,21 @@ file(GLOB_RECURSE HEADERS includes/*.hh)
 file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
 file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
 
-add_executable(Holovibes
+qt_add_executable(Holovibes
     ${SOURCES}
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
-    Holovibes.rc
-    Holovibes.qrc
     mainwindow.ui
     advancedsettingswindow.ui
     plotwindow.ui
+)
+
+qt_add_resources(Holovibes "HolovibesRessources"
+    PREFIX "/"
+    FILES
+    Holovibes.ico
+    holovibes_logo.png
 )
 
 target_link_libraries(Holovibes PRIVATE 
@@ -76,7 +81,6 @@ target_link_libraries(Holovibes PRIVATE
     cublas
     cusolver
     nvml
-    CUDA::cuda_driver
 )
 
 target_include_directories(Holovibes PRIVATE 
@@ -134,6 +138,9 @@ add_custom_command(TARGET Holovibes POST_BUILD
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
+
+    # Deploy Qt in windeployqt directory so that it can be used by the installer
+    COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
 )
 
 # ---------------------------------------------------------------------
@@ -179,17 +186,41 @@ install(FILES "${HOLO_DIR}/holovibes_logo.png"
     COMPONENT application
 )
 
-# COPY ALL DLLS TO INSTALL DIR USING A REGEX
-install(DIRECTORY "${CMAKE_BINARY_DIR}"
+message(STATUS "CUDA_TOOLKIT_ROOT_DIR: ${CUDA_TOOLKIT_ROOT_DIR}")
+
+install(FILES 
+    # $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
+    # $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraOpenCV.dll
+    # $<TARGET_FILE_DIR:Holovibes>/CameraPhantom.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
+    $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
+    $<TARGET_FILE_DIR:Holovibes>/gpib.dll
+    $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
+    $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft64_11.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
     DESTINATION .
     COMPONENT application
-    FILES_MATCHING PATTERN "*.dll"
+)
+
+install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
+    DESTINATION .
+    COMPONENT application
 )
 
 # ---------------------------------------------------------------------
 # Packaging
 # ---------------------------------------------------------------------
-set(INSTALL_DIRECTORY "Holovibes/Holovibes${PROJECT_VERSION}")
+set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 
 set(CPACK_GENERATOR "NSIS")
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
@@ -197,17 +228,9 @@ set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
 set(CPACK_COMPONENTS_ALL application)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
-# set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "$INSTDIR/shaders/"
-#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" "$INSTDIR/convolution_kernels/"
-#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" "$INSTDIR/input_filters/"
-#     ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" "$INSTDIR/json_patches_holofile/"
-#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "$INSTDIR/xiapi64.dll"
-#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "$INSTDIR/uEye_api_64.dll"
-#     ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "$INSTDIR/dcamapi.dll"
-#     ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" "$INSTDIR/resources/"
-#     ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "$INSTDIR/Holovibes.ico"
-#     ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "$INSTDIR/holovibes_logo.png"
-# )
+# Add SetCompress off to NSIS script
+set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
+    SetCompress off
+")
 
 include(CPack)

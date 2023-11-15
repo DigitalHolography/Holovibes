@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/build/Holovibes.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/build",
             "preLaunchTask": "CMake: build"
         }
     ]
