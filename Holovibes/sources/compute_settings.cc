@@ -45,9 +45,10 @@ void load_compute_settings(const std::string& json_path)
     {
         from_json(j_cs, compute_settings);
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
-        LOG_ERROR("{} is an invalid compute settings", json_path);
+        // Error can be throw because of null value on contrast min and max, FIXME
+        LOG_ERROR("{} is an invalid compute settings: {}", json_path, e.what());
         return;
     }
 

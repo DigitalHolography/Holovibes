@@ -8,6 +8,7 @@
 #include "composite.cuh"
 #include "rgb.cuh"
 #include "hsv.cuh"
+#include "doppler.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
 #include "tools_unwrap.cuh"
@@ -57,6 +58,8 @@ void Converts::insert_to_float(bool unwrap_2d_requested)
         insert_to_argument(unwrap_2d_requested);
     else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
         insert_to_phase_increase(unwrap_2d_requested);
+    else if (view_cache_.get_img_type() == ImgType::Doppler)
+        insert_to_doppler();
 
     if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
         view_cache_.get_img_type() != ImgType::Composite)
@@ -187,6 +190,24 @@ void Converts::insert_to_composite()
                                                    (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
+        });
+}
+
+void Converts::insert_to_doppler()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            complex_to_doppler(buffers_.gpu_postprocess_frame,
+                               time_transformation_env_.gpu_p_acc_buffer,
+                               buffers_.gpu_doppler_moment_zero,
+                               buffers_.gpu_doppler_moment_two,
+                               pmin_,
+                               pmax_,
+                               fd_.get_frame_res(),
+                               stream_);
         });
 }
 

@@ -115,8 +115,8 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Display default values
-    api::set_compute_mode(Computation::Raw);
+    api::set_compute_mode(Computation::Raw); // DIRTY FIX??
+    api::set_img_type(ImgType::Modulus);     // DIRTY FIX??
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;

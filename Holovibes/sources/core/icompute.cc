@@ -102,6 +102,12 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     if (!buffers_.gpu_input_filter_mask.resize(output_buffer_size))
         err++;
 
+    if (!buffers_.gpu_doppler_moment_zero.resize(buffers_.gpu_postprocess_frame_size))
+        err++;
+
+    if (!buffers_.gpu_doppler_moment_two.resize(buffers_.gpu_postprocess_frame_size))
+        err++;
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }

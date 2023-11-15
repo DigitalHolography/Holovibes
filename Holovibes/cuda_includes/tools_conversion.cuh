@@ -159,3 +159,5 @@ void convert_frame_for_display(const void* input,
                                const cudaStream_t stream);
 
 void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream);
+
+#include "tools_conversion.cuhxx"

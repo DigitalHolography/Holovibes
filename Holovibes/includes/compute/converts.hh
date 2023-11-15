@@ -66,6 +66,9 @@ class Converts
     /*! \brief Insert the convertion Complex => Composite */
     void insert_to_composite();
 
+    /*! \brief Insert the convertion Complex => Doppler */
+    void insert_to_doppler();
+
     /*! \brief Insert the convertion Complex => Argument */
     void insert_to_argument(bool unwrap_2d_requested);
 

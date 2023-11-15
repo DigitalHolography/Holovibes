@@ -66,6 +66,10 @@ struct CoreBuffersEnv
 
     /*! \brief InputFilter mask */
     cuda_tools::UniquePtr<float> gpu_input_filter_mask = nullptr;
+
+    /*! \brief Doppler moment buffers*/
+    cuda_tools::UniquePtr<float> gpu_doppler_moment_zero = nullptr;
+    cuda_tools::UniquePtr<float> gpu_doppler_moment_two = nullptr;
 };
 
 /*! \struct BatchEnv

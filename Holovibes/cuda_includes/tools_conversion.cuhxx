@@ -1,0 +1,54 @@
+#pragma once
+
+#include "cuda.h"
+#include "cuda_runtime.h"
+
+#include <cassert>
+#include <limits>
+
+#include "common.cuh"
+#include "cuda_memory.cuh"
+
+template <typename FUNC>
+__global__ void kernel_compute_sum_depth(
+    const cuComplex* input, float* output, size_t frame_res, size_t min_index, size_t max_index, FUNC func)
+{
+    size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+    if (id < frame_res)
+    {
+        float res = 0.0f;
+
+        for (size_t z = min_index; z <= max_index; ++z)
+        {
+            float input_elm = fabsf(input[z * frame_res + id].x);
+
+            res += input_elm * func(z);
+        }
+
+        const size_t range = max_index - min_index + 1;
+        output[id] = (res / (float)range);
+    }
+}
+
+/// @brief Compute the sum depth of a pixel : sum of input[z] * func(z) between z1 and z2
+/// @param input The input cuComplex buffer
+/// @param output The output float buffer
+/// @param frame_res The total number of pixels in one frame
+/// @param min_index z1
+/// @param max_index z2
+/// @param func the function to call on z
+template <typename FUNC>
+void compute_sum_depth(const cuComplex* input,
+                       float* output,
+                       size_t frame_res,
+                       size_t min_index,
+                       size_t max_index,
+                       FUNC func,
+                       const cudaStream_t stream)
+{
+    const uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+
+    kernel_compute_sum_depth<<<blocks, threads, 0, stream>>>(input, output, frame_res, min_index, max_index, func);
+    cudaCheckError();
+}
