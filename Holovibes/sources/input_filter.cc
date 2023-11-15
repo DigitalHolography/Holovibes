@@ -113,21 +113,6 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
     fclose(f);
 }
 
-void InputFilter::write_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
-{
-    std::ofstream myfile;
-    myfile.open("image.txt");
-    for (size_t i = 0; i < height; i++)
-    {
-        for (size_t j = 0; j < width; j++)
-        {
-            myfile << std::format("{:1.1} ", cache_image->at(i * width + j));
-        }
-        myfile << std::endl;
-    }
-    myfile.close();
-}
-
 void bilinear_interpolation(
     float* filter_input, float* filter_output, size_t width, size_t height, size_t fd_width, size_t fd_height)
 {

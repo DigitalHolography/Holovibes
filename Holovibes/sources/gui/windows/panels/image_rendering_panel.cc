@@ -93,8 +93,15 @@ void ImageRenderingPanel::on_notify()
     // Filter
     ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
+    if (!api::get_filter_enabled())
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+    }
+    else
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+    }
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -143,6 +150,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
         /* Close windows & destory thread compute */
         api::close_windows();
         api::close_critical_compute();
+
+        api::change_window(static_cast<int>(WindowKind::XYview));
 
         const bool res = api::set_holographic_mode(parent_->window_max_size);
 
@@ -226,7 +235,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
         api::set_filter2d_n2(size_max);
         ui_->Filter2DN2SpinBox->setValue(size_max);
-
+        // refresh_input_filter();
     }
     else
         update_filter2d_view(false);
@@ -244,11 +253,31 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
+    LOG_FUNC();
+
     UserInterfaceDescriptor::instance().filter_name = value.toStdString();
     
     api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
 
     parent_->notify();
+}
+
+void ImageRenderingPanel::refresh_input_filter(){
+    LOG_FUNC();
+
+    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
+    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+
+    auto filename = UserInterfaceDescriptor::instance().filter_name;
+    
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+    {
+        LOG_INFO("--- || ---");
+        return;
+    }
+
+    GSH::load_input_filter(GSH::instance().get_input_filter_ref(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    holovibes::api::pipe_refresh();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)

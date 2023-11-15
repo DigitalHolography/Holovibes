@@ -48,27 +48,33 @@ void fft_2(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
            const cuComplex* lens,
+           cuComplex* mask_output,
+           bool store_frame,
            const cufftHandle plan2d,
            const FrameDescriptor& fd,
            const cudaStream_t stream)
 {
-    const uint frame_resolution = fd.get_frame_res();
+    const uint frame_res = fd.get_frame_res();
     const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(frame_resolution, threads);
+    const uint blocks = map_blocks_to_problem(frame_res, threads);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 
     // Lens and Mask already shifted
     // thus we don't have to shift the 'input' buffer each time
-    apply_mask(input, lens, output, frame_resolution, batch_size, stream);
+    apply_mask(input, lens, output, frame_res, batch_size, stream);
+    if (store_frame)
+    {
+        cudaXMemcpyAsync(mask_output, input, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);
+    }
 
     cudaCheckError();
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 
     kernel_complex_divide<<<blocks, threads, 0, stream>>>(input,
-                                                          frame_resolution,
-                                                          static_cast<float>(frame_resolution),
+                                                          frame_res,
+                                                          static_cast<float>(frame_res),
                                                           batch_size);
     cudaCheckError();
 }
