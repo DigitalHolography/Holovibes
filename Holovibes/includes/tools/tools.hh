@@ -152,7 +152,7 @@ T json_get_or_default(const json& data, T default_value, const char* key, const 
     {
         return json_get_or_default<T>(data.at(key), default_value, keys);
     }
-    catch (const json::exception& e)
+    catch (const json::exception&)
     {
         LOG_DEBUG("Missing key in json: {}", key);
         return default_value;

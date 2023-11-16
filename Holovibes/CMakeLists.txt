@@ -101,6 +101,8 @@ target_compile_options(Holovibes PRIVATE
     >
     $<$<COMPILE_LANGUAGE:CXX>:
         /W3
+        /wd4005
+        /wd4003
     >
 )
 

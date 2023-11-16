@@ -183,7 +183,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 
 void Holovibes::init_pipe()
 {
-    // LOG_FUNC();
+    LOG_FUNC();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
     {

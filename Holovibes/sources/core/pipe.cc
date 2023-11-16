@@ -41,6 +41,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
     : ICompute(input, output, stream)
     , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
 {
+    spdlog::critical("{}", __FUNCSIG__);
     ConditionType batch_condition = [&]() -> bool
     { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
 
