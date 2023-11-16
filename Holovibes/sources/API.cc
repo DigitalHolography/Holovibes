@@ -975,6 +975,9 @@ void set_contrast_max(const double value)
     const float old_val = get_truncate_contrast_max();
     // Floating number issue: cast to float for the comparison
     const float val = value;
+
+    spdlog::critical("[API from viewpanel] old_val : {} val : {}", old_val, val);
+
     if (old_val != val)
     {
         GSH::instance().set_contrast_max(value);
@@ -996,7 +999,7 @@ void set_auto_refresh_contrast(bool value)
 
 void set_log_scale(const bool value)
 {
-    GSH::instance().set_log_scale_slice_enabled(value);
+    GSH::instance().set_log_enabled(value);
     if (value && GSH::instance().get_contrast_enabled())
         set_auto_contrast();
 
@@ -1013,7 +1016,7 @@ float get_contrast_max() { return GSH::instance().get_contrast_max(); }
 
 bool get_contrast_invert_enabled() { return GSH::instance().get_contrast_invert(); }
 
-bool get_img_log_scale_slice_enabled() { return GSH::instance().get_img_log_scale_slice_enabled(); }
+bool get_log_enabled() { return GSH::instance().get_log_enabled(); }
 
 #pragma endregion
 

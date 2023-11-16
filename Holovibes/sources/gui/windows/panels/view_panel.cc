@@ -96,7 +96,7 @@ void ViewPanel::on_notify()
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_log_enabled());
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val)
@@ -479,6 +479,7 @@ void ViewPanel::set_contrast_max(const double value)
     if (!api::get_contrast_enabled())
         return;
 
+    spdlog::critical("[CONTRAST ENABLED] set_contrast_max {}", value);
     api::set_contrast_max(value);
 }
 

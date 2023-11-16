@@ -421,7 +421,7 @@ void Pipe::refresh()
     rendering_->insert_log();
 
     insert_request_autocontrast();
-    update_setting(settings::XY{Holovibes::instance().get_setting<settings::XY>().value});
+    //update_setting(settings::XY{Holovibes::instance().get_setting<settings::XY>().value}); 
     spdlog::critical("[Pipe] [BEFORE INSERT_CONTRAST] Contrast_enabled = {} -- {}",
                      setting<settings::XY>().contrast.enabled, Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled);
     rendering_->insert_contrast(autocontrast_requested_,

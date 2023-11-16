@@ -2,6 +2,36 @@
  *
  */
 
+// clang-format off
+
+#define GET_VIEW_MEMBER(type, member)                                        \
+    ({                                                                       \
+        type result;                                                         \
+        auto window = view_cache_.get_current_window();                      \
+        if (window == WindowKind::Filter2D)                                  \
+            result = get_current_window().member;                            \
+        else                                                                 \
+            result = GET_XYZ_MEMBER(type, member);                           \
+        result;                                                              \
+    })                                                                       \
+
+#define GET_XYZ_MEMBER(type, member)                                         \
+    ({                                                                       \
+        type result;                                                         \
+        auto window = view_cache_.get_current_window();                      \
+        if (window == WindowKind::XYview) {                                  \
+            spdlog::critical("get_xy().{} : {}", #member, api::get_xy().member); \
+            result = api::get_xy().member;                                   \
+        } else if (window == WindowKind::XZview) {                           \
+            result = api::get_xz().member;                                   \
+        } else {                                                             \
+            result = api::get_yz().member;                                   \
+        }                                                                    \
+        result;                                                              \
+    })
+
+// clang-format on
+
 #include <iostream>
 #include "global_state_holder.hh"
 
@@ -31,14 +61,14 @@ bool GSH::is_current_window_xyz_type() const
 
 float GSH::get_contrast_min() const
 {
-    return get_current_window().log_enabled ? get_current_window().contrast.min
-                                            : log10(get_current_window().contrast.min);
+    return GET_VIEW_MEMBER(bool, log_enabled) ? GET_VIEW_MEMBER(float, contrast.min)
+                                              : log10(GET_VIEW_MEMBER(float, contrast.min));
 }
 
 float GSH::get_contrast_max() const
 {
-    return get_current_window().log_enabled ? get_current_window().contrast.max
-                                            : log10(get_current_window().contrast.max);
+    return GET_VIEW_MEMBER(bool, log_enabled) ? GET_VIEW_MEMBER(float, contrast.max)
+                                              : log10(GET_VIEW_MEMBER(float, contrast.max));
 }
 
 double GSH::get_rotation() const
@@ -46,8 +76,7 @@ double GSH::get_rotation() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.rotation;
+    return GET_XYZ_MEMBER(double, rotation);
 }
 
 bool GSH::get_flip_enabled() const
@@ -56,19 +85,17 @@ bool GSH::get_flip_enabled() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.horizontal_flip;
+    return GET_XYZ_MEMBER(double, horizontal_flip);
 }
 
-bool GSH::get_img_log_scale_slice_enabled() const { return get_current_window().log_enabled; }
+bool GSH::get_log_enabled() const { return GET_VIEW_MEMBER(bool, log_enabled); }
 
 unsigned GSH::get_img_accu_level() const
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    auto w = reinterpret_cast<const ViewXYZ&>(get_current_window());
-    return w.output_image_accumulation;
+    return GET_XYZ_MEMBER(double, output_image_accumulation);
 }
 #pragma endregion
 
@@ -108,66 +135,35 @@ void GSH::set_time_stride(uint value)
         compute_cache_.set_time_stride(value - value % compute_cache_.get_batch_size());
 }
 
-bool GSH::get_contrast_enabled() const noexcept {
-    auto window = view_cache_.get_current_window();
-    switch (window)
-    {
-        case WindowKind::XYview:
-            //spdlog::critical("get_contrast_enabled xy : {}", api::get_xy_contrast_enabled());
-            return api::get_xy_contrast_enabled();
-            break;
-        case WindowKind::XZview:
-            return api::get_xz_contrast_enabled();
-            break;
-        case WindowKind::YZview:
-            return api::get_yz_contrast_enabled();
-            break;
-        //TODO : set_filter2d_contrast_enabled
-        default:
-            break;
-    }
-    return get_current_window().contrast.enabled; 
+bool GSH::get_contrast_enabled() const noexcept
+{
+    return GET_VIEW_MEMBER(bool, contrast.enabled);
 }
 
-void GSH::set_contrast_enabled(bool contrast_enabled) {
+void GSH::set_contrast_enabled(bool contrast_enabled)
+{
     auto window = view_cache_.get_current_window();
     switch (window)
     {
-        case WindowKind::XYview:
-            spdlog::critical("[GSH from API] set contrast enabled xy : {}", contrast_enabled);
-            api::set_xy_contrast_enabled(contrast_enabled);
-            break;
-        case WindowKind::XZview:
-            api::set_xz_contrast_enabled(contrast_enabled);
-            break;
-        case WindowKind::YZview:
-            api::set_yz_contrast_enabled(contrast_enabled);
-            break;
-        //TODO : set_filter2d_contrast_enabled
-        default:
-            break;
+    case WindowKind::XYview:
+        spdlog::critical("[GSH from API] set contrast enabled xy : {}", contrast_enabled);
+        api::set_xy_contrast_enabled(contrast_enabled);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_contrast_enabled(contrast_enabled);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_contrast_enabled(contrast_enabled);
+        break;
+    // TODO : set_filter2d_contrast_enabled
+    default:
+        break;
     }
 }
 
-bool GSH::get_contrast_auto_refresh() const noexcept {
-    auto window = view_cache_.get_current_window();
-    switch (window)
-    {
-        case WindowKind::XYview:
-            //spdlog::critical("get_contrast_auto_refresh xy : {}", api::get_xy_contrast_auto_refresh());
-            return api::get_xy_contrast_auto_refresh();
-            break;
-        case WindowKind::XZview:
-            return api::get_xz_contrast_auto_refresh();
-            break;
-        case WindowKind::YZview:
-            return api::get_yz_contrast_auto_refresh();
-            break;
-        //TODO : set_filter2d_contrast_auto_refresh
-        default:
-            break;
-    }
-    return get_current_window().contrast.auto_refresh; 
+bool GSH::get_contrast_auto_refresh() const noexcept
+{
+    return GET_VIEW_MEMBER(bool, contrast.auto_refresh);
 }
 
 void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
@@ -175,36 +171,112 @@ void GSH::set_contrast_auto_refresh(bool contrast_auto_refresh)
     auto window = view_cache_.get_current_window();
     switch (window)
     {
-        case WindowKind::XYview:
-            spdlog::critical("set_contrast_auto_refresh xy : {}", contrast_auto_refresh);
-            api::set_xy_contrast_auto_refresh(contrast_auto_refresh);
-            break;
-        case WindowKind::XZview:
-            api::set_xz_contrast_auto_refresh(contrast_auto_refresh);
-            break;
-        case WindowKind::YZview:
-            api::set_yz_contrast_auto_refresh(contrast_auto_refresh);
-            break;
-        //TODO : set_filter2d_contrast_auto
-        default:
-            break;
+    case WindowKind::XYview:
+        spdlog::critical("set_contrast_auto_refresh xy : {}", contrast_auto_refresh);
+        api::set_xy_contrast_auto_refresh(contrast_auto_refresh);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_contrast_auto_refresh(contrast_auto_refresh);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_contrast_auto_refresh(contrast_auto_refresh);
+        break;
+    // TODO : set_filter2d_contrast_auto
+    default:
+        break;
     }
     get_current_window()->contrast.auto_refresh = contrast_auto_refresh;
 }
 
-void GSH::set_contrast_invert(bool contrast_invert) { get_current_window()->contrast.invert = contrast_invert; }
+bool GSH::get_contrast_invert() const noexcept {
+    return GET_VIEW_MEMBER(bool, contrast.invert);
+}
+
+void GSH::set_contrast_invert(bool contrast_invert) { 
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+    case WindowKind::XYview:
+        spdlog::critical("set_contrast_invert xy : {}", contrast_invert);
+        api::set_xy_contrast_invert(contrast_invert);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_contrast_invert(contrast_invert);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_contrast_invert(contrast_invert);
+        break;
+    // TODO : set_filter2d_contrast_auto
+    default:
+        break;
+    } 
+}
 
 void GSH::set_contrast_min(float value)
 {
-    get_current_window()->contrast.min = get_current_window()->log_enabled ? value : pow(10, value);
+    auto window = view_cache_.get_current_window();
+    value = get_current_window()->log_enabled ? value : pow(10, value);
+
+    switch (window)
+    {
+        case WindowKind::XYview:
+            api::set_xy_contrast_min(value);
+            break;
+        case WindowKind::XZview:
+            api::set_xz_contrast_min(value);
+            break;
+        case WindowKind::YZview:
+            api::set_yz_contrast_min(value);
+            break;
+        // TODO : set_filter2d_contrast_auto
+        default:
+            break;
+    }
 }
 
 void GSH::set_contrast_max(float value)
 {
-    get_current_window()->contrast.max = get_current_window()->log_enabled ? value : pow(10, value);
+    auto window = view_cache_.get_current_window();
+    value = get_current_window()->log_enabled ? value : pow(10, value);
+
+    switch (window)
+    {
+        case WindowKind::XYview:
+            api::set_xy_contrast_max(value);
+            break;
+        case WindowKind::XZview:
+            api::set_xz_contrast_max(value);
+            break;
+        case WindowKind::YZview:
+            api::set_yz_contrast_max(value);
+            break;
+        // TODO : set_filter2d_contrast_auto
+        default:
+            break;
+    }
 }
 
-void GSH::set_log_scale_slice_enabled(bool value) { get_current_window()->log_enabled = value; }
+void GSH::set_log_enabled(bool value)
+{
+    auto window = view_cache_.get_current_window();
+    switch (window)
+    {
+    case WindowKind::XYview:
+        spdlog::critical("set_contrast_log_enabled xy : {}", value);
+        api::set_xy_log_enabled(value);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_log_enabled(value);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_log_enabled(value);
+        break;
+    // TODO : set_filter2d_contrast_auto
+    default:
+        break;
+    }
+    get_current_window()->log_enabled = value;
+}
 
 void GSH::set_accumulation_level(int value)
 {
@@ -369,9 +441,30 @@ void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast
 
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {
-    std::shared_ptr<ViewWindow> window = get_window(kind);
-    window->contrast.min = min;
-    window->contrast.max = max;
+    //std::shared_ptr<ViewWindow> window = get_window(kind);
+    //window->contrast.min = min;
+    //window->contrast.max = max;
+
+    auto window = view_cache_.get_current_window();
+
+    switch (window)
+    {
+    case WindowKind::XYview:
+        api::set_xy_contrast_min(min);
+        api::set_xy_contrast_max(max);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_contrast_min(min);
+        api::set_xz_contrast_max(max);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_contrast_min(min);
+        api::set_yz_contrast_max(max);
+        break;
+    // TODO : set_filter2d_contrast_auto
+    default:
+        break;
+    }
 
     notify();
 }

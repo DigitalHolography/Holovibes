@@ -149,7 +149,7 @@ class GSH
     inline WindowKind get_current_window_type() const noexcept { return view_cache_.get_current_window(); }
 
     bool get_contrast_auto_refresh() const noexcept;
-    inline bool get_contrast_invert() const noexcept { return get_current_window().contrast.invert; }
+    bool get_contrast_invert() const noexcept;
     bool get_contrast_enabled() const noexcept;
 
     bool is_current_window_xyz_type() const;
@@ -159,7 +159,7 @@ class GSH
     float get_contrast_max() const;
     double get_rotation() const;
     bool get_flip_enabled() const;
-    bool get_img_log_scale_slice_enabled() const;
+    bool get_log_enabled() const;
     unsigned get_img_accu_level() const;
 
     inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
@@ -351,75 +351,7 @@ class GSH
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->width = value; }
     inline void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->start = value; }
 
-    inline void set_xy(ViewXYZ value) noexcept { view_cache_.set_xy(value); }
-    inline void set_xy_flip_enabled(bool value) noexcept { view_cache_.get_xy_ref()->horizontal_flip = value; }
-    inline void set_xy_rot(float value) noexcept { view_cache_.get_xy_ref()->rotation = value; }
-    inline void set_xy_img_accu_level(uint value) noexcept
-    {
-        view_cache_.get_xy_ref()->output_image_accumulation = value;
-    }
-    inline void set_xy_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_xy_ref()->log_enabled = value; }
-    inline void set_xy_contrast_enabled(bool value) noexcept { view_cache_.get_xy_ref()->contrast.enabled = value; }
-    inline void set_xy_contrast_auto_refresh(bool value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.auto_refresh = value;
-    }
-    inline void set_xy_contrast_invert(bool value) noexcept { view_cache_.get_xy_ref()->contrast.invert = value; }
-    inline void set_xy_contrast_min(float value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.min = value > 1.0f ? value : 1.0f;
-    }
-    inline void set_xy_contrast_max(float value) noexcept
-    {
-        view_cache_.get_xy_ref()->contrast.max = value > 1.0f ? value : 1.0f;
-    }
-
-    inline void set_xz(ViewXYZ value) noexcept { view_cache_.set_xz(value); }
-    inline void set_xz_flip_enabled(bool value) noexcept { view_cache_.get_xz_ref()->horizontal_flip = value; }
-    inline void set_xz_rot(float value) noexcept { view_cache_.get_xz_ref()->rotation = value; }
-    inline void set_xz_img_accu_level(uint value) noexcept
-    {
-        view_cache_.get_xz_ref()->output_image_accumulation = value;
-    }
-    inline void set_xz_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_xz_ref()->log_enabled = value; }
-    inline void set_xz_contrast_enabled(bool value) noexcept { view_cache_.get_xz_ref()->contrast.enabled = value; }
-    inline void set_xz_contrast_auto_refresh(bool value) noexcept
-    {
-        view_cache_.get_xz_ref()->contrast.auto_refresh = value;
-    }
-    inline void set_xz_contrast_invert(bool value) noexcept { view_cache_.get_xz_ref()->contrast.invert = value; }
-    inline void set_xz_contrast_min(float value) noexcept
-    {
-        view_cache_.get_xz_ref()->contrast.min = value > 1.0f ? value : 1.0f;
-    }
-    inline void set_xz_contrast_max(float value) noexcept
-    {
-        view_cache_.get_xz_ref()->contrast.max = value > 1.0f ? value : 1.0f;
-    }
-
-    inline void set_yz(ViewXYZ value) noexcept { view_cache_.set_yz(value); }
-    inline void set_yz_flip_enabled(bool value) noexcept { view_cache_.get_yz_ref()->horizontal_flip = value; }
-    inline void set_yz_rot(float value) noexcept { view_cache_.get_yz_ref()->rotation = value; }
-    inline void set_yz_img_accu_level(uint value) noexcept
-    {
-        view_cache_.get_yz_ref()->output_image_accumulation = value;
-    }
-    inline void set_yz_log_scale_slice_enabled(bool value) noexcept { view_cache_.get_yz_ref()->log_enabled = value; }
-    inline void set_yz_contrast_enabled(bool value) noexcept { view_cache_.get_yz_ref()->contrast.enabled = value; }
-    inline void set_yz_contrast_auto_refresh(bool value) noexcept
-    {
-        view_cache_.get_yz_ref()->contrast.auto_refresh = value;
-    }
-    inline void set_yz_contrast_invert(bool value) noexcept { view_cache_.get_yz_ref()->contrast.invert = value; }
-    inline void set_yz_contrast_min(float value) noexcept
-    {
-        view_cache_.get_yz_ref()->contrast.min = value > 1.0f ? value : 1.0f;
-    }
-    inline void set_yz_contrast_max(float value) noexcept
-    {
-        view_cache_.get_yz_ref()->contrast.max = value > 1.0f ? value : 1.0f;
-    }
-
+    
     inline void set_filter2d(ViewWindow value) noexcept { view_cache_.set_filter2d(value); }
     inline void set_filter2d_log_scale_slice_enabled(bool value) noexcept
     {
@@ -457,7 +389,7 @@ class GSH
     void set_contrast_invert(bool contrast_invert);
     void set_contrast_min(float value);
     void set_contrast_max(float value);
-    void set_log_scale_slice_enabled(bool value);
+    void set_log_enabled(bool value);
     void set_accumulation_level(int value);
     void set_rotation(double value);
     void set_flip_enabled(double value);

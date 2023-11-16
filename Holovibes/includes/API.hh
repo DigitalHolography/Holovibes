@@ -505,7 +505,7 @@ bool get_contrast_invert_enabled();
  * \return true Enabled
  * \return false Disabled
  */
-bool get_img_log_scale_slice_enabled();
+bool get_log_enabled();
 
 /*! \brief get x
  *

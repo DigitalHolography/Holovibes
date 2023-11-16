@@ -74,7 +74,7 @@ void Rendering::insert_log()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_xy().log_enabled)
+    if (setting<settings::XY>().log_enabled)
         insert_main_log();
     if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
@@ -106,9 +106,9 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
     // Apply contrast on cuts if needed
     if (view_cache_.get_cuts_view_enabled())
     {
-        if (view_cache_.get_xz().contrast.enabled)
+        if (setting<settings::XZ>().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
-        if (view_cache_.get_yz().contrast.enabled)
+        if (setting<settings::YZ>().contrast.enabled)
             insert_apply_contrast(WindowKind::YZview);
     }
 
@@ -133,7 +133,7 @@ void Rendering::insert_slice_log()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_xz().log_enabled)
+    if (setting<settings::XZ>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -144,7 +144,7 @@ void Rendering::insert_slice_log()
                           stream_);
             });
     }
-    if (view_cache_.get_yz().log_enabled)
+    if (setting<settings::YZ>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -194,17 +194,17 @@ void Rendering::insert_apply_contrast(WindowKind view)
             case WindowKind::XYview:
                 input = buffers_.gpu_postprocess_frame;
                 size = buffers_.gpu_postprocess_frame_size;
-                wind = view_cache_.get_xy();
+                wind = setting<settings::XY>();
                 break;
             case WindowKind::YZview:
                 input = buffers_.gpu_postprocess_frame_yz.get();
                 size = fd_.height * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_yz();
+                wind = setting<settings::YZ>();
                 break;
             case WindowKind::XZview:
                 input = buffers_.gpu_postprocess_frame_xz.get();
                 size = fd_.width * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_xz();
+                wind = setting<settings::XZ>();
                 break;
             case WindowKind::Filter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
