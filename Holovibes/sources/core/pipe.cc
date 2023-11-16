@@ -22,6 +22,8 @@
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
 
+#include "API.hh"
+
 namespace holovibes
 {
 
@@ -78,7 +80,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_filter2D_view_requested");
 
         gpu_filter2d_view_queue_.reset(nullptr);
-        GSH::instance().set_filter2d_view_enabled(false);
+        api::set_filter2d_view_enabled(false);
         disable_filter2d_view_requested_ = false;
     }
 
@@ -95,7 +97,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(nullptr);
-        GSH::instance().set_chart_display_enabled(false);
+        api::set_chart_display_enabled(false);
         disable_chart_display_requested_ = false;
     }
 
@@ -207,7 +209,7 @@ bool Pipe::make_requests()
 
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
-        GSH::instance().set_filter2d_view_enabled(true);
+        api::set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
 
@@ -216,7 +218,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_display_enabled(true);
+        api::set_chart_display_enabled(true);
         chart_display_requested_ = false;
     }
 
@@ -347,7 +349,7 @@ void Pipe::refresh()
                                     filter2d_cache_.get_filter2d_smooth_low(),
                                     filter2d_cache_.get_filter2d_smooth_high(),
                                     compute_cache_.get_space_transformation(),
-                                    view_cache_.get_filter2d_enabled());
+                                    api::get_filter2d_enabled());
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -429,7 +431,7 @@ void Pipe::refresh()
                                 autocontrast_slice_yz_requested_,
                                 autocontrast_filter2d_requested_);
 
-    converts_->insert_to_ushort();
+    converts_->insert_to_ushort(setting<settings::Filter2dViewEnabled>());
 
     insert_output_enqueue_hologram_mode();
 
@@ -538,7 +540,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (view_cache_.get_filter2d_view_enabled())
+            if (api::get_filter2d_view_enabled())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -550,7 +552,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (view_cache_.get_filter2d_enabled() && view_cache_.get_filter2d_view_enabled())
+    if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back(
             [&]()

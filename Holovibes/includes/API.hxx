@@ -441,18 +441,19 @@ inline bool get_contrast_auto_refresh() { return GSH::instance().get_contrast_au
 
 inline bool get_contrast_invert() { return GSH::instance().get_contrast_invert(); }
 
-inline bool get_filter2d_enabled() { return GSH::instance().get_filter2d_enabled(); }
-inline void set_filter2d_enabled(bool value) { return GSH::instance().set_filter2d_enabled(value); }
+inline bool get_filter2d_enabled() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dEnabled>().value; }
+inline void set_filter2d_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dEnabled{value}); }
 
-inline bool get_filter2d_view_enabled() { return GSH::instance().get_filter2d_view_enabled(); }
+inline bool get_filter2d_view_enabled() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dViewEnabled>().value;}
 
 inline bool get_cuts_view_enabled() { return GSH::instance().get_cuts_view_enabled(); }
 inline void set_cuts_view_enabled(bool value) { GSH::instance().set_cuts_view_enabled(value); }
 
-inline bool get_lens_view_enabled() { return GSH::instance().get_lens_view_enabled(); }
-inline void set_lens_view_enabled(bool value) { GSH::instance().set_lens_view_enabled(value); }
+inline bool get_lens_view_enabled() { return holovibes::Holovibes::instance().get_setting<settings::LensViewEnabled>().value; }
+inline void set_lens_view_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::LensViewEnabled{value}); }
 
-inline bool get_chart_display_enabled() { return GSH::instance().get_chart_display_enabled(); }
+inline bool get_chart_display_enabled() { return holovibes::Holovibes::instance().get_setting<settings::ChartDisplayEnabled>().value; }
+
 inline bool get_chart_record_enabled() { return GSH::instance().get_chart_record_enabled(); }
 
 inline bool get_raw_view_enabled() { return GSH::instance().get_raw_view_enabled(); }

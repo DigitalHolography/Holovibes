@@ -593,6 +593,10 @@ void stop_chart_display();
 /*! \brief Adds or removes lens view */
 void set_lens_view(bool checked, uint auxiliary_window_max_size);
 
+void set_chart_display_enabled(bool value);
+
+void set_filter2d_view_enabled(bool value);
+
 /*! \brief Adds or removes raw view */
 void set_raw_view(bool checked, uint auxiliary_window_max_size);
 

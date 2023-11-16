@@ -500,6 +500,10 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
 
+void set_chart_display_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartDisplayEnabled{value}); }
+
+void set_filter2d_view_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dViewEnabled{value}); }
+
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
     if (get_compute_mode() == Computation::Raw)

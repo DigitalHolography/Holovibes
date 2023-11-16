@@ -40,7 +40,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
+    if (setting<settings::ChartDisplayEnabled>() || export_cache_.get_chart_record_enabled())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -59,7 +59,7 @@ void Rendering::insert_chart()
                                                    noise_zone,
                                                    stream_);
 
-                if (view_cache_.get_chart_display_enabled())
+                if (setting<settings::ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
                 if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
                 {
@@ -112,7 +112,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_filter2d_view_enabled() && setting<settings::Filter2d>().contrast.enabled)
+    if (setting<settings::Filter2dViewEnabled>() && setting<settings::Filter2d>().contrast.enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -161,7 +161,7 @@ void Rendering::insert_filter2d_view_log()
 {
     LOG_FUNC();
 
-    if (GSH::instance().get_filter2d_view_enabled())
+    if (setting<settings::Filter2dViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()

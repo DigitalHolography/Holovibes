@@ -162,19 +162,11 @@ class GSH
 
     inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
-    inline bool get_lens_view_enabled() const { return view_cache_.get_lens_view_enabled(); };
-
     inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
-
-    inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
     inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
 
     inline Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
-
-    inline bool get_filter2d_enabled() const noexcept { return view_cache_.get_filter2d_enabled(); }
-
-    inline bool get_filter2d_view_enabled() const noexcept { return view_cache_.get_filter2d_view_enabled(); }
 
     inline CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
 
@@ -367,19 +359,11 @@ class GSH
 
     inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
-    inline void set_lens_view_enabled(bool value) { view_cache_.set_lens_view_enabled(value); }
-
     inline void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
-
-    inline void set_chart_display_enabled(bool value) { view_cache_.set_chart_display_enabled(value); }
 
     inline void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
 
     inline void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
-
-    inline void set_filter2d_enabled(bool value) { view_cache_.set_filter2d_enabled(value); }
-
-    inline void set_filter2d_view_enabled(bool value) { view_cache_.set_filter2d_view_enabled(value); }
 
     inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 

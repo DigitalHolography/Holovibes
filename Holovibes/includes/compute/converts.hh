@@ -56,7 +56,7 @@ class Converts
                          unsigned int unwrap_history_size);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
-    void insert_to_ushort();
+    void insert_to_ushort(bool filter2d_view_enabled);
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
