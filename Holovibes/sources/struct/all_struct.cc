@@ -164,7 +164,7 @@ void Windows::Load()
     holovibes::Holovibes::instance().update_setting(settings::XY{this->xy});
     holovibes::Holovibes::instance().update_setting(settings::XZ{this->xz});
     holovibes::Holovibes::instance().update_setting(settings::YZ{this->yz});
-    GSH::instance().set_filter2d(this->filter2d);
+    holovibes::Holovibes::instance().update_setting(settings::Filter2d{this->filter2d});
 }
 
 void Reticle::Load()

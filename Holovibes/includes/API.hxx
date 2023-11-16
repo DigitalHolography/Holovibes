@@ -89,9 +89,9 @@ inline int get_y_accu_level() { return holovibes::Holovibes::instance().get_sett
 
 //XY
 inline ViewXYZ get_xy() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value; }
-inline bool get_xy_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.horizontal_flip; }
-inline float get_xy_rot() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.rotation; }
-inline uint get_xy_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.output_image_accumulation; }
+inline bool get_xy_horizontal_flip() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.horizontal_flip; }
+inline float get_xy_rotation() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.rotation; }
+inline uint get_xy_accumulation_level() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.output_image_accumulation; }
 inline bool get_xy_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.log_enabled; }
 inline bool get_xy_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled; }
 inline bool get_xy_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.contrast.auto_refresh; }
@@ -103,19 +103,19 @@ inline bool get_xy_img_accu_enabled() { return holovibes::Holovibes::instance().
 
 inline void set_xy(ViewXYZ value) noexcept { holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{value}); }
 
-inline void set_xy_flip_enabled(bool value) noexcept {
+inline void set_xy_horizontal_flip(bool value) noexcept {
     auto xy = Holovibes::instance().get_setting<settings::XY>().value;
     xy.horizontal_flip = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
 }
 
-inline void set_xy_rot(float value) noexcept {
+inline void set_xy_rotation(float value) noexcept {
     auto xy = Holovibes::instance().get_setting<settings::XY>().value;
     xy.rotation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
 }
 
-inline void set_xy_img_accu_level(uint value) {
+inline void set_xy_accumulation_level(uint value) {
     auto xy = Holovibes::instance().get_setting<settings::XY>().value;
     xy.output_image_accumulation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
@@ -165,9 +165,9 @@ inline void set_xy_contrast_max(float value) noexcept
 
 //XZ
 inline ViewXYZ get_xz() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value; }
-inline bool get_xz_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.horizontal_flip; }
-inline float get_xz_rot() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.rotation; }
-inline uint get_xz_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.output_image_accumulation; }
+inline bool get_xz_horizontal_flip() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.horizontal_flip; }
+inline float get_xz_rotation() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.rotation; }
+inline uint get_xz_accumulation_level() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.output_image_accumulation; }
 inline bool get_xz_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.log_enabled; }
 inline bool get_xz_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.contrast.enabled; }
 inline bool get_xz_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.contrast.auto_refresh; }
@@ -177,19 +177,19 @@ inline float get_xz_contrast_max() { return holovibes::Holovibes::instance().get
 inline bool get_xz_img_accu_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.output_image_accumulation > 1; }
 inline void set_xz(ViewXYZ value) noexcept { holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{value}); }
 
-inline void set_xz_flip_enabled(bool value) noexcept {
+inline void set_xz_horizontal_flip(bool value) noexcept {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.horizontal_flip = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline void set_xz_rot(float value) noexcept {
+inline void set_xz_rotation(float value) noexcept {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.rotation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline void set_xz_img_accu_level(uint value) {
+inline void set_xz_accumulation_level(uint value) {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.output_image_accumulation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
@@ -235,9 +235,9 @@ inline void set_xz_contrast_max(float value) noexcept
 }
 
 inline ViewXYZ get_yz() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value; }
-inline bool get_yz_flip_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.horizontal_flip; }
-inline float get_yz_rot() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.rotation; }
-inline uint get_yz_img_accu_level() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.output_image_accumulation; }
+inline bool get_yz_horizontal_flip() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.horizontal_flip; }
+inline float get_yz_rotation() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.rotation; }
+inline uint get_yz_accumulation_level() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.output_image_accumulation; }
 inline bool get_yz_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.log_enabled; }
 inline bool get_yz_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.contrast.enabled; }
 inline bool get_yz_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.contrast.auto_refresh; }
@@ -247,19 +247,19 @@ inline float get_yz_contrast_max() { return holovibes::Holovibes::instance().get
 inline bool get_yz_img_accu_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.output_image_accumulation > 1; }
 inline void set_yz(ViewXYZ value) noexcept { holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{value}); }
 
-inline void set_yz_flip_enabled(bool value) noexcept {
+inline void set_yz_horizontal_flip(bool value) noexcept {
     auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
     yz.horizontal_flip = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
-inline void set_yz_rot(float value) noexcept {
+inline void set_yz_rotation(float value) noexcept {
     auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
     yz.rotation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
-inline void set_yz_img_accu_level(uint value) {
+inline void set_yz_accumulation_level(uint value) {
     auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
     yz.output_image_accumulation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
@@ -304,7 +304,54 @@ inline void set_yz_contrast_max(float value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
+inline ViewWindow get_filter2d() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value; }
+inline bool get_filter2d_log_enabled() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.log_enabled; }
+inline bool get_filter2d_contrast_enabled() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.contrast.enabled; }
+inline bool get_filter2d_contrast_auto_refresh() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.contrast.auto_refresh; }
+inline bool get_filter2d_contrast_invert() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.contrast.invert; }
+inline float get_filter2d_contrast_min() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.contrast.min; }
+inline float get_filter2d_contrast_max() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value.contrast.max; }
 
+inline void set_filter2d(ViewWindow value) noexcept { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{value}); }
+
+inline void set_filter2d_log_enabled(bool value) noexcept {
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.log_enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast_enabled(bool value) noexcept {
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.contrast.enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast_auto_refresh(bool value) noexcept
+{
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.contrast.auto_refresh = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast_invert(bool value) noexcept {
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.contrast.invert = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast_min(float value) noexcept
+{
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.contrast.min = value > 1.0f ? value : 1.0f;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast_max(float value) noexcept
+{
+    auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    filter2d.contrast.max = value > 1.0f ? value : 1.0f;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
 
 inline float get_reticle_scale() { return GSH::instance().get_reticle_scale(); }
 inline void set_reticle_scale(float value) { GSH::instance().set_reticle_scale(value); }
@@ -312,7 +359,7 @@ inline void set_reticle_scale(float value) { GSH::instance().set_reticle_scale(v
 inline CompositeKind get_composite_kind() { return GSH::instance().get_composite_kind(); }
 inline void set_composite_kind(CompositeKind value) { GSH::instance().set_composite_kind(value); }
 
-inline bool get_flip_enabled() { return GSH::instance().get_flip_enabled(); }
+inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip(); }
 
 inline double get_rotation() { return GSH::instance().get_rotation(); }
 

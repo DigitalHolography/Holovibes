@@ -113,7 +113,7 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_accumulation_level());
 
         constexpr int max_digit_rotate = 3;
         constexpr int max_digit_flip = 1;
@@ -125,11 +125,11 @@ void ViewPanel::on_notify()
         current_rotation.replace(current_rotation.size() - 3, max_digit_rotate, rotation_degree.c_str());
 
         auto current_flip = ui_->FlipPushButton->text();
-        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_flip_enabled()).c_str());
+        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_horizontal_flip()).c_str());
 
         ui_->RotatePushButton->setText(current_rotation);
         ui_->FlipPushButton->setText(current_flip); //(current_rotation.toStdString() +
-                                                    // std::to_string(api::get_flip_enabled())).c_str());
+                                                    // std::to_string(api::get_horizontal_flip())).c_str());
     }
 
     // Deactivate previous maximum (chetor)

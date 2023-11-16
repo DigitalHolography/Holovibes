@@ -65,7 +65,7 @@ void stop_all_worker_controller();
  *
  * \return unsigned accumulation slice level
  */
-unsigned get_img_accu_level();
+unsigned get_accumulation_level();
 
 /*! \brief Gets the gpu input queue frame desciptor width
  *

@@ -100,7 +100,7 @@ class GSH
     inline uint get_q_index() const noexcept { return view_cache_.get_q().start; }
 
     inline ViewXYZ get_xy() const noexcept { return view_cache_.get_xy(); }
-    inline bool get_xy_flip_enabled() const noexcept { return view_cache_.get_xy().horizontal_flip; }
+    inline bool get_xy_horizontal_flip() const noexcept { return view_cache_.get_xy().horizontal_flip; }
     inline float get_xy_rot() const noexcept { return view_cache_.get_xy().rotation; }
     inline uint get_xy_img_accu_level() const noexcept { return view_cache_.get_xy().output_image_accumulation; }
     inline bool get_xy_log_scale_slice_enabled() const noexcept { return view_cache_.get_xy().log_enabled; }
@@ -112,7 +112,7 @@ class GSH
     inline bool get_xy_img_accu_enabled() const noexcept { return view_cache_.get_xy().output_image_accumulation > 1; }
 
     inline ViewXYZ get_xz() const noexcept { return view_cache_.get_xz(); }
-    inline bool get_xz_flip_enabled() const noexcept { return view_cache_.get_xz().horizontal_flip; }
+    inline bool get_xz_horizontal_flip() const noexcept { return view_cache_.get_xz().horizontal_flip; }
     inline float get_xz_rot() const noexcept { return view_cache_.get_xz().rotation; }
     inline uint get_xz_img_accu_level() const noexcept { return view_cache_.get_xz().output_image_accumulation; }
     inline bool get_xz_log_scale_slice_enabled() const noexcept { return view_cache_.get_xz().log_enabled; }
@@ -124,7 +124,7 @@ class GSH
     inline bool get_xz_img_accu_enabled() const noexcept { return view_cache_.get_xz().output_image_accumulation > 1; }
 
     inline ViewXYZ get_yz() const noexcept { return view_cache_.get_yz(); }
-    inline bool get_yz_flip_enabled() const noexcept { return view_cache_.get_yz().horizontal_flip; }
+    inline bool get_yz_horizontal_flip() const noexcept { return view_cache_.get_yz().horizontal_flip; }
     inline float get_yz_rot() const noexcept { return view_cache_.get_yz().rotation; }
     inline uint get_yz_img_accu_level() const noexcept { return view_cache_.get_yz().output_image_accumulation; }
     inline bool get_yz_log_scale_slice_enabled() const noexcept { return view_cache_.get_yz().log_enabled; }
@@ -158,9 +158,9 @@ class GSH
     float get_contrast_min() const;
     float get_contrast_max() const;
     double get_rotation() const;
-    bool get_flip_enabled() const;
+    bool get_horizontal_flip() const;
     bool get_log_enabled() const;
-    unsigned get_img_accu_level() const;
+    unsigned get_accumulation_level() const;
 
     inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
 
@@ -351,34 +351,7 @@ class GSH
     inline void set_q_accu_level(int value) noexcept { view_cache_.get_q_ref()->width = value; }
     inline void set_q_index(uint value) noexcept { view_cache_.get_q_ref()->start = value; }
 
-    
-    inline void set_filter2d(ViewWindow value) noexcept { view_cache_.set_filter2d(value); }
-    inline void set_filter2d_log_scale_slice_enabled(bool value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->log_enabled = value;
-    }
-    inline void set_filter2d_contrast_enabled(bool value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->contrast.enabled = value;
-    }
-    inline void set_filter2d_contrast_auto_refresh(bool value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->contrast.auto_refresh = value;
-    }
-    inline void set_filter2d_contrast_invert(bool value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->contrast.invert = value;
-    }
-    inline void set_filter2d_contrast_min(float value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->contrast.min = value > 1.0f ? value : 1.0f;
-    }
-    inline void set_filter2d_contrast_max(float value) noexcept
-    {
-        view_cache_.get_filter2d_ref()->contrast.max = value > 1.0f ? value : 1.0f;
-    }
-
-    inline void set_log_scale_filter2d_enabled(bool log_scale_filter2d_enabled) noexcept
+    inline void set_filter2d_log_enabled(bool log_scale_filter2d_enabled) noexcept
     {
         view_cache_.get_filter2d_ref()->log_enabled = log_scale_filter2d_enabled;
     }
@@ -392,7 +365,7 @@ class GSH
     void set_log_enabled(bool value);
     void set_accumulation_level(int value);
     void set_rotation(double value);
-    void set_flip_enabled(double value);
+    void set_horizontal_flip(double value);
 
     inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 

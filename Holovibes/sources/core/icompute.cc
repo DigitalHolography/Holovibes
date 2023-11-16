@@ -279,7 +279,7 @@ void ICompute::request_autocontrast(WindowKind kind)
         autocontrast_slice_xz_requested_ = true;
     else if (kind == WindowKind::YZview && view_cache_.get_cuts_view_enabled())
         autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D && view_cache_.get_filter2d().contrast.enabled &&
+    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              view_cache_.get_filter2d_enabled())
         autocontrast_filter2d_requested_ = true;
 }

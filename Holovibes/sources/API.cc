@@ -244,7 +244,7 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_horizontal_flip());
     }
     catch (const std::runtime_error& e)
     {
@@ -378,8 +378,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             get_compute_pipe()->get_stft_slice_queue(0).get(),
             gui::KindOfView::SliceXZ));
         UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rot());
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
 
         UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
             yzPos,
@@ -387,8 +387,8 @@ bool set_3d_cuts_view(uint time_transformation_size)
             get_compute_pipe()->get_stft_slice_queue(1).get(),
             gui::KindOfView::SliceYZ));
         UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rot());
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
         GSH::instance().set_cuts_view_enabled(true);
@@ -481,7 +481,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
-        GSH::instance().set_log_scale_filter2d_enabled(true);
+        GSH::instance().set_filter2d_log_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
     }
     else
@@ -841,7 +841,7 @@ void close_critical_compute()
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
 
-unsigned get_img_accu_level() { return GSH::instance().get_img_accu_level(); }
+unsigned get_accumulation_level() { return GSH::instance().get_accumulation_level(); }
 
 int get_gpu_input_queue_fd_width() { return get_fd().width; }
 
@@ -866,29 +866,29 @@ void rotateTexture()
     change_angle();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_xy_rot());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_xy_rotation());
     else if (UserInterfaceDescriptor::instance().sliceXZ &&
              GSH::instance().get_current_window_type() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rot());
+        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
     else if (UserInterfaceDescriptor::instance().sliceYZ &&
              GSH::instance().get_current_window_type() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rot());
+        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
 }
 
-static void change_flip() { GSH::instance().set_flip_enabled(!GSH::instance().get_flip_enabled()); }
+static void change_flip() { GSH::instance().set_horizontal_flip(!GSH::instance().get_horizontal_flip()); }
 
 void flipTexture()
 {
     change_flip();
 
     if (GSH::instance().get_current_window_type() == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_flip_enabled());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_horizontal_flip());
     else if (UserInterfaceDescriptor::instance().sliceXZ &&
              GSH::instance().get_current_window_type() == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
     else if (UserInterfaceDescriptor::instance().sliceYZ &&
              GSH::instance().get_current_window_type() == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_flip_enabled());
+        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 }
 
 #pragma endregion

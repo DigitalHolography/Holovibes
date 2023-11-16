@@ -78,7 +78,7 @@ void Rendering::insert_log()
         insert_main_log();
     if (view_cache_.get_cuts_view_enabled())
         insert_slice_log();
-    if (view_cache_.get_filter2d().log_enabled)
+    if (setting<settings::Filter2d>().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -112,7 +112,7 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast.enabled)
+    if (GSH::instance().get_filter2d_view_enabled() && setting<settings::Filter2d>().contrast.enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -209,7 +209,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
             case WindowKind::Filter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = view_cache_.get_filter2d();
+                wind = setting<settings::Filter2d>();
                 break;
             }
 

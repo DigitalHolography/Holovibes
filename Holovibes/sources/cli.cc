@@ -189,7 +189,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 // Request auto contrast once we have accumualated enough images
                 // Otherwise the autocontrast is computed at the beginning and we
                 // end up with black images ...
-                if (progress->first >= holovibes::api::get_xy_img_accu_level() && !requested_autocontrast)
+                if (progress->first >= holovibes::api::get_xy_accumulation_level() && !requested_autocontrast)
                 {
                     holovibes.get_compute_pipe()->request_autocontrast(holovibes::api::get_current_window_type());
                     requested_autocontrast = true;
@@ -227,7 +227,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
-        nb_frames_skip = holovibes::api::get_xy_img_accu_level();
+        nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
