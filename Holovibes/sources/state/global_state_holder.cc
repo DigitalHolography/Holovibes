@@ -7,7 +7,7 @@
 #define GET_VIEW_MEMBER(type, member)                                        \
     ({                                                                       \
         type result;                                                         \
-        auto window = view_cache_.get_current_window();                      \
+        auto window = api::get_current_window_type();                        \
         if (window == WindowKind::Filter2D)                                  \
             result = api::get_filter2d().member;                             \
         else                                                                 \
@@ -18,7 +18,7 @@
 #define GET_XYZ_MEMBER(type, member)                                         \
     ({                                                                       \
         type result;                                                         \
-        auto window = view_cache_.get_current_window();                      \
+        auto window = api::get_current_window_type();                        \
         if (window == WindowKind::XYview) {                                  \
             result = api::get_xy().member;                                   \
         } else if (window == WindowKind::XZview) {                           \
@@ -31,7 +31,7 @@
 
 #define SET_XYZ_MEMBER(member, value)                                        \
     ({                                                                       \
-        auto window = view_cache_.get_current_window();                      \
+        auto window = api::get_current_window_type();                        \
         if (window == WindowKind::XYview) {                                  \
             api::set_xy_##member(value);                                     \
         } else if (window == WindowKind::XZview) {                           \
@@ -66,7 +66,7 @@ GSH& GSH::instance()
 bool GSH::is_current_window_xyz_type() const
 {
     static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
-    return types.contains(view_cache_.get_current_window());
+    return types.contains(api::get_current_window_type());
 }
 
 float GSH::get_contrast_min() const
@@ -162,7 +162,7 @@ void GSH::set_time_stride(uint value)
 
 void GSH::set_contrast_enabled(bool value)
 {
-    auto window = view_cache_.get_current_window();
+    auto window = api::get_current_window_type();
     //TODO filter2d
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_enabled(value);
@@ -172,7 +172,7 @@ void GSH::set_contrast_enabled(bool value)
 
 void GSH::set_contrast_auto_refresh(bool value)
 {
-    auto window = view_cache_.get_current_window();
+    auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_auto_refresh(value);
     else
@@ -180,7 +180,7 @@ void GSH::set_contrast_auto_refresh(bool value)
 }
 
 void GSH::set_contrast_invert(bool value) { 
-    auto window = view_cache_.get_current_window();
+    auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_invert(value);
     else
@@ -189,8 +189,8 @@ void GSH::set_contrast_invert(bool value) {
 
 void GSH::set_contrast_min(float value)
 {
-    auto window = view_cache_.get_current_window();
-    value = get_current_window()->log_enabled ? value : pow(10, value);
+    auto window = api::get_current_window_type();
+    value = api::get_current_window().log_enabled ? value : pow(10, value);
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_min(value);
     else
@@ -199,8 +199,8 @@ void GSH::set_contrast_min(float value)
 
 void GSH::set_contrast_max(float value)
 {
-    auto window = view_cache_.get_current_window();
-    value = get_current_window()->log_enabled ? value : pow(10, value);
+    auto window = api::get_current_window_type();
+    value = api::get_current_window().log_enabled ? value : pow(10, value);
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_max(value);
     else
@@ -209,7 +209,7 @@ void GSH::set_contrast_max(float value)
 
 void GSH::set_log_enabled(bool value)
 {
-    auto window = view_cache_.get_current_window();
+    auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_log_enabled(value);
     else
@@ -373,12 +373,9 @@ void GSH::disable_convolution()
 
 #pragma endregion
 
-/*! \brief Change the window according to the given index */
-void GSH::change_window(uint index) { view_cache_.set_current_window(static_cast<WindowKind>(index)); }
-
 void GSH::update_contrast(WindowKind kind, float min, float max)
 {
-    auto window = view_cache_.get_current_window();
+    auto window = api::get_current_window_type();
 
     switch (window)
     {
@@ -403,35 +400,6 @@ void GSH::update_contrast(WindowKind kind, float min, float max)
 
     notify();
 }
-
-std::shared_ptr<ViewWindow> GSH::get_window(WindowKind kind)
-{
-    const std::map<WindowKind, std::shared_ptr<ViewWindow>> kind_window = {
-        {WindowKind::XYview, view_cache_.get_xy_ref()},
-        {WindowKind::XZview, view_cache_.get_xz_ref()},
-        {WindowKind::YZview, view_cache_.get_yz_ref()},
-        {WindowKind::Filter2D, view_cache_.get_filter2d_ref()},
-    };
-
-    return kind_window.at(kind);
-}
-
-const ViewWindow& GSH::get_window(WindowKind kind) const
-{
-    const std::map<WindowKind, const ViewWindow*> kind_window = {
-        {WindowKind::XYview, &view_cache_.get_xy_const_ref()},
-        {WindowKind::XZview, &view_cache_.get_xz_const_ref()},
-        {WindowKind::YZview, &view_cache_.get_yz_const_ref()},
-        {WindowKind::Filter2D, &view_cache_.get_filter2d_const_ref()},
-    };
-
-    return *kind_window.at(kind);
-}
-
-const ViewWindow& GSH::get_current_window() const { return get_window(view_cache_.get_current_window()); }
-
-/* private */
-std::shared_ptr<ViewWindow> GSH::get_current_window() { return get_window(view_cache_.get_current_window()); }
 
 /*! \class JsonSettings
  *

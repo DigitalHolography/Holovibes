@@ -652,7 +652,7 @@ void Pipe::insert_cuts_record()
 void Pipe::insert_request_autocontrast()
 {
     if (GSH::instance().get_contrast_enabled() && GSH::instance().get_contrast_auto_refresh())
-        request_autocontrast(view_cache_.get_current_window());
+        request_autocontrast(setting<settings::CurrentWindow>());
 }
 
 void Pipe::exec()

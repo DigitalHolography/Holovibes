@@ -146,8 +146,6 @@ class GSH
         return view_cache_.get_filter2d().contrast.auto_refresh;
     }
 
-    inline WindowKind get_current_window_type() const noexcept { return view_cache_.get_current_window(); }
-
     bool get_contrast_auto_refresh() const noexcept;
     bool get_contrast_invert() const noexcept;
     bool get_contrast_enabled() const noexcept;
@@ -520,10 +518,6 @@ class GSH
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
 
 #pragma endregion
-    void change_window(uint index);
-
-    const ViewWindow& get_current_window() const;
-    const ViewWindow& get_window(WindowKind kind) const;
 
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
 
@@ -533,7 +527,6 @@ class GSH
     GSH() noexcept {}
 
     std::shared_ptr<holovibes::ViewWindow> get_window(WindowKind kind);
-    std::shared_ptr<holovibes::ViewWindow> get_current_window();
 
     std::function<void()> notify_callback_ = []() {};
     void notify() { notify_callback_(); }

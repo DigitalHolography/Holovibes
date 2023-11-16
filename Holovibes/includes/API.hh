@@ -370,6 +370,12 @@ void set_time_transformation(const TimeTransformation value);
  */
 void set_unwrapping_2d(const bool value);
 
+/*! \brief Returns the current window type
+ */
+WindowKind get_current_window_type();
+
+ViewWindow get_current_window();
+
 /*! \brief Modifies the accumulation level on the current window
  *
  * \param value the new value

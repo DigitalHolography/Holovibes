@@ -32,6 +32,7 @@
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
     holovibes::settings::Filter2d,                 \
+    holovibes::settings::CurrentWindow,            \
     holovibes::settings::LensViewEnabled,          \
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::Filter2dEnabled,          \

@@ -431,7 +431,10 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
 #pragma region Computation
 
-void change_window(const int index) { GSH::instance().change_window(index); }
+void change_window(const int index)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::CurrentWindow{static_cast<WindowKind>(index)});
+}
 
 void toggle_renormalize(bool value)
 {
@@ -585,7 +588,6 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     pipe_refresh();
 }
 
-
 void set_x_accu_level(uint x_value)
 {
     auto x = Holovibes::instance().get_setting<settings::X>().value;
@@ -633,18 +635,19 @@ void set_x_y(uint x, uint y)
     if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
     auto x_ = Holovibes::instance().get_setting<settings::X>().value;
-    if (x < Holovibes::instance().get_gpu_input_queue()->get_fd().width){
+    if (x < Holovibes::instance().get_gpu_input_queue()->get_fd().width)
+    {
         x_.start = x;
         holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x_});
     }
 
     auto y_ = Holovibes::instance().get_setting<settings::Y>().value;
-    if (y < Holovibes::instance().get_gpu_input_queue()->get_fd().width){
+    if (y < Holovibes::instance().get_gpu_input_queue()->get_fd().width)
+    {
         y_.start = y;
         holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y_});
     }
     pipe_refresh();
-    
 }
 
 void set_q_index(uint value)
@@ -816,6 +819,24 @@ void set_unwrapping_2d(const bool value)
     pipe_refresh();
 }
 
+WindowKind get_current_window_type()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::CurrentWindow>().value;
+}
+
+ViewWindow get_current_window()
+{
+    WindowKind window = get_current_window_type();
+    if (window == WindowKind::XYview)
+        return api::get_xy();
+    else if (window == WindowKind::XZview)
+        return api::get_xz();
+    else if (window == WindowKind::YZview)
+        return api::get_yz();
+    else
+        return api::get_filter2d();
+}
+
 void set_accumulation_level(int value)
 {
     GSH::instance().set_accumulation_level(value);
@@ -864,14 +885,12 @@ static void change_angle()
 void rotateTexture()
 {
     change_angle();
-
-    if (GSH::instance().get_current_window_type() == WindowKind::XYview)
+    WindowKind window = get_current_window_type();
+    if (window == WindowKind::XYview)
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_xy_rotation());
-    else if (UserInterfaceDescriptor::instance().sliceXZ &&
-             GSH::instance().get_current_window_type() == WindowKind::XZview)
+    else if (UserInterfaceDescriptor::instance().sliceXZ && window == WindowKind::XZview)
         UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
-    else if (UserInterfaceDescriptor::instance().sliceYZ &&
-             GSH::instance().get_current_window_type() == WindowKind::YZview)
+    else if (UserInterfaceDescriptor::instance().sliceYZ && window == WindowKind::YZview)
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
 }
 
@@ -880,14 +899,12 @@ static void change_flip() { GSH::instance().set_horizontal_flip(!GSH::instance()
 void flipTexture()
 {
     change_flip();
-
-    if (GSH::instance().get_current_window_type() == WindowKind::XYview)
+    WindowKind window = get_current_window_type();
+    if (window == WindowKind::XYview)
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_horizontal_flip());
-    else if (UserInterfaceDescriptor::instance().sliceXZ &&
-             GSH::instance().get_current_window_type() == WindowKind::XZview)
+    else if (UserInterfaceDescriptor::instance().sliceXZ && window == WindowKind::XZview)
         UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
-    else if (UserInterfaceDescriptor::instance().sliceYZ &&
-             GSH::instance().get_current_window_type() == WindowKind::YZview)
+    else if (UserInterfaceDescriptor::instance().sliceYZ && window == WindowKind::YZview)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 }
 
@@ -913,7 +930,7 @@ bool set_auto_contrast()
 {
     try
     {
-        get_compute_pipe()->request_autocontrast(GSH::instance().get_current_window_type());
+        get_compute_pipe()->request_autocontrast(get_current_window_type());
         return true;
     }
     catch (const std::runtime_error& e)
@@ -1181,7 +1198,8 @@ void set_record_mode(const std::string& text)
         set_record_mode(RecordMode::CUTS_XZ);
     else if (text == "3D Cuts YZ")
         set_record_mode(RecordMode::CUTS_YZ);
-    else {
+    else
+    {
         LOG_ERROR("Unknown record mode {}", text);
     }
 }
@@ -1214,7 +1232,7 @@ bool start_record_preconditions(const bool batch_enabled,
 
 void start_record(std::function<void()> callback)
 {
-    RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value; 
+    RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
 
     if (record_mode == RecordMode::CHART)
     {
@@ -1222,9 +1240,8 @@ void start_record(std::function<void()> callback)
     }
     else
     {
-       Holovibes::instance().start_frame_record(callback);
+        Holovibes::instance().start_frame_record(callback);
     }
-
 }
 
 void stop_record()

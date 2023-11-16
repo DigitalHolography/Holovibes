@@ -55,6 +55,7 @@
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
     holovibes::settings::Filter2d,                 \
+    holovibes::settings::CurrentWindow,            \
     holovibes::settings::LensViewEnabled,          \
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::Filter2dEnabled,          \
@@ -328,6 +329,7 @@ class Holovibes
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
                                              settings::Filter2d{ViewWindow{}},
+                                            settings::CurrentWindow{WindowKind::XYview},
                                              settings::LensViewEnabled{false},
                                              settings::ChartDisplayEnabled{false},
                                              settings::Filter2dEnabled{false},
