@@ -184,7 +184,6 @@ class FourierTransform
     ComputeCache::Cache& compute_cache_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    // Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace holovibes::compute
 

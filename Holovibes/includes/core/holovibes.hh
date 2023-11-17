@@ -65,7 +65,12 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::RenormEnabled,            \
     holovibes::settings::ReticleScale,             \
-    holovibes::settings::ReticleDisplayEnabled     
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::Filter2dSmoothHigh    
+     
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -338,7 +343,11 @@ class Holovibes
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
                                              settings::ReticleScale{0.5f},
-                                             settings::ReticleDisplayEnabled{false}))
+                                             settings::ReticleDisplayEnabled{false},
+                                             settings::Filter2dN1{0},
+                                             settings::Filter2dN2{1},
+                                             settings::Filter2dSmoothLow{0},
+                                             settings::Filter2dSmoothHigh{1}))
     {
     }
 

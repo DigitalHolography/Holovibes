@@ -344,7 +344,7 @@ void Pipe::refresh()
     fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
                                     gpu_input_queue_.get_fd().width,
                                     gpu_input_queue_.get_fd().height,
-                                    filter2d_cache_.get_filter2d_n1(),
+                                    setting<settings::Filter2dN1>(),
                                     filter2d_cache_.get_filter2d_n2(),
                                     filter2d_cache_.get_filter2d_smooth_low(),
                                     filter2d_cache_.get_filter2d_smooth_high(),

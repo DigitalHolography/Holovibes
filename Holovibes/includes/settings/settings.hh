@@ -123,4 +123,10 @@ DECLARE_SETTING(RenormEnabled, bool)
 DECLARE_SETTING(ReticleScale, float)
 DECLARE_SETTING(ReticleDisplayEnabled, bool)
 
+//ex filter2d_cache
+DECLARE_SETTING(Filter2dN1, int)
+DECLARE_SETTING(Filter2dN2, int)
+DECLARE_SETTING(Filter2dSmoothLow, int)
+DECLARE_SETTING(Filter2dSmoothHigh, int)
+
 } // namespace holovibes::settings

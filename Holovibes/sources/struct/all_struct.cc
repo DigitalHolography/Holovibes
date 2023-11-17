@@ -47,7 +47,7 @@ void Rendering::Convolution::Update()
 void Rendering::Filter2D::Update()
 {
     this->enabled = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dEnabled>().value;
-    this->inner_radius = GSH::instance().get_filter2d_n1();
+    this->inner_radius = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dN1>().value;
     this->outer_radius = GSH::instance().get_filter2d_n2();
 }
 
@@ -197,7 +197,7 @@ void Rendering::Convolution::Load()
 void Rendering::Filter2D::Load()
 {
     holovibes::Holovibes::instance().update_setting(settings::Filter2dEnabled{this->enabled});
-    GSH::instance().set_filter2d_n1(this->inner_radius);
+    holovibes::Holovibes::instance().update_setting(settings::Filter2dN1{this->inner_radius});
     GSH::instance().set_filter2d_n2(this->outer_radius);
 }
 

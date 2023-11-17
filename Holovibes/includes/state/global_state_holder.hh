@@ -87,7 +87,6 @@ class GSH
         return compute_cache_.get_convo_matrix_const_ref();
     };
 
-    inline int get_filter2d_n1() const noexcept { return filter2d_cache_.get_filter2d_n1(); }
     inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
 
     bool get_contrast_auto_refresh() const noexcept;
@@ -248,7 +247,6 @@ class GSH
 
     inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
 
-    inline void set_filter2d_n1(int value) noexcept { filter2d_cache_.set_filter2d_n1(value); }
     inline void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
 
     // Over current window

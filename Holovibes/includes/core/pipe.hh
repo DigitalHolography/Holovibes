@@ -42,7 +42,12 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::RenormEnabled,            \
     holovibes::settings::ReticleScale,             \
-    holovibes::settings::ReticleDisplayEnabled     
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::Filter2dSmoothHigh
+ 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
