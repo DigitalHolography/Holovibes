@@ -102,50 +102,6 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (b
 NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_frame, 0));
 
 /*! \brief Construct a new new micro cache object
- * \param img_type Type of the image displayed
- * \param x
- * \param y
- * \param p
- * \param q
- * \param xy
- * \param xz
- * \param yz
- * \param filter2d
- * \param current_window
- * \param lens_view_enabled
- * \param chart_display_enabled Enables the signal and noise chart display
- * \param filter2d_enabled Enables filter 2D
- * \param filter2d_view_enabled Enables filter 2D View
- * \param fft_shift_enabled Is shift fft enabled (switching representation diagram)
- * \param raw_view_enabled Display the raw interferogram when we are in hologram mode.
- * \param cuts_view_enabled Are slices YZ and XZ enabled
- * \param reticle_scale Reticle border scale
- * \param reticle_display_enabled Is the reticle overlay enabled
- */
-
-NEW_INITIALIZED_MICRO_CACHE(ViewCache,
-                            (ImgType, img_type, ImgType::Modulus),
-                            (ViewXY, x, ViewXY{}),
-                            (ViewXY, y, ViewXY{}),
-                            (ViewPQ, p, ViewPQ{}),
-                            (ViewPQ, q, ViewPQ{}),
-                            (ViewXYZ, xy, ViewXYZ{}),
-                            (ViewXYZ, xz, ViewXYZ{}),
-                            (ViewXYZ, yz, ViewXYZ{}),
-                            (ViewWindow, filter2d, ViewWindow{}),
-                            (WindowKind, current_window, WindowKind::XYview),
-                            (bool, lens_view_enabled, false),
-                            (bool, chart_display_enabled, false),
-                            (bool, filter2d_enabled, false),
-                            (bool, filter2d_view_enabled, false),
-                            (bool, fft_shift_enabled, false),
-                            (bool, raw_view_enabled, false),
-                            (bool, cuts_view_enabled, false),
-                            (bool, renorm_enabled, true),
-                            (float, reticle_scale, 0.5f),
-                            (bool, reticle_display_enabled, false));
-
-/*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius
  * \param filter2d_n2 Filter2D high radius
  * \param filter2d_enabled Enables filter 2D

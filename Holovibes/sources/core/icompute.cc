@@ -267,17 +267,12 @@ void ICompute::request_disable_frame_record()
 
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    spdlog::critical("[ICompute] autocontrast requested");
-
-    spdlog::critical("[ICompute] contrast enabled: {}", setting<settings::XY>().contrast.enabled);
-
     if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled){
         autocontrast_requested_ = true;
-        spdlog::critical("AUTOCONTRAST REQUESTED for XYview");
     }
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled && view_cache_.get_cuts_view_enabled())
+    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && view_cache_.get_cuts_view_enabled())
+    else if (kind == WindowKind::YZview && setting<settings::CutsViewEnabled>())
         autocontrast_slice_yz_requested_ = true;
     else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              setting<settings::Filter2dEnabled>())

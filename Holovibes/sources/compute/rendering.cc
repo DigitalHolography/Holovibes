@@ -19,7 +19,7 @@ void Rendering::insert_fft_shift(ImgType img_type)
 {
     LOG_FUNC();
 
-    if (view_cache_.get_fft_shift_enabled())
+    if (setting<settings::FftShiftEnabled>())
     {
         if (img_type == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
@@ -76,7 +76,7 @@ void Rendering::insert_log()
 
     if (setting<settings::XY>().log_enabled)
         insert_main_log();
-    if (view_cache_.get_cuts_view_enabled())
+    if (setting<settings::CutsViewEnabled>())
         insert_slice_log();
     if (setting<settings::Filter2d>().log_enabled)
         insert_filter2d_view_log();
@@ -89,7 +89,6 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
 {
     LOG_FUNC();
 
-    spdlog::critical("INSERT_CONTRAST autocontrast_request: {}", autocontrast_request.load());
     // Compute min and max pixel values if requested
     insert_compute_autocontrast(autocontrast_request,
                                 autocontrast_slice_xz_request,
@@ -97,14 +96,11 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 autocontrast_filter2d_request);
 
     // Apply contrast on the main view
-    if (setting<settings::XY>().contrast.enabled) {
-        spdlog::critical("[Rendering] [insert_contrast] XYview contrast enabled {}",
-                         setting<settings::XY>().contrast.enabled);
+    if (setting<settings::XY>().contrast.enabled)
         insert_apply_contrast(WindowKind::XYview);
-    }
 
     // Apply contrast on cuts if needed
-    if (view_cache_.get_cuts_view_enabled())
+    if (setting<settings::CutsViewEnabled>())
     {
         if (setting<settings::XZ>().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
@@ -280,8 +276,6 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 WindowKind::Filter2D);
             autocontrast_filter2d_request = false;
         }
-
-        view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);
@@ -310,7 +304,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    zone_cache_.get_reticle_zone(),
-                                   (view == WindowKind::Filter2D) ? false : view_cache_.get_reticle_display_enabled(),
+                                   (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;
@@ -323,7 +317,7 @@ void Rendering::autocontrast_caller(
                                    percent_min_max_,
                                    percent_size,
                                    zone_cache_.get_reticle_zone(),
-                                   view_cache_.get_reticle_display_enabled(),
+                                   setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;

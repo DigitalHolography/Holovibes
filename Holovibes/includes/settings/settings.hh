@@ -73,13 +73,13 @@ DECLARE_SETTING(RecordFrameCount, std::optional<size_t>)
 
 /**
  * @brief The setting that specifies the mode of the record.
-*/
+ */
 DECLARE_SETTING(RecordMode, holovibes::RecordMode)
 
 /**
  * @brief The setting that specifies the number of frames to skip before
  * starting the record.
-*/
+ */
 DECLARE_SETTING(RecordFrameSkip, size_t)
 
 /**
@@ -90,18 +90,18 @@ DECLARE_SETTING(OutputBufferSize, size_t)
 /**
  * @brief The setting that specifies whether the batch mode is enabled or not.
  * If it is enabled, a batch script is read and executed.
-*/
+ */
 DECLARE_SETTING(BatchEnabled, bool)
 
 /**
  * @brief The setting that specifies the path of the batch script to execute.
-*/
+ */
 DECLARE_SETTING(BatchFilePath, std::string)
 
-//ex view_cache
+// ex view_cache
 /**
  * @brief The setting that specifies the type of the image displayed.
-*/
+ */
 DECLARE_SETTING(ImageType, ImgType)
 DECLARE_SETTING(X, ViewXY)
 DECLARE_SETTING(Y, ViewXY)
@@ -123,4 +123,4 @@ DECLARE_SETTING(RenormEnabled, bool)
 DECLARE_SETTING(ReticleScale, float)
 DECLARE_SETTING(ReticleDisplayEnabled, bool)
 
-} // namespace holovibes::setsetings
+} // namespace holovibes::settings

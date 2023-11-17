@@ -391,7 +391,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-        GSH::instance().set_cuts_view_enabled(true);
+        set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -424,7 +424,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
     // Refresh pipe to remove cuts linked lambda from pipe
     pipe_refresh();
-    GSH::instance().set_cuts_view_enabled(false);
+    set_cuts_view_enabled(false);
 }
 
 #pragma endregion
@@ -484,7 +484,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
-        GSH::instance().set_filter2d_log_enabled(true);
+        set_filter2d_log_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
     }
     else
@@ -919,7 +919,6 @@ void flipTexture()
 void set_contrast_mode(bool value)
 {
     GSH::instance().set_contrast_enabled(value);
-    spdlog::critical("[API from viewpanel] set_contrast_mode: {}", value);
     pipe_refresh();
 }
 
@@ -996,8 +995,6 @@ void set_contrast_max(const double value)
     const float old_val = get_truncate_contrast_max();
     // Floating number issue: cast to float for the comparison
     const float val = value;
-
-    spdlog::critical("[API from viewpanel] old_val : {} val : {}", old_val, val);
 
     if (old_val != val)
     {

@@ -64,8 +64,8 @@
     holovibes::settings::RawViewEnabled,           \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale
-
+    holovibes::settings::ReticleScale,             \
+    holovibes::settings::ReticleDisplayEnabled     
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -294,7 +294,6 @@ class Holovibes
     }
 
   private:
-
     template <typename T>
     auto setting()
     {
@@ -329,7 +328,7 @@ class Holovibes
                                              settings::XZ{ViewXYZ{}},
                                              settings::YZ{ViewXYZ{}},
                                              settings::Filter2d{ViewWindow{}},
-                                            settings::CurrentWindow{WindowKind::XYview},
+                                             settings::CurrentWindow{WindowKind::XYview},
                                              settings::LensViewEnabled{false},
                                              settings::ChartDisplayEnabled{false},
                                              settings::Filter2dEnabled{false},

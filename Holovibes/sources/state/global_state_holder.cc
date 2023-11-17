@@ -239,12 +239,6 @@ void GSH::set_horizontal_flip(double value)
     SET_XYZ_MEMBER(horizontal_flip, value);
 }
 
-void GSH::set_fft_shift_enabled(bool value)
-{
-    view_cache_.set_fft_shift_enabled(value);
-    api::pipe_refresh();
-}
-
 void GSH::set_composite_p_h(Span<uint> span, bool notify)
 {
     // FIXME - RENAME

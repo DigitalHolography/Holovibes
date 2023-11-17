@@ -71,7 +71,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
-        GSH::instance().set_raw_view_enabled(false);
+        api::set_raw_view_enabled(false);
         disable_raw_view_requested_ = false;
     }
 
@@ -199,7 +199,7 @@ bool Pipe::make_requests()
 
         auto fd = gpu_input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
-        GSH::instance().set_raw_view_enabled(true);
+        api::set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
 
@@ -367,7 +367,7 @@ void Pipe::refresh()
                                                compute_cache_.get_time_transformation_size(),
                                                setting<settings::Q>());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
-                                                              view_cache_.get_cuts_view_enabled(),
+                                                              setting<settings::CutsViewEnabled>(),
                                                               setting<settings::X>(),
                                                               setting<settings::Y>(),
                                                               setting<settings::XZ>().output_image_accumulation,
@@ -402,7 +402,7 @@ void Pipe::refresh()
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),
                                      compute_cache_.get_divide_convolution_enabled());
-    postprocess_->insert_renormalize(view_cache_.get_renorm_enabled(),
+    postprocess_->insert_renormalize(setting<settings::RenormEnabled>(),
                                      setting<settings::ImageType>(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      advanced_cache_.get_renorm_constant());
@@ -423,15 +423,12 @@ void Pipe::refresh()
     rendering_->insert_log();
 
     insert_request_autocontrast();
-    //update_setting(settings::XY{Holovibes::instance().get_setting<settings::XY>().value}); 
-    spdlog::critical("[Pipe] [BEFORE INSERT_CONTRAST] Contrast_enabled = {} -- {}",
-                     setting<settings::XY>().contrast.enabled, Holovibes::instance().get_setting<settings::XY>().value.contrast.enabled);
     rendering_->insert_contrast(autocontrast_requested_,
                                 autocontrast_slice_xz_requested_,
                                 autocontrast_slice_yz_requested_,
                                 autocontrast_filter2d_requested_);
 
-    converts_->insert_to_ushort(setting<settings::Filter2dViewEnabled>());
+    converts_->insert_to_ushort(setting<settings::Filter2dViewEnabled>(), setting<settings::CutsViewEnabled>());
 
     insert_output_enqueue_hologram_mode();
 
@@ -529,7 +526,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (view_cache_.get_cuts_view_enabled())
+            if (api::get_cuts_view_enabled())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -583,7 +580,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (view_cache_.get_raw_view_enabled())
+    if (api::get_raw_view_enabled())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
@@ -712,7 +709,6 @@ void Pipe::synchronize_caches()
     compute_cache_.synchronize();
     export_cache_.synchronize();
     filter2d_cache_.synchronize();
-    view_cache_.synchronize();
     zone_cache_.synchronize();
     composite_cache_.synchronize();
     // never updated during the life time of the app

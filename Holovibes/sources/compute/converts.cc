@@ -21,8 +21,7 @@ Converts::Converts(FunctionVector& fn_compute_vect,
                    const TimeTransformationEnv& time_transformation_env,
                    cuda_tools::CufftHandle& plan_unwrap_2d,
                    const camera::FrameDescriptor& input_fd,
-                   const cudaStream_t& stream,
-                   ViewCache::Cache& view_cache)
+                   const cudaStream_t& stream)
     : pmin_(0)
     , pmax_(0)
     , fn_compute_vect_(fn_compute_vect)
@@ -31,7 +30,6 @@ Converts::Converts(FunctionVector& fn_compute_vect,
     , plan_unwrap_2d_(plan_unwrap_2d)
     , fd_(input_fd)
     , stream_(stream)
-    , view_cache_(view_cache)
 {
 }
 
@@ -83,12 +81,12 @@ void Converts::insert_to_float(bool unwrap_2d_requested,
     }
 }
 
-void Converts::insert_to_ushort(bool filter2d_view_enabled)
+void Converts::insert_to_ushort(bool filter2d_view_enabled, bool cuts_view_enabled)
 {
     LOG_FUNC();
 
     insert_main_ushort();
-    if (view_cache_.get_cuts_view_enabled())
+    if (cuts_view_enabled)
         insert_slice_ushort();
     if (filter2d_view_enabled)
         insert_filter2d_ushort();

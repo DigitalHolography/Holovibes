@@ -14,25 +14,26 @@ void Windows::Update()
     this->xy = holovibes::Holovibes::instance().get_setting<holovibes::settings::XY>().value;
     this->yz = holovibes::Holovibes::instance().get_setting<holovibes::settings::YZ>().value;
     this->xz = holovibes::Holovibes::instance().get_setting<holovibes::settings::XZ>().value;
-    this->filter2d = GSH::instance().get_filter2d();
+    this->filter2d = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2d>().value;
 }
 
 void Reticle::Update()
 {
-    this->display_enabled = GSH::instance().get_reticle_display_enabled();
-    this->scale = GSH::instance().get_reticle_scale();
+    this->display_enabled =
+        holovibes::Holovibes::instance().get_setting<holovibes::settings::ReticleDisplayEnabled>().value;
+    this->scale = holovibes::Holovibes::instance().get_setting<holovibes::settings::ReticleScale>().value;
 }
 
 void Views::Update()
 {
-    this->image_type = GSH::instance().get_img_type();
-    this->fft_shift = GSH::instance().get_fft_shift_enabled();
-    this->x = holovibes::Holovibes::instance().get_setting<holovibes::settings::X>().value; //GSH::instance().get_x();
+    this->image_type = holovibes::Holovibes::instance().get_setting<holovibes::settings::ImageType>().value;
+    this->fft_shift = holovibes::Holovibes::instance().get_setting<holovibes::settings::FftShiftEnabled>().value;
+    this->x = holovibes::Holovibes::instance().get_setting<holovibes::settings::X>().value; // GSH::instance().get_x();
     this->y = holovibes::Holovibes::instance().get_setting<holovibes::settings::Y>().value;
     this->z = holovibes::Holovibes::instance().get_setting<holovibes::settings::P>().value;
     this->z2 = holovibes::Holovibes::instance().get_setting<holovibes::settings::Q>().value;
     this->window.Update();
-    this->renorm = GSH::instance().get_renorm_enabled();
+    this->renorm = holovibes::Holovibes::instance().get_setting<holovibes::settings::RenormEnabled>().value;
     this->reticle.Update();
 }
 
@@ -113,7 +114,7 @@ void ComputeSettings::Update()
 
 void AdvancedSettings::BufferSizes::Load()
 {
-    //GSH::instance().set_file_buffer_size(this->file);
+    // GSH::instance().set_file_buffer_size(this->file);
     Holovibes::instance().update_setting(settings::FileBufferSize{this->file});
     GSH::instance().set_input_buffer_size(this->input);
     GSH::instance().set_output_buffer_size(this->output);
@@ -169,20 +170,20 @@ void Windows::Load()
 
 void Reticle::Load()
 {
-    GSH::instance().set_reticle_display_enabled(this->display_enabled);
-    GSH::instance().set_reticle_scale(this->scale);
+    holovibes::Holovibes::instance().update_setting(settings::ReticleDisplayEnabled{this->display_enabled});
+    holovibes::Holovibes::instance().update_setting(settings::ReticleScale{this->scale});
 }
 
 void Views::Load()
 {
-    GSH::instance().set_img_type(this->image_type);
-    GSH::instance().set_fft_shift_enabled(this->fft_shift);
+    holovibes::Holovibes::instance().update_setting(settings::ImageType{this->image_type});
+    holovibes::Holovibes::instance().update_setting(settings::FftShiftEnabled{this->fft_shift});
     holovibes::Holovibes::instance().update_setting(settings::X{this->x});
     holovibes::Holovibes::instance().update_setting(settings::Y{this->y});
     holovibes::Holovibes::instance().update_setting(settings::P{this->z});
     holovibes::Holovibes::instance().update_setting(settings::Q{this->z2});
     this->window.Load();
-    GSH::instance().set_renorm_enabled(this->renorm);
+    holovibes::Holovibes::instance().update_setting(settings::RenormEnabled{this->renorm});
     this->reticle.Load();
 }
 

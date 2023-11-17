@@ -41,7 +41,8 @@
     holovibes::settings::RawViewEnabled,           \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale
+    holovibes::settings::ReticleScale,             \
+    holovibes::settings::ReticleDisplayEnabled     
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -107,7 +108,6 @@ class Pipe : public ICompute
                                                                            buffers_,
                                                                            input.get_fd(),
                                                                            stream_,
-                                                                           view_cache_,
                                                                            realtime_settings_.settings_);
         fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                           buffers_,
@@ -126,7 +126,6 @@ class Pipe : public ICompute
                                                           stream_,
                                                           compute_cache_,
                                                           export_cache_,
-                                                          view_cache_,
                                                           advanced_cache_,
                                                           zone_cache_,
                                                           realtime_settings_.settings_);
@@ -135,8 +134,7 @@ class Pipe : public ICompute
                                                         time_transformation_env_,
                                                         plan_unwrap_2d_,
                                                         input.get_fd(),
-                                                        stream_,
-                                                        view_cache_);
+                                                        stream_);
         postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_);
 
         *processed_output_fps_ = 0;
@@ -218,7 +216,6 @@ class Pipe : public ICompute
         {
             update_setting_icompute(setting);
         }
-
     }
 
   protected:
@@ -320,10 +317,10 @@ class Pipe : public ICompute
 };
 } // namespace holovibes
 
-
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, Pipe> : is_any_of<T, ALL_SETTINGS>
 {
 };
-}
+} // namespace holovibes

@@ -273,7 +273,7 @@ void ViewPanel::set_fft_shift(const bool value)
 
     api::set_fft_shift_enabled(value);
 
-    api::pipe_refresh();
+    //api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)
@@ -479,7 +479,6 @@ void ViewPanel::set_contrast_max(const double value)
     if (!api::get_contrast_enabled())
         return;
 
-    spdlog::critical("[CONTRAST ENABLED] set_contrast_max {}", value);
     api::set_contrast_max(value);
 }
 

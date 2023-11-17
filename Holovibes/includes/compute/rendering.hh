@@ -38,7 +38,8 @@
     holovibes::settings::RawViewEnabled,           \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale
+    holovibes::settings::ReticleScale,             \
+    holovibes::settings::ReticleDisplayEnabled     
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -75,7 +76,6 @@ class Rendering
               const cudaStream_t& stream,
               ComputeCache::Cache& compute_cache,
               ExportCache::Cache& export_cache,
-              ViewCache::Cache& view_cache,
               AdvancedCache::Cache& advanced_cache,
               ZoneCache::Cache& zone_cache,
               InitSettings settings)
@@ -89,7 +89,6 @@ class Rendering
         , stream_(stream)
         , compute_cache_(compute_cache)
         , export_cache_(export_cache)
-        , view_cache_(view_cache)
         , advanced_cache_(advanced_cache)
         , zone_cache_(zone_cache)
         , realtime_settings_(settings)
@@ -150,7 +149,6 @@ class Rendering
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             return realtime_settings_.get<T>().value;
-
         }
     }
 
@@ -175,7 +173,6 @@ class Rendering
     ComputeCache::Cache& compute_cache_;
 
     ExportCache::Cache& export_cache_;
-    ViewCache::Cache& view_cache_;
     AdvancedCache::Cache& advanced_cache_;
     ZoneCache::Cache& zone_cache_;
 

@@ -38,8 +38,7 @@ class Converts
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan2d,
              const camera::FrameDescriptor& input_fd,
-             const cudaStream_t& stream,
-             ViewCache::Cache& view_cache);
+             const cudaStream_t& stream);
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested,
@@ -56,7 +55,7 @@ class Converts
                          unsigned int unwrap_history_size);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
-    void insert_to_ushort(bool filter2d_view_enabled);
+    void insert_to_ushort(bool filter2d_view_enabled, bool cuts_view_enabled);
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
@@ -117,8 +116,5 @@ class Converts
     const camera::FrameDescriptor& fd_;
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
-
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ViewCache::Cache& view_cache_;
 };
 } // namespace holovibes::compute
