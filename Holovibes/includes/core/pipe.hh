@@ -135,8 +135,13 @@ class Pipe : public ICompute
                                                         time_transformation_env_,
                                                         plan_unwrap_2d_,
                                                         input.get_fd(),
-                                                        stream_);
-        postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_);
+                                                        stream_,
+                                                        realtime_settings_.settings_);
+        postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
+                                                                 buffers_,
+                                                                 input.get_fd(),
+                                                                 stream_,
+                                                                 realtime_settings_.settings_);
 
         *processed_output_fps_ = 0;
         update_time_transformation_size_requested_ = true;
@@ -216,6 +221,14 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, compute::FourierTransform>::value)
         {
             fourier_transforms_->update_setting(setting);
+        }
+        if constexpr (has_setting<T, compute::Converts>::value)
+        {
+            converts_->update_setting(setting);
+        }
+        if constexpr (has_setting<T, compute::Postprocessing>::value)
+        {
+            postprocess_->update_setting(setting);
         }
         if constexpr (has_setting<T, ICompute>::value)
         {

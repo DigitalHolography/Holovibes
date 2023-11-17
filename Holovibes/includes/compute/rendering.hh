@@ -21,25 +21,16 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ImageType,                \
-    holovibes::settings::X,                        \
-    holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
     holovibes::settings::XY,                       \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
     holovibes::settings::Filter2d,                 \
-    holovibes::settings::CurrentWindow,            \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::ChartDisplayEnabled,      \
-    holovibes::settings::Filter2dEnabled,          \
     holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::RawViewEnabled,           \
     holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale,             \
-    holovibes::settings::ReticleDisplayEnabled     
+    holovibes::settings::ReticleDisplayEnabled
+    
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -99,7 +90,7 @@ class Rendering
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
-    void insert_fft_shift(ImgType img_type);
+    void insert_fft_shift();
     /*! \brief insert the functions relative to noise and signal chart. */
     void insert_chart();
     /*! \brief insert the functions relative to the log10. */

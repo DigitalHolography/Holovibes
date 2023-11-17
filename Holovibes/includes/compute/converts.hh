@@ -14,6 +14,22 @@
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::P,                        \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::CutsViewEnabled
+
+#define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 struct CoreBuffersEnv;
@@ -33,19 +49,30 @@ class Converts
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Converts(FunctionVector& fn_compute_vect,
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
-             cuda_tools::CufftHandle& plan2d,
+             cuda_tools::CufftHandle& plan_unwrap_2d,
              const camera::FrameDescriptor& input_fd,
-             const cudaStream_t& stream);
+             const cudaStream_t& stream,
+             InitSettings settings)
+        : pmin_(0)
+        , pmax_(0)
+        , fn_compute_vect_(fn_compute_vect)
+        , buffers_(buffers)
+        , time_transformation_env_(time_transformation_env)
+        , plan_unwrap_2d_(plan_unwrap_2d)
+        , fd_(input_fd)
+        , stream_(stream)
+        , realtime_settings_(settings)
+    {
+    }
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested,
-                         ImgType img_type,
                          TimeTransformation time_transformation,
                          float* buffers_gpu_postprocess_frame,
-                         ViewPQ p,
                          uint time_transformation_size,
                          holovibes::CompositeRGB rgb,
                          CompositeKind composite_kind,
@@ -55,10 +82,20 @@ class Converts
                          unsigned int unwrap_history_size);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
-    void insert_to_ushort(bool filter2d_view_enabled, bool cuts_view_enabled);
+    void insert_to_ushort();
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            spdlog::info("[Converts] [update_setting] {}", typeid(T).name());
+            realtime_settings_.update_setting(setting);
+        }
+    }
 
   private:
     /*! \brief Set pmin_ and pmax_ according to p accumulation. */
@@ -83,7 +120,8 @@ class Converts
     void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Phase increase */
-    void insert_to_phase_increase(bool unwrap_2d_requested, unsigned int unwrap_history_size, float* gpu_postprocess_frame);
+    void
+    insert_to_phase_increase(bool unwrap_2d_requested, unsigned int unwrap_history_size, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Float => Unsigned Short in XY window */
     void insert_main_ushort();
@@ -93,6 +131,18 @@ class Converts
 
     /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
     void insert_filter2d_ushort();
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
 
     /*! \brief p_index */
     unsigned short pmin_;
@@ -116,5 +166,15 @@ class Converts
     const camera::FrameDescriptor& fd_;
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
+
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, compute::Converts> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes

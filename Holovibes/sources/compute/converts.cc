@@ -16,28 +16,10 @@
 
 namespace holovibes::compute
 {
-Converts::Converts(FunctionVector& fn_compute_vect,
-                   const CoreBuffersEnv& buffers,
-                   const TimeTransformationEnv& time_transformation_env,
-                   cuda_tools::CufftHandle& plan_unwrap_2d,
-                   const camera::FrameDescriptor& input_fd,
-                   const cudaStream_t& stream)
-    : pmin_(0)
-    , pmax_(0)
-    , fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , time_transformation_env_(time_transformation_env)
-    , plan_unwrap_2d_(plan_unwrap_2d)
-    , fd_(input_fd)
-    , stream_(stream)
-{
-}
 
 void Converts::insert_to_float(bool unwrap_2d_requested,
-                               ImgType img_type,
                                TimeTransformation time_transformation,
                                float* buffers_gpu_postprocess_frame,
-                               ViewPQ p,
                                uint time_transformation_size,
                                holovibes::CompositeRGB rgb,
                                CompositeKind composite_kind,
@@ -47,8 +29,8 @@ void Converts::insert_to_float(bool unwrap_2d_requested,
                                unsigned int unwrap_history_size)
 {
     LOG_FUNC(unwrap_2d_requested);
-
-    insert_compute_p_accu(time_transformation_size, p);
+    ImgType img_type = setting<settings::ImageType>();
+    insert_compute_p_accu(time_transformation_size, setting<settings::P>());
     if (img_type == ImgType::Composite)
         insert_to_composite(rgb,
                             time_transformation_size,
@@ -81,14 +63,14 @@ void Converts::insert_to_float(bool unwrap_2d_requested,
     }
 }
 
-void Converts::insert_to_ushort(bool filter2d_view_enabled, bool cuts_view_enabled)
+void Converts::insert_to_ushort()
 {
     LOG_FUNC();
 
     insert_main_ushort();
-    if (cuts_view_enabled)
+    if (setting<settings::CutsViewEnabled>())
         insert_slice_ushort();
-    if (filter2d_view_enabled)
+    if (setting<settings::Filter2dViewEnabled>())
         insert_filter2d_ushort();
 }
 

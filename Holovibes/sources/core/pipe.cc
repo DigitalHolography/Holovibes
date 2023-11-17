@@ -374,10 +374,8 @@ void Pipe::refresh()
     fourier_transforms_->insert_store_p_frame();
 
     converts_->insert_to_float(unwrap_2d_requested_,
-                               setting<settings::ImageType>(),
                                compute_cache_.get_time_transformation(),
                                buffers_.gpu_postprocess_frame.get(),
-                               setting<settings::P>(),
                                compute_cache_.get_time_transformation_size(),
                                composite_cache_.get_rgb(),
                                composite_cache_.get_composite_kind(),
@@ -390,13 +388,10 @@ void Pipe::refresh()
 
     postprocess_->insert_convolution(compute_cache_.get_convolution_enabled(),
                                      compute_cache_.get_convo_matrix_const_ref(),
-                                     setting<settings::ImageType>(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),
                                      compute_cache_.get_divide_convolution_enabled());
-    postprocess_->insert_renormalize(setting<settings::RenormEnabled>(),
-                                     setting<settings::ImageType>(),
-                                     buffers_.gpu_postprocess_frame.get(),
+    postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get(),
                                      advanced_cache_.get_renorm_constant());
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -410,7 +405,7 @@ void Pipe::refresh()
                                                        *buffers_.gpu_postprocess_frame_yz);
     };
     insert();
-    rendering_->insert_fft_shift(setting<settings::ImageType>());
+    rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
 
@@ -420,7 +415,7 @@ void Pipe::refresh()
                                 autocontrast_slice_yz_requested_,
                                 autocontrast_filter2d_requested_);
 
-    converts_->insert_to_ushort(setting<settings::Filter2dViewEnabled>(), setting<settings::CutsViewEnabled>());
+    converts_->insert_to_ushort();
 
     insert_output_enqueue_hologram_mode();
 

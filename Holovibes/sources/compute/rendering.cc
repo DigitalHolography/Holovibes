@@ -15,13 +15,13 @@ namespace holovibes::compute
 {
 Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
-void Rendering::insert_fft_shift(ImgType img_type)
+void Rendering::insert_fft_shift()
 {
     LOG_FUNC();
 
     if (setting<settings::FftShiftEnabled>())
     {
-        if (img_type == ImgType::Composite)
+        if (setting<settings::ImageType>() == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),

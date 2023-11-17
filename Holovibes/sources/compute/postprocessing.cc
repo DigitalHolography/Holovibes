@@ -14,21 +14,6 @@ using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes::compute
 {
-Postprocessing::Postprocessing(FunctionVector& fn_compute_vect,
-                               CoreBuffersEnv& buffers,
-                               const camera::FrameDescriptor& input_fd,
-                               const cudaStream_t& stream)
-    : gpu_kernel_buffer_()
-    , cuComplex_buffer_()
-    , hsv_arr_()
-    , reduce_result_(1) // allocate an unique double
-    , fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , fd_(input_fd)
-    , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
-    , stream_(stream)
-{
-}
 
 void Postprocessing::init()
 {
@@ -119,7 +104,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
 
 void Postprocessing::insert_convolution(bool convolution_enabled,
                                         const std::vector<float> convo_matrix,
-                                        holovibes::ImgType img_type,
                                         float* gpu_postprocess_frame,
                                         float* gpu_convolution_buffer,
                                         bool divide_convolution_enabled)
@@ -129,7 +113,7 @@ void Postprocessing::insert_convolution(bool convolution_enabled,
     if (!convolution_enabled || convo_matrix.empty())
         return;
 
-    if (img_type != ImgType::Composite)
+    if (setting<settings::ImageType>() != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -153,21 +137,18 @@ void Postprocessing::insert_convolution(bool convolution_enabled,
     }
 }
 
-void Postprocessing::insert_renormalize(bool renorm_enabled,
-                                        holovibes::ImgType img_type,
-                                        float* gpu_postprocess_frame,
-                                        unsigned int renorm_constant)
+void Postprocessing::insert_renormalize(float* gpu_postprocess_frame, unsigned int renorm_constant)
 {
     LOG_FUNC();
 
-    if (!renorm_enabled)
+    if (!setting<settings::RenormEnabled>())
         return;
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
             uint frame_res = fd_.get_frame_res();
-            if (img_type == ImgType::Composite)
+            if (setting<settings::ImageType>() == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(gpu_postprocess_frame, reduce_result_.get(), frame_res, renorm_constant, stream_);
         });

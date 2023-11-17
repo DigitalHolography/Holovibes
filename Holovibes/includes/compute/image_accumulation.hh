@@ -21,24 +21,10 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ImageType,                \
-    holovibes::settings::X,                        \
-    holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
     holovibes::settings::XY,                       \
     holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::Filter2d,                 \
-    holovibes::settings::CurrentWindow,            \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::ChartDisplayEnabled,      \
-    holovibes::settings::Filter2dEnabled,          \
-    holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::RawViewEnabled,           \
-    holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale
+    holovibes::settings::YZ
+    
 #define ALL_SETTINGS REALTIME_SETTINGS
 // clang-format on
 
