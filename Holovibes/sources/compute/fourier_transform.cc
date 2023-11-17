@@ -170,6 +170,8 @@ void FourierTransform::insert_fft2()
                   static_cast<cuComplex*>(input_output),
                   compute_cache_.get_batch_size(),
                   gpu_lens_.get(),
+                  buffers_.gpu_complex_filter2d_frame,
+                  view_cache_.get_filter2d_view_enabled(),
                   spatial_transformation_plan_,
                   fd_,
                   stream_);

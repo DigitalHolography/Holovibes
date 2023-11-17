@@ -27,6 +27,8 @@ void fft_2(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
            const cuComplex* lens,
+           cuComplex* mask_output,
+           bool store_frame,
            const cufftHandle plan2d,
            const camera::FrameDescriptor& fd,
            const cudaStream_t stream);
