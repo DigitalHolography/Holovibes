@@ -14,6 +14,27 @@
 #include "function_vector.hh"
 #include "global_state_holder.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::X,                        \
+    holovibes::settings::Y,                        \
+    holovibes::settings::P,                        \
+    holovibes::settings::Q,                        \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::CutsViewEnabled
+
+#define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 class Queue;
@@ -32,13 +53,29 @@ class FourierTransform
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     FourierTransform(FunctionVector& fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
-                     holovibes::ComputeCache::Cache& compute_cache);
+                     holovibes::ComputeCache::Cache& compute_cache,
+                     InitSettings settings)
+        : gpu_lens_(nullptr)
+        , lens_side_size_(std::max(fd.height, fd.width))
+        , gpu_lens_queue_(nullptr)
+        , fn_compute_vect_(fn_compute_vect)
+        , buffers_(buffers)
+        , fd_(fd)
+        , spatial_transformation_plan_(spatial_transformation_plan)
+        , time_transformation_env_(time_transformation_env)
+        , stream_(stream)
+        , compute_cache_(compute_cache)
+        , realtime_settings_(settings)
+    {
+        gpu_lens_.resize(fd_.get_frame_res());
+    }
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft(float* gpu_filter2d_mask,
@@ -48,31 +85,33 @@ class FourierTransform
                     const uint radius_high,
                     const uint smooth_low,
                     const uint smooth_high,
-                    const SpaceTransformation space_transformation,
-                    const bool filter2d_enabled);
+                    const SpaceTransformation space_transformation);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
-    void insert_store_p_frame(uint p_start);
+    void insert_store_p_frame();
 
     /*! \brief Get Lens Queue used to display the Fresnel lens. */
     std::unique_ptr<Queue>& get_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform(const TimeTransformation time_transformation,
-                               const uint time_transformation_size,
-                               ViewPQ view_q);
+                               const uint time_transformation_size);
 
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
-                                              bool cuts_view_enabled,
-                                              holovibes::ViewXY x,
-                                              holovibes::ViewXY y,
-                                              uint output_image_acc_xz,
-                                              uint output_image_acc_yz,
                                               float* gpu_postprocess_frame_xz,
                                               float* gpu_postprocess_frame_yz,
-                                              holovibes::ImgType img_type,
                                               uint time_transformation_size);
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
+            realtime_settings_.update_setting(setting);
+        }
+    }
 
   private:
     /*! \brief Enqueue the call to filter2d cuda function. */
@@ -100,6 +139,18 @@ class FourierTransform
     void insert_pca();
 
     void insert_ssa_stft(ViewPQ view_q);
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
 
     /*! \brief Roi zone of Filter 2D */
     units::RectFd filter2d_zone_;
@@ -131,6 +182,16 @@ class FourierTransform
     const cudaStream_t& stream_;
 
     ComputeCache::Cache& compute_cache_;
+
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     // Filter2DCache::Cache& filter2d_cache_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, compute::FourierTransform> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes

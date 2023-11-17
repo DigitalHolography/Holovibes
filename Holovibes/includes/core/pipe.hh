@@ -115,7 +115,8 @@ class Pipe : public ICompute
                                                                           spatial_transformation_plan_,
                                                                           time_transformation_env_,
                                                                           stream_,
-                                                                          compute_cache_);
+                                                                          compute_cache_,
+                                                                          realtime_settings_.settings_);
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,
@@ -211,6 +212,10 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, compute::Rendering>::value)
         {
             rendering_->update_setting(setting);
+        }
+        if constexpr (has_setting<T, compute::FourierTransform>::value)
+        {
+            fourier_transforms_->update_setting(setting);
         }
         if constexpr (has_setting<T, ICompute>::value)
         {

@@ -26,27 +26,6 @@ using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
-FourierTransform::FourierTransform(FunctionVector& fn_compute_vect,
-                                   const holovibes::CoreBuffersEnv& buffers,
-                                   const camera::FrameDescriptor& fd,
-                                   holovibes::cuda_tools::CufftHandle& spatial_transformation_plan,
-                                   holovibes::TimeTransformationEnv& time_transformation_env,
-                                   const cudaStream_t& stream,
-                                   ComputeCache::Cache& compute_cache)
-    : gpu_lens_(nullptr)
-    , lens_side_size_(std::max(fd.height, fd.width))
-    , gpu_lens_queue_(nullptr)
-    , fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , fd_(fd)
-    , spatial_transformation_plan_(spatial_transformation_plan)
-    , time_transformation_env_(time_transformation_env)
-    , stream_(stream)
-    , compute_cache_(compute_cache)
-{
-    gpu_lens_.resize(fd_.get_frame_res());
-}
-
 void FourierTransform::insert_fft(float* gpu_filter2d_mask,
                                   const uint width,
                                   const uint height,
@@ -54,11 +33,10 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask,
                                   const uint radius_high,
                                   const uint smooth_low,
                                   const uint smooth_high,
-                                  const SpaceTransformation space_transformation,
-                                  const bool filter2d_enabled)
+                                  const SpaceTransformation space_transformation)
 {
     LOG_FUNC();
-
+    bool filter2d_enabled = setting<settings::Filter2dEnabled>();
     if (filter2d_enabled)
     {
         update_filter2d_circles_mask(gpu_filter2d_mask,
@@ -199,8 +177,7 @@ void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
 }
 
 void FourierTransform::insert_time_transform(const TimeTransformation time_transformation,
-                                             const uint time_transformation_size,
-                                             ViewPQ view_q)
+                                             const uint time_transformation_size)
 {
     LOG_FUNC();
 
@@ -214,7 +191,7 @@ void FourierTransform::insert_time_transform(const TimeTransformation time_trans
     }
     else if (time_transformation == TimeTransformation::SSA_STFT)
     {
-        insert_ssa_stft(view_q);
+        insert_ssa_stft(setting<settings::Q>());
     }
     else // TimeTransformation::None
     {
@@ -350,7 +327,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
         });
 }
 
-void FourierTransform::insert_store_p_frame(uint p_start)
+void FourierTransform::insert_store_p_frame()
 {
     LOG_FUNC();
 
@@ -363,7 +340,7 @@ void FourierTransform::insert_store_p_frame(uint p_start)
              * with respect to the host but never overlap with kernel execution*/
             cudaXMemcpyAsync(time_transformation_env_.gpu_p_frame,
                              (cuComplex*)time_transformation_env_.gpu_p_acc_buffer +
-                                 p_start * frame_res,
+                                 setting<settings::P>().start * frame_res,
                              sizeof(cuComplex) * frame_res,
                              cudaMemcpyDeviceToDevice,
                              stream_);
@@ -371,14 +348,8 @@ void FourierTransform::insert_store_p_frame(uint p_start)
 }
 
 void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
-                                                            bool cuts_view_enabled,
-                                                            holovibes::ViewXY x,
-                                                            holovibes::ViewXY y,
-                                                            uint output_image_acc_xz,
-                                                            uint output_image_acc_yz,
                                                             float* gpu_postprocess_frame_xz,
                                                             float* gpu_postprocess_frame_yz,
-                                                            holovibes::ImgType img_type,
                                                             uint time_transformation_size)
 {
     LOG_FUNC();
@@ -386,13 +357,15 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (cuts_view_enabled)
+            if (setting<settings::CutsViewEnabled>())
             {
                 ushort mouse_posx = 0;
                 ushort mouse_posy = 0;
 
                 // Conservation of the coordinates when cursor is outside of the
                 // window
+                auto x = setting<settings::X>();
+                auto y = setting<settings::Y>();
                 const ushort width = fd.width;
                 const ushort height = fd.height;
 
@@ -413,9 +386,9 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                                                    width,
                                                    height,
                                                    time_transformation_size,
-                                                   output_image_acc_xz,
-                                                   output_image_acc_yz,
-                                                   img_type,
+                                                   setting<settings::XZ>().output_image_accumulation,
+                                                   setting<settings::YZ>().output_image_accumulation,
+                                                   setting<settings::ImageType>(),
                                                    stream_);
                 }
             }

@@ -348,8 +348,7 @@ void Pipe::refresh()
                                     filter2d_cache_.get_filter2d_n2(),
                                     filter2d_cache_.get_filter2d_smooth_low(),
                                     filter2d_cache_.get_filter2d_smooth_high(),
-                                    compute_cache_.get_space_transformation(),
-                                    api::get_filter2d_enabled());
+                                    compute_cache_.get_space_transformation());
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -364,22 +363,15 @@ void Pipe::refresh()
 
     // time transform
     fourier_transforms_->insert_time_transform(compute_cache_.get_time_transformation(),
-                                               compute_cache_.get_time_transformation_size(),
-                                               setting<settings::Q>());
+                                               compute_cache_.get_time_transformation_size());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
-                                                              setting<settings::CutsViewEnabled>(),
-                                                              setting<settings::X>(),
-                                                              setting<settings::Y>(),
-                                                              setting<settings::XZ>().output_image_accumulation,
-                                                              setting<settings::YZ>().output_image_accumulation,
                                                               buffers_.gpu_postprocess_frame_xz.get(),
                                                               buffers_.gpu_postprocess_frame_yz.get(),
-                                                              setting<settings::ImageType>(),
                                                               compute_cache_.get_time_transformation_size());
     insert_cuts_record();
 
     // Used for phase increase
-    fourier_transforms_->insert_store_p_frame(setting<settings::P>().start);
+    fourier_transforms_->insert_store_p_frame();
 
     converts_->insert_to_float(unwrap_2d_requested_,
                                setting<settings::ImageType>(),
