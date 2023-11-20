@@ -216,7 +216,6 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
         api::set_filter2d_n2(size_max);
         ui_->Filter2DN2SpinBox->setValue(size_max);
-
     }
     else
         update_filter2d_view(false);

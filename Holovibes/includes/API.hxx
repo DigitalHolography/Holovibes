@@ -56,18 +56,18 @@ inline void set_filter2d_n1(int value)
     set_auto_contrast_all();
 }
 
-inline int get_filter2d_n2() { return GSH::instance().get_filter2d_n2(); }
+inline int get_filter2d_n2() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dN2>().value; }
 inline void set_filter2d_n2(int value)
 {
-    GSH::instance().set_filter2d_n2(value);
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dN2{value});
     set_auto_contrast_all();
 }
 
-inline int get_filter2d_smooth_low() { return GSH::instance().get_filter2d_smooth_low(); }
-inline void set_filter2d_smooth_low(int value) { GSH::instance().set_filter2d_smooth_low(value); }
+inline int get_filter2d_smooth_low() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothLow>().value; }
+inline void set_filter2d_smooth_low(int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothLow{value}); }
 
-inline int get_filter2d_smooth_high() { return GSH::instance().get_filter2d_smooth_high(); }
-inline void set_filter2d_smooth_high(int value) { GSH::instance().set_filter2d_smooth_high(value); }
+inline int get_filter2d_smooth_high() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothHigh>().value; }
+inline void set_filter2d_smooth_high(int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothHigh{value}); }
 
 inline float get_display_rate() { return GSH::instance().get_display_rate(); }
 inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }

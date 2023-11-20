@@ -102,21 +102,6 @@ NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (b
 NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_frame, 0));
 
 /*! \brief Construct a new new micro cache object
- * \param filter2d_n1 Filter2D low radius
- * \param filter2d_n2 Filter2D high radius
- * \param filter2d_enabled Enables filter 2D
- * \param filter2d_view_enabled Enables filter 2D View
- * \param filter2d_smooth_low Filter2D low smoothing // May be moved in filter2d Struct
- * \param filter2d_smooth_high Filter2D high smoothing
- */
-NEW_INITIALIZED_MICRO_CACHE(Filter2DCache,
-                            (int, filter2d_n1, 0),
-                            (int, filter2d_n2, 1),
-                            (int, filter2d_smooth_low, 0),
-                            (int, filter2d_smooth_high, 0));
-/*(bool, filter2d_enabled,), (bool, filter2d_view_enabled));*/
-
-/*! \brief Construct a new new micro cache object
  *
  * \param file_buffer_size Max file buffer size
  */

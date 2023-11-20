@@ -345,9 +345,9 @@ void Pipe::refresh()
                                     gpu_input_queue_.get_fd().width,
                                     gpu_input_queue_.get_fd().height,
                                     setting<settings::Filter2dN1>(),
-                                    filter2d_cache_.get_filter2d_n2(),
-                                    filter2d_cache_.get_filter2d_smooth_low(),
-                                    filter2d_cache_.get_filter2d_smooth_high(),
+                                    setting<settings::Filter2dN2>(),
+                                    setting<settings::Filter2dSmoothLow>(),
+                                    setting<settings::Filter2dSmoothHigh>(),
                                     compute_cache_.get_space_transformation());
 
     // Move frames from gpu_space_transformation_buffer to
@@ -695,7 +695,6 @@ void Pipe::synchronize_caches()
 {
     compute_cache_.synchronize();
     export_cache_.synchronize();
-    filter2d_cache_.synchronize();
     zone_cache_.synchronize();
     composite_cache_.synchronize();
     // never updated during the life time of the app

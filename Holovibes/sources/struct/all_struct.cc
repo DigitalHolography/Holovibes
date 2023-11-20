@@ -48,7 +48,7 @@ void Rendering::Filter2D::Update()
 {
     this->enabled = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dEnabled>().value;
     this->inner_radius = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dN1>().value;
-    this->outer_radius = GSH::instance().get_filter2d_n2();
+    this->outer_radius = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dN2>().value;
 }
 
 void Rendering::Update()
@@ -76,8 +76,8 @@ void AdvancedSettings::BufferSizes::Update()
 
 void AdvancedSettings::Filter2DSmooth::Update()
 {
-    this->low = GSH::instance().get_filter2d_smooth_low();
-    this->high = GSH::instance().get_filter2d_smooth_high();
+    this->low = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dSmoothLow>().value;
+    this->high = holovibes::Holovibes::instance().get_setting<holovibes::settings::Filter2dSmoothHigh>().value;
 }
 
 void AdvancedSettings::ContrastThreshold::Update()
@@ -124,8 +124,8 @@ void AdvancedSettings::BufferSizes::Load()
 
 void AdvancedSettings::Filter2DSmooth::Load()
 {
-    GSH::instance().set_filter2d_smooth_low(this->low);
-    GSH::instance().set_filter2d_smooth_high(this->high);
+    Holovibes::instance().update_setting(settings::Filter2dSmoothLow{this->low});
+    Holovibes::instance().update_setting(settings::Filter2dSmoothHigh{this->high});
 }
 
 void AdvancedSettings::ContrastThreshold::Load()
@@ -198,7 +198,7 @@ void Rendering::Filter2D::Load()
 {
     holovibes::Holovibes::instance().update_setting(settings::Filter2dEnabled{this->enabled});
     holovibes::Holovibes::instance().update_setting(settings::Filter2dN1{this->inner_radius});
-    GSH::instance().set_filter2d_n2(this->outer_radius);
+    holovibes::Holovibes::instance().update_setting(settings::Filter2dN2{this->outer_radius});
 }
 
 void Rendering::Load()

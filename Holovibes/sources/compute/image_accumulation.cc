@@ -137,7 +137,6 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
     {
         // Enqueue the computed frame in the accumulation queue
         gpu_accumulation_queue->enqueue(gpu_input_frame, stream_);
-        LOG_DEBUG("Enqueue frame in accumulation queue");
         // Compute the average and store it in the output frame
         accumulate_images(static_cast<float*>(gpu_accumulation_queue->get_data()),
                           gpu_ouput_average_frame,
@@ -146,7 +145,6 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
                           image_acc_level,
                           frame_res,
                           stream_);
-        LOG_DEBUG("Compute average");
     }
 }
 

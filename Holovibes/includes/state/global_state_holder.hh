@@ -87,8 +87,6 @@ class GSH
         return compute_cache_.get_convo_matrix_const_ref();
     };
 
-    inline int get_filter2d_n2() const noexcept { return filter2d_cache_.get_filter2d_n2(); }
-
     bool get_contrast_auto_refresh() const noexcept;
     bool get_contrast_invert() const noexcept;
     bool get_contrast_enabled() const noexcept;
@@ -199,10 +197,6 @@ class GSH
         return compute_cache_.get_time_transformation_cuts_output_buffer_size();
     }
 
-    inline int get_filter2d_smooth_low() const noexcept { return filter2d_cache_.get_filter2d_smooth_low(); }
-
-    inline int get_filter2d_smooth_high() const noexcept { return filter2d_cache_.get_filter2d_smooth_high(); }
-
     inline float get_contrast_lower_threshold() const noexcept
     {
         return advanced_cache_.get_contrast_lower_threshold();
@@ -246,8 +240,6 @@ class GSH
     inline void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
 
     inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
-
-    inline void set_filter2d_n2(int value) noexcept { filter2d_cache_.set_filter2d_n2(value); }
 
     // Over current window
     void set_contrast_enabled(bool contrast_enabled);
@@ -363,10 +355,6 @@ class GSH
         compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
     }
 
-    inline void set_filter2d_smooth_low(int value) { filter2d_cache_.set_filter2d_smooth_low(value); }
-
-    inline void set_filter2d_smooth_high(int value) { filter2d_cache_.set_filter2d_smooth_high(value); }
-
     inline void set_contrast_lower_threshold(float value) { advanced_cache_.set_contrast_lower_threshold(value); }
 
     inline void set_contrast_upper_threshold(float value) { advanced_cache_.set_contrast_upper_threshold(value); }
@@ -410,7 +398,6 @@ class GSH
     CompositeCache::Ref composite_cache_;
     ExportCache::Ref export_cache_;
     ImportCache::Ref import_cache_;
-    Filter2DCache::Ref filter2d_cache_;
     AdvancedCache::Ref advanced_cache_;
     FileReadCache::Ref file_read_cache_;
     ZoneCache::Ref zone_cache_;
