@@ -1,5 +1,15 @@
 ## Changelog
 
+### 11.9.0
+
+* Add input_filter
+* Add HSV coloring
+* Fix RGB coloring
+
+### 11.8.0
+
+* Discall all changes beteween 11.5.0 and 11.7.0 included
+
 ### 11.4.0
 
 * Add GPIO support with euresys frame grabbers
