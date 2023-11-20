@@ -8,13 +8,14 @@ namespace holovibes::api
 
 void pipe_refresh()
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     try
     {
-    
+        spdlog::info("pipe_refresh");
         get_compute_pipe()->request_refresh();
+        
     }
     catch (const std::runtime_error& e)
     {
