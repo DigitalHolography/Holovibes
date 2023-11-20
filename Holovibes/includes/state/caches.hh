@@ -100,7 +100,7 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
  * \param frame_record_enabled Is holovibes currently recording
  * \param chart_record_enabled Enables the signal and noise chart record
  */
-NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false));
+NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false), (std::optional<size_t>, nb_frame, std::nullopt));
 
 /*! \brief Construct a new new micro cache object
  * \param start_frame First frame read

@@ -639,15 +639,28 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
+    // Increment the number of frames inserted in the record queue, so that when it bypasses the requested number, the record finishes
+    // This counter happens during the enqueing instead of the dequeuing, because the frequency of the gpu_input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of the record queue
+    // When a new record is started, a refresh of the pipe is requested, and this variable is reset
+    static size_t inserted = 0;
+    inserted = 0;
+
     if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
+            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });   
 
         fn_compute_vect_.push_back(
             [&]() {
+                // If the number of frames to record is reached, stop
+                if (export_cache_.get_nb_frame() != std::nullopt && inserted >= export_cache_.get_nb_frame().value())
+                {
+                    return;
+                }
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
                                                compute_cache_.get_batch_size());
+
+                inserted++;
             });
     }
 }

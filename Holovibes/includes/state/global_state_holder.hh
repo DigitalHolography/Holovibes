@@ -314,9 +314,16 @@ class GSH
     inline units::RectFd get_zoomed_zone() const noexcept { return zone_cache_.get_zoomed_zone(); }
     inline units::RectFd get_reticle_zone() const noexcept { return zone_cache_.get_reticle_zone(); }
 
+    inline std::optional<size_t> get_nb_frames_to_record() const noexcept {return export_cache_.get_nb_frame();}
+
+
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
+    inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {
+        export_cache_.set_nb_frame(nb_frames);
+    }
+
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
     void set_time_stride(uint value);
