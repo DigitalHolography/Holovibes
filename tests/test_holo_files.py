@@ -119,7 +119,6 @@ def test_holo(folder: str):
     generate_holo_from(input, output, cli_argument, config)
 
     if DEEP_COMPARE:
-
         out = read_holo(output)
         ref = read_holo(ref)
 
