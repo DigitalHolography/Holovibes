@@ -33,12 +33,6 @@ DECLARE_SETTING(InputFPS, size_t)
 DECLARE_SETTING(InputFilePath, std::string)
 
 /**
- * @brief The size of the buffer in CPU memory used to read a file
- * when `LoadFileInGPU` is set to false.
- */
-DECLARE_SETTING(FileBufferSize, size_t)
-
-/**
  * @brief The setting that specifies if we loop at the end of the
  * input_file once it has been read entirely.
  */
@@ -128,5 +122,12 @@ DECLARE_SETTING(Filter2dN1, int)
 DECLARE_SETTING(Filter2dN2, int)
 DECLARE_SETTING(Filter2dSmoothLow, int)
 DECLARE_SETTING(Filter2dSmoothHigh, int)
+
+//ex FileReadCache
+/**
+ * @brief The size of the buffer in CPU memory used to read a file
+ * when `LoadFileInGPU` is set to false.
+ */
+DECLARE_SETTING(FileBufferSize, size_t)
 
 } // namespace holovibes::settings

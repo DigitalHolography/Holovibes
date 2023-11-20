@@ -67,7 +67,7 @@ void Rendering::Update()
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->file = GSH::instance().get_file_buffer_size();
+    this->file =holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
     this->input = GSH::instance().get_input_buffer_size();
     this->output = GSH::instance().get_output_buffer_size();
     this->record = GSH::instance().get_record_buffer_size();

@@ -656,11 +656,14 @@ inline bool get_composite_p_activated_v() { return GSH::instance().get_composite
 inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
 inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
 
-inline uint get_file_buffer_size() { return GSH::instance().get_file_buffer_size(); }
+inline uint get_file_buffer_size() 
+{     
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
+}
+
 inline void set_file_buffer_size(uint value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::FileBufferSize{value});
-    GSH::instance().set_file_buffer_size(value);
 }
 
 inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }

@@ -118,8 +118,6 @@ class GSH
 
     inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
 
-    inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
-
     inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
 
     inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
@@ -269,8 +267,6 @@ class GSH
     inline void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
 
     inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
-
-    inline void set_file_buffer_size(uint value) { file_read_cache_.set_file_buffer_size(value); }
 
     inline void set_input_buffer_size(uint value) { advanced_cache_.set_input_buffer_size(value); }
 
