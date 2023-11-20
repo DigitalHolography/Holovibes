@@ -101,9 +101,12 @@ void FourierTransform::insert_filter2d()
         {
             filter2D(buffers_.gpu_spatial_transformation_buffer,
                      buffers_.gpu_filter2d_mask,
+                     buffers_.gpu_complex_filter2d_frame,
+                     view_cache_.get_filter2d_view_enabled(),
                      compute_cache_.get_batch_size(),
                      spatial_transformation_plan_,
-                     fd_.width * fd_.height,
+                     fd_.width,
+                     fd_.height,
                      stream_);
         });
 }
@@ -167,6 +170,8 @@ void FourierTransform::insert_fft2()
                   static_cast<cuComplex*>(input_output),
                   compute_cache_.get_batch_size(),
                   gpu_lens_.get(),
+                  buffers_.gpu_complex_filter2d_frame,
+                  view_cache_.get_filter2d_view_enabled(),
                   spatial_transformation_plan_,
                   fd_,
                   stream_);

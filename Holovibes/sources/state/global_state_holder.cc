@@ -274,7 +274,7 @@ void GSH::enable_convolution(std::optional<std::string> file)
     compute_cache_.get_convo_matrix_ref()->clear();
 
     // There is no file None.txt for convolution
-    if (file && file.value() != "None")
+    if (file && file.value() != UID_CONVOLUTION_TYPE_DEFAULT)
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
@@ -286,9 +286,8 @@ void GSH::disable_convolution()
     compute_cache_.set_convolution_enabled(false);
 }
 
-// TODO : use image and not .txt
-// TO BE CONTINUED
-static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
+// works with 24bits BITMAP images
+void GSH::load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file)
 {
     auto& holo = Holovibes::instance();
 
@@ -313,7 +312,7 @@ void GSH::enable_filter(std::optional<std::string> file)
     compute_cache_.get_input_filter_ref()->clear();
 
     // There is no file None.txt for filtering
-    if (file && file.value() != "None")
+    if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
         load_input_filter(compute_cache_.get_input_filter_ref(), file.value());
     else
         disable_filter();

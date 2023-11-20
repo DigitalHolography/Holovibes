@@ -83,6 +83,7 @@ class GSH
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
     inline bool get_filter_enabled() const noexcept { return compute_cache_.get_filter_enabled(); }
+    inline std::shared_ptr<std::vector<float>> get_input_filter_ref() { return compute_cache_.get_input_filter_ref(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
     {
         return compute_cache_.get_convo_matrix_const_ref();
@@ -641,6 +642,8 @@ class GSH
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
 
     void update_contrast(WindowKind kind, float min, float max);
+
+    static void load_input_filter(std::shared_ptr<std::vector<float>> input_filter, const std::string& file);
 
   private:
     GSH() noexcept {}
