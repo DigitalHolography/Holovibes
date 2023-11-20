@@ -46,7 +46,9 @@
     holovibes::settings::Filter2dN1,               \
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::ChartRecordEnabled,       \
+    holovibes::settings::FrameRecordEnabled
  
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -131,7 +133,6 @@ class Pipe : public ICompute
                                                           output.get_fd(),
                                                           stream_,
                                                           compute_cache_,
-                                                          export_cache_,
                                                           advanced_cache_,
                                                           zone_cache_,
                                                           realtime_settings_.settings_);

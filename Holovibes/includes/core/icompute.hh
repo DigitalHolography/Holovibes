@@ -499,7 +499,6 @@ class ICompute
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
     ComputeCache::Cache compute_cache_;
-    ExportCache::Cache export_cache_;
     CompositeCache::Cache composite_cache_;
     AdvancedCache::Cache advanced_cache_;
     ZoneCache::Cache zone_cache_;

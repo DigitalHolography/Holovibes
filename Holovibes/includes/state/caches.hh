@@ -89,24 +89,6 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
                             (CompositeRGB, rgb, CompositeRGB{}),
                             (CompositeHSV, hsv, CompositeHSV{}));
 
-/*! \brief Construct a new new micro cache object
- * \param frame_record_enabled Is holovibes currently recording
- * \param chart_record_enabled Enables the signal and noise chart record
- */
-NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false));
-
-/*! \brief Construct a new new micro cache object
- * \param start_frame First frame read
- * \param end_frame Last frame read
- */
-NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_frame, 0));
-
-/*! \brief Construct a new new micro cache object
- *
- * \param file_buffer_size Max file buffer size
- */
-NEW_INITIALIZED_MICRO_CACHE(FileReadCache, (uint, file_buffer_size, 512));
-
 /*! \brief Construct a new micro cache object
  *
  * \param signal_zone The zone for the nsignal chart

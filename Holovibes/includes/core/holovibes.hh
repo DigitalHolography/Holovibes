@@ -69,7 +69,9 @@
     holovibes::settings::Filter2dN1,               \
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh    
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::FrameRecordEnabled,       \
+    holovibes::settings::ChartRecordEnabled
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -347,7 +349,9 @@ class Holovibes
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},
                                              settings::Filter2dSmoothLow{0},
-                                             settings::Filter2dSmoothHigh{1}))
+                                             settings::Filter2dSmoothHigh{1},
+                                             settings::FrameRecordEnabled{false},
+                                             settings::ChartRecordEnabled{false}))
     {
     }
 

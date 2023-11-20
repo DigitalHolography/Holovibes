@@ -39,16 +39,6 @@ DECLARE_SETTING(InputFilePath, std::string)
 DECLARE_SETTING(LoopOnInputFile, bool)
 
 /**
- *@brief Index of the first frame to read from the input file (excluded).
- */
-DECLARE_SETTING(InputFileStartIndex, size_t)
-
-/**
- *@brief Index of the last frame to read from the input file (included).
- */
-DECLARE_SETTING(InputFileEndIndex, size_t)
-
-/**
  * @brief The setting that specifies if we load input file entirely in GPU
  * before sending it to the compute pipeline input queue.
  */
@@ -129,5 +119,31 @@ DECLARE_SETTING(Filter2dSmoothHigh, int)
  * when `LoadFileInGPU` is set to false.
  */
 DECLARE_SETTING(FileBufferSize, size_t)
+
+//ex ImportCache
+/*! \brief 
+ * \param start_frame First frame read
+ * \param end_frame Last frame read
+ */
+
+/**
+ *@brief Index of the first frame to read from the input file (excluded).
+ */
+DECLARE_SETTING(InputFileStartIndex, size_t)
+
+/**
+ *@brief Index of the last frame to read from the input file (included).
+ */
+DECLARE_SETTING(InputFileEndIndex, size_t)
+
+
+//ex ExportCache
+
+/*! \brief Construct a new new micro cache object
+ * \param frame_record_enabled Is holovibes currently recording
+ * \param chart_record_enabled Enables the signal and noise chart record
+ */
+DECLARE_SETTING(FrameRecordEnabled, bool)
+DECLARE_SETTING(ChartRecordEnabled, bool)
 
 } // namespace holovibes::settings

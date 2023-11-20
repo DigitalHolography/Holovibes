@@ -29,7 +29,8 @@
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::ReticleDisplayEnabled
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::ChartRecordEnabled
     
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -66,7 +67,6 @@ class Rendering
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
               ComputeCache::Cache& compute_cache,
-              ExportCache::Cache& export_cache,
               AdvancedCache::Cache& advanced_cache,
               ZoneCache::Cache& zone_cache,
               InitSettings settings)
@@ -79,7 +79,6 @@ class Rendering
         , fd_(output_fd)
         , stream_(stream)
         , compute_cache_(compute_cache)
-        , export_cache_(export_cache)
         , advanced_cache_(advanced_cache)
         , zone_cache_(zone_cache)
         , realtime_settings_(settings)
@@ -162,8 +161,6 @@ class Rendering
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
-
-    ExportCache::Cache& export_cache_;
     AdvancedCache::Cache& advanced_cache_;
     ZoneCache::Cache& zone_cache_;
 

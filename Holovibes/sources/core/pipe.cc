@@ -106,7 +106,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(nullptr);
-        GSH::instance().set_chart_record_enabled(false);
+        api::set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
         disable_chart_record_requested_ = false;
     }
@@ -117,7 +117,7 @@ bool Pipe::make_requests()
 
         frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
-        GSH::instance().set_frame_record_enabled(false);
+        api::set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
 
@@ -227,7 +227,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        GSH::instance().set_chart_record_enabled(true);
+        api::set_chart_record_enabled(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
         chart_record_requested_ = std::nullopt;
     }
@@ -239,7 +239,7 @@ bool Pipe::make_requests()
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
-        GSH::instance().set_frame_record_enabled(true);
+        api::set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
         LOG_DEBUG("Hologram Record Request Processed");
@@ -251,7 +251,7 @@ bool Pipe::make_requests()
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
-        GSH::instance().set_frame_record_enabled(true);
+        api::set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
         raw_record_requested_ = false;
         LOG_DEBUG("Raw Record Request Processed");
@@ -272,7 +272,7 @@ bool Pipe::make_requests()
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
 
-        GSH::instance().set_frame_record_enabled(true);
+        api::set_frame_record_enabled(true);
         cuts_record_requested_ = false;
     }
 
@@ -584,7 +584,7 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (setting<settings::FrameRecordEnabled>() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
@@ -599,7 +599,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (export_cache_.get_frame_record_enabled() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (setting<settings::FrameRecordEnabled>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -618,7 +618,7 @@ void Pipe::insert_hologram_record()
 
 void Pipe::insert_cuts_record()
 {
-    if (GSH::instance().get_frame_record_enabled())
+    if (setting<settings::FrameRecordEnabled>())
     {
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
         {
@@ -694,7 +694,6 @@ void Pipe::run_all()
 void Pipe::synchronize_caches()
 {
     compute_cache_.synchronize();
-    export_cache_.synchronize();
     zone_cache_.synchronize();
     composite_cache_.synchronize();
     // never updated during the life time of the app

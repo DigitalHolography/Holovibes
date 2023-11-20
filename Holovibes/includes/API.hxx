@@ -63,11 +63,23 @@ inline void set_filter2d_n2(int value)
     set_auto_contrast_all();
 }
 
-inline int get_filter2d_smooth_low() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothLow>().value; }
-inline void set_filter2d_smooth_low(int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothLow{value}); }
+inline int get_filter2d_smooth_low()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothLow>().value;
+}
+inline void set_filter2d_smooth_low(int value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothLow{value});
+}
 
-inline int get_filter2d_smooth_high() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothHigh>().value; }
-inline void set_filter2d_smooth_high(int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothHigh{value}); }
+inline int get_filter2d_smooth_high()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothHigh>().value;
+}
+inline void set_filter2d_smooth_high(int value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothHigh{value});
+}
 
 inline float get_display_rate() { return GSH::instance().get_display_rate(); }
 inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
@@ -636,8 +648,6 @@ inline bool get_chart_display_enabled()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::ChartDisplayEnabled>().value;
 }
 
-inline bool get_chart_record_enabled() { return GSH::instance().get_chart_record_enabled(); }
-
 inline bool get_reticle_display_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::ReticleDisplayEnabled>().value;
@@ -656,8 +666,8 @@ inline bool get_composite_p_activated_v() { return GSH::instance().get_composite
 inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
 inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
 
-inline uint get_file_buffer_size() 
-{     
+inline uint get_file_buffer_size()
+{
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
 }
 
@@ -851,6 +861,23 @@ inline void set_noise_zone(const units::RectFd& rect) { GSH::instance().set_nois
 inline void set_composite_zone(const units::RectFd& rect) { GSH::instance().set_composite_zone(rect); };
 inline void set_zoomed_zone(const units::RectFd& rect) { GSH::instance().set_zoomed_zone(rect); };
 inline void set_reticle_zone(const units::RectFd& rect) { GSH::instance().set_reticle_zone(rect); };
+
+inline void set_frame_record_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FrameRecordEnabled{value});
+}
+
+inline bool get_frame_record_enabled()
+{ 
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::FrameRecordEnabled>().value;
+}
+
+inline void set_chart_record_enabled(bool value)
+{ 
+   holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartRecordEnabled{value});
+}
+
+inline bool get_chart_record_enabled() { return holovibes::Holovibes::instance().get_setting<settings::ChartRecordEnabled>().value; }
 
 #pragma endregion
 

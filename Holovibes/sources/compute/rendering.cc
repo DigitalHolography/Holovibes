@@ -40,7 +40,7 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (setting<settings::ChartDisplayEnabled>() || export_cache_.get_chart_record_enabled())
+    if (setting<settings::ChartDisplayEnabled>() || setting<settings::ChartRecordEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -61,7 +61,7 @@ void Rendering::insert_chart()
 
                 if (setting<settings::ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
+                if (setting<settings::ChartRecordEnabled>() && chart_env_.nb_chart_points_to_record_ != 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
                     --chart_env_.nb_chart_points_to_record_;

@@ -102,19 +102,12 @@ class GSH
     unsigned get_accumulation_level() const;
 
     inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
-
-    inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
-
-    inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
-
+    
     inline Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
 
     inline CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
 
     inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
-
-    inline uint get_start_frame() const noexcept { return import_cache_.get_start_frame(); }
-    inline uint get_end_frame() const noexcept { return import_cache_.get_end_frame(); }
 
     inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
 
@@ -252,19 +245,11 @@ class GSH
 
     inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
 
-    inline void set_frame_record_enabled(bool value) { export_cache_.set_frame_record_enabled(value); }
-
-    inline void set_chart_record_enabled(bool value) { export_cache_.set_chart_record_enabled(value); }
-
     inline void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
 
     inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
     inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
-
-    inline void set_start_frame(uint value) { import_cache_.set_start_frame(value); }
-
-    inline void set_end_frame(uint value) { import_cache_.set_end_frame(value); }
 
     inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
 
@@ -392,10 +377,7 @@ class GSH
 
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;
-    ExportCache::Ref export_cache_;
-    ImportCache::Ref import_cache_;
     AdvancedCache::Ref advanced_cache_;
-    FileReadCache::Ref file_read_cache_;
     ZoneCache::Ref zone_cache_;
 
     mutable std::mutex mutex_;
