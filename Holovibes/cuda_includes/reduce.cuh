@@ -5,7 +5,6 @@
 #pragma once
 
 #include "common.cuh"
-#include "cuda_memory.cuh"
 
 /*! \brief Reduce operation gpu side
  *
