@@ -1,18 +1,7 @@
 #include "tools.cuh"
-#include "tools_compute.cuh"
-#include "tools_unwrap.cuh"
-#include "cuda_tools/unique_ptr.hh"
-#include "cuda_tools/cufft_handle.hh"
-#include "logger.hh"
+
 #include "cuda_memory.cuh"
-#include "common.cuh"
 
-#include <cassert>
-
-using camera::FrameDescriptor;
-using namespace holovibes;
-using cuda_tools::CufftHandle;
-using cuda_tools::UniquePtr;
 
 __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
 {
@@ -23,7 +12,7 @@ __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output,
 }
 
 void frame_memcpy(
-    const float* input, const units::RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
+    const float* input, const RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
 {
     const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,

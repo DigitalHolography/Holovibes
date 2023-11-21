@@ -6,6 +6,8 @@
 
 #include "common.cuh"
 
+using holovibes::cuda_tools::CufftHandle;
+
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
  *
  * \param input Buffer on which the convolution will be applied

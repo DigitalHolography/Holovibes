@@ -1,30 +1,9 @@
 #include "filter2D.cuh"
+
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
-#include "tools_conversion.cuh"
 #include "cuda_memory.cuh"
 
-#include <cufftXt.h>
-
-using camera::FrameDescriptor;
-
-/*
-void filter2D(cuComplex* input,
-              const float* mask,
-              const uint batch_size,
-              const cufftHandle plan2d,
-              const uint size,
-              const cudaStream_t stream)
-{
-    cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
-
-    // Mask already shifted in update_filter2d_circles_mask()
-    // thus we don't have to shift the 'input' buffer each time
-    apply_mask(input, mask, size, batch_size, stream);
-
-    cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
-}
-*/
 
 void filter2D(cuComplex* input,
               const float* mask,

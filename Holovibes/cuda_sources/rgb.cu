@@ -1,13 +1,7 @@
-#include "cuda_memory.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
 #include "rgb.cuh"
-#include "map.cuh"
-#include <thrust/execution_policy.h>
-#include <thrust/reduce.h>
-#include <thrust/transform.h>
 
-#include "logger.hh"
+#include "cuda_memory.cuh"
+#include "unique_ptr.hh"
 
 
 /**

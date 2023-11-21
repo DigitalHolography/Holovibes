@@ -1,9 +1,8 @@
+#include "tools_compute.cuh"
+
 #include "reduce.cuh"
 #include "map.cuh"
 
-#include <stdio.h>
-
-#define AUTO_CONTRAST_COMPENSATOR 10000
 
 __global__ void
 kernel_complex_divide(cuComplex* image, const uint frame_res, const float divider, const uint batch_size)

@@ -1,25 +1,14 @@
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-
 #include "hsv.cuh"
+
 #include "tools_hsv.cuh"
 #include "convolution.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "percentile.cuh"
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
-#include "map.cuh"
 #include "reduce.cuh"
 #include "unique_ptr.hh"
-#include "logger.hh"
 
-#include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
-
-#define SAMPLING_FREQUENCY 1
+#include <thrust/transform.h>
 
 
 __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res)

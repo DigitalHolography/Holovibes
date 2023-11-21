@@ -4,7 +4,9 @@
  */
 #pragma once
 
-#include "rect.hh"
+#include "common.cuh"
+
+using holovibes::units::RectFd;
 
 /*!
  * \brief Compute the output percentile of the xy view
@@ -18,7 +20,7 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const RectFd& sub_zone,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream);
 
@@ -34,6 +36,6 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const RectFd& sub_zone,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream);

@@ -1,13 +1,8 @@
 #include "fft1.cuh"
+
 #include "transforms.cuh"
-#include "unique_ptr.hh"
-#include "common.cuh"
 #include "cuda_memory.cuh"
 #include "apply_mask.cuh"
-
-#include <cufftXt.h>
-
-using camera::FrameDescriptor;
 
 void fft1_lens(cuComplex* lens,
                const uint lens_side_size,

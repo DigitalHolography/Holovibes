@@ -1,8 +1,5 @@
 #include "map.cuh"
 
-#include "tools.hh"
-#include "common.cuh"
-#include "reduce.cuh"
 
 /***** Overloaded and specific map implementations *****/
 void map_log10(const float* const input, float* const output, const size_t size, const cudaStream_t stream)

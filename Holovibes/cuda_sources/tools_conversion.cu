@@ -1,8 +1,8 @@
 #include "tools_conversion.cuh"
+
 #include "cuda_memory.cuh"
 #include "map.cuh"
 
-using camera::FrameDescriptor;
 
 static constexpr ushort max_ushort_value = (1 << (sizeof(ushort) * 8)) - 1;
 static constexpr ushort max_ushort_value_to_float = static_cast<float>(max_ushort_value);

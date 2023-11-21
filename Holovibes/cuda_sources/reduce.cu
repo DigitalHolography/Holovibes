@@ -1,11 +1,7 @@
-#include "cuda.h"
-#include "cuda_runtime.h"
-
-#include <cassert>
-
-#include "common.cuh"
-#include "cuda_memory.cuh"
 #include "reduce.cuh"
+
+#include "cuda_memory.cuh"
+
 
 /*! Mask used by the warp reduce using registers.
  * This mask means every thread should be processed

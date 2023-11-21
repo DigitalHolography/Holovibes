@@ -6,6 +6,8 @@
 
 #include "common.cuh"
 
+using camera::FrameDescriptor;
+
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
  *
  * The output pointer can be another complex buffer or the same as input buffer.
@@ -30,5 +32,5 @@ void fft_2(cuComplex* input,
            cuComplex* mask_output,
            bool store_frame,
            const cufftHandle plan2d,
-           const camera::FrameDescriptor& fd,
+           const FrameDescriptor& fd,
            const cudaStream_t stream);

@@ -1,6 +1,7 @@
-#include <algorithm>
 #include "texture_update.cuh"
+
 #include "cuda_memory.cuh"
+
 
 __global__ static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {

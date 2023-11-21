@@ -1,6 +1,6 @@
-#include <numeric>
+#include "contrast_correction.cuh"
+
 #include "map.cuh"
-#include "common.cuh"
 
 void apply_contrast_correction(float* const input,
                                const uint size,

@@ -6,6 +6,10 @@
 
 #include "common.cuh"
 
+using holovibes::UnwrappingResources;
+using holovibes::UnwrappingResources_2d;
+using camera::FrameDescriptor;
+
 /*! \brief Convert complex values to floating-point angles in [-pi; pi].
  *
  * Take complex data in cartesian form, and use conversion to polar
@@ -122,33 +126,33 @@ __global__ void kernel_unwrap2d_last_step(float* output, const cuComplex* input,
  * cumulative adjustments in order to 'smooth' the signal.
  */
 void phase_increase(const cuComplex* cur,
-                    holovibes::UnwrappingResources* resources,
+                    UnwrappingResources* resources,
                     const size_t image_size,
                     const cudaStream_t stream);
 
 /*! \brief Main function for unwrap_2d calculations */
 void unwrap_2d(float* input,
                const cufftHandle plan2d,
-               holovibes::UnwrappingResources_2d* res,
-               const camera::FrameDescriptor& fd,
+               UnwrappingResources_2d* res,
+               const FrameDescriptor& fd,
                float* output,
                const cudaStream_t stream);
 
 /*! \brief Gradient calculation for unwrap_2d calculations */
 void gradient_unwrap_2d(const cufftHandle plan2d,
-                        holovibes::UnwrappingResources_2d* res,
-                        const camera::FrameDescriptor& fd,
+                        UnwrappingResources_2d* res,
+                        const FrameDescriptor& fd,
                         const cudaStream_t stream);
 
 /*! \brief Eq calculation for unwrap_2d calculations */
 void eq_unwrap_2d(const cufftHandle plan2d,
-                  holovibes::UnwrappingResources_2d* res,
-                  const camera::FrameDescriptor& fd,
+                  UnwrappingResources_2d* res,
+                  const FrameDescriptor& fd,
                   const cudaStream_t stream);
 
 /*! \brief Phi calculation for unwrap_2d calculations */
 void phi_unwrap_2d(const cufftHandle plan2d,
-                   holovibes::UnwrappingResources_2d* res,
-                   const camera::FrameDescriptor& fd,
+                   UnwrappingResources_2d* res,
+                   const FrameDescriptor& fd,
                    float* output,
                    const cudaStream_t stream);

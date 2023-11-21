@@ -9,7 +9,7 @@
 #include "compute_bundles_2d.hh"
 #include "cufft_handle.hh"
 
-using holovibes::cuda_tools::CufftHandle;
+using holovibes::units::RectFd;
 
 /*! \brief Extract a part of the input image to the output.
  *

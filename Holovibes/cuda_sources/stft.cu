@@ -1,9 +1,5 @@
 #include "stft.cuh"
-#include "common.cuh"
 
-#include <cassert>
-
-using holovibes::ImgType;
 
 // Short-Time Fourier Transform
 void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
@@ -27,7 +23,7 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
                                          const uint height,
                                          const uint acc_level_xz,
                                          const uint acc_level_yz,
-                                         const holovibes::ImgType img_type,
+                                         const ImgType img_type,
                                          const uint time_transformation_size)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -87,7 +83,7 @@ void time_transformation_cuts_begin(const cuComplex* input,
                                     const ushort time_transformation_size,
                                     const uint acc_level_xz,
                                     const uint acc_level_yz,
-                                    const holovibes::ImgType img_type,
+                                    const ImgType img_type,
                                     const cudaStream_t stream)
 {
     const uint frame_size = width * height;

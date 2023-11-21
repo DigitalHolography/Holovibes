@@ -1,13 +1,8 @@
-#pragma once
 #include "convolution.cuh"
-#include "fft1.cuh"
-#include "tools.cuh"
+
 #include "tools_compute.cuh"
-#include "logger.hh"
-#include "common.cuh"
 #include "cuda_memory.cuh"
 
-using holovibes::cuda_tools::CufftHandle;
 
 void convolution_kernel(float* gpu_input,
                         float* gpu_convolved_buffer,

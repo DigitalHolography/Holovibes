@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "common.cuh"
+
 void unpack_12_to_16bit(short* output,
                         const size_t output_size,
                         const unsigned char* input,

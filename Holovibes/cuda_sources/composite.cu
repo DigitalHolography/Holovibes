@@ -1,15 +1,13 @@
-#include "cuda_memory.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
 #include "composite.cuh"
+
+#include "cuda_memory.cuh"
 #include "rgb.cuh"
-#include "map.cuh"
+
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
 
-#include "logger.hh"
-
+/// @brief temp struct used to get the desired attributes of the RectFd
 struct rect
 {
     int x;
@@ -96,7 +94,7 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
 void postcolor_normalize(float* output,
                          const uint fd_height,
                          const uint fd_width,
-                         holovibes::units::RectFd selection,
+                         RectFd selection,
                          const uchar pixel_depth,
                          float* averages,
                          const cudaStream_t stream)

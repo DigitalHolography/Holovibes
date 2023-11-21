@@ -1,8 +1,5 @@
 #include "apply_mask.cuh"
 
-#include "hardware_limits.hh"
-#include "common.cuh"
-
 __host__ __device__ static cuComplex& operator*=(cuComplex& c, const float& r)
 {
     c.x = c.x * r;

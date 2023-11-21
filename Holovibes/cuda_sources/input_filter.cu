@@ -2,6 +2,7 @@
 
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
+
 #include <thrust/transform.h>
 #include <thrust/functional.h>
 #include <thrust/execution_policy.h>

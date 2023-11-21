@@ -1,7 +1,5 @@
 #include "shift_corners.cuh"
 
-#include "hardware_limits.hh"
-#include "common.cuh"
 
 namespace
 {

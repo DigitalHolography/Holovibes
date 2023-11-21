@@ -1,10 +1,7 @@
 #include "tools_unwrap.cuh"
 
 #include "cuda_memory.cuh"
-#include "frame_desc.hh"
 
-using namespace holovibes;
-using namespace camera;
 
 __global__ void kernel_extract_angle(const cuComplex* input, float* output, const size_t size)
 {

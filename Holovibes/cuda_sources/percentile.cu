@@ -1,12 +1,11 @@
+#include "percentile.cuh"
+
+#include "cuda_memory.cuh"
+
 #include <thrust/copy.h>
 #include <thrust/device_vector.h>
-#include <thrust/fill.h>
 #include <thrust/sort.h>
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "logger.hh"
-#include "cuda_memory.cuh"
+
 
 void fill_percentile_float_in_case_of_error(float* const out_percent, unsigned size_percent)
 {
@@ -62,7 +61,7 @@ uint calculate_frame_res(const uint width,
                          const uint height,
                          const uint offset,
                          const uint factor,
-                         const holovibes::units::RectFd& sub_zone,
+                         const RectFd& sub_zone,
                          const bool compute_on_sub_zone)
 {
     // Sub_zone area might be equal to 0 if the overlay hasn't been loaded yet.
@@ -87,7 +86,7 @@ void compute_percentile_xy_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const RectFd& sub_zone,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream)
 {
@@ -124,7 +123,7 @@ void compute_percentile_yz_view(const float* gpu_input,
                                 const float* const h_percent,
                                 float* const h_out_percent,
                                 const uint size_percent,
-                                const holovibes::units::RectFd& sub_zone,
+                                const RectFd& sub_zone,
                                 const bool compute_on_sub_zone,
                                 const cudaStream_t stream)
 {

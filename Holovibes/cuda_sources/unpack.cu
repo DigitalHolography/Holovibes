@@ -1,5 +1,5 @@
-#include "common.cuh"
 #include "unpack.cuh"
+
 
 __global__ void
 kernel_unpack_12_to_16bit(short* output, const size_t output_size, const unsigned char* input, const size_t input_size)
