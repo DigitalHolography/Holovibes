@@ -50,8 +50,10 @@
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::Filter2dSmoothHigh
 
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::BatchSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 
@@ -219,7 +221,6 @@ struct ImageAccEnv
 class ICompute
 {
   public:
-
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
         : gpu_input_queue_(input)
@@ -227,6 +228,7 @@ class ICompute
         , stream_(stream)
         , past_time_(std::chrono::high_resolution_clock::now())
         , realtime_settings_(settings)
+        , onrestart_settings_(settings)
     {
         int err = 0;
 
@@ -244,10 +246,10 @@ class ICompute
                                                 CUDA_C_32F,         // Input type
                                                 n,
                                                 1,
-                                                fd.get_frame_res(),              // Ouput layout same as input
-                                                CUDA_C_32F,                      // Output type
-                                                compute_cache_.get_batch_size(), // Batch size
-                                                CUDA_C_32F);                     // Computation type
+                                                fd.get_frame_res(),             // Ouput layout same as input
+                                                CUDA_C_32F,                     // Output type
+                                                setting<settings::BatchSize>(), // Batch size
+                                                CUDA_C_32F);                    // Computation type
 
         int inembed[1];
         int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
@@ -265,7 +267,7 @@ class ICompute
 
         // Static cast size_t to avoid overflow
         if (!buffers_.gpu_spatial_transformation_buffer.resize(
-                static_cast<const size_t>(compute_cache_.get_batch_size()) * gpu_input_queue_.get_fd().get_frame_res()))
+                static_cast<const size_t>(setting<settings::BatchSize>()) * gpu_input_queue_.get_fd().get_frame_res()))
             err++;
 
         int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
@@ -309,6 +311,11 @@ class ICompute
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            onrestart_settings_.update_setting(setting);
         }
     }
 
@@ -497,10 +504,10 @@ class ICompute
     std::atomic<bool> disable_convolution_requested_{false};
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 
     ComputeCache::Cache compute_cache_;
     CompositeCache::Cache composite_cache_;
-    AdvancedCache::Cache advanced_cache_;
     ZoneCache::Cache zone_cache_;
 
   private:
@@ -513,6 +520,10 @@ class ICompute
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             return realtime_settings_.get<T>().value;
+        }
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
         }
     }
 };

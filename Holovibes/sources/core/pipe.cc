@@ -171,7 +171,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(compute_cache_.get_batch_size());
+        gpu_input_queue_.resize(setting<settings::BatchSize>());
         request_update_batch_size_ = false;
     }
 
@@ -198,7 +198,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("raw_view_requested");
 
         auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>()));
         api::set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -208,7 +208,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("filter2d_view_requested");
 
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>()));
         api::set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }
@@ -238,7 +238,7 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+            new Queue(record_fd, setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
         api::set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
@@ -249,7 +249,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("Raw Record Request Processing");
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+            new Queue(gpu_input_queue_.get_fd(), setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
         api::set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
@@ -270,7 +270,7 @@ bool Pipe::make_requests()
             fd_xyz.width = compute_cache_.get_time_transformation_size();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+            new Queue(fd_xyz, setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
         api::set_frame_record_enabled(true);
         cuts_record_requested_ = false;
@@ -391,8 +391,7 @@ void Pipe::refresh()
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),
                                      compute_cache_.get_divide_convolution_enabled());
-    postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get(),
-                                     advanced_cache_.get_renorm_constant());
+    postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!
     // !! ICI LA LAL ALLALALAL view cache en argumment en bas!!
@@ -458,7 +457,7 @@ void Pipe::insert_transfer_for_time_transformation()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
                 buffers_.gpu_spatial_transformation_buffer.get(),
-                compute_cache_.get_batch_size(),
+                setting<settings::BatchSize>(),
                 stream_);
         });
 }
@@ -468,7 +467,7 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [&]()
         {
-            batch_env_.batch_index += compute_cache_.get_batch_size();
+            batch_env_.batch_index += setting<settings::BatchSize>();
             CHECK(batch_env_.batch_index <= compute_cache_.get_time_stride(),
                   "batch_index = {}",
                   batch_env_.batch_index);
@@ -486,7 +485,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [&]()
         {
-            (*processed_output_fps_) += compute_cache_.get_batch_size();
+            (*processed_output_fps_) += setting<settings::BatchSize>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -587,12 +586,12 @@ void Pipe::insert_raw_record()
     if (setting<settings::FrameRecordEnabled>() && frame_record_env_.record_mode_ == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });
+            fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
 
         fn_compute_vect_.push_back(
             [&]() {
                 gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
-                                               compute_cache_.get_batch_size());
+                                               setting<settings::BatchSize>());
             });
     }
 }
@@ -698,6 +697,5 @@ void Pipe::synchronize_caches()
     composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
-    // advanced_cache_.synchronize();
 }
 } // namespace holovibes

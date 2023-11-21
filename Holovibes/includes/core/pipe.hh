@@ -49,8 +49,17 @@
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::FrameRecordEnabled
+
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::OutputBufferSize,         \
+    holovibes::settings::RecordBufferSize,         \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::RenormConstant,           \
+    holovibes::settings::CutsContrastPOffset,      \
+    holovibes::settings::BatchSize
  
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 
@@ -102,6 +111,7 @@ class Pipe : public ICompute
     Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, stream, settings)
         , realtime_settings_(settings)
+        , onrestart_settings_(settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&]() -> bool
@@ -115,7 +125,7 @@ class Pipe : public ICompute
                                                                            buffers_,
                                                                            input.get_fd(),
                                                                            stream_,
-                                                                           realtime_settings_.settings_);
+                                                                           settings);
         fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                           buffers_,
                                                                           input.get_fd(),
@@ -123,7 +133,7 @@ class Pipe : public ICompute
                                                                           time_transformation_env_,
                                                                           stream_,
                                                                           compute_cache_,
-                                                                          realtime_settings_.settings_);
+                                                                          settings);
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,
@@ -133,21 +143,20 @@ class Pipe : public ICompute
                                                           output.get_fd(),
                                                           stream_,
                                                           compute_cache_,
-                                                          advanced_cache_,
                                                           zone_cache_,
-                                                          realtime_settings_.settings_);
+                                                          settings);
         converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                         buffers_,
                                                         time_transformation_env_,
                                                         plan_unwrap_2d_,
                                                         input.get_fd(),
                                                         stream_,
-                                                        realtime_settings_.settings_);
+                                                        settings);
         postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
                                                                  buffers_,
                                                                  input.get_fd(),
                                                                  stream_,
-                                                                 realtime_settings_.settings_);
+                                                                 settings);
 
         *processed_output_fps_ = 0;
         update_time_transformation_size_requested_ = true;
@@ -205,6 +214,7 @@ class Pipe : public ICompute
      * on restart.
      */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 
     template <typename T>
     inline void update_setting(T setting)
@@ -214,6 +224,11 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            onrestart_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting<T, compute::ImageAccumulation>::value)
@@ -336,6 +351,11 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             return realtime_settings_.get<T>().value;
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
         }
     }
 };

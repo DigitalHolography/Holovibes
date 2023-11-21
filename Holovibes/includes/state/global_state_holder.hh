@@ -77,7 +77,6 @@ class GSH
         return compute_cache_.get_time_transformation();
     };
 
-    inline uint get_batch_size() const noexcept { return compute_cache_.get_batch_size(); }
     inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
     inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
@@ -109,14 +108,6 @@ class GSH
 
     inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
 
-    inline float get_display_rate() const noexcept { return advanced_cache_.get_display_rate(); }
-
-    inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
-
-    inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
-
-    inline uint get_output_buffer_size() const noexcept { return advanced_cache_.get_output_buffer_size(); }
-
     inline float get_pixel_size() const noexcept { return compute_cache_.get_pixel_size(); }
 
     inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
@@ -144,7 +135,6 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold.max;
     }
-    inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.min; }
     inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.max; }
@@ -187,20 +177,6 @@ class GSH
     {
         return compute_cache_.get_time_transformation_cuts_output_buffer_size();
     }
-
-    inline float get_contrast_lower_threshold() const noexcept
-    {
-        return advanced_cache_.get_contrast_lower_threshold();
-    }
-
-    inline float get_contrast_upper_threshold() const noexcept
-    {
-        return advanced_cache_.get_contrast_upper_threshold();
-    }
-
-    inline unsigned get_renorm_constant() const noexcept { return advanced_cache_.get_renorm_constant(); }
-
-    inline uint get_cuts_contrast_p_offset() const noexcept { return advanced_cache_.get_cuts_contrast_p_offset(); }
 
     inline units::RectFd get_signal_zone() const noexcept { return zone_cache_.get_signal_zone(); }
     inline units::RectFd get_noise_zone() const noexcept { return zone_cache_.get_noise_zone(); }
@@ -250,14 +226,6 @@ class GSH
     inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
     inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
-
-    inline void set_display_rate(float value) { advanced_cache_.set_display_rate(value); }
-
-    inline void set_input_buffer_size(uint value) { advanced_cache_.set_input_buffer_size(value); }
-
-    inline void set_record_buffer_size(uint value) { advanced_cache_.set_record_buffer_size(value); }
-
-    inline void set_output_buffer_size(uint value) { advanced_cache_.set_output_buffer_size(value); }
 
     inline void set_pixel_size(float value)
     {
@@ -336,16 +304,6 @@ class GSH
         compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
     }
 
-    inline void set_contrast_lower_threshold(float value) { advanced_cache_.set_contrast_lower_threshold(value); }
-
-    inline void set_contrast_upper_threshold(float value) { advanced_cache_.set_contrast_upper_threshold(value); }
-
-    inline void set_renorm_constant(unsigned value) { advanced_cache_.set_renorm_constant(value); }
-
-    inline void set_cuts_contrast_p_offset(uint value) { advanced_cache_.set_cuts_contrast_p_offset(value); }
-
-    inline void set_raw_bitshift(unsigned int value) { advanced_cache_.set_raw_bitshift(value); }
-
     inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
     inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }
     inline void set_composite_zone(units::RectFd value) { zone_cache_.set_composite_zone(value); }
@@ -377,7 +335,6 @@ class GSH
 
     ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;
-    AdvancedCache::Ref advanced_cache_;
     ZoneCache::Ref zone_cache_;
 
     mutable std::mutex mutex_;

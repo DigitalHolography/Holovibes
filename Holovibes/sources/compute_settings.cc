@@ -28,8 +28,8 @@ void after_load_checks()
         api::set_p_index(GSH::instance().get_time_transformation_size() - 1);
     if (api::get_q().start >= GSH::instance().get_time_transformation_size())
         api::set_q_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
-        GSH::instance().set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);
+    if (api::get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
+        api::set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);
 }
 
 void load_compute_settings(const std::string& json_path)

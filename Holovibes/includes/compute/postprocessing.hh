@@ -22,7 +22,10 @@
     holovibes::settings::ImageType,                \
     holovibes::settings::RenormEnabled
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ONRESTART_SETTINGS                          \
+    holovibes::settings::RenormConstant
+
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 
@@ -59,6 +62,7 @@ class Postprocessing
         , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
         , realtime_settings_(settings)
+        , onrestart_settings_(settings)
     {
     }
 
@@ -76,7 +80,7 @@ class Postprocessing
                             bool divide_convolution_enabled);
 
     /*! \brief Insert the normalization function. */
-    void insert_renormalize(float* gpu_postprocess_frame, unsigned int renorm_constant);
+    void insert_renormalize(float* gpu_postprocess_frame);
 
     template <typename T>
     inline void update_setting(T setting)
@@ -85,6 +89,11 @@ class Postprocessing
         {
             spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
+        }
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
+            onrestart_settings_.update_setting(setting);
         }
     }
 
@@ -102,6 +111,11 @@ class Postprocessing
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             return realtime_settings_.get<T>().value;
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
         }
     }
 
@@ -128,6 +142,7 @@ class Postprocessing
     const cudaStream_t& stream_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
 

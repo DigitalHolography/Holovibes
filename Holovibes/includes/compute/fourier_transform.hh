@@ -31,6 +31,9 @@
     holovibes::settings::Filter2dEnabled,          \
     holovibes::settings::CutsViewEnabled
 
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::BatchSize
+
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -73,6 +76,7 @@ class FourierTransform
         , stream_(stream)
         , compute_cache_(compute_cache)
         , realtime_settings_(settings)
+        , onrestart_settings_(settings)
     {
         gpu_lens_.resize(fd_.get_frame_res());
     }
@@ -110,6 +114,11 @@ class FourierTransform
         {
             spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
+        }
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
+            onrestart_settings_.update_setting(setting);
         }
     }
 
@@ -150,6 +159,11 @@ class FourierTransform
         {
             return realtime_settings_.get<T>().value;
         }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }
     }
 
     /*! \brief Roi zone of Filter 2D */
@@ -184,6 +198,7 @@ class FourierTransform
     ComputeCache::Cache& compute_cache_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
 

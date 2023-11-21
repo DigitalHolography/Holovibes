@@ -31,8 +31,13 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled
+
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::CutsContrastPOffset
     
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 
@@ -67,7 +72,6 @@ class Rendering
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
               ComputeCache::Cache& compute_cache,
-              AdvancedCache::Cache& advanced_cache,
               ZoneCache::Cache& zone_cache,
               InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
@@ -79,9 +83,9 @@ class Rendering
         , fd_(output_fd)
         , stream_(stream)
         , compute_cache_(compute_cache)
-        , advanced_cache_(advanced_cache)
         , zone_cache_(zone_cache)
         , realtime_settings_(settings)
+        , onrestart_settings_(settings)
     {
         // Hold 2 float values (min and max)
         cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
@@ -107,6 +111,12 @@ class Rendering
         {
             spdlog::info("[Rendering] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            spdlog::info("[Rendering] [update_setting] {}", typeid(T).name());
+            onrestart_settings_.update_setting(setting);
         }
     }
 
@@ -140,6 +150,11 @@ class Rendering
         {
             return realtime_settings_.get<T>().value;
         }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }
     }
 
     /*! \brief Vector function in which we insert the processing */
@@ -161,12 +176,12 @@ class Rendering
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
     ComputeCache::Cache& compute_cache_;
-    AdvancedCache::Cache& advanced_cache_;
     ZoneCache::Cache& zone_cache_;
 
     float* percent_min_max_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
 

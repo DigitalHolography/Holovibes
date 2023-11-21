@@ -54,7 +54,7 @@ void Rendering::Filter2D::Update()
 void Rendering::Update()
 {
     this->image_mode = GSH::instance().get_compute_mode();
-    this->batch_size = GSH::instance().get_batch_size();
+    this->batch_size = holovibes::Holovibes::instance().get_setting<holovibes::settings::BatchSize>().value;
     this->time_transformation_stride = GSH::instance().get_time_stride();
     this->filter2d.Update();
     this->space_transformation = GSH::instance().get_space_transformation();
@@ -67,10 +67,10 @@ void Rendering::Update()
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->file =holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
-    this->input = GSH::instance().get_input_buffer_size();
-    this->output = GSH::instance().get_output_buffer_size();
-    this->record = GSH::instance().get_record_buffer_size();
+    this->file = holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
+    this->input = holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value;
+    this->output = holovibes::Holovibes::instance().get_setting<holovibes::settings::OutputBufferSize>().value;
+    this->record = holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value;
     this->time_transformation_cuts = GSH::instance().get_time_transformation_cuts_output_buffer_size();
 }
 
@@ -82,9 +82,9 @@ void AdvancedSettings::Filter2DSmooth::Update()
 
 void AdvancedSettings::ContrastThreshold::Update()
 {
-    this->lower = GSH::instance().get_contrast_lower_threshold();
-    this->upper = GSH::instance().get_contrast_upper_threshold();
-    this->frame_index_offset = GSH::instance().get_cuts_contrast_p_offset();
+    this->lower = holovibes::Holovibes::instance().get_setting<holovibes::settings::ContrastLowerThreshold>().value;
+    this->upper = holovibes::Holovibes::instance().get_setting<holovibes::settings::ContrastUpperThreshold>().value;
+    this->frame_index_offset = holovibes::Holovibes::instance().get_setting<holovibes::settings::CutsContrastPOffset>().value;
 }
 
 void AdvancedSettings::Update()
@@ -92,8 +92,8 @@ void AdvancedSettings::Update()
     this->buffer_size.Update();
     this->filter2d_smooth.Update();
     this->contrast.Update();
-    this->renorm_constant = GSH::instance().get_renorm_constant();
-    this->raw_bitshift = GSH::instance().get_raw_bitshift();
+    this->renorm_constant =  holovibes::Holovibes::instance().get_setting<holovibes::settings::RenormConstant>().value;
+    this->raw_bitshift =  holovibes::Holovibes::instance().get_setting<holovibes::settings::RawBitshift>().value;
 }
 
 void Composite::Update()
@@ -114,11 +114,10 @@ void ComputeSettings::Update()
 
 void AdvancedSettings::BufferSizes::Load()
 {
-    // GSH::instance().set_file_buffer_size(this->file);
     Holovibes::instance().update_setting(settings::FileBufferSize{this->file});
-    GSH::instance().set_input_buffer_size(this->input);
-    GSH::instance().set_output_buffer_size(this->output);
-    GSH::instance().set_record_buffer_size(this->record);
+    Holovibes::instance().update_setting(settings::InputBufferSize{this->input});
+    Holovibes::instance().update_setting(settings::OutputBufferSize{this->output});
+    Holovibes::instance().update_setting(settings::RecordBufferSize{this->record});
     GSH::instance().set_time_transformation_cuts_output_buffer_size(this->time_transformation_cuts);
 }
 
@@ -130,9 +129,9 @@ void AdvancedSettings::Filter2DSmooth::Load()
 
 void AdvancedSettings::ContrastThreshold::Load()
 {
-    GSH::instance().set_contrast_lower_threshold(this->lower);
-    GSH::instance().set_contrast_upper_threshold(this->upper);
-    GSH::instance().set_cuts_contrast_p_offset(this->frame_index_offset);
+    Holovibes::instance().update_setting(settings::ContrastLowerThreshold{this->lower});
+    Holovibes::instance().update_setting(settings::ContrastUpperThreshold{this->upper});
+    Holovibes::instance().update_setting(settings::CutsContrastPOffset{this->frame_index_offset});
 }
 
 void AdvancedSettings::Load()
@@ -140,8 +139,8 @@ void AdvancedSettings::Load()
     this->buffer_size.Load();
     this->filter2d_smooth.Load();
     this->contrast.Load();
-    GSH::instance().set_renorm_constant(this->renorm_constant);
-    GSH::instance().set_raw_bitshift(this->raw_bitshift);
+    Holovibes::instance().update_setting(settings::RenormConstant{this->renorm_constant});
+    Holovibes::instance().update_setting(settings::RawBitshift{this->raw_bitshift});
 }
 
 void Composite::Load()
@@ -205,7 +204,7 @@ void Rendering::Load()
 {
     GSH::instance().set_time_stride(this->time_transformation_stride);
     GSH::instance().set_compute_mode(this->image_mode);
-    GSH::instance().set_batch_size(this->batch_size);
+    api::set_batch_size(this->batch_size);
     this->filter2d.Load();
     GSH::instance().set_space_transformation(this->space_transformation);
     GSH::instance().set_time_transformation(this->time_transformation);

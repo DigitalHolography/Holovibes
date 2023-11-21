@@ -71,7 +71,30 @@
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::FrameRecordEnabled,       \
-    holovibes::settings::ChartRecordEnabled
+    holovibes::settings::ChartRecordEnabled,       \
+    holovibes::settings::DisplayRate,              \
+    holovibes::settings::InputBufferSize,          \
+    holovibes::settings::RecordBufferSize,         \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::RawBitshift,              \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::RenormConstant,           \
+    holovibes::settings::CutsContrastPOffset,      \
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::TimeStride,               \
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::SpaceTransformation,      \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::Lambda,                   \
+    holovibes::settings::ZDistance,                \
+    holovibes::settings::ConvolutionEnabled,       \
+    holovibes::settings::ConvolutionMatrix,        \
+    holovibes::settings::DivideConvolutionEnabled, \
+    holovibes::settings::ComputeMode,              \
+    holovibes::settings::PixelSize,                \
+    holovibes::settings::UnwrapHistorySize,        \
+    holovibes::settings::IsComputationStopped,     \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -309,6 +332,7 @@ class Holovibes
             return realtime_settings_.get<T>().value;
         }
     }
+    
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
@@ -351,7 +375,30 @@ class Holovibes
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
                                              settings::FrameRecordEnabled{false},
-                                             settings::ChartRecordEnabled{false}))
+                                             settings::ChartRecordEnabled{false},
+                                             settings::DisplayRate{30},
+                                             settings::InputBufferSize{512},
+                                             settings::RecordBufferSize{1024},
+                                             settings::ContrastLowerThreshold{0.5f},
+                                             settings::RawBitshift{0},
+                                             settings::ContrastUpperThreshold{99.5f},
+                                             settings::RenormConstant{5},
+                                             settings::CutsContrastPOffset{2},
+                                             settings::BatchSize{1},
+                                             settings::TimeStride{1},
+                                             settings::TimeTransformationSize{1},
+                                             settings::SpaceTransformation{SpaceTransformation::NONE},
+                                             settings::TimeTransformation{TimeTransformation::NONE},
+                                             settings::Lambda{852e-9f},
+                                             settings::ZDistance{1.50f},
+                                             settings::ConvolutionEnabled{false},
+                                             settings::ConvolutionMatrix{std::vector<float>{}},
+                                             settings::DivideConvolutionEnabled{false},
+                                             settings::ComputeMode{Computation::Raw},
+                                             settings::PixelSize{12.0f},
+                                             settings::UnwrapHistorySize{1},
+                                             settings::IsComputationStopped{true},
+                                             settings::TimeTransformationCutsOutputBufferSize{512}))
     {
     }
 

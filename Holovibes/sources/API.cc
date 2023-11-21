@@ -215,7 +215,7 @@ void set_raw_mode(uint window_max_size)
                                       get_gpu_input_queue().get(),
                                       static_cast<float>(width) / static_cast<float>(height)));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(GSH::instance().get_raw_bitshift());
+    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
 }
@@ -331,7 +331,6 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 {
     if (batch_size == api::get_batch_size())
         return;
-
     api::set_batch_size(batch_size);
     Holovibes::instance().get_compute_pipe()->request_update_batch_size();
 
@@ -1024,9 +1023,9 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
-void set_raw_bitshift(unsigned int value) { GSH::instance().set_raw_bitshift(value); }
+void set_raw_bitshift(unsigned int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value}); }
 
-unsigned int get_raw_bitshift() { return GSH::instance().get_raw_bitshift(); }
+unsigned int get_raw_bitshift() { return holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value; }
 
 float get_contrast_min() { return GSH::instance().get_contrast_min(); }
 

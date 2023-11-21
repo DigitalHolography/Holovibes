@@ -253,7 +253,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 compute_cache_.get_time_transformation_size(),
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                setting<settings::CutsContrastPOffset>(),
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
         }
@@ -263,7 +263,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 compute_cache_.get_time_transformation_size(),
                                 fd_.height,
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                setting<settings::CutsContrastPOffset>(),
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
         }
@@ -288,8 +288,8 @@ void Rendering::autocontrast_caller(
 
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),
-                                            advanced_cache_.get_contrast_upper_threshold()};
+    const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
+                                            setting<settings::ContrastUpperThreshold>()};
     switch (view)
     {
     case WindowKind::XYview:

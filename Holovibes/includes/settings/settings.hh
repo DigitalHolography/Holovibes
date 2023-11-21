@@ -10,6 +10,9 @@
 #include "enum/enum_record_mode.hh"
 #include "struct/view_struct.hh"
 #include "enum/enum_window_kind.hh"
+#include "enum/enum_space_transformation.hh"
+#include "enum/enum_time_transformation.hh"
+#include "enum/enum_computation.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -145,5 +148,32 @@ DECLARE_SETTING(InputFileEndIndex, size_t)
  */
 DECLARE_SETTING(FrameRecordEnabled, bool)
 DECLARE_SETTING(ChartRecordEnabled, bool)
+
+// ex Advanced Cache
+DECLARE_SETTING(DisplayRate, float)
+DECLARE_SETTING(InputBufferSize, size_t)
+DECLARE_SETTING(RecordBufferSize, size_t)
+DECLARE_SETTING(ContrastLowerThreshold, float)
+DECLARE_SETTING(RawBitshift, size_t)
+DECLARE_SETTING(ContrastUpperThreshold, float)
+DECLARE_SETTING(RenormConstant, unsigned)
+DECLARE_SETTING(CutsContrastPOffset, size_t)
+
+// ex ComputeCache
+DECLARE_SETTING(BatchSize, uint)
+DECLARE_SETTING(TimeStride, uint)
+DECLARE_SETTING(TimeTransformationSize, uint)
+DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation)
+DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation)
+DECLARE_SETTING(Lambda, float)
+DECLARE_SETTING(ZDistance, float)
+DECLARE_SETTING(ConvolutionEnabled, bool)
+DECLARE_SETTING(ConvolutionMatrix, std::vector<float>)
+DECLARE_SETTING(DivideConvolutionEnabled, bool)
+DECLARE_SETTING(ComputeMode, holovibes::Computation)
+DECLARE_SETTING(PixelSize, float)
+DECLARE_SETTING(UnwrapHistorySize, uint)
+DECLARE_SETTING(IsComputationStopped, bool)
+DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint)
 
 } // namespace holovibes::settings

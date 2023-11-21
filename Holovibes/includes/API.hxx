@@ -21,8 +21,12 @@ inline void set_img_type(ImgType type)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ImageType{type});
 }
 
-inline uint get_batch_size() { return GSH::instance().get_batch_size(); }
-inline void set_batch_size(uint value) { GSH::instance().set_batch_size(value); }
+inline uint get_batch_size() { return holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value; }
+inline void set_batch_size(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
+    GSH::instance().set_batch_size(value);
+}
 
 inline uint get_time_stride() { return GSH::instance().get_time_stride(); }
 inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value); }
@@ -35,19 +39,43 @@ inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
 
 inline float get_z_distance() { return GSH::instance().get_z_distance(); }
 
-inline float get_contrast_lower_threshold() { return GSH::instance().get_contrast_lower_threshold(); }
-inline void set_contrast_lower_threshold(float value) { GSH::instance().set_contrast_lower_threshold(value); }
+inline float get_contrast_lower_threshold()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::ContrastLowerThreshold>().value;
+}
+inline void set_contrast_lower_threshold(float value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ContrastLowerThreshold{value});
+}
 
-inline float get_contrast_upper_threshold() { return GSH::instance().get_contrast_upper_threshold(); }
-inline void set_contrast_upper_threshold(float value) { GSH::instance().set_contrast_upper_threshold(value); }
+inline float get_contrast_upper_threshold()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::ContrastUpperThreshold>().value;
+}
+inline void set_contrast_upper_threshold(float value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ContrastUpperThreshold{value});
+}
 
-inline uint get_cuts_contrast_p_offset() { return GSH::instance().get_cuts_contrast_p_offset(); }
-inline void set_cuts_contrast_p_offset(uint value) { GSH::instance().set_cuts_contrast_p_offset(value); }
+inline uint get_cuts_contrast_p_offset()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value;
+}
+inline void set_cuts_contrast_p_offset(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::CutsContrastPOffset{value});
+}
 
 inline float get_pixel_size() { return GSH::instance().get_pixel_size(); }
 
-inline unsigned get_renorm_constant() { return GSH::instance().get_renorm_constant(); }
-inline void set_renorm_constant(unsigned int value) { GSH::instance().set_renorm_constant(value); }
+inline unsigned get_renorm_constant()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
+}
+inline void set_renorm_constant(unsigned int value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RenormConstant{value});
+}
 
 inline int get_filter2d_n1() { return holovibes::Holovibes::instance().get_setting<settings::Filter2dN1>().value; }
 inline void set_filter2d_n1(int value)
@@ -81,8 +109,11 @@ inline void set_filter2d_smooth_high(int value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dSmoothHigh{value});
 }
 
-inline float get_display_rate() { return GSH::instance().get_display_rate(); }
-inline void set_display_rate(float value) { GSH::instance().set_display_rate(value); }
+inline float get_display_rate() { return holovibes::Holovibes::instance().get_setting<settings::DisplayRate>().value; }
+inline void set_display_rate(float value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::DisplayRate{value});
+}
 
 inline ViewXY get_x(void) { return holovibes::Holovibes::instance().get_setting<settings::X>().value; }
 
@@ -676,14 +707,23 @@ inline void set_file_buffer_size(uint value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::FileBufferSize{value});
 }
 
-inline uint get_input_buffer_size() { return GSH::instance().get_input_buffer_size(); }
-inline void set_input_buffer_size(uint value) { GSH::instance().set_input_buffer_size(value); }
+inline uint get_input_buffer_size()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value;
+}
+inline void set_input_buffer_size(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputBufferSize{value});
+}
 
-// inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_size(); }
-// inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }
-
-inline uint get_record_buffer_size() { return GSH::instance().get_record_buffer_size(); }
-inline void set_record_buffer_size(uint value) { GSH::instance().set_record_buffer_size(value); }
+inline uint get_record_buffer_size()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value;
+}
+inline void set_record_buffer_size(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+}
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
@@ -868,16 +908,19 @@ inline void set_frame_record_enabled(bool value)
 }
 
 inline bool get_frame_record_enabled()
-{ 
+{
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::FrameRecordEnabled>().value;
 }
 
 inline void set_chart_record_enabled(bool value)
-{ 
-   holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartRecordEnabled{value});
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartRecordEnabled{value});
 }
 
-inline bool get_chart_record_enabled() { return holovibes::Holovibes::instance().get_setting<settings::ChartRecordEnabled>().value; }
+inline bool get_chart_record_enabled()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::ChartRecordEnabled>().value;
+}
 
 #pragma endregion
 

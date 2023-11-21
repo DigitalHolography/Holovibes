@@ -37,7 +37,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 {
     camera::FrameDescriptor queue_fd = fd;
 
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
+    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, get_setting<settings::BatchSize>().value, queue_fd);
 }
 
 // TODO(julesguillou): Why using input fps here?
@@ -114,7 +114,7 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 */
 void Holovibes::start_frame_record(const std::function<void()>& callback)
 {
-    if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
+    if (get_setting<settings::BatchSize>().value > api::get_record_buffer_size())
     {
         LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
         return;
@@ -123,7 +123,6 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
-
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
     frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream);
@@ -164,7 +163,7 @@ void Holovibes::init_pipe()
             output_fd.depth = 6;
     }
     gpu_output_queue_.store(
-        std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
+        std::make_shared<Queue>(output_fd, get_setting<settings::OutputBufferSize>().value, QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
         compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),

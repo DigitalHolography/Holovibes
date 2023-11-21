@@ -137,7 +137,7 @@ void Postprocessing::insert_convolution(bool convolution_enabled,
     }
 }
 
-void Postprocessing::insert_renormalize(float* gpu_postprocess_frame, unsigned int renorm_constant)
+void Postprocessing::insert_renormalize(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
@@ -150,7 +150,7 @@ void Postprocessing::insert_renormalize(float* gpu_postprocess_frame, unsigned i
             uint frame_res = fd_.get_frame_res();
             if (setting<settings::ImageType>() == ImgType::Composite)
                 frame_res *= 3;
-            gpu_normalize(gpu_postprocess_frame, reduce_result_.get(), frame_res, renorm_constant, stream_);
+            gpu_normalize(gpu_postprocess_frame, reduce_result_.get(), frame_res, setting<settings::RenormConstant>(), stream_);
         });
 }
 } // namespace holovibes::compute
