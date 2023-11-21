@@ -5,7 +5,6 @@
 #pragma once
 
 #include "common.cuh"
-#include "rect.hh"
 #include "enum_img_type.hh"
 
 using holovibes::units::RectFd;

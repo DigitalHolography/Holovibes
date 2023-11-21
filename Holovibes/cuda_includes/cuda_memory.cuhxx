@@ -1,6 +1,5 @@
 #pragma once
 
-#include "logger.hh"
 
 template <typename T>
 void cudaXMalloc(T** devPtr, size_t size)

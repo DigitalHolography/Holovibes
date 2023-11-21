@@ -15,12 +15,7 @@
  */
 #pragma once
 
-#include <cuda_runtime.h>
 #include "common.cuh"
-
-// Usings
-using uint = unsigned int;
-using ushort = unsigned short;
 
 /*! \brief Map input to output throughout a mapping function
  *

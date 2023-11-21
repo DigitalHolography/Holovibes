@@ -7,6 +7,9 @@
 #include "tools.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
+#include "cufft_handle.hh"
+
+using holovibes::cuda_tools::CufftHandle;
 
 /*! \brief Extract a part of the input image to the output.
  *

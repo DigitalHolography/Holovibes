@@ -92,3 +92,5 @@ class CufftHandle
     static cudaStream_t stream_;
 };
 } // namespace holovibes::cuda_tools
+
+using holovibes::cuda_tools::CufftHandle;

@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "cuComplex.h"
+#include "common.cuh"
 #include "composite_struct.hh"
 typedef unsigned int uint;
 

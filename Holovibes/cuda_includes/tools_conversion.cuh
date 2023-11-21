@@ -5,7 +5,6 @@
 #pragma once
 
 #include "common.cuh"
-#include <nppdefs.h>
 
 /* CONVERSION FUNCTIONS */
 

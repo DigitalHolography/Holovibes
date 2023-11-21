@@ -3,7 +3,9 @@
  * \brief #TODO Add a description for this file
  */
 #pragma once
-using uint = unsigned int;
+
+#include "common.cuh"
+#include "cuda_memory.cuh"
 
 /*! \brief Reduce operation gpu side
  *

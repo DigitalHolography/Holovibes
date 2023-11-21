@@ -5,8 +5,6 @@
 #pragma once
 
 #include "common.cuh"
-#include "cufft_handle.hh"
-using holovibes::cuda_tools::CufftHandle;
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
  *

@@ -4,9 +4,7 @@
  */
 #pragma once
 
-#include "cuComplex.h"
-
-using uint = unsigned int;
+#include "common.cuh"
 
 /*! \brief Copies whole input image into output at position (output_srcx, output_srcy)
  *

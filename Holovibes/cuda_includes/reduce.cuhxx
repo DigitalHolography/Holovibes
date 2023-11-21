@@ -1,13 +1,5 @@
 #pragma once
 
-#include "cuda.h"
-#include "cuda_runtime.h"
-
-#include <cassert>
-#include <limits>
-
-#include "common.cuh"
-#include "cuda_memory.cuh"
 
 /*! Mask used by the warp reduce using registers.
  * This mask means every thread should be processed

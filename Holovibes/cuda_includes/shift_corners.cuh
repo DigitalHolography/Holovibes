@@ -4,11 +4,7 @@
  */
 #pragma once
 
-#include "cuComplex.h"
-#include "cuda_runtime.h"
-
-using uint = unsigned int;
-using ushort = unsigned short;
+#include "common.cuh"
 
 /*! \brief Shifts in-place the corners of an image.
  *
