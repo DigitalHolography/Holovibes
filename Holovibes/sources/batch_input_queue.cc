@@ -224,6 +224,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { cop
 
 void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {
+    // std::cout << "2" << std::endl;
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
           "Copy multiple: the destination queue must have a size at least greater than number of elements to copy.");
@@ -285,5 +286,6 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
+    // std::cout << "3" << std::endl;
 }
 } // namespace holovibes
