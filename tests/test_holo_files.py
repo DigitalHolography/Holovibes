@@ -59,7 +59,7 @@ def generate_holo_from(input: str, output: str, output_error: str, cli_argument:
 
     if sub.returncode != 0:
         error_file = open(output_error, "w")
-        error_file.writelines([str(sub.returncode), sub.stderr.decode('utf-8')])
+        error_file.writelines([str(sub.returncode), "\n", sub.stderr.decode('utf-8')])
         error_file.close()
 
     t2 = time.time()
