@@ -220,9 +220,9 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     size_t input_nb_frames =
         holovibes::GSH::instance().get_end_frame() - holovibes::GSH::instance().get_start_frame() + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
-    if (record_nb_frames == 0)
+    if (record_nb_frames <= 0)
     {
-        LOG_ERROR("Asking to record 0 frames, abort");
+        LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));
         return 2;
     }
 
