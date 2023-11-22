@@ -175,7 +175,7 @@ class HoloFile:
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diffMatrix = (np.array(l_image) == np.array(r_image))
             diff = np.any(diffMatrix == False)
-            print(diff)
+            #TODO print diff matrix
             #if diff:
             #    l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
             #    r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
