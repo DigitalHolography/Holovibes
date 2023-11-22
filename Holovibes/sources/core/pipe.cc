@@ -336,7 +336,7 @@ bool Pipe::make_requests()
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
         frame_record_env_.frame_record_queue_.reset(
-            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
+            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
@@ -347,7 +347,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("Raw Record Request Processing");
         frame_record_env_.frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
+            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
@@ -368,7 +368,7 @@ bool Pipe::make_requests()
             fd_xyz.width = compute_cache_.get_time_transformation_size();
 
         frame_record_env_.frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
+            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
 
         GSH::instance().set_frame_record_enabled(true);
         cuts_record_requested_ = false;
@@ -657,8 +657,17 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                               compute_cache_.get_batch_size());
+                // std::cout << "1" << std::endl;
+                try {
+                    gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
+                                               compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
+                }
+                catch (const std::exception& e) {
+                    std::cerr << e.what() << std::endl;
+                    std::cout << "ouch" << std::endl;
+                }
+                // std::cout << "4" << std::endl;
+
 
                 inserted++;
             });
