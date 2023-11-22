@@ -303,7 +303,7 @@ void FourierTransform::insert_ssa_stft()
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
-    static cuda_tools::UniquePtr<cuComplex> tmp_matrix = nullptr;
+    static cuda_tools::CudaUniquePtr<cuComplex> tmp_matrix = nullptr;
     tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
     fn_compute_vect_.conditional_push_back(

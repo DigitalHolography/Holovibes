@@ -71,7 +71,7 @@ class ImageAccumulation
 
     /*! \brief Handle the allocation of a accumulation queue and average frame */
     void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
-                                     cuda_tools::UniquePtr<float>& gpu_average_frame,
+                                     cuda_tools::CudaUniquePtr<float>& gpu_average_frame,
                                      const unsigned int accumulation_level,
                                      const camera::FrameDescriptor fd);
 
