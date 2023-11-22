@@ -180,7 +180,7 @@ class HoloFile:
             #    l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
             #    r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]})"
+            assert not diff
 
 
 class HoloLazyReader(HoloLazyIO):
