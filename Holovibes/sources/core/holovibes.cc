@@ -123,7 +123,7 @@ void Holovibes::start_frame_record(const std::string& path,
                                    const std::function<void()>& callback)
 {
     // required to reset the recorded frames counter in pipe.cc
-    // This counter happens at the enqueing, to ensure no frame are lost since the gpu_input_queue is usually way faster than the gpu_frame_record_queue
+    // This counter happens at the enqueing, to ensure no frame are lost since the gpu_input_queue is usually way faster than the frame_record_queue
     api::pipe_refresh();
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {

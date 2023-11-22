@@ -53,7 +53,8 @@ class Queue final : public DisplayQueue
           QueueType type = QueueType::UNDEFINED,
           unsigned int input_width = 0,
           unsigned int input_height = 0,
-          unsigned int bytes_per_pixel = 1);
+          unsigned int bytes_per_pixel = 1,
+          const bool gpu = true);
 
     /*! \brief Destructor of the queue */
     ~Queue();
@@ -63,7 +64,8 @@ class Queue final : public DisplayQueue
      */
 
     /*! \return Pointer to internal buffer that contains data. */
-    void* get_data() const { return data_; }
+    // void* get_data() const { return (gpu_ ? (void*)(std::get<0>(data_)) : (void*)(&std::get<1>(data_))); }
+    void* get_data() const { return *data_; }
 
     /*! \return The number of elements the Queue currently contains. */
     unsigned int get_size() const { return size_; }
@@ -72,20 +74,23 @@ class Queue final : public DisplayQueue
     unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
-    void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
+    // void* get_start() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + start_index_ * fd_.get_frame_size(); }
+    void* get_start() const { return data_->get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
-    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
+    // void* get_end() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
+    void* get_end() const { return data_->get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
     void* get_last_image() const override
     {
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
-        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+        // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+        return data_->get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
     }
 
     /*! \return Index of the frame right after the last one containing data */
@@ -131,7 +136,7 @@ class Queue final : public DisplayQueue
      * \param nb_elts Number of elements to add in the queue
      * \param stream
      */
-    void copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream);
+    void copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Enqueue method for multiple elements
      *
@@ -219,7 +224,7 @@ class Queue final : public DisplayQueue
      * \param stream Stream perfoming the copy
      */
     static void
-    copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const size_t frame_size, const cudaStream_t stream);
+    copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const size_t frame_size, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
   private: /* Attributes */
     /*! \brief Mutex to lock the queue */
@@ -250,8 +255,9 @@ class Queue final : public DisplayQueue
     /*! \brief The index of the first frame in the queue */
     unsigned int start_index_;
     const bool is_big_endian_;
-    /*! \brief The actual buffer in which the frames are stored */
-    cuda_tools::UniquePtr<char> data_;
+    /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
+    // std::variant<cuda_tools::CudaUniquePtr<char>,cuda_tools::CPUUniquePtr<char>> data_;
+    std::shared_ptr<cuda_tools::UniquePtr<char>> data_;
 
     // Utils used for square input mode
     /*! \brief Original width of the input */
@@ -263,6 +269,8 @@ class Queue final : public DisplayQueue
 
     /*! \brief Wheter frames have been overridden during an enqueue. */
     bool has_overridden_;
+
+    bool gpu_;
 
   private:
     /*! \struct QueueRegion

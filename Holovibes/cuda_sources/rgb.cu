@@ -106,7 +106,7 @@ void rgb(cuComplex* input,
     uint blocks = map_blocks_to_problem(range, threads);
 
     size_t colors_size = range * 3;
-    holovibes::cuda_tools::UniquePtr<float> colors(colors_size);
+    holovibes::cuda_tools::CudaUniquePtr<float> colors(colors_size);
 
     if (auto_weights)
     {

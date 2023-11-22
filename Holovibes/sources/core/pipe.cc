@@ -27,8 +27,8 @@ namespace holovibes
 
 void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
-    while (frame_record_env_.gpu_frame_record_queue_->get_size() + nb_elm_to_add >
-               frame_record_env_.gpu_frame_record_queue_->get_max_size() &&
+    while (frame_record_env_.frame_record_queue_->get_size() + nb_elm_to_add >
+               frame_record_env_.frame_record_queue_->get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
            Holovibes::instance().is_recording())
     {
@@ -206,7 +206,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        frame_record_env_.gpu_frame_record_queue_.reset(nullptr);
+        frame_record_env_.frame_record_queue_.reset(nullptr);
         frame_record_env_.record_mode_ = RecordMode::NONE;
         GSH::instance().set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
@@ -335,8 +335,8 @@ bool Pipe::make_requests()
         LOG_DEBUG("Hologram Record Request Processing");
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+        frame_record_env_.frame_record_queue_.reset(
+            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
         hologram_record_requested_ = false;
@@ -346,8 +346,8 @@ bool Pipe::make_requests()
     if (raw_record_requested_)
     {
         LOG_DEBUG("Raw Record Request Processing");
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+        frame_record_env_.frame_record_queue_.reset(
+            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
 
         GSH::instance().set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::RAW;
@@ -367,8 +367,8 @@ bool Pipe::make_requests()
         else
             fd_xyz.width = compute_cache_.get_time_transformation_size();
 
-        frame_record_env_.gpu_frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE));
+        frame_record_env_.frame_record_queue_.reset(
+            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, true));
 
         GSH::instance().set_frame_record_enabled(true);
         cuts_record_requested_ = false;
@@ -657,7 +657,7 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
+                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
                                                compute_cache_.get_batch_size());
 
                 inserted++;
@@ -676,10 +676,10 @@ void Pipe::insert_hologram_record()
             [&]()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
-                    frame_record_env_.gpu_frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_);
+                    frame_record_env_.frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                                                  stream_, cudaMemcpyDeviceToHost);
                 else
-                    frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_);
+                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -692,13 +692,13 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, cudaMemcpyDeviceToHost); });
         }
         else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.gpu_frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, cudaMemcpyDeviceToHost); });
         }
     }
 }
