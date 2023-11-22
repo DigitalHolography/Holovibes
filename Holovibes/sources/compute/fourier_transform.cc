@@ -82,13 +82,13 @@ void FourierTransform::insert_fft1()
 {
     LOG_FUNC();
 
-    const float z = compute_cache_.get_z_distance();
+    const float z = setting<settings::ZDistance>();
 
     fft1_lens(gpu_lens_.get(),
               lens_side_size_,
               fd_.height,
               fd_.width,
-              compute_cache_.get_lambda(),
+              setting<settings::Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);
@@ -112,13 +112,13 @@ void FourierTransform::insert_fft2(bool filter2d_enabled)
 {
     LOG_FUNC();
 
-    const float z = compute_cache_.get_z_distance();
+    const float z = setting<settings::ZDistance>();
 
     fft2_lens(gpu_lens_.get(),
               lens_side_size_,
               fd_.height,
               fd_.width,
-              compute_cache_.get_lambda(),
+              setting<settings::Lambda>(),
               z,
               compute_cache_.get_pixel_size(),
               stream_);

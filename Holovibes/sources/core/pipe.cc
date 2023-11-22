@@ -348,7 +348,7 @@ void Pipe::refresh()
                                     setting<settings::Filter2dN2>(),
                                     setting<settings::Filter2dSmoothLow>(),
                                     setting<settings::Filter2dSmoothHigh>(),
-                                    compute_cache_.get_space_transformation());
+                                    setting<settings::SpaceTransformation>());
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -362,7 +362,7 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // time transform
-    fourier_transforms_->insert_time_transform(compute_cache_.get_time_transformation(),
+    fourier_transforms_->insert_time_transform(setting<settings::TimeTransformation>(),
                                                setting<settings::TimeTransformationSize>());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
                                                               buffers_.gpu_postprocess_frame_xz.get(),
@@ -374,7 +374,7 @@ void Pipe::refresh()
     fourier_transforms_->insert_store_p_frame();
 
     converts_->insert_to_float(unwrap_2d_requested_,
-                               compute_cache_.get_time_transformation(),
+                               setting<settings::TimeTransformation>(),
                                buffers_.gpu_postprocess_frame.get(),
                                setting<settings::TimeTransformationSize>(),
                                composite_cache_.get_rgb(),

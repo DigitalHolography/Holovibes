@@ -8,9 +8,15 @@ namespace holovibes::api
 inline Computation get_compute_mode() { return GSH::instance().get_compute_mode(); }
 inline void set_compute_mode(Computation mode) { GSH::instance().set_compute_mode(mode); }
 
-inline SpaceTransformation get_space_transformation() { return GSH::instance().get_space_transformation(); }
+inline SpaceTransformation get_space_transformation() 
+{     
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::SpaceTransformation>().value;
+}
 
-inline TimeTransformation get_time_transformation() { return GSH::instance().get_time_transformation(); }
+inline TimeTransformation get_time_transformation() 
+{ 
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeTransformation>().value;
+}
 
 inline ImgType get_img_type()
 {
@@ -69,10 +75,9 @@ inline void set_time_transformation_size(uint value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformationSize{value});
 }
 
-inline float get_lambda() { return GSH::instance().get_lambda(); }
-inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
+inline float get_lambda() { return holovibes::Holovibes::instance().get_setting<settings::Lambda>().value; }
 
-inline float get_z_distance() { return GSH::instance().get_z_distance(); }
+inline float get_z_distance() { return holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value; }
 
 inline float get_contrast_lower_threshold()
 {
@@ -274,6 +279,14 @@ inline void set_xy_contrast_max(float value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
 }
 
+inline void set_xy_contrast(float min, float max) noexcept
+{
+    auto xy = Holovibes::instance().get_setting<settings::XY>().value;
+    xy.contrast.min = min;
+    xy.contrast.max = max;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::XY{xy});
+}
+
 // XZ
 inline ViewXYZ get_xz() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value; }
 inline bool get_xz_horizontal_flip()
@@ -378,6 +391,14 @@ inline void set_xz_contrast_max(float value) noexcept
 {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.contrast.max = value > 1.0f ? value : 1.0f;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
+}
+
+inline void set_xz_contrast(float min, float max) noexcept
+{
+    auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
+    xz.contrast.min = min;
+    xz.contrast.max = max;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
@@ -487,6 +508,14 @@ inline void set_yz_contrast_max(float value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
+inline void set_yz_contrast(float min, float max) noexcept
+{
+    auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
+    yz.contrast.min = min;
+    yz.contrast.max = max;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
+}
+
 inline ViewWindow get_filter2d() { return holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value; }
 inline bool get_filter2d_log_enabled()
 {
@@ -558,6 +587,14 @@ inline void set_filter2d_contrast_max(float value) noexcept
     auto filter2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
     filter2d.contrast.max = value > 1.0f ? value : 1.0f;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{filter2d});
+}
+
+inline void set_filter2d_contrast(float min, float max) noexcept
+{
+    auto f2d = Holovibes::instance().get_setting<settings::Filter2d>().value;
+    f2d.contrast.min = min;
+    f2d.contrast.max = max;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2d{f2d});
 }
 
 inline float get_reticle_scale() { return Holovibes::instance().get_setting<settings::ReticleScale>().value; }

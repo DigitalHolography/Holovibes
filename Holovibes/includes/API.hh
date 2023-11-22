@@ -344,13 +344,13 @@ void decrement_p();
  *
  * \param value the new value
  */
-void set_wavelength(double value);
+void set_lambda(float value);
 
 /*! \brief Modifies z
  *
  * \param value the new value
  */
-void set_z_distance(const double value);
+void set_z_distance(const float value);
 
 /*! \brief Modifies space transform calculation
  *

@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
-    spinBoxDecimalPointReplacement(ui_->WaveLengthDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);

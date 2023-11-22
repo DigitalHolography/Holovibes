@@ -26,7 +26,7 @@ const float Holovibes::get_boundary()
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
         const float d = GSH::instance().get_pixel_size() * 0.000001f;
         const float n = static_cast<float>(fd.height);
-        return (n * d * d) / GSH::instance().get_lambda();
+        return (n * d * d) / api::get_lambda();
     }
     return 0.f;
 }

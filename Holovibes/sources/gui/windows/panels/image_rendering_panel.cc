@@ -66,8 +66,8 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
-    ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
+    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -312,15 +312,16 @@ void ImageRenderingPanel::set_time_transformation_size()
     api::set_time_transformation_size(callback);
 }
 
-void ImageRenderingPanel::set_wavelength(const double value)
+//λ
+void ImageRenderingPanel::set_lambda(const float value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value * 1.0e-9f);
+    api::set_lambda(value * 1.0e-9f);
 }
 
-void ImageRenderingPanel::set_z(const double value)
+void ImageRenderingPanel::set_z_distance(const float value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
@@ -333,7 +334,7 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() + z_step_);
+    set_z_distance(api::get_z_distance() + z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
@@ -342,7 +343,7 @@ void ImageRenderingPanel::decrement_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() - z_step_);
+    set_z_distance(api::get_z_distance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
@@ -383,7 +384,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_z_step(double value)
+void ImageRenderingPanel::set_z_step(float value)
 {
     z_step_ = value;
     ui_->ZDoubleSpinBox->setSingleStep(value);

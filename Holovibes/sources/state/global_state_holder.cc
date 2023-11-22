@@ -129,7 +129,7 @@ bool GSH::get_contrast_invert() const noexcept {
 void GSH::set_contrast_enabled(bool value)
 {
     auto window = api::get_current_window_type();
-    //TODO filter2d
+
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_enabled(value);
     else
@@ -340,21 +340,17 @@ void GSH::update_contrast(WindowKind kind, float min, float max)
     switch (window)
     {
     case WindowKind::XYview:
-        api::set_xy_contrast_min(min);
-        api::set_xy_contrast_max(max);
+        api::set_xy_contrast(min, max);
         break;
     case WindowKind::XZview:
-        api::set_xz_contrast_min(min);
-        api::set_xz_contrast_max(max);
+        api::set_xz_contrast(min, max);
         break;
     case WindowKind::YZview:
-        api::set_yz_contrast_min(min);
-        api::set_yz_contrast_max(max);
+        api::set_yz_contrast(min, max);
         break;
     // TODO : set_filter2d_contrast_auto
     default:
-        api::set_filter2d_contrast_min(min);
-        api::set_filter2d_contrast_max(max);
+        api::set_filter2d_contrast(min, max);
         break;
     }
 

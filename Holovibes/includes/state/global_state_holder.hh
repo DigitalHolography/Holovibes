@@ -65,18 +65,6 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline SpaceTransformation get_space_transformation() const noexcept
-    {
-        return compute_cache_.get_space_transformation();
-    }
-
-    inline TimeTransformation get_time_transformation() const noexcept
-    {
-        return compute_cache_.get_time_transformation();
-    };
-
-    inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
-    inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
     {
@@ -187,20 +175,6 @@ class GSH
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);
-
-    inline void set_space_transformation(const SpaceTransformation value) noexcept
-    {
-        compute_cache_.set_space_transformation(value);
-    }
-
-    inline void set_time_transformation(const TimeTransformation value) noexcept
-    {
-        compute_cache_.set_time_transformation(value);
-    }
-
-    inline void set_lambda(float value) noexcept { compute_cache_.set_lambda(value); }
-
-    inline void set_z_distance(float value) noexcept { compute_cache_.set_z_distance(value); }
 
     // Over current window
     void set_contrast_enabled(bool contrast_enabled);

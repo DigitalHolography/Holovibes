@@ -15,7 +15,8 @@
   holovibes::settings::TimeTransformationSize
 
 #define REALTIME_SETTINGS                 \
-  holovibes::settings::P
+  holovibes::settings::P,                 \
+  holovibes::settings::ZDistance
 
 #define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
 

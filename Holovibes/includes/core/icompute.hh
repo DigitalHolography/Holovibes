@@ -49,7 +49,8 @@
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::TimeTransformationSize
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::TimeTransformation
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::BatchSize

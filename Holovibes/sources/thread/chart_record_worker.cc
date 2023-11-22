@@ -1,6 +1,7 @@
 #include "chart_record_worker.hh"
 #include "chart_point.hh"
 
+#include "API.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
@@ -14,7 +15,7 @@ void ChartRecordWorker::run()
 
     // Header displaying
     of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start
-       << ", lambda : " << GSH::instance().get_lambda() << ", z : " << GSH::instance().get_z_distance() << "]"
+       << ", lambda : " << api::get_lambda() << ", z : " << setting<settings::ZDistance>() << "]"
        << std::endl;
 
     of << "["

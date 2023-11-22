@@ -797,23 +797,29 @@ bool slide_update_threshold(
     return false;
 }
 
-void set_wavelength(double value)
+void set_lambda(float value)
 {
-    set_lambda(static_cast<float>(value));
+    holovibes::Holovibes::instance().update_setting(settings::Lambda{value});
+    pipe_refresh();
+}
+
+void set_z_distance(const float value)
+{
+    holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
 
     pipe_refresh();
 }
 
-void set_z_distance(const double value)
+void set_space_transformation(const SpaceTransformation value) 
 {
-    GSH::instance().set_z_distance(static_cast<float>(value));
-
-    pipe_refresh();
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::SpaceTransformation{value});
 }
 
-void set_space_transformation(const SpaceTransformation value) { GSH::instance().set_space_transformation(value); }
+void set_time_transformation(const TimeTransformation value) 
+{ 
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
 
-void set_time_transformation(const TimeTransformation value) { GSH::instance().set_time_transformation(value); }
+}
 
 void set_unwrapping_2d(const bool value)
 {

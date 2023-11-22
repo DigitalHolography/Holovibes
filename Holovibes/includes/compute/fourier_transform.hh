@@ -30,7 +30,9 @@
     holovibes::settings::YZ,                       \
     holovibes::settings::Filter2dEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::TimeTransformationSize
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::Lambda,                   \
+    holovibes::settings::ZDistance
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::BatchSize

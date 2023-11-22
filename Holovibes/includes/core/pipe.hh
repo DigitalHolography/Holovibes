@@ -49,7 +49,11 @@
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::FrameRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::SpaceTransformation,      \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::Lambda,                   \
+    holovibes::settings::ZDistance
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::OutputBufferSize,         \
