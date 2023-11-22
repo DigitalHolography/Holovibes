@@ -13,7 +13,7 @@ void ChartRecordWorker::run()
     std::ofstream of(setting<settings::RecordFilePath>());
 
     // Header displaying
-    of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << setting<settings::P>().start
+    of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start
        << ", lambda : " << GSH::instance().get_lambda() << ", z : " << GSH::instance().get_z_distance() << "]"
        << std::endl;
 

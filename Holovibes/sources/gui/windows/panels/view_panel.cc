@@ -374,7 +374,6 @@ void ViewPanel::decrement_p()
 void ViewPanel::set_p_accu()
 {
     api::set_p_accu_level(ui_->PAccSpinBox->value());
-
     parent_->notify();
 }
 

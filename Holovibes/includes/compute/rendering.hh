@@ -30,7 +30,8 @@
     holovibes::settings::FftShiftEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
-    holovibes::settings::ChartRecordEnabled
+    holovibes::settings::ChartRecordEnabled,       \
+    holovibes::settings::TimeTransformationSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::ContrastLowerThreshold,   \

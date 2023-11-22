@@ -55,11 +55,11 @@ void Rendering::Update()
 {
     this->image_mode = GSH::instance().get_compute_mode();
     this->batch_size = holovibes::Holovibes::instance().get_setting<holovibes::settings::BatchSize>().value;
-    this->time_transformation_stride = GSH::instance().get_time_stride();
+    this->time_transformation_stride = holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeStride>().value;
     this->filter2d.Update();
     this->space_transformation = GSH::instance().get_space_transformation();
     this->time_transformation = GSH::instance().get_time_transformation();
-    this->time_transformation_size = GSH::instance().get_time_transformation_size();
+    this->time_transformation_size = holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeTransformationSize>().value;
     this->lambda = GSH::instance().get_lambda();
     this->propagation_distance = GSH::instance().get_z_distance();
     this->convolution.Update();
@@ -202,13 +202,13 @@ void Rendering::Filter2D::Load()
 
 void Rendering::Load()
 {
-    GSH::instance().set_time_stride(this->time_transformation_stride);
+    holovibes::Holovibes::instance().update_setting(settings::TimeStride{this->time_transformation_stride});
     GSH::instance().set_compute_mode(this->image_mode);
     api::set_batch_size(this->batch_size);
     this->filter2d.Load();
     GSH::instance().set_space_transformation(this->space_transformation);
     GSH::instance().set_time_transformation(this->time_transformation);
-    GSH::instance().set_time_transformation_size(this->time_transformation_size);
+    holovibes::Holovibes::instance().update_setting(settings::TimeTransformationSize{this->time_transformation_size});
     GSH::instance().set_lambda(this->lambda);
     GSH::instance().set_z_distance(this->propagation_distance);
     this->convolution.Load();

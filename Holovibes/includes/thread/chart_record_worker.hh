@@ -11,7 +11,8 @@
 
 #define ONRESTART_SETTINGS               \
   holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount
+  holovibes::settings::RecordFrameCount, \
+  holovibes::settings::TimeTransformationSize
 
 #define REALTIME_SETTINGS                 \
   holovibes::settings::P

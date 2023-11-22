@@ -225,7 +225,7 @@ void FourierTransform::insert_pca()
 {
     LOG_FUNC();
 
-    uint time_transformation_size = compute_cache_.get_time_transformation_size();
+    uint time_transformation_size = setting<settings::TimeTransformationSize>();
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
@@ -264,7 +264,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
 {
     LOG_FUNC();
 
-    uint time_transformation_size = compute_cache_.get_time_transformation_size();
+    uint time_transformation_size = setting<settings::TimeTransformationSize>();
 
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);

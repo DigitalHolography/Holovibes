@@ -65,8 +65,6 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline uint get_time_stride() const noexcept { return compute_cache_.get_time_stride(); }
-
     inline SpaceTransformation get_space_transformation() const noexcept
     {
         return compute_cache_.get_space_transformation();
@@ -77,7 +75,6 @@ class GSH
         return compute_cache_.get_time_transformation();
     };
 
-    inline uint get_time_transformation_size() const noexcept { return compute_cache_.get_time_transformation_size(); }
     inline float get_lambda() const noexcept { return compute_cache_.get_lambda(); }
     inline float get_z_distance() const noexcept { return compute_cache_.get_z_distance(); };
     inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
@@ -187,9 +184,6 @@ class GSH
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
-    void set_batch_size(uint value);
-    void set_time_transformation_size(uint value);
-    void set_time_stride(uint value);
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
     void set_convolution_enabled(bool value);

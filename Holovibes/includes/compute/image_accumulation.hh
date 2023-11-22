@@ -23,8 +23,9 @@
     holovibes::settings::ImageType,                \
     holovibes::settings::XY,                       \
     holovibes::settings::XZ,                       \
-    holovibes::settings::YZ
-    
+    holovibes::settings::YZ,                       \
+    holovibes::settings::TimeTransformationSize
+
 #define ALL_SETTINGS REALTIME_SETTINGS
 // clang-format on
 

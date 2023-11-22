@@ -81,7 +81,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.height = GSH::instance().get_time_transformation_size();
+        new_fd.height = setting<settings::TimeTransformationSize>();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xz_queue,
                                     image_acc_env_.gpu_float_average_xz_frame,
                                     setting<settings::XZ>().output_image_accumulation,
@@ -93,7 +93,7 @@ void ImageAccumulation::init()
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
-        new_fd.width = GSH::instance().get_time_transformation_size();
+        new_fd.width = setting<settings::TimeTransformationSize>();
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_yz_queue,
                                     image_acc_env_.gpu_float_average_yz_frame,
                                     setting<settings::YZ>().output_image_accumulation,

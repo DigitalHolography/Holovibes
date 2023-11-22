@@ -48,7 +48,8 @@
     holovibes::settings::Filter2dN1,               \
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::TimeTransformationSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::BatchSize
@@ -254,7 +255,7 @@ class ICompute
         int inembed[1];
         int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
-        inembed[0] = compute_cache_.get_time_transformation_size();
+        inembed[0] = setting<settings::TimeTransformationSize>();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -263,7 +264,7 @@ class ICompute
         new_fd.depth = 8;
         // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
         time_transformation_env_.gpu_time_transformation_queue.reset(
-            new Queue(new_fd, compute_cache_.get_time_transformation_size()));
+            new Queue(new_fd, setting<settings::TimeTransformationSize>()));
 
         // Static cast size_t to avoid overflow
         if (!buffers_.gpu_spatial_transformation_buffer.resize(

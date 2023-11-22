@@ -41,6 +41,12 @@ namespace holovibes
  * \param time_transformation_cuts_output_buffer_size Max size of time transformation cuts queue in number of images.
  * \param renorm_constant postprocessing remormalize multiplication constant
  */
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// TODO: IN API set_batch_size remove gsh call
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 NEW_INITIALIZED_MICRO_CACHE(ComputeCache,
                             (uint, batch_size, 1),
                             (uint, time_stride, 1),

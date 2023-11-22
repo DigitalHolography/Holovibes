@@ -126,38 +126,6 @@ bool GSH::get_contrast_invert() const noexcept {
 
 #pragma region(collapsed) SETTERS
 
-void GSH::set_batch_size(uint value)
-{
-    if (value > api::get_input_buffer_size())
-        value = api::get_input_buffer_size();
-
-    if (compute_cache_.get_time_stride() < value)
-        compute_cache_.set_time_stride(value);
-    // Go to lower multiple
-    if (compute_cache_.get_time_stride() % value != 0)
-        compute_cache_.set_time_stride(compute_cache_.get_time_stride() - compute_cache_.get_time_stride() % value);
-}
-
-void GSH::set_time_transformation_size(uint value)
-{
-    // FIXME: temporary fix due to ttsize change in pipe.make_request
-    // std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_transformation_size(value);
-}
-
-void GSH::set_time_stride(uint value)
-{
-    // FIXME: temporary fix due to ttstride change in pipe.make_request
-    // std::lock_guard<std::mutex> lock(mutex_);
-    compute_cache_.set_time_stride(value);
-
-    if (api::get_batch_size() > value)
-        compute_cache_.set_time_stride(api::get_batch_size());
-    // Go to lower multiple
-    if (value % api::get_batch_size() != 0)
-        compute_cache_.set_time_stride(value - value % api::get_batch_size());
-}
-
 void GSH::set_contrast_enabled(bool value)
 {
     auto window = api::get_current_window_type();

@@ -29,12 +29,13 @@
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
     holovibes::settings::Filter2dEnabled,          \
-    holovibes::settings::CutsViewEnabled
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::TimeTransformationSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::BatchSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
 

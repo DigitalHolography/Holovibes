@@ -21,18 +21,53 @@ inline void set_img_type(ImgType type)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ImageType{type});
 }
 
+inline uint get_input_buffer_size()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value;
+}
+inline void set_input_buffer_size(uint value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputBufferSize{value});
+}
+
+inline uint get_time_stride() { return holovibes::Holovibes::instance().get_setting<settings::TimeStride>().value; }
+inline void set_time_stride(uint value) 
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value});
+
+    uint batch_size = holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value;
+
+    if (batch_size > value)
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{batch_size});
+    // Go to lower multiple
+    if (value % batch_size != 0)
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value - value % batch_size});
+}
+
 inline uint get_batch_size() { return holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value; }
 inline void set_batch_size(uint value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
-    GSH::instance().set_batch_size(value);
+
+    if (value > get_input_buffer_size())
+        value = get_input_buffer_size();
+
+    if (get_time_stride() < value)
+        set_time_stride(value);
+    // Go to lower multiple
+    if (get_time_stride() % value != 0)
+        set_time_stride(get_time_stride() - get_time_stride() % value);
 }
 
-inline uint get_time_stride() { return GSH::instance().get_time_stride(); }
-inline void set_time_stride(uint value) { GSH::instance().set_time_stride(value); }
+inline uint get_time_transformation_size() 
+{ 
+    return holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value; 
+}
 
-inline uint get_time_transformation_size() { return GSH::instance().get_time_transformation_size(); }
-inline void set_time_transformation_size(uint value) { GSH::instance().set_time_transformation_size(value); }
+inline void set_time_transformation_size(uint value) 
+{    
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformationSize{value});
+}
 
 inline float get_lambda() { return GSH::instance().get_lambda(); }
 inline void set_lambda(float value) { GSH::instance().set_lambda(value); }
@@ -705,15 +740,6 @@ inline uint get_file_buffer_size()
 inline void set_file_buffer_size(uint value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::FileBufferSize{value});
-}
-
-inline uint get_input_buffer_size()
-{
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value;
-}
-inline void set_input_buffer_size(uint value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputBufferSize{value});
 }
 
 inline uint get_record_buffer_size()

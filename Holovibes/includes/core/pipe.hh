@@ -48,7 +48,8 @@
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::FrameRecordEnabled
+    holovibes::settings::FrameRecordEnabled,       \
+    holovibes::settings::TimeTransformationSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::OutputBufferSize,         \
@@ -57,7 +58,8 @@
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::RenormConstant,           \
     holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::BatchSize
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::TimeStride
  
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
@@ -115,7 +117,7 @@ class Pipe : public ICompute
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&]() -> bool
-        { return batch_env_.batch_index == compute_cache_.get_time_stride(); };
+        { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
         fn_end_vect_ = FunctionVector(batch_condition);

@@ -145,13 +145,13 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("update_time_transformation_size_requested");
 
-        if (!update_time_transformation_size(compute_cache_.get_time_transformation_size()))
+        if (!update_time_transformation_size(setting<settings::TimeTransformationSize>()))
         {
             success_allocation = false;
             auto P = setting<settings::P>();
             P.start = 0;
             realtime_settings_.update_setting(settings::P{P});
-            GSH::instance().set_time_transformation_size(1);
+            api::set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
         }
@@ -265,9 +265,9 @@ bool Pipe::make_requests()
 
         fd_xyz.depth = sizeof(ushort);
         if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
-            fd_xyz.height = compute_cache_.get_time_transformation_size();
+            fd_xyz.height = setting<settings::TimeTransformationSize>();
         else
-            fd_xyz.width = compute_cache_.get_time_transformation_size();
+            fd_xyz.width = setting<settings::TimeTransformationSize>();
 
         frame_record_env_.gpu_frame_record_queue_.reset(
             new Queue(fd_xyz, setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
@@ -363,11 +363,11 @@ void Pipe::refresh()
 
     // time transform
     fourier_transforms_->insert_time_transform(compute_cache_.get_time_transformation(),
-                                               compute_cache_.get_time_transformation_size());
+                                               setting<settings::TimeTransformationSize>());
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
                                                               buffers_.gpu_postprocess_frame_xz.get(),
                                                               buffers_.gpu_postprocess_frame_yz.get(),
-                                                              compute_cache_.get_time_transformation_size());
+                                                              setting<settings::TimeTransformationSize>());
     insert_cuts_record();
 
     // Used for phase increase
@@ -376,7 +376,7 @@ void Pipe::refresh()
     converts_->insert_to_float(unwrap_2d_requested_,
                                compute_cache_.get_time_transformation(),
                                buffers_.gpu_postprocess_frame.get(),
-                               compute_cache_.get_time_transformation_size(),
+                               setting<settings::TimeTransformationSize>(),
                                composite_cache_.get_rgb(),
                                composite_cache_.get_composite_kind(),
                                composite_cache_.get_composite_auto_weights(),
@@ -468,7 +468,7 @@ void Pipe::update_batch_index()
         [&]()
         {
             batch_env_.batch_index += setting<settings::BatchSize>();
-            CHECK(batch_env_.batch_index <= compute_cache_.get_time_stride(),
+            CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
                   "batch_index = {}",
                   batch_env_.batch_index);
         });
