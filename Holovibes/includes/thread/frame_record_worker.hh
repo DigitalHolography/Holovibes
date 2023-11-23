@@ -47,7 +47,7 @@ class FrameRecordWorker final : public Worker
      *
      * \return The record queue
      */
-    Queue& init_gpu_record_queue();
+    Queue& init_record_queue();
 
     /*! \brief Wait for frames to be present in the record queue
      *

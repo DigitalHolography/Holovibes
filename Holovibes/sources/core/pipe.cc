@@ -120,7 +120,12 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
             throw e;
         }
     }
+    // We allocate the queue in advance, because the allocating while processing the camera frames at a high throughput made the camera crash.
+    frame_record_env_.frame_record_queue_.reset(
+            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
 }
+
+
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 

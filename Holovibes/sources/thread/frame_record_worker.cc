@@ -74,7 +74,7 @@ void FrameRecordWorker::run()
 
     std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
-    Queue& record_queue = init_gpu_record_queue();
+    Queue& record_queue = init_record_queue();
     const size_t output_frame_size = record_queue.get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
@@ -160,7 +160,7 @@ void FrameRecordWorker::run()
     LOG_TRACE("Exiting FrameRecordWorker::run()");
 }
 
-Queue& FrameRecordWorker::init_gpu_record_queue()
+Queue& FrameRecordWorker::init_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();

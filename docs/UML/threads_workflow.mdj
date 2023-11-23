@@ -2015,7 +2015,7 @@
 											"top": 624,
 											"width": 586.85986328125,
 											"height": 13,
-											"text": "-init_gpu_record_queue(): Queue",
+											"text": "-init_record_queue(): Queue",
 											"horizontalAlignment": 0
 										},
 										{
@@ -5159,7 +5159,7 @@
 							"_parent": {
 								"$ref": "AAAAAAF2UmW5BGkbiNI="
 							},
-							"name": "init_gpu_record_queue",
+							"name": "init_record_queue",
 							"visibility": "private",
 							"parameters": [
 								{
