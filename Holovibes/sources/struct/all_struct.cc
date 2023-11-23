@@ -41,7 +41,7 @@ void Rendering::Convolution::Update()
 {
     this->enabled = holovibes::Holovibes::instance().get_setting<settings::ConvolutionEnabled>().value;
     this->type = UserInterfaceDescriptor::instance().convo_name;
-    this->divide = GSH::instance().get_divide_convolution_enabled();
+    this->divide = holovibes::Holovibes::instance().get_setting<settings::DivideConvolutionEnabled>().value;
 }
 
 void Rendering::Filter2D::Update()
@@ -53,7 +53,7 @@ void Rendering::Filter2D::Update()
 
 void Rendering::Update()
 {
-    this->image_mode = GSH::instance().get_compute_mode();
+    this->image_mode = holovibes::Holovibes::instance().get_setting<settings::ComputeMode>().value;
     this->batch_size = holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value;
     this->time_transformation_stride = holovibes::Holovibes::instance().get_setting<settings::TimeStride>().value;
     this->filter2d.Update();
@@ -190,7 +190,7 @@ void Rendering::Convolution::Load()
 {
     holovibes::Holovibes::instance().update_setting(settings::ConvolutionEnabled{this->enabled});
     UserInterfaceDescriptor::instance().convo_name = this->type;
-    GSH::instance().set_divide_convolution_enabled(this->divide);
+    holovibes::Holovibes::instance().update_setting(settings::DivideConvolutionEnabled{this->divide});
 }
 
 void Rendering::Filter2D::Load()
@@ -203,7 +203,7 @@ void Rendering::Filter2D::Load()
 void Rendering::Load()
 {
     holovibes::Holovibes::instance().update_setting(settings::TimeStride{this->time_transformation_stride});
-    GSH::instance().set_compute_mode(this->image_mode);
+    holovibes::Holovibes::instance().update_setting(settings::ComputeMode{this->image_mode});
     api::set_batch_size(this->batch_size);
     this->filter2d.Load();
     holovibes::Holovibes::instance().update_setting(settings::SpaceTransformation{this->space_transformation});

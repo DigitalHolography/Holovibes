@@ -59,16 +59,16 @@ double ConversionData::fd_to_real(int val, Axis axis) const
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
         pix_size = (api::get_lambda() * api::get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+                   (fd.width * api::get_pixel_size() * 1e-6);
     else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
         pix_size = (api::get_lambda() * api::get_z_distance()) /
-                   (fd.width * GSH::instance().get_pixel_size() * 1e-6);
+                   (fd.width * api::get_pixel_size() * 1e-6);
     }
     else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
         pix_size = (api::get_lambda() * api::get_z_distance()) /
-                   (fd.height * GSH::instance().get_pixel_size() * 1e-6);
+                   (fd.height * api::get_pixel_size() * 1e-6);
     }
     else
     {

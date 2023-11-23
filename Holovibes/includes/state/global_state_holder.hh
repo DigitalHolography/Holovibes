@@ -79,15 +79,9 @@ class GSH
     bool get_log_enabled() const;
     unsigned get_accumulation_level() const;
 
-    inline bool get_divide_convolution_enabled() const { return compute_cache_.get_divide_convolution_enabled(); };
-    
-    inline Computation get_compute_mode() const noexcept { return compute_cache_.get_compute_mode(); };
-
     inline CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
 
     inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
-
-    inline float get_pixel_size() const noexcept { return compute_cache_.get_pixel_size(); }
 
     inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
 
@@ -179,19 +173,9 @@ class GSH
     void set_rotation(double value);
     void set_horizontal_flip(double value);
 
-    inline void set_divide_convolution_enabled(bool value) { compute_cache_.set_divide_convolution_enabled(value); };
-
-    inline void set_compute_mode(Computation value) { compute_cache_.set_compute_mode(value); }
-
     inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
     inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
-
-    inline void set_pixel_size(float value)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        compute_cache_.set_pixel_size(value);
-    }
 
     inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
 

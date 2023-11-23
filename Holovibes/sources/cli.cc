@@ -210,7 +210,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Force some values
     holovibes.is_cli = true;
     holovibes::api::set_frame_record_enabled(true);
-    holovibes::GSH::instance().set_compute_mode(opts.record_raw ? holovibes::Computation::Raw
+    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw
                                                                 : holovibes::Computation::Hologram);
 
     // Value used in more than 1 thread

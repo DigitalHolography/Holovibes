@@ -90,7 +90,7 @@ void FourierTransform::insert_fft1()
               fd_.width,
               setting<settings::Lambda>(),
               z,
-              compute_cache_.get_pixel_size(),
+              setting<settings::PixelSize>(),
               stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
@@ -120,7 +120,7 @@ void FourierTransform::insert_fft2(bool filter2d_enabled)
               fd_.width,
               setting<settings::Lambda>(),
               z,
-              compute_cache_.get_pixel_size(),
+              setting<settings::PixelSize>(),
               stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);

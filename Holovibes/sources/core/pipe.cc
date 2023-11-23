@@ -330,7 +330,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (compute_cache_.get_compute_mode() == Computation::Raw)
+    if (setting<settings::ComputeMode>() == Computation::Raw)
     {
         insert_dequeue_input();
         return;
@@ -390,7 +390,7 @@ void Pipe::refresh()
                                      setting<settings::ConvolutionMatrix>(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),
-                                     compute_cache_.get_divide_convolution_enabled());
+                                     setting<settings::DivideConvolutionEnabled>());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!

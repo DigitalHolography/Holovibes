@@ -5,8 +5,22 @@
 
 namespace holovibes::api
 {
-inline Computation get_compute_mode() { return GSH::instance().get_compute_mode(); }
-inline void set_compute_mode(Computation mode) { GSH::instance().set_compute_mode(mode); }
+inline Computation get_compute_mode()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::ComputeMode>().value;
+}
+inline void set_compute_mode(Computation mode)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ComputeMode{mode});
+}
+
+inline float get_pixel_size() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::PixelSize>().value; }
+
+inline void set_pixel_size(float value)
+{
+    //std::lock_guard<std::mutex> lock(mutex_);
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::PixelSize{value});
+}
 
 inline SpaceTransformation get_space_transformation()
 {
@@ -79,9 +93,15 @@ inline float get_lambda() { return holovibes::Holovibes::instance().get_setting<
 
 inline float get_z_distance() { return holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value; }
 
-inline std::vector<float> get_convo_matrix(){ return holovibes::Holovibes::instance().get_setting<settings::ConvolutionMatrix>().value;};
+inline std::vector<float> get_convo_matrix()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::ConvolutionMatrix>().value;
+};
 
-inline void set_convo_matrix(std::vector<float> value){ holovibes::Holovibes::instance().update_setting(holovibes::settings::ConvolutionMatrix{value});}
+inline void set_convo_matrix(std::vector<float> value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ConvolutionMatrix{value});
+}
 
 inline float get_contrast_lower_threshold()
 {
@@ -109,8 +129,6 @@ inline void set_cuts_contrast_p_offset(uint value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::CutsContrastPOffset{value});
 }
-
-inline float get_pixel_size() { return GSH::instance().get_pixel_size(); }
 
 inline unsigned get_renorm_constant()
 {
@@ -677,8 +695,14 @@ inline int get_unwrap_history_size() { return GSH::instance().get_unwrap_history
 inline bool get_is_computation_stopped() { return GSH::instance().get_is_computation_stopped(); }
 inline void set_is_computation_stopped(bool value) { GSH::instance().set_is_computation_stopped(value); }
 
-inline bool get_divide_convolution_enabled() { return GSH::instance().get_divide_convolution_enabled(); }
-inline void set_divide_convolution_enabled(bool value) { return GSH::instance().set_divide_convolution_enabled(value); }
+inline bool get_divide_convolution_enabled()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::DivideConvolutionEnabled>().value;
+}
+inline void set_divide_convolution_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::DivideConvolutionEnabled{value});
+}
 
 inline bool get_renorm_enabled()
 {

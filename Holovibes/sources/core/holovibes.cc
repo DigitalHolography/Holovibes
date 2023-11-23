@@ -24,7 +24,7 @@ const float Holovibes::get_boundary()
     if (gpu_input_queue_.load())
     {
         FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
-        const float d = GSH::instance().get_pixel_size() * 0.000001f;
+        const float d = api::get_pixel_size() * 0.000001f;
         const float n = static_cast<float>(fd.height);
         return (n * d * d) / api::get_lambda();
     }
@@ -77,7 +77,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
     try
     {
-        GSH::instance().set_pixel_size(active_camera_->get_pixel_size());
+        api::set_pixel_size(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
         UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
@@ -157,7 +157,7 @@ void Holovibes::init_pipe()
 {
     LOG_FUNC();
     camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (GSH::instance().get_compute_mode() == Computation::Hologram)
+    if (get_setting<settings::ComputeMode>().value == Computation::Hologram)
     {
         output_fd.depth = 2;
         if (api::get_img_type() == ImgType::Composite)
