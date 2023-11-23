@@ -85,12 +85,12 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of lambda
      */
-    void set_lambda(float value);
+    void set_lambda(const double value);
     /*! \brief Modifies z from ui value
      *
      * \param value The new value of z
      */
-    void set_z_distance(const float value);
+    void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
     /*! \brief Decrement z by 1 on key shortcut */
@@ -117,7 +117,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value the new value
      */
-    void set_z_step(float value);
+    void set_z_step(double value);
 
     /*!
      * \brief Gets the z step
@@ -132,6 +132,6 @@ class ImageRenderingPanel : public Panel
 
   public:
   //should be moved to double in the ui if we need more precision than 5 digits
-    float z_step_ = 0.005f;
+    double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

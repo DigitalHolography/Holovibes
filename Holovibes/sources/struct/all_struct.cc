@@ -39,7 +39,7 @@ void Views::Update()
 
 void Rendering::Convolution::Update()
 {
-    this->enabled = GSH::instance().get_convolution_enabled();
+    this->enabled = holovibes::Holovibes::instance().get_setting<settings::ConvolutionEnabled>().value;
     this->type = UserInterfaceDescriptor::instance().convo_name;
     this->divide = GSH::instance().get_divide_convolution_enabled();
 }
@@ -188,7 +188,7 @@ void Views::Load()
 
 void Rendering::Convolution::Load()
 {
-    GSH::instance().set_convolution_enabled(this->enabled);
+    holovibes::Holovibes::instance().update_setting(settings::ConvolutionEnabled{this->enabled});
     UserInterfaceDescriptor::instance().convo_name = this->type;
     GSH::instance().set_divide_convolution_enabled(this->divide);
 }

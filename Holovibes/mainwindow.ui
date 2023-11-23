@@ -3751,9 +3751,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>LambdaSpinBox</sender>
-   <signal>valueChanged(float)</signal>
+   <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_lambda(float)</slot>
+   <slot>set_lambda(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -3799,9 +3799,9 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>ZDoubleSpinBox</sender>
-   <signal>valueChanged(float)</signal>
+   <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_z(float)</slot>
+   <slot>set_z_distance(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5291,8 +5291,8 @@ p, li { white-space: pre-wrap; }
  <slots>
   <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
-  <slot>set_lambda(float)</slot>
-  <slot>set_z(float)</slot>
+  <slot>set_lambda(double)</slot>
+  <slot>set_z_distance(double)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>set_auto_contrast()</slot>

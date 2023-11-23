@@ -350,7 +350,7 @@ void set_lambda(float value);
  *
  * \param value the new value
  */
-void set_z_distance(const float value);
+void set_z_distance(float value);
 
 /*! \brief Modifies space transform calculation
  *

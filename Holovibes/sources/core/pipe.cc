@@ -386,7 +386,7 @@ void Pipe::refresh()
 
     insert_filter2d_view();
 
-    postprocess_->insert_convolution(compute_cache_.get_convolution_enabled(),
+    postprocess_->insert_convolution(setting<settings::ConvolutionEnabled>(),
                                      compute_cache_.get_convo_matrix_const_ref(),
                                      buffers_.gpu_postprocess_frame.get(),
                                      buffers_.gpu_convolution_buffer.get(),

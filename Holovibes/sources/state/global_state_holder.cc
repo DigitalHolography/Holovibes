@@ -315,7 +315,7 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
 
 void GSH::enable_convolution(std::optional<std::string> file)
 {
-    compute_cache_.set_convolution_enabled(true);
+    api::set_convolution_enabled(true);
     compute_cache_.get_convo_matrix_ref()->clear();
 
     // There is no file None.txt for convolution
@@ -323,12 +323,10 @@ void GSH::enable_convolution(std::optional<std::string> file)
         load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
 }
 
-void GSH::set_convolution_enabled(bool value) { compute_cache_.set_convolution_enabled(value); }
-
 void GSH::disable_convolution()
 {
     compute_cache_.get_convo_matrix_ref()->clear();
-    compute_cache_.set_convolution_enabled(false);
+    api::set_convolution_enabled(false);
 }
 
 #pragma endregion

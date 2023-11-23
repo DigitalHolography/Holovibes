@@ -313,20 +313,20 @@ void ImageRenderingPanel::set_time_transformation_size()
 }
 
 //λ
-void ImageRenderingPanel::set_lambda(const float value)
+void ImageRenderingPanel::set_lambda(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_lambda(value * 1.0e-9f);
+    api::set_lambda(static_cast<float>(value) * 1.0e-9f);
 }
 
-void ImageRenderingPanel::set_z_distance(const float value)
+void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z_distance(value);
+    api::set_z_distance(static_cast<float>(value));
 }
 
 void ImageRenderingPanel::increment_z()
@@ -384,7 +384,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
     parent_->notify();
 }
 
-void ImageRenderingPanel::set_z_step(float value)
+void ImageRenderingPanel::set_z_step(double value)
 {
     z_step_ = value;
     ui_->ZDoubleSpinBox->setSingleStep(value);

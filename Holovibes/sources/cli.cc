@@ -151,7 +151,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
 
     auto pipe = holovibes.get_compute_pipe();
-    if (holovibes::GSH::instance().get_convolution_enabled())
+    if (holovibes::api::get_convolution_enabled())
     {
         holovibes::GSH::instance().enable_convolution(holovibes::UserInterfaceDescriptor::instance().convo_name);
         pipe->request_convolution();

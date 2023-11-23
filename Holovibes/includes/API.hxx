@@ -673,8 +673,6 @@ inline int get_unwrap_history_size() { return GSH::instance().get_unwrap_history
 inline bool get_is_computation_stopped() { return GSH::instance().get_is_computation_stopped(); }
 inline void set_is_computation_stopped(bool value) { GSH::instance().set_is_computation_stopped(value); }
 
-inline bool get_convolution_enabled() { return GSH::instance().get_convolution_enabled(); }
-
 inline bool get_divide_convolution_enabled() { return GSH::instance().get_divide_convolution_enabled(); }
 inline void set_divide_convolution_enabled(bool value) { return GSH::instance().set_divide_convolution_enabled(value); }
 
@@ -984,6 +982,13 @@ inline bool get_chart_record_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::ChartRecordEnabled>().value;
 }
+
+inline void set_convolution_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ConvolutionEnabled{value});
+}
+
+inline bool get_convolution_enabled() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::ConvolutionEnabled>().value; }
 
 #pragma endregion
 

@@ -65,7 +65,6 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline bool get_convolution_enabled() const noexcept { return compute_cache_.get_convolution_enabled(); }
     inline const std::vector<float>& get_convo_matrix_const_ref()
     {
         return compute_cache_.get_convo_matrix_const_ref();
@@ -174,8 +173,6 @@ class GSH
 #pragma region(collapsed) SETTERS
     void disable_convolution();
     void enable_convolution(std::optional<std::string> file);
-    void set_convolution_enabled(bool value);
-
     // Over current window
     void set_contrast_enabled(bool contrast_enabled);
     void set_contrast_auto_refresh(bool contrast_auto_refresh);

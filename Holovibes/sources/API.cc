@@ -803,10 +803,9 @@ void set_lambda(float value)
     pipe_refresh();
 }
 
-void set_z_distance(const float value)
+void set_z_distance(float value)
 {
     holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
-
     pipe_refresh();
 }
 
