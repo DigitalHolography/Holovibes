@@ -657,14 +657,9 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                try {
-                    gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                               compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
-                }
-                catch (const std::exception& e) {
-                    std::cerr << e.what() << std::endl;
-                    std::cout << "ouch" << std::endl;
-                }
+                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
+                                            compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
+                
 
                 inserted += compute_cache_.get_batch_size();
             });
