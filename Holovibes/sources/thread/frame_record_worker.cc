@@ -116,7 +116,7 @@ void FrameRecordWorker::run()
                 continue;
             }
 
-            record_queue.dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
+            record_queue.dequeue(frame_buffer, stream_, cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
             (*processed_fps)++;
             nb_frames_recorded++;

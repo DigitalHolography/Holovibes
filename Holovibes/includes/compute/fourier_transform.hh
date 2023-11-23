@@ -89,7 +89,7 @@ class FourierTransform
     units::RectFd filter2d_subzone_;
 
     /*! \brief Lens used for fresnel transform (During FFT1 and FFT2) */
-    cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_lens_;
     /*! \brief Size of a size of the lens (lens is always a square) */
     uint lens_side_size_ = {0};
     /*! \brief Lens Queue. Used for displaying the lens. */
@@ -98,7 +98,7 @@ class FourierTransform
     /*! \brief Size of the buffer needed by cusolver for internal use */
     int cusolver_work_buffer_size_;
     /*! \brief Buffer needed by cusolver for internal use */
-    cuda_tools::UniquePtr<cuComplex> cusolver_work_buffer_;
+    cuda_tools::CudaUniquePtr<cuComplex> cusolver_work_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;

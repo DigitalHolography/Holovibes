@@ -17,7 +17,7 @@
 namespace holovibes::cuda_tools
 {
 
-/*! \class UniquePtr
+/*! \class CudaUniquePtr
  *
  * \brief A smart pointer made for ressources that need to be cudaFreed
  */
@@ -25,12 +25,73 @@ template <typename T>
 class UniquePtr
 {
   public:
-    UniquePtr()
+    virtual T* get() const = 0;
+
+    /*! \brief Implicit cast operator */
+    virtual operator T*() const = 0;
+
+    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
+    virtual bool resize(size_t size) = 0;
+
+    virtual void reset(T* ptr) = 0;
+
+    virtual void reset() = 0;
+
+    virtual ~UniquePtr(){};
+};
+
+
+template <typename T>
+class CPUUniquePtr : public UniquePtr<T>
+{
+  public:
+    CPUUniquePtr()
+        : val_(nullptr)
+    {
+    }
+
+    CPUUniquePtr(T* ptr)
+        : val_(ptr)
+    {
+    }
+
+    T* get() const { return val_.get(); }
+
+    /*! \brief Implicit cast operator */
+    operator T*() const { return val_.get(); }
+
+    /*! \brief Allocates an array of size sizeof(T) * size */
+    CPUUniquePtr(const size_t size) { resize(size); }
+
+    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
+    bool resize(size_t size)
+    {
+        T* tmp;
+        size *= sizeof(T);
+        tmp = static_cast<char*>(std::realloc(val_.get(), size));
+        val_.release();
+        val_.reset(tmp);
+        return tmp;
+    }
+
+    void reset(T* ptr) { return val_.reset(ptr); }
+    void reset() { return val_.reset(nullptr); }
+
+  protected:
+    std::unique_ptr<T> val_{nullptr};
+};
+
+
+template <typename T>
+class CudaUniquePtr : public UniquePtr<T>
+{
+  public:
+    CudaUniquePtr()
         : val_(nullptr, cudaXFree)
     {
     }
 
-    UniquePtr(T* ptr)
+    CudaUniquePtr(T* ptr)
         : val_(ptr, cudaXFree)
     {
     }
@@ -41,7 +102,7 @@ class UniquePtr
     operator T*() const { return val_.get(); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
-    UniquePtr(const size_t size) { resize(size); }
+    CudaUniquePtr(const size_t size) { resize(size); }
 
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
