@@ -83,31 +83,28 @@ struct Blur
     SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
 };
 
+/*! \class CompositeChannel
+ *
+ * \brief Class that represents CompositeChannel
+ */
+struct CompositeChannel
+{
+    ActivableCompositeP frame_index;
+    Threshold slider_threshold = {0.0f, 1.0f};
+    Threshold threshold = {0.001f, 99.8f};
+
+    SERIALIZE_JSON_STRUCT(CompositeChannel, frame_index, slider_threshold, threshold)
+};
+
 /*! \class CompositeH
  *
  * \brief Class that represents CompositeH
  */
-struct CompositeH
+struct CompositeH : public CompositeChannel
 {
-    CompositeP frame_index;
-    Threshold slider_threshold;
-    Threshold threshold;
     Blur blur;
 
     SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, blur)
-};
-
-/*! \class CompositeSV
- *
- * \brief Class that represents CompositeSV
- */
-struct CompositeSV
-{
-    ActivableCompositeP frame_index;
-    Threshold slider_threshold;
-    Threshold threshold;
-
-    SERIALIZE_JSON_STRUCT(CompositeSV, frame_index, slider_threshold, threshold)
 };
 
 /*! \class CompositeHSV
@@ -117,8 +114,8 @@ struct CompositeSV
 struct CompositeHSV
 {
     CompositeH h{};
-    CompositeSV s{};
-    CompositeSV v{};
+    CompositeChannel s{};
+    CompositeChannel v{};
 
     SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
 };
