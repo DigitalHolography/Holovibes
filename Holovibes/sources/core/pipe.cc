@@ -669,7 +669,7 @@ void Pipe::insert_raw_record()
                 // std::cout << "4" << std::endl;
 
 
-                inserted++;
+                inserted += compute_cache_.get_batch_size();
             });
     }
 }
