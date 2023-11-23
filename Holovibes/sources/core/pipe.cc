@@ -657,19 +657,11 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                // std::cout << "1" << std::endl;
-                try {
-                    gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                               compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
-                }
-                catch (const std::exception& e) {
-                    std::cerr << e.what() << std::endl;
-                    std::cout << "ouch" << std::endl;
-                }
-                // std::cout << "4" << std::endl;
+                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
+                                            compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
+                
 
-
-                inserted++;
+                inserted += compute_cache_.get_batch_size();
             });
     }
 }
