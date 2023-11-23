@@ -406,8 +406,8 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
                            const cudaStream_t stream)
 {
     // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
-    holovibes::cuda_tools::UniquePtr<float> gpu_min(1);
-    holovibes::cuda_tools::UniquePtr<float> gpu_max(1);
+    holovibes::cuda_tools::CudaUniquePtr<float> gpu_min(1);
+    holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
 
     apply_operations_on_h(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
     apply_operations_on_s(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);

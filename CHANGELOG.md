@@ -1,5 +1,11 @@
 ## Changelog
 
+### 12.0.0
+
+* Fix testuite
+* Ensure temporal integrity of the record
+* Put record_queue on CPU
+
 ### 11.9.0
 
 * Add input_filter
