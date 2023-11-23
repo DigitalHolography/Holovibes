@@ -21,7 +21,6 @@
 
 #define SAMPLING_FREQUENCY 1
 
-
 __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res)
 {
     const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -204,7 +203,8 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     compute_sum_depth(gpu_input, gpu_v_output, frame_res, min_v_index, max_v_index, func_moment_zero, stream);
 }
 
-/// @brief Compute the hsv values of each pixel, each channel use his own lambda function that describe the calculus done on z
+/// @brief Compute the hsv values of each pixel, each channel use his own lambda function that describe the calculus
+/// done on z
 void compute_and_fill_hsv(const cuComplex* gpu_input,
                           float* gpu_output,
                           const size_t frame_res,
@@ -217,8 +217,7 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
 }
 
 // Apply a box blur on the specified array
-void apply_blur(
-    float* gpu_arr, uint height, uint width, float kernel_size, const cudaStream_t stream)
+void apply_blur(float* gpu_arr, uint height, uint width, float kernel_size, const cudaStream_t stream)
 {
     size_t frame_res = height * width;
 
@@ -297,6 +296,37 @@ void hsv_normalize(
     thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, lambda);
 }
 
+void apply_operations(float* gpu_arr,
+                      uint height,
+                      uint width,
+                      float* const gpu_min,
+                      float* const gpu_max,
+                      const holovibes::CompositeChannel& channel_struct,
+                      HSV channel,
+                      const cudaStream_t stream)
+{
+    const uint frame_res = height * width;
+    float* gpu_channel_arr = gpu_arr + frame_res * channel;
+
+    apply_percentile_and_threshold(gpu_channel_arr,
+                                   frame_res,
+                                   width,
+                                   height,
+                                   channel_struct.threshold.min,
+                                   channel_struct.threshold.max,
+                                   stream);
+
+    hsv_normalize(gpu_channel_arr, frame_res, gpu_min, gpu_max, stream);
+
+    threshold_top_bottom(gpu_channel_arr,
+                         channel_struct.slider_threshold.min,
+                         channel_struct.slider_threshold.max,
+                         frame_res,
+                         stream);
+
+    hsv_normalize(gpu_channel_arr, frame_res, gpu_min, gpu_max, stream);
+}
+
 void apply_operations_on_h(float* gpu_arr,
                            uint height,
                            uint width,
@@ -306,24 +336,8 @@ void apply_operations_on_h(float* gpu_arr,
                            const cudaStream_t stream)
 {
     const uint frame_res = height * width;
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    apply_percentile_and_threshold(gpu_arr,
-                                   frame_res,
-                                   width,
-                                   height,
-                                   hsv_struct.h.threshold.min,
-                                   hsv_struct.h.threshold.max,
-                                   stream);
-
-    hsv_normalize(gpu_arr, frame_res, gpu_min, gpu_max, stream);
-
-    threshold_top_bottom(gpu_arr,
-                         hsv_struct.h.slider_threshold.min,
-                         hsv_struct.h.slider_threshold.max,
-                         frame_res,
-                         stream);
+    apply_operations(gpu_arr, height, width, gpu_min, gpu_max, hsv_struct.h, HSV::H, stream);
 
     // H channel has a blur option
     if (hsv_struct.h.blur.enabled)
@@ -342,28 +356,7 @@ void apply_operations_on_s(float* gpu_arr,
                            const holovibes::CompositeHSV& hsv_struct,
                            const cudaStream_t stream)
 {
-    const uint frame_res = height * width;
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    float* gpu_arr_s = gpu_arr + frame_res;
-
-    apply_percentile_and_threshold(gpu_arr_s,
-                                   frame_res,
-                                   width,
-                                   height,
-                                   hsv_struct.s.threshold.min,
-                                   hsv_struct.s.threshold.max,
-                                   stream);
-
-    hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max, stream);
-
-    threshold_top_bottom(gpu_arr_s,
-                         hsv_struct.s.slider_threshold.min,
-                         hsv_struct.s.slider_threshold.max,
-                         frame_res,
-                         stream);
-
-    hsv_normalize(gpu_arr_s, frame_res, gpu_min, gpu_max, stream);
+    apply_operations(gpu_arr, height, width, gpu_min, gpu_max, hsv_struct.s, HSV::S, stream);
 }
 
 void apply_operations_on_v(float* gpu_arr,
@@ -374,36 +367,15 @@ void apply_operations_on_v(float* gpu_arr,
                            const holovibes::CompositeHSV& hsv_struct,
                            const cudaStream_t stream)
 {
-    const uint frame_res = height * width;
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    float* gpu_arr_v = gpu_arr + frame_res * 2;
-
-    apply_percentile_and_threshold(gpu_arr_v,
-                                   frame_res,
-                                   width,
-                                   height,
-                                   hsv_struct.v.threshold.min,
-                                   hsv_struct.v.threshold.max,
-                                   stream);
-
-    hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max, stream);
-
-    threshold_top_bottom(gpu_arr_v,
-                         hsv_struct.v.slider_threshold.min,
-                         hsv_struct.v.slider_threshold.max,
-                         frame_res,
-                         stream);
-
-    hsv_normalize(gpu_arr_v, frame_res, gpu_min, gpu_max, stream);
+    apply_operations(gpu_arr, height, width, gpu_min, gpu_max, hsv_struct.v, HSV::V, stream);
 }
 
 /// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
 void apply_operations_on_hsv(float* tmp_hsv_arr,
-                           const uint height,
-                           const uint width,
-                           const holovibes::CompositeHSV& hsv_struct,
-                           const cudaStream_t stream)
+                             const uint height,
+                             const uint width,
+                             const holovibes::CompositeHSV& hsv_struct,
+                             const cudaStream_t stream)
 {
     // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
     holovibes::cuda_tools::UniquePtr<float> gpu_min(1);
@@ -413,7 +385,6 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
     apply_operations_on_s(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
     apply_operations_on_v(tmp_hsv_arr, height, width, gpu_min.get(), gpu_max.get(), hsv_struct, stream);
 }
-
 
 /// @brief Create rgb color by using hsv computation and then converting to rgb
 /// @param gpu_input complex input buffer, on gpu side, size = width * height * time_transformation_size
