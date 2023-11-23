@@ -32,7 +32,7 @@ void Postprocessing::init()
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   GSH::instance().get_convo_matrix_const_ref().data(),
+                                   setting<settings::ConvolutionMatrix>().data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -103,7 +103,7 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
 }
 
 void Postprocessing::insert_convolution(bool convolution_enabled,
-                                        const std::vector<float> convo_matrix,
+                                        std::vector<float> convo_matrix,
                                         float* gpu_postprocess_frame,
                                         float* gpu_convolution_buffer,
                                         bool divide_convolution_enabled)

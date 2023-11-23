@@ -65,11 +65,6 @@ class GSH
 
 #pragma region(collapsed) GETTERS
 
-    inline const std::vector<float>& get_convo_matrix_const_ref()
-    {
-        return compute_cache_.get_convo_matrix_const_ref();
-    };
-
     bool get_contrast_auto_refresh() const noexcept;
     bool get_contrast_invert() const noexcept;
     bool get_contrast_enabled() const noexcept;

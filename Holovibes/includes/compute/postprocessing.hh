@@ -20,7 +20,8 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ImageType,                \
-    holovibes::settings::RenormEnabled
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ConvolutionMatrix
 
 #define ONRESTART_SETTINGS                          \
     holovibes::settings::RenormConstant
@@ -74,7 +75,7 @@ class Postprocessing
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
     void insert_convolution(bool convolution_enabled,
-                            const std::vector<float> convo_matrix,
+                            std::vector<float> convo_matrix,
                             float* gpu_postprocess_frame,
                             float* gpu_convolution_buffer,
                             bool divide_convolution_enabled);

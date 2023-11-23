@@ -54,7 +54,8 @@
     holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
-    holovibes::settings::ConvolutionEnabled
+    holovibes::settings::ConvolutionEnabled,       \
+    holovibes::settings::ConvolutionMatrix
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::OutputBufferSize,         \

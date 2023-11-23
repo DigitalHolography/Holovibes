@@ -8,13 +8,13 @@ namespace holovibes::api
 inline Computation get_compute_mode() { return GSH::instance().get_compute_mode(); }
 inline void set_compute_mode(Computation mode) { GSH::instance().set_compute_mode(mode); }
 
-inline SpaceTransformation get_space_transformation() 
-{     
+inline SpaceTransformation get_space_transformation()
+{
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::SpaceTransformation>().value;
 }
 
-inline TimeTransformation get_time_transformation() 
-{ 
+inline TimeTransformation get_time_transformation()
+{
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeTransformation>().value;
 }
 
@@ -37,7 +37,7 @@ inline void set_input_buffer_size(uint value)
 }
 
 inline uint get_time_stride() { return holovibes::Holovibes::instance().get_setting<settings::TimeStride>().value; }
-inline void set_time_stride(uint value) 
+inline void set_time_stride(uint value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value});
 
@@ -65,19 +65,23 @@ inline void set_batch_size(uint value)
         set_time_stride(get_time_stride() - get_time_stride() % value);
 }
 
-inline uint get_time_transformation_size() 
-{ 
-    return holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value; 
+inline uint get_time_transformation_size()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value;
 }
 
-inline void set_time_transformation_size(uint value) 
-{    
+inline void set_time_transformation_size(uint value)
+{
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformationSize{value});
 }
 
 inline float get_lambda() { return holovibes::Holovibes::instance().get_setting<settings::Lambda>().value; }
 
 inline float get_z_distance() { return holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value; }
+
+inline std::vector<float> get_convo_matrix(){ return holovibes::Holovibes::instance().get_setting<settings::ConvolutionMatrix>().value;};
+
+inline void set_convo_matrix(std::vector<float> value){ holovibes::Holovibes::instance().update_setting(holovibes::settings::ConvolutionMatrix{value});}
 
 inline float get_contrast_lower_threshold()
 {
@@ -988,7 +992,10 @@ inline void set_convolution_enabled(bool value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ConvolutionEnabled{value});
 }
 
-inline bool get_convolution_enabled() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::ConvolutionEnabled>().value; }
+inline bool get_convolution_enabled()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::ConvolutionEnabled>().value;
+}
 
 #pragma endregion
 

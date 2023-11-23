@@ -231,7 +231,7 @@ void GSH::set_weight_rgb(double r, double g, double b)
     notify();
 }
 
-static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_matrix, const std::string& file)
+static void load_convolution_matrix(std::vector<float> convo_matrix, const std::string& file)
 {
     auto& holo = Holovibes::instance();
 
@@ -294,21 +294,22 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
         const uint first_row = (output_height / 2) - (matrix_height / 2);
         const uint last_row = (output_height / 2) + (matrix_height / 2);
 
-        convo_matrix->resize(size, 0.0f);
+        convo_matrix.resize(size, 0.0f);
 
         uint kernel_indice = 0;
         for (uint i = first_row; i < last_row; i++)
         {
             for (uint j = first_col; j < last_col; j++)
             {
-                (*convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
                 kernel_indice++;
             }
         }
+        api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
     {
-        convo_matrix->clear();
+        api::set_convo_matrix({});
         LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
     }
 }
@@ -316,16 +317,16 @@ static void load_convolution_matrix(std::shared_ptr<std::vector<float>> convo_ma
 void GSH::enable_convolution(std::optional<std::string> file)
 {
     api::set_convolution_enabled(true);
-    compute_cache_.get_convo_matrix_ref()->clear();
+    api::set_convo_matrix({});
 
     // There is no file None.txt for convolution
     if (file && file.value() != "None")
-        load_convolution_matrix(compute_cache_.get_convo_matrix_ref(), file.value());
+        load_convolution_matrix(api::get_convo_matrix(), file.value());
 }
 
 void GSH::disable_convolution()
 {
-    compute_cache_.get_convo_matrix_ref()->clear();
+    api::set_convo_matrix({});
     api::set_convolution_enabled(false);
 }
 
