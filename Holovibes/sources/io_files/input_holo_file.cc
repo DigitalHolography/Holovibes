@@ -38,7 +38,7 @@ InputHoloFile::InputHoloFile(const std::string& file_path)
     if (holo_file_header_.total_data_size != frame_size_ * holo_file_header_.img_nb)
     {
         std::fclose(file_);
-        throw FileException("Invalid holo file", false);
+        throw FileException("Invalid holo file: invalid total data size", false);
     }
 }
 
@@ -67,7 +67,7 @@ void InputHoloFile::load_header()
     if (bytes_read != sizeof(HoloFileHeader) || std::strncmp("HOLO", holo_file_header_.magic_number, 4) != 0)
     {
         std::fclose(file_);
-        throw FileException("Invalid holo file", false);
+        throw FileException("Invalid holo file: invalid bytecode size", false);
     }
     LOG_TRACE("Exiting InputHoloFile::load_header");
 }
@@ -91,7 +91,7 @@ void InputHoloFile::load_footer()
     if (meta_data_offset > file_size)
     {
         std::fclose(file_);
-        throw FileException("Invalid holo file", false);
+        throw FileException("Invalid holo file: invalid footer", false);
     }
 
     uintmax_t meta_data_size = file_size - meta_data_offset;
