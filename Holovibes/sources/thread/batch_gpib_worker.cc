@@ -75,7 +75,6 @@ void BatchGPIBWorker::run()
                 {
                     frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
                                                                                nb_frames_to_record_,
-                                                                               record_mode_,
                                                                                0,
                                                                                output_buffer_size_);
                     frame_record_worker_->run();
