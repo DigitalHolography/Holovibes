@@ -35,10 +35,10 @@
     holovibes::settings::ZDistance,                \
     holovibes::settings::PixelSize
 
-#define ONRESTART_SETTINGS                         \
+#define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
 
@@ -80,7 +80,7 @@ class FourierTransform
         , stream_(stream)
         , compute_cache_(compute_cache)
         , realtime_settings_(settings)
-        , onrestart_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
         gpu_lens_.resize(fd_.get_frame_res());
     }
@@ -119,11 +119,15 @@ class FourierTransform
             spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
             spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
-            onrestart_settings_.update_setting(setting);
+            pipe_refresh_settings_.update_setting(setting);
         }
+    }
+
+    inline void pipe_refresh_apply_updates() {
+        pipe_refresh_settings_.apply_updates();
     }
 
   private:
@@ -164,9 +168,9 @@ class FourierTransform
             return realtime_settings_.get<T>().value;
         }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            return onrestart_settings_.get<T>().value;
+            return pipe_refresh_settings_.get<T>().value;
         }
     }
 
@@ -202,7 +206,7 @@ class FourierTransform
     ComputeCache::Cache& compute_cache_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 };
 } // namespace holovibes::compute
 

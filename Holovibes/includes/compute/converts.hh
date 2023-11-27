@@ -24,7 +24,8 @@
     holovibes::settings::ImageType,                \
     holovibes::settings::P,                        \
     holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::CutsViewEnabled
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::UnwrapHistorySize
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 

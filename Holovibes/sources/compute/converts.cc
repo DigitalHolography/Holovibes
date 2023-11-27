@@ -348,7 +348,6 @@ void Converts::insert_filter2d_ushort()
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
     LOG_FUNC(fd_.depth);
-
     fn_compute_vect_.push_back(
         [&]()
         {
@@ -361,7 +360,6 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
             { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
 
             void* output = buffers_.gpu_spatial_transformation_buffer.get();
-
             gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
         });
 }

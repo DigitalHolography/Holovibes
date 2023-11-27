@@ -50,12 +50,13 @@
     holovibes::settings::Filter2dSmoothLow,        \
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::TimeTransformationSize,   \
-    holovibes::settings::TimeTransformation
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize
 
-#define ONRESTART_SETTINGS                         \
+#define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
 
@@ -230,7 +231,7 @@ class ICompute
         , stream_(stream)
         , past_time_(std::chrono::high_resolution_clock::now())
         , realtime_settings_(settings)
-        , onrestart_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
         int err = 0;
 
@@ -315,12 +316,15 @@ class ICompute
             realtime_settings_.update_setting(setting);
         }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            onrestart_settings_.update_setting(setting);
+            pipe_refresh_settings_.update_setting(setting);
         }
     }
 
+    inline void icompute_pipe_refresh_apply_updates() {
+        pipe_refresh_settings_.apply_updates();
+    }
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
@@ -506,7 +510,7 @@ class ICompute
     std::atomic<bool> disable_convolution_requested_{false};
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
     ComputeCache::Cache compute_cache_;
     CompositeCache::Cache composite_cache_;
@@ -523,9 +527,9 @@ class ICompute
         {
             return realtime_settings_.get<T>().value;
         }
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            return onrestart_settings_.get<T>().value;
+            return pipe_refresh_settings_.get<T>().value;
         }
     }
 };

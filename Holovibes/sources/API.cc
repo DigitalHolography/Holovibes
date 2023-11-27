@@ -116,7 +116,6 @@ void camera_none()
     close_critical_compute();
 
     if (get_compute_mode() == Computation::Hologram)
-
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 

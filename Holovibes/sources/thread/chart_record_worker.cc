@@ -11,6 +11,7 @@ namespace holovibes::worker
 
 void ChartRecordWorker::run()
 {
+    onrestart_settings_.apply_updates();
     std::ofstream of(setting<settings::RecordFilePath>());
 
     // Header displaying

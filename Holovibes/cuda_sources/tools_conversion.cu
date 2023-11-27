@@ -77,7 +77,7 @@ static __global__ void kernel_input_queue_to_input_buffer(
     if (index < frame_res)
     {
         for (int i = 0; i < batch_size; i++)
-            output[index + i * frame_res] = device_float_to_complex(convert(input[index + i * frame_res]));
+            output[index + i * frame_res] = device_float_to_comPplex(convert(input[index + i * frame_res]));
     }
 }
 
@@ -104,7 +104,6 @@ void input_queue_to_input_buffer(void* const output,
     static const auto convert_16_bit = [] __device__(const ushort input_pixel)
     { return static_cast<float>(input_pixel); };
     static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
-
     switch (depth)
     {
     case 1:

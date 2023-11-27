@@ -382,7 +382,7 @@ void Pipe::refresh()
                                composite_cache_.get_composite_auto_weights(),
                                composite_cache_.get_hsv_const_ref(),
                                zone_cache_.get_composite_zone(),
-                               compute_cache_.get_unwrap_history_size());
+                               setting<settings::UnwrapHistorySize>());
 
     insert_filter2d_view();
 
@@ -642,6 +642,8 @@ void Pipe::insert_request_autocontrast()
 
 void Pipe::exec()
 {
+    onrestart_settings_.apply_updates();
+
     if (refresh_requested_)
         refresh();
 
@@ -692,9 +694,11 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    compute_cache_.synchronize();
-    zone_cache_.synchronize();
-    composite_cache_.synchronize();
+    pipe_refresh_settings_.apply_updates();
+    pipe_refresh_apply_updates();
+    //compute_cache_.synchronize();
+    //zone_cache_.synchronize();
+    //composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
 }

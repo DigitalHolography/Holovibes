@@ -52,13 +52,16 @@
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::SpaceTransformation,      \
     holovibes::settings::TimeTransformation,       \
+    holovibes::settings::TimeStride,               \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::ConvolutionEnabled,       \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::DivideConvolutionEnabled, \
     holovibes::settings::ComputeMode,              \
-    holovibes::settings::PixelSize
+    holovibes::settings::PixelSize,                \
+    holovibes::settings::UnwrapHistorySize,        \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::OutputBufferSize,         \
@@ -66,11 +69,12 @@
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::RenormConstant,           \
-    holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::BatchSize,                \
-    holovibes::settings::TimeStride
+    holovibes::settings::CutsContrastPOffset
+
+#define PIPEREFRESH_SETTINGS                     \
+    holovibes::settings::BatchSize
  
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
 
@@ -123,6 +127,7 @@ class Pipe : public ICompute
         : ICompute(input, output, stream, settings)
         , realtime_settings_(settings)
         , onrestart_settings_(settings)
+        , pipe_refresh_settings_(settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&]() -> bool
@@ -226,6 +231,7 @@ class Pipe : public ICompute
      */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
     template <typename T>
     inline void update_setting(T setting)
@@ -240,6 +246,11 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
             onrestart_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            pipe_refresh_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting<T, compute::ImageAccumulation>::value)
@@ -266,6 +277,21 @@ class Pipe : public ICompute
         {
             update_setting_icompute(setting);
         }
+    }
+
+    inline void on_restart_apply_settings()
+    {
+        onrestart_settings_.apply_updates();
+    }
+
+    /**
+     * @brief Apply the updates of the settings on pipe refresh,
+     */
+    inline void pipe_refresh_apply_updates() 
+    {
+        fourier_transforms_->pipe_refresh_apply_updates();
+        icompute_pipe_refresh_apply_updates();
+        pipe_refresh_settings_.apply_updates();
     }
 
   protected:
@@ -367,6 +393,11 @@ class Pipe : public ICompute
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
             return onrestart_settings_.get<T>().value;
+        }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            return pipe_refresh_settings_.get<T>().value;
         }
     }
 };

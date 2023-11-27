@@ -71,7 +71,7 @@ void AdvancedSettings::BufferSizes::Update()
     this->input = holovibes::Holovibes::instance().get_setting<settings::InputBufferSize>().value;
     this->output = holovibes::Holovibes::instance().get_setting<settings::OutputBufferSize>().value;
     this->record = holovibes::Holovibes::instance().get_setting<settings::RecordBufferSize>().value;
-    this->time_transformation_cuts = GSH::instance().get_time_transformation_cuts_output_buffer_size();
+    this->time_transformation_cuts = holovibes::Holovibes::instance().get_setting<settings::TimeTransformationCutsOutputBufferSize>().value;
 }
 
 void AdvancedSettings::Filter2DSmooth::Update()
@@ -118,7 +118,7 @@ void AdvancedSettings::BufferSizes::Load()
     Holovibes::instance().update_setting(settings::InputBufferSize{this->input});
     Holovibes::instance().update_setting(settings::OutputBufferSize{this->output});
     Holovibes::instance().update_setting(settings::RecordBufferSize{this->record});
-    GSH::instance().set_time_transformation_cuts_output_buffer_size(this->time_transformation_cuts);
+    Holovibes::instance().update_setting(settings::TimeTransformationCutsOutputBufferSize{this->time_transformation_cuts});
 }
 
 void AdvancedSettings::Filter2DSmooth::Load()

@@ -83,10 +83,6 @@ class GSH
 
     inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
 
-    inline uint get_unwrap_history_size() const noexcept { return compute_cache_.get_unwrap_history_size(); }
-
-    inline bool get_is_computation_stopped() const noexcept { return compute_cache_.get_is_computation_stopped(); }
-
     // RGB
     inline CompositeRGB get_rgb() const noexcept { return composite_cache_.get_rgb(); }
     inline uint get_rgb_p_min() const noexcept { return composite_cache_.get_rgb().frame_index.min; }
@@ -146,11 +142,6 @@ class GSH
         return composite_cache_.get_hsv().v.frame_index.activated;
     }
 
-    inline uint get_time_transformation_cuts_output_buffer_size() const noexcept
-    {
-        return compute_cache_.get_time_transformation_cuts_output_buffer_size();
-    }
-
     inline units::RectFd get_signal_zone() const noexcept { return zone_cache_.get_signal_zone(); }
     inline units::RectFd get_noise_zone() const noexcept { return zone_cache_.get_noise_zone(); }
     inline units::RectFd get_composite_zone() const noexcept { return zone_cache_.get_composite_zone(); }
@@ -176,10 +167,6 @@ class GSH
     inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
 
     inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
-
-    inline void set_unwrap_history_size(uint value) { compute_cache_.set_unwrap_history_size(value); }
-
-    inline void set_is_computation_stopped(bool value) { compute_cache_.set_is_computation_stopped(value); }
 
     // RGB
     inline void set_rgb(CompositeRGB value) { composite_cache_.set_rgb(value); }
@@ -241,11 +228,6 @@ class GSH
     inline void set_composite_p_activated_v(bool value)
     {
         composite_cache_.get_hsv_ref()->v.frame_index.activated = value;
-    }
-
-    inline void set_time_transformation_cuts_output_buffer_size(uint value)
-    {
-        compute_cache_.set_time_transformation_cuts_output_buffer_size(value);
     }
 
     inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }

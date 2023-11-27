@@ -690,10 +690,10 @@ inline float get_composite_low_v_threshold() { return GSH::instance().get_compos
 
 inline float get_composite_high_v_threshold() { return GSH::instance().get_composite_high_v_threshold(); }
 
-inline int get_unwrap_history_size() { return GSH::instance().get_unwrap_history_size(); }
+inline int get_unwrap_history_size() { return holovibes::Holovibes::instance().get_setting<settings::UnwrapHistorySize>().value; }
 
-inline bool get_is_computation_stopped() { return GSH::instance().get_is_computation_stopped(); }
-inline void set_is_computation_stopped(bool value) { GSH::instance().set_is_computation_stopped(value); }
+inline bool get_is_computation_stopped() { return holovibes::Holovibes::instance().get_setting<settings::IsComputationStopped>().value; }
+inline void set_is_computation_stopped(bool value) { holovibes::Holovibes::instance().update_setting(settings::IsComputationStopped{value}); }
 
 inline bool get_divide_convolution_enabled()
 {
@@ -816,11 +816,11 @@ inline void set_record_buffer_size(uint value)
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
-    return GSH::instance().get_time_transformation_cuts_output_buffer_size();
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeTransformationCutsOutputBufferSize>().value;
 }
 inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
-    GSH::instance().set_time_transformation_cuts_output_buffer_size(value);
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformationCutsOutputBufferSize{value});
 }
 
 inline bool get_batch_enabled()
