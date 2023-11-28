@@ -65,18 +65,27 @@ inline void set_time_stride(uint value)
 }
 
 inline uint get_batch_size() { return holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value; }
-inline void set_batch_size(uint value)
+inline bool set_batch_size(uint value)
 {
+    bool request_time_stride_update = false;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
 
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
-
-    if (get_time_stride() < value)
-        set_time_stride(value);
+    uint time_stride = get_time_stride();
+    if (time_stride < value)
+    {
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value});
+        time_stride = value;
+        request_time_stride_update = true;
+    }
     // Go to lower multiple
-    if (get_time_stride() % value != 0)
-        set_time_stride(get_time_stride() - get_time_stride() % value);
+    if (time_stride % value != 0)
+    {
+        set_time_stride(time_stride - time_stride % value);
+    }
+        
+    return request_time_stride_update;
 }
 
 inline uint get_time_transformation_size()
@@ -979,15 +988,15 @@ inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instanc
 
 inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes::instance().get_gpu_input_queue(); };
 
-inline units::RectFd get_signal_zone() { return GSH::instance().get_signal_zone(); };
-inline units::RectFd get_noise_zone() { return GSH::instance().get_noise_zone(); };
-inline units::RectFd get_composite_zone() { return GSH::instance().get_composite_zone(); };
+inline units::RectFd get_signal_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::SignalZone>().value; };
+inline units::RectFd get_noise_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::NoiseZone>().value; };
+inline units::RectFd get_composite_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::CompositeZone>().value; };
 inline units::RectFd get_zoomed_zone() { return GSH::instance().get_zoomed_zone(); };
 inline units::RectFd get_reticle_zone() { return GSH::instance().get_reticle_zone(); };
 
-inline void set_signal_zone(const units::RectFd& rect) { GSH::instance().set_signal_zone(rect); };
-inline void set_noise_zone(const units::RectFd& rect) { GSH::instance().set_noise_zone(rect); };
-inline void set_composite_zone(const units::RectFd& rect) { GSH::instance().set_composite_zone(rect); };
+inline void set_signal_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::SignalZone{rect}); };
+inline void set_noise_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::NoiseZone{rect}); };
+inline void set_composite_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::CompositeZone{rect}); };
 inline void set_zoomed_zone(const units::RectFd& rect) { GSH::instance().set_zoomed_zone(rect); };
 inline void set_reticle_zone(const units::RectFd& rect) { GSH::instance().set_reticle_zone(rect); };
 

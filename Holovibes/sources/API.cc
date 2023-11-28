@@ -330,7 +330,12 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 {
     if (batch_size == api::get_batch_size())
         return;
-    api::set_batch_size(batch_size);
+        
+    //checks if time_stride has changed
+    if (api::set_batch_size(batch_size))
+    {
+        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+    }
     Holovibes::instance().get_compute_pipe()->request_update_batch_size();
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))

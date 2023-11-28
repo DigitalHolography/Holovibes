@@ -94,6 +94,11 @@
     holovibes::settings::PixelSize,                \
     holovibes::settings::UnwrapHistorySize,        \
     holovibes::settings::IsComputationStopped,     \
+    holovibes::settings::SignalZone,               \
+    holovibes::settings::NoiseZone,                \
+    holovibes::settings::CompositeZone,            \
+    holovibes::settings::ZoomedZone,               \
+    holovibes::settings::ReticleZone,              \
     holovibes::settings::TimeTransformationCutsOutputBufferSize
      
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -398,7 +403,13 @@ class Holovibes
                                              settings::PixelSize{12.0f},
                                              settings::UnwrapHistorySize{1},
                                              settings::IsComputationStopped{true},
-                                             settings::TimeTransformationCutsOutputBufferSize{512}))
+                                             settings::TimeTransformationCutsOutputBufferSize{512},
+                                             settings::SignalZone{units::RectFd{}},
+                                             settings::NoiseZone{units::RectFd{}},
+                                             settings::CompositeZone{units::RectFd{}},
+                                             settings::ZoomedZone{units::RectFd{}},
+                                             settings::ReticleZone{units::RectFd{}}))
+
     {
     }
 

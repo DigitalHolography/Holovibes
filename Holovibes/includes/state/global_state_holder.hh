@@ -142,9 +142,6 @@ class GSH
         return composite_cache_.get_hsv().v.frame_index.activated;
     }
 
-    inline units::RectFd get_signal_zone() const noexcept { return zone_cache_.get_signal_zone(); }
-    inline units::RectFd get_noise_zone() const noexcept { return zone_cache_.get_noise_zone(); }
-    inline units::RectFd get_composite_zone() const noexcept { return zone_cache_.get_composite_zone(); }
     inline units::RectFd get_zoomed_zone() const noexcept { return zone_cache_.get_zoomed_zone(); }
     inline units::RectFd get_reticle_zone() const noexcept { return zone_cache_.get_reticle_zone(); }
 
@@ -230,9 +227,6 @@ class GSH
         composite_cache_.get_hsv_ref()->v.frame_index.activated = value;
     }
 
-    inline void set_signal_zone(units::RectFd value) { zone_cache_.set_signal_zone(value); }
-    inline void set_noise_zone(units::RectFd value) { zone_cache_.set_noise_zone(value); }
-    inline void set_composite_zone(units::RectFd value) { zone_cache_.set_composite_zone(value); }
     inline void set_zoomed_zone(units::RectFd value) { zone_cache_.set_zoomed_zone(value); }
     inline void set_reticle_zone(units::RectFd value) { zone_cache_.set_reticle_zone(value); }
 

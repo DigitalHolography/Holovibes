@@ -45,8 +45,8 @@ void Rendering::insert_chart()
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
-                auto signal_zone = zone_cache_.get_signal_zone();
-                auto noise_zone = zone_cache_.get_noise_zone();
+                auto signal_zone = setting<settings::SignalZone>();
+                auto noise_zone = setting<settings::NoiseZone>();
 
                 if (signal_zone.width() == 0 || signal_zone.height() == 0 || noise_zone.width() == 0 ||
                     noise_zone.height() == 0)

@@ -13,6 +13,7 @@
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
+#include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -175,5 +176,12 @@ DECLARE_SETTING(PixelSize, float)
 DECLARE_SETTING(UnwrapHistorySize, uint)
 DECLARE_SETTING(IsComputationStopped, bool)
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint)
+
+// ex ZoneCache
+DECLARE_SETTING(SignalZone, units::RectFd)
+DECLARE_SETTING(NoiseZone, units::RectFd)
+DECLARE_SETTING(CompositeZone, units::RectFd)
+DECLARE_SETTING(ZoomedZone, units::RectFd)
+DECLARE_SETTING(ReticleZone, units::RectFd)
 
 } // namespace holovibes::settings

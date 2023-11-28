@@ -281,6 +281,7 @@ bool Pipe::make_requests()
 
 void Pipe::refresh()
 {
+    pipe_refresh_apply_updates();
     // This call has to be before make_requests() because this method needs
     // to get updated values during exec_all() call
     // This call could be removed if make_requests() only gets value through
@@ -694,8 +695,6 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    pipe_refresh_settings_.apply_updates();
-    pipe_refresh_apply_updates();
     zone_cache_.synchronize();
     composite_cache_.synchronize();
     // never updated during the life time of the app

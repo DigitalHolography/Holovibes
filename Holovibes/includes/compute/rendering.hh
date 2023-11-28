@@ -31,7 +31,9 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::SignalZone,               \
+    holovibes::settings::NoiseZone
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::ContrastLowerThreshold,   \
