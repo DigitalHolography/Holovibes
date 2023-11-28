@@ -259,7 +259,6 @@ class GSH
     std::function<void()> notify_callback_ = []() {};
     void notify() { notify_callback_(); }
 
-    ComputeCache::Ref compute_cache_;
     CompositeCache::Ref composite_cache_;
     ZoneCache::Ref zone_cache_;
 

@@ -696,9 +696,8 @@ void Pipe::synchronize_caches()
 {
     pipe_refresh_settings_.apply_updates();
     pipe_refresh_apply_updates();
-    //compute_cache_.synchronize();
-    //zone_cache_.synchronize();
-    //composite_cache_.synchronize();
+    zone_cache_.synchronize();
+    composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
 }

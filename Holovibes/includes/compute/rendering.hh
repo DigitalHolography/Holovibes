@@ -72,7 +72,6 @@ class Rendering
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
-              ComputeCache::Cache& compute_cache,
               ZoneCache::Cache& zone_cache,
               InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
@@ -83,7 +82,6 @@ class Rendering
         , input_fd_(input_fd)
         , fd_(output_fd)
         , stream_(stream)
-        , compute_cache_(compute_cache)
         , zone_cache_(zone_cache)
         , realtime_settings_(settings)
         , onrestart_settings_(settings)
@@ -176,7 +174,6 @@ class Rendering
     const cudaStream_t& stream_;
 
     /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
     ZoneCache::Cache& zone_cache_;
 
     float* percent_min_max_;

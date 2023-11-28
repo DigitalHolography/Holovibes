@@ -67,7 +67,6 @@ class FourierTransform
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
                      const cudaStream_t& stream,
-                     holovibes::ComputeCache::Cache& compute_cache,
                      InitSettings settings)
         : gpu_lens_(nullptr)
         , lens_side_size_(std::max(fd.height, fd.width))
@@ -78,7 +77,6 @@ class FourierTransform
         , spatial_transformation_plan_(spatial_transformation_plan)
         , time_transformation_env_(time_transformation_env)
         , stream_(stream)
-        , compute_cache_(compute_cache)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
@@ -202,8 +200,6 @@ class FourierTransform
     TimeTransformationEnv& time_transformation_env_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
-
-    ComputeCache::Cache& compute_cache_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
