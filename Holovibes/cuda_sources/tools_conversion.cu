@@ -77,7 +77,7 @@ static __global__ void kernel_input_queue_to_input_buffer(
     if (index < frame_res)
     {
         for (int i = 0; i < batch_size; i++)
-            output[index + i * frame_res] = device_float_to_comPplex(convert(input[index + i * frame_res]));
+            output[index + i * frame_res] = device_float_to_complex(convert(input[index + i * frame_res]));
     }
 }
 

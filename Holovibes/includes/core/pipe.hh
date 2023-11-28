@@ -52,7 +52,6 @@
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::SpaceTransformation,      \
     holovibes::settings::TimeTransformation,       \
-    holovibes::settings::TimeStride,               \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
     holovibes::settings::ConvolutionEnabled,       \
@@ -71,7 +70,8 @@
     holovibes::settings::RenormConstant,           \
     holovibes::settings::CutsContrastPOffset
 
-#define PIPEREFRESH_SETTINGS                     \
+#define PIPEREFRESH_SETTINGS                       \
+    holovibes::settings::TimeStride,               \
     holovibes::settings::BatchSize
  
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
