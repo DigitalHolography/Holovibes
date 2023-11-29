@@ -513,7 +513,6 @@ class ICompute
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
     CompositeCache::Cache composite_cache_;
-    ZoneCache::Cache zone_cache_;
 
   private:
     /**

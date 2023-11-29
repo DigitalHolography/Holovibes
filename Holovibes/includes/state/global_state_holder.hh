@@ -142,9 +142,6 @@ class GSH
         return composite_cache_.get_hsv().v.frame_index.activated;
     }
 
-    inline units::RectFd get_zoomed_zone() const noexcept { return zone_cache_.get_zoomed_zone(); }
-    inline units::RectFd get_reticle_zone() const noexcept { return zone_cache_.get_reticle_zone(); }
-
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
@@ -227,9 +224,6 @@ class GSH
         composite_cache_.get_hsv_ref()->v.frame_index.activated = value;
     }
 
-    inline void set_zoomed_zone(units::RectFd value) { zone_cache_.set_zoomed_zone(value); }
-    inline void set_reticle_zone(units::RectFd value) { zone_cache_.set_reticle_zone(value); }
-
     enum class ComputeSettingsVersion
     {
         V2,
@@ -254,7 +248,6 @@ class GSH
     void notify() { notify_callback_(); }
 
     CompositeCache::Ref composite_cache_;
-    ZoneCache::Ref zone_cache_;
 
     mutable std::mutex mutex_;
 };

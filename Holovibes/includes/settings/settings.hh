@@ -177,7 +177,14 @@ DECLARE_SETTING(UnwrapHistorySize, uint)
 DECLARE_SETTING(IsComputationStopped, bool)
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint)
 
-// ex ZoneCache
+/*! \brief ex ZoneCache
+ *
+ * \param signal_zone The zone for the nsignal chart
+ * \param noise_zone The zone for the noise chart
+ * \param composite_zone The area on which we'll normalize the colors
+ * \param zoomed_zone The area used to limit the stft computations
+ * \param reitcle_zone The zone of the reticle area
+ */
 DECLARE_SETTING(SignalZone, units::RectFd)
 DECLARE_SETTING(NoiseZone, units::RectFd)
 DECLARE_SETTING(CompositeZone, units::RectFd)

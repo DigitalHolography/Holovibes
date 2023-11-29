@@ -991,14 +991,14 @@ inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes
 inline units::RectFd get_signal_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::SignalZone>().value; };
 inline units::RectFd get_noise_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::NoiseZone>().value; };
 inline units::RectFd get_composite_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::CompositeZone>().value; };
-inline units::RectFd get_zoomed_zone() { return GSH::instance().get_zoomed_zone(); };
-inline units::RectFd get_reticle_zone() { return GSH::instance().get_reticle_zone(); };
+inline units::RectFd get_zoomed_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::ZoomedZone>().value; };
+inline units::RectFd get_reticle_zone() { return  holovibes::Holovibes::instance().get_setting<holovibes::settings::ReticleZone>().value; };
 
 inline void set_signal_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::SignalZone{rect}); };
 inline void set_noise_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::NoiseZone{rect}); };
 inline void set_composite_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::CompositeZone{rect}); };
-inline void set_zoomed_zone(const units::RectFd& rect) { GSH::instance().set_zoomed_zone(rect); };
-inline void set_reticle_zone(const units::RectFd& rect) { GSH::instance().set_reticle_zone(rect); };
+inline void set_zoomed_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ZoomedZone{rect}); };
+inline void set_reticle_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ReticleZone{rect}); };
 
 inline void set_frame_record_enabled(bool value)
 {

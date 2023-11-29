@@ -30,20 +30,4 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
                             (bool, composite_auto_weights, false),
                             (CompositeRGB, rgb, CompositeRGB{}),
                             (CompositeHSV, hsv, CompositeHSV{}));
-
-/*! \brief Construct a new micro cache object
- *
- * \param signal_zone The zone for the nsignal chart
- * \param noise_zone The zone for the noise chart
- * \param composite_zone The area on which we'll normalize the colors
- * \param zoomed_zone The area used to limit the stft computations
- * \param reitcle_zone The zone of the reticle area
- */
-NEW_INITIALIZED_MICRO_CACHE(ZoneCache,
-                            (units::RectFd, signal_zone, units::RectFd{}),
-                            (units::RectFd, noise_zone, units::RectFd{}),
-                            (units::RectFd, composite_zone, units::RectFd{}),
-                            (units::RectFd, zoomed_zone, units::RectFd{}),
-                            (units::RectFd, reticle_zone, units::RectFd{}))
-
 } // namespace holovibes

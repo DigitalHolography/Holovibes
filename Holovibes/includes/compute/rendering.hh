@@ -33,7 +33,8 @@
     holovibes::settings::ChartRecordEnabled,       \
     holovibes::settings::TimeTransformationSize,   \
     holovibes::settings::SignalZone,               \
-    holovibes::settings::NoiseZone
+    holovibes::settings::NoiseZone,                \
+    holovibes::settings::ReticleZone
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::ContrastLowerThreshold,   \
@@ -74,7 +75,6 @@ class Rendering
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
-              ZoneCache::Cache& zone_cache,
               InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
@@ -84,7 +84,6 @@ class Rendering
         , input_fd_(input_fd)
         , fd_(output_fd)
         , stream_(stream)
-        , zone_cache_(zone_cache)
         , realtime_settings_(settings)
         , onrestart_settings_(settings)
     {
@@ -174,9 +173,6 @@ class Rendering
     const camera::FrameDescriptor& fd_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
-
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ZoneCache::Cache& zone_cache_;
 
     float* percent_min_max_;
 

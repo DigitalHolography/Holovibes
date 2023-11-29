@@ -382,7 +382,7 @@ void Pipe::refresh()
                                composite_cache_.get_composite_kind(),
                                composite_cache_.get_composite_auto_weights(),
                                composite_cache_.get_hsv_const_ref(),
-                               zone_cache_.get_composite_zone(),
+                               setting<settings::CompositeZone>(),
                                setting<settings::UnwrapHistorySize>());
 
     insert_filter2d_view();
@@ -695,7 +695,6 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    zone_cache_.synchronize();
     composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load

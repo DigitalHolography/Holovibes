@@ -303,7 +303,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   zone_cache_.get_reticle_zone(),
+                                   setting<settings::ReticleZone>(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
@@ -316,7 +316,7 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   zone_cache_.get_reticle_zone(),
+                                   setting<settings::ReticleZone>(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);

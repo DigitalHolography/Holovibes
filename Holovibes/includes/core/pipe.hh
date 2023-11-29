@@ -160,7 +160,6 @@ class Pipe : public ICompute
                                                           input.get_fd(),
                                                           output.get_fd(),
                                                           stream_,
-                                                          zone_cache_,
                                                           settings);
         converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                         buffers_,
