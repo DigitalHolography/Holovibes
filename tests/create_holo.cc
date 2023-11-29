@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include <iostream>
+#include <vector>
 
 const int BMP_IDENTIFICATOR_SIZE=2;
 
@@ -127,11 +128,23 @@ void read_bmp(const char* path)
     unsigned char* pixel = new unsigned char[3];
     char color;
 
-	while (e = fread(pixel, sizeof(unsigned char), 3, f))
+    // Store the image in temp buffer and flatten the colors to B&W
+    auto temp = std::vector<std::vector<unsigned char>>(HoloHeader->img_height);
+
+    for (size_t i = 0; i < HoloHeader->img_height; i++)
     {
-        color = (pixel[0] + pixel[1] + pixel[2]) / 3;
-        fwrite(&color, sizeof(char), 1, out);
+        temp[HoloHeader->img_height - i - 1] = std::vector<unsigned char>(HoloHeader->img_width);
+        for (size_t j = 0; j < HoloHeader->img_width; j++)
+        {
+            e = fread(pixel, sizeof(unsigned char), 3, f);
+            color = (pixel[0] + pixel[1] + pixel[2]) / 3;
+            temp[HoloHeader->img_height - i - 1][j] = color;
+        }
     }
+
+    for (size_t i = 0; i < HoloHeader->img_height; i++)
+        for (size_t j = 0; j < HoloHeader->img_width; j++)
+            fwrite(&(temp[i][j]), sizeof(char), 1, out);
 
     fclose(f);
     fclose(out);
