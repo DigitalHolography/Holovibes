@@ -1,5 +1,9 @@
 ## Changelog
 
+### 12.1.0
+
+* Preallocate the record queue
+
 ### 12.0.0
 
 * Fix testuite
