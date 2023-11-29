@@ -42,7 +42,6 @@ Queue::Queue(const camera::FrameDescriptor& fd,
         data_ = std::make_shared<cuda_tools::CPUUniquePtr<char>>();
 
     max_size_ = max_size;
-    size_ = 0;
 
     // if (max_size_ == 0 || (gpu_ && !std::get<0>(data_).resize(fd_.get_frame_size() * max_size_)) || (!gpu_ && !std::get<1>(data_).resize(fd_.get_frame_size() * max_size_)))
     if (max_size_ == 0 || !data_->resize(fd_.get_frame_size() * max_size_))

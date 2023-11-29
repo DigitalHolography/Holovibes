@@ -118,7 +118,6 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 */
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
-                                   RecordMode record_mode,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
@@ -138,7 +137,6 @@ void Holovibes::start_frame_record(const std::string& path,
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          record_mode,
                                           nb_frames_skip,
                                           GSH::instance().get_output_buffer_size());
 }

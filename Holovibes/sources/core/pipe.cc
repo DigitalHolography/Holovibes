@@ -120,9 +120,51 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
             throw e;
         }
     }
+    LOG_DEBUG("Pipe initialized");
+    // We allocate the queue in advance, because the allocating while processing the camera frames at a high throughput made the camera crash.
+    init_record_queue();
 }
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+
+// Queue& Pipe::init_chart_record_queue() {
+//     chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
+// }
+
+
+Queue& Pipe::init_record_queue() {
+    if (frame_record_env_.record_mode_ == RecordMode::RAW) {
+        LOG_DEBUG("RecordMode = Raw");
+        frame_record_env_.frame_record_queue_.reset(
+                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (frame_record_env_.record_mode_ == RecordMode::HOLOGRAM) {
+        LOG_DEBUG("RecordMode = Hologram");
+        auto record_fd = gpu_output_queue_.get_fd();
+        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
+        frame_record_env_.frame_record_queue_.reset(
+                new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ || frame_record_env_.record_mode_ == RecordMode::CUTS_XZ) {
+        LOG_DEBUG("RecordMode = CUTS");
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
+        fd_xyz.depth = sizeof(ushort);
+        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+            fd_xyz.height = compute_cache_.get_time_transformation_size();
+        else
+            fd_xyz.width = compute_cache_.get_time_transformation_size();
+        
+        frame_record_env_.frame_record_queue_.reset(
+                new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+        LOG_DEBUG("Record queue allocated");
+    }
+    else {
+        LOG_DEBUG("RecordMode = None");
+    }
+    return *frame_record_env_.frame_record_queue_;
+}
 
 bool Pipe::make_requests()
 {
@@ -206,8 +248,6 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        frame_record_env_.frame_record_queue_.reset(nullptr);
-        frame_record_env_.record_mode_ = RecordMode::NONE;
         GSH::instance().set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
@@ -330,48 +370,12 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
-    if (hologram_record_requested_)
+    if (frame_record_requested_)
     {
-        LOG_DEBUG("Hologram Record Request Processing");
-        auto record_fd = gpu_output_queue_.get_fd();
-        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
-        frame_record_env_.frame_record_queue_.reset(
-            new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+        LOG_DEBUG("Frame Record Request Processing");
         GSH::instance().set_frame_record_enabled(true);
-        frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
-        hologram_record_requested_ = false;
-        LOG_DEBUG("Hologram Record Request Processed");
-    }
-
-    if (raw_record_requested_)
-    {
-        LOG_DEBUG("Raw Record Request Processing");
-        frame_record_env_.frame_record_queue_.reset(
-            new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
-
-        GSH::instance().set_frame_record_enabled(true);
-        frame_record_env_.record_mode_ = RecordMode::RAW;
-        raw_record_requested_ = false;
-        LOG_DEBUG("Raw Record Request Processed");
-    }
-
-    if (cuts_record_requested_)
-    {
-        LOG_DEBUG("cuts_record_requested");
-
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-
-        fd_xyz.depth = sizeof(ushort);
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
-            fd_xyz.height = compute_cache_.get_time_transformation_size();
-        else
-            fd_xyz.width = compute_cache_.get_time_transformation_size();
-
-        frame_record_env_.frame_record_queue_.reset(
-            new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
-
-        GSH::instance().set_frame_record_enabled(true);
-        cuts_record_requested_ = false;
+        frame_record_requested_ = false;
+        LOG_DEBUG("Frame Record Request Processed");
     }
 
     return success_allocation;

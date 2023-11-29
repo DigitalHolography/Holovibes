@@ -240,7 +240,6 @@ inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_
 inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }
 
 inline uint get_record_buffer_size() { return GSH::instance().get_record_buffer_size(); }
-inline void set_record_buffer_size(uint value) { GSH::instance().set_record_buffer_size(value); }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {

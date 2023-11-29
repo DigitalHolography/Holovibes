@@ -138,7 +138,7 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> frame_record_queue_ = nullptr;
-    std::atomic<RecordMode> record_mode_{RecordMode::NONE};
+    std::atomic<RecordMode> record_mode_{RecordMode::RAW};
 };
 
 /*! \struct ChartEnv
@@ -207,9 +207,7 @@ class ICompute
     void request_disable_raw_view();
     void request_filter2d_view();
     void request_disable_filter2d_view();
-    void request_hologram_record();
-    void request_raw_record();
-    void request_cuts_record(RecordMode rm);
+    void request_frame_record();
     void request_disable_frame_record();
     void request_clear_img_acc();
     void request_convolution();
@@ -256,9 +254,7 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
     bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
     bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
-    bool get_hologram_record_requested() const { return hologram_record_requested_; }
-    bool get_raw_record_requested() const { return raw_record_requested_; }
-    bool get_cuts_record_requested() const { return cuts_record_requested_; }
+    bool get_frame_record_requested() const { return frame_record_requested_; }
     bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
     bool get_convolution_requested() const { return convolution_requested_; }
     bool get_disable_convolution_requested() const { return convolution_requested_; }
@@ -276,6 +272,8 @@ class ICompute
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
     virtual std::unique_ptr<Queue>& get_frame_record_queue();
+
+    void set_record_mode(RecordMode record_mode){frame_record_env_.record_mode_ = record_mode;}
 
   protected:
     virtual void refresh() = 0;
@@ -367,9 +365,7 @@ class ICompute
     std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<bool> hologram_record_requested_{false};
-    std::atomic<bool> raw_record_requested_{false};
-    std::atomic<bool> cuts_record_requested_{false};
+    std::atomic<bool> frame_record_requested_{false};
     std::atomic<bool> disable_frame_record_requested_{false};
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
