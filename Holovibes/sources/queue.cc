@@ -36,27 +36,12 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , has_overridden_(false)
     , gpu_(gpu)
 {
-    LOG_DEBUG("1");
     if (gpu_)
         data_ = std::make_shared<cuda_tools::CudaUniquePtr<char>>();
     else
         data_ = std::make_shared<cuda_tools::CPUUniquePtr<char>>();
 
-    LOG_DEBUG("2");
     max_size_ = max_size;
-    size_ = 0;
-
-    LOG_DEBUG(fd_.get_frame_size());
-    LOG_DEBUG("2.1");
-
-    data_->resize(16);
-
-    LOG_DEBUG("2.2");
-
-    data_->resize(fd_.get_frame_size() * max_size_);
-
-    LOG_DEBUG("2.3");
-
 
     // if (max_size_ == 0 || (gpu_ && !std::get<0>(data_).resize(fd_.get_frame_size() * max_size_)) || (!gpu_ && !std::get<1>(data_).resize(fd_.get_frame_size() * max_size_)))
     if (max_size_ == 0 || !data_->resize(fd_.get_frame_size() * max_size_))
@@ -67,12 +52,10 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     }
 
     // Needed if input is embedded into a bigger square
-    LOG_DEBUG("3");
     if (gpu_)
         cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
     else
         std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
-    LOG_DEBUG("4");
 
     fd_.byteEndian = Endianness::LittleEndian;
 }

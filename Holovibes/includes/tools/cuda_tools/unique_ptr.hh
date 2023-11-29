@@ -68,7 +68,8 @@ class CPUUniquePtr : public UniquePtr<T>
     {
         T* tmp;
         size *= sizeof(T);
-        tmp = static_cast<char*>(std::realloc(val_.get(), size));
+        tmp = static_cast<T*>(std::realloc(val_.get(), size));
+        LOG_DEBUG("Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
         val_.release();
         val_.reset(tmp);
         return tmp;

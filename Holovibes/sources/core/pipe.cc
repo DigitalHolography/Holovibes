@@ -135,12 +135,6 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 Queue& Pipe::init_record_queue() {
     if (frame_record_env_.record_mode_ == RecordMode::RAW) {
         LOG_DEBUG("RecordMode = Raw");
-        LOG_DEBUG(gpu_input_queue_.get_fd().get_frame_size());
-        LOG_DEBUG("gpu input queue exists");
-        if (frame_record_env_.frame_record_queue_)
-            LOG_DEBUG("frame_record_queue exists");
-        frame_record_env_.frame_record_queue_.reset(nullptr);
-        LOG_DEBUG("succeeded to reset frame_recordqueue");
         frame_record_env_.frame_record_queue_.reset(
                 new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
         LOG_DEBUG("Record queue allocated");
