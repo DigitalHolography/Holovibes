@@ -100,6 +100,17 @@ void enable_convolution(const std::string& file);
 
 void disable_convolution();
 
+std::vector<float> get_input_filter();
+void set_input_filter(std::vector<float> value);
+
+/*! \brief Enables the input filter mode
+ *
+ * \param value the file containing the filter's settings
+ */
+void enable_filter(const std::string& file);
+
+void disable_filter();
+
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(uint window_max_size);
 

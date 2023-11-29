@@ -176,6 +176,8 @@ DECLARE_SETTING(PixelSize, float)
 DECLARE_SETTING(UnwrapHistorySize, uint)
 DECLARE_SETTING(IsComputationStopped, bool)
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint)
+DECLARE_SETTING(FilterEnabled, bool)
+DECLARE_SETTING(InputFilter, std::vector<float>)
 
 /*! \brief ex ZoneCache
  *

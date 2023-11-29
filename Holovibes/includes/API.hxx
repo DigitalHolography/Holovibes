@@ -1030,6 +1030,10 @@ inline bool get_convolution_enabled()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::ConvolutionEnabled>().value;
 }
 
+inline void set_filter_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{value}); };
+
+inline bool get_filter_enabled() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::FilterEnabled>().value; };
+
 #pragma endregion
 
 } // namespace holovibes::api

@@ -44,6 +44,12 @@ void Rendering::Convolution::Update()
     this->divide = holovibes::Holovibes::instance().get_setting<settings::DivideConvolutionEnabled>().value;
 }
 
+void Rendering::Filter::Update()
+{
+    this->enabled = api::get_filter_enabled();
+    this->type = UserInterfaceDescriptor::instance().filter_name;
+}
+
 void Rendering::Filter2D::Update()
 {
     this->enabled = holovibes::Holovibes::instance().get_setting<settings::Filter2dEnabled>().value;
@@ -63,6 +69,7 @@ void Rendering::Update()
     this->lambda = holovibes::Holovibes::instance().get_setting<settings::Lambda>().value;
     this->propagation_distance = holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value;
     this->convolution.Update();
+    this->input_filter.Update();
 }
 
 void AdvancedSettings::BufferSizes::Update()
@@ -193,6 +200,12 @@ void Rendering::Convolution::Load()
     holovibes::Holovibes::instance().update_setting(settings::DivideConvolutionEnabled{this->divide});
 }
 
+void Rendering::Filter::Load()
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{this->enabled && this->type != UID_FILTER_TYPE_DEFAULT});
+    UserInterfaceDescriptor::instance().filter_name = this->type;
+}
+
 void Rendering::Filter2D::Load()
 {
     holovibes::Holovibes::instance().update_setting(settings::Filter2dEnabled{this->enabled});
@@ -212,6 +225,7 @@ void Rendering::Load()
     holovibes::Holovibes::instance().update_setting(settings::Lambda{this->lambda});
     holovibes::Holovibes::instance().update_setting(settings::ZDistance{this->propagation_distance});
     this->convolution.Load();
+    this->input_filter.Load();
 }
 
 void ComputeSettings::Dump(const std::string& filename)

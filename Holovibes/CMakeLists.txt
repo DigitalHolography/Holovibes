@@ -249,6 +249,8 @@ add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/"
                                                "${BUILD_DIR}/convolution_kernels/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/"
+                                               "${BUILD_DIR}/input_filters/"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
                                                "${BUILD_DIR}/json_patches_holofile/"
 

@@ -1,0 +1,142 @@
+%\begin{ComputeCache}
+
+\subsection{ComputeCache}
+\begin{itemize}
+    \item ComputeMode
+    \item ImageType
+    \item BatchSize
+    \item TimeStride
+    \item Filter2D
+    \item SpaceTransformation
+    \item TimeTransformation
+    \item TimeTransformationSize
+    \item Lambda
+    \item ZDistance
+    \item Convolution
+    \item PixelSize
+    \item UnwrapHistorySize
+    \item Unwrap2DRequested
+    \item TimeTransformationCutsEnable
+\end{itemize}
+
+\subsubsection{ComputeMode}
+\noindent
+Type : Enum class ComputeModeEnum \{ Raw, Hologram \} \\
+Unit : Input processes \\
+Defaul-tValue : Raw \\
+Pre-Condition : None\\
+Description : Describe the behaviour of Holovibes. On raw no processing are done.\\
+
+\subsubsection{ImageType}
+\noindent
+Type : Enum class ImageTypeEnum \{ Modulus, SquaredModulus, Argument, PhaseIncrease, Composite \}\\
+Unit : \\
+DefaultValue : Modulus\\
+Pre-Condition : None\\
+Description : Each ImageType provides access to some specific processing. Composite give access to RGB and HSV coloring. PhaseIncrease and Argument change the phase value (For all complex pixel c : atan(Im(c)/Re(c) and conjuguate of the phase between previous and current frame respectively)\\
+
+\subsubsection{BatchSize}
+\noindent
+Type : Integer.\\
+Unit : Number of frames.\\
+DefaultValue : 1\\
+Pre-Condition : None\\
+Description : Sets the number of consecutive input frames onto which the spatial transformation is computed at once.\\
+
+\subsubsection{TimeStride}
+\noindent
+Type : Integer.\\
+Unit : Number of frames.\\
+DefaultValue : 1\\
+Pre-Condition : None\\
+Description : Sets the number of input frame lag between two consecutive time transformations applied to the current data block.\\
+
+\subsubsection{Filter2D}
+\noindent
+Type : Structure Filter2DStruct \{ bool : enabled, int : inner\_radius, int : outer\_radius\}\\
+Unit : squared meters\\
+DefaultValue : \{ false, 0, 1\}\\
+Pre-Condition : None\\
+Description : Apply a filter between main frames and the surface between squares of inner\_radius and outer\_radius size.\\
+
+\subsubsection{SpaceTransformation}
+\noindent
+Type : Enum SpaceTransformationEnum \{ NONE, FFT1, FFT2 \}\\
+Unit : calcul\\
+DefaultValue : NONE\\
+Pre-Condition : None\\
+Description : FFT1 will apply one fft on batch\_size frames and apply a quadratic mask. FFT2 will apply one forward fft then a spectral mask and a reverse fft on batch\_size frames.\\
+
+\subsubsection{TimeTransformation}
+\noindent
+Type : Enum TimeTransformationEnum \{ STFT, PCA, NONE, SSA\_FFT\}\\
+Unit : calcul\\
+DefaultValue : STFT\\
+Pre-Condition : NONE\\
+Description : The different TimeTransformation stands respectively for Shot-time Fourrier Transformation, Principal Component Analysis, no transformation, Self-adaptative Spectrum Analysis Short-time Fourrier Transformation. All are applied on time\_transformation\_size\\
+
+\subsubsection{TimeTransformationSize}
+\noindent
+Type : Integer\\
+Unit : Number of images\\
+DefaultValue : 1\\
+Pre-Condition : greater than 0\\
+Description : Sets the number of input frames forming the data block onto which the time transformation is applied\\
+
+\subsubsection{Lambda}
+\noindent
+Type : Float\\
+Unit : nano-meters\\
+DefaultValue : 852\\
+Pre-Condition : None\\
+Description : Optical radiation wavelength\\
+
+\subsubsection{ZDistance}
+\noindent
+Type : Float\\
+Unit : meters\\
+DefaultValue : 1.5\\
+Pre-Condition : None\\
+Description : Hologram rendering/unfocus distance\\
+
+\subsubsection{Convolution}
+\noindent
+Type : Struct ConvolutionStruct \{ bool : enabled, std::string : type, bool : divide, std::vector<float> : matrix \}\\
+Unit : struct\\
+DefaultValue : \{ false, "None", divide, []\}\\
+Pre-Condition : None\\
+Description : Bidimensional convolution of the current displayed image by a user-defined kernel.\\
+
+\subsubsection{PixelSize}
+\noindent
+Type : Float\\
+Unit : micro-meters\\
+DefaultValue : 12\\
+Pre-Condition : None\\
+Description : Pixel pitch is the distance between center of adjacent pixels\\
+
+\subsubsection{UnwrapHistorySize}
+\noindent
+Type : Integer\\
+Unit : \\
+DefaultValue : 1\\
+Pre-Condition : None\\
+Description : \\
+
+\subsubsection{Unwrap2DRequested}
+\noindent
+Type :Boolean \\
+Unit : \\
+DefaultValue : false\\
+Pre-Condition : None\\
+Description : \\
+
+\subsubsection{TimeTransformationCutsEnable}
+\noindent
+Type : Boolean\\
+Unit : \\
+DefaultValue : false\\
+Pre-Condition : None\\
+Description : \\
+
+%\end{ComputeCache}

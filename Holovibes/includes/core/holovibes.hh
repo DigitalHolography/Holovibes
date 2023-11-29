@@ -99,6 +99,8 @@
     holovibes::settings::CompositeZone,            \
     holovibes::settings::ZoomedZone,               \
     holovibes::settings::ReticleZone,              \
+    holovibes::settings::FilterEnabled,            \
+    holovibes::settings::InputFilter,              \
     holovibes::settings::TimeTransformationCutsOutputBufferSize
      
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -408,7 +410,9 @@ class Holovibes
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
                                              settings::ZoomedZone{units::RectFd{}},
-                                             settings::ReticleZone{units::RectFd{}}))
+                                             settings::ReticleZone{units::RectFd{}},
+                                             settings::FilterEnabled{false},
+                                             settings::InputFilter{{}}))
 
     {
     }

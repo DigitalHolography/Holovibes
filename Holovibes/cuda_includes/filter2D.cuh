@@ -8,9 +8,12 @@
 
 void filter2D(cuComplex* input,
               const float* mask,
+              cuComplex* output,
+              bool store_frame,
               const uint batch_size,
               const cufftHandle plan2d,
-              const uint size,
+              const uint width,
+              const uint length,
               const cudaStream_t stream);
 
 void update_filter2d_circles_mask(float* in_out,

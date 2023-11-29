@@ -13,7 +13,6 @@ void pipe_refresh()
 
     try
     {
-
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -454,6 +453,7 @@ void handle_update_exception()
     api::set_p_index(0);
     api::set_time_transformation_size(1);
     api::disable_convolution();
+    api::disable_filter();
 }
 
 void set_filter2d(bool checked)
@@ -869,6 +869,9 @@ void close_critical_compute()
     if (api::get_cuts_view_enabled())
         cancel_time_transformation_cuts([]() {});
 
+    if (get_filter2d_view_enabled())
+        set_filter2d_view(false, 0);
+
     Holovibes::instance().stop_compute();
 }
 
@@ -1101,6 +1104,66 @@ void set_divide_convolution(const bool value)
 
     set_divide_convolution_enabled(value);
     pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Filter
+
+std::vector<float> get_input_filter() { return holovibes::Holovibes::instance().get_setting<settings::InputFilter>().value;}
+
+void set_input_filter(std::vector<float> value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilter{value});}
+
+void enable_filter(const std::string& filename)
+{
+    auto file = filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename);
+
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{true});
+    set_input_filter({});
+
+    // There is no file None.txt for filtering
+    if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
+        GSH::load_input_filter(get_input_filter(), file.value());
+    else
+        disable_filter();
+
+    // Refresh because the current filter might have change.
+    //pipe_refresh();
+
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+        return;
+    
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_filter();
+        // Wait for the filter to be enabled for notify
+        while (pipe->get_filter_requested())
+            continue;
+    }
+    catch (const std::exception& e)
+    {
+        disable_filter();
+        LOG_ERROR("Catch {}", e.what());
+    }
+}
+
+void disable_filter()
+{
+    set_input_filter({});
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{false});
+    try
+    {
+        auto pipe = get_compute_pipe();
+        pipe->request_disable_filter();
+        while (pipe->get_disable_filter_requested()){
+            continue;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("Catch {}", e.what());
+    }
 }
 
 #pragma endregion

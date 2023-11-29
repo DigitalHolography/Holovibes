@@ -81,10 +81,27 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
     // Might need to find a better fix one day or another
     try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
     catch(const std::exception& e) {}
+
+    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
+
+    // Filter
+    ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    if (!api::get_filter_enabled())
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+    }
+    else
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
+        QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+    }
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -133,6 +150,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
         /* Close windows & destory thread compute */
         api::close_windows();
         api::close_critical_compute();
+
+        api::change_window(static_cast<int>(WindowKind::XYview));
 
         const bool res = api::set_holographic_mode(parent_->window_max_size);
 
@@ -229,6 +248,35 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 {
     ui_->Filter2DN1SpinBox->setMaximum(n - 1);
     api::set_filter2d_n2(n);
+}
+
+void ImageRenderingPanel::update_input_filter(const QString& value)
+{
+    LOG_FUNC();
+
+    UserInterfaceDescriptor::instance().filter_name = value.toStdString();
+    
+    api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
+
+    parent_->notify();
+}
+
+void ImageRenderingPanel::refresh_input_filter(){
+    LOG_FUNC();
+
+    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
+    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+
+    auto filename = UserInterfaceDescriptor::instance().filter_name;
+    
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+    {
+        LOG_INFO("--- || ---");
+        return;
+    }
+
+    GSH::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    holovibes::api::pipe_refresh();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)

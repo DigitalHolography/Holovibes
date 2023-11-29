@@ -6,6 +6,7 @@
 #include "compute_bundles_2d.hh"
 #include "tools_conversion.cuh"
 #include "composite.cuh"
+#include "rgb.cuh"
 #include "hsv.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"
@@ -338,10 +339,10 @@ void Converts::insert_filter2d_ushort()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            float_to_ushort(buffers_.gpu_float_filter2d_frame.get(),
-                            buffers_.gpu_filter2d_frame.get(),
-                            buffers_.gpu_postprocess_frame_size,
-                            stream_);
+            float_to_ushort_normalized(buffers_.gpu_float_filter2d_frame.get(),
+                                       buffers_.gpu_filter2d_frame.get(),
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
         });
 }
 

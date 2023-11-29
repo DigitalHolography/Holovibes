@@ -1,0 +1,13 @@
+
+\subsection{The Front-End API}
+
+In order to get back images, we provide a front end API. The goal is that your are able to connect your front end that you created to Holovibes.
+With this front end you will be able to connect callback for each modification.
+
+We will provide you an example but there is some important thing to note about this API.
+
+Firstly for each variable it provide you 2 callbacks, the first one is a before method and the second one is the after method. Between the two, there will be Holovibes logic. So why there are two callback is simple.
+
+For example when the main output window begin, so you will need to wait that Holovibes create it, in that way you could create the after method in order to recover the newly created buffers to use it in your front end. You should not do that in the before because at this time the method of Holovibes was not call yet and thus the buffers may (and it's probably the case) not exist. 
+
+And the before method exist for the other way, when this main windows is destroy, you should create the before method in order to unlink you (stop using the buffer stream) before this one get destroy in the Holovibes method. Same as before if you were unlink you in the after method method the buffers or the windows may (and it's probably the case) be destroy before you stop using it, and this will probably end up in a crash of your application.

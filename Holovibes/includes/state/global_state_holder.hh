@@ -239,6 +239,8 @@ class GSH
 
     void update_contrast(WindowKind kind, float min, float max);
 
+    static void load_input_filter(std::vector<float> input_filter, const std::string& file);
+
   private:
     GSH() noexcept {}
 

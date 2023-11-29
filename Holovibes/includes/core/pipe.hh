@@ -75,7 +75,9 @@
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::TimeStride,               \
-    holovibes::settings::BatchSize
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::InputFilter,             \
+    holovibes::settings::FilterEnabled
  
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 

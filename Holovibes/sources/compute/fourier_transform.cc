@@ -9,6 +9,7 @@
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "filter2D.cuh"
+#include "input_filter.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "transforms.cuh"
@@ -48,6 +49,18 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask,
                                      smooth_high,
                                      stream_);
 
+        if (setting<settings::FilterEnabled>())
+        {
+            spdlog::critical("[FOURIER_TRANSFORM] Applying filter2d mask");
+            apply_filter(gpu_filter2d_mask,
+                         buffers_.gpu_input_filter_mask,
+                         setting<settings::InputFilter>().data(),
+                         width,
+                         height,
+                         stream_);
+            spdlog::critical("[FOURIER_TRANSFORM] Applying filter2d mask END");
+        }
+
         // In FFT2 we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation
         if (space_transformation != SpaceTransformation::FFT2)
@@ -71,9 +84,12 @@ void FourierTransform::insert_filter2d()
         {
             filter2D(buffers_.gpu_spatial_transformation_buffer,
                      buffers_.gpu_filter2d_mask,
+                     buffers_.gpu_complex_filter2d_frame,
+                     setting<settings::Filter2dEnabled>(),
                      setting<settings::BatchSize>(),
                      spatial_transformation_plan_,
-                     fd_.width * fd_.height,
+                     fd_.width,
+                     fd_.height,
                      stream_);
         });
 }
@@ -137,6 +153,8 @@ void FourierTransform::insert_fft2(bool filter2d_enabled)
                   static_cast<cuComplex*>(input_output),
                   setting<settings::BatchSize>(),
                   gpu_lens_.get(),
+                  buffers_.gpu_complex_filter2d_frame,
+                  setting<settings::Filter2dEnabled>(),
                   spatial_transformation_plan_,
                   fd_,
                   stream_);

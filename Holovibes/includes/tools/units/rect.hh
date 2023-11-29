@@ -10,6 +10,8 @@
 #include "opengl_position.hh"
 #include "all_struct.hh"
 
+#include "logger.hh"
+
 #include <cmath>
 
 namespace holovibes::units

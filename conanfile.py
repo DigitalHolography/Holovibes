@@ -10,7 +10,7 @@ from build import build_utils
 
 class HolovibesConan(ConanFile):
     name = "Holovibes"
-    version = "11.4.0"
+    version = "11.8.2"
     license = "GPL3"
     author = "Read AUTHORS.md"
     url = "https://holovibes.com/"
@@ -75,11 +75,13 @@ class HolovibesConan(ConanFile):
 
         generator = self.options.cmake_generator
         toolchain = self.options.cmake_compiler
+        # build_type = "Debug" if self.settings.build_type == "Debug" else "Release"
 
         self._cmake = CMake(
             self, generator=build_utils.get_generator(generator))
         self._cmake.definitions["CMAKE_TOOLCHAIN_FILE"] = build_utils.get_toolchain(
             toolchain)
+        # self._cmake.definitions["CMAKE_BUILD_TYPE"] = build_type
         return self._cmake
 
     def _pytest(self):

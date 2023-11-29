@@ -7,12 +7,14 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     fft2.cu
     filter2D.cu
     hsv.cu
+    rgb.cu
     percentile.cu
     stft.cu
     texture_update.cu
     tools.cu
     tools_compute.cu
     tools_conversion.cu
+    tools_hsv.cu
     tools_unwrap.cu
     transforms.cu
     shift_corners.cu
@@ -21,4 +23,5 @@ target_sources("${PROJECT_NAME}_cuda_lib" PRIVATE
     test_reduce.cu
     unpack.cu
     apply_mask.cu
+    input_filter.cu
 )

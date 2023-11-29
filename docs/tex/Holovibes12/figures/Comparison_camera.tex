@@ -1,0 +1,18 @@
+\renewcommand{\arraystretch}{1.25}
+\begin{table*}[t]
+    \begin{ruledtabular}
+        \begin{tabular}{lccccc}
+            \textrm{Version}&
+            \textrm{Input format}&
+            \textrm{Input size}&
+            \textrm{Input rate}&
+            \textrm{Output rate}&
+            \textrm{Input throughput}\\
+            \colrule
+            Holovibes 8.0 & 16-bit & 1024$\times$1024 & 500 Hz & 20 FPS & 1.05 GB/s \\
+            \colrule
+            Holovibes 9.0 & 8-bit & 512$\times$512 & 5,000 Hz & 39 FPS & 1.25 GB/s \\
+        \end{tabular}
+    \end{ruledtabular}
+    \caption{\label{tab:results} Performance comparison between Holovibes 8.0 and 9.0 when streaming from a camera.}
+\end{table*}

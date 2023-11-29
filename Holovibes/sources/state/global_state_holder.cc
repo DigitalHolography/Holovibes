@@ -47,6 +47,7 @@
 
 #include "holovibes.hh"
 #include "API.hh"
+#include "input_filter.hh"
 
 namespace holovibes
 {
@@ -245,7 +246,7 @@ static void load_convolution_matrix(std::vector<float> convo_matrix, const std::
         uint matrix_height = 0;
         uint matrix_z = 1;
 
-        // Doing this the C way cause it's faster
+        // Doing this the C way because it's faster
         FILE* c_file;
         fopen_s(&c_file, path.c_str(), "r");
 
@@ -320,7 +321,7 @@ void GSH::enable_convolution(std::optional<std::string> file)
     api::set_convo_matrix({});
 
     // There is no file None.txt for convolution
-    if (file && file.value() != "None")
+    if (file && file.value() != UID_CONVOLUTION_TYPE_DEFAULT)
         load_convolution_matrix(api::get_convo_matrix(), file.value());
 }
 
@@ -328,6 +329,26 @@ void GSH::disable_convolution()
 {
     api::set_convo_matrix({});
     api::set_convolution_enabled(false);
+}
+
+// works with 24bits BITMAP images
+void GSH::load_input_filter(std::vector<float> input_filter, const std::string& file)
+{
+    auto& holo = Holovibes::instance();
+
+    try
+    {
+        auto path_file = dir / "input_filters" / file;
+        InputFilter(input_filter,
+                    path_file.string(),
+                    holo.get_gpu_output_queue()->get_fd().width,
+                    holo.get_gpu_output_queue()->get_fd().height);
+    }
+    catch (std::exception& e)
+    {
+        api::set_input_filter({});
+        LOG_ERROR("Couldn't load input filter : {}", e.what());
+    }
 }
 
 #pragma endregion

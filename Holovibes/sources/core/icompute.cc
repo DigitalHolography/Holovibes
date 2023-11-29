@@ -343,9 +343,21 @@ void ICompute::request_convolution()
     request_refresh();
 }
 
+void ICompute::request_filter()
+{
+    filter_requested_ = true;
+    request_refresh();
+}
+
 void ICompute::request_disable_convolution()
 {
     disable_convolution_requested_ = true;
+    request_refresh();
+}
+
+void ICompute::request_disable_filter()
+{
+    disable_filter_requested_ = true;
     request_refresh();
 }
 } // namespace holovibes

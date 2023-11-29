@@ -36,7 +36,9 @@
     holovibes::settings::PixelSize
 
 #define PIPEREFRESH_SETTINGS                         \
-    holovibes::settings::BatchSize
+    holovibes::settings::BatchSize,                  \
+    holovibes::settings::InputFilter,                \
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 

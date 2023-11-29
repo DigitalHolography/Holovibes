@@ -39,11 +39,6 @@ void CompositePanel::on_notify()
     // RGB
     QSpinBoxQuietSetValue(ui_->PRedSpinBox_Composite, api::get_composite_p_red());
     QSpinBoxQuietSetValue(ui_->PBlueSpinBox_Composite, api::get_composite_p_blue());
-    /*
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_R, api::get_weight_r());
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_G, api::get_weight_g());
-    QDoubleSpinBoxQuietSetValue(ui_->WeightSpinBox_B, api::get_weight_b());
-    */
     ui_->WeightSpinBox_R->setValue(api::get_weight_r());
     ui_->WeightSpinBox_G->setValue(api::get_weight_g());
     ui_->WeightSpinBox_B->setValue(api::get_weight_b());
@@ -85,7 +80,7 @@ void CompositePanel::on_notify()
     auto show_rgb = [this, rgbMode]()
     {
         ui_->groupBox->setVisible(rgbMode); // Frequency channel
-        //ui_->groupBox_5->setVisible(rgbMode || !ui_->RenormalizationCheckBox->isChecked()); // Color equalization box
+        ui_->groupBox_5->setVisible(rgbMode); // Color equalization box
     };
 
     auto show_hsv = [this, rgbMode]()

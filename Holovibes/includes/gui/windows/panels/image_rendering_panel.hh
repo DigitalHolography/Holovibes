@@ -29,7 +29,7 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
@@ -67,6 +67,16 @@ class ImageRenderingPanel : public Panel
      * \param n The new filter2d n2 value
      */
     void set_filter2d_n2(int n);
+    
+    /*! \brief Modifies input filter
+     *
+     * \param value The new filter to apply
+     */
+    void update_input_filter(const QString& value);
+
+    /*! \brief Refreshed the input filter iff one was passed before
+     */
+    void refresh_input_filter();
 
     /*! \brief Modifies space transform calculation
      *
