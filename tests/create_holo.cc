@@ -131,15 +131,18 @@ void read_bmp(const char* path)
     // Store the image in temp buffer and flatten the colors to B&W
     auto temp = std::vector<std::vector<unsigned char>>(HoloHeader->img_height);
 
+    printf("%d,%d\n", HoloHeader->img_width, HoloHeader->img_height);
+
     for (size_t i = 0; i < HoloHeader->img_height; i++)
     {
-        temp[HoloHeader->img_height - i - 1] = std::vector<unsigned char>(HoloHeader->img_width);
+        auto vec = std::vector<unsigned char>(HoloHeader->img_width);
         for (size_t j = 0; j < HoloHeader->img_width; j++)
         {
             e = fread(pixel, sizeof(unsigned char), 3, f);
             color = (pixel[0] + pixel[1] + pixel[2]) / 3;
-            temp[HoloHeader->img_height - i - 1][j] = color;
+            vec[j] = color;
         }
+        temp[HoloHeader->img_height - i - 1] = vec;
     }
 
     for (size_t i = 0; i < HoloHeader->img_height; i++)
