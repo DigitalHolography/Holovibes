@@ -162,39 +162,6 @@ void FrameRecordWorker::run()
     LOG_TRACE("Exiting FrameRecordWorker::run()");
 }
 
-// Queue& FrameRecordWorker::init_record_queue()
-// {
-//     auto pipe = Holovibes::instance().get_compute_pipe();
-//     std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-//     if (raw_view_queue)
-//         raw_view_queue->resize(4, stream_);
-
-//     std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-//     if (output_queue)
-//         output_queue->resize(4, stream_);
-
-//     if (record_mode_ == RecordMode::RAW)
-//     {
-//         pipe->request_raw_record();
-//         while (pipe->get_raw_record_requested() && !stop_requested_)
-//             continue;
-//     }
-//     else if (record_mode_ == RecordMode::HOLOGRAM)
-//     {
-//         pipe->request_hologram_record();
-//         while (pipe->get_hologram_record_requested() && !stop_requested_)
-//             continue;
-//     }
-//     else if (record_mode_ == RecordMode::CUTS_YZ || record_mode_ == RecordMode::CUTS_XZ)
-//     {
-//         pipe->request_cuts_record(record_mode_);
-//         while (pipe->get_cuts_record_requested() && !stop_requested_)
-//             continue;
-//     }
-
-//     return *pipe->get_frame_record_queue();
-// }
-
 void FrameRecordWorker::wait_for_frames(Queue& record_queue)
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
