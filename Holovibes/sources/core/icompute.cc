@@ -246,7 +246,7 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.gpu_frame_record_queue_; }
+std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
 
 void ICompute::delete_stft_slice_queue()
 {
@@ -320,24 +320,9 @@ void ICompute::request_filter2d_view()
     request_refresh();
 }
 
-void ICompute::request_hologram_record()
+void ICompute::request_frame_record()
 {
-    hologram_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_record()
-{
-    raw_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_cuts_record(RecordMode rm)
-{
-    cuts_record_requested_ = true;
-
-    // Setted here to not store the value anywhere else while it can already be stored here.
-    frame_record_env_.record_mode_ = rm;
+    frame_record_requested_ = true;
     request_refresh();
 }
 

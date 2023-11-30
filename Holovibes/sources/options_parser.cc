@@ -103,13 +103,49 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("compute_settings"))
             options_.compute_settings_path = boost::any_cast<std::string>(vm_["compute_settings"].value());
         if (vm_.count("fps"))
-            options_.fps = boost::any_cast<unsigned int>(vm_["fps"].value());
+        {
+            int fps = boost::any_cast<uint>(vm_["fps"].value());
+            if (fps >= 0)
+                options_.fps = fps; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("fps value should be positive");
+                exit(2);
+            }
+        }
         if (vm_.count("n_rec"))
-            options_.n_rec = boost::any_cast<unsigned int>(vm_["n_rec"].value());
+        {
+            int n_rec = boost::any_cast<uint>(vm_["n_rec"].value());
+            if (n_rec >= 0)
+                options_.n_rec = n_rec; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("n_rec value should be positive");
+                exit(2);
+            }
+        }
         if (vm_.count("start_frame"))
-            options_.start_frame = boost::any_cast<unsigned int>(vm_["start_frame"].value());
+        {
+            int start_frame = boost::any_cast<uint>(vm_["start_frame"].value());
+            if (start_frame >= 0)
+                options_.start_frame = start_frame; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("start_frame value should be positive");
+                exit(2);
+            }
+        }
         if (vm_.count("end_frame"))
-            options_.end_frame = boost::any_cast<unsigned int>(vm_["end_frame"].value());
+        {
+            int end_frame = boost::any_cast<uint>(vm_["end_frame"].value());
+            if (end_frame >= 0)
+                options_.end_frame = end_frame; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("end_frame value should be positive");
+                exit(2);
+            }
+        }
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();

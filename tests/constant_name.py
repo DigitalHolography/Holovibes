@@ -3,7 +3,9 @@ import os.path
 
 INPUT_FILENAME = "input.holo"
 OUTPUT_FILENAME = "last_generated_output.holo"
+OUTPUT_ERROR_FILENAME = "output_error.txt"
 REF_FILENAME = "ref.holo"
+ERROR_FILENAME = "error.txt"
 CONFIG_FILENAME = "holovibes.json"
 CLI_ARGUMENT_FILENAME = "cli_argument.json"
 

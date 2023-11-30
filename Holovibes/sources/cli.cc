@@ -220,9 +220,9 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     size_t input_nb_frames =
         holovibes::GSH::instance().get_end_frame() - holovibes::GSH::instance().get_start_frame() + 1;
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
-    if (record_nb_frames == 0)
+    if (record_nb_frames <= 0)
     {
-        LOG_ERROR("Asking to record 0 frames, abort");
+        LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));
         return 2;
     }
 
@@ -232,14 +232,17 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::GSH::instance().get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::GSH::instance().get_xy_img_accu_level();
 
+    // preallocate the record queue
+    auto pipe = holovibes.get_compute_pipe();
+    pipe->set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+    pipe->init_record_queue();
+    
     holovibes.start_frame_record(opts.output_path.value(),
                                  record_nb_frames,
-                                 opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM,
                                  nb_frames_skip);
 
     // The following while ensure the record has been requested by the thread previously launched.
-    while ((!holovibes.get_compute_pipe()->get_hologram_record_requested()) &&
-           (!holovibes.get_compute_pipe()->get_raw_record_requested()))
+    while ((!holovibes.get_compute_pipe()->get_frame_record_requested()))
         continue;
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.

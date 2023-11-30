@@ -59,7 +59,7 @@ class BatchInputQueue final : public DisplayQueue
      * \param dest The destination queue
      * \param nb_elts Number of elts to copy multiple (must be lower than batch_size)
      */
-    void copy_multiple(Queue& dest, const uint nb_elts);
+    void copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
@@ -68,7 +68,7 @@ class BatchInputQueue final : public DisplayQueue
      *
      * \param dest The destination queue
      */
-    void copy_multiple(Queue& dest);
+    void copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Function used when dequeuing a batch of frame
      *
@@ -181,7 +181,7 @@ class BatchInputQueue final : public DisplayQueue
     }
 
   private: /* Private attributes */
-    cuda_tools::UniquePtr<char> data_{nullptr};
+    cuda_tools::CudaUniquePtr<char> data_{nullptr};
 
     /*! \brief FastUpdatesHolder entry */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;

@@ -8,13 +8,14 @@ namespace holovibes::api
 
 void pipe_refresh()
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     try
     {
-    
+        spdlog::info("pipe_refresh");
         get_compute_pipe()->request_refresh();
+        
     }
     catch (const std::runtime_error& e)
     {
@@ -1186,23 +1187,64 @@ const std::string browse_record_output_file(std::string& std_filepath)
     return file_ext;
 }
 
+void set_record_buffer_size(uint value) { 
+    GSH::instance().set_record_buffer_size(value);
+    
+    // When Holovibes starts, this function will be accessed before the pipe is built.
+    try {
+        get_compute_pipe()->init_record_queue();
+    }
+    catch(const std::exception &e) {
+        LOG_DEBUG("Pipe not initialized");
+    }
+}
+
 void set_record_mode(const std::string& text)
 {
     LOG_FUNC(text);
 
+    RecordMode record_mode;
+
     // TODO: Dictionnary
     if (text == "Chart")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CHART;
+    {
+        record_mode = RecordMode::CHART;
+    }
     else if (text == "Processed Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::HOLOGRAM;
+    {
+        record_mode = RecordMode::HOLOGRAM;
+    }
     else if (text == "Raw Image")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::RAW;
+    {
+        record_mode = RecordMode::RAW;
+    }
     else if (text == "3D Cuts XZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_XZ;
+    {
+        record_mode = RecordMode::CUTS_XZ;
+    }
     else if (text == "3D Cuts YZ")
-        UserInterfaceDescriptor::instance().record_mode_ = RecordMode::CUTS_YZ;
+    {
+        record_mode = RecordMode::CUTS_YZ;
+    }
     else
         throw std::exception("Record mode not handled");
+
+    UserInterfaceDescriptor::instance().record_mode_ = record_mode;
+
+
+    // When Holovibes starts, this function will be accessed before the pipe is built.
+    try {
+        auto pipe = get_compute_pipe();
+        pipe->set_record_mode(record_mode);
+        if (record_mode != RecordMode::CHART)
+        {
+            get_compute_pipe()->init_record_queue();    
+            LOG_DEBUG("Pipe initialized");
+        }
+    }
+    catch(const std::exception &e) {
+        LOG_DEBUG("Pipe not initialized");
+    }
 }
 
 bool start_record_preconditions(const bool batch_enabled,
@@ -1255,7 +1297,6 @@ void start_record(const bool batch_enabled,
         {
             Holovibes::instance().start_frame_record(output_path,
                                                      nb_frames_to_record,
-                                                     UserInterfaceDescriptor::instance().record_mode_,
                                                      0,
                                                      callback);
         }

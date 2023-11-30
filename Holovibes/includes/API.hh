@@ -173,12 +173,18 @@ void stop_record();
  */
 const std::string browse_record_output_file(std::string& std_filepath);
 
-/*! \brief Set the record mode object
+/*! \brief Set the record mode object, and trigger the allocation of the pipe
  *
  * \param text the catched mode
  * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
  */
 void set_record_mode(const std::string& text);
+
+/*! \brief Set the record buffer size, and trigger the allocation of the pipe
+ *
+ * \param value the size of the buffer
+ */
+void set_record_buffer_size(uint value);
 
 /*! \brief Closes all the currently displaying windows
  *

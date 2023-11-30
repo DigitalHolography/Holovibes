@@ -53,12 +53,12 @@ class Postprocessing
     /*! \brief Used only when the image is composite convolution to do a convolution on each component */
     void convolution_composite();
 
-    cuda_tools::UniquePtr<cuComplex> gpu_kernel_buffer_;
-    cuda_tools::UniquePtr<cuComplex> cuComplex_buffer_;
-    cuda_tools::UniquePtr<float> hsv_arr_;
+    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
+    cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
+    cuda_tools::CudaUniquePtr<float> hsv_arr_;
 
     /*! \brief Result of the reduce operation of the current frame used to renormalize the frames */
-    cuda_tools::UniquePtr<double> reduce_result_;
+    cuda_tools::CudaUniquePtr<double> reduce_result_;
 
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;

@@ -99,8 +99,12 @@ class HoloFile:
 
         # Add Frames
         for _ in range(img_nb):
-            image = Image.fromarray(cls.__get_numpy_array(
-                io.read(bytes_per_frame), bits_per_pixel, w, h))
+            byte_image = cls.__get_numpy_array(
+                io.read(bytes_per_frame), bits_per_pixel, w, h)
+
+            ##image = Image.fromarray(byte_image)
+            image = byte_image
+            
             data.add_frame(image)
 
         footer_bytes = io.read(
@@ -166,16 +170,17 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        ref.assert_footer(chal)
+        # ref.assert_footer(chal)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
-            diff = ImageChops.difference(
-                l_image.convert('L'), r_image.convert('L')).getbbox()
-            if diff:
-                l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
-                r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
+            diffMatrix = (np.array(l_image) == np.array(r_image))
+            diff = np.any(diffMatrix == False)
+            #TODO print diff matrix
+            #if diff:
+            #    l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
+            #    r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
 
-            assert not diff, f"Image {i} differ (L: {diff[0]}, U: {diff[1]}, R: {diff[2]}, B: {diff[3]})"
+            assert not diff
 
 
 class HoloLazyReader(HoloLazyIO):

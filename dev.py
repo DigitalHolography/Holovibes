@@ -237,6 +237,7 @@ def build_ref(args: GoalArgs) -> int:
             continue
 
         input = os.path.join(path, INPUT_FILENAME)
+        ref_error = os.path.join(path, ERROR_FILENAME)
         ref = os.path.join(path, REF_FILENAME)
         cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
         config = os.path.join(path, CONFIG_FILENAME)
@@ -253,8 +254,11 @@ def build_ref(args: GoalArgs) -> int:
         if os.path.isfile(ref):
             os.remove(ref)
 
+        if os.path.isfile(ref_error):
+            os.remove(ref_error)
+
         print(name)
-        generate_holo_from(input, ref, cli_argument, config)
+        generate_holo_from(input, ref, ref_error, cli_argument, config)
 
     return 0
 

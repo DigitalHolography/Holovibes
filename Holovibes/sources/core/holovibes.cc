@@ -118,22 +118,25 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 */
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
-                                   RecordMode record_mode,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
+    // required to reset the recorded frames counter in pipe.cc
+    // This counter happens at the enqueing, to ensure no frame are lost since the gpu_input_queue is usually way faster than the frame_record_queue
+    api::pipe_refresh();
     if (GSH::instance().get_batch_size() > GSH::instance().get_record_buffer_size())
     {
         LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
         return;
     }
 
+    GSH::instance().set_nb_frames_to_record(nb_frames_to_record);
+
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          record_mode,
                                           nb_frames_skip,
                                           GSH::instance().get_output_buffer_size());
 }
