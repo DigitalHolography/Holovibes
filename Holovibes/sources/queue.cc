@@ -19,9 +19,6 @@ using camera::FrameDescriptor;
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
-             unsigned int input_width,
-             unsigned int input_height,
-             unsigned int bytes_per_pixel,
              const bool gpu)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
@@ -30,9 +27,6 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , type_(type)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
-    , input_width_(input_width)
-    , input_height_(input_height)
-    , bytes_per_pixel(bytes_per_pixel)
     , has_overridden_(false)
     , gpu_(gpu)
 {

@@ -35,8 +35,7 @@ class BatchGPIBWorker final : public Worker
     BatchGPIBWorker(const std::string& batch_input_path,
                     const std::string& output_path,
                     unsigned int nb_frames_to_record,
-                    RecordMode record_mode,
-                    const unsigned int output_buffer_size);
+                    RecordMode record_mode);
 
     void stop() override;
 
@@ -72,9 +71,6 @@ class BatchGPIBWorker final : public Worker
 
     /*! \brief The record mode used for all the batch (RAW, HOLOGRAM, CHART) */
     const RecordMode record_mode_;
-
-    /*! \brief The max output buffer size */
-    const unsigned int output_buffer_size_;
 
     /*! \brief Instance of the frame record worker used if RecordMode is RAW or HOLOGRAM */
     std::unique_ptr<FrameRecordWorker> frame_record_worker_;

@@ -136,7 +136,7 @@ Queue& Pipe::init_record_queue() {
     if (frame_record_env_.record_mode_ == RecordMode::RAW) {
         LOG_DEBUG("RecordMode = Raw");
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
         LOG_DEBUG("Record queue allocated");
     }
     else if (frame_record_env_.record_mode_ == RecordMode::HOLOGRAM) {
@@ -144,7 +144,7 @@ Queue& Pipe::init_record_queue() {
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+                new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
         LOG_DEBUG("Record queue allocated");
     }
     else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ || frame_record_env_.record_mode_ == RecordMode::CUTS_XZ) {
@@ -157,7 +157,7 @@ Queue& Pipe::init_record_queue() {
             fd_xyz.width = compute_cache_.get_time_transformation_size();
         
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, 0U, 0U, 1U, false));
+                new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
         LOG_DEBUG("Record queue allocated");
     }
     else {
