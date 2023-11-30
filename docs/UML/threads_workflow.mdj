@@ -2049,7 +2049,7 @@
 											"top": 654,
 											"width": 586.85986328125,
 											"height": 13,
-											"text": "-reset_gpu_record_queue(): void",
+											"text": "-reset_record_queue(): void",
 											"horizontalAlignment": 0
 										}
 									],
@@ -5217,7 +5217,7 @@
 							"_parent": {
 								"$ref": "AAAAAAF2UmW5BGkbiNI="
 							},
-							"name": "reset_gpu_record_queue",
+							"name": "reset_record_queue",
 							"visibility": "private",
 							"parameters": [
 								{
