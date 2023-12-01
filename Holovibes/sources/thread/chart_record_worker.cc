@@ -1,26 +1,22 @@
 #include "chart_record_worker.hh"
 #include "chart_point.hh"
 
+#include "API.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
 
 namespace holovibes::worker
 {
-ChartRecordWorker::ChartRecordWorker(const std::string& path, const unsigned int nb_frames_to_record)
-    : Worker()
-    , path_(get_record_filename(path))
-    , nb_frames_to_record_(nb_frames_to_record)
-{
-}
 
 void ChartRecordWorker::run()
 {
-    std::ofstream of(path_);
+    onrestart_settings_.apply_updates();
+    std::ofstream of(setting<settings::RecordFilePath>());
 
     // Header displaying
-    of << "[#img : " << GSH::instance().get_time_transformation_size() << ", p : " << GSH::instance().get_p_index()
-       << ", lambda : " << GSH::instance().get_lambda() << ", z : " << GSH::instance().get_z_distance() << "]"
+    of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start
+       << ", lambda : " << api::get_lambda() << ", z : " << setting<settings::ZDistance>() << "]"
        << std::endl;
 
     of << "["
@@ -34,7 +30,7 @@ void ChartRecordWorker::run()
        << "]" << std::endl;
 
     auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_record_chart(nb_frames_to_record_);
+    pipe->request_record_chart(setting<settings::RecordFrameCount>().value());
     while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;
 
@@ -45,9 +41,9 @@ void ChartRecordWorker::run()
     std::atomic<unsigned int>& i = entry->first;
     std::atomic<unsigned int>& nb_frames_to_record = entry->second;
     i = 0;
-    nb_frames_to_record = nb_frames_to_record_;
+    nb_frames_to_record = setting<settings::RecordFrameCount>().value();
 
-    for (; i < nb_frames_to_record_; ++i)
+    for (; i < setting<settings::RecordFrameCount>().value(); ++i)
     {
         while (chart_queue.size() <= i && !stop_requested_)
             continue;

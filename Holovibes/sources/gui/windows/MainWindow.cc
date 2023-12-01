@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
-    spinBoxDecimalPointReplacement(ui_->WaveLengthDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
@@ -229,7 +229,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_img_accu_xy_level(1); }
+static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -550,7 +550,6 @@ void MainWindow::set_view_image_type(const QString& value)
     }
 
     const std::string& str = value.toStdString();
-
     if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
     {
         refresh_view_mode();

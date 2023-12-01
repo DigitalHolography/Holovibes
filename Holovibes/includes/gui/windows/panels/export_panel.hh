@@ -74,6 +74,40 @@ class ExportPanel : public Panel
     /*! \brief Closes Chart window */
     void stop_chart_display();
 
+    /**
+     * @brief Handles the update of the batch mode enabled setting checkbox.
+     */
+    void update_batch_enabled();
+
+    /**
+     * @brief Handles the update of the record frame count enabled setting checkbox.
+     */
+    void update_record_frame_count_enabled();
+
+    /**
+     * @brief Handles the update of the record frame count setting spinbox.
+     */
+    void update_record_frame_count();
+
+    /**
+     * @brief Handles the update of the record file path setting line edit.
+     */
+    void update_record_file_path();
+
+    /**
+     * @brief Handles the update of the batch file path setting line edit.
+     */
+    void update_batch_file_path();
+
+    /**
+     * @brief Handles the update of the record mode setting combo box.
+     */
+    void update_record_mode();
+
+    /**
+     * @brief Handles the update of the record file extension setting combo box.
+    */
+    void update_record_file_extension(const QString& value);
   private:
     int record_frame_step_ = 512;
 };

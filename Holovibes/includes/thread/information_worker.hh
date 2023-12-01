@@ -4,7 +4,20 @@
  */
 #pragma once
 
+#include "settings/settings_container.hh"
+#include "settings/settings.hh"
 #include "worker.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                      \
+  holovibes::settings::TimeTransformationSize
+
+#define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
+#pragma endregion
 
 namespace holovibes::worker
 {
@@ -19,7 +32,12 @@ class InformationWorker final : public Worker
      * \param is_cli Whether the program is running in cli mode or not
      * \param info Information container where the InformationWorker periodicaly fetch data to display it
      */
-    InformationWorker();
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
+    InformationWorker(InitSettings settings)
+    : Worker()
+    , realtime_settings_(settings)
+    {
+    }
 
     void run() override;
 
@@ -28,7 +46,35 @@ class InformationWorker final : public Worker
     /*! \brief The function used to update the progress displayed */
     static inline std::function<void(ProgressType, size_t, size_t)> update_progress_function_;
 
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        spdlog::info("[InformationWorker] [update_setting] {}", typeid(T).name());
+
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+    }
+
   private:
+    
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+        /*if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }*/
+    }
+
     /*! \brief The map associating an indication type with its name */
     static const std::unordered_map<IndicationType, std::string> indication_type_to_string_;
 
@@ -73,5 +119,19 @@ class InformationWorker final : public Worker
 
     /*! \brief Saving throughput */
     size_t saving_throughput_ = 0;
+
+    /**
+     * @brief Contains all the settings of the worker that should be updated
+     * on restart.
+     */
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    //DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::worker
+
+namespace holovibes {
+template <typename T>
+struct has_setting<T, worker::InformationWorker> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes

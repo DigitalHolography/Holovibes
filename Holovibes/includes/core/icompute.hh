@@ -19,6 +19,47 @@
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::X,                        \
+    holovibes::settings::Y,                        \
+    holovibes::settings::P,                        \
+    holovibes::settings::Q,                        \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2d,                 \
+    holovibes::settings::CurrentWindow,            \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::ChartDisplayEnabled,      \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::RawViewEnabled,           \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ReticleScale,             \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize
+
+#define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::BatchSize
+
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -186,7 +227,110 @@ struct ImageAccEnv
 class ICompute
 {
   public:
-    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
+    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
+        : gpu_input_queue_(input)
+        , gpu_output_queue_(output)
+        , stream_(stream)
+        , past_time_(std::chrono::high_resolution_clock::now())
+        , realtime_settings_(settings)
+        , pipe_refresh_settings_(settings)
+    {
+        int err = 0;
+
+        plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
+
+        const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
+        long long int n[] = {fd.height, fd.width};
+
+        // This plan has a useful significant memory cost, check XtplanMany comment
+        spatial_transformation_plan_.XtplanMany(2, // 2D
+                                                n, // Dimension of inner most & outer most dimension
+                                                n, // Storage dimension size
+                                                1, // Between two inputs (pixels) of same image distance is one
+                                                fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
+                                                CUDA_C_32F,         // Input type
+                                                n,
+                                                1,
+                                                fd.get_frame_res(),             // Ouput layout same as input
+                                                CUDA_C_32F,                     // Output type
+                                                setting<settings::BatchSize>(), // Batch size
+                                                CUDA_C_32F);                    // Computation type
+
+        int inembed[1];
+        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+
+        inembed[0] = setting<settings::TimeTransformationSize>();
+
+        time_transformation_env_.stft_plan
+            .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
+
+        camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
+        new_fd.depth = 8;
+        // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
+        time_transformation_env_.gpu_time_transformation_queue.reset(
+            new Queue(new_fd, setting<settings::TimeTransformationSize>()));
+
+        // Static cast size_t to avoid overflow
+        if (!buffers_.gpu_spatial_transformation_buffer.resize(
+                static_cast<const size_t>(setting<settings::BatchSize>()) * gpu_input_queue_.get_fd().get_frame_res()))
+            err++;
+
+        int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            image::grey_to_rgb_size(output_buffer_size);
+        if (!buffers_.gpu_output_frame.resize(output_buffer_size))
+            err++;
+        buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
+
+        if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        // Init the gpu_p_frame with the size of input image
+        if (!time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
+            err++;
+
+        if (!buffers_.gpu_input_filter_mask.resize(output_buffer_size))
+            err++;
+
+        if (err != 0)
+            throw std::exception(cudaGetErrorString(cudaGetLastError()));
+    }
+
+    template <typename T>
+    inline void update_setting_icompute(T setting)
+    {
+        spdlog::info("[ICompute] [update_setting] {}", typeid(T).name());
+
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            pipe_refresh_settings_.update_setting(setting);
+        }
+    }
+
+    inline void icompute_pipe_refresh_apply_updates() {
+        pipe_refresh_settings_.apply_updates();
+    }
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
@@ -377,12 +521,34 @@ class ICompute
     std::atomic<bool> filter_requested_{false};
     std::atomic<bool> disable_filter_requested_{false};
 
-    ComputeCache::Cache compute_cache_;
-    ExportCache::Cache export_cache_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+
     CompositeCache::Cache composite_cache_;
-    Filter2DCache::Cache filter2d_cache_;
-    ViewCache::Cache view_cache_;
-    AdvancedCache::Cache advanced_cache_;
-    ZoneCache::Cache zone_cache_;
+
+  private:
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            return pipe_refresh_settings_.get<T>().value;
+        }
+    }
+};
+} // namespace holovibes
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, ICompute> : is_any_of<T, ALL_SETTINGS>
+{
 };
 } // namespace holovibes

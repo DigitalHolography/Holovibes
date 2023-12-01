@@ -95,12 +95,12 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of lambda
      */
-    void set_wavelength(double value);
+    void set_lambda(const double value);
     /*! \brief Modifies z from ui value
      *
      * \param value The new value of z
      */
-    void set_z(double value);
+    void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
     /*! \brief Decrement z by 1 on key shortcut */
@@ -141,6 +141,7 @@ class ImageRenderingPanel : public Panel
     QShortcut* z_down_shortcut_;
 
   public:
+  //should be moved to double in the ui if we need more precision than 5 digits
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

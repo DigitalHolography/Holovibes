@@ -12,6 +12,23 @@
 #include "rect.hh"
 
 #include "global_state_holder.hh"
+
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::TimeTransformationSize
+
+#define ALL_SETTINGS REALTIME_SETTINGS
+// clang-format on
+
 namespace holovibes
 {
 class Queue;
@@ -33,19 +50,30 @@ class ImageAccumulation
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     ImageAccumulation(FunctionVector& fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
                       const cudaStream_t& stream,
-                      ViewCache::Cache& view_cache);
+                      InitSettings settings)
+        : fn_compute_vect_(fn_compute_vect)
+        , image_acc_env_(image_acc_env)
+        , buffers_(buffers)
+        , fd_(fd)
+        , stream_(stream)
+        , realtime_settings_(settings)
+    {
+    }
 
     /*! \brief Enqueue the image accumulation.
      *
      * Should be called just after gpu_float_buffer is computed
      */
-    void insert_image_accumulation();
-
+    void insert_image_accumulation(float& gpu_postprocess_frame,
+                                   unsigned int& gpu_postprocess_frame_size,
+                                   float& gpu_postprocess_frame_xz,
+                                   float& gpu_postprocess_frame_yz);
     /*! \brief Allocate ressources for image accumulation if requested */
     void init();
 
@@ -54,6 +82,17 @@ class ImageAccumulation
 
     /*! \brief Clear image accumulation queue */
     void clear();
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        spdlog::info("[ImageAccumulation] [update_setting] {}", typeid(T).name());
+
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+    }
 
   private:
     /*! \brief Compute average on one view */
@@ -64,16 +103,33 @@ class ImageAccumulation
                          const size_t frame_res);
 
     /*! \brief Insert the average computation of the float frame. */
-    void insert_compute_average();
+    void insert_compute_average(float& gpu_postprocess_frame,
+                                unsigned int& gpu_postprocess_frame_size,
+                                float& gpu_postprocess_frame_xz,
+                                float& gpu_postprocess_frame_yz);
 
     /*! \brief Insert the copy of the corrected buffer into the float buffer. */
-    void insert_copy_accumulation_result();
+    void insert_copy_accumulation_result(const holovibes::ViewXYZ& const_view_xy,
+                                         float* gpu_postprocess_frame,
+                                         const holovibes::ViewXYZ& const_view_xz,
+                                         float* gpu_postprocess_frame_xz,
+                                         const holovibes::ViewXYZ& const_view_yz,
+                                         float* gpu_postprocess_frame_yz);
 
     /*! \brief Handle the allocation of a accumulation queue and average frame */
     void allocate_accumulation_queue(std::unique_ptr<Queue>& gpu_accumulation_queue,
                                      cuda_tools::CudaUniquePtr<float>& gpu_average_frame,
                                      const unsigned int accumulation_level,
                                      const camera::FrameDescriptor fd);
+
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
 
   private:
     /*! \brief Vector function in which we insert the processing */
@@ -90,6 +146,13 @@ class ImageAccumulation
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    ViewCache::Cache& view_cache_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes {
+template <typename T>
+struct has_setting<T, compute::ImageAccumulation> : is_any_of<T, ALL_SETTINGS>
+{
+};
+}

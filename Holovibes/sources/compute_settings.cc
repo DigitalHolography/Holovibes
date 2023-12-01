@@ -10,6 +10,7 @@
 #include "compute_settings_struct.hh"
 #include "global_state_holder.hh"
 #include <iomanip>
+#include <spdlog/spdlog.h>
 
 #include "logger.hh"
 
@@ -18,17 +19,19 @@ namespace holovibes::api
 
 void after_load_checks()
 {
-    if (GSH::instance().get_filter2d_n1() >= GSH::instance().get_filter2d_n2())
-        GSH::instance().set_filter2d_n1(GSH::instance().get_filter2d_n1() - 1);
-    if (GSH::instance().get_time_transformation_size() < 1)
-        GSH::instance().set_time_transformation_size(1);
+    auto tts = api::get_time_transformation_size();
+
+    if (api::get_filter2d_n1() >= api::get_filter2d_n2())
+        api::set_filter2d_n1(api::get_filter2d_n2() - 1);
+    if (tts < 1)
+        api::set_time_transformation_size(1);
     // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (GSH::instance().get_p().start >= GSH::instance().get_time_transformation_size())
-        GSH::instance().set_p_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_q().start >= GSH::instance().get_time_transformation_size())
-        GSH::instance().set_q_index(GSH::instance().get_time_transformation_size() - 1);
-    if (GSH::instance().get_cuts_contrast_p_offset() > GSH::instance().get_time_transformation_size() - 1)
-        GSH::instance().set_cuts_contrast_p_offset(GSH::instance().get_time_transformation_size() - 1);
+    if (holovibes::api::get_p_index() >= tts)
+        api::set_p_index(tts - 1);
+    if (api::get_q().start >= tts)
+        api::set_q_index(tts - 1);
+    if (api::get_cuts_contrast_p_offset() > tts - 1)
+        api::set_cuts_contrast_p_offset(tts - 1);
 }
 
 void load_compute_settings(const std::string& json_path)
@@ -50,6 +53,7 @@ void load_compute_settings(const std::string& json_path)
         LOG_ERROR("{} is an invalid compute settings", json_path);
         return;
     }
+
 
     compute_settings.Load();
     compute_settings.Dump("cli_load_compute_settings");

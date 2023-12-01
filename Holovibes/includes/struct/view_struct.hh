@@ -29,6 +29,12 @@ struct ViewContrast
     float max = 65535.f;
 
     SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
+
+    bool operator==(const ViewContrast& other) const
+    {
+        return (enabled == other.enabled && auto_refresh == other.auto_refresh && invert == other.invert &&
+                min == other.min && max == other.max);
+    }
 };
 
 /*! \class ViewWindow
@@ -42,6 +48,11 @@ struct ViewWindow
     ViewContrast contrast;
 
     SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
+
+    bool operator==(const ViewWindow& other) const
+    {
+        return (log_enabled == other.log_enabled && contrast == other.contrast);
+    }
 };
 
 /*! \class ViewXYZ
@@ -55,6 +66,13 @@ struct ViewXYZ : public ViewWindow
     unsigned output_image_accumulation = 1;
 
     SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
+
+    bool operator==(const ViewXYZ& other) const
+    {
+        return (horizontal_flip == other.horizontal_flip && rotation == other.rotation &&
+                output_image_accumulation == other.output_image_accumulation &&
+                log_enabled == other.log_enabled && contrast == other.contrast);
+    }
 };
 
 /*! \class ViewAccu
@@ -77,6 +95,11 @@ struct ViewPQ : public ViewAccu
     unsigned start = 0;
 
     SERIALIZE_JSON_STRUCT(ViewPQ, width, start)
+
+    bool operator==(const ViewPQ& other) const
+    {
+        return (start == other.start && width == other.width);
+    }
 };
 
 /*! \class ViewXY
@@ -88,6 +111,11 @@ struct ViewXY : public ViewAccu
     unsigned start = 0;
 
     SERIALIZE_JSON_STRUCT(ViewXY, width, start)
+
+    bool operator==(const ViewXY& other) const
+    {
+        return (start == other.start && width == other.width);
+    }
 };
 
 /*! \class Windows
