@@ -1,6 +1,8 @@
 import sys, os
 
 os.system("clang.exe create_holo.cc")
-print(sys.argv)
-os.system("a.exe " + sys.argv[1])
+cmd = "a.exe "
+for arg in sys.argv[1:]:
+    cmd += arg + " "
+os.system(cmd)
 os.system("rm a.exe")

@@ -47,7 +47,7 @@ struct HoloFileHeader
         char padding[35];
     };
 
-void read_bmp(const char* path)
+void read_bmp(const char* path, const char* out_path)
 {
     FILE* f = fopen(path, "rb");
     if(f == NULL)
@@ -118,7 +118,7 @@ void read_bmp(const char* path)
 	}
 
     // Write Holofile header
-    FILE* out = fopen("out.holo", "w+");
+    FILE* out = fopen(out_path, "w+");
     fwrite(HoloHeader, sizeof(HoloFileHeader), 1, out);
 
     // Skip to bytecode
@@ -154,10 +154,16 @@ void read_bmp(const char* path)
 }
 
 int main(int argc, char** argv){
-    if (argc != 2)
-        return 1;
+    if (argc == 2)
+    {
+        read_bmp(argv[1], "out.holo");
+        return 0;
+    }
+    if (argc == 3)
+    {
+        read_bmp(argv[1], argv[2]);
+        return 0;
+    }
 
-    read_bmp(argv[1]);
-
-    return 0;
+    return 1;
 }
