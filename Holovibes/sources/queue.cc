@@ -30,10 +30,12 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , has_overridden_(false)
     , gpu_(gpu)
 {
-    if (gpu_)
-        data_ = std::make_shared<cuda_tools::CudaUniquePtr<char>>();
-    else
-        data_ = std::make_shared<cuda_tools::CPUUniquePtr<char>>();
+    // if (gpu_)
+    //     data_ = std::make_shared<cuda_tools::CudaUniquePtr<char>>();
+    // else
+    //     data_ = std::make_shared<cuda_tools::CPUUniquePtr<char>>();
+
+    data_ = std::make_shared<cuda_tools::UniquePtr<char>>();
 
     max_size_ = max_size;
 
@@ -45,11 +47,14 @@ Queue::Queue(const camera::FrameDescriptor& fd,
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 
-    // Needed if input is embedded into a bigger square
-    if (gpu_)
-        cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
-    else
-        std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // // Needed if input is embedded into a bigger square
+    // if (gpu_)
+    //     cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // else
+    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+
+    cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    
 
     fd_.byteEndian = Endianness::LittleEndian;
 }
@@ -69,12 +74,15 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
     }
 
     // Needed if input is embedded into a bigger square
-    if (gpu_) {
-        cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
-        cudaXStreamSynchronize(stream);
-    }
-    else
-        std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // if (gpu_) {
+    //     cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    //     cudaXStreamSynchronize(stream);
+    // }
+    // else
+    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+
+    cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    cudaXStreamSynchronize(stream);
 
 
     size_ = 0;
