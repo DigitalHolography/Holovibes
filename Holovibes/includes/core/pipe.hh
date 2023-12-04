@@ -63,7 +63,12 @@
     holovibes::settings::SignalZone,               \
     holovibes::settings::NoiseZone,                \
     holovibes::settings::CompositeZone,            \
-    holovibes::settings::TimeTransformationCutsOutputBufferSize
+    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
+    holovibes::settings::CompositeKind,                          \
+    holovibes::settings::CompositeAutoWeights,                   \
+    holovibes::settings::RGB,                                    \
+    holovibes::settings::HSV
+
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::OutputBufferSize,         \

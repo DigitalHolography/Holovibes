@@ -23,6 +23,11 @@ struct CompositeP
     SERIALIZE_JSON_STRUCT(CompositeP, min, max)
 };
 
+inline bool operator==(const CompositeP& lhs, const CompositeP& rhs)
+{
+    return lhs.min == rhs.min && lhs.max == rhs.max;
+}
+
 /*! \class ActivableCompositeP
  *
  * \brief Class that represents ActivableCompositeP
@@ -33,6 +38,11 @@ struct ActivableCompositeP : public CompositeP
 
     SERIALIZE_JSON_STRUCT(ActivableCompositeP, min, max, activated)
 };
+
+inline bool operator==(const ActivableCompositeP& lhs, const ActivableCompositeP& rhs)
+{
+    return lhs.min == rhs.min && lhs.max == rhs.max && lhs.activated == rhs.activated;
+}
 
 /*! \class RGBWeights
  *
@@ -47,6 +57,11 @@ struct RGBWeights
     SERIALIZE_JSON_STRUCT(RGBWeights, r, g, b)
 };
 
+inline bool operator==(const RGBWeights& lhs, const RGBWeights& rhs)
+{
+    return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b;
+}
+
 /*! \class CompositeRGB
  *
  * \brief Class that represents CompositeRGB
@@ -58,6 +73,11 @@ struct CompositeRGB
 
     SERIALIZE_JSON_STRUCT(CompositeRGB, frame_index, weight)
 };
+
+inline bool operator==(const CompositeRGB& lhs, const CompositeRGB& rhs)
+{
+    return lhs.frame_index == rhs.frame_index && lhs.weight == rhs.weight;
+}
 
 /*! \class Threshold
  *
@@ -71,6 +91,11 @@ struct Threshold
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
+inline bool operator==(const Threshold& lhs, const Threshold& rhs)
+{
+    return lhs.min == rhs.min && lhs.max == rhs.max;
+}
+
 /*! \class  Blur
  *
  * \brief Class that represents Blur
@@ -82,6 +107,11 @@ struct Blur
 
     SERIALIZE_JSON_STRUCT(Blur, enabled, kernel_size)
 };
+
+inline bool operator==(const Blur& lhs, const Blur& rhs)
+{
+    return lhs.enabled == rhs.enabled && lhs.kernel_size == rhs.kernel_size;
+}
 
 /*! \class CompositeChannel
  *
@@ -96,6 +126,11 @@ struct CompositeChannel
     SERIALIZE_JSON_STRUCT(CompositeChannel, frame_index, slider_threshold, threshold)
 };
 
+inline bool operator==(const CompositeChannel& lhs, const CompositeChannel& rhs)
+{
+    return lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold && lhs.threshold == rhs.threshold;
+}
+
 /*! \class CompositeH
  *
  * \brief Class that represents CompositeH
@@ -106,6 +141,11 @@ struct CompositeH : public CompositeChannel
 
     SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, blur)
 };
+
+inline bool operator==(const CompositeH& lhs, const CompositeH& rhs)
+{
+    return lhs.blur == rhs.blur && lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold && lhs.threshold == rhs.threshold;
+}
 
 /*! \class CompositeHSV
  *
@@ -119,6 +159,11 @@ struct CompositeHSV
 
     SERIALIZE_JSON_STRUCT(CompositeHSV, h, s, v)
 };
+
+inline bool operator==(const CompositeHSV& lhs, const CompositeHSV& rhs)
+{
+    return lhs.h == rhs.h && lhs.s == rhs.s && lhs.v == rhs.v;
+}
 
 /*! \class Composite
  *

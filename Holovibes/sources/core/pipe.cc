@@ -254,7 +254,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("Hologram Record Request Processing");
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth;
-        frame_record_env_.gpu_frame_record_queue_.reset(
+        frame_record_env_.frame_record_queue_.reset(
             new Queue(record_fd, setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
         api::set_frame_record_enabled(true);
         frame_record_env_.record_mode_ = RecordMode::HOLOGRAM;
@@ -265,7 +265,7 @@ bool Pipe::make_requests()
     if (raw_record_requested_)
     {
         LOG_DEBUG("Raw Record Request Processing");
-        frame_record_env_.gpu_frame_record_queue_.reset(
+        frame_record_env_.frame_record_queue_.reset(
             new Queue(gpu_input_queue_.get_fd(), setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
         api::set_frame_record_enabled(true);
@@ -286,7 +286,7 @@ bool Pipe::make_requests()
         else
             fd_xyz.width = setting<settings::TimeTransformationSize>();
 
-        frame_record_env_.gpu_frame_record_queue_.reset(
+        frame_record_env_.frame_record_queue_.reset(
             new Queue(fd_xyz, setting<settings::RecordBufferSize>(), QueueType::RECORD_QUEUE));
 
         api::set_frame_record_enabled(true);
@@ -395,10 +395,10 @@ void Pipe::refresh()
                                setting<settings::TimeTransformation>(),
                                buffers_.gpu_postprocess_frame.get(),
                                setting<settings::TimeTransformationSize>(),
-                               composite_cache_.get_rgb(),
-                               composite_cache_.get_composite_kind(),
-                               composite_cache_.get_composite_auto_weights(),
-                               composite_cache_.get_hsv_const_ref(),
+                               setting<settings::RGB>(),
+                               setting<settings::CompositeKind>(),
+                               setting<settings::CompositeAutoWeights>(),
+                            setting<settings::HSV>(),
                                setting<settings::CompositeZone>(),
                                setting<settings::UnwrapHistorySize>());
 
@@ -605,7 +605,7 @@ void Pipe::insert_raw_record()
 
         fn_compute_vect_.push_back(
             [&]() {
-                gpu_input_queue_.copy_multiple(*frame_record_env_.gpu_frame_record_queue_,
+                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
                                                setting<settings::BatchSize>());
                 // If the number of frames to record is reached, stop
                 if (export_cache_.get_nb_frame() != std::nullopt && inserted >= export_cache_.get_nb_frame().value())

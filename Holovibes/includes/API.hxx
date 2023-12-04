@@ -14,11 +14,14 @@ inline void set_compute_mode(Computation mode)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ComputeMode{mode});
 }
 
-inline float get_pixel_size() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::PixelSize>().value; }
+inline float get_pixel_size()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::PixelSize>().value;
+}
 
 inline void set_pixel_size(float value)
 {
-    //std::lock_guard<std::mutex> lock(mutex_);
+    // std::lock_guard<std::mutex> lock(mutex_);
     holovibes::Holovibes::instance().update_setting(holovibes::settings::PixelSize{value});
 }
 
@@ -84,7 +87,7 @@ inline bool set_batch_size(uint value)
     {
         set_time_stride(time_stride - time_stride % value);
     }
-        
+
     return request_time_stride_update;
 }
 
@@ -634,78 +637,19 @@ inline void set_reticle_scale(float value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ReticleScale{value});
 }
 
-inline CompositeKind get_composite_kind() { return GSH::instance().get_composite_kind(); }
-inline void set_composite_kind(CompositeKind value) { GSH::instance().set_composite_kind(value); }
-
-inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip(); }
-
-inline double get_rotation() { return GSH::instance().get_rotation(); }
-
-// RGB
-inline uint get_composite_p_red() { return GSH::instance().get_rgb_p_min(); }
-inline uint get_composite_p_blue() { return GSH::instance().get_rgb_p_max(); }
-inline void set_rgb_p(int min, int max) { GSH::instance().set_rgb_p({min, max}, true); }
-
-inline float get_weight_r() { return GSH::instance().get_weight_r(); }
-
-inline float get_weight_g() { return GSH::instance().get_weight_g(); }
-
-inline float get_weight_b() { return GSH::instance().get_weight_b(); }
-
-// HSV
-inline uint get_composite_p_min_h() { return GSH::instance().get_composite_p_min_h(); }
-inline uint get_composite_p_max_h() { return GSH::instance().get_composite_p_max_h(); }
-inline void set_composite_p_h(unsigned int min, unsigned int max)
+inline int get_unwrap_history_size()
 {
-    GSH::instance().set_composite_p_h({min, max}, true);
+    return holovibes::Holovibes::instance().get_setting<settings::UnwrapHistorySize>().value;
 }
 
-inline std::optional<size_t> get_nb_frames_to_record() {return GSH::instance().get_nb_frames_to_record();}
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {GSH::instance().set_nb_frames_to_record(nb_frames);}
-
-inline float get_slider_h_threshold_min() { return GSH::instance().get_slider_h_threshold_min(); }
-inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider_h_threshold_min(value); }
-
-inline float get_slider_h_threshold_max() { return GSH::instance().get_slider_h_threshold_max(); }
-inline void set_slider_h_threshold_max(float value) { GSH::instance().set_slider_h_threshold_max(value); }
-
-inline float get_composite_low_h_threshold() { return GSH::instance().get_composite_low_h_threshold(); }
-
-inline float get_composite_high_h_threshold() { return GSH::instance().get_composite_high_h_threshold(); }
-
-inline uint get_h_blur_kernel_size() { return GSH::instance().get_h_blur_kernel_size(); }
-
-inline uint get_composite_p_min_s() { return GSH::instance().get_composite_p_min_s(); }
-inline uint get_composite_p_max_s() { return GSH::instance().get_composite_p_max_s(); }
-
-inline float get_slider_s_threshold_min() { return GSH::instance().get_slider_s_threshold_min(); }
-inline void set_slider_s_threshold_min(float value) { GSH::instance().set_slider_s_threshold_min(value); }
-
-inline float get_slider_s_threshold_max() { return GSH::instance().get_slider_s_threshold_max(); }
-inline void set_slider_s_threshold_max(float value) { GSH::instance().set_slider_s_threshold_max(value); }
-
-inline float get_composite_low_s_threshold() { return GSH::instance().get_composite_low_s_threshold(); }
-
-inline float get_composite_high_s_threshold() { return GSH::instance().get_composite_high_s_threshold(); }
-
-inline uint get_composite_p_min_v() { return GSH::instance().get_composite_p_min_v(); }
-
-inline uint get_composite_p_max_v() { return GSH::instance().get_composite_p_max_v(); }
-
-inline float get_slider_v_threshold_min() { return GSH::instance().get_slider_v_threshold_min(); }
-inline void set_slider_v_threshold_min(float value) { GSH::instance().set_slider_v_threshold_min(value); }
-
-inline float get_slider_v_threshold_max() { return GSH::instance().get_slider_v_threshold_max(); }
-inline void set_slider_v_threshold_max(float value) { GSH::instance().set_slider_v_threshold_max(value); }
-
-inline float get_composite_low_v_threshold() { return GSH::instance().get_composite_low_v_threshold(); }
-
-inline float get_composite_high_v_threshold() { return GSH::instance().get_composite_high_v_threshold(); }
-
-inline int get_unwrap_history_size() { return holovibes::Holovibes::instance().get_setting<settings::UnwrapHistorySize>().value; }
-
-inline bool get_is_computation_stopped() { return holovibes::Holovibes::instance().get_setting<settings::IsComputationStopped>().value; }
-inline void set_is_computation_stopped(bool value) { holovibes::Holovibes::instance().update_setting(settings::IsComputationStopped{value}); }
+inline bool get_is_computation_stopped()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::IsComputationStopped>().value;
+}
+inline void set_is_computation_stopped(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(settings::IsComputationStopped{value});
+}
 
 inline bool get_divide_convolution_enabled()
 {
@@ -798,15 +742,6 @@ inline void set_reticle_display_enabled(bool value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ReticleDisplayEnabled{value});
 }
 
-inline bool get_h_blur_activated() { return GSH::instance().get_h_blur_activated(); }
-
-inline bool get_composite_p_activated_s() { return GSH::instance().get_composite_p_activated_s(); }
-
-inline bool get_composite_p_activated_v() { return GSH::instance().get_composite_p_activated_v(); }
-
-inline bool get_composite_auto_weights() { return GSH::instance().get_composite_auto_weights(); }
-inline void set_composite_auto_weights(bool value) { GSH::instance().set_composite_auto_weights(value); }
-
 inline uint get_file_buffer_size()
 {
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
@@ -828,7 +763,9 @@ inline void set_record_buffer_size(uint value)
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::TimeTransformationCutsOutputBufferSize>().value;
+    return holovibes::Holovibes::instance()
+        .get_setting<holovibes::settings::TimeTransformationCutsOutputBufferSize>()
+        .value;
 }
 inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
@@ -991,17 +928,47 @@ inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instanc
 
 inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes::instance().get_gpu_input_queue(); };
 
-inline units::RectFd get_signal_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::SignalZone>().value; };
-inline units::RectFd get_noise_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::NoiseZone>().value; };
-inline units::RectFd get_composite_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::CompositeZone>().value; };
-inline units::RectFd get_zoomed_zone() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::ZoomedZone>().value; };
-inline units::RectFd get_reticle_zone() { return  holovibes::Holovibes::instance().get_setting<holovibes::settings::ReticleZone>().value; };
+inline units::RectFd get_signal_zone()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::SignalZone>().value;
+};
+inline units::RectFd get_noise_zone()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::NoiseZone>().value;
+};
+inline units::RectFd get_composite_zone()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::CompositeZone>().value;
+};
+inline units::RectFd get_zoomed_zone()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::ZoomedZone>().value;
+};
+inline units::RectFd get_reticle_zone()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::ReticleZone>().value;
+};
 
-inline void set_signal_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::SignalZone{rect}); };
-inline void set_noise_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::NoiseZone{rect}); };
-inline void set_composite_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::CompositeZone{rect}); };
-inline void set_zoomed_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ZoomedZone{rect}); };
-inline void set_reticle_zone(const units::RectFd& rect) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ReticleZone{rect}); };
+inline void set_signal_zone(const units::RectFd& rect)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::SignalZone{rect});
+};
+inline void set_noise_zone(const units::RectFd& rect)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::NoiseZone{rect});
+};
+inline void set_composite_zone(const units::RectFd& rect)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::CompositeZone{rect});
+};
+inline void set_zoomed_zone(const units::RectFd& rect)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ZoomedZone{rect});
+};
+inline void set_reticle_zone(const units::RectFd& rect)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ReticleZone{rect});
+};
 
 inline void set_frame_record_enabled(bool value)
 {
@@ -1033,9 +1000,353 @@ inline bool get_convolution_enabled()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::ConvolutionEnabled>().value;
 }
 
-inline void set_filter_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{value}); };
+inline void set_filter_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{value});
+};
 
-inline bool get_filter_enabled() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::FilterEnabled>().value; };
+inline bool get_filter_enabled()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::FilterEnabled>().value;
+};
+
+inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip(); }
+
+inline double get_rotation() { return GSH::instance().get_rotation(); }
+
+inline std::optional<size_t> get_nb_frames_to_record() {return GSH::instance().get_nb_frames_to_record();}
+inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {GSH::instance().set_nb_frames_to_record(nb_frames);}
+
+// Ex composite_cache
+inline CompositeKind get_composite_kind() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::CompositeKind>().value;
+}
+
+inline bool get_composite_auto_weights() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::CompositeAutoWeights>().value;
+}
+
+// RGB
+inline CompositeRGB get_rgb() noexcept { return holovibes::Holovibes::instance().get_setting<settings::RGB>().value; }
+inline uint get_rgb_p_min() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.frame_index.min;
+}
+inline uint get_rgb_p_max() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.frame_index.max;
+}
+inline float get_weight_r() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.weight.r;
+}
+inline float get_weight_g() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.weight.g;
+}
+inline float get_weight_b() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.weight.b;
+}
+
+// HSV
+inline CompositeHSV get_hsv() noexcept { return holovibes::Holovibes::instance().get_setting<settings::HSV>().value; }
+inline uint get_composite_p_min_h() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.frame_index.min;
+}
+inline uint get_composite_p_max_h() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.frame_index.max;
+}
+
+inline float get_slider_h_threshold_min() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.slider_threshold.min;
+}
+inline float get_slider_h_threshold_max() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.slider_threshold.max;
+}
+
+inline float get_composite_low_h_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.threshold.min;
+}
+inline float get_composite_high_h_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.threshold.max;
+}
+inline uint get_h_blur_kernel_size() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.kernel_size;
+}
+inline uint get_composite_p_min_s() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.min;
+}
+inline uint get_composite_p_max_s() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.max;
+}
+inline float get_slider_s_threshold_min() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.slider_threshold.min;
+}
+inline float get_slider_s_threshold_max() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.slider_threshold.max;
+}
+inline float get_composite_low_s_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.threshold.min;
+}
+inline float get_composite_high_s_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.threshold.max;
+}
+inline uint get_composite_p_min_v() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.frame_index.min;
+}
+inline uint get_composite_p_max_v() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.frame_index.max;
+}
+inline float get_slider_v_threshold_min() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.slider_threshold.min;
+}
+inline float get_slider_v_threshold_max() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.slider_threshold.max;
+}
+inline float get_composite_low_v_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.threshold.min;
+}
+inline float get_composite_high_v_threshold() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.threshold.max;
+}
+inline bool get_h_blur_activated() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.enabled;
+}
+inline bool get_composite_p_activated_s() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.activated;
+}
+inline bool get_composite_p_activated_v() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.frame_index.activated;
+}
+inline uint get_composite_p_red()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.frame_index.min;
+}
+inline uint get_composite_p_blue()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RGB>().value.frame_index.max;
+}
+
+inline void set_composite_kind(CompositeKind value)
+{
+    holovibes::Holovibes::instance().update_setting(settings::CompositeKind{value});
+}
+
+inline void set_composite_auto_weights(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(settings::CompositeAutoWeights{value});
+}
+
+// RGB
+inline void set_rgb(CompositeRGB value) { holovibes::Holovibes::instance().update_setting(settings::RGB{value}); }
+
+inline void set_rgb_p(int min, int max, bool notify = false)
+{
+    holovibes::CompositeRGB rgb = get_rgb();
+    rgb.frame_index.min = min;
+    rgb.frame_index.max = max;
+    holovibes::Holovibes::instance().update_setting(settings::RGB{rgb});
+    if (notify)
+        GSH::instance().set_rgb_p();
+}
+
+inline void set_weight_r(double value)
+{
+    holovibes::CompositeRGB rgb = get_rgb();
+    rgb.weight.r = value;
+    Holovibes::instance().update_setting(settings::RGB{rgb});
+}
+inline void set_weight_g(double value)
+{
+    holovibes::CompositeRGB rgb = get_rgb();
+    rgb.weight.g = value;
+    Holovibes::instance().update_setting(settings::RGB{rgb});
+}
+inline void set_weight_b(double value)
+{
+    holovibes::CompositeRGB rgb = get_rgb();
+    rgb.weight.b = value;
+    Holovibes::instance().update_setting(settings::RGB{rgb});
+}
+
+inline void set_weight_rgb(double r, double g, double b)
+{
+    holovibes::CompositeRGB rgb = get_rgb();
+    rgb.weight.r = r;
+    rgb.weight.g = g;
+    rgb.weight.b = b;
+    Holovibes::instance().update_setting(settings::RGB{rgb});
+}
+
+// HSV
+inline void set_composite_p_h(int min, int max, bool notify = false)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.frame_index.min = min;
+    hsv.h.frame_index.max = max;
+    holovibes::Holovibes::instance().update_setting(settings::HSV{hsv});
+    if (notify)
+        GSH::instance().set_composite_p_h();
+}
+
+inline void set_hsv(CompositeHSV value) { holovibes::Holovibes::instance().update_setting(settings::HSV{value}); }
+inline void set_slider_h_threshold_min(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.slider_threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_h_threshold_max(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.slider_threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_low_h_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_high_h_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_min_h(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.frame_index.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_max_h(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.frame_index.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_h_blur_kernel_size(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.blur.kernel_size = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_min_s(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.frame_index.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_max_s(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.frame_index.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_s_threshold_min(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.slider_threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_s_threshold_max(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.slider_threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_low_s_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_high_s_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_min_v(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.frame_index.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_max_v(uint value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.frame_index.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_v_threshold_min(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.slider_threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_v_threshold_max(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.slider_threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_low_v_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.threshold.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_high_v_threshold(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_h_blur_activated(bool value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.blur.enabled = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_activated_s(bool value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.s.frame_index.activated = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_composite_p_activated_v(bool value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.v.frame_index.activated = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
 
 #pragma endregion
 

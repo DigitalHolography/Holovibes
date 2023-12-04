@@ -99,16 +99,16 @@ void AdvancedSettings::Update()
     this->buffer_size.Update();
     this->filter2d_smooth.Update();
     this->contrast.Update();
-    this->renorm_constant =  holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
-    this->raw_bitshift =  holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value;
+    this->renorm_constant = holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
+    this->raw_bitshift = holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value;
 }
 
 void Composite::Update()
 {
-    this->mode = GSH::instance().get_composite_kind();
-    this->auto_weight = GSH::instance().get_composite_auto_weights();
-    this->rgb = GSH::instance().get_rgb();
-    this->hsv = GSH::instance().get_hsv();
+    this->mode = holovibes::Holovibes::instance().get_setting<settings::CompositeKind>().value;
+    this->auto_weight = holovibes::Holovibes::instance().get_setting<settings::CompositeAutoWeights>().value;
+    this->rgb = holovibes::Holovibes::instance().get_setting<settings::RGB>().value;
+    this->hsv = holovibes::Holovibes::instance().get_setting<settings::HSV>().value;
 }
 
 void ComputeSettings::Update()
@@ -152,10 +152,10 @@ void AdvancedSettings::Load()
 
 void Composite::Load()
 {
-    GSH::instance().set_composite_kind(this->mode);
-    GSH::instance().set_composite_auto_weights(this->auto_weight);
-    GSH::instance().set_rgb(this->rgb);
-    GSH::instance().set_hsv(this->hsv);
+    Holovibes::instance().update_setting(settings::CompositeKind{this->mode});
+    Holovibes::instance().update_setting(settings::CompositeAutoWeights{this->auto_weight});
+    Holovibes::instance().update_setting(settings::RGB{this->rgb});
+    Holovibes::instance().update_setting(settings::HSV{this->hsv});
 }
 
 void ComputeSettings::Load()

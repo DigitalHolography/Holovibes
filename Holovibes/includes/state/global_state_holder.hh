@@ -79,8 +79,6 @@ class GSH
     bool get_log_enabled() const;
     unsigned get_accumulation_level() const;
 
-    inline CompositeKind get_composite_kind() const noexcept { return composite_cache_.get_composite_kind(); }
-
     inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
 
     // RGB
@@ -173,7 +171,7 @@ class GSH
     // RGB
     inline void set_rgb(CompositeRGB value) { composite_cache_.set_rgb(value); }
 
-    void set_rgb_p(Span<int> span, bool notify = false);
+    void set_rgb_p();
 
     inline void set_weight_r(double value) { composite_cache_.get_rgb_ref()->weight.r = value; }
     inline void set_weight_g(double value) { composite_cache_.get_rgb_ref()->weight.g = value; }
@@ -182,7 +180,7 @@ class GSH
     void set_weight_rgb(double r, double g, double b);
 
     // HSV
-    void set_composite_p_h(Span<uint> span, bool notify = false);
+    void set_composite_p_h();
 
     inline void set_hsv(CompositeHSV value) { composite_cache_.set_hsv(value); }
     inline void set_slider_h_threshold_min(float value)
@@ -258,6 +256,7 @@ class GSH
     void notify() { notify_callback_(); }
 
     CompositeCache::Ref composite_cache_;
+    ExportCache::Ref export_cache_;
 
     mutable std::mutex mutex_;
 };

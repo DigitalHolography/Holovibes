@@ -25,33 +25,37 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
-    holovibes::settings::ImageType,                \
-    holovibes::settings::X,                        \
-    holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
-    holovibes::settings::XY,                       \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::Filter2d,                 \
-    holovibes::settings::CurrentWindow,            \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::ChartDisplayEnabled,      \
-    holovibes::settings::Filter2dEnabled,          \
-    holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::RawViewEnabled,           \
-    holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale,             \
-    holovibes::settings::Filter2dN1,               \
-    holovibes::settings::Filter2dN2,               \
-    holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::TimeTransformationSize,   \
-    holovibes::settings::TimeTransformation,       \
-    holovibes::settings::TimeTransformationCutsOutputBufferSize
+#define REALTIME_SETTINGS                                        \
+    holovibes::settings::ImageType,                              \
+    holovibes::settings::X,                                      \
+    holovibes::settings::Y,                                      \
+    holovibes::settings::P,                                      \
+    holovibes::settings::Q,                                      \
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
+    holovibes::settings::Filter2d,                               \
+    holovibes::settings::CurrentWindow,                          \
+    holovibes::settings::LensViewEnabled,                        \
+    holovibes::settings::ChartDisplayEnabled,                    \
+    holovibes::settings::Filter2dEnabled,                        \
+    holovibes::settings::Filter2dViewEnabled,                    \
+    holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RawViewEnabled,                         \
+    holovibes::settings::CutsViewEnabled,                        \
+    holovibes::settings::RenormEnabled,                          \
+    holovibes::settings::ReticleScale,                           \
+    holovibes::settings::Filter2dN1,                             \
+    holovibes::settings::Filter2dN2,                             \
+    holovibes::settings::Filter2dSmoothLow,                      \
+    holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::TimeTransformation,                     \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
+    holovibes::settings::CompositeKind,                          \
+    holovibes::settings::CompositeAutoWeights,                   \
+    holovibes::settings::RGB,                                    \
+    holovibes::settings::HSV
 
 #define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize
@@ -525,6 +529,7 @@ class ICompute
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
     CompositeCache::Cache composite_cache_;
+    ExportCache::Cache export_cache_;
 
   private:
     /**

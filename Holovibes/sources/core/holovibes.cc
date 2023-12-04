@@ -121,7 +121,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
         return;
     }
 
-    GSH::instance().set_nb_frames_to_record(nb_frames_to_record);
+    api::set_nb_frames_to_record(get_setting<settings::RecordFrameCount>().value);
 
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);

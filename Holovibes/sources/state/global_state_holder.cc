@@ -206,21 +206,14 @@ void GSH::set_horizontal_flip(double value)
     SET_XYZ_MEMBER(horizontal_flip, value);
 }
 
-void GSH::set_composite_p_h(Span<uint> span, bool notify)
+void GSH::set_composite_p_h()
 {
-    // FIXME - RENAME
-    composite_cache_.get_hsv_ref()->h.frame_index.min = span.min;
-    composite_cache_.get_hsv_ref()->h.frame_index.max = span.max;
-    if (notify)
-        this->notify();
+    this->notify();
 }
 
-void GSH::set_rgb_p(Span<int> span, bool notify)
+void GSH::set_rgb_p()
 {
-    composite_cache_.get_rgb_ref()->frame_index.min = span.min;
-    composite_cache_.get_rgb_ref()->frame_index.max = span.max;
-    if (notify)
-        this->notify();
+    this->notify();
 }
 
 void GSH::set_weight_rgb(double r, double g, double b)

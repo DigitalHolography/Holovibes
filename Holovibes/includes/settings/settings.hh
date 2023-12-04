@@ -9,6 +9,7 @@
 #include <optional>
 #include "enum/enum_record_mode.hh"
 #include "struct/view_struct.hh"
+#include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
@@ -193,4 +194,9 @@ DECLARE_SETTING(CompositeZone, units::RectFd)
 DECLARE_SETTING(ZoomedZone, units::RectFd)
 DECLARE_SETTING(ReticleZone, units::RectFd)
 
+// ex CompositeCache
+DECLARE_SETTING(CompositeKind, holovibes::CompositeKind)
+DECLARE_SETTING(CompositeAutoWeights, bool)
+DECLARE_SETTING(RGB, holovibes::CompositeRGB)
+DECLARE_SETTING(HSV, holovibes::CompositeHSV)
 } // namespace holovibes::settings
