@@ -12,6 +12,7 @@
 #include "logger.hh"
 #include "tools_unwrap.cuh"
 #include "map.cuh"
+#include "API.hh"
 
 #include <mutex>
 
@@ -175,7 +176,8 @@ void Converts::insert_to_composite(holovibes::CompositeRGB composite_rgb,
                 if (pixel_depth >= 3)
                 {
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    GSH::instance().set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                    //!!!!! replace api by update_setting
+                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
                                                    (static_cast<double>(averages[1]) / max) * factor,
                                                    (static_cast<double>(averages[2]) / max) * factor);
                 }

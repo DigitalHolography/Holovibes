@@ -1160,6 +1160,7 @@ inline void set_composite_kind(CompositeKind value)
 inline void set_composite_auto_weights(bool value)
 {
     holovibes::Holovibes::instance().update_setting(settings::CompositeAutoWeights{value});
+    pipe_refresh();
 }
 
 // RGB

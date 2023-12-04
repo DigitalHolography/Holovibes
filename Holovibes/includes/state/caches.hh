@@ -25,11 +25,6 @@ namespace holovibes
  * \param rgb
  * \param hsv
  */
-NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
-                            (CompositeKind, composite_kind, CompositeKind::RGB),
-                            (bool, composite_auto_weights, false),
-                            (CompositeRGB, rgb, CompositeRGB{}),
-                            (CompositeHSV, hsv, CompositeHSV{}));
 
 NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false), (std::optional<size_t>, nb_frame, std::nullopt));
 } // namespace holovibes

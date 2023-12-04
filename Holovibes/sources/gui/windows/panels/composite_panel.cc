@@ -159,6 +159,7 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_B->setEnabled(!value);
 
     ui_->ViewPanel->set_auto_contrast();
+    parent_->notify();
 }
 
 void CompositePanel::click_composite_rgb_or_hsv()

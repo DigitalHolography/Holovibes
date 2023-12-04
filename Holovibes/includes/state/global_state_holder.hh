@@ -79,66 +79,6 @@ class GSH
     bool get_log_enabled() const;
     unsigned get_accumulation_level() const;
 
-    inline bool get_composite_auto_weights() const noexcept { return composite_cache_.get_composite_auto_weights(); }
-
-    // RGB
-    inline CompositeRGB get_rgb() const noexcept { return composite_cache_.get_rgb(); }
-    inline uint get_rgb_p_min() const noexcept { return composite_cache_.get_rgb().frame_index.min; }
-    inline uint get_rgb_p_max() const noexcept { return composite_cache_.get_rgb().frame_index.max; }
-    inline float get_weight_r() const noexcept { return composite_cache_.get_rgb().weight.r; }
-    inline float get_weight_g() const noexcept { return composite_cache_.get_rgb().weight.g; }
-    inline float get_weight_b() const noexcept { return composite_cache_.get_rgb().weight.b; }
-
-    // HSV
-    inline CompositeHSV get_hsv() const noexcept { return composite_cache_.get_hsv(); }
-    inline uint get_composite_p_min_h() const noexcept { return composite_cache_.get_hsv().h.frame_index.min; }
-    inline uint get_composite_p_max_h() const noexcept { return composite_cache_.get_hsv().h.frame_index.max; }
-
-    inline float get_slider_h_threshold_min() const noexcept
-    {
-        return composite_cache_.get_hsv().h.slider_threshold.min;
-    }
-    inline float get_slider_h_threshold_max() const noexcept
-    {
-        return composite_cache_.get_hsv().h.slider_threshold.max;
-    }
-
-    inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.min; }
-    inline float get_composite_high_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.max; }
-    inline uint get_h_blur_kernel_size() const noexcept { return composite_cache_.get_hsv().h.blur.kernel_size; }
-    inline uint get_composite_p_min_s() const noexcept { return composite_cache_.get_hsv().s.frame_index.min; }
-    inline uint get_composite_p_max_s() const noexcept { return composite_cache_.get_hsv().s.frame_index.max; }
-    inline float get_slider_s_threshold_min() const noexcept
-    {
-        return composite_cache_.get_hsv().s.slider_threshold.min;
-    }
-    inline float get_slider_s_threshold_max() const noexcept
-    {
-        return composite_cache_.get_hsv().s.slider_threshold.max;
-    }
-    inline float get_composite_low_s_threshold() const noexcept { return composite_cache_.get_hsv().s.threshold.min; }
-    inline float get_composite_high_s_threshold() const noexcept { return composite_cache_.get_hsv().s.threshold.max; }
-    inline uint get_composite_p_min_v() const noexcept { return composite_cache_.get_hsv().v.frame_index.min; }
-    inline uint get_composite_p_max_v() const noexcept { return composite_cache_.get_hsv().v.frame_index.max; }
-    inline float get_slider_v_threshold_min() const noexcept
-    {
-        return composite_cache_.get_hsv().v.slider_threshold.min;
-    }
-    inline float get_slider_v_threshold_max() const noexcept
-    {
-        return composite_cache_.get_hsv().v.slider_threshold.max;
-    }
-    inline float get_composite_low_v_threshold() const noexcept { return composite_cache_.get_hsv().v.threshold.min; }
-    inline float get_composite_high_v_threshold() const noexcept { return composite_cache_.get_hsv().v.threshold.max; }
-    inline bool get_h_blur_activated() const noexcept { return composite_cache_.get_hsv().h.blur.enabled; }
-    inline bool get_composite_p_activated_s() const noexcept
-    {
-        return composite_cache_.get_hsv().s.frame_index.activated;
-    }
-    inline bool get_composite_p_activated_v() const noexcept
-    {
-        return composite_cache_.get_hsv().v.frame_index.activated;
-    }
     inline std::optional<size_t> get_nb_frames_to_record() const noexcept {return export_cache_.get_nb_frame();}
 #pragma endregion
 
@@ -164,71 +104,9 @@ class GSH
     void set_rotation(double value);
     void set_horizontal_flip(double value);
 
-    inline void set_composite_kind(CompositeKind value) { composite_cache_.set_composite_kind(value); }
-
-    inline void set_composite_auto_weights(bool value) { composite_cache_.set_composite_auto_weights(value); }
-
-    // RGB
-    inline void set_rgb(CompositeRGB value) { composite_cache_.set_rgb(value); }
-
     void set_rgb_p();
-
-    inline void set_weight_r(double value) { composite_cache_.get_rgb_ref()->weight.r = value; }
-    inline void set_weight_g(double value) { composite_cache_.get_rgb_ref()->weight.g = value; }
-    inline void set_weight_b(double value) { composite_cache_.get_rgb_ref()->weight.b = value; }
-
-    void set_weight_rgb(double r, double g, double b);
-
-    // HSV
+    void set_weight_rgb();
     void set_composite_p_h();
-
-    inline void set_hsv(CompositeHSV value) { composite_cache_.set_hsv(value); }
-    inline void set_slider_h_threshold_min(float value)
-    {
-        composite_cache_.get_hsv_ref()->h.slider_threshold.min = value;
-    }
-    inline void set_slider_h_threshold_max(float value)
-    {
-        composite_cache_.get_hsv_ref()->h.slider_threshold.max = value;
-    }
-    inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.min = value; }
-    inline void set_composite_high_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.max = value; }
-    inline void set_composite_p_min_h(uint value) { composite_cache_.get_hsv_ref()->h.frame_index.min = value; }
-    inline void set_composite_p_max_h(uint value) { composite_cache_.get_hsv_ref()->h.frame_index.max = value; }
-    inline void set_h_blur_kernel_size(uint value) { composite_cache_.get_hsv_ref()->h.blur.kernel_size = value; }
-    inline void set_composite_p_min_s(uint value) { composite_cache_.get_hsv_ref()->s.frame_index.min = value; }
-    inline void set_composite_p_max_s(uint value) { composite_cache_.get_hsv_ref()->s.frame_index.max = value; }
-    inline void set_slider_s_threshold_min(float value)
-    {
-        composite_cache_.get_hsv_ref()->s.slider_threshold.min = value;
-    }
-    inline void set_slider_s_threshold_max(float value)
-    {
-        composite_cache_.get_hsv_ref()->s.slider_threshold.max = value;
-    }
-    inline void set_composite_low_s_threshold(float value) { composite_cache_.get_hsv_ref()->s.threshold.min = value; }
-    inline void set_composite_high_s_threshold(float value) { composite_cache_.get_hsv_ref()->s.threshold.max = value; }
-    inline void set_composite_p_min_v(uint value) { composite_cache_.get_hsv_ref()->v.frame_index.min = value; }
-    inline void set_composite_p_max_v(uint value) { composite_cache_.get_hsv_ref()->v.frame_index.max = value; }
-    inline void set_slider_v_threshold_min(float value)
-    {
-        composite_cache_.get_hsv_ref()->v.slider_threshold.min = value;
-    }
-    inline void set_slider_v_threshold_max(float value)
-    {
-        composite_cache_.get_hsv_ref()->v.slider_threshold.max = value;
-    }
-    inline void set_composite_low_v_threshold(float value) { composite_cache_.get_hsv_ref()->v.threshold.min = value; }
-    inline void set_composite_high_v_threshold(float value) { composite_cache_.get_hsv_ref()->v.threshold.max = value; }
-    inline void set_h_blur_activated(bool value) { composite_cache_.get_hsv_ref()->h.blur.enabled = value; }
-    inline void set_composite_p_activated_s(bool value)
-    {
-        composite_cache_.get_hsv_ref()->s.frame_index.activated = value;
-    }
-    inline void set_composite_p_activated_v(bool value)
-    {
-        composite_cache_.get_hsv_ref()->v.frame_index.activated = value;
-    }
 
     enum class ComputeSettingsVersion
     {
@@ -255,7 +133,6 @@ class GSH
     std::function<void()> notify_callback_ = []() {};
     void notify() { notify_callback_(); }
 
-    CompositeCache::Ref composite_cache_;
     ExportCache::Ref export_cache_;
 
     mutable std::mutex mutex_;

@@ -216,13 +216,9 @@ void GSH::set_rgb_p()
     this->notify();
 }
 
-void GSH::set_weight_rgb(double r, double g, double b)
+void GSH::set_weight_rgb()
 {
-    set_weight_r(r);
-    set_weight_g(g);
-    set_weight_b(b);
-
-    notify();
+    this->notify();
 }
 
 static void load_convolution_matrix(std::vector<float> convo_matrix, const std::string& file)

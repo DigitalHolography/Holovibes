@@ -719,7 +719,6 @@ void Pipe::run_all()
 
 void Pipe::synchronize_caches()
 {
-    composite_cache_.synchronize();
     // never updated during the life time of the app
     // all updated params will be catched on json file when the app will load
 }

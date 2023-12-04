@@ -740,6 +740,7 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 void set_composite_weights(double weight_r, double weight_g, double weight_b)
 {
     set_weight_rgb(weight_r, weight_g, weight_b);
+    GSH::instance().set_weight_rgb();
     pipe_refresh();
 }
 
@@ -788,7 +789,10 @@ void check_q_limits()
         api::set_q_index(upper_bound);
 }
 
-void actualize_kernel_size_blur(uint h_blur_kernel_size) { GSH::instance().set_h_blur_kernel_size(h_blur_kernel_size); }
+void actualize_kernel_size_blur(uint h_blur_kernel_size) 
+{
+    set_h_blur_kernel_size(h_blur_kernel_size);
+}
 
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
