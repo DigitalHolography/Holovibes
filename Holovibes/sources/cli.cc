@@ -11,6 +11,7 @@
 #include "user_interface_descriptor.hh"
 #include "API.hh"
 #include "logger.hh"
+#include "spdlog/spdlog.h"
 
 namespace cli
 {
@@ -84,7 +85,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     holovibes::api::set_input_file_start_index(start_frame);
 
     uint end_frame = opts.end_frame.value_or(nb_frames);
-    if (!is_between(end_frame, (uint)1, nb_frames - 1))
+    if (!is_between(end_frame, (uint)1, nb_frames))
     {
         err_message("end_frame", end_frame, "-e");
         return 2;

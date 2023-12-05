@@ -259,6 +259,7 @@ def build_ref(args: GoalArgs) -> int:
 
         print(name)
         generate_holo_from(input, ref, ref_error, cli_argument, config)
+        return 0
 
     return 0
 
