@@ -34,12 +34,12 @@ class CudaUniquePtr
 
       
     T* get() const { 
-      LOG_DEBUG("a");
+      // LOG_DEBUG("a");
       return val_.get(); }
 
     /*! \brief Implicit cast operator */
     operator T*() const { 
-      LOG_DEBUG("aa");
+      // LOG_DEBUG("aa");
       return val_.get(); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
@@ -77,23 +77,12 @@ class CPUUniquePtr
     {
     }
 
-    // CPUUniquePtr()
-    //     : val_(nullptr)
-    // {
-    // }
-
-    // CPUUniquePtr(T* ptr)
-    //     : val_(ptr)
-    // {
-    // }
 
     T* get() const { 
-      LOG_DEBUG("b");
       return val_.get(); }
 
     /*! \brief Implicit cast operator */
     operator T*() const { 
-      LOG_DEBUG("bb");
       return val_.get(); }
 
     /*! \brief Allocates an array of size sizeof(T) * size */
@@ -102,24 +91,6 @@ class CPUUniquePtr
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size)
     {
-        // T* tmp;
-        // size *= sizeof(T);
-        // tmp = static_cast<T*>(std::realloc(val_.get(), size));
-        // LOG_DEBUG("Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
-        // val_.release();
-        // val_.reset(tmp);
-        // return tmp;
-
-        // T* tmp;
-        // size *= sizeof(T);
-        // // tmp = static_cast<T*>(std::realloc(val_.get(), size));
-        // tmp = static_cast<T*>(std::malloc(size));
-        // LOG_DEBUG("Allocate {:.3f} Gib on Host", static_cast<float>(size) / (1024 * 1024 * 1024));
-        // val_.reset(nullptr);
-        // val_.reset(tmp);
-        // return tmp;
-
-        
         T* tmp;
         size *= sizeof(T);
         val_.reset(nullptr);     // Free itself first
@@ -133,11 +104,7 @@ class CPUUniquePtr
 
   protected:
     std::unique_ptr<T, decltype(cudaXFreeHost)*> val_{nullptr, cudaXFreeHost};
-    // std::unique_ptr<T> val_{nullptr};
 };
-
-// template <typename T>
-// using UniquePtrVariant = std::variant<CudaUniquePtr<T>, CPUUniquePtr<T>>;
 
 /*! \class CudaUniquePtr
  *
@@ -150,7 +117,6 @@ class UniquePtr
     UniquePtr(T* ptr, bool gpu)
         : gpu_(gpu)
     {
-      // ptr_ = gpu_ ? CudaUniquePtr<T>(ptr) : CPUUniquePtr<T>(ptr);
       if (gpu_)
         ptr_ = CudaUniquePtr<T>(ptr);
       else 
@@ -160,20 +126,6 @@ class UniquePtr
     UniquePtr(bool gpu=true)
       : gpu_(gpu)
     {
-      // UniquePtrVariant<T> ptr_;
-      // ptr_ = CudaUniquePtr<T>();
-      // std::variant<CudaUniquePtr<T>, CPUUniquePtr<T>> ptr_;
-      // auto tmp = CudaUniquePtr<T>();
-      // ptr_.emplace<0>(CudaUniquePtr<T>());
-
-      // std::visit([this](auto&& value) {
-      //   using T1 = std::decay_t<decltype(value)>;
-      //   ptr_.emplace<T1>(value);
-      // }, CudaUniquePtr<T>());
-      // if (gpu_)
-      //   ptr_.emplace<0>(CudaUniquePtr<T>());
-      // else
-      //   ptr_.emplace<1>(CPUUniquePtr<T>());
       if (gpu_)
         ptr_ = CudaUniquePtr<T>();
       else 
@@ -196,7 +148,6 @@ class UniquePtr
     /*! \brief Implicit cast operator */
     operator T*() const{
       return gpu_ ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
-      // return gpu_ ? std::get<0>(ptr_)() : std::get<1>(ptr_)();
     }
 
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
@@ -212,14 +163,9 @@ class UniquePtr
       return gpu_ ? std::get<0>(ptr_).reset() : std::get<1>(ptr_).reset();
      }
 
-    //  ~UniquePtr(){};
-
   private:
     bool gpu_;
-    // UniquePtrVariant ptr_;
     std::variant<CudaUniquePtr<T>, CPUUniquePtr<T>> ptr_;
 
 };
-
-
 } // namespace holovibes::cuda_tools
