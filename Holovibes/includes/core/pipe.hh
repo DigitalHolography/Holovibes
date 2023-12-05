@@ -67,7 +67,8 @@
     holovibes::settings::CompositeKind,                          \
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
-    holovibes::settings::HSV
+    holovibes::settings::HSV,                                    \
+    holovibes::settings::RecordFrameCount
 
 
 #define ONRESTART_SETTINGS                         \

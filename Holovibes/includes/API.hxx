@@ -1014,9 +1014,6 @@ inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip()
 
 inline double get_rotation() { return GSH::instance().get_rotation(); }
 
-inline std::optional<size_t> get_nb_frames_to_record() {return GSH::instance().get_nb_frames_to_record();}
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {GSH::instance().set_nb_frames_to_record(nb_frames);}
-
 // Ex composite_cache
 inline CompositeKind get_composite_kind() noexcept
 {
@@ -1349,6 +1346,11 @@ inline void set_composite_p_activated_v(bool value)
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
 
+inline std::optional<size_t> get_nb_frames_to_record() { return holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value; }
+inline void set_nb_frames_to_record(std::optional<size_t> nb_frames)
+{
+    holovibes::Holovibes::instance().update_setting(settings::RecordFrameCount{nb_frames});
+}
 #pragma endregion
 
 } // namespace holovibes::api

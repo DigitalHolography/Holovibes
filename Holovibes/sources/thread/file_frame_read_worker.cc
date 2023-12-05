@@ -12,13 +12,14 @@ namespace api = ::holovibes::api;
 
 // sqrt for filter_2d
 #include <cmath>
-
+#include "spdlog/spdlog.h"
 namespace holovibes::worker
 {
 
 void FileFrameReadWorker::open_file()
 {
     auto file_path = setting<settings::InputFilePath>();
+    spdlog::critical("[FileFrameReadWorker] file path : {} not valid", file_path);
     input_file_.reset(io_files::InputFrameFileFactory::open(file_path));
     fd_ = input_file_->get_frame_descriptor();
     frame_size_ = fd_.value().get_frame_size();

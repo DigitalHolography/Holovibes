@@ -608,7 +608,7 @@ void Pipe::insert_raw_record()
                 gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
                                                setting<settings::BatchSize>());
                 // If the number of frames to record is reached, stop
-                if (export_cache_.get_nb_frame() != std::nullopt && inserted >= export_cache_.get_nb_frame().value())
+                if (setting<settings::RecordFrameCount>() != std::nullopt && inserted >= setting<settings::RecordFrameCount>().value())
                 {
                     return;
                 }

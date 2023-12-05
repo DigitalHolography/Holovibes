@@ -528,7 +528,6 @@ class ICompute
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
-    ExportCache::Cache export_cache_;
 
   private:
     /**

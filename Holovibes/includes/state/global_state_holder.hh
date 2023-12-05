@@ -79,13 +79,9 @@ class GSH
     bool get_log_enabled() const;
     unsigned get_accumulation_level() const;
 
-    inline std::optional<size_t> get_nb_frames_to_record() const noexcept {return export_cache_.get_nb_frame();}
 #pragma endregion
 
 #pragma region(collapsed) SETTERS
-    inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {
-        export_cache_.set_nb_frame(nb_frames);
-    }
 
     void set_batch_size(uint value);
     void set_time_transformation_size(uint value);
@@ -132,8 +128,6 @@ class GSH
 
     std::function<void()> notify_callback_ = []() {};
     void notify() { notify_callback_(); }
-
-    ExportCache::Ref export_cache_;
 
     mutable std::mutex mutex_;
 };

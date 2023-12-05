@@ -104,7 +104,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
-
+    holovibes::api::set_input_file_path(input_path);
     holovibes::io_files::InputFrameFile* input_frame_file =
         holovibes::io_files::InputFrameFileFactory::open(input_path);
 
@@ -267,16 +267,16 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         print_verbose(opts);
 
     Chrono chrono;
-
+    spdlog::critical("Start cli workers");
     if (int ret = start_cli_workers(holovibes, opts))
         return ret;
-
+    spdlog::critical("Start main loop");
     main_loop(holovibes);
 
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
-
+    spdlog::critical("Stop all workers");
     holovibes.stop_all_worker_controller();
-
+    spdlog::critical("all workers stopped");
     return 0;
 }
 } // namespace cli
