@@ -18,6 +18,10 @@
 namespace holovibes::cuda_tools
 {
 
+/*! \class CudaUniquePtr
+ *
+ * \brief A smart pointer made for ressources that need to be cudaFreed
+ */
 template <typename T>
 class CudaUniquePtr
 {
@@ -63,6 +67,10 @@ class CudaUniquePtr
     std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};
 };
 
+/*! \class CPUUniquePtr
+ *
+ * \brief A smart wrapper around unique_ptr, used as a CPU alternative of CudaUniquePtr
+ */
 template <typename T>
 class CPUUniquePtr
 {
@@ -106,9 +114,9 @@ class CPUUniquePtr
     std::unique_ptr<T, decltype(cudaXFreeHost)*> val_{nullptr, cudaXFreeHost};
 };
 
-/*! \class CudaUniquePtr
+/*! \class UniquePtr
  *
- * \brief A smart pointer made for ressources that need to be cudaFreed
+ * \brief A wrapper around a variant of CPU/CudaUniquePtr
  */
 template <typename T>
 class UniquePtr
