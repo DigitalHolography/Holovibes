@@ -585,6 +585,19 @@ threshold</string>
                </property>
               </widget>
              </item>
+             <item row="7" column="0">
+                <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
+                    <property name="text">
+                        <string>GPU record queue</string>
+                    </property>
+                    <property name="checkable">
+                        <bool>true</bool>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </item>
              <item row="3" column="1">
               <widget class="QDoubleSpinBox" name="ContrastLowerSpinBox">
                <property name="maximum">
@@ -1018,19 +1031,16 @@ threshold</string>
    <signal>clicked()</signal>
    <receiver>AdvancedSettingsWindow</receiver>
    <slot>change_output_folder_path()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>422</x>
-     <y>136</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>230</x>
-     <y>224</y>
-    </hint>
-   </hints>
+  </connection>
+  <connection>
+   <sender>RecordQueueLocationCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>AdvancedSettingsWindow</receiver>
+   <slot>set_record_queue_location(bool)</slot>
   </connection>
  </connections>
  <slots>
+  <slot>set_record_queue_location(bool)</slot>
   <slot>set_current_values()</slot>
   <slot>set_ui_values()</slot>
   <slot>change_input_folder_path()</slot>

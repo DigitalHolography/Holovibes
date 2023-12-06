@@ -60,6 +60,7 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief set ui values according to cd */
     void set_current_values();
 
+
   private:
     Ui::AdvancedSettingsWindow ui;
     AdvancedSettingsWindowPanel* specific_panel_;
@@ -71,6 +72,7 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief set cd_ and mainwindow values according to ui */
     void set_ui_values();
 
+    void set_record_queue_location(bool value);
     void change_input_folder_path();
     void change_output_folder_path();
     void change_batch_input_folder_path();
