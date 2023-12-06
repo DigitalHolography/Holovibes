@@ -31,7 +31,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , gpu_(gpu)
 {
 
-    data_ = std::make_shared<cuda_tools::UniquePtr<char>>();
+    data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
 
     max_size_ = max_size;
 
