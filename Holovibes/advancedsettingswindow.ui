@@ -593,9 +593,6 @@ threshold</string>
                     <property name="checkable">
                         <bool>true</bool>
                     </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
                 </widget>
             </item>
              <item row="3" column="1">
