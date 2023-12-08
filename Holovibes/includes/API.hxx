@@ -887,19 +887,9 @@ inline size_t get_input_file_start_index()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFileStartIndex>().value;
 }
 
-inline void set_input_file_start_index(size_t value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileStartIndex{value});
-}
-
 inline size_t get_input_file_end_index()
 {
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFileEndIndex>().value;
-}
-
-inline void set_input_file_end_index(size_t value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value});
 }
 
 inline ViewPQ get_p() { return holovibes::Holovibes::instance().get_setting<holovibes::settings::P>().value; }

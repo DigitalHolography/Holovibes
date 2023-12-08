@@ -45,6 +45,16 @@ bool import_start();
 /*! \brief Stops the display */
 void import_stop();
 
+/**
+ * \brief Sets the file start index
+*/
+void set_input_file_start_index(size_t value);
+
+/**
+ * \brief Sets the file end index
+*/
+void set_input_file_end_index(size_t value);
+
 /*! \brief Switchs operating camera to none
  *
  */

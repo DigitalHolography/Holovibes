@@ -1408,6 +1408,20 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
     return std::nullopt;
 }
 
+void set_input_file_start_index(size_t value)
+{
+    if (value >= get_input_file_end_index())
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value + 1});
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileStartIndex{value});
+}
+
+void set_input_file_end_index(size_t value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value});
+    if (value <= get_input_file_start_index())
+        set_input_file_start_index(value - 1);
+}
+
 #pragma endregion
 
 #pragma region Advanced Settings
