@@ -1,5 +1,8 @@
 ## Changelog
 
+### 12.1.1
+* Use variants instead of dynamic polymorphism for choosing the location of the queue (CPU/GPU)
+
 ### 12.1.0
 
 * Preallocate the record queue
