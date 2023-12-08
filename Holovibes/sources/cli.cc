@@ -76,8 +76,8 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
             name,
             nb_frames);
     };
-    uint start_frame = opts.start_frame.value_or(0);
-    if (!is_between(start_frame, (uint)0, nb_frames - 1))
+    uint start_frame = opts.start_frame.value_or(1);
+    if (!is_between(start_frame, (uint)1, nb_frames))
     {
         err_message("start_frame", start_frame, "-s");
         return 2;
