@@ -1192,6 +1192,8 @@ void set_record_buffer_size(uint value) {
     
     // When Holovibes starts, this function will be accessed before the pipe is built.
     try {
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
         get_compute_pipe()->init_record_queue();
     }
     catch(const std::exception &e) {
@@ -1238,6 +1240,9 @@ void set_record_mode(const std::string& text)
         GSH::instance().set_record_mode(record_mode);
         if (record_mode != RecordMode::CHART)
         {
+            if (Holovibes::instance().is_recording()) 
+                stop_record();
+            
             get_compute_pipe()->init_record_queue();    
             LOG_DEBUG("Pipe initialized");
         }
