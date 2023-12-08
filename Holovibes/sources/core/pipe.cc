@@ -47,14 +47,15 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 
 Queue& Pipe::init_record_queue() {
-    bool on_gpu = api::get_record_queue_location();
-    if (frame_record_env_.record_mode_ == RecordMode::RAW) {
+    bool on_gpu = setting<settings::RecordQueueOnGPU>();
+    auto record_mode = setting<settings::RecordMode>();
+    if (record_mode == RecordMode::RAW) {
         LOG_DEBUG("RecordMode = Raw");
         frame_record_env_.frame_record_queue_.reset(
                 new Queue(gpu_input_queue_.get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
-    else if (frame_record_env_.record_mode_ == RecordMode::HOLOGRAM) {
+    else if (record_mode == RecordMode::HOLOGRAM) {
         LOG_DEBUG("RecordMode = Hologram");
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
@@ -62,11 +63,11 @@ Queue& Pipe::init_record_queue() {
                 new Queue(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
-    else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ || frame_record_env_.record_mode_ == RecordMode::CUTS_XZ) {
+    else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
         LOG_DEBUG("RecordMode = CUTS");
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
         fd_xyz.depth = sizeof(ushort);
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        if (record_mode == RecordMode::CUTS_XZ)
             fd_xyz.height = setting<settings::TimeTransformationSize>();
         else
             fd_xyz.width = setting<settings::TimeTransformationSize>();
@@ -163,8 +164,6 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
-        frame_record_env_.frame_record_queue_.reset(nullptr);
-        frame_record_env_.record_mode_ = RecordMode::NONE;
         api::set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
@@ -602,7 +601,7 @@ void Pipe::insert_raw_record()
     // When a new record is started, a refresh of the pipe is requested, and this variable is reset
     static size_t inserted = 0;
     inserted = 0;
-    if (setting<settings::FrameRecordEnabled>() && frame_record_env_.record_mode_ == RecordMode::RAW)
+    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::RAW)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
@@ -627,7 +626,7 @@ void Pipe::insert_raw_record()
 
 void Pipe::insert_hologram_record()
 {
-    if (setting<settings::FrameRecordEnabled>() && frame_record_env_.record_mode_ == RecordMode::HOLOGRAM)
+    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::HOLOGRAM)
     {
         if (Holovibes::instance().is_cli)
             fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
@@ -648,13 +647,13 @@ void Pipe::insert_cuts_record()
 {
     if (setting<settings::FrameRecordEnabled>())
     {
-        if (frame_record_env_.record_mode_ == RecordMode::CUTS_XZ)
+        if (setting<settings::RecordMode>() == RecordMode::CUTS_XZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
                 { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, cudaMemcpyDeviceToHost); });
         }
-        else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ)
+        else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()

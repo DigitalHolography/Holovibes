@@ -68,7 +68,8 @@
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
-    holovibes::settings::RecordFrameCount
+    holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::RecordMode
 
 
 #define ONRESTART_SETTINGS                         \
@@ -83,7 +84,7 @@
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::TimeStride,               \
     holovibes::settings::BatchSize,                \
-    holovibes::settings::InputFilter,             \
+    holovibes::settings::InputFilter,              \
     holovibes::settings::FilterEnabled
  
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS

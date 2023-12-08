@@ -1302,7 +1302,6 @@ void set_record_mode(const std::string& text)
     // When Holovibes starts, this function will be accessed before the pipe is built.
     try {
         auto pipe = get_compute_pipe();
-        pipe->set_record_mode(record_mode);
         if (record_mode != RecordMode::CHART)
         {
             get_compute_pipe()->init_record_queue();    

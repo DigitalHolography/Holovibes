@@ -183,7 +183,6 @@ struct TimeTransformationEnv
 struct FrameRecordEnv
 {
     std::unique_ptr<Queue> frame_record_queue_ = nullptr;
-    std::atomic<RecordMode> record_mode_{RecordMode::RAW};
 };
 
 /*! \struct ChartEnv
@@ -420,9 +419,7 @@ class ICompute
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
     virtual std::unique_ptr<Queue>& get_frame_record_queue();
-
-    void set_record_mode(RecordMode record_mode){frame_record_env_.record_mode_ = record_mode;}
-
+    
   protected:
     virtual void refresh() = 0;
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);

@@ -232,6 +232,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
+    auto pipe = holovibes.get_compute_pipe();
+    pipe->init_record_queue();
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordMode{opts.record_raw ? holovibes::RecordMode::RAW
