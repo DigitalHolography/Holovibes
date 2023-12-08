@@ -40,11 +40,6 @@ void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* sp
 
 #pragma region SLOTS
 
-void AdvancedSettingsWindow::set_record_queue_location(bool value){
-    LOG_DEBUG("CheckBox triggered");
-    return;
-}
-
 void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
 void AdvancedSettingsWindow::set_ui_values()

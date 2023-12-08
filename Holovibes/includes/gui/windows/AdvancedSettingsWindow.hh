@@ -72,7 +72,6 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief set cd_ and mainwindow values according to ui */
     void set_ui_values();
 
-    void set_record_queue_location(bool value);
     void change_input_folder_path();
     void change_output_folder_path();
     void change_batch_input_folder_path();

@@ -1029,15 +1029,8 @@ threshold</string>
    <receiver>AdvancedSettingsWindow</receiver>
    <slot>change_output_folder_path()</slot>
   </connection>
-  <connection>
-   <sender>RecordQueueLocationCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>AdvancedSettingsWindow</receiver>
-   <slot>set_record_queue_location(bool)</slot>
-  </connection>
  </connections>
  <slots>
-  <slot>set_record_queue_location(bool)</slot>
   <slot>set_current_values()</slot>
   <slot>set_ui_values()</slot>
   <slot>change_input_folder_path()</slot>
