@@ -51,9 +51,6 @@ class Queue final : public DisplayQueue
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
           QueueType type = QueueType::UNDEFINED,
-          unsigned int input_width = 0,
-          unsigned int input_height = 0,
-          unsigned int bytes_per_pixel = 1,
           const bool gpu = true);
 
     /*! \brief Destructor of the queue */
@@ -258,14 +255,6 @@ class Queue final : public DisplayQueue
     /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
     // std::variant<cuda_tools::CudaUniquePtr<char>,cuda_tools::CPUUniquePtr<char>> data_;
     std::shared_ptr<cuda_tools::UniquePtr<char>> data_;
-
-    // Utils used for square input mode
-    /*! \brief Original width of the input */
-    unsigned int input_width_;
-    /*! \brief Original height of the input */
-    unsigned int input_height_;
-    /*! \brief number of byte(s) to encode a pixel */
-    unsigned int bytes_per_pixel;
 
     /*! \brief Wheter frames have been overridden during an enqueue. */
     bool has_overridden_;

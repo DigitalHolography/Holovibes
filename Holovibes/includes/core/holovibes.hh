@@ -191,7 +191,6 @@ class Holovibes
     void start_frame_record(
         const std::string& path,
         std::optional<unsigned int> nb_frames_to_record,
-        RecordMode record_mode,
         unsigned int nb_frames_skip = 0,
         const std::function<void()>& callback = []() {});
 

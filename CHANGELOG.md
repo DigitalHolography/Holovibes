@@ -1,5 +1,15 @@
 ## Changelog
 
+### 12.2.0
+* Add button too chose dynamically between CPU/GPU for the record queue
+
+### 12.1.1
+* Use variants instead of dynamic polymorphism for choosing the location of the queue (CPU/GPU)
+
+### 12.1.0
+
+* Preallocate the record queue
+
 ### 12.0.0
 
 * Fix testuite

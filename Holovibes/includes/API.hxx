@@ -128,6 +128,9 @@ inline void set_composite_p_h(unsigned int min, unsigned int max)
 inline std::optional<size_t> get_nb_frames_to_record() {return GSH::instance().get_nb_frames_to_record();}
 inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {GSH::instance().set_nb_frames_to_record(nb_frames);}
 
+inline bool get_record_queue_location() {return GSH::instance().get_record_queue_location();}
+inline void set_record_queue_location(bool gpu) {GSH::instance().set_record_queue_location(gpu);}
+
 inline float get_slider_h_threshold_min() { return GSH::instance().get_slider_h_threshold_min(); }
 inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider_h_threshold_min(value); }
 
@@ -240,7 +243,6 @@ inline uint get_output_buffer_size() { return GSH::instance().get_output_buffer_
 inline void set_output_buffer_size(uint value) { GSH::instance().set_output_buffer_size(value); }
 
 inline uint get_record_buffer_size() { return GSH::instance().get_record_buffer_size(); }
-inline void set_record_buffer_size(uint value) { GSH::instance().set_record_buffer_size(value); }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
 {

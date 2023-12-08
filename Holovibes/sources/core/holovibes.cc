@@ -118,7 +118,6 @@ void Holovibes::start_cli_record_and_compute(const std::string& path,
 */
 void Holovibes::start_frame_record(const std::string& path,
                                    std::optional<unsigned int> nb_frames_to_record,
-                                   RecordMode record_mode,
                                    unsigned int nb_frames_skip,
                                    const std::function<void()>& callback)
 {
@@ -138,9 +137,7 @@ void Holovibes::start_frame_record(const std::string& path,
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          record_mode,
-                                          nb_frames_skip,
-                                          GSH::instance().get_output_buffer_size());
+                                          nb_frames_skip);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -170,8 +167,7 @@ void Holovibes::start_batch_gpib(const std::string& batch_input_path,
     batch_gpib_worker_controller_.start(batch_input_path,
                                         output_path,
                                         nb_frames_to_record,
-                                        record_mode,
-                                        GSH::instance().get_output_buffer_size());
+                                        record_mode);
 }
 
 void Holovibes::stop_batch_gpib() { batch_gpib_worker_controller_.stop(); }

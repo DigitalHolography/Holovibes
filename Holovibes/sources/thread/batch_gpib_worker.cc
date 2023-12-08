@@ -15,13 +15,11 @@ namespace holovibes::worker
 BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
                                  const std::string& output_path,
                                  unsigned int nb_frames_to_record,
-                                 RecordMode record_mode,
-                                 const unsigned int output_buffer_size)
+                                 RecordMode record_mode)
     : Worker()
     , output_path_(output_path)
     , nb_frames_to_record_(nb_frames_to_record)
     , record_mode_(record_mode)
-    , output_buffer_size_(output_buffer_size)
     , frame_record_worker_(nullptr)
     , chart_record_worker_(nullptr)
 {
@@ -75,9 +73,7 @@ void BatchGPIBWorker::run()
                 {
                     frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
                                                                                nb_frames_to_record_,
-                                                                               record_mode_,
-                                                                               0,
-                                                                               output_buffer_size_);
+                                                                               0);
                     frame_record_worker_->run();
                 }
 

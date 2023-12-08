@@ -60,6 +60,7 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief set ui values according to cd */
     void set_current_values();
 
+
   private:
     Ui::AdvancedSettingsWindow ui;
     AdvancedSettingsWindowPanel* specific_panel_;

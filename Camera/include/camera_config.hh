@@ -11,7 +11,7 @@
 namespace holovibes::settings
 {
 // Very ugly to redefine the version in the "camera" folder but we have no choice if we want to define it only once.
-#define __HOLOVIBES_VERSION__ "12.0.0"
+#define __HOLOVIBES_VERSION__ "12.2.0"
 #define __APPNAME__ "Holovibes"
 
 #define __CAMERAS_CONFIG_FOLDER__ "cameras_config"

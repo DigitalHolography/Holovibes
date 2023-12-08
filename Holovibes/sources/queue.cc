@@ -19,9 +19,6 @@ using camera::FrameDescriptor;
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
-             unsigned int input_width,
-             unsigned int input_height,
-             unsigned int bytes_per_pixel,
              const bool gpu)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
@@ -30,21 +27,14 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , type_(type)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
-    , input_width_(input_width)
-    , input_height_(input_height)
-    , bytes_per_pixel(bytes_per_pixel)
     , has_overridden_(false)
     , gpu_(gpu)
 {
-    if (gpu_)
-        data_ = std::make_shared<cuda_tools::CudaUniquePtr<char>>();
-    else
-        data_ = std::make_shared<cuda_tools::CPUUniquePtr<char>>();
+
+    data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
 
     max_size_ = max_size;
-    size_ = 0;
 
-    // if (max_size_ == 0 || (gpu_ && !std::get<0>(data_).resize(fd_.get_frame_size() * max_size_)) || (!gpu_ && !std::get<1>(data_).resize(fd_.get_frame_size() * max_size_)))
     if (max_size_ == 0 || !data_->resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
@@ -52,11 +42,14 @@ Queue::Queue(const camera::FrameDescriptor& fd,
         throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
     }
 
-    // Needed if input is embedded into a bigger square
-    if (gpu_)
-        cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
-    else
-        std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // // Needed if input is embedded into a bigger square
+    // if (gpu_)
+    //     cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // else
+    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+
+    cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    
 
     fd_.byteEndian = Endianness::LittleEndian;
 }
@@ -76,12 +69,15 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
     }
 
     // Needed if input is embedded into a bigger square
-    if (gpu_) {
-        cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
-        cudaXStreamSynchronize(stream);
-    }
-    else
-        std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    // if (gpu_) {
+    //     cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    //     cudaXStreamSynchronize(stream);
+    // }
+    // else
+    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+
+    cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    cudaXStreamSynchronize(stream);
 
 
     size_ = 0;

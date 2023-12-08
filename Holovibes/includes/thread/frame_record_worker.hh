@@ -31,14 +31,11 @@ class FrameRecordWorker final : public Worker
      *
      * \param file_path The path of the file to record
      * \param nb_frames_to_record The number of frames to record
-     * \param record_mode Type of record between raw, holo and cuts
      * \param nb_frames_skip Number of frames to skip before starting
      */
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
-                      RecordMode record_mode,
-                      unsigned int nb_frames_skip,
-                      unsigned int output_buffer_size);
+                      unsigned int nb_frames_skip);
 
     void run() override;
 
@@ -47,7 +44,7 @@ class FrameRecordWorker final : public Worker
      *
      * \return The record queue
      */
-    Queue& init_gpu_record_queue();
+    // Queue& init_record_queue();
 
     /*! \brief Wait for frames to be present in the record queue
      *
@@ -60,7 +57,7 @@ class FrameRecordWorker final : public Worker
      *
      * \param pipe The compute pipe used to perform the operations
      */
-    void reset_gpu_record_queue();
+    void reset_record_queue();
 
   private:
     /*! \brief The path of the file to record */
@@ -69,10 +66,6 @@ class FrameRecordWorker final : public Worker
     std::optional<unsigned int> nb_frames_to_record_;
     /*! \brief The number of frames to skip before starting the recording */
     unsigned int nb_frames_skip_;
-    /*! \brief Whether the raw images are recorded */
-    RecordMode record_mode_;
-    /*! \brief Output buffer size */
-    unsigned int output_buffer_size_;
 
     // Average fps is computed with the last FPS_LAST_X_VALUES values of input fps.
     /*! \brief Useful for Input fps value. */
