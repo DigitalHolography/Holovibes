@@ -9,6 +9,7 @@
 #include "micro_cache.hh"
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
+#include "enum_record_mode.hh"
 #include "enum_window_kind.hh"
 #include "enum_img_type.hh"
 #include "enum_computation.hh"
@@ -100,7 +101,7 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
  * \param frame_record_enabled Is holovibes currently recording
  * \param chart_record_enabled Enables the signal and noise chart record
  */
-NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false), (std::optional<size_t>, nb_frame, std::nullopt), (bool, on_gpu, false));
+NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false), (std::optional<size_t>, nb_frame, std::nullopt), (holovibes::RecordMode, record_mode, holovibes::RecordMode::RAW), (bool, on_gpu, false));
 
 /*! \brief Construct a new new micro cache object
  * \param start_frame First frame read

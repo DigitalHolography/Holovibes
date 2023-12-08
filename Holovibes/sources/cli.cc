@@ -234,7 +234,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 
     // preallocate the record queue
     auto pipe = holovibes.get_compute_pipe();
-    pipe->set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+    holovibes::GSH::instance().set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
     pipe->init_record_queue();
     
     holovibes.start_frame_record(opts.output_path.value(),

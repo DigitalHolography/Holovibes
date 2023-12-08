@@ -182,6 +182,8 @@ class GSH
 
     inline bool get_record_queue_location() const { return export_cache_.get_on_gpu(); };
 
+    inline RecordMode get_record_mode() const { return export_cache_.get_record_mode(); };
+
     inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
     inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
@@ -328,6 +330,10 @@ class GSH
 
     inline void set_record_queue_location(bool on_gpu){
         export_cache_.set_on_gpu(on_gpu);
+    }
+
+    inline void set_record_mode(RecordMode record_mode){
+        export_cache_.set_record_mode(record_mode);
     }
 
     void set_batch_size(uint value);
