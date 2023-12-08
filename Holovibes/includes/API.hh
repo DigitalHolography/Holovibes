@@ -40,11 +40,20 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
  * \return true on success
  * \return false on failure
  */
-bool import_start(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame);
+bool import_start();
 
 /*! \brief Stops the display */
 void import_stop();
+
+/**
+ * \brief Sets the file start index
+*/
+void set_input_file_start_index(size_t value);
+
+/**
+ * \brief Sets the file end index
+*/
+void set_input_file_end_index(size_t value);
 
 /*! \brief Switchs operating camera to none
  *
@@ -66,7 +75,7 @@ void stop_all_worker_controller();
  *
  * \return unsigned accumulation slice level
  */
-unsigned get_img_accu_level();
+unsigned get_accumulation_level();
 
 /*! \brief Gets the gpu input queue frame desciptor width
  *
@@ -100,6 +109,9 @@ bool is_gpu_input_queue();
 void enable_convolution(const std::string& file);
 
 void disable_convolution();
+
+std::vector<float> get_input_filter();
+void set_input_filter(std::vector<float> value);
 
 /*! \brief Enables the input filter mode
  *
@@ -155,11 +167,7 @@ bool start_record_preconditions(const bool batch_enabled,
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void start_record(const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback);
+void start_record(std::function<void()> callback);
 
 /*! \brief Stops recording
  *
@@ -363,13 +371,13 @@ void decrement_p();
  *
  * \param value the new value
  */
-void set_wavelength(double value);
+void set_lambda(float value);
 
 /*! \brief Modifies z
  *
  * \param value the new value
  */
-void set_z_distance(const double value);
+void set_z_distance(float value);
 
 /*! \brief Modifies space transform calculation
  *
@@ -388,6 +396,12 @@ void set_time_transformation(const TimeTransformation value);
  * \param value true: enable, false: disable
  */
 void set_unwrapping_2d(const bool value);
+
+/*! \brief Returns the current window type
+ */
+WindowKind get_current_window_type();
+
+ViewWindow get_current_window();
 
 /*! \brief Modifies the accumulation level on the current window
  *
@@ -524,7 +538,7 @@ bool get_contrast_invert_enabled();
  * \return true Enabled
  * \return false Disabled
  */
-bool get_img_log_scale_slice_enabled();
+bool get_log_enabled();
 
 /*! \brief get x
  *
@@ -605,6 +619,10 @@ void stop_chart_display();
 
 /*! \brief Adds or removes lens view */
 void set_lens_view(bool checked, uint auxiliary_window_max_size);
+
+void set_chart_display_enabled(bool value);
+
+void set_filter2d_view_enabled(bool value);
 
 /*! \brief Adds or removes raw view */
 void set_raw_view(bool checked, uint auxiliary_window_max_size);

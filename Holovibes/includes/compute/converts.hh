@@ -14,6 +14,23 @@
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::P,                        \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::UnwrapHistorySize
+
+#define ALL_SETTINGS REALTIME_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 struct CoreBuffersEnv;
@@ -33,19 +50,37 @@ class Converts
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Converts(FunctionVector& fn_compute_vect,
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
-             cuda_tools::CufftHandle& plan2d,
+             cuda_tools::CufftHandle& plan_unwrap_2d,
              const camera::FrameDescriptor& input_fd,
              const cudaStream_t& stream,
-             ComputeCache::Cache& compute_cache,
-             CompositeCache::Cache& composite_cache,
-             ViewCache::Cache& view_cache,
-             ZoneCache::Cache& zone_cache);
+             InitSettings settings)
+        : pmin_(0)
+        , pmax_(0)
+        , fn_compute_vect_(fn_compute_vect)
+        , buffers_(buffers)
+        , time_transformation_env_(time_transformation_env)
+        , plan_unwrap_2d_(plan_unwrap_2d)
+        , fd_(input_fd)
+        , stream_(stream)
+        , realtime_settings_(settings)
+    {
+    }
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
-    void insert_to_float(bool unwrap_2d_requested);
+    void insert_to_float(bool unwrap_2d_requested,
+                         TimeTransformation time_transformation,
+                         float* buffers_gpu_postprocess_frame,
+                         uint time_transformation_size,
+                         holovibes::CompositeRGB rgb,
+                         CompositeKind composite_kind,
+                         bool composite_auto_weights,
+                         const holovibes::CompositeHSV& composite_hsv,
+                         holovibes::units::RectFd composite_zone,
+                         unsigned int unwrap_history_size);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
     void insert_to_ushort();
@@ -53,24 +88,41 @@ class Converts
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
 
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            spdlog::info("[Converts] [update_setting] {}", typeid(T).name());
+            realtime_settings_.update_setting(setting);
+        }
+    }
+
   private:
     /*! \brief Set pmin_ and pmax_ according to p accumulation. */
-    void insert_compute_p_accu();
+    void insert_compute_p_accu(uint time_transformation_size, ViewPQ p);
 
     /*! \brief Insert the convertion Complex => Modulus */
-    void insert_to_modulus();
+    void insert_to_modulus(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Squared Modulus */
-    void insert_to_squaredmodulus();
+    void insert_to_squaredmodulus(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Composite */
-    void insert_to_composite();
+    void insert_to_composite(holovibes::CompositeRGB rgb,
+                             uint time_transformation_size,
+                             holovibes::CompositeKind composite_kind,
+                             float* gpu_postprocess_frame,
+                             bool composite_auto_weights,
+                             const holovibes::CompositeHSV& hsv,
+                             holovibes::units::RectFd composite_zone);
 
     /*! \brief Insert the convertion Complex => Argument */
-    void insert_to_argument(bool unwrap_2d_requested);
+    void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Phase increase */
-    void insert_to_phase_increase(bool unwrap_2d_requested);
+    void
+    insert_to_phase_increase(bool unwrap_2d_requested, unsigned int unwrap_history_size, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Float => Unsigned Short in XY window */
     void insert_main_ushort();
@@ -80,6 +132,18 @@ class Converts
 
     /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
     void insert_filter2d_ushort();
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+    }
 
     /*! \brief p_index */
     unsigned short pmin_;
@@ -104,12 +168,14 @@ class Converts
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    CompositeCache::Cache& composite_cache_;
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ViewCache::Cache& view_cache_;
-    ZoneCache::Cache& zone_cache_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, compute::Converts> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes

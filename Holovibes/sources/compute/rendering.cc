@@ -13,46 +13,15 @@
 
 namespace holovibes::compute
 {
-Rendering::Rendering(FunctionVector& fn_compute_vect,
-                     const CoreBuffersEnv& buffers,
-                     ChartEnv& chart_env,
-                     const ImageAccEnv& image_acc_env,
-                     const TimeTransformationEnv& time_transformation_env,
-                     const camera::FrameDescriptor& input_fd,
-                     const camera::FrameDescriptor& output_fd,
-                     const cudaStream_t& stream,
-                     ComputeCache::Cache& compute_cache,
-                     ExportCache::Cache& export_cache,
-                     ViewCache::Cache& view_cache,
-                     AdvancedCache::Cache& advanced_cache,
-                     ZoneCache::Cache& zone_cache)
-    : fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , chart_env_(chart_env)
-    , time_transformation_env_(time_transformation_env)
-    , image_acc_env_(image_acc_env)
-    , input_fd_(input_fd)
-    , fd_(output_fd)
-    , stream_(stream)
-    , compute_cache_(compute_cache)
-    , export_cache_(export_cache)
-    , view_cache_(view_cache)
-    , advanced_cache_(advanced_cache)
-    , zone_cache_(zone_cache)
-{
-    // Hold 2 float values (min and max)
-    cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
-}
-
 Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_fft_shift_enabled())
+    if (setting<settings::FftShiftEnabled>())
     {
-        if (view_cache_.get_img_type() == ImgType::Composite)
+        if (setting<settings::ImageType>() == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
@@ -71,13 +40,13 @@ void Rendering::insert_chart()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_chart_display_enabled() || export_cache_.get_chart_record_enabled())
+    if (setting<settings::ChartDisplayEnabled>() || setting<settings::ChartRecordEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
-                auto signal_zone = zone_cache_.get_signal_zone();
-                auto noise_zone = zone_cache_.get_noise_zone();
+                auto signal_zone = setting<settings::SignalZone>();
+                auto noise_zone = setting<settings::NoiseZone>();
 
                 if (signal_zone.width() == 0 || signal_zone.height() == 0 || noise_zone.width() == 0 ||
                     noise_zone.height() == 0)
@@ -90,9 +59,9 @@ void Rendering::insert_chart()
                                                    noise_zone,
                                                    stream_);
 
-                if (view_cache_.get_chart_display_enabled())
+                if (setting<settings::ChartDisplayEnabled>())
                     chart_env_.chart_display_queue_->push_back(point);
-                if (export_cache_.get_chart_record_enabled() && chart_env_.nb_chart_points_to_record_ != 0)
+                if (setting<settings::ChartRecordEnabled>() && chart_env_.nb_chart_points_to_record_ != 0)
                 {
                     chart_env_.chart_record_queue_->push_back(point);
                     --chart_env_.nb_chart_points_to_record_;
@@ -105,11 +74,11 @@ void Rendering::insert_log()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_xy().log_enabled)
+    if (setting<settings::XY>().log_enabled)
         insert_main_log();
-    if (view_cache_.get_cuts_view_enabled())
+    if (setting<settings::CutsViewEnabled>())
         insert_slice_log();
-    if (view_cache_.get_filter2d().log_enabled)
+    if (setting<settings::Filter2d>().log_enabled)
         insert_filter2d_view_log();
 }
 
@@ -127,20 +96,19 @@ void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
                                 autocontrast_filter2d_request);
 
     // Apply contrast on the main view
-    if (view_cache_.get_xy().contrast.enabled)
+    if (setting<settings::XY>().contrast.enabled)
         insert_apply_contrast(WindowKind::XYview);
 
     // Apply contrast on cuts if needed
-    if (view_cache_.get_cuts_view_enabled())
+    if (setting<settings::CutsViewEnabled>())
     {
-        if (view_cache_.get_xz().contrast.enabled)
+        if (setting<settings::XZ>().contrast.enabled)
             insert_apply_contrast(WindowKind::XZview);
-        if (view_cache_.get_yz().contrast.enabled)
-
+        if (setting<settings::YZ>().contrast.enabled)
             insert_apply_contrast(WindowKind::YZview);
     }
 
-    if (GSH::instance().get_filter2d_view_enabled() && view_cache_.get_filter2d().contrast.enabled)
+    if (setting<settings::Filter2dViewEnabled>() && setting<settings::Filter2d>().contrast.enabled)
         insert_apply_contrast(WindowKind::Filter2D);
 }
 
@@ -161,25 +129,25 @@ void Rendering::insert_slice_log()
 {
     LOG_FUNC();
 
-    if (view_cache_.get_xz().log_enabled)
+    if (setting<settings::XZ>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
                 map_log10(buffers_.gpu_postprocess_frame_xz.get(),
                           buffers_.gpu_postprocess_frame_xz.get(),
-                          fd_.width * compute_cache_.get_time_transformation_size(),
+                          fd_.width * setting<settings::TimeTransformationSize>(),
                           stream_);
             });
     }
-    if (view_cache_.get_yz().log_enabled)
+    if (setting<settings::YZ>().log_enabled)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
                 map_log10(buffers_.gpu_postprocess_frame_yz.get(),
                           buffers_.gpu_postprocess_frame_yz.get(),
-                          fd_.height * compute_cache_.get_time_transformation_size(),
+                          fd_.height * setting<settings::TimeTransformationSize>(),
                           stream_);
             });
     }
@@ -189,7 +157,7 @@ void Rendering::insert_filter2d_view_log()
 {
     LOG_FUNC();
 
-    if (GSH::instance().get_filter2d_view_enabled())
+    if (setting<settings::Filter2dViewEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -222,22 +190,22 @@ void Rendering::insert_apply_contrast(WindowKind view)
             case WindowKind::XYview:
                 input = buffers_.gpu_postprocess_frame;
                 size = buffers_.gpu_postprocess_frame_size;
-                wind = view_cache_.get_xy();
+                wind = setting<settings::XY>();
                 break;
             case WindowKind::YZview:
                 input = buffers_.gpu_postprocess_frame_yz.get();
-                size = fd_.height * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_yz();
+                size = fd_.height * setting<settings::TimeTransformationSize>();
+                wind = setting<settings::YZ>();
                 break;
             case WindowKind::XZview:
                 input = buffers_.gpu_postprocess_frame_xz.get();
-                size = fd_.width * compute_cache_.get_time_transformation_size();
-                wind = view_cache_.get_xz();
+                size = fd_.width * setting<settings::TimeTransformationSize>();
+                wind = setting<settings::XZ>();
                 break;
             case WindowKind::Filter2D:
                 input = buffers_.gpu_float_filter2d_frame.get();
                 size = fd_.width * fd_.height;
-                wind = view_cache_.get_filter2d();
+                wind = setting<settings::Filter2d>();
                 break;
             }
 
@@ -284,8 +252,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
-                                compute_cache_.get_time_transformation_size(),
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                setting<settings::TimeTransformationSize>(),
+                                setting<settings::CutsContrastPOffset>(),
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
         }
@@ -293,9 +261,9 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
-                                compute_cache_.get_time_transformation_size(),
+                                setting<settings::TimeTransformationSize>(),
                                 fd_.height,
-                                advanced_cache_.get_cuts_contrast_p_offset(),
+                                setting<settings::CutsContrastPOffset>(),
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
         }
@@ -308,8 +276,6 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 WindowKind::Filter2D);
             autocontrast_filter2d_request = false;
         }
-
-        view_cache_.synchronize(); // FIXME: gsh should not be modified in the pipe
     };
 
     fn_compute_vect_.conditional_push_back(lambda_autocontrast);
@@ -322,8 +288,8 @@ void Rendering::autocontrast_caller(
 
     constexpr uint percent_size = 2;
 
-    const float percent_in[percent_size] = {advanced_cache_.get_contrast_lower_threshold(),
-                                            advanced_cache_.get_contrast_upper_threshold()};
+    const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
+                                            setting<settings::ContrastUpperThreshold>()};
     switch (view)
     {
     case WindowKind::XYview:
@@ -337,8 +303,8 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   zone_cache_.get_reticle_zone(),
-                                   (view == WindowKind::Filter2D) ? false : view_cache_.get_reticle_display_enabled(),
+                                   setting<settings::ReticleZone>(),
+                                   (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;
@@ -350,8 +316,8 @@ void Rendering::autocontrast_caller(
                                    percent_in,
                                    percent_min_max_,
                                    percent_size,
-                                   zone_cache_.get_reticle_zone(),
-                                   view_cache_.get_reticle_display_enabled(),
+                                   setting<settings::ReticleZone>(),
+                                   setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
         GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;

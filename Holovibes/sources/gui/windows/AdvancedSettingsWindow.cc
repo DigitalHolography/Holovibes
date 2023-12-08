@@ -1,6 +1,7 @@
 #include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
 #include "API.hh"
+#include <spdlog/spdlog.h>
 
 namespace holovibes::gui
 {
@@ -44,6 +45,7 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
 void AdvancedSettingsWindow::set_ui_values()
 {
+    spdlog::critical("[AdvancedSettingsWindow] [set_ui_values]");
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
     api::set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
@@ -98,6 +100,7 @@ void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
 
 void AdvancedSettingsWindow::set_current_values()
 {
+
     ui.FileBSSpinBox->setValue(api::get_file_buffer_size());
     ui.InputBSSpinBox->setValue(api::get_input_buffer_size());
     ui.RecordBSSpinBox->setValue(api::get_record_buffer_size());

@@ -13,6 +13,38 @@
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::Filter2d,                 \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::ChartDisplayEnabled,      \
+    holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::ChartRecordEnabled,       \
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::SignalZone,               \
+    holovibes::settings::NoiseZone,                \
+    holovibes::settings::ReticleZone
+
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::CutsContrastPOffset
+    
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 class ICompute;
@@ -34,6 +66,7 @@ class Rendering
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Rendering(FunctionVector& fn_compute_vect,
               const CoreBuffersEnv& buffers,
               ChartEnv& chart_env,
@@ -42,11 +75,21 @@ class Rendering
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
-              ComputeCache::Cache& compute_cache,
-              ExportCache::Cache& export_cache,
-              ViewCache::Cache& view_cache,
-              AdvancedCache::Cache& advanced_cache,
-              ZoneCache::Cache& zone_cache);
+              InitSettings settings)
+        : fn_compute_vect_(fn_compute_vect)
+        , buffers_(buffers)
+        , chart_env_(chart_env)
+        , time_transformation_env_(time_transformation_env)
+        , image_acc_env_(image_acc_env)
+        , input_fd_(input_fd)
+        , fd_(output_fd)
+        , stream_(stream)
+        , realtime_settings_(settings)
+        , onrestart_settings_(settings)
+    {
+        // Hold 2 float values (min and max)
+        cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
+    }
     ~Rendering();
 
     /*! \brief insert the functions relative to the fft shift. */
@@ -60,6 +103,22 @@ class Rendering
                          std::atomic<bool>& autocontrast_slice_xz_request,
                          std::atomic<bool>& autocontrast_slice_yz_request,
                          std::atomic<bool>& autocontrast_filter2d_request);
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            spdlog::info("[Rendering] [update_setting] {}", typeid(T).name());
+            realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            spdlog::info("[Rendering] [update_setting] {}", typeid(T).name());
+            onrestart_settings_.update_setting(setting);
+        }
+    }
 
   private:
     /*! \brief insert the log10 on the XY window */
@@ -81,6 +140,23 @@ class Rendering
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }
+    }
+
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
     /*! \brief Main buffers */
@@ -98,14 +174,17 @@ class Rendering
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Variables needed for the computation in the pipe, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-
-    ExportCache::Cache& export_cache_;
-    ViewCache::Cache& view_cache_;
-    AdvancedCache::Cache& advanced_cache_;
-    ZoneCache::Cache& zone_cache_;
-
     float* percent_min_max_;
+
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, compute::Rendering> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes
