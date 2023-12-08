@@ -121,7 +121,7 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
         }
     }
     LOG_DEBUG("Pipe initialized");
-    // We allocate the queue in advance, because the allocating while processing the camera frames at a high throughput made the camera crash.
+    // We allocate the queue in advance, because allocating while processing the camera frames at a high throughput made the camera crash.
     init_record_queue();
 }
 
@@ -133,10 +133,11 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 
 
 Queue& Pipe::init_record_queue() {
+    bool on_gpu = GSH::instance().get_record_queue_location();
     if (frame_record_env_.record_mode_ == RecordMode::RAW) {
         LOG_DEBUG("RecordMode = Raw");
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
+                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
     else if (frame_record_env_.record_mode_ == RecordMode::HOLOGRAM) {
@@ -144,7 +145,7 @@ Queue& Pipe::init_record_queue() {
         auto record_fd = gpu_output_queue_.get_fd();
         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
+                new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
     else if (frame_record_env_.record_mode_ == RecordMode::CUTS_YZ || frame_record_env_.record_mode_ == RecordMode::CUTS_XZ) {
@@ -157,7 +158,7 @@ Queue& Pipe::init_record_queue() {
             fd_xyz.width = compute_cache_.get_time_transformation_size();
         
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, false));
+                new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
     else {

@@ -180,6 +180,8 @@ class GSH
 
     inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
+    inline bool get_record_queue_location() const { return export_cache_.get_on_gpu(); };
+
     inline bool get_chart_display_enabled() const { return view_cache_.get_chart_display_enabled(); };
 
     inline bool get_chart_record_enabled() const { return export_cache_.get_chart_record_enabled(); };
@@ -322,6 +324,10 @@ class GSH
 #pragma region(collapsed) SETTERS
     inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {
         export_cache_.set_nb_frame(nb_frames);
+    }
+
+    inline void set_record_queue_location(bool on_gpu){
+        export_cache_.set_on_gpu(on_gpu);
     }
 
     void set_batch_size(uint value);

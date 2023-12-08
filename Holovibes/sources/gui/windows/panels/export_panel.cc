@@ -153,6 +153,7 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->insert(filename);
 }
 
+
 void ExportPanel::set_record_mode(const QString& value)
 {
     if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)

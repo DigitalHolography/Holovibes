@@ -50,6 +50,8 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_output_buffer_size(static_cast<int>(ui.OutputBSSpinBox->value()));
     api::set_time_transformation_cuts_output_buffer_size(static_cast<int>(ui.Cuts3DBSSpinBox->value()));
 
+    api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked());
+
     api::set_display_rate(ui.DisplayRateSpinBox->value());
     api::set_filter2d_smooth_low(ui.Filter2DLowSpinBox->value());
     api::set_filter2d_smooth_high(ui.Filter2DHighSpinBox->value());
@@ -110,6 +112,8 @@ void AdvancedSettingsWindow::set_current_values()
     ui.RenormConstantSpinBox->setValue(api::get_renorm_constant());
     ui.CutsContrastSpinBox->setValue(api::get_cuts_contrast_p_offset());
 
+    ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location());
+
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
     ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
@@ -122,6 +126,8 @@ void AdvancedSettingsWindow::set_current_values()
 
     if (specific_panel_ != nullptr)
         specific_panel_->set_current_values();
+
+    // ui.RecordQueueLocationCheckBox->setValue(true);
 }
 
 } // namespace holovibes::gui
