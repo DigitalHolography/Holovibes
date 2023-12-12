@@ -597,7 +597,7 @@ void Pipe::insert_raw_record()
                     return;
                 }
                 gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                            setting<settings::BatchSize>(), cudaMemcpyDeviceToHost);
+                                            setting<settings::BatchSize>(), setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 
 
                 inserted += setting<settings::BatchSize>();
@@ -609,17 +609,17 @@ void Pipe::insert_hologram_record()
 {
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::HOLOGRAM)
     {
-        if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
 
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     frame_record_env_.frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_, cudaMemcpyDeviceToHost);
+                                                                                  stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 else
-                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, cudaMemcpyDeviceToHost);
+                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -632,13 +632,13 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, cudaMemcpyDeviceToHost); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
         else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, cudaMemcpyDeviceToHost); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
     }
 }

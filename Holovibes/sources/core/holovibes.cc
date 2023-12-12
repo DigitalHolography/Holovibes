@@ -1,7 +1,6 @@
 #include "holovibes.hh"
 #include "queue.hh"
 
-#include "API.hh"
 #include "camera_dll.hh"
 #include "tools.hh"
 #include "logger.hh"
