@@ -1,5 +1,9 @@
 ## Changelog
 
+### 12.3.0
+* stop record when changing the record mode or the record queue size
+* ensure contiguity of the first *record queue size* images recorded
+
 ### 12.2.0
 * Add button too chose dynamically between CPU/GPU for the record queue
 
