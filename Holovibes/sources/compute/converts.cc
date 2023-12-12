@@ -20,27 +20,13 @@ namespace holovibes::compute
 {
 
 void Converts::insert_to_float(bool unwrap_2d_requested,
-                               TimeTransformation time_transformation,
-                               float* buffers_gpu_postprocess_frame,
-                               uint time_transformation_size,
-                               holovibes::CompositeRGB rgb,
-                               CompositeKind composite_kind,
-                               bool composite_auto_weights,
-                               const holovibes::CompositeHSV& composite_hsv,
-                               holovibes::units::RectFd composite_zone,
-                               unsigned int unwrap_history_size)
+                               float* buffers_gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
     ImgType img_type = setting<settings::ImageType>();
-    insert_compute_p_accu(time_transformation_size, setting<settings::P>());
+    insert_compute_p_accu();
     if (img_type == ImgType::Composite)
-        insert_to_composite(rgb,
-                            time_transformation_size,
-                            composite_kind,
-                            buffers_gpu_postprocess_frame,
-                            composite_auto_weights,
-                            composite_hsv,
-                            composite_zone);
+        insert_to_composite(buffers_gpu_postprocess_frame);
     else if (img_type == ImgType::Modulus) // img type in ui : magnitude
         insert_to_modulus(buffers_gpu_postprocess_frame);
     else if (img_type == ImgType::SquaredModulus) // img type in ui : squared magnitude
@@ -48,9 +34,9 @@ void Converts::insert_to_float(bool unwrap_2d_requested,
     else if (img_type == ImgType::Argument)
         insert_to_argument(unwrap_2d_requested, buffers_gpu_postprocess_frame);
     else if (img_type == ImgType::PhaseIncrease)
-        insert_to_phase_increase(unwrap_2d_requested, unwrap_history_size, buffers_gpu_postprocess_frame);
+        insert_to_phase_increase(unwrap_2d_requested, buffers_gpu_postprocess_frame);
 
-    if (time_transformation == TimeTransformation::PCA && img_type != ImgType::Composite)
+    if (setting<settings::TimeTransformation>() == TimeTransformation::PCA && img_type != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -76,16 +62,17 @@ void Converts::insert_to_ushort()
         insert_filter2d_ushort();
 }
 
-void Converts::insert_compute_p_accu(uint time_transformation_size, ViewPQ p)
+void Converts::insert_compute_p_accu()
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
+            auto p = setting<settings::P>();
             pmin_ = p.start;
             if (p.width != 0)
-                pmax_ = std::max(0, std::min<int>(pmin_ + p.width, static_cast<int>(time_transformation_size)));
+                pmax_ = std::max(0, std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -125,29 +112,24 @@ void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
         });
 }
 
-void Converts::insert_to_composite(holovibes::CompositeRGB composite_rgb,
-                                   uint time_transformation_size,
-                                   holovibes::CompositeKind composite_kind,
-                                   float* gpu_postprocess_frame,
-                                   bool composite_auto_weights,
-                                   const holovibes::CompositeHSV& composite_hsv,
-                                   holovibes::units::RectFd composite_zone)
+void Converts::insert_to_composite(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            CompositeRGB rgb_struct = composite_rgb;
+            CompositeRGB rgb_struct = setting<settings::RGB>();
+            auto time_transformation_size = setting<settings::TimeTransformationSize>();
             if (!is_between<ushort>(rgb_struct.frame_index.min, 0, time_transformation_size) ||
                 !is_between<ushort>(rgb_struct.frame_index.max, 0, time_transformation_size))
                 return;
 
-            if (composite_kind == CompositeKind::RGB)
+            if (setting<settings::CompositeKind>() == CompositeKind::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    composite_auto_weights,
+                    setting<settings::CompositeAutoWeights>(),
                     rgb_struct.frame_index.min,
                     rgb_struct.frame_index.max,
                     rgb_struct.weight,
@@ -159,9 +141,9 @@ void Converts::insert_to_composite(holovibes::CompositeRGB composite_rgb,
                     fd_.height,
                     stream_,
                     time_transformation_size,
-                    composite_hsv);
+                    setting<settings::HSV>());
 
-            if (composite_auto_weights)
+            if (setting<settings::CompositeAutoWeights>())
             {
                 const uchar pixel_depth = 3;
                 const int factor = 10;
@@ -169,7 +151,7 @@ void Converts::insert_to_composite(holovibes::CompositeRGB composite_rgb,
                 postcolor_normalize(gpu_postprocess_frame,
                                     fd_.height,
                                     fd_.width,
-                                    composite_zone,
+                                    setting<settings::CompositeZone>(),
                                     pixel_depth,
                                     averages,
                                     stream_);
@@ -238,7 +220,6 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
 }
 
 void Converts::insert_to_phase_increase(bool unwrap_2d_requested,
-                                        unsigned int unwrap_history_size,
                                         float* gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
@@ -246,8 +227,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested,
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(new UnwrappingResources(unwrap_history_size, fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(unwrap_history_size);
+            unwrap_res_.reset(new UnwrappingResources(setting<settings::UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(setting<settings::UnwrapHistorySize>());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()

@@ -2484,13 +2484,13 @@
                  </sizepolicy>
                 </property>
                 <property name="minimum">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <property name="maximum">
                  <number>2100000000</number>
                 </property>
                 <property name="value">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                </widget>
               </item>
@@ -5241,7 +5241,7 @@ p, li { white-space: pre-wrap; }
     <sender>NumberOfFramesSpinBox</sender>
     <signal>valueChanged()</signal>
     <receiver>ExportPanel</receiver>
-    <slot>update_record_frame_count()</slot>
+    <slot>update_record_frame_count_enabled()</slot>
   </connection>
   <connection>
     <sender>OutputFilePathLineEdit</sender>

@@ -16,7 +16,6 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
     }
     // Clear data if already holds information
     cache_image.clear();
-    spdlog::critical("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	bmp_identificator identificator;
     int e = fread(identificator.identificator, sizeof(identificator), 1, f);
     if(e < 0)

@@ -328,7 +328,9 @@ void ExportPanel::update_record_frame_count_enabled()
         api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
-void ExportPanel::update_record_frame_count() { api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value()); }
+void ExportPanel::update_record_frame_count() { 
+     
+}
 
 void ExportPanel::update_record_file_path()
 {

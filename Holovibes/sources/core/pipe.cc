@@ -364,12 +364,7 @@ void Pipe::refresh()
     // Spatial transform
     fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
                                     gpu_input_queue_.get_fd().width,
-                                    gpu_input_queue_.get_fd().height,
-                                    setting<settings::Filter2dN1>(),
-                                    setting<settings::Filter2dN2>(),
-                                    setting<settings::Filter2dSmoothLow>(),
-                                    setting<settings::Filter2dSmoothHigh>(),
-                                    setting<settings::SpaceTransformation>());
+                                    gpu_input_queue_.get_fd().height);
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -383,35 +378,21 @@ void Pipe::refresh()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // time transform
-    fourier_transforms_->insert_time_transform(setting<settings::TimeTransformation>(),
-                                               setting<settings::TimeTransformationSize>());
+    fourier_transforms_->insert_time_transform();
     fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
                                                               buffers_.gpu_postprocess_frame_xz.get(),
-                                                              buffers_.gpu_postprocess_frame_yz.get(),
-                                                              setting<settings::TimeTransformationSize>());
+                                                              buffers_.gpu_postprocess_frame_yz.get());
     insert_cuts_record();
 
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(unwrap_2d_requested_,
-                               setting<settings::TimeTransformation>(),
-                               buffers_.gpu_postprocess_frame.get(),
-                               setting<settings::TimeTransformationSize>(),
-                               setting<settings::RGB>(),
-                               setting<settings::CompositeKind>(),
-                               setting<settings::CompositeAutoWeights>(),
-                            setting<settings::HSV>(),
-                               setting<settings::CompositeZone>(),
-                               setting<settings::UnwrapHistorySize>());
+    converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
 
     insert_filter2d_view();
 
-    postprocess_->insert_convolution(setting<settings::ConvolutionEnabled>(),
-                                     setting<settings::ConvolutionMatrix>(),
-                                     buffers_.gpu_postprocess_frame.get(),
-                                     buffers_.gpu_convolution_buffer.get(),
-                                     setting<settings::DivideConvolutionEnabled>());
+    postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(),
+                                     buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!

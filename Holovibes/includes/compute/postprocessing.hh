@@ -21,7 +21,10 @@
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ImageType,                \
     holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ConvolutionMatrix
+    holovibes::settings::ConvolutionMatrix,        \
+    settings::ConvolutionEnabled,                  \
+    settings::DivideConvolutionEnabled
+
 
 #define ONRESTART_SETTINGS                          \
     holovibes::settings::RenormConstant
@@ -74,11 +77,8 @@ class Postprocessing
     void dispose();
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
-    void insert_convolution(bool convolution_enabled,
-                            std::vector<float> convo_matrix,
-                            float* gpu_postprocess_frame,
-                            float* gpu_convolution_buffer,
-                            bool divide_convolution_enabled);
+    void insert_convolution(float* gpu_postprocess_frame,
+                            float* gpu_convolution_buffer);
 
     /*! \brief Insert the normalization function. */
     void insert_renormalize(float* gpu_postprocess_frame);

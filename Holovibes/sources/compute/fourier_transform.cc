@@ -29,36 +29,30 @@ using holovibes::compute::FourierTransform;
 
 void FourierTransform::insert_fft(float* gpu_filter2d_mask,
                                   const uint width,
-                                  const uint height,
-                                  const uint radius_low,
-                                  const uint radius_high,
-                                  const uint smooth_low,
-                                  const uint smooth_high,
-                                  const SpaceTransformation space_transformation)
+                                  const uint height)
 {
     LOG_FUNC();
+    auto space_transformation = setting<settings::SpaceTransformation>();
     bool filter2d_enabled = setting<settings::Filter2dEnabled>();
     if (filter2d_enabled)
     {
         update_filter2d_circles_mask(gpu_filter2d_mask,
                                      width,
                                      height,
-                                     radius_low,
-                                     radius_high,
-                                     smooth_low,
-                                     smooth_high,
+                                     setting<settings::Filter2dN1>(),
+                                     setting<settings::Filter2dN2>(),
+                                     setting<settings::Filter2dSmoothLow>(),
+                                     setting<settings::Filter2dSmoothHigh>(),
                                      stream_);
 
         if (setting<settings::FilterEnabled>())
         {
-            spdlog::critical("[FOURIER_TRANSFORM] Applying filter2d mask");
             apply_filter(gpu_filter2d_mask,
                          buffers_.gpu_input_filter_mask,
                          setting<settings::InputFilter>().data(),
                          width,
                          height,
                          stream_);
-            spdlog::critical("[FOURIER_TRANSFORM] Applying filter2d mask END");
         }
 
         // In FFT2 we do an optimisation to compute the filter2d in the same
@@ -194,10 +188,12 @@ void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
     }
 }
 
-void FourierTransform::insert_time_transform(const TimeTransformation time_transformation,
-                                             const uint time_transformation_size)
+void FourierTransform::insert_time_transform()
 {
     LOG_FUNC();
+
+    auto time_transformation = setting<settings::TimeTransformation>();
+    auto time_transformation_size = setting<settings::TimeTransformationSize>();
 
     if (time_transformation == TimeTransformation::STFT)
     {
@@ -367,8 +363,7 @@ void FourierTransform::insert_store_p_frame()
 
 void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
                                                             float* gpu_postprocess_frame_xz,
-                                                            float* gpu_postprocess_frame_yz,
-                                                            uint time_transformation_size)
+                                                            float* gpu_postprocess_frame_yz)
 {
     LOG_FUNC();
 
@@ -403,7 +398,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                                                    mouse_posy + y.width,
                                                    width,
                                                    height,
-                                                   time_transformation_size,
+                                                   setting<settings::TimeTransformationSize>(),
                                                    setting<settings::XZ>().output_image_accumulation,
                                                    setting<settings::YZ>().output_image_accumulation,
                                                    setting<settings::ImageType>(),

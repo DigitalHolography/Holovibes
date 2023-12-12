@@ -102,15 +102,12 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
     from_distinct_components_to_interweaved_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
 }
 
-void Postprocessing::insert_convolution(bool convolution_enabled,
-                                        std::vector<float> convo_matrix,
-                                        float* gpu_postprocess_frame,
-                                        float* gpu_convolution_buffer,
-                                        bool divide_convolution_enabled)
+void Postprocessing::insert_convolution(float* gpu_postprocess_frame,
+                                        float* gpu_convolution_buffer)
 {
     LOG_FUNC();
 
-    if (!convolution_enabled || convo_matrix.empty())
+    if (!setting<settings::ConvolutionEnabled>() || setting<settings::ConvolutionMatrix>().empty())
         return;
 
     if (setting<settings::ImageType>() != ImgType::Composite)
@@ -124,7 +121,7 @@ void Postprocessing::insert_convolution(bool convolution_enabled,
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
-                                   divide_convolution_enabled,
+                                   setting<settings::DivideConvolutionEnabled>(),
                                    true,
                                    stream_);
             });
@@ -133,7 +130,11 @@ void Postprocessing::insert_convolution(bool convolution_enabled,
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
-            { convolution_composite(gpu_postprocess_frame, gpu_convolution_buffer, divide_convolution_enabled); });
+            {
+                convolution_composite(gpu_postprocess_frame,
+                                      gpu_convolution_buffer,
+                                      setting<settings::DivideConvolutionEnabled>());
+            });
     }
 }
 
@@ -150,7 +151,11 @@ void Postprocessing::insert_renormalize(float* gpu_postprocess_frame)
             uint frame_res = fd_.get_frame_res();
             if (setting<settings::ImageType>() == ImgType::Composite)
                 frame_res *= 3;
-            gpu_normalize(gpu_postprocess_frame, reduce_result_.get(), frame_res, setting<settings::RenormConstant>(), stream_);
+            gpu_normalize(gpu_postprocess_frame,
+                          reduce_result_.get(),
+                          frame_res,
+                          setting<settings::RenormConstant>(),
+                          stream_);
         });
 }
 } // namespace holovibes::compute

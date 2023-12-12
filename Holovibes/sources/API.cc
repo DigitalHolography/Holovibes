@@ -1062,8 +1062,6 @@ bool get_log_enabled() { return GSH::instance().get_log_enabled(); }
 
 void enable_convolution(const std::string& filename)
 {
-    spdlog::critical("enable_convolution {}", filename);
-
     GSH::instance().enable_convolution(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt
                                                                                 : std::make_optional(filename));
 

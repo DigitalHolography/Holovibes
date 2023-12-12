@@ -25,6 +25,13 @@
     holovibes::settings::P,                        \
     holovibes::settings::Filter2dViewEnabled,      \
     holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::RGB,                      \
+    holovibes::settings::CompositeKind,            \
+    holovibes::settings::CompositeAutoWeights,     \
+    holovibes::settings::HSV,                      \
+    holovibes::settings::CompositeZone,            \
     holovibes::settings::UnwrapHistorySize
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -72,15 +79,7 @@ class Converts
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
     void insert_to_float(bool unwrap_2d_requested,
-                         TimeTransformation time_transformation,
-                         float* buffers_gpu_postprocess_frame,
-                         uint time_transformation_size,
-                         holovibes::CompositeRGB rgb,
-                         CompositeKind composite_kind,
-                         bool composite_auto_weights,
-                         const holovibes::CompositeHSV& composite_hsv,
-                         holovibes::units::RectFd composite_zone,
-                         unsigned int unwrap_history_size);
+                         float* buffers_gpu_postprocess_frame);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
     void insert_to_ushort();
@@ -100,7 +99,7 @@ class Converts
 
   private:
     /*! \brief Set pmin_ and pmax_ according to p accumulation. */
-    void insert_compute_p_accu(uint time_transformation_size, ViewPQ p);
+    void insert_compute_p_accu();
 
     /*! \brief Insert the convertion Complex => Modulus */
     void insert_to_modulus(float* gpu_postprocess_frame);
@@ -109,20 +108,14 @@ class Converts
     void insert_to_squaredmodulus(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Composite */
-    void insert_to_composite(holovibes::CompositeRGB rgb,
-                             uint time_transformation_size,
-                             holovibes::CompositeKind composite_kind,
-                             float* gpu_postprocess_frame,
-                             bool composite_auto_weights,
-                             const holovibes::CompositeHSV& hsv,
-                             holovibes::units::RectFd composite_zone);
+    void insert_to_composite(float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Argument */
     void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Phase increase */
     void
-    insert_to_phase_increase(bool unwrap_2d_requested, unsigned int unwrap_history_size, float* gpu_postprocess_frame);
+    insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Float => Unsigned Short in XY window */
     void insert_main_ushort();

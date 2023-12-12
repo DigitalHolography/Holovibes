@@ -60,7 +60,6 @@ void FrameRecordWorker::run()
 
     std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
-    // Queue& record_queue = init_record_queue();
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_frame_record();
     Queue& record_queue = *pipe->get_frame_record_queue();

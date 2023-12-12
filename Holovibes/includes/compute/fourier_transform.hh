@@ -31,9 +31,15 @@
     holovibes::settings::Filter2dEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::TimeTransformation,       \
     holovibes::settings::Lambda,                   \
     holovibes::settings::ZDistance,                \
-    holovibes::settings::PixelSize
+    holovibes::settings::PixelSize,                \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::SpaceTransformation
 
 #define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize,                  \
@@ -88,12 +94,7 @@ class FourierTransform
     /*! \brief enqueue functions relative to spatial fourier transforms. */
     void insert_fft(float* gpu_filter2d_mask,
                     const uint width,
-                    const uint height,
-                    const uint radius_low,
-                    const uint radius_high,
-                    const uint smooth_low,
-                    const uint smooth_high,
-                    const SpaceTransformation space_transformation);
+                    const uint height);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
     void insert_store_p_frame();
@@ -102,14 +103,12 @@ class FourierTransform
     std::unique_ptr<Queue>& get_lens_queue();
 
     /*! \brief enqueue functions relative to temporal fourier transforms. */
-    void insert_time_transform(const TimeTransformation time_transformation,
-                               const uint time_transformation_size);
+    void insert_time_transform();
 
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
                                               float* gpu_postprocess_frame_xz,
-                                              float* gpu_postprocess_frame_yz,
-                                              uint time_transformation_size);
+                                              float* gpu_postprocess_frame_yz);
 
     template <typename T>
     inline void update_setting(T setting)

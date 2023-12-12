@@ -45,7 +45,6 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
 void AdvancedSettingsWindow::set_ui_values()
 {
-    spdlog::critical("[AdvancedSettingsWindow] [set_ui_values]");
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
     api::set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));

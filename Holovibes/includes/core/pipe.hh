@@ -211,6 +211,7 @@ class Pipe : public ICompute
                 throw e;
             }
         }
+        init_record_queue();
     }
 
     ~Pipe() override;

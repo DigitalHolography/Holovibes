@@ -268,16 +268,12 @@ int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescripto
         print_verbose(opts);
 
     Chrono chrono;
-    spdlog::critical("Start cli workers");
     if (int ret = start_cli_workers(holovibes, opts))
         return ret;
-    spdlog::critical("Start main loop");
     main_loop(holovibes);
 
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
-    spdlog::critical("Stop all workers");
     holovibes.stop_all_worker_controller();
-    spdlog::critical("all workers stopped");
     return 0;
 }
 } // namespace cli

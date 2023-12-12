@@ -208,17 +208,17 @@ void GSH::set_horizontal_flip(double value)
 
 void GSH::set_composite_p_h()
 {
-    this->notify();
+    //this->notify();
 }
 
 void GSH::set_rgb_p()
 {
-    this->notify();
+    //this->notify();
 }
 
 void GSH::set_weight_rgb()
 {
-    this->notify();
+    //this->notify();
 }
 
 static void load_convolution_matrix(std::vector<float> convo_matrix, const std::string& file)
