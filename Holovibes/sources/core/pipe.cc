@@ -653,8 +653,9 @@ void Pipe::insert_raw_record()
 
     if (export_cache_.get_frame_record_enabled() && export_cache_.get_record_mode() == RecordMode::RAW)
     {
-        if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });   
+        // ensure temporal integrity
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(compute_cache_.get_batch_size()); });   
 
         fn_compute_vect_.push_back(
             [&]() {
@@ -664,7 +665,7 @@ void Pipe::insert_raw_record()
                     return;
                 }
                 gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                            compute_cache_.get_batch_size(), cudaMemcpyDeviceToHost);
+                                            compute_cache_.get_batch_size(), export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 
 
                 inserted += compute_cache_.get_batch_size();
@@ -676,17 +677,17 @@ void Pipe::insert_hologram_record()
 {
     if (export_cache_.get_frame_record_enabled() && export_cache_.get_record_mode() == RecordMode::HOLOGRAM)
     {
-        if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
 
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     frame_record_env_.frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_, cudaMemcpyDeviceToHost);
+                                                                                  stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 else
-                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, cudaMemcpyDeviceToHost);
+                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -699,13 +700,13 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, cudaMemcpyDeviceToHost); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
         else if (export_cache_.get_record_mode() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, cudaMemcpyDeviceToHost); });
+                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
     }
 }
