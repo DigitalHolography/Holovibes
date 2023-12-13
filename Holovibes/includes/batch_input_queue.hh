@@ -39,7 +39,7 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const bool gpu = true);
 
     ~BatchInputQueue();
 
@@ -181,7 +181,7 @@ class BatchInputQueue final : public DisplayQueue
     }
 
   private: /* Private attributes */
-    cuda_tools::CudaUniquePtr<char> data_{nullptr};
+    cuda_tools::UniquePtr<char> data_{nullptr};
 
     /*! \brief FastUpdatesHolder entry */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
@@ -237,5 +237,12 @@ class BatchInputQueue final : public DisplayQueue
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
     /*! \} */
+
+    /*!
+     * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
+     * 
+     */
+    bool gpu_;
+
 };
 } // namespace holovibes

@@ -6,13 +6,16 @@
 
 namespace holovibes
 {
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd)
+BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const bool gpu)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
     , curr_nb_frames_(fast_updates_entry_->first)
     , total_nb_frames_(fast_updates_entry_->second)
     , frame_capacity_(total_nb_frames)
+    , gpu_(gpu)
 {
+    data_ = cuda_tools::UniquePtr<char>(gpu_);
+
     curr_nb_frames_ = 0;
     total_nb_frames_ = total_nb_frames;
 

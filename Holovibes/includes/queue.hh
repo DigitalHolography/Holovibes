@@ -256,9 +256,13 @@ class Queue final : public DisplayQueue
     // std::variant<cuda_tools::CudaUniquePtr<char>,cuda_tools::CPUUniquePtr<char>> data_;
     std::shared_ptr<cuda_tools::UniquePtr<char>> data_;
 
-    /*! \brief Wheter frames have been overridden during an enqueue. */
+    /*! \brief Whether frames have been overridden during an enqueue. */
     bool has_overridden_;
 
+    /*!
+     * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
+     * 
+     */
     bool gpu_;
 
   private:
