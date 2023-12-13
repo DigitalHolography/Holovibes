@@ -84,13 +84,13 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     }
     holovibes::api::set_input_file_start_index(start_frame - 1);
 
-    uint end_frame = opts.end_frame.value_or(nb_frames - 2);
-    if (!is_between(end_frame, (uint)1, nb_frames - 2))
+    uint end_frame = opts.end_frame.value_or(nb_frames);
+    if (!is_between(end_frame, (uint)1, nb_frames))
     {
         err_message("end_frame", end_frame, "-e");
         return 2;
     }
-    holovibes::api::set_input_file_end_index(end_frame + 1);
+    holovibes::api::set_input_file_end_index(end_frame);
 
     if (start_frame > end_frame)
     {
@@ -212,13 +212,14 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 {
     // Force some values
     holovibes.is_cli = true;
+    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    holovibes.update_setting(holovibes::settings::RecordMode{mode});
     holovibes::api::set_frame_record_enabled(true);
-    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw
-                                                                : holovibes::Computation::Hologram);
+    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
 
     // Value used in more than 1 thread
     size_t input_nb_frames =
-        holovibes::api::get_input_file_end_index() - holovibes::api::get_input_file_start_index() + 1;
+        holovibes::api::get_input_file_end_index() - holovibes::api::get_input_file_start_index();
     uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
     if (record_nb_frames <= 0)
     {
@@ -236,8 +237,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     pipe->init_record_queue();
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
-    holovibes.update_setting(holovibes::settings::RecordMode{opts.record_raw ? holovibes::RecordMode::RAW
-                                                                             : holovibes::RecordMode::HOLOGRAM});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
 
     holovibes.start_frame_record();

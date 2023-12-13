@@ -158,7 +158,6 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                 if (pixel_depth >= 3)
                 {
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    //!!!!! replace api by update_setting
                     api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
                                                    (static_cast<double>(averages[1]) / max) * factor,
                                                    (static_cast<double>(averages[2]) / max) * factor);

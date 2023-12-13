@@ -395,9 +395,6 @@ void Pipe::refresh()
                                      buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !! ICI LA LAL ALLALALAL view cache en argumment en bas!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!
     auto insert = [&]()
     {
         image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
@@ -589,8 +586,6 @@ void Pipe::insert_raw_record()
 
         fn_compute_vect_.push_back(
             [&]() {
-                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                               setting<settings::BatchSize>());
                 // If the number of frames to record is reached, stop
                 if (setting<settings::RecordFrameCount>() != std::nullopt && inserted >= setting<settings::RecordFrameCount>().value())
                 {
