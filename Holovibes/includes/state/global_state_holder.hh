@@ -10,7 +10,6 @@
 #include <mutex>
 
 #include "fast_updates_holder.hh"
-#include "caches.hh"
 #include "entities.hh"
 #include "view_struct.hh"
 #include "rendering_struct.hh"

@@ -559,7 +559,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (api::get_raw_view_enabled())
+    if (setting<settings::RawViewEnabled>())
     {
         // FIXME: Copy multiple copies a batch of frames
         // The view use get last image which will always the
@@ -584,8 +584,8 @@ void Pipe::insert_raw_record()
     inserted = 0;
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::RAW)
     {
-        if (Holovibes::instance().is_cli)
-            fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
+        //if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
 
         fn_compute_vect_.push_back(
             [&]() {

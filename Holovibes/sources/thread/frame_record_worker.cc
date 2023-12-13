@@ -119,6 +119,8 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
+        api::set_record_frame_skip(nb_frames_to_skip);
+
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded);
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
