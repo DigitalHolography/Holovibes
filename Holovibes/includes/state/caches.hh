@@ -28,6 +28,7 @@ namespace holovibes
  * \param output_buffer_size Max size of output queue in number of images.
  * \param contrast_lower_threshold
  * \param contrast_upper_threshold
+ * \param input_queue_on_gpu Whether the batch_input_queue is on the gpu (default behavior) or on cpu (when there is no pipe)
  */
 NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (float, display_rate, 30),
@@ -38,7 +39,8 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (unsigned int, raw_bitshift, 0),
                             (float, contrast_upper_threshold, 99.5f),
                             (unsigned, renorm_constant, 5),
-                            (uint, cuts_contrast_p_offset, 2));
+                            (uint, cuts_contrast_p_offset, 2),
+                            (bool, input_queue_on_gpu, true));
 
 /*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches
@@ -101,7 +103,12 @@ NEW_INITIALIZED_MICRO_CACHE(CompositeCache,
  * \param frame_record_enabled Is holovibes currently recording
  * \param chart_record_enabled Enables the signal and noise chart record
  */
-NEW_INITIALIZED_MICRO_CACHE(ExportCache, (bool, frame_record_enabled, false), (bool, chart_record_enabled, false), (std::optional<size_t>, nb_frame, std::nullopt), (holovibes::RecordMode, record_mode, holovibes::RecordMode::RAW), (bool, on_gpu, false));
+NEW_INITIALIZED_MICRO_CACHE(ExportCache, 
+                            (bool, frame_record_enabled, false), 
+                            (bool, chart_record_enabled, false), 
+                            (std::optional<size_t>, nb_frame, std::nullopt), 
+                            (holovibes::RecordMode, record_mode, holovibes::RecordMode::RAW), 
+                            (bool, on_gpu, false));
 
 /*! \brief Construct a new new micro cache object
  * \param start_frame First frame read

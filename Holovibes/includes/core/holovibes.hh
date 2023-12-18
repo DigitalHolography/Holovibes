@@ -261,7 +261,7 @@ class Holovibes
     /*! \name Frames queue (GPU)
      * \{
      */
-    std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
+    std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     /*! \} */
 

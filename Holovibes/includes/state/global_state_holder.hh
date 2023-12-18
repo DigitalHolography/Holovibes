@@ -211,6 +211,8 @@ class GSH
 
     inline uint get_file_buffer_size() const noexcept { return file_read_cache_.get_file_buffer_size(); }
 
+    inline bool get_input_queue_location() const { return advanced_cache_.get_input_queue_on_gpu(); };
+
     inline uint get_input_buffer_size() const noexcept { return advanced_cache_.get_input_buffer_size(); }
 
     inline uint get_record_buffer_size() const noexcept { return advanced_cache_.get_record_buffer_size(); }
@@ -539,6 +541,10 @@ class GSH
     inline void set_record_buffer_size(uint value) { advanced_cache_.set_record_buffer_size(value); }
 
     inline void set_output_buffer_size(uint value) { advanced_cache_.set_output_buffer_size(value); }
+
+    inline void set_input_queue_location(bool on_gpu){
+        advanced_cache_.set_input_queue_on_gpu(on_gpu);
+    }
 
     inline void set_pixel_size(float value)
     {

@@ -138,7 +138,7 @@ Queue& Pipe::init_record_queue() {
     if (record_mode == RecordMode::RAW) {
         LOG_DEBUG("RecordMode = Raw");
         frame_record_env_.frame_record_queue_.reset(
-                new Queue(gpu_input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
+                new Queue(input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
         LOG_DEBUG("Record queue allocated");
     }
     else if (record_mode == RecordMode::HOLOGRAM) {
@@ -311,7 +311,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(compute_cache_.get_batch_size());
+        input_queue_.resize(compute_cache_.get_batch_size());
         request_update_batch_size_ = false;
     }
 
@@ -337,7 +337,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("raw_view_requested");
 
-        auto fd = gpu_input_queue_.get_fd();
+        auto fd = input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
         GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
@@ -442,7 +442,7 @@ void Pipe::refresh()
 
     insert_raw_view();
 
-    converts_->insert_complex_conversion(gpu_input_queue_);
+    converts_->insert_complex_conversion(input_queue_);
 
     // Spatial transform
     fourier_transforms_->insert_fft();
@@ -511,7 +511,7 @@ void Pipe::insert_wait_frames()
         [&]()
         {
             // Wait while the input queue is enough filled
-            while (gpu_input_queue_.is_empty())
+            while (input_queue_.is_empty())
                 continue;
         });
 }
@@ -562,12 +562,12 @@ void Pipe::insert_dequeue_input()
             // the gpu input queue for display
             /* safe_enqueue_output(
             **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+            **    static_cast<unsigned short*>(input_queue_.get_start()),
             **    "Can't enqueue the input frame in gpu_output_queue");
             */
 
             // Dequeue a batch
-            gpu_input_queue_.dequeue();
+            input_queue_.dequeue();
         });
 }
 
@@ -638,7 +638,7 @@ void Pipe::insert_raw_view()
             {
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
-                gpu_input_queue_.copy_multiple(*get_raw_view_queue());
+                input_queue_.copy_multiple(*get_raw_view_queue());
             });
     }
 }
@@ -664,7 +664,7 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
+                input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
                                             compute_cache_.get_batch_size(), export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 
 

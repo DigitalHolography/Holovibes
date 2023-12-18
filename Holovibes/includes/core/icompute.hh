@@ -290,7 +290,7 @@ class ICompute
 
   protected:
     /*! \brief Reference on the input queue */
-    BatchInputQueue& gpu_input_queue_;
+    BatchInputQueue& input_queue_;
 
     /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;

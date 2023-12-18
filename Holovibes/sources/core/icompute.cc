@@ -25,16 +25,16 @@ namespace holovibes
 using camera::FrameDescriptor;
 
 ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
-    : gpu_input_queue_(input)
+    : input_queue_(input)
     , gpu_output_queue_(output)
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
     int err = 0;
 
-    plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
+    plan_unwrap_2d_.plan(input_queue_.get_fd().width, input_queue_.get_fd().height, CUFFT_C2C);
 
-    const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
+    const camera::FrameDescriptor& fd = input_queue_.get_fd();
     long long int n[] = {fd.height, fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
@@ -52,14 +52,14 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
                                             CUDA_C_32F);                     // Computation type
 
     int inembed[1];
-    int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+    int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
     inembed[0] = compute_cache_.get_time_transformation_size();
 
     time_transformation_env_.stft_plan
         .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-    camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
+    camera::FrameDescriptor new_fd = input_queue_.get_fd();
     new_fd.depth = 8;
     // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
     time_transformation_env_.gpu_time_transformation_queue.reset(
@@ -67,15 +67,15 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
     // Static cast size_t to avoid overflow
     if (!buffers_.gpu_spatial_transformation_buffer.resize(static_cast<const size_t>(compute_cache_.get_batch_size()) *
-                                                           gpu_input_queue_.get_fd().get_frame_res()))
+                                                           input_queue_.get_fd().get_frame_res()))
         err++;
 
-    int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
+    int output_buffer_size = input_queue_.get_fd().get_frame_res();
     if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
-    buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+    buffers_.gpu_postprocess_frame_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
     if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
@@ -108,7 +108,7 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
 
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
-    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
+    time_transformation_env_.gpu_p_acc_buffer.resize(input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
     if (compute_cache_.get_time_transformation() == TimeTransformation::STFT)
@@ -116,7 +116,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -139,7 +139,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -175,7 +175,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
 
 void ICompute::update_spatial_transformation_parameters()
 {
-    const auto& gpu_input_queue_fd = gpu_input_queue_.get_fd();
+    const auto& gpu_input_queue_fd = input_queue_.get_fd();
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account

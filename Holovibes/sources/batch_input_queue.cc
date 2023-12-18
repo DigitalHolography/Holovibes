@@ -101,6 +101,12 @@ void BatchInputQueue::stop_producer()
 
 void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
 {
+    if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && not gpu_)
+        throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
+    
+    if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && gpu_)
+        throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
+
     if (curr_batch_counter_ == 0) // Enqueue in a new batch
     {
         // The producer might be descheduled before locking.
@@ -290,7 +296,6 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
-    // (Stream synchronization could only be done in thread recorder but it
     // would kill this queue design with only 1 producer and 1 consumer).
     if (gpu_)
         cudaXStreamSynchronize(batch_streams_[start_index_locked]);
@@ -308,4 +313,4 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
         dest.has_overridden_ = true;
     }
 }
-} // namespace holovibes
+} // namespace 0holovibes

@@ -20,9 +20,9 @@ Holovibes& Holovibes::instance()
 
 const float Holovibes::get_boundary()
 {
-    if (gpu_input_queue_.load())
+    if (input_queue_.load())
     {
-        FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
+        FrameDescriptor fd = input_queue_.load()->get_fd();
         const float d = GSH::instance().get_pixel_size() * 0.000001f;
         const float n = static_cast<float>(fd.height);
         return (n * d * d) / GSH::instance().get_lambda();
@@ -36,7 +36,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 {
     camera::FrameDescriptor queue_fd = fd;
 
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
+    input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
 }
 
 void Holovibes::start_file_frame_read(const std::string& file_path,
@@ -47,13 +47,13 @@ void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool load_file_in_gpu,
                                       const std::function<void()>& callback)
 {
-    CHECK(gpu_input_queue_.load() != nullptr);
+    CHECK(input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
     file_read_worker_controller_
-        .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, gpu_input_queue_);
+        .start(file_path, loop, fps, first_frame_id, nb_frames_to_read, load_file_in_gpu, input_queue_);
 }
 
 void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)
@@ -89,7 +89,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
-        camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
+        camera_read_worker_controller_.start(active_camera_, input_queue_);
     }
     catch (std::exception& e)
     {
@@ -105,7 +105,7 @@ void Holovibes::stop_frame_read()
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();
-    gpu_input_queue_.store(nullptr);
+    input_queue_.store(nullptr);
 }
 /*
 void Holovibes::start_cli_record_and_compute(const std::string& path,
@@ -184,7 +184,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
-    camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
+    camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
     if (GSH::instance().get_compute_mode() == Computation::Hologram)
     {
         output_fd.depth = 2;
@@ -195,7 +195,7 @@ void Holovibes::init_pipe()
         std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
-        compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
+        compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
                                                    get_cuda_streams().compute_stream));
     }
@@ -214,9 +214,9 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     /**
      * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
      * Here is a suggestion :
-     * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
+     * // CHECK(!!input_queue_.load()) << "Input queue not initialized";
      */
-    CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
+    CHECK(input_queue_.load() != nullptr, "Input queue not initialized");
     try
     {
         init_pipe();
