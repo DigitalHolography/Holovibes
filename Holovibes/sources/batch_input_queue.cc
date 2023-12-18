@@ -44,10 +44,12 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     max_size_ = total_nb_frames_ / batch_size_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[]>(new std::mutex[max_size_]);
-    batch_streams_ = std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
+    if (gpu_) {
+        batch_streams_ = std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
 
     for (uint i = 0; i < max_size_; ++i)
         cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
+    }
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
 }
@@ -66,11 +68,13 @@ bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0
 
 void BatchInputQueue::destroy_mutexes_streams()
 {
-    for (uint i = 0; i < max_size_; i++)
-        cudaSafeCall(cudaStreamSynchronize(batch_streams_[i]));
-    for (uint i = 0; i < max_size_; i++)
-        cudaSafeCall(cudaStreamDestroy(batch_streams_[i]));
-    batch_streams_.reset(nullptr);
+    if (gpu_) {
+        for (uint i = 0; i < max_size_; i++)
+            cudaSafeCall(cudaStreamSynchronize(batch_streams_[i]));
+        for (uint i = 0; i < max_size_; i++)
+            cudaSafeCall(cudaStreamDestroy(batch_streams_[i]));
+        batch_streams_.reset(nullptr);
+    }
 
     // All the mutexes are unlocked before deleting.
     batch_mutexes_.reset(nullptr);
@@ -112,11 +116,17 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     char* const new_frame_adress =
         data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-    cudaXMemcpyAsync(new_frame_adress,
+    if (gpu_)
+        cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
                      sizeof(char) * fd_.get_frame_size(),
                      memcpy_kind,
                      batch_streams_[end_index_]);
+    else
+        cudaXMemcpyAsync(new_frame_adress,
+                     input_frame,
+                     sizeof(char) * fd_.get_frame_size(),
+                     memcpy_kind);
 
     // No sync needed here, the host doesn't need to wait for the copy to
     // end. Only the consumer needs to be sure the data is here before
@@ -168,11 +178,16 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
     // From the queue
     const char* const src =
         data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
-    func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
+    
+    if (gpu_)
+        func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
+    else
+        func(src, dest, batch_size_, fd_.get_frame_res(), depth, 0);
 
     // The consumer has the responsability to give data that
     // finished processing.
-    cudaXStreamSynchronize(batch_streams_[start_index_locked]);
+    if (gpu_)
+        cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update index
     dequeue_update_attr();
@@ -227,7 +242,6 @@ void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { cop
 
 void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {
-    // std::cout << "2" << std::endl;
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
           "Copy multiple: the destination queue must have a size at least greater than number of elements to copy.");
@@ -269,13 +283,17 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Use the source start index (first batch of frames in the queue) stream
     // An enqueue operation on this stream (if happens) is blocked until the
     // copy is completed. Make the copy according to the region
-    Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
+    if (gpu_)
+        Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
+    else
+        Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), 0, cuda_kind);
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
     // (Stream synchronization could only be done in thread recorder but it
     // would kill this queue design with only 1 producer and 1 consumer).
-    cudaXStreamSynchronize(batch_streams_[start_index_locked]);
+    if (gpu_)
+        cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update dest queue parameters
     dest.size_ += nb_elts;
@@ -289,6 +307,5 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
-    // std::cout << "3" << std::endl;
 }
 } // namespace holovibes
