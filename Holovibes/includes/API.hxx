@@ -129,7 +129,6 @@ inline std::optional<size_t> get_nb_frames_to_record() {return GSH::instance().g
 inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) {GSH::instance().set_nb_frames_to_record(nb_frames);}
 
 inline bool get_record_queue_location() {return GSH::instance().get_record_queue_location();}
-inline void set_record_queue_location(bool gpu) {GSH::instance().set_record_queue_location(gpu);}
 
 inline float get_slider_h_threshold_min() { return GSH::instance().get_slider_h_threshold_min(); }
 inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider_h_threshold_min(value); }

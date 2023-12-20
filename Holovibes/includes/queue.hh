@@ -117,7 +117,7 @@ class Queue final : public DisplayQueue
      * \param fd 
      * \param stream 
      */
-    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream);
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu);
 
 
     /*! \brief Enqueue method

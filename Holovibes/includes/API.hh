@@ -180,6 +180,13 @@ const std::string browse_record_output_file(std::string& std_filepath);
  */
 void set_record_mode(const std::string& text);
 
+/*!
+ * \brief Set the record queue location, between gpu and cpu
+ * 
+ * \param gpu whether the record queue is on the gpu or the cpu
+ */
+void set_record_queue_location(bool gpu);
+
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *
  * \param value the size of the buffer

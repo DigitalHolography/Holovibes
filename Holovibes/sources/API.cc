@@ -1188,18 +1188,27 @@ const std::string browse_record_output_file(std::string& std_filepath)
 }
 
 void set_record_buffer_size(uint value) { 
-    GSH::instance().set_record_buffer_size(value);
-    
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try {
+    // we since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (GSH::instance().get_record_buffer_size() != value) {
+
+        GSH::instance().set_record_buffer_size(value);
+        
         if (Holovibes::instance().is_recording()) 
                 stop_record();
         Holovibes::instance().init_record_queue();    
     }
-    catch(const std::exception &e) {
-        LOG_DEBUG("Pipe not initialized");
+}
+
+void set_record_queue_location(bool gpu) {
+    // we check since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (GSH::instance().get_record_queue_location() != gpu) {
+        GSH::instance().set_record_queue_location(gpu);
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
+        Holovibes::instance().init_record_queue(); 
     }
 }
+
 
 void set_record_mode(const std::string& text)
 {
@@ -1233,21 +1242,14 @@ void set_record_mode(const std::string& text)
 
     UserInterfaceDescriptor::instance().record_mode_ = record_mode;
 
-
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try {
-        GSH::instance().set_record_mode(record_mode);
-        if (record_mode != RecordMode::CHART)
-        {
-            if (Holovibes::instance().is_recording()) 
-                stop_record();
-            
-            Holovibes::instance().init_record_queue();    
-            LOG_DEBUG("Pipe initialized");
-        }
-    }
-    catch(const std::exception &e) {
-        LOG_DEBUG("Pipe not initialized");
+    GSH::instance().set_record_mode(record_mode);
+    if (record_mode != RecordMode::CHART)
+    {
+        if (Holovibes::instance().is_recording()) 
+            stop_record();
+        
+        Holovibes::instance().init_record_queue();    
+        LOG_DEBUG("Pipe initialized");
     }
 }
 

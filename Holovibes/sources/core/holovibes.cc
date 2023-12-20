@@ -51,7 +51,7 @@ void Holovibes::init_record_queue() {
         if (!record_queue_.load())
             record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
         else
-            record_queue_.load()->rebuild(input_queue_.load()->get_fd(), GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+            record_queue_.load()->rebuild(input_queue_.load()->get_fd(), GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
 
         LOG_DEBUG("Record queue allocated");
     }
@@ -62,7 +62,7 @@ void Holovibes::init_record_queue() {
         if (!record_queue_.load())
             record_queue_ = std::make_shared<Queue>(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
         else
-            record_queue_.load()->rebuild(record_fd, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+            record_queue_.load()->rebuild(record_fd, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
         LOG_DEBUG("Record queue allocated");
     }
     else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
@@ -77,7 +77,7 @@ void Holovibes::init_record_queue() {
         if (!record_queue_.load())
             record_queue_ = std::make_shared<Queue>(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
         else
-            record_queue_.load()->rebuild(fd_xyz, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+            record_queue_.load()->rebuild(fd_xyz, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
         LOG_DEBUG("Record queue allocated");
     }
     else {
