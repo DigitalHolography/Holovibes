@@ -234,10 +234,9 @@ void FourierTransform::insert_time_transform()
             [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
-                auto& q = time_transformation_env_.gpu_time_transformation_queue;
                 size_t size = compute_cache_.get_time_transformation_size() * fd_.get_frame_res() * sizeof(cuComplex);
 
-                cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
+                cudaXMemcpyAsync(buf, time_transformation_env_.gpu_time_transformation_queue->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
             });
     }
 }

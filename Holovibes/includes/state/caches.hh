@@ -40,7 +40,7 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (float, contrast_upper_threshold, 99.5f),
                             (unsigned, renorm_constant, 5),
                             (uint, cuts_contrast_p_offset, 2),
-                            (bool, input_queue_on_gpu, true));
+                            (bool, input_queue_on_gpu, false));
 
 /*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches

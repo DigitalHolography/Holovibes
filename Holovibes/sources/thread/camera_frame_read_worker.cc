@@ -56,7 +56,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
                                          const camera::FrameDescriptor& camera_fd)
 {
     cudaMemcpyKind copy_kind;
-    if (GSH::instance().get_input_queue_location()) // if the input queue is on gpu
+    bool input_queue_on_gpu = GSH::instance().get_input_queue_location();
+    if (input_queue_on_gpu) // if the input queue is on gpu
         copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
     else // if it is on CPU
         copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost;
@@ -77,7 +78,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
 
-    input_queue_.load()->sync_current_batch();
+    if (input_queue_on_gpu)
+        input_queue_.load()->sync_current_batch();
 }
 
 } // namespace holovibes::worker

@@ -118,7 +118,8 @@ class BatchInputQueue final : public DisplayQueue
 
     inline void* get_last_image() const override
     {
-        sync_current_batch();
+        if (gpu_)
+          sync_current_batch();
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }

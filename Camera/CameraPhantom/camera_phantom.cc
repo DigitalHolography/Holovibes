@@ -66,7 +66,8 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
 
     CapturedFramesDescriptor ret;
 
-    ret.on_gpu = true;
+    ret.on_gpu = false;
+    // ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
 

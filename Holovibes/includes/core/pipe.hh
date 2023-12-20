@@ -134,6 +134,7 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
+    
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */

@@ -127,47 +127,6 @@ Pipe::Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStrea
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
-// Queue& Pipe::init_chart_record_queue() {
-//     chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-// }
-
-
-// Queue& Pipe::init_record_queue() {
-//     bool on_gpu = GSH::instance().get_record_queue_location();
-//     auto record_mode = GSH::instance().get_record_mode();
-//     if (record_mode == RecordMode::RAW) {
-//         LOG_DEBUG("RecordMode = Raw");
-//         record_queue_.reset(
-//                 new Queue(input_queue_.get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-//         LOG_DEBUG("Record queue allocated");
-//     }
-//     else if (record_mode == RecordMode::HOLOGRAM) {
-//         LOG_DEBUG("RecordMode = Hologram");
-//         auto record_fd = gpu_output_queue_.get_fd();
-//         record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
-//         record_queue_.reset(
-//                 new Queue(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-//         LOG_DEBUG("Record queue allocated");
-//     }
-//     else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
-//         LOG_DEBUG("RecordMode = CUTS");
-//         camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-//         fd_xyz.depth = sizeof(ushort);
-//         if (record_mode == RecordMode::CUTS_XZ)
-//             fd_xyz.height = compute_cache_.get_time_transformation_size();
-//         else
-//             fd_xyz.width = compute_cache_.get_time_transformation_size();
-        
-//         record_queue_.reset(
-//                 new Queue(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-//         LOG_DEBUG("Record queue allocated");
-//     }
-//     else {
-//         LOG_DEBUG("RecordMode = None");
-//     }
-//     return *record_queue_;
-// }
-
 bool Pipe::make_requests()
 {
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
@@ -664,8 +623,14 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
+                cudaMemcpyKind memcpy_kind;
+                if (advanced_cache_.get_input_queue_on_gpu())
+                    memcpy_kind = export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                else
+                    memcpy_kind = export_cache_.get_on_gpu() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+
                 input_queue_.copy_multiple(record_queue_,
-                                            compute_cache_.get_batch_size(), export_cache_.get_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                                            compute_cache_.get_batch_size(), memcpy_kind);
                 
 
                 inserted += compute_cache_.get_batch_size();
