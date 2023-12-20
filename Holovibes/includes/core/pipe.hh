@@ -53,18 +53,18 @@ namespace holovibes
  */
 class Pipe : public ICompute
 {
-  public:
+    public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
      * \param stream The compute stream on which all the computations are processed
      */
-    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream);
 
     ~Pipe() override;
 
-    Queue& init_record_queue();
+    // Queue& init_record_queue();
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;

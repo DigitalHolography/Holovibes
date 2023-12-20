@@ -11,12 +11,14 @@ namespace holovibes::worker
 {
 FrameRecordWorker::FrameRecordWorker(const std::string& file_path,
                                      std::optional<unsigned int> nb_frames_to_record,
-                                     unsigned int nb_frames_skip)
+                                     unsigned int nb_frames_skip, 
+                                     std::atomic<std::shared_ptr<Queue>>& record_queue)
     : Worker()
     , file_path_(get_record_filename(file_path))
     , nb_frames_to_record_(nb_frames_to_record)
     , nb_frames_skip_(nb_frames_skip)
     , stream_(Holovibes::instance().get_cuda_streams().recorder_stream)
+    , record_queue_(record_queue)
 {
 }
 
@@ -73,16 +75,16 @@ void FrameRecordWorker::run()
     // Queue& record_queue = init_record_queue();
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_frame_record();
-    Queue& record_queue = *pipe->get_frame_record_queue();
+    // Queue& record_queue = *pipe->get_frame_record_queue();
 
-    const size_t output_frame_size = record_queue.get_fd().get_frame_size();
+    const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
     char* frame_buffer = nullptr;
 
     try
     {
         output_frame_file =
-            io_files::OutputFrameFileFactory::create(file_path_, record_queue.get_fd(), nb_frames_to_record);
+            io_files::OutputFrameFileFactory::create(file_path_, record_queue_.load()->get_fd(), nb_frames_to_record);
         LOG_DEBUG("output_frame_file = {}", output_frame_file->get_file_path());
 
         output_frame_file->write_header();
@@ -94,14 +96,14 @@ void FrameRecordWorker::run()
         while (nb_frames_to_record_ == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record_.value() && !stop_requested_))
         {
-            if (record_queue.has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
+            if (record_queue_.load()->has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
                     contiguous_frames = std::make_optional(nb_frames_recorded.load());
             }
 
-            wait_for_frames(record_queue);
+            wait_for_frames();
 
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
@@ -111,12 +113,12 @@ void FrameRecordWorker::run()
 
             if (nb_frames_skip_ > 0)
             {
-                record_queue.dequeue();
+                record_queue_.load()->dequeue();
                 nb_frames_skip_--;
                 continue;
             }
 
-            record_queue.dequeue(frame_buffer, stream_, cudaMemcpyHostToHost);
+            record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
             (*processed_fps)++;
             nb_frames_recorded++;
@@ -160,12 +162,12 @@ void FrameRecordWorker::run()
     LOG_TRACE("Exiting FrameRecordWorker::run()");
 }
 
-void FrameRecordWorker::wait_for_frames(Queue& record_queue)
+void FrameRecordWorker::wait_for_frames()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
-        if (record_queue.get_size() != 0)
+        if (record_queue_.load()->get_size() != 0)
             break;
     }
 }

@@ -9,7 +9,13 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "./Holovibes.exe",
-            "args": [],
+            "args": [
+                // // "-h"
+                // "-i",
+                // "../../../tests/data/inputs/8frames_64_64.holo",
+                // "-o",
+                // "../../../tests/data/8frames_64_64_1/output_test.holo"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/Ninja/Debug",
             "environment": [],

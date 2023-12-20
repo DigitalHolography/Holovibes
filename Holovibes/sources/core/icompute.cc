@@ -24,9 +24,10 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream)
+ICompute::ICompute(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream)
     : input_queue_(input)
     , gpu_output_queue_(output)
+    , record_queue_(record)
     , stream_(stream)
     , past_time_(std::chrono::high_resolution_clock::now())
 {
@@ -246,7 +247,7 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
+// std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
 
 void ICompute::delete_stft_slice_queue()
 {

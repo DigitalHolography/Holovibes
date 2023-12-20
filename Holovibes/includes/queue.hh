@@ -110,6 +110,16 @@ class Queue final : public DisplayQueue
      */
     void resize(const unsigned int size, const cudaStream_t stream);
 
+    /*!
+     * \brief Change the frame descriptor of the queue and change its size.
+     * 
+     * \param size 
+     * \param fd 
+     * \param stream 
+     */
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream);
+
+
     /*! \brief Enqueue method
      *
      * Copies the given elt according to cuda_kind cuda memory type, then convert

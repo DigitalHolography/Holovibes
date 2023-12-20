@@ -61,23 +61,30 @@ static void check_cuda_graphic_card(bool gui)
 static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
 {
     holovibes.is_cli = false;
+    LOG_TRACE(" ");
 
     QLocale::setDefault(QLocale("en_US"));
     // Create the Qt app
     QApplication app(argc, argv);
 
+    LOG_TRACE(" ");
     check_cuda_graphic_card(true);
     QSplashScreen splash(QPixmap(":/holovibes_logo.png"));
     splash.show();
+
+    LOG_TRACE(" ");
 
     // Hide the possibility to close the console while using Holovibes
     HWND hwnd = GetConsoleWindow();
     HMENU hmenu = GetSystemMenu(hwnd, FALSE);
     EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
+    LOG_TRACE(" ");
 
     // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window;
+    LOG_TRACE(" ");
     window.show();
+    LOG_TRACE(" ");
     splash.finish(&window);
 
     // Set callbacks
@@ -89,6 +96,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
         window.start_import(QString(filename.c_str()));
         LOG_INFO("Imported file {}", filename.c_str());
     }
+    LOG_TRACE();
 
     // Resizing horizontally the window before starting
     window.layout_toggled();

@@ -131,15 +131,6 @@ struct TimeTransformationEnv
     /*! \} */
 };
 
-/*! \struct FrameRecordEnv
- *
- * \brief #TODO Add a description for this struct
- */
-struct FrameRecordEnv
-{
-    std::unique_ptr<Queue> frame_record_queue_ = nullptr;
-};
-
 /*! \struct ChartEnv
  *
  * \brief Structure containing variables related to the chart display and
@@ -185,7 +176,7 @@ struct ImageAccEnv
 class ICompute
 {
   public:
-    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    ICompute(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream);
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
@@ -270,7 +261,7 @@ class ICompute
 
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
-    virtual std::unique_ptr<Queue>& get_frame_record_queue();
+    // virtual std::unique_ptr<Queue>& get_frame_record_queue();
     
   protected:
     virtual void refresh() = 0;
@@ -295,6 +286,9 @@ class ICompute
     /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;
 
+    /*! \brief Reference on the record queue */
+    Queue& record_queue_;
+
     /*! \brief Main buffers. */
     CoreBuffersEnv buffers_;
 
@@ -303,9 +297,6 @@ class ICompute
 
     /*! \brief STFT environment. */
     TimeTransformationEnv time_transformation_env_;
-
-    /*! \brief Frame Record environment (Raw + Hologram + Cuts) */
-    FrameRecordEnv frame_record_env_;
 
     /*! \brief Chart environment. */
     ChartEnv chart_env_;

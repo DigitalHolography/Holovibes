@@ -10,6 +10,8 @@
 #include "gpib_exceptions.hh"
 #include "chrono.hh"
 
+#include "holovibes.hh"
+
 namespace holovibes::worker
 {
 BatchGPIBWorker::BatchGPIBWorker(const std::string& batch_input_path,
@@ -71,9 +73,11 @@ void BatchGPIBWorker::run()
                 }
                 else // Frame Record
                 {
+                    std::atomic<std::shared_ptr<Queue>> record_queue(Holovibes::instance().get_record_queue());
                     frame_record_worker_ = std::make_unique<FrameRecordWorker>(formatted_path,
                                                                                nb_frames_to_record_,
-                                                                               0);
+                                                                               0,
+                                                                               record_queue);
                     frame_record_worker_->run();
                 }
 

@@ -35,7 +35,8 @@ class FrameRecordWorker final : public Worker
      */
     FrameRecordWorker(const std::string& file_path,
                       std::optional<unsigned int> nb_frames_to_record,
-                      unsigned int nb_frames_skip);
+                      unsigned int nb_frames_skip,
+                      std::atomic<std::shared_ptr<Queue>>& record_queue);
 
     void run() override;
 
@@ -46,12 +47,8 @@ class FrameRecordWorker final : public Worker
      */
     // Queue& init_record_queue();
 
-    /*! \brief Wait for frames to be present in the record queue
-     *
-     * \param record_queue The record queue
-     * \param pipe The compute pipe used to perform the operations
-     */
-    void wait_for_frames(Queue& record_queue);
+    /*! \brief Wait for frames to be present in the record queue*/
+    void wait_for_frames();
 
     /*! \brief Reset the record queue to free memory
      *
@@ -79,5 +76,8 @@ class FrameRecordWorker final : public Worker
     size_t compute_fps_average() const;
 
     const cudaStream_t stream_;
+
+    /*! \brief The queue in which the frames are stored for record*/
+    std::atomic<std::shared_ptr<Queue>>& record_queue_;
 };
 } // namespace holovibes::worker

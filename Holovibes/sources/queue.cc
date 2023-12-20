@@ -56,6 +56,11 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
+void Queue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream){
+    fd_ = fd;
+    resize(size, stream);
+}
+
 void Queue::resize(const unsigned int size, const cudaStream_t stream)
 {
     MutexGuard mGuard(mutex_);

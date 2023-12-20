@@ -109,6 +109,12 @@ class Holovibes
     std::shared_ptr<Queue> get_gpu_output_queue();
     /*! \} */
 
+    /*!
+     * \brief Used to record frames
+     */
+    std::atomic<std::shared_ptr<Queue>> get_record_queue();
+
+
     /*! \name Getters/Setters
      * \{
      */
@@ -145,6 +151,8 @@ class Holovibes
      * \param input_queue_size size of the input queue
      */
     void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
+
+    void init_record_queue();
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
@@ -263,6 +271,7 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
+    std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
 
     CudaStreams cuda_streams_;

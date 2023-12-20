@@ -39,6 +39,52 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
     input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd);
 }
 
+void Holovibes::init_record_queue() {
+    bool on_gpu = GSH::instance().get_record_queue_location();
+    auto record_mode = GSH::instance().get_record_mode();
+    if (record_mode == RecordMode::RAW) {
+        if (!input_queue_.load()) {
+            LOG_DEBUG("Cannot create record queue : input queue not created");
+            return;
+        }
+        LOG_DEBUG("RecordMode = Raw");
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(input_queue_.load()->get_fd(), GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (record_mode == RecordMode::HOLOGRAM) {
+        LOG_DEBUG("RecordMode = Hologram");
+        auto record_fd = gpu_output_queue_.load()->get_fd();
+        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(record_fd, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(record_fd, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
+        LOG_DEBUG("RecordMode = CUTS");
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
+        fd_xyz.depth = sizeof(ushort);
+        if (record_mode == RecordMode::CUTS_XZ)
+            fd_xyz.height = GSH::instance().get_time_transformation_size();
+        else
+            fd_xyz.width = GSH::instance().get_time_transformation_size();
+        
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(fd_xyz, GSH::instance().get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(fd_xyz, GSH::instance().get_record_buffer_size(), get_cuda_streams().recorder_stream);
+        LOG_DEBUG("Record queue allocated");
+    }
+    else {
+        LOG_DEBUG("RecordMode = None");
+    }
+}
+
 void Holovibes::start_file_frame_read(const std::string& file_path,
                                       bool loop,
                                       unsigned int fps,
@@ -131,12 +177,16 @@ void Holovibes::start_frame_record(const std::string& path,
 
     GSH::instance().set_nb_frames_to_record(nb_frames_to_record);
 
+    if (!record_queue_.load())
+        init_record_queue();
+
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
     frame_record_worker_controller_.start(path,
                                           nb_frames_to_record,
-                                          nb_frames_skip);
+                                          nb_frames_skip,
+                                          record_queue_);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -193,10 +243,14 @@ void Holovibes::init_pipe()
     }
     gpu_output_queue_.store(
         std::make_shared<Queue>(output_fd, GSH::instance().get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
+    
     if (!compute_pipe_.load())
     {
+        if (!record_queue_.load())
+            init_record_queue();
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
+                                                   *(record_queue_.load()),
                                                    get_cuda_streams().compute_stream));
     }
 }
