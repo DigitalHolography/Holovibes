@@ -139,14 +139,14 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
-    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
+    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease && api::get_img_type() != ImgType::Composite);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
     // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
-    ui_->PSpinBox->setEnabled(!is_raw);
+    ui_->PSpinBox->setEnabled(!is_raw && api::get_img_type() != ImgType::Composite);
 
     // q accu
     bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;

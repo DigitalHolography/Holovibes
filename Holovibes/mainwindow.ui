@@ -1787,7 +1787,7 @@
               <item row="1" column="2" colspan="5">
                <widget class="QLabel" name="label_hue_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
@@ -2004,7 +2004,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_saturation_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
@@ -2134,7 +2134,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_value_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
