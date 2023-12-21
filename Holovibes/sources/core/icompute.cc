@@ -73,10 +73,11 @@ ICompute::ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& st
     int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
     if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(output_buffer_size);
+
     if (!buffers_.gpu_output_frame.resize(output_buffer_size))
         err++;
-    buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
 
+    buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
     if (view_cache_.get_img_type() == ImgType::Composite)
         image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
 
@@ -202,7 +203,38 @@ void ICompute::update_spatial_transformation_parameters()
 
 void ICompute::init_cuts()
 {
+    /*
+    LOG_FUNC();
+
     camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+    camera::FrameDescriptor fd_yz = gpu_output_queue_.get_fd();
+    fd_xz.height = GSH::instance().get_time_transformation_size();
+    fd_yz.width = GSH::instance().get_time_transformation_size();
+
+    time_transformation_env_.gpu_output_queue_xz.reset(
+        new Queue(fd_xz, GSH::instance().get_time_transformation_cuts_output_buffer_size()));
+    time_transformation_env_.gpu_output_queue_yz.reset(
+        new Queue(fd_yz, GSH::instance().get_time_transformation_cuts_output_buffer_size()));
+
+    // float buffers
+    buffers_.gpu_postprocess_frame_xz.resize(fd_xz.get_frame_res());
+    buffers_.gpu_postprocess_frame_yz.resize(fd_yz.get_frame_res());
+
+    buffers_.gpu_postprocess_frame_xz_size = static_cast<int>(fd_xz.get_frame_res());
+    buffers_.gpu_postprocess_frame_yz_size = static_cast<int>(fd_yz.get_frame_res());
+    if (view_cache_.get_img_type() == ImgType::Composite)
+    {
+        image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_xz_size);
+        image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_yz_size);
+    }
+    buffers_.gpu_postprocess_frame_xz_final.resize(buffers_.gpu_postprocess_frame_xz_size);
+    buffers_.gpu_postprocess_frame_yz_final.resize(buffers_.gpu_postprocess_frame_yz_size);
+
+    // Uint buffers
+    buffers_.gpu_output_frame_xz.resize(buffers_.gpu_postprocess_frame_xz_size);
+    buffers_.gpu_output_frame_yz.resize(buffers_.gpu_postprocess_frame_yz_size);
+    */
+   camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;
@@ -225,6 +257,10 @@ void ICompute::dispose_cuts()
 {
     buffers_.gpu_postprocess_frame_xz.reset(nullptr);
     buffers_.gpu_postprocess_frame_yz.reset(nullptr);
+    /*
+    buffers_.gpu_postprocess_frame_xz_final.reset(nullptr);
+    buffers_.gpu_postprocess_frame_yz_final.reset(nullptr);
+    */
     buffers_.gpu_output_frame_xz.reset(nullptr);
     buffers_.gpu_output_frame_yz.reset(nullptr);
 

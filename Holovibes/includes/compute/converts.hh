@@ -53,6 +53,8 @@ class Converts
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
 
+    //void insert_cuts_final();
+
   private:
     /*! \brief Set pmin_ and pmax_ according to p accumulation. */
     void insert_compute_p_accu();

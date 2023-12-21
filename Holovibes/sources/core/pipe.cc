@@ -485,6 +485,8 @@ void Pipe::refresh()
                                 autocontrast_slice_yz_requested_,
                                 autocontrast_filter2d_requested_);
 
+    //converts_->insert_cuts_final();
+
     converts_->insert_to_ushort();
 
     insert_output_enqueue_hologram_mode();
@@ -573,6 +575,8 @@ void Pipe::insert_dequeue_input()
 
 void Pipe::insert_output_enqueue_hologram_mode()
 {
+    LOG_FUNC();
+
     fn_compute_vect_.conditional_push_back(
         [&]()
         {

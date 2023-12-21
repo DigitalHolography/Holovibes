@@ -324,7 +324,13 @@ void Converts::insert_slice_ushort()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
+            /*
+            float_to_ushort(buffers_.gpu_postprocess_frame_xz_final.get(),
+                            buffers_.gpu_output_frame_xz.get(),
+                            buffers_.gpu_postprocess_frame_xz_size,
+                            stream_);
+            */
+           float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
                             buffers_.gpu_output_frame_xz.get(),
                             time_transformation_env_.gpu_output_queue_xz->get_fd().get_frame_res(),
                             stream_);
@@ -332,6 +338,12 @@ void Converts::insert_slice_ushort()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
+            /*
+            float_to_ushort(buffers_.gpu_postprocess_frame_yz_final.get(),
+                            buffers_.gpu_output_frame_yz.get(),
+                            buffers_.gpu_postprocess_frame_yz_size,
+                            stream_);
+            */
             float_to_ushort(buffers_.gpu_postprocess_frame_yz.get(),
                             buffers_.gpu_output_frame_yz.get(),
                             time_transformation_env_.gpu_output_queue_yz->get_fd().get_frame_res(),
@@ -373,4 +385,49 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
             gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
         });
 }
+
+/*
+void Converts::insert_cuts_final()
+{
+    LOG_FUNC();
+
+    if (view_cache_.get_cuts_view_enabled())
+    {
+        if (view_cache_.get_img_type() == ImgType::Composite &&
+            composite_cache_.get_composite_kind() == CompositeKind::HSV)
+        {
+
+            fn_compute_vect_.conditional_push_back(
+                [=]()
+                {
+                    hsv_cuts(buffers_.gpu_postprocess_frame_xz.get(),
+                             buffers_.gpu_postprocess_frame_yz.get(),
+                             buffers_.gpu_postprocess_frame_xz_final.get(),
+                             buffers_.gpu_postprocess_frame_yz_final.get(),
+                             fd_.width,
+                             fd_.height,
+                             compute_cache_.get_time_transformation_size(),
+                             composite_cache_.get_hsv_const_ref(),
+                             stream_);
+                });
+        }
+        else {
+            fn_compute_vect_.conditional_push_back(
+                [=]()
+                {
+                    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz_final.get(),
+                                     buffers_.gpu_postprocess_frame_xz.get(),
+                                     buffers_.gpu_postprocess_frame_xz_size,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz_final.get(),
+                                     buffers_.gpu_postprocess_frame_yz.get(),
+                                     buffers_.gpu_postprocess_frame_yz_size,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                });
+        }
+    }
+}
+*/
 } // namespace holovibes::compute
