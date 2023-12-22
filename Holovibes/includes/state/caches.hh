@@ -40,7 +40,7 @@ NEW_INITIALIZED_MICRO_CACHE(AdvancedCache,
                             (float, contrast_upper_threshold, 99.5f),
                             (unsigned, renorm_constant, 5),
                             (uint, cuts_contrast_p_offset, 2),
-                            (bool, input_queue_on_gpu, false));
+                            (bool, input_queue_on_gpu, true));
 
 /*! \brief Construct a new new micro cache object
  * \param batch_size Size of BatchInputQueue's batches
@@ -136,6 +136,7 @@ NEW_INITIALIZED_MICRO_CACHE(ImportCache, (uint, start_frame, 0), (uint, end_fram
  * \param cuts_view_enabled Are slices YZ and XZ enabled
  * \param reticle_scale Reticle border scale
  * \param reticle_display_enabled Is the reticle overlay enabled
+ * \param raw_view_queue_on_gpu Is the raw_view_queue on gpu or cpu
  */
 
 NEW_INITIALIZED_MICRO_CACHE(ViewCache,
@@ -158,7 +159,8 @@ NEW_INITIALIZED_MICRO_CACHE(ViewCache,
                             (bool, cuts_view_enabled, false),
                             (bool, renorm_enabled, true),
                             (float, reticle_scale, 0.5f),
-                            (bool, reticle_display_enabled, false));
+                            (bool, reticle_display_enabled, false),
+                            (bool, raw_view_queue_on_gpu, true));
 
 /*! \brief Construct a new new micro cache object
  * \param filter2d_n1 Filter2D low radius

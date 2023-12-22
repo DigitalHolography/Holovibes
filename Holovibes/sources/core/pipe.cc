@@ -297,7 +297,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("raw_view_requested");
 
         auto fd = input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size()));
+        gpu_raw_view_queue_.reset(new Queue(fd, GSH::instance().get_output_buffer_size(), QueueType::UNDEFINED, GSH::instance().get_raw_view_queue_location()));
         GSH::instance().set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -597,7 +597,13 @@ void Pipe::insert_raw_view()
             {
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
-                input_queue_.copy_multiple(*get_raw_view_queue());
+                cudaMemcpyKind memcpy_kind;
+                if (advanced_cache_.get_input_queue_on_gpu())
+                    memcpy_kind = view_cache_.get_raw_view_queue_on_gpu() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                else
+                    memcpy_kind = view_cache_.get_raw_view_queue_on_gpu() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+
+                input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
             });
     }
 }

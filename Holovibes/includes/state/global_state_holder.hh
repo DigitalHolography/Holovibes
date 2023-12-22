@@ -181,6 +181,8 @@ class GSH
     inline bool get_frame_record_enabled() const { return export_cache_.get_frame_record_enabled(); };
 
     inline bool get_record_queue_location() const { return export_cache_.get_on_gpu(); };
+    
+    inline bool get_raw_view_queue_location() const { return view_cache_.get_raw_view_queue_on_gpu(); };
 
     inline RecordMode get_record_mode() const { return export_cache_.get_record_mode(); };
 
@@ -332,6 +334,10 @@ class GSH
 
     inline void set_record_queue_location(bool on_gpu){
         export_cache_.set_on_gpu(on_gpu);
+    }
+
+    inline void get_raw_view_queue_location(bool on_gpu) { 
+       view_cache_.set_raw_view_queue_on_gpu(on_gpu);
     }
 
     inline void set_record_mode(RecordMode record_mode){
