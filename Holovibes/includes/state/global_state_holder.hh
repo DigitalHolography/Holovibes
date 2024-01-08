@@ -246,6 +246,14 @@ class GSH
     {
         return composite_cache_.get_hsv().h.slider_threshold.max;
     }
+    inline float get_slider_h_shift_min() const noexcept
+    {
+        return composite_cache_.get_hsv().h.slider_shift.min;
+    }
+    inline float get_slider_h_shift_max() const noexcept
+    {
+        return composite_cache_.get_hsv().h.slider_shift.max;
+    }
     inline unsigned int get_raw_bitshift() const noexcept { return advanced_cache_.get_raw_bitshift(); }
 
     inline float get_composite_low_h_threshold() const noexcept { return composite_cache_.get_hsv().h.threshold.min; }
@@ -574,6 +582,14 @@ class GSH
     inline void set_slider_h_threshold_max(float value)
     {
         composite_cache_.get_hsv_ref()->h.slider_threshold.max = value;
+    }
+    inline void set_slider_h_shift_min(float value)
+    {
+        composite_cache_.get_hsv_ref()->h.slider_shift.min = value;
+    }
+    inline void set_slider_h_shift_max(float value)
+    {
+        composite_cache_.get_hsv_ref()->h.slider_shift.max = value;
     }
     inline void set_composite_low_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.min = value; }
     inline void set_composite_high_h_threshold(float value) { composite_cache_.get_hsv_ref()->h.threshold.max = value; }

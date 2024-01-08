@@ -137,6 +137,12 @@ inline void set_slider_h_threshold_min(float value) { GSH::instance().set_slider
 inline float get_slider_h_threshold_max() { return GSH::instance().get_slider_h_threshold_max(); }
 inline void set_slider_h_threshold_max(float value) { GSH::instance().set_slider_h_threshold_max(value); }
 
+inline float get_slider_h_shift_min() { return GSH::instance().get_slider_h_shift_min(); }
+inline void set_slider_h_shift_min(float value) { GSH::instance().set_slider_h_shift_min(value); }
+
+inline float get_slider_h_shift_max() { return GSH::instance().get_slider_h_shift_max(); }
+inline void set_slider_h_shift_max(float value) { GSH::instance().set_slider_h_shift_max(value); }
+
 inline float get_composite_low_h_threshold() { return GSH::instance().get_composite_low_h_threshold(); }
 
 inline float get_composite_high_h_threshold() { return GSH::instance().get_composite_high_h_threshold(); }

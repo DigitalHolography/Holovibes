@@ -1618,7 +1618,7 @@
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="2" column="3">
+              <item row="1" column="1" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_freq_min">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1643,21 +1643,21 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="6">
+              <item row="4" column="5">
                <widget class="QLabel" name="label_hue_threshold_max">
                 <property name="text">
                  <string>1000</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="6">
+              <item row="3" column="5">
                <widget class="QLabel" name="label_hue_threshold_min">
                 <property name="text">
                  <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="4">
+              <item row="1" column="3">
                <widget class="QLabel" name="label_hue_freq_max">
                 <property name="text">
                  <string>Max</string>
@@ -1667,14 +1667,8 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="3" colspan="3">
+              <item row="4" column="1" colspan="4">
                <widget class="QSlider" name="horizontalSlider_hue_threshold_max">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -1684,38 +1678,37 @@
                 <property name="maximum">
                  <number>1000</number>
                 </property>
-                <property name="singleStep">
-                 <number>1</number>
-                </property>
                 <property name="pageStep">
                  <number>100</number>
-                </property>
-                <property name="value">
-                 <number>1000</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksAbove</enum>
-                </property>
                </widget>
               </item>
-              <item row="4" column="2" colspan="5">
+              <item row="2" column="0" colspan="5">
                <widget class="QLabel" name="label_27">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>Range</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="3" colspan="3">
-               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="5" column="0" colspan="5">
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Shift</string>
                 </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_hue_shift_min_name">
+                <property name="text">
+                 <string>  Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_min">
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -1731,12 +1724,68 @@
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksBelow</enum>
+               </widget>
+              </item>
+              <item row="6" column="5">
+               <widget class="QLabel" name="label_hue_shift_min">
+                <property name="text">
+                 <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="5" colspan="2">
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_hue_shift_max_name">
+                <property name="text">
+                 <string>  Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="5">
+               <widget class="QLabel" name="label_hue_shift_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_freq_max">
                 <property name="minimumSize">
                  <size>
@@ -1755,7 +1804,7 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="6">
+              <item row="8" column="4" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_blur_kernel_size">
                 <property name="enabled">
                  <bool>false</bool>
@@ -1768,7 +1817,7 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="3">
+              <item row="8" column="1">
                <widget class="QCheckBox" name="checkBox_h_gaussian_blur">
                 <property name="minimumSize">
                  <size>
@@ -1784,48 +1833,48 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2" colspan="5">
+              <item row="0" column="0" colspan="5">
                <widget class="QLabel" name="label_hue_freq">
                 <property name="text">
                  <string>Z selection </string>
                 </property>
                </widget>
               </item>
-              <item row="7" column="2">
+              <item row="8" column="0">
                <widget class="QLabel" name="label_2">
                 <property name="text">
                  <string>Blur</string>
                 </property>
                </widget>
               </item>
-              <item row="7" column="4" colspan="2">
+              <item row="8" column="3">
                <widget class="QLabel" name="label_3">
                 <property name="text">
                  <string>Size</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="2">
+              <item row="4" column="0">
                <widget class="QLabel" name="label_hue_threshold_max_name">
                 <property name="text">
-                 <string>Max</string>
+                 <string>  Max</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="1" column="0">
                <widget class="QLabel" name="label_hue_freq_min">
                 <property name="text">
-                 <string>Min</string>
+                 <string>  Min</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_hue_threshold_min_name">
                 <property name="text">
-                 <string>Min</string>
+                 <string>  Min</string>
                 </property>
                </widget>
               </item>
@@ -4180,6 +4229,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>horizontalSlider_hue_shift_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_min()</slot>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_shift_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_max()</slot>
+  </connection>
+  <connection>
    <sender>LensViewCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -5334,6 +5395,8 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals_hsv_v_max()</slot>
   <slot>slide_update_threshold_h_min()</slot>
   <slot>slide_update_threshold_h_max()</slot>
+  <slot>slide_update_shift_h_min()</slot>
+  <slot>slide_update_shift_h_max()</slot>
   <slot>slide_update_threshold_s_min()</slot>
   <slot>slide_update_threshold_s_max()</slot>
   <slot>slide_update_threshold_v_min()</slot>

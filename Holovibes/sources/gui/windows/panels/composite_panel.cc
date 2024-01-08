@@ -55,6 +55,12 @@ void CompositePanel::on_notify()
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
                          static_cast<int>(api::get_slider_h_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_min,
+                         static_cast<int>(api::get_slider_h_shift_min() * 1000));
+    ui_->CompositePanel->slide_update_shift_h_min();
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_max,
+                         static_cast<int>(api::get_slider_h_shift_max() * 1000));
+    ui_->CompositePanel->slide_update_shift_h_max();
 
     QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, api::get_composite_p_min_s());
     QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, api::get_composite_p_max_s());
@@ -254,6 +260,42 @@ void CompositePanel::slide_update_threshold_h_max()
 
     api::set_slider_h_threshold_max(receiver);
     api::set_slider_h_threshold_min(bound_to_update);
+}
+
+void CompositePanel::slide_update_shift_h_min()
+{
+    // Avoid modification from panel instead of API
+    float receiver = api::get_slider_h_shift_min();
+    float bound_to_update = api::get_slider_h_shift_max();
+
+    slide_update_threshold(*ui_->horizontalSlider_hue_shift_min,
+                           receiver,
+                           bound_to_update,
+                           *ui_->horizontalSlider_hue_shift_max,
+                           *ui_->label_hue_shift_min,
+                           api::get_slider_h_shift_min(),
+                           api::get_slider_h_shift_max());
+
+    api::set_slider_h_shift_min(receiver);
+    api::set_slider_h_shift_max(bound_to_update);
+}
+
+void CompositePanel::slide_update_shift_h_max()
+{
+
+    float receiver = api::get_slider_h_shift_max();
+    float bound_to_update = api::get_slider_h_shift_min();
+
+    slide_update_threshold(*ui_->horizontalSlider_hue_shift_max,
+                           receiver,
+                           bound_to_update,
+                           *ui_->horizontalSlider_hue_shift_min,
+                           *ui_->label_hue_shift_max,
+                           api::get_slider_h_shift_min(),
+                           api::get_slider_h_shift_max());
+
+    api::set_slider_h_shift_max(receiver);
+    api::set_slider_h_shift_min(bound_to_update);
 }
 
 void CompositePanel::slide_update_threshold_s_min()

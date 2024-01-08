@@ -347,6 +347,23 @@ void apply_operations(float* gpu_arr,
                                    channel_struct.threshold.max,
                                    stream);
 
+    // FIXME: the second slider doesn't exists
+    /*
+    if (op == FULL_CONTROL)
+    {
+        auto m = (range_max - range_min) / (shift_max - shift_min);
+        auto p = range_min - m * shift_min;
+        const auto full_control_op = [m, p, shift_min, shift_max, range_min, range_max] __device__(const float pixel)
+        {
+            if (pixel < shift_min)
+                return range_min;
+            else if (pixel > shift_max)
+                return range_max;
+            else
+                return m * pixel + p;
+        };
+    }
+    else */
     if (op == CLAMP || op == CRUSH)
     {
         threshold_top_bottom(gpu_channel_arr,
