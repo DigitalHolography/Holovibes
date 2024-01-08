@@ -347,23 +347,6 @@ void apply_operations(float* gpu_arr,
                                    channel_struct.threshold.max,
                                    stream);
 
-    // FIXME: the second slider doesn't exists
-    /*
-    if (op == FULL_CONTROL)
-    {
-        auto m = (range_max - range_min) / (shift_max - shift_min);
-        auto p = range_min - m * shift_min;
-        const auto full_control_op = [m, p, shift_min, shift_max, range_min, range_max] __device__(const float pixel)
-        {
-            if (pixel < shift_min)
-                return range_min;
-            else if (pixel > shift_max)
-                return range_max;
-            else
-                return m * pixel + p;
-        };
-    }
-    else */
     if (op == CLAMP || op == CRUSH)
     {
         threshold_top_bottom(gpu_channel_arr,
@@ -391,6 +374,50 @@ void apply_operations(float* gpu_arr,
     }
 }
 
+void apply_operations_on_h(
+    float* gpu_h_arr, uint height, uint width, const holovibes::CompositeH& h_struct, const cudaStream_t stream)
+{
+    // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
+    holovibes::cuda_tools::CudaUniquePtr<float> gpu_min(1);
+    holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
+    const uint frame_res = height * width;
+    auto exec_policy = thrust::cuda::par.on(stream);
+
+    apply_percentile_and_threshold(gpu_h_arr,
+                                   frame_res,
+                                   width,
+                                   height,
+                                   h_struct.threshold.min,
+                                   h_struct.threshold.max,
+                                   stream);
+
+    float range_min = h_struct.slider_threshold.min;
+    float range_max = h_struct.slider_threshold.max;
+    float shift_min = h_struct.slider_shift.min;
+    float shift_max = h_struct.slider_shift.max;
+
+    auto m = (range_max - range_min) / (shift_max - shift_min);
+    auto p = range_min - m * shift_min;
+    const auto op = [m, p, shift_min, shift_max, range_min, range_max] __device__(const float pixel)
+    {
+        if (pixel < shift_min)
+            return range_min;
+        else if (pixel > shift_max)
+            return range_max;
+        else
+            return m * pixel + p;
+    };
+    thrust::transform(exec_policy, gpu_h_arr, gpu_h_arr + frame_res, gpu_h_arr, op);
+
+    // H channel has a blur option
+    if (h_struct.blur.enabled)
+    {
+        apply_blur(gpu_h_arr, height, width, h_struct.blur.kernel_size, stream);
+
+        hsv_normalize(gpu_h_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
+    }
+}
+
 /// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
 void apply_operations_on_hsv(float* tmp_hsv_arr,
                              const uint height,
@@ -398,23 +425,10 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
                              const holovibes::CompositeHSV& hsv_struct,
                              const cudaStream_t stream)
 {
-    // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
-    holovibes::cuda_tools::CudaUniquePtr<float> gpu_min(1);
-    holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
-
     // HUE
-    apply_operations(tmp_hsv_arr, height, width, hsv_struct.h, HSV::H, threshold_op::CRUSH, stream);
-    // H channel has a blur option
-    if (hsv_struct.h.blur.enabled)
-    {
-        apply_blur(tmp_hsv_arr, height, width, hsv_struct.h.blur.kernel_size, stream);
-
-        hsv_normalize(tmp_hsv_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
-    }
-
+    apply_operations_on_h(tmp_hsv_arr, height, width, hsv_struct.h, stream);
     // SATURATION
     apply_operations(tmp_hsv_arr, height, width, hsv_struct.s, HSV::S, threshold_op::CRUSH, stream);
-
     // VALUE
     apply_operations(tmp_hsv_arr, height, width, hsv_struct.v, HSV::V, threshold_op::CRUSH, stream);
 }
