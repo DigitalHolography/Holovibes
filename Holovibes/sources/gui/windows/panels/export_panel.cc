@@ -243,6 +243,11 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 }
 
+void ExportPanel::set_record_device(bool value)
+{
+    LOG_DEBUG("Set record device");
+}
+
 void ExportPanel::start_record()
 {
     bool batch_enabled = ui_->BatchGroupBox->isChecked();

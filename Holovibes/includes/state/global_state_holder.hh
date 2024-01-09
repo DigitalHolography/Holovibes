@@ -336,7 +336,7 @@ class GSH
         export_cache_.set_on_gpu(on_gpu);
     }
 
-    inline void get_raw_view_queue_location(bool on_gpu) { 
+    inline void set_raw_view_queue_location(bool on_gpu) { 
        view_cache_.set_raw_view_queue_on_gpu(on_gpu);
     }
 

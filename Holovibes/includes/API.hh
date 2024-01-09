@@ -161,6 +161,8 @@ void start_record(const bool batch_enabled,
                   std::string& batch_input_path,
                   std::function<void()> callback);
 
+void set_record_device(const bool gpu);
+
 /*! \brief Stops recording
  *
  */

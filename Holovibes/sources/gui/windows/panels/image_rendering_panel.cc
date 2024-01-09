@@ -395,6 +395,13 @@ void ImageRenderingPanel::decrement_z()
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
+void ImageRenderingPanel::set_device(const QString& value)
+{
+    LOG_DEBUG(value.toStdString());
+    LOG_DEBUG("AAAH");
+}
+
+
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)

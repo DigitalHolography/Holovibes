@@ -62,6 +62,9 @@ class ExportPanel : public Panel
     /*! \brief Starts recording */
     void start_record();
 
+    /*! \brief Set the record device : GPU, with the pipeline and the realtime display, or CPU, with no pipe */
+    void set_record_device(bool value);
+
     /*! \brief Creates Signal overlay */
     void activeSignalZone();
 

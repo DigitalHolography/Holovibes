@@ -1279,6 +1279,16 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
+void set_record_device(const bool gpu)
+{
+    if (GSH::instance().get_raw_view_queue_location() != gpu)
+        GSH::instance().set_raw_view_queue_location(gpu);
+
+    if (GSH::instance().get_input_queue_location() != gpu)
+        GSH::instance().set_input_queue_location(gpu);
+    
+}
+
 void start_record(const bool batch_enabled,
                   std::optional<unsigned int> nb_frames_to_record,
                   std::string& output_path,

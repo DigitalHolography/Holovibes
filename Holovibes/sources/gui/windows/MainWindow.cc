@@ -115,7 +115,6 @@ MainWindow::MainWindow(QWidget* parent)
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
-    LOG_TRACE(" ");
 
     // Display default values
     api::set_compute_mode(Computation::Raw);
@@ -124,7 +123,6 @@ MainWindow::MainWindow(QWidget* parent)
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
     notify();
 
-    LOG_TRACE(" ");
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -133,7 +131,6 @@ MainWindow::MainWindow(QWidget* parent)
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
-    LOG_TRACE(" ");
     // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
@@ -148,35 +145,25 @@ MainWindow::MainWindow(QWidget* parent)
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         ui_->KernelQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
-    LOG_TRACE(" ");
 
     // Fill the input filter combo box with files from input_filters
     // directory
     std::filesystem::path input_filters_path(get_exe_dir());
-    LOG_TRACE(" ");
     input_filters_path = input_filters_path / "input_filters";
-    LOG_TRACE(" ");
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
         for (const auto& file : std::filesystem::directory_iterator(input_filters_path))
             files.push_back(QString(file.path().filename().string().c_str()));
-        LOG_TRACE(" ");
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
-        LOG_TRACE(" ");
         files.push_front(QString(UID_FILTER_TYPE_DEFAULT));
-        LOG_TRACE(" ");
-        if (!ui_->InputFilterQuickSelectComboBox)
-            LOG_DEBUG("aaaaaaaaaaaaaaaaaaaaa");
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
 
-        LOG_TRACE(" ");
     }
 
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-    LOG_TRACE(" ");
 
     api::start_information_display();
 

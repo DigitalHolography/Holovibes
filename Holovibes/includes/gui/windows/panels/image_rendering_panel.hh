@@ -111,6 +111,14 @@ class ImageRenderingPanel : public Panel
      * \param enable true: enable, false: disable
      */
     void set_convolution_mode(const bool enable);
+
+    /*!
+     * \brief Set the device (cpu or gpu) when using camera
+     * 
+     * \param value GPU or CPU
+     */
+    void set_device(const QString& value);
+
     /*! \brief Modifies convolution kernel
      *
      * \param value The new kernel to apply
