@@ -117,7 +117,6 @@ void camera_none()
     close_critical_compute();
 
     if (get_compute_mode() == Computation::Hologram)
-
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
@@ -1281,12 +1280,28 @@ bool start_record_preconditions(const bool batch_enabled,
 
 void set_record_device(const bool gpu)
 {
+    if (Holovibes::instance().is_recording()) 
+        stop_record();
+
+    if (get_compute_mode() == Computation::Hologram)
+        Holovibes::instance().stop_compute();
+
     if (GSH::instance().get_raw_view_queue_location() != gpu)
         GSH::instance().set_raw_view_queue_location(gpu);
 
+    if (GSH::instance().get_record_queue_location() != gpu)
+        GSH::instance().set_record_queue_location(gpu);
+
     if (GSH::instance().get_input_queue_location() != gpu)
+    {
+        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+            camera_none();
+        else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            import_stop();
         GSH::instance().set_input_queue_location(gpu);
-    
+    }
+    // Holovibes::instance().init_input_queue(GSH::instance().get_input_buffer_size());
+    // Holovibes::instance().init_record_queue();
 }
 
 void start_record(const bool batch_enabled,

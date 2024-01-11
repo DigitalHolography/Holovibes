@@ -152,6 +152,17 @@ class Holovibes
      */
     void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
 
+    /*!
+     * \brief Initializes the input queue with the same fd, when it already exist
+     * 
+     * \param input_queue_size size of the input queue
+     */
+    void init_input_queue(const unsigned int input_queue_size);
+    
+    /*!
+     * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
+     * 
+     */
     void init_record_queue();
 
     /*! \brief Sets and starts the file_read_worker attribute

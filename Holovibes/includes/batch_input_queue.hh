@@ -95,6 +95,15 @@ class BatchInputQueue final : public DisplayQueue
      */
     void dequeue();
 
+    /*!
+     * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue. Useful to keep using the pointer.
+     * 
+     * \param fd 
+     * \param size 
+     * \param gpu 
+     */
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu);
+
     /*! \brief Resize with a new batch size
      *
      * Called by the consumer.

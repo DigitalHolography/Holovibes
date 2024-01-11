@@ -620,7 +620,7 @@
               </sizepolicy>
              </property>
              <property name="currentText">
-                 <string/>
+                <string>GPU</string>
             </property>
              <item>
               <property name="text">
@@ -2972,6 +2972,22 @@
                  </item>
                 </layout>
                </item>
+                <item>
+                    <widget class="QCheckBox" name="RecordDeviceCheckbox">
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="checked">
+                            <bool>false</bool>
+                        </property>
+                        <property name="styleSheet">
+                            <string notr="true"/>
+                        </property>
+                        <property name="text">
+                            <string>CPU Record</string>
+                        </property>
+                    </widget>
+                </item>
               </layout>
              </widget>
             </item>
@@ -4785,10 +4801,12 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-  <!-- <sender>RecordDeviceButton</sender>
+  <connection>
+  <sender>RecordDeviceCheckbox</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
-   <slot>set_record_device(bool)</slot> -->
+   <slot>set_record_device(bool)</slot>
+  </connection>
   <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
@@ -5339,7 +5357,7 @@ p, li { white-space: pre-wrap; }
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
-  <!-- <slot>set_record_device(bool)</slot> -->
+  <slot>set_record_device(bool)</slot>
   <slot>set_device(Qstring)</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>

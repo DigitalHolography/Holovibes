@@ -32,11 +32,20 @@ const float Holovibes::get_boundary()
 
 bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
 
+void Holovibes::init_input_queue(const unsigned int input_queue_size)
+{
+    if(!input_queue_.load())
+        throw std::runtime_error("Must initialize input queue with a camera frame descriptor");
+
+    init_input_queue(input_queue_.load()->get_fd(), input_queue_size);
+}
+
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
-    camera::FrameDescriptor queue_fd = fd;
-
-    input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), queue_fd, GSH::instance().get_input_queue_location());
+    if (!input_queue_.load())
+        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd, GSH::instance().get_input_queue_location());
+    else
+        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), GSH::instance().get_input_queue_location());
     LOG_DEBUG("Input queue allocated");
 }
 

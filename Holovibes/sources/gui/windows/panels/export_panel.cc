@@ -246,6 +246,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
 void ExportPanel::set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
+    // Mind that we negate the boolean, since true means gpu for the queues
+    api::set_record_device(!value);
 }
 
 void ExportPanel::start_record()

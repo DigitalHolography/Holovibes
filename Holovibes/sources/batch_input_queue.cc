@@ -224,6 +224,19 @@ void BatchInputQueue::dequeue_update_attr()
     curr_nb_frames_ -= batch_size_;
 }
 
+void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu){
+    fd_ = fd;
+    if (gpu_ != gpu) {
+        gpu_ = gpu;
+        data_ = cuda_tools::UniquePtr<char>(gpu_);
+    }
+
+    frame_capacity_ = size;
+
+    resize(batch_size);
+}
+
+
 void BatchInputQueue::resize(const uint new_batch_size)
 {
     // No action on any batch must be proceed
