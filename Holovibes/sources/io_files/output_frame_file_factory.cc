@@ -17,7 +17,9 @@ OutputFrameFileFactory::create(const std::string& file_path, const camera::Frame
     else if (file_path.ends_with(".mp4"))
         return new OutputMp4File(file_path, fd, img_nb);
 
-    else
-        throw FileException("Invalid file extension", false);
+    else {
+        std::string msg = "Invalid file extension: " + file_path + ". Supported extensions are: .holo, .avi, .mp4";
+        throw FileException(msg, false);
+    }
 }
 } // namespace holovibes::io_files

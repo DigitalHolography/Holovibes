@@ -63,7 +63,7 @@ def generate_holo_from(input: str, output: str, output_error: str, cli_argument:
         error_file.close()
 
     t2 = time.time()
-    return (t2 - t1),
+    return (t2 - t1)
 
 def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> bool:
     a_header, a_data, a_footer = a
@@ -92,6 +92,8 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
+
+    print(folder)
 
     path = os.path.join(TESTS_DATA, folder)
     input = os.path.join(path, INPUT_FILENAME)
@@ -127,6 +129,7 @@ def test_holo(folder: str):
 
     if os.path.isfile(output_error):
         os.remove(output_error)
+
 
     generate_holo_from(input, output, output_error, cli_argument, config)
 

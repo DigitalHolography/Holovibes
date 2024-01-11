@@ -32,6 +32,6 @@ set(EXTERNAL_INCLUDES
 )
 
 add_subdirectory(Camera)
-add_subdirectory(GPIB)
+#add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
 add_subdirectory(docs)

@@ -96,7 +96,7 @@ void ViewPanel::on_notify()
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_log_enabled());
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val)
@@ -113,7 +113,7 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_accumulation_level());
 
         constexpr int max_digit_rotate = 3;
         constexpr int max_digit_flip = 1;
@@ -125,11 +125,11 @@ void ViewPanel::on_notify()
         current_rotation.replace(current_rotation.size() - 3, max_digit_rotate, rotation_degree.c_str());
 
         auto current_flip = ui_->FlipPushButton->text();
-        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_flip_enabled()).c_str());
+        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_horizontal_flip()).c_str());
 
         ui_->RotatePushButton->setText(current_rotation);
         ui_->FlipPushButton->setText(current_flip); //(current_rotation.toStdString() +
-                                                    // std::to_string(api::get_flip_enabled())).c_str());
+                                                    // std::to_string(api::get_horizontal_flip())).c_str());
     }
 
     // Deactivate previous maximum (chetor)
@@ -273,7 +273,7 @@ void ViewPanel::set_fft_shift(const bool value)
 
     api::set_fft_shift_enabled(value);
 
-    api::pipe_refresh();
+    //api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)
@@ -298,7 +298,12 @@ void ViewPanel::update_raw_view(bool checked)
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
+void ViewPanel::set_x_y()
+{
+    api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
+    
+    parent_->notify();
+}
 
 void ViewPanel::set_x_accu()
 {
@@ -369,7 +374,6 @@ void ViewPanel::decrement_p()
 void ViewPanel::set_p_accu()
 {
     api::set_p_accu_level(ui_->PAccSpinBox->value());
-
     parent_->notify();
 }
 

@@ -23,7 +23,8 @@ CompositePanel::~CompositePanel() {}
 
 void CompositePanel::on_notify()
 {
-
+    if (!isVisible())
+        return;
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -159,6 +160,7 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_B->setEnabled(!value);
 
     ui_->ViewPanel->set_auto_contrast();
+    parent_->notify();
 }
 
 void CompositePanel::click_composite_rgb_or_hsv()

@@ -83,8 +83,6 @@ set(INTERNAL_INCLUDES
     includes/tools/exception/
     includes/tools/logger/
 
-
-    "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )
 
@@ -187,7 +185,6 @@ set(SRC_TESTS
     unit_tests/test_batch_input_queue.cc
     unit_tests/test_subsample_frame.cc
     unit_tests/test_fast_updates_holder.cc
-    unit_tests/test_micro_cache.cc
     # Add your test files here
 )
 

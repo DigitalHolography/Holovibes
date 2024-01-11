@@ -219,6 +219,8 @@ std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
     return o << '[' << r.src() << ", " << r.dst() << ']';
 }
 
+inline bool operator==(const units::RectFd& lhs, const units::RectFd& rhs) { return lhs.src() == rhs.src() && lhs.dst() == rhs.dst(); }
+
 // clang-format off
 SERIALIZE_JSON_ENUM(Axis, {
     {HORIZONTAL, "HORIZONTAL"},

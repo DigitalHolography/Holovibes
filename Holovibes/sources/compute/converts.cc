@@ -12,61 +12,38 @@
 #include "logger.hh"
 #include "tools_unwrap.cuh"
 #include "map.cuh"
+#include "API.hh"
 
 #include <mutex>
 
 namespace holovibes::compute
 {
-Converts::Converts(FunctionVector& fn_compute_vect,
-                   const CoreBuffersEnv& buffers,
-                   const TimeTransformationEnv& time_transformation_env,
-                   cuda_tools::CufftHandle& plan_unwrap_2d,
-                   const camera::FrameDescriptor& input_fd,
-                   const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache,
-                   CompositeCache::Cache& composite_cache,
-                   ViewCache::Cache& view_cache,
-                   ZoneCache::Cache& zone_cache)
-    : pmin_(0)
-    , pmax_(0)
-    , fn_compute_vect_(fn_compute_vect)
-    , buffers_(buffers)
-    , time_transformation_env_(time_transformation_env)
-    , plan_unwrap_2d_(plan_unwrap_2d)
-    , fd_(input_fd)
-    , stream_(stream)
-    , compute_cache_(compute_cache)
-    , composite_cache_(composite_cache)
-    , view_cache_(view_cache)
-    , zone_cache_(zone_cache)
-{
-}
 
-void Converts::insert_to_float(bool unwrap_2d_requested)
+void Converts::insert_to_float(bool unwrap_2d_requested,
+                               float* buffers_gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
-
+    ImgType img_type = setting<settings::ImageType>();
     insert_compute_p_accu();
-    if (view_cache_.get_img_type() == ImgType::Composite)
-        insert_to_composite();
-    else if (view_cache_.get_img_type() == ImgType::Modulus) // img type in ui : magnitude
-        insert_to_modulus();
-    else if (view_cache_.get_img_type() == ImgType::SquaredModulus) // img type in ui : squared magnitude
-        insert_to_squaredmodulus();
-    else if (view_cache_.get_img_type() == ImgType::Argument)
-        insert_to_argument(unwrap_2d_requested);
-    else if (view_cache_.get_img_type() == ImgType::PhaseIncrease)
-        insert_to_phase_increase(unwrap_2d_requested);
+    if (img_type == ImgType::Composite)
+        insert_to_composite(buffers_gpu_postprocess_frame);
+    else if (img_type == ImgType::Modulus) // img type in ui : magnitude
+        insert_to_modulus(buffers_gpu_postprocess_frame);
+    else if (img_type == ImgType::SquaredModulus) // img type in ui : squared magnitude
+        insert_to_squaredmodulus(buffers_gpu_postprocess_frame);
+    else if (img_type == ImgType::Argument)
+        insert_to_argument(unwrap_2d_requested, buffers_gpu_postprocess_frame);
+    else if (img_type == ImgType::PhaseIncrease)
+        insert_to_phase_increase(unwrap_2d_requested, buffers_gpu_postprocess_frame);
 
-    if (compute_cache_.get_time_transformation() == TimeTransformation::PCA &&
-        view_cache_.get_img_type() != ImgType::Composite)
+    if (setting<settings::TimeTransformation>() == TimeTransformation::PCA && img_type != ImgType::Composite)
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
                 // Multiply frame by (2 ^ 16) - 1 in case of PCA
-                map_multiply(buffers_.gpu_postprocess_frame.get(),
-                             buffers_.gpu_postprocess_frame.get(),
+                map_multiply(buffers_gpu_postprocess_frame,
+                             buffers_gpu_postprocess_frame,
                              fd_.get_frame_res(),
                              static_cast<const float>((2 << 16) - 1),
                              stream_);
@@ -79,9 +56,9 @@ void Converts::insert_to_ushort()
     LOG_FUNC();
 
     insert_main_ushort();
-    if (view_cache_.get_cuts_view_enabled())
+    if (setting<settings::CutsViewEnabled>())
         insert_slice_ushort();
-    if (view_cache_.get_filter2d_view_enabled())
+    if (setting<settings::Filter2dViewEnabled>())
         insert_filter2d_ushort();
 }
 
@@ -92,12 +69,10 @@ void Converts::insert_compute_p_accu()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            ViewPQ p = view_cache_.get_p();
+            auto p = setting<settings::P>();
             pmin_ = p.start;
             if (p.width != 0)
-                pmax_ = std::max(
-                    0,
-                    std::min<int>(pmin_ + p.width, static_cast<int>(compute_cache_.get_time_transformation_size())));
+                pmax_ = std::max(0, std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -105,14 +80,14 @@ void Converts::insert_compute_p_accu()
 
 // we use gpu_input_buffer because when time_transformation_size = 1,
 // gpu_p_acc_buffer is not used.
-void Converts::insert_to_modulus()
+void Converts::insert_to_modulus(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            complex_to_modulus(buffers_.gpu_postprocess_frame,
+            complex_to_modulus(gpu_postprocess_frame,
                                time_transformation_env_.gpu_p_acc_buffer,
                                pmin_,
                                pmax_,
@@ -121,14 +96,14 @@ void Converts::insert_to_modulus()
         });
 }
 
-void Converts::insert_to_squaredmodulus()
+void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            complex_to_squared_modulus(buffers_.gpu_postprocess_frame,
+            complex_to_squared_modulus(gpu_postprocess_frame,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        pmin_,
                                        pmax_,
@@ -137,52 +112,53 @@ void Converts::insert_to_squaredmodulus()
         });
 }
 
-void Converts::insert_to_composite()
+void Converts::insert_to_composite(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            CompositeRGB rgb_struct = composite_cache_.get_rgb();
-            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, compute_cache_.get_time_transformation_size()) ||
-                !is_between<ushort>(rgb_struct.frame_index.max, 0, compute_cache_.get_time_transformation_size()))
+            CompositeRGB rgb_struct = setting<settings::RGB>();
+            auto time_transformation_size = setting<settings::TimeTransformationSize>();
+            if (!is_between<ushort>(rgb_struct.frame_index.min, 0, time_transformation_size) ||
+                !is_between<ushort>(rgb_struct.frame_index.max, 0, time_transformation_size))
                 return;
 
-            if (composite_cache_.get_composite_kind() == CompositeKind::RGB)
+            if (setting<settings::CompositeKind>() == CompositeKind::RGB)
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
-                    buffers_.gpu_postprocess_frame,
+                    gpu_postprocess_frame,
                     fd_.get_frame_res(),
-                    composite_cache_.get_composite_auto_weights(),
+                    setting<settings::CompositeAutoWeights>(),
                     rgb_struct.frame_index.min,
                     rgb_struct.frame_index.max,
                     rgb_struct.weight,
                     stream_);
             else
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
-                    buffers_.gpu_postprocess_frame,
+                    gpu_postprocess_frame,
                     fd_.width,
                     fd_.height,
                     stream_,
-                    compute_cache_.get_time_transformation_size(),
-                    composite_cache_.get_hsv_const_ref());
+                    time_transformation_size,
+                    setting<settings::HSV>());
 
-            if (composite_cache_.get_composite_auto_weights())
+            if (setting<settings::CompositeAutoWeights>())
             {
                 const uchar pixel_depth = 3;
                 const int factor = 10;
                 float* averages = new float[pixel_depth];
-                postcolor_normalize(buffers_.gpu_postprocess_frame,
+                postcolor_normalize(gpu_postprocess_frame,
                                     fd_.height,
                                     fd_.width,
-                                    zone_cache_.get_composite_zone(),
+                                    setting<settings::CompositeZone>(),
                                     pixel_depth,
                                     averages,
                                     stream_);
                 if (pixel_depth >= 3)
                 {
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    GSH::instance().set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
                                                    (static_cast<double>(averages[1]) / max) * factor,
                                                    (static_cast<double>(averages[2]) / max) * factor);
                 }
@@ -190,14 +166,14 @@ void Converts::insert_to_composite()
         });
 }
 
-void Converts::insert_to_argument(bool unwrap_2d_requested)
+void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
 
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            complex_to_argument(buffers_.gpu_postprocess_frame,
+            complex_to_argument(gpu_postprocess_frame,
                                 time_transformation_env_.gpu_p_acc_buffer,
                                 pmin_,
                                 pmax_,
@@ -215,9 +191,8 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
                 unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
-                    unwrap_2d(buffers_.gpu_postprocess_frame,
+                [=]() {
+                    unwrap_2d(gpu_postprocess_frame,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
                               fd_,
@@ -230,7 +205,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
                 [=]()
                 {
                     rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
-                                           buffers_.gpu_postprocess_frame,
+                                           gpu_postprocess_frame,
                                            unwrap_res_2d_->minmax_buffer_,
                                            fd_.get_frame_res(),
                                            stream_);
@@ -243,16 +218,16 @@ void Converts::insert_to_argument(bool unwrap_2d_requested)
     }
 }
 
-void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
+void Converts::insert_to_phase_increase(bool unwrap_2d_requested,
+                                        float* gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
 
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(
-                new UnwrappingResources(compute_cache_.get_unwrap_history_size(), fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(compute_cache_.get_unwrap_history_size());
+            unwrap_res_.reset(new UnwrappingResources(setting<settings::UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(setting<settings::UnwrapHistorySize>());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -282,7 +257,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
                 [=]()
                 {
                     rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
-                                           buffers_.gpu_postprocess_frame,
+                                           gpu_postprocess_frame,
                                            unwrap_res_2d_->minmax_buffer_,
                                            fd_.get_frame_res(),
                                            stream_);
@@ -292,7 +267,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
             fn_compute_vect_.conditional_push_back(
                 [=]() {
                     rescale_float(unwrap_res_->gpu_angle_current_,
-                                  buffers_.gpu_postprocess_frame,
+                                  gpu_postprocess_frame,
                                   fd_.get_frame_res(),
                                   stream_);
                 });
@@ -356,7 +331,6 @@ void Converts::insert_filter2d_ushort()
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
     LOG_FUNC(fd_.depth);
-
     fn_compute_vect_.push_back(
         [&]()
         {
@@ -369,7 +343,6 @@ void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
             { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
 
             void* output = buffers_.gpu_spatial_transformation_buffer.get();
-
             gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
         });
 }
