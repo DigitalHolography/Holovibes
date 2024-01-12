@@ -14,6 +14,13 @@ enum HSV {
     V = 2
 };
 
+enum threshold_op
+{
+    CLAMP,
+    CRUSH,
+    ZOOM
+};
+
 void hsv(const cuComplex* d_input,
          float* d_output,
          const uint width,
@@ -21,3 +28,15 @@ void hsv(const cuComplex* d_input,
          const cudaStream_t stream,
          const int time_transformation_size,
          const holovibes::CompositeHSV& hsv_struct);
+
+/*
+void hsv_cuts(const float* gpu_in_cut_xz,
+              const float* gpu_in_cut_yz,
+              float* gpu_out_cut_xz,
+              float* gpu_out_cut_yz,
+              uint width,
+              uint height,
+              int time_transformation_size,
+              const holovibes::CompositeHSV& hsv_struct,
+              const cudaStream_t stream);
+*/

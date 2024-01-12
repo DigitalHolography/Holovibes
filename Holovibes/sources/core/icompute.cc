@@ -120,7 +120,7 @@ void ICompute::update_spatial_transformation_parameters()
 
 void ICompute::init_cuts()
 {
-    camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+   camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;
@@ -143,6 +143,10 @@ void ICompute::dispose_cuts()
 {
     buffers_.gpu_postprocess_frame_xz.reset(nullptr);
     buffers_.gpu_postprocess_frame_yz.reset(nullptr);
+    /*
+    buffers_.gpu_postprocess_frame_xz_final.reset(nullptr);
+    buffers_.gpu_postprocess_frame_yz_final.reset(nullptr);
+    */
     buffers_.gpu_output_frame_xz.reset(nullptr);
     buffers_.gpu_output_frame_yz.reset(nullptr);
 

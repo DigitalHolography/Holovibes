@@ -13,9 +13,10 @@
 #include "map.cuh"
 #include "reduce.cuh"
 #include "unique_ptr.hh"
-
 #include "logger.hh"
 
+#include <thrust/extrema.h>
+#include <thrust/execution_policy.h>
 
 __global__ void kernel_threshold_top_bottom(float* output, const float tmin, const float tmax, const uint frame_res)
 {
@@ -27,7 +28,8 @@ __global__ void kernel_threshold_top_bottom(float* output, const float tmin, con
     }
 }
 
-void threshold_top_bottom(float* output, const float tmin, const float tmax, const uint frame_res, const cudaStream_t stream)
+void threshold_top_bottom(
+    float* output, const float tmin, const float tmax, const uint frame_res, const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -46,6 +48,7 @@ void apply_percentile_and_threshold(float* gpu_arr,
 {
     float percent_out[2];
     const float percent_in_h[2] = {low_threshold, high_threshold};
+    auto exec_policy = thrust::cuda::par.on(stream);
 
     compute_percentile_xy_view(gpu_arr,
                                width,
@@ -57,9 +60,15 @@ void apply_percentile_and_threshold(float* gpu_arr,
                                holovibes::units::RectFd(),
                                false,
                                stream);
-    threshold_top_bottom(gpu_arr, percent_out[0], percent_out[1], frame_res, stream);
-}
 
+    threshold_top_bottom(gpu_arr, percent_out[0], percent_out[1], frame_res, stream);
+
+    auto min = percent_out[0];
+    auto scale = 1.0f / (percent_out[1] - min);
+    const auto scale_op = [min, scale] __device__(const float pixel) { return (pixel - min) * scale; };
+
+    thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, scale_op);
+}
 
 __global__ void kernel_rotate_hsv_to_contiguous_z(
     const cuComplex* gpu_input, float* rotated_hsv_arr, const uint frame_res, const uint width, const uint range)
@@ -97,7 +106,6 @@ void rotate_hsv_to_contiguous_z(const cuComplex* gpu_input,
     cudaCheckError();
 }
 
-
 __global__ void
 kernel_from_distinct_components_to_interweaved_components(const float* src, float* dst, size_t frame_res)
 {
@@ -121,7 +129,6 @@ void from_distinct_components_to_interweaved_components(const float* src,
     kernel_from_distinct_components_to_interweaved_components<<<blocks, threads, 0, stream>>>(src, dst, frame_res);
     cudaCheckError();
 }
-
 
 __global__ void
 kernel_from_interweaved_components_to_distinct_components(const float* src, float* dst, size_t frame_res)

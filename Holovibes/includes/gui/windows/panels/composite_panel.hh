@@ -64,6 +64,9 @@ class CompositePanel : public Panel
     /*! \brief Modifies Hue max threshold and guaratees that Hue max threshold is higher than Hue min threshold */
     void slide_update_threshold_h_max();
 
+    void slide_update_shift_h_min();
+    void slide_update_shift_h_max();
+
     /*! \brief Change Saturation min threshold. Saturation min threshold does not exceed max threshold */
     void slide_update_threshold_s_min();
 

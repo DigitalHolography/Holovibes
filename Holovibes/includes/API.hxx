@@ -1063,6 +1063,16 @@ inline float get_slider_h_threshold_max() noexcept
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.slider_threshold.max;
 }
 
+inline float get_slider_h_shift_min()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.slider_shift.min;
+}
+
+inline float get_slider_h_shift_max()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.slider_shift.max;
+}
+
 inline float get_composite_low_h_threshold() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.threshold.min;
@@ -1218,6 +1228,19 @@ inline void set_slider_h_threshold_max(float value)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.h.slider_threshold.max = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+inline void set_slider_h_shift_min(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.slider_shift.min = value;
+    Holovibes::instance().update_setting(settings::HSV{hsv});
+}
+
+inline void set_slider_h_shift_max(float value)
+{
+    holovibes::CompositeHSV hsv = get_hsv();
+    hsv.h.slider_shift.max = value;
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
 inline void set_composite_low_h_threshold(float value)
