@@ -143,6 +143,8 @@ add_custom_command(TARGET Holovibes POST_BUILD
 
     # Deploy Qt in windeployqt directory so that it can be used by the installer
     COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
+
+    # Copy camera config files to AppData/Roaming/Holovibes/VERSION
 )
 
 # ---------------------------------------------------------------------
@@ -200,7 +202,7 @@ install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
     $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-    $<TARGET_FILE_DIR:Holovibes>/gpib.dll
+    #$<TARGET_FILE_DIR:Holovibes>/gpib.dll
     $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
@@ -213,6 +215,26 @@ install(FILES
     DESTINATION .
     COMPONENT application
 )
+
+if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
+    install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
+    install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_EGrabber AND HAVE_EGrabbers)
+    install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraPhantom.dll
+        DESTINATION .
+        COMPONENT application)
+endif()
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
     DESTINATION .
