@@ -22,8 +22,12 @@ class HolovibesRecipe(ConanFile):
         self.requires("opengl/system")
         self.requires("spdlog/1.12.0")
 
-    def build_requirements(self):
-        self.tool_requires("doxygen/1.9.4")
+        # Override requirements to resolve dependencies
+        # versions conflicts
+        self.requires("freetype/2.13.2", override=True)
+
+    #def build_requirements(self):
+        #self.tool_requires("doxygen/1.9.4")
 
     def layout(self):
         cmake_layout(self)

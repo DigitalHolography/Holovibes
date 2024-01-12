@@ -90,7 +90,7 @@ target_include_directories(Holovibes PRIVATE
 )
 
 set_target_properties(Holovibes PROPERTIES
-    CUDA_ARCHITECTURES OFF
+    CUDA_ARCHITECTURES "89"
     CUDA_STANDARD 17
 )
 
