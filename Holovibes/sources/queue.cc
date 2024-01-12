@@ -22,15 +22,15 @@ Queue::Queue(const camera::FrameDescriptor& fd,
              const bool gpu)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
-    , size_(fast_updates_entry_->first)
-    , max_size_(fast_updates_entry_->second)
+    , size_(std::get<0>(*fast_updates_entry_))//(fast_updates_entry_->first)
+    , max_size_(std::get<1>(*fast_updates_entry_))//(fast_updates_entry_->second)
     , type_(type)
     , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
     , has_overridden_(false)
-    , gpu_(gpu)
+    , gpu_(std::get<2>(*fast_updates_entry_))
 {
-
+    gpu_ = gpu;
     data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
 
     max_size_ = max_size;

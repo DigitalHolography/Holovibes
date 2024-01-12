@@ -273,7 +273,7 @@ class Queue final : public DisplayQueue
      * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
      * 
      */
-    bool gpu_;
+    std::atomic<bool>& gpu_;
 
   private:
     /*! \struct QueueRegion

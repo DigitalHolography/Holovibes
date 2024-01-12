@@ -1286,6 +1286,8 @@ void set_record_device(const bool gpu)
     if (get_compute_mode() == Computation::Hologram)
         Holovibes::instance().stop_compute();
 
+    // set_compute_mode(Computation::Raw);
+
     if (GSH::instance().get_raw_view_queue_location() != gpu)
         GSH::instance().set_raw_view_queue_location(gpu);
 
