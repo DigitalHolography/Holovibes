@@ -105,6 +105,7 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
     cudaCheckError();
 }
 
+/// @brief get the real z value, because of the FFT frequency shift
 __device__ float get_real_z(size_t z, int depth)
 {
     if ((float)z < (float)depth / 2.0f)
@@ -114,62 +115,12 @@ __device__ float get_real_z(size_t z, int depth)
     return (float)z - (float)depth;
 }
 
-template <typename FUNC>
-__global__ void kernel_compute_sum_depth(const cuComplex* gpu_input,
-                                         float* gpu_output,
-                                         size_t frame_res,
-                                         size_t min_index,
-                                         size_t max_index,
-                                         FUNC func,
-                                         int depth)
+/// @brief Convert the input complex number to a float
+/// @param input_elm input complex number
+/// @return a float, reprensenting the magnitude of the input complex number
+__device__ float get_input_elm(cuComplex input_elm)
 {
-    size_t id = blockIdx.x * blockDim.x + threadIdx.x;
-    if (id < frame_res)
-    {
-        float res = 0.0f;
-
-        for (size_t z = min_index; z <= max_index; ++z)
-        {
-            const cuComplex* current_p_frame = gpu_input + (z * frame_res);
-            float input_elm = hypotf(current_p_frame[id].x, current_p_frame[id].y);
-
-            size_t real_z = get_real_z(z, depth);
-            res += input_elm * func(real_z);
-        }
-
-        const size_t range = max_index - min_index + 1;
-        gpu_output[id] = (res / (float)range);
-    }
-}
-
-/// @brief Compute the sum depth of a pixel : sum of input[z] * func(z) between z1 and z2
-/// @param input The input cuComplex buffer
-/// @param output The output float buffer
-/// @param frame_res The total number of pixels in one frame
-/// @param min_index z1
-/// @param max_index z2
-/// @param func the function to call on z
-template <typename FUNC>
-void compute_sum_depth(const cuComplex* input,
-                       float* output,
-                       size_t frame_res,
-                       size_t min_index,
-                       size_t max_index,
-                       FUNC func,
-                       const cudaStream_t stream,
-                       int depth)
-{
-    const uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-
-    kernel_compute_sum_depth<<<blocks, threads, 0, stream>>>(input,
-                                                             output,
-                                                             frame_res,
-                                                             min_index,
-                                                             max_index,
-                                                             func,
-                                                             depth);
-    cudaCheckError();
+    return hypotf(input_elm.x, input_elm.y);
 }
 
 __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
@@ -185,10 +136,11 @@ __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
         float num = 0.0f;
         float denom = 0.0f;
 
+        // Compute the Average
         for (size_t z = min_h_index; z <= max_h_index; ++z)
         {
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
-            float input_elm = hypotf(current_p_frame[id].x, current_p_frame[id].y);
+            float input_elm = get_input_elm(current_p_frame[id]);
 
             size_t real_z = get_real_z(z, depth);
             num += input_elm * real_z;
@@ -217,7 +169,7 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* gpu_input,
         for (z = min_s_index; z <= max_s_index; ++z)
         {
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
-            float input_elm = hypotf(current_p_frame[id].x, current_p_frame[id].y);
+            float input_elm = get_input_elm(current_p_frame[id]);
 
             num += input_elm * get_real_z(z, depth);
             denom += input_elm;
@@ -229,7 +181,7 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* gpu_input,
         for (z = min_s_index; z <= max_s_index; ++z)
         {
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
-            float input_elm = hypotf(current_p_frame[id].x, current_p_frame[id].y);
+            float input_elm = get_input_elm(current_p_frame[id]);
 
             float centered_z = get_real_z(z, depth) - avg;
             num += input_elm * centered_z * centered_z;
@@ -336,8 +288,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
     cudaCheckError();
 }
 
-/// @brief Compute the hsv values of each pixel, each channel use his own lambda function that describe the calculus
-/// done on z
+/// @brief Compute the hsv values of each pixel of the frame
 void compute_and_fill_hsv(const cuComplex* gpu_input,
                           float* gpu_output,
                           const size_t frame_res,
@@ -430,6 +381,7 @@ void hsv_normalize(
     thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, lambda);
 }
 
+/// @brief Basic operation on any specified channel, with any operation requested
 void apply_operations(float* gpu_arr,
                       uint height,
                       uint width,
@@ -477,6 +429,7 @@ void apply_operations(float* gpu_arr,
     }
 }
 
+/// @brief Special function for hue channel because hue has two UI sliders and a blur option
 void apply_operations_on_h(
     float* gpu_h_arr, uint height, uint width, const holovibes::CompositeH& h_struct, const cudaStream_t stream)
 {
@@ -485,6 +438,14 @@ void apply_operations_on_h(
     holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
     const uint frame_res = height * width;
     auto exec_policy = thrust::cuda::par.on(stream);
+
+    // H channel has a blur option
+    if (h_struct.blur.enabled)
+    {
+        apply_blur(gpu_h_arr, height, width, h_struct.blur.kernel_size, stream);
+
+        //hsv_normalize(gpu_h_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
+    }
 
     apply_percentile_and_threshold(gpu_h_arr,
                                    frame_res,
@@ -511,14 +472,6 @@ void apply_operations_on_h(
             return m * pixel + p;
     };
     thrust::transform(exec_policy, gpu_h_arr, gpu_h_arr + frame_res, gpu_h_arr, op);
-
-    // H channel has a blur option
-    if (h_struct.blur.enabled)
-    {
-        apply_blur(gpu_h_arr, height, width, h_struct.blur.kernel_size, stream);
-
-        hsv_normalize(gpu_h_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
-    }
 }
 
 /// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
