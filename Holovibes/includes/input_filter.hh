@@ -51,17 +51,17 @@ class InputFilter
     unsigned int height;
 
     // Returns the pure normalised image in shades of grey as a char buffer AND sets the width and height of the object
-    void read_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path);
+    void read_bmp(std::vector<float> cache_image, const char* path);
 
     // Only for debug purposes
-    void write_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path);
+    void write_bmp(std::vector<float> cache_image, const char* path);
 
-    void interpolate_filter(std::shared_ptr<std::vector<float>> cache_image, size_t fd_width, size_t fd_height);
+    void interpolate_filter(size_t fd_width, size_t fd_height);
 
   public:
-    InputFilter(std::shared_ptr<std::vector<float>> cache_image, std::string path, size_t fd_width, size_t fd_height){
+    InputFilter(std::vector<float> cache_image, std::string path, size_t fd_width, size_t fd_height){
       read_bmp(cache_image, path.c_str());
-      interpolate_filter(cache_image, fd_width, fd_height);
+      interpolate_filter(fd_width, fd_height);
       //write_bmp(cache_image, path.c_str());
     }
 

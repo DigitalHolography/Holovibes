@@ -185,7 +185,7 @@ void apply_zone_sum(const float* input,
 static double
 compute_average(float* input, const uint width, const uint height, const RectFd& zone, const cudaStream_t stream)
 {
-    holovibes::cuda_tools::UniquePtr<double> gpu_sum_zone;
+    holovibes::cuda_tools::CudaUniquePtr<double> gpu_sum_zone;
     if (!gpu_sum_zone.resize(1))
         return 1;
 
@@ -222,7 +222,7 @@ static double compute_std(float* input,
                           const double cpu_avg_zone,
                           const cudaStream_t stream)
 {
-    holovibes::cuda_tools::UniquePtr<double> gpu_std_sum_zone;
+    holovibes::cuda_tools::CudaUniquePtr<double> gpu_std_sum_zone;
     if (!gpu_std_sum_zone.resize(1))
         return 1;
 

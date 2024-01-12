@@ -13,7 +13,7 @@ You will need to install manually several things to build Holovibes:
 #### Build cameras grabbers
 
 Some cameras needs there own libraries to be used:
-* [BitFlow SDK 6.50](http://www.bitflow.com/downloads/bfsdk65.zip) (serial code 2944-8538-8655-8474)
+* [BitFlow SDK 6.50](http://www.bitflow.com/downloads/bfsdk65.zip)
 * [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 
 #### Install a compiler

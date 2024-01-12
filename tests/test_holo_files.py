@@ -45,7 +45,7 @@ def get_cli_arguments(cli_argument_path: str) -> List[str]:
         return json.load(f)
 
 
-def generate_holo_from(input: str, output: str, cli_argument: str, config: str = None) -> time.time:
+def generate_holo_from(input: str, output: str, output_error: str, cli_argument: str, config: str = None) -> time.time:
     t1 = time.time()
 
     # Run holovibes on file
@@ -56,11 +56,14 @@ def generate_holo_from(input: str, output: str, cli_argument: str, config: str =
         cmd += ['--compute_settings', config]
 
     sub = subprocess.run(cmd, stderr=subprocess.PIPE)
-    assert sub.returncode == 0, sub.stderr.decode('utf-8')
+
+    if sub.returncode != 0:
+        error_file = open(output_error, "w")
+        error_file.writelines([str(sub.returncode), "\n", sub.stderr.decode('utf-8')])
+        error_file.close()
 
     t2 = time.time()
-    return (t2 - t1),
-
+    return (t2 - t1)
 
 def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> bool:
     a_header, a_data, a_footer = a
@@ -90,12 +93,18 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
 
+    print(folder)
+
     path = os.path.join(TESTS_DATA, folder)
     input = os.path.join(path, INPUT_FILENAME)
+    output_error = os.path.join(path, OUTPUT_ERROR_FILENAME)
     output = os.path.join(path, OUTPUT_FILENAME)
+    ref_error = os.path.join(path, ERROR_FILENAME)
     ref = os.path.join(path, REF_FILENAME)
     cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
     config = os.path.join(path, CONFIG_FILENAME)
+
+    error_wanted = False
 
     def not_found(filename: str) -> None:
         pytest.skip(
@@ -106,7 +115,9 @@ def test_holo(folder: str):
         if input is None:
             not_found(INPUT_FILENAME)
 
-    if not os.path.isfile(ref):
+    if os.path.isfile(ref_error):
+        error_wanted = True
+    elif not os.path.isfile(ref):
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
@@ -116,16 +127,36 @@ def test_holo(folder: str):
     if os.path.isfile(output):
         os.remove(output)
 
-    generate_holo_from(input, output, cli_argument, config)
+    if os.path.isfile(output_error):
+        os.remove(output_error)
+
+
+    generate_holo_from(input, output, output_error, cli_argument, config)
+
+    if error_wanted:
+        assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
+    else:
+        assert os.path.isfile(output), f"Should have succeded but {OUTPUT_FILENAME} not found"
+        assert not os.path.isfile(output_error), f"Should have succeded but {OUTPUT_ERROR_FILENAME} found"
 
     if DEEP_COMPARE:
+        if error_wanted:
+            ref_error_file = open(ref_error, "r")
+            ref_error_code = int(ref_error_file.readline())
+            ref_error_file.close()
 
-        out = read_holo(output)
-        ref = read_holo(ref)
+            output_error_file = open(output_error, "r")
+            output_error_code = int(output_error_file.readline())
+            output_error_file.close()
 
-        ref.assertHolo(out, path)
+            assert output_error_code == ref_error_code, f"Return value is invalid: wanted {ref_error_code} but got {output_error_code}"
+        else:
+            out = read_holo(output)
+            ref = read_holo(ref)
 
-    else:
+            ref.assertHolo(out, path)
+
+    elif not error_wanted: # LAZY_COMPARE
         out = read_holo_lazy(output)
         ref = read_holo_lazy(ref)
 

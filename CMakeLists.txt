@@ -30,6 +30,6 @@ find_package(Threads)
 qt_standard_project_setup()
 
 add_subdirectory(Camera)
-add_subdirectory(GPIB)
+#add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
 # add_subdirectory(docs)

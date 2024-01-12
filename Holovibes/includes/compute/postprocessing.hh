@@ -12,6 +12,27 @@
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ConvolutionMatrix,        \
+    settings::ConvolutionEnabled,                  \
+    settings::DivideConvolutionEnabled
+
+
+#define ONRESTART_SETTINGS                          \
+    holovibes::settings::RenormConstant
+
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
+
+// clang-format on
+
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -29,13 +50,25 @@ class Postprocessing
 {
   public:
     /*! \brief Constructor */
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
-                   const camera::FrameDescriptor& fd,
+                   const camera::FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
-                   ComputeCache::Cache& compute_cache,
-                   ViewCache::Cache& view_cache,
-                   AdvancedCache::Cache& advanced_cache);
+                   InitSettings settings)
+        : gpu_kernel_buffer_()
+        , cuComplex_buffer_()
+        , hsv_arr_()
+        , reduce_result_(1) // allocate an unique double
+        , fn_compute_vect_(fn_compute_vect)
+        , buffers_(buffers)
+        , fd_(input_fd)
+        , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
+        , stream_(stream)
+        , realtime_settings_(settings)
+        , onrestart_settings_(settings)
+    {
+    }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
@@ -44,21 +77,55 @@ class Postprocessing
     void dispose();
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
-    void insert_convolution();
+    void insert_convolution(float* gpu_postprocess_frame,
+                            float* gpu_convolution_buffer);
 
     /*! \brief Insert the normalization function. */
-    void insert_renormalize();
+    void insert_renormalize(float* gpu_postprocess_frame);
+
+    template <typename T>
+    inline void update_setting(T setting)
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
+            realtime_settings_.update_setting(setting);
+        }
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
+            onrestart_settings_.update_setting(setting);
+        }
+    }
 
   private:
     /*! \brief Used only when the image is composite convolution to do a convolution on each component */
-    void convolution_composite();
+    void
+    convolution_composite(float* gpu_postprocess_frame, float* gpu_convolution_buffer, bool divide_convolution_enabled);
 
-    cuda_tools::UniquePtr<cuComplex> gpu_kernel_buffer_;
-    cuda_tools::UniquePtr<cuComplex> cuComplex_buffer_;
-    cuda_tools::UniquePtr<float> hsv_arr_;
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+
+        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
+        {
+            return onrestart_settings_.get<T>().value;
+        }
+    }
+
+    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
+    cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
+    cuda_tools::CudaUniquePtr<float> hsv_arr_;
 
     /*! \brief Result of the reduce operation of the current frame used to renormalize the frames */
-    cuda_tools::UniquePtr<double> reduce_result_;
+    cuda_tools::CudaUniquePtr<double> reduce_result_;
 
     /*! \brief Vector function in which we insert the processing */
     FunctionVector& fn_compute_vect_;
@@ -75,9 +142,15 @@ class Postprocessing
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief All view related variables, updated at each end of pipe */
-    ComputeCache::Cache& compute_cache_;
-    ViewCache::Cache& view_cache_;
-    AdvancedCache::Cache& advanced_cache_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, compute::Postprocessing> : is_any_of<T, ALL_SETTINGS>
+{
+};
+} // namespace holovibes

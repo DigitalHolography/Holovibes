@@ -29,7 +29,7 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
@@ -74,6 +74,10 @@ class ImageRenderingPanel : public Panel
      */
     void update_input_filter(const QString& value);
 
+    /*! \brief Refreshed the input filter iff one was passed before
+     */
+    void refresh_input_filter();
+
     /*! \brief Modifies space transform calculation
      *
      * \param value The new space transform to apply
@@ -91,12 +95,12 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of lambda
      */
-    void set_wavelength(double value);
+    void set_lambda(const double value);
     /*! \brief Modifies z from ui value
      *
      * \param value The new value of z
      */
-    void set_z(double value);
+    void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
     /*! \brief Decrement z by 1 on key shortcut */
@@ -137,6 +141,7 @@ class ImageRenderingPanel : public Panel
     QShortcut* z_down_shortcut_;
 
   public:
+  //should be moved to double in the ui if we need more precision than 5 digits
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

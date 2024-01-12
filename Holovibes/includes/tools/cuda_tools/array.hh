@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief cuda_tools::UniquePtr containing an array
+ * \brief cuda_tools::CudaUniquePtr containing an array
  */
 #pragma once
 
@@ -16,10 +16,10 @@ namespace holovibes::cuda_tools
  * \brief Array class for cuda buffers that ocasionally need to be resized
  */
 template <typename T>
-class Array : public UniquePtr<T>
+class Array : public CudaUniquePtr<T>
 {
   public:
-    using base = UniquePtr<T>;
+    using base = CudaUniquePtr<T>;
 
     /*! \brief Intantiate an empty / nullptr array */
     Array()

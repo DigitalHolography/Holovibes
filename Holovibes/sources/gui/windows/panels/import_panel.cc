@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "input_frame_file_factory.hh"
 #include "API.hh"
+#include <spdlog/spdlog.h>
 
 namespace api = ::holovibes::api;
 
@@ -30,7 +31,8 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->ImportExportFrame->setHidden(h);
 
     ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
-    update_fps();
+    update_fps(); // Required as it is called `OnEditedFinished` only.
+
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
 }
 
@@ -149,23 +151,7 @@ void ImportPanel::import_start()
 
     parent_->shift_screen();
 
-    // Get all the useful ui items
-    QLineEdit* import_line_edit = ui_->ImportPathLineEdit;
-
-    // Now stored in GSH
-    // QSpinBox* fps_spinbox = ui_->ImportInputFpsSpinBox;
-
-    QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-    QCheckBox* load_file_gpu_box = ui_->LoadFileInGpuCheckBox;
-    QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-
-    std::string file_path = import_line_edit->text().toStdString();
-
-    bool res_import_start = api::import_start(file_path,
-                                              api::get_input_fps(),
-                                              start_spinbox->value(),
-                                              load_file_gpu_box->isChecked(),
-                                              end_spinbox->value());
+    bool res_import_start = api::import_start();
 
     if (res_import_start)
     {
@@ -199,37 +185,42 @@ void ImportPanel::import_start()
     }
 }
 
-void ImportPanel::import_start_spinbox_update()
+void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
+
+void ImportPanel::update_import_file_path() { api::set_input_file_path(ui_->ImportPathLineEdit->text().toStdString()); }
+
+void ImportPanel::update_load_file_in_gpu() { api::set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked()); }
+
+void ImportPanel::update_input_file_start_index()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
 
-    api::set_start_frame(start_spinbox->value());
+    api::set_input_file_start_index(start_spinbox->value());
 
-    start_spinbox->setValue(api::get_start_frame());
+    start_spinbox->setValue(api::get_input_file_start_index());
 
-    if (api::get_start_frame() > api::get_end_frame())
+    if (api::get_input_file_start_index() > api::get_input_file_end_index())
     {
         QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-        end_spinbox->setValue(api::get_start_frame());
-        import_end_spinbox_update();
+        end_spinbox->setValue(api::get_input_file_start_index());
+        update_input_file_end_index();
     }
 }
 
-void ImportPanel::import_end_spinbox_update()
-{
+void ImportPanel::update_input_file_end_index() 
+{ 
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    api::set_end_frame(end_spinbox->value());
-    end_spinbox->setValue(api::get_end_frame());
+    api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value());
 
-    if (api::get_end_frame() < api::get_start_frame())
+    end_spinbox->setValue(api::get_input_file_end_index());
+
+    if (api::get_input_file_start_index() > api::get_input_file_end_index())
     {
         QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-        start_spinbox->setValue(api::get_end_frame());
-        import_start_spinbox_update();
+        start_spinbox->setValue(api::get_input_file_end_index());
+        update_input_file_start_index();
     }
 }
-
-void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }
 
 } // namespace holovibes::gui

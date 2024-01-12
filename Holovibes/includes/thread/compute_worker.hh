@@ -6,7 +6,6 @@
 
 #include "worker.hh"
 #include "pipe.hh"
-
 namespace holovibes
 {
 class ICompute;
@@ -35,6 +34,7 @@ class ComputeWorker final : public Worker
     void run() override;
 
   private:
+
     /*! \brief The compute pipe used to perform all operations */
     std::atomic<std::shared_ptr<Pipe>>& pipe_;
 

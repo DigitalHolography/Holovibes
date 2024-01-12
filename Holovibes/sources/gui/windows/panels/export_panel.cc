@@ -93,29 +93,28 @@ void ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+    else if (api::get_record_mode() == RecordMode::RAW)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -153,9 +152,10 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->insert(filename);
 }
 
+
 void ExportPanel::set_record_mode(const QString& value)
 {
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
     stop_record();
@@ -164,7 +164,7 @@ void ExportPanel::set_record_mode(const QString& value)
 
     api::set_record_mode(text);
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    if (api::get_record_mode() == RecordMode::CHART)
     {
         ui_->RecordExtComboBox->clear();
         ui_->RecordExtComboBox->insertItem(0, ".csv");
@@ -183,20 +183,19 @@ void ExportPanel::set_record_mode(const QString& value)
     }
     else
     {
-        if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW)
+        if (api::get_record_mode() == RecordMode::RAW)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM)
+        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
             ui_->RecordExtComboBox->insertItem(2, ".mp4");
         }
-        else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ ||
-                 UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ)
+        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
@@ -275,10 +274,10 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = UserInterfaceDescriptor::instance().record_mode_, this]()
+    auto callback = [record_mode = api::get_record_mode(), this]()
     { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
-    api::start_record(batch_enabled, nb_frames_to_record, output_path, batch_input_path, callback);
+    api::start_record(callback);
 }
 
 void ExportPanel::activeSignalZone()
@@ -316,5 +315,66 @@ void ExportPanel::stop_chart_display()
     api::stop_chart_display();
 
     ui_->ChartPlotPushButton->setEnabled(true);
+}
+void ExportPanel::update_batch_enabled() { api::set_batch_enabled(ui_->BatchGroupBox->isChecked()); }
+
+void ExportPanel::update_record_frame_count_enabled()
+{
+    bool checked = ui_->NumberOfFramesCheckBox->isChecked();
+
+    if (!checked)
+        api::set_record_frame_count(std::nullopt);
+    else
+        api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+}
+
+void ExportPanel::update_record_frame_count() { 
+     
+}
+
+void ExportPanel::update_record_file_path()
+{
+    api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
+                              ui_->RecordExtComboBox->currentText().toStdString());
+}
+
+void ExportPanel::update_batch_file_path()
+{
+    api::set_batch_file_path(ui_->BatchInputPathLineEdit->text().toStdString());
+}
+
+void ExportPanel::update_record_mode()
+{
+    set_record_mode(ui_->RecordImageModeComboBox->currentText());
+
+    std::string record_mode_str = ui_->RecordImageModeComboBox->currentText().toStdString();
+    RecordMode record_mode = RecordMode::NONE;
+    if (record_mode_str == "Chart")
+        record_mode = RecordMode::CHART;
+    else if (record_mode_str == "Processed Image")
+        record_mode = RecordMode::HOLOGRAM;
+    else if (record_mode_str == "Raw Image")
+        record_mode = RecordMode::RAW;
+    else if (record_mode_str == "3D Cuts XZ")
+        record_mode = RecordMode::CUTS_XZ;
+    else if (record_mode_str == "3D Cuts YZ")
+        record_mode = RecordMode::CUTS_YZ;
+    else
+    {
+        spdlog::critical("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
+        exit(1);
+    }
+
+    api::set_record_mode(record_mode);
+}
+
+/**
+ * @brief called when change output file extension
+*/
+void ExportPanel::update_record_file_extension(const QString& value)
+{
+    std::string path = ui_->OutputFilePathLineEdit->text().toStdString();
+    std::string ext = value.toStdString();
+    api::set_record_file_path(path + ext);
 }
 } // namespace holovibes::gui

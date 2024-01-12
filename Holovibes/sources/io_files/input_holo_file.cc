@@ -201,7 +201,7 @@ void InputHoloFile::import_info() const
     try
     {
         // Pixel are considered square
-        GSH::instance().set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
+        api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
     }
     catch (std::exception&)
     {

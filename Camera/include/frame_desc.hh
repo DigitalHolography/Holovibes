@@ -15,7 +15,10 @@ using Endianness = enum { LittleEndian = 0, BigEndian = 1 };
 struct FrameDescriptor
 {
     /*! \brief Obtain the total frame size in bytes. */
-    size_t get_frame_size() const { return width * height * depth; }
+    size_t get_frame_size() const { 
+        size_t size = width * height * depth;
+        return size; 
+    }
     /*! \brief Return the frame resolution (number of pixels). */
     size_t get_frame_res() const { return width * height; }
 

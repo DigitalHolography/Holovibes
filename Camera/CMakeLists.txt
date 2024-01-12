@@ -29,7 +29,6 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
 endif()
 
 
-
 add_subdirectory(CameraHamamatsu)
 add_subdirectory(CameraIds)
 add_subdirectory(CameraXib)

@@ -23,7 +23,8 @@ CompositePanel::~CompositePanel() {}
 
 void CompositePanel::on_notify()
 {
-
+    if (!isVisible())
+        return;
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -42,7 +43,7 @@ void CompositePanel::on_notify()
     ui_->WeightSpinBox_R->setValue(api::get_weight_r());
     ui_->WeightSpinBox_G->setValue(api::get_weight_g());
     ui_->WeightSpinBox_B->setValue(api::get_weight_b());
-     // -- RGB
+    // -- RGB
 
     // HSV
     ui_->CompositePanel->actualize_frequency_channel_v();
@@ -75,31 +76,17 @@ void CompositePanel::on_notify()
     ui_->CompositePanel->slide_update_threshold_v_max();
     // -- HSV
 
-    bool rgbMode = ui_->radioButton_rgb->isChecked();
+    bool rgbMode = (api::get_composite_kind() == CompositeKind::RGB);
 
-    auto show_rgb = [this, rgbMode]()
-    {
-        ui_->groupBox->setVisible(rgbMode); // Frequency channel
-        ui_->groupBox_5->setVisible(rgbMode); // Color equalization box
-    };
+    ui_->radioButton_rgb->setChecked(rgbMode);
+    ui_->radioButton_hsv->setChecked(!rgbMode);
 
-    auto show_hsv = [this, rgbMode]()
-    {
-        ui_->groupBox_hue->setVisible(!rgbMode);
-        ui_->groupBox_saturation->setVisible(!rgbMode);
-        ui_->groupBox_value->setVisible(!rgbMode);
-    };
+    ui_->groupBox->setVisible(rgbMode);   // Frequency channel
+    ui_->groupBox_5->setVisible(rgbMode); // Color equalization box
 
-    if (rgbMode)
-    {
-        show_hsv();
-        show_rgb();
-    }
-    else
-    {
-        show_rgb();
-        show_hsv();
-    }
+    ui_->groupBox_hue->setVisible(!rgbMode);
+    ui_->groupBox_saturation->setVisible(!rgbMode);
+    ui_->groupBox_value->setVisible(!rgbMode);
 }
 
 void CompositePanel::set_composite_intervals()
@@ -173,6 +160,7 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_B->setEnabled(!value);
 
     ui_->ViewPanel->set_auto_contrast();
+    parent_->notify();
 }
 
 void CompositePanel::click_composite_rgb_or_hsv()

@@ -66,8 +66,8 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
-    ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
+    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -93,8 +93,15 @@ void ImageRenderingPanel::on_notify()
     // Filter
     ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
+    if (!api::get_filter_enabled())
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+    }
+    else
+    {
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+    }
 
     // Convolution
     ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -143,6 +150,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
         /* Close windows & destory thread compute */
         api::close_windows();
         api::close_critical_compute();
+
+        api::change_window(static_cast<int>(WindowKind::XYview));
 
         const bool res = api::set_holographic_mode(parent_->window_max_size);
 
@@ -226,7 +235,6 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
         api::set_filter2d_n2(size_max);
         ui_->Filter2DN2SpinBox->setValue(size_max);
-
     }
     else
         update_filter2d_view(false);
@@ -244,11 +252,31 @@ void ImageRenderingPanel::set_filter2d_n2(int n)
 
 void ImageRenderingPanel::update_input_filter(const QString& value)
 {
+    LOG_FUNC();
+
     UserInterfaceDescriptor::instance().filter_name = value.toStdString();
     
     api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
 
     parent_->notify();
+}
+
+void ImageRenderingPanel::refresh_input_filter(){
+    LOG_FUNC();
+
+    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
+    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+
+    auto filename = UserInterfaceDescriptor::instance().filter_name;
+    
+    if (filename == UID_FILTER_TYPE_DEFAULT)
+    {
+        LOG_INFO("--- || ---");
+        return;
+    }
+
+    GSH::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    holovibes::api::pipe_refresh();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -332,20 +360,21 @@ void ImageRenderingPanel::set_time_transformation_size()
     api::set_time_transformation_size(callback);
 }
 
-void ImageRenderingPanel::set_wavelength(const double value)
+//λ
+void ImageRenderingPanel::set_lambda(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value * 1.0e-9f);
+    api::set_lambda(static_cast<float>(value) * 1.0e-9f);
 }
 
-void ImageRenderingPanel::set_z(const double value)
+void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z_distance(value);
+    api::set_z_distance(static_cast<float>(value));
 }
 
 void ImageRenderingPanel::increment_z()
@@ -353,7 +382,7 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() + z_step_);
+    set_z_distance(api::get_z_distance() + z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
@@ -362,7 +391,7 @@ void ImageRenderingPanel::decrement_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() - z_step_);
+    set_z_distance(api::get_z_distance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 

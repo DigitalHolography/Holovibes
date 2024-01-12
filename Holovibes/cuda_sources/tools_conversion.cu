@@ -104,7 +104,6 @@ void input_queue_to_input_buffer(void* const output,
     static const auto convert_16_bit = [] __device__(const ushort input_pixel)
     { return static_cast<float>(input_pixel); };
     static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
-
     switch (depth)
     {
     case 1:
@@ -337,6 +336,12 @@ void float_to_ushort(
     const float* const input, ushort* const output, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda = [shift] __device__(const float in) -> ushort { return device_float_to_ushort(in, shift); };
+    map_generic(input, output, size, lambda, stream);
+}
+
+void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream)
+{
+    const auto lambda = [] __device__(const float in) -> ushort {return in * max_ushort_value; };
     map_generic(input, output, size, lambda, stream);
 }
 

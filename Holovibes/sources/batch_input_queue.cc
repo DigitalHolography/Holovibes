@@ -24,7 +24,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_si
 BatchInputQueue::~BatchInputQueue()
 {
     destroy_mutexes_streams();
-    // data is free as it is a UniquePtr.
+    // data is free as it is a CudaUniquePtr.
 
     GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
@@ -220,10 +220,11 @@ void BatchInputQueue::resize(const uint new_batch_size)
     // End of critical section
 }
 
-void BatchInputQueue::copy_multiple(Queue& dest) { copy_multiple(dest, batch_size_); }
+void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { copy_multiple(dest, batch_size_, cuda_kind); }
 
-void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
+void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {
+    // std::cout << "2" << std::endl;
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,
           "Copy multiple: the destination queue must have a size at least greater than number of elements to copy.");
@@ -248,12 +249,12 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     struct Queue::QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
 
-    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
+    char* begin_to_enqueue = dest.data_->get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
-        dst.second = dest.data_.get();
+        dst.second = dest.data_->get();
         dst.second_size = nb_elts - dst.first_size;
     }
     else
@@ -265,7 +266,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
     // Use the source start index (first batch of frames in the queue) stream
     // An enqueue operation on this stream (if happens) is blocked until the
     // copy is completed. Make the copy according to the region
-    Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked]);
+    Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
 
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
@@ -285,5 +286,6 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts)
         dest.size_.store(dest.max_size_.load());
         dest.has_overridden_ = true;
     }
+    // std::cout << "3" << std::endl;
 }
 } // namespace holovibes

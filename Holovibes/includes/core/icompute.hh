@@ -19,6 +19,51 @@
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
 
+#include "settings/settings.hh"
+#include "settings/settings_container.hh"
+
+#pragma region Settings configuration
+// clang-format off
+
+#define REALTIME_SETTINGS                                        \
+    holovibes::settings::ImageType,                              \
+    holovibes::settings::X,                                      \
+    holovibes::settings::Y,                                      \
+    holovibes::settings::P,                                      \
+    holovibes::settings::Q,                                      \
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
+    holovibes::settings::Filter2d,                               \
+    holovibes::settings::CurrentWindow,                          \
+    holovibes::settings::LensViewEnabled,                        \
+    holovibes::settings::ChartDisplayEnabled,                    \
+    holovibes::settings::Filter2dEnabled,                        \
+    holovibes::settings::Filter2dViewEnabled,                    \
+    holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RawViewEnabled,                         \
+    holovibes::settings::CutsViewEnabled,                        \
+    holovibes::settings::RenormEnabled,                          \
+    holovibes::settings::ReticleScale,                           \
+    holovibes::settings::Filter2dN1,                             \
+    holovibes::settings::Filter2dN2,                             \
+    holovibes::settings::Filter2dSmoothLow,                      \
+    holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::TimeTransformationSize,                 \
+    holovibes::settings::TimeTransformation,                     \
+    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
+    holovibes::settings::CompositeKind,                          \
+    holovibes::settings::CompositeAutoWeights,                   \
+    holovibes::settings::RGB,                                    \
+    holovibes::settings::HSV
+
+#define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::BatchSize
+
+#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
+
+// clang-format on
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -28,44 +73,44 @@ namespace holovibes
 struct CoreBuffersEnv
 {
     /*! \brief Input buffer. Contains only one frame. We fill it with the input frame */
-    cuda_tools::UniquePtr<cufftComplex> gpu_spatial_transformation_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_spatial_transformation_buffer = nullptr;
 
     /*! \brief Float buffer. Contains only one frame.
      *
      * We fill it with the correct computed p frame converted to float.
      */
-    cuda_tools::UniquePtr<float> gpu_postprocess_frame = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame = nullptr;
     /*! \brief Size in components (size in byte / sizeof(float)) of the gpu_postprocess_frame.
      *
      * Could be removed by changing gpu_postprocess_frame type to cuda_tools::Array.
      */
     unsigned int gpu_postprocess_frame_size = 0;
     /*! \brief Float XZ buffer of 1 frame, filled with the correct computer p XZ frame. */
-    cuda_tools::UniquePtr<float> gpu_postprocess_frame_xz = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz = nullptr;
     /*! \brief Float YZ buffer of 1 frame, filled with the correct computed p YZ frame. */
-    cuda_tools::UniquePtr<float> gpu_postprocess_frame_yz = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz = nullptr;
 
     /*! \brief Unsigned Short output buffer of 1 frame, inserted after all postprocessing on float_buffer */
-    cuda_tools::UniquePtr<unsigned short> gpu_output_frame = nullptr;
+    cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame = nullptr;
     /*! \brief Unsigned Short XZ output buffer of 1 frame, inserted after all postprocessing on float_buffer_cut_xz */
-    cuda_tools::UniquePtr<unsigned short> gpu_output_frame_xz = nullptr;
+    cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame_xz = nullptr;
     /*! \brief Unsigned Short YZ output buffer of 1 frame, inserted after all postprocessing on float_buffer_cut_yz */
-    cuda_tools::UniquePtr<unsigned short> gpu_output_frame_yz = nullptr;
+    cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame_yz = nullptr;
 
     /*! \brief Contains only one frame used only for convolution */
-    cuda_tools::UniquePtr<float> gpu_convolution_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_convolution_buffer = nullptr;
 
     /*! \brief Complex filter2d frame used to store the output_frame */
-    cuda_tools::UniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
     /*! \brief Float Filter2d frame used to store the gpu_complex_filter2d_frame */
-    cuda_tools::UniquePtr<float> gpu_float_filter2d_frame = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_float_filter2d_frame = nullptr;
     /*! \brief Filter2d frame used to store the gpu_float_filter2d_frame */
-    cuda_tools::UniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
+    cuda_tools::CudaUniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
     /*! \brief Filter2d mask applied to gpu_spatial_transformation_buffer */
-    cuda_tools::UniquePtr<float> gpu_filter2d_mask = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_filter2d_mask = nullptr;
 
     /*! \brief InputFilter mask */
-    cuda_tools::UniquePtr<float> gpu_input_filter_mask = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_input_filter_mask = nullptr;
 };
 
 /*! \struct BatchEnv
@@ -105,7 +150,7 @@ struct TimeTransformationEnv
      *
      * Contains time_transformation_size frames.
      */
-    cuda_tools::UniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
     /*! \brief STFT XZ Queue. Contains the ouput of the STFT on slice XZ.
      *
      * Enqueued with gpu_float_buffer or gpu_ushort_buffer.
@@ -120,14 +165,14 @@ struct TimeTransformationEnv
     cuda_tools::CufftHandle stft_plan;
 
     /*! \brief Hold the P frame after the time transformation computation. */
-    cuda_tools::UniquePtr<cufftComplex> gpu_p_frame;
+    cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_frame;
 
     /*! \name PCA time transformation
      * \{
      */
-    cuda_tools::UniquePtr<cuComplex> pca_cov = nullptr;
-    cuda_tools::UniquePtr<float> pca_eigen_values = nullptr;
-    cuda_tools::UniquePtr<int> pca_dev_info = nullptr;
+    cuda_tools::CudaUniquePtr<cuComplex> pca_cov = nullptr;
+    cuda_tools::CudaUniquePtr<float> pca_eigen_values = nullptr;
+    cuda_tools::CudaUniquePtr<int> pca_dev_info = nullptr;
     /*! \} */
 };
 
@@ -137,8 +182,7 @@ struct TimeTransformationEnv
  */
 struct FrameRecordEnv
 {
-    std::unique_ptr<Queue> gpu_frame_record_queue_ = nullptr;
-    std::atomic<RecordMode> record_mode_{RecordMode::NONE};
+    std::unique_ptr<Queue> frame_record_queue_ = nullptr;
 };
 
 /*! \struct ChartEnv
@@ -160,17 +204,17 @@ struct ChartEnv
 struct ImageAccEnv
 {
     /*! \brief Frame to temporaly store the average on XY view */
-    cuda_tools::UniquePtr<float> gpu_float_average_xy_frame = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_float_average_xy_frame = nullptr;
     /*! \brief Queue accumulating the XY computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_xy_queue = nullptr;
 
     /*! \brief Frame to temporaly store the average on XZ view */
-    cuda_tools::UniquePtr<float> gpu_float_average_xz_frame = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_float_average_xz_frame = nullptr;
     /*! \brief Queue accumulating the XZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_xz_queue = nullptr;
 
     /*! \brief Frame to temporaly store the average on YZ axis */
-    cuda_tools::UniquePtr<float> gpu_float_average_yz_frame = nullptr;
+    cuda_tools::CudaUniquePtr<float> gpu_float_average_yz_frame = nullptr;
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
@@ -186,7 +230,110 @@ struct ImageAccEnv
 class ICompute
 {
   public:
-    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream);
+    template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
+    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
+        : gpu_input_queue_(input)
+        , gpu_output_queue_(output)
+        , stream_(stream)
+        , past_time_(std::chrono::high_resolution_clock::now())
+        , realtime_settings_(settings)
+        , pipe_refresh_settings_(settings)
+    {
+        int err = 0;
+
+        plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
+
+        const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
+        long long int n[] = {fd.height, fd.width};
+
+        // This plan has a useful significant memory cost, check XtplanMany comment
+        spatial_transformation_plan_.XtplanMany(2, // 2D
+                                                n, // Dimension of inner most & outer most dimension
+                                                n, // Storage dimension size
+                                                1, // Between two inputs (pixels) of same image distance is one
+                                                fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
+                                                CUDA_C_32F,         // Input type
+                                                n,
+                                                1,
+                                                fd.get_frame_res(),             // Ouput layout same as input
+                                                CUDA_C_32F,                     // Output type
+                                                setting<settings::BatchSize>(), // Batch size
+                                                CUDA_C_32F);                    // Computation type
+
+        int inembed[1];
+        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+
+        inembed[0] = setting<settings::TimeTransformationSize>();
+
+        time_transformation_env_.stft_plan
+            .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
+
+        camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
+        new_fd.depth = 8;
+        // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
+        time_transformation_env_.gpu_time_transformation_queue.reset(
+            new Queue(new_fd, setting<settings::TimeTransformationSize>()));
+
+        // Static cast size_t to avoid overflow
+        if (!buffers_.gpu_spatial_transformation_buffer.resize(
+                static_cast<const size_t>(setting<settings::BatchSize>()) * gpu_input_queue_.get_fd().get_frame_res()))
+            err++;
+
+        int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            image::grey_to_rgb_size(output_buffer_size);
+        if (!buffers_.gpu_output_frame.resize(output_buffer_size))
+            err++;
+        buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+
+        if (setting<settings::ImageType>() == ImgType::Composite)
+            image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
+
+        if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        // Init the gpu_p_frame with the size of input image
+        if (!time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
+            err++;
+
+        if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
+            err++;
+
+        if (!buffers_.gpu_input_filter_mask.resize(output_buffer_size))
+            err++;
+
+        if (err != 0)
+            throw std::exception(cudaGetErrorString(cudaGetLastError()));
+    }
+
+    template <typename T>
+    inline void update_setting_icompute(T setting)
+    {
+        spdlog::info("[ICompute] [update_setting] {}", typeid(T).name());
+
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            realtime_settings_.update_setting(setting);
+        }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            pipe_refresh_settings_.update_setting(setting);
+        }
+    }
+
+    inline void icompute_pipe_refresh_apply_updates() {
+        pipe_refresh_settings_.apply_updates();
+    }
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
@@ -207,9 +354,7 @@ class ICompute
     void request_disable_raw_view();
     void request_filter2d_view();
     void request_disable_filter2d_view();
-    void request_hologram_record();
-    void request_raw_record();
-    void request_cuts_record(RecordMode rm);
+    void request_frame_record();
     void request_disable_frame_record();
     void request_clear_img_acc();
     void request_convolution();
@@ -256,9 +401,7 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
     bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
     bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
-    bool get_hologram_record_requested() const { return hologram_record_requested_; }
-    bool get_raw_record_requested() const { return raw_record_requested_; }
-    bool get_cuts_record_requested() const { return cuts_record_requested_; }
+    bool get_frame_record_requested() const { return frame_record_requested_; }
     bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
     bool get_convolution_requested() const { return convolution_requested_; }
     bool get_disable_convolution_requested() const { return convolution_requested_; }
@@ -276,7 +419,7 @@ class ICompute
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
     virtual std::unique_ptr<Queue>& get_frame_record_queue();
-
+    
   protected:
     virtual void refresh() = 0;
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
@@ -367,9 +510,7 @@ class ICompute
     std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<bool> hologram_record_requested_{false};
-    std::atomic<bool> raw_record_requested_{false};
-    std::atomic<bool> cuts_record_requested_{false};
+    std::atomic<bool> frame_record_requested_{false};
     std::atomic<bool> disable_frame_record_requested_{false};
     std::atomic<bool> request_clear_img_accu{false};
     std::atomic<bool> convolution_requested_{false};
@@ -377,12 +518,33 @@ class ICompute
     std::atomic<bool> filter_requested_{false};
     std::atomic<bool> disable_filter_requested_{false};
 
-    ComputeCache::Cache compute_cache_;
-    ExportCache::Cache export_cache_;
-    CompositeCache::Cache composite_cache_;
-    Filter2DCache::Cache filter2d_cache_;
-    ViewCache::Cache view_cache_;
-    AdvancedCache::Cache advanced_cache_;
-    ZoneCache::Cache zone_cache_;
+    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+
+
+  private:
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        {
+            return realtime_settings_.get<T>().value;
+        }
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            return pipe_refresh_settings_.get<T>().value;
+        }
+    }
+};
+} // namespace holovibes
+
+namespace holovibes
+{
+template <typename T>
+struct has_setting<T, ICompute> : is_any_of<T, ALL_SETTINGS>
+{
 };
 } // namespace holovibes
