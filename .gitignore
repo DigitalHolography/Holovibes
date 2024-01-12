@@ -69,3 +69,4 @@ venv/
 
 # spdlog
 libs/spdlog/build
+CMakeUserPresets.json
