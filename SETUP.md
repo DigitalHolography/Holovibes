@@ -9,8 +9,7 @@
 **Tick *Add Python 3.8 to PATH***
 - [conan](https://conan.io/) <br>
 ```sh
-pip install conan
-conan profile detect --force
+pip install conan && conan profile detect --force
 ```
 
 # Support for camera and frames grabbers
