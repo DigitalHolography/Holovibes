@@ -19,8 +19,7 @@
 namespace holovibes::compute
 {
 
-void Converts::insert_to_float(bool unwrap_2d_requested,
-                               float* buffers_gpu_postprocess_frame)
+void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
     ImgType img_type = setting<settings::ImageType>();
@@ -72,7 +71,9 @@ void Converts::insert_compute_p_accu()
             auto p = setting<settings::P>();
             pmin_ = p.start;
             if (p.width != 0)
-                pmax_ = std::max(0, std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
+                pmax_ = std::max(
+                    0,
+                    std::min<int>(pmin_ + p.width, static_cast<int>(setting<settings::TimeTransformationSize>())));
             else
                 pmax_ = p.start;
         });
@@ -126,6 +127,7 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                 return;
 
             if (setting<settings::CompositeKind>() == CompositeKind::RGB)
+            {
                 rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
                     gpu_postprocess_frame,
                     fd_.get_frame_res(),
@@ -134,7 +136,30 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     rgb_struct.frame_index.max,
                     rgb_struct.weight,
                     stream_);
+                    
+                if (setting<settings::CompositeAutoWeights>())
+                {
+                    const uchar pixel_depth = 3;
+                    const int factor = 10;
+                    float* averages = new float[pixel_depth];
+                    postcolor_normalize(gpu_postprocess_frame,
+                                        fd_.height,
+                                        fd_.width,
+                                        setting<settings::CompositeZone>(),
+                                        pixel_depth,
+                                        averages,
+                                        stream_);
+                    if (pixel_depth >= 3)
+                    {
+                        double max = std::max(std::max(averages[0], averages[1]), averages[2]);
+                        api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                            (static_cast<double>(averages[1]) / max) * factor,
+                                            (static_cast<double>(averages[2]) / max) * factor);
+                    }
+                }
+            }
             else
+            {
                 hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
                     gpu_postprocess_frame,
                     fd_.width,
@@ -142,26 +167,6 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     stream_,
                     time_transformation_size,
                     setting<settings::HSV>());
-
-            if (setting<settings::CompositeAutoWeights>())
-            {
-                const uchar pixel_depth = 3;
-                const int factor = 10;
-                float* averages = new float[pixel_depth];
-                postcolor_normalize(gpu_postprocess_frame,
-                                    fd_.height,
-                                    fd_.width,
-                                    setting<settings::CompositeZone>(),
-                                    pixel_depth,
-                                    averages,
-                                    stream_);
-                if (pixel_depth >= 3)
-                {
-                    double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                                   (static_cast<double>(averages[1]) / max) * factor,
-                                                   (static_cast<double>(averages[2]) / max) * factor);
-                }
             }
         });
 }
@@ -218,15 +223,15 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
     }
 }
 
-void Converts::insert_to_phase_increase(bool unwrap_2d_requested,
-                                        float* gpu_postprocess_frame)
+void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame)
 {
     LOG_FUNC(unwrap_2d_requested);
 
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(new UnwrappingResources(setting<settings::UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
+            unwrap_res_.reset(
+                new UnwrappingResources(setting<settings::UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
         unwrap_res_->reset(setting<settings::UnwrapHistorySize>());
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
@@ -266,10 +271,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested,
         else
             fn_compute_vect_.conditional_push_back(
                 [=]() {
-                    rescale_float(unwrap_res_->gpu_angle_current_,
-                                  gpu_postprocess_frame,
-                                  fd_.get_frame_res(),
-                                  stream_);
+                    rescale_float(unwrap_res_->gpu_angle_current_, gpu_postprocess_frame, fd_.get_frame_res(), stream_);
                 });
     }
     catch (std::exception& e)
@@ -305,7 +307,7 @@ void Converts::insert_slice_ushort()
                             buffers_.gpu_postprocess_frame_xz_size,
                             stream_);
             */
-           float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
+            float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
                             buffers_.gpu_output_frame_xz.get(),
                             time_transformation_env_.gpu_output_queue_xz->get_fd().get_frame_res(),
                             stream_);
