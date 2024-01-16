@@ -8,8 +8,9 @@
 - [Python 3.8.10](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe) <br>
 **Tick *Add Python 3.8 to PATH***
 - [conan](https://conan.io/) <br>
-*pip install conan*, <br>
-*conan profile detect --force*
+```sh
+pip install conan && conan profile detect --force
+```
 
 # Support for camera and frames grabbers
 Optional support for bitflow frames grabber and euresys frames grabber is provided through
