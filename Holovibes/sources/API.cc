@@ -830,7 +830,7 @@ void set_space_transformation(const SpaceTransformation value)
 void set_time_transformation(const TimeTransformation value) 
 { 
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
-
+    api::set_z_fft_shift(value == TimeTransformation::STFT);
 }
 
 void set_unwrapping_2d(const bool value)

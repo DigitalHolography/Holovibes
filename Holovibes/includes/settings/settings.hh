@@ -199,6 +199,7 @@ DECLARE_SETTING(CompositeKind, holovibes::CompositeKind)
 DECLARE_SETTING(CompositeAutoWeights, bool)
 DECLARE_SETTING(RGB, holovibes::CompositeRGB)
 DECLARE_SETTING(HSV, holovibes::CompositeHSV)
+DECLARE_SETTING(ZFFTShift, bool)
 
 DECLARE_SETTING(RecordQueueOnGPU, bool)
 } // namespace holovibes::settings

@@ -136,7 +136,7 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     rgb_struct.frame_index.max,
                     rgb_struct.weight,
                     stream_);
-                    
+
                 if (setting<settings::CompositeAutoWeights>())
                 {
                     const uchar pixel_depth = 3;
@@ -166,7 +166,8 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     fd_.height,
                     stream_,
                     time_transformation_size,
-                    setting<settings::HSV>());
+                    setting<settings::HSV>(),
+                    setting<settings::ZFFTShift>());
             }
         });
 }

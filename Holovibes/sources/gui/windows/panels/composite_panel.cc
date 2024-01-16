@@ -95,6 +95,14 @@ void CompositePanel::on_notify()
     ui_->groupBox_hue->setVisible(!rgbMode);
     ui_->groupBox_saturation->setVisible(!rgbMode);
     ui_->groupBox_value->setVisible(!rgbMode);
+
+    ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
+}
+
+void CompositePanel::click_z_fft_shift(bool checked) {
+    api::set_z_fft_shift(checked);
+
+    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals()

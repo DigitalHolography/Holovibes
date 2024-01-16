@@ -1501,6 +1501,19 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="zFFTShiftCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <kerning>true</kerning>
+            </font>
+           </property>
+           <property name="text">
+            <string>Z FFT Shift</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>Frequency channels (p)</string>
@@ -4287,6 +4300,12 @@ p, li { white-space: pre-wrap; }
      <y>255</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>zFFTShiftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>click_z_fft_shift(bool)</slot>
   </connection>
   <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
