@@ -137,9 +137,10 @@ inline bool operator==(const CompositeChannel& lhs, const CompositeChannel& rhs)
  */
 struct CompositeH : public CompositeChannel
 {
+    Threshold slider_shift = {0.0f, 1.0f};
     Blur blur;
 
-    SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, blur)
+    SERIALIZE_JSON_STRUCT(CompositeH, frame_index, slider_threshold, threshold, slider_shift, blur)
 };
 
 inline bool operator==(const CompositeH& lhs, const CompositeH& rhs)

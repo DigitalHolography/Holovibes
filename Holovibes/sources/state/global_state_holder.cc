@@ -2,46 +2,6 @@
  *
  */
 
-// clang-format off
-
-#define GET_VIEW_MEMBER(type, member)                                        \
-    ({                                                                       \
-        type result;                                                         \
-        auto window = api::get_current_window_type();                        \
-        if (window == WindowKind::Filter2D)                                  \
-            result = api::get_filter2d().member;                             \
-        else                                                                 \
-            result = GET_XYZ_MEMBER(type, member);                           \
-        result;                                                              \
-    })                                                                       \
-
-#define GET_XYZ_MEMBER(type, member)                                         \
-    ({                                                                       \
-        type result;                                                         \
-        auto window = api::get_current_window_type();                        \
-        if (window == WindowKind::XYview) {                                  \
-            result = api::get_xy().member;                                   \
-        } else if (window == WindowKind::XZview) {                           \
-            result = api::get_xz().member;                                   \
-        } else {                                                             \
-            result = api::get_yz().member;                                   \
-        }                                                                    \
-        result;                                                              \
-    })
-
-#define SET_XYZ_MEMBER(member, value)                                        \
-    ({                                                                       \
-        auto window = api::get_current_window_type();                        \
-        if (window == WindowKind::XYview) {                                  \
-            api::set_xy_##member(value);                                     \
-        } else if (window == WindowKind::XZview) {                           \
-            api::set_xz_##member(value);                                     \
-        } else {                                                             \
-            api::set_yz_##member(value);                                     \
-        }                                                                    \
-    })
-// clang-format on
-
 #include <iostream>
 #include "global_state_holder.hh"
 
@@ -62,6 +22,39 @@ GSH& GSH::instance()
     return *instance_;
 }
 
+template <typename T>
+static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_member)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        return filter2d_member;
+    return get_xyz_member(xy_member, xz_member, yz_member);
+}
+
+template <typename T>
+static T get_xyz_member(T xy_member, T xz_member, T yz_member)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        return xy_member;
+    else if (window == WindowKind::XZview)
+        return xz_member;
+    else
+        return yz_member;
+}
+
+template <typename T, typename U>
+static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        xy_member(value);
+    else if (window == WindowKind::XZview)
+        xz_member(value);
+    else
+        yz_member(value);
+}
+
 #pragma region(collapsed) GETTERS
 
 bool GSH::is_current_window_xyz_type() const
@@ -72,14 +65,29 @@ bool GSH::is_current_window_xyz_type() const
 
 float GSH::get_contrast_min() const
 {
-    return GET_VIEW_MEMBER(bool, log_enabled) ? GET_VIEW_MEMBER(float, contrast.min)
-                                              : log10(GET_VIEW_MEMBER(float, contrast.min));
+    bool log_enabled = get_view_member(api::get_filter2d_log_enabled(),
+                                       api::get_xy_log_enabled(),
+                                       api::get_xz_log_enabled(),
+                                       api::get_yz_log_enabled());
+    float contrast_min = get_view_member(api::get_filter2d_contrast_min(),
+                                         api::get_xy_contrast_min(),
+                                         api::get_xz_contrast_min(),
+                                         api::get_yz_contrast_min());
+    return log_enabled ? contrast_min : log10(contrast_min);
 }
 
 float GSH::get_contrast_max() const
 {
-    return GET_VIEW_MEMBER(bool, log_enabled) ? GET_VIEW_MEMBER(float, contrast.max)
-                                              : log10(GET_VIEW_MEMBER(float, contrast.max));
+    bool log_enabled = get_view_member(api::get_filter2d_log_enabled(),
+                                       api::get_xy_log_enabled(),
+                                       api::get_xz_log_enabled(),
+                                       api::get_yz_log_enabled());
+    float contrast_max = get_view_member(api::get_filter2d_contrast_max(),
+                                         api::get_xy_contrast_max(),
+                                         api::get_xz_contrast_max(),
+                                         api::get_yz_contrast_max());
+
+    return log_enabled ? contrast_max : log10(contrast_max);
 }
 
 double GSH::get_rotation() const
@@ -87,7 +95,7 @@ double GSH::get_rotation() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    return GET_XYZ_MEMBER(double, rotation);
+    return get_xyz_member(api::get_xy_rotation(), api::get_xz_rotation(), api::get_yz_rotation());
 }
 
 bool GSH::get_horizontal_flip() const
@@ -96,31 +104,49 @@ bool GSH::get_horizontal_flip() const
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    return GET_XYZ_MEMBER(double, horizontal_flip);
+    return get_xyz_member(api::get_xy_horizontal_flip(), api::get_xz_horizontal_flip(), api::get_yz_horizontal_flip());
 }
 
-bool GSH::get_log_enabled() const { return GET_VIEW_MEMBER(bool, log_enabled); }
+bool GSH::get_log_enabled() const
+{
+    return get_view_member(api::get_filter2d_log_enabled(),
+                           api::get_xy_log_enabled(),
+                           api::get_xz_log_enabled(),
+                           api::get_yz_log_enabled());
+}
 
 unsigned GSH::get_accumulation_level() const
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    return GET_XYZ_MEMBER(double, output_image_accumulation);
+    return get_xyz_member(api::get_xy_accumulation_level(),
+                          api::get_xz_accumulation_level(),
+                          api::get_yz_accumulation_level());
 }
 
 bool GSH::get_contrast_enabled() const noexcept
 {
-    return GET_VIEW_MEMBER(bool, contrast.enabled);
+    return get_view_member(api::get_filter2d_contrast_enabled(),
+                           api::get_xy_contrast_enabled(),
+                           api::get_xz_contrast_enabled(),
+                           api::get_yz_contrast_enabled());
 }
 
 bool GSH::get_contrast_auto_refresh() const noexcept
 {
-    return GET_VIEW_MEMBER(bool, contrast.auto_refresh);
+    return get_view_member(api::get_filter2d_contrast_auto_refresh(),
+                           api::get_xy_contrast_auto_refresh(),
+                           api::get_xz_contrast_auto_refresh(),
+                           api::get_yz_contrast_auto_refresh());
 }
 
-bool GSH::get_contrast_invert() const noexcept {
-    return GET_VIEW_MEMBER(bool, contrast.invert);
+bool GSH::get_contrast_invert() const noexcept
+{
+    return get_view_member(api::get_filter2d_contrast_invert(),
+                           api::get_xy_contrast_invert(),
+                           api::get_xz_contrast_invert(),
+                           api::get_yz_contrast_invert());
 }
 
 #pragma endregion
@@ -134,7 +160,7 @@ void GSH::set_contrast_enabled(bool value)
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_enabled(value);
     else
-        SET_XYZ_MEMBER(contrast_enabled, value);
+        set_xyz_member(api::set_xy_contrast_enabled, api::set_xz_contrast_enabled, api::set_yz_contrast_enabled, value);
 }
 
 void GSH::set_contrast_auto_refresh(bool value)
@@ -143,15 +169,19 @@ void GSH::set_contrast_auto_refresh(bool value)
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_auto_refresh(value);
     else
-        SET_XYZ_MEMBER(contrast_auto_refresh, value);
+        set_xyz_member(api::set_xy_contrast_auto_refresh,
+                       api::set_xz_contrast_auto_refresh,
+                       api::set_yz_contrast_auto_refresh,
+                       value);
 }
 
-void GSH::set_contrast_invert(bool value) { 
+void GSH::set_contrast_invert(bool value)
+{
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_invert(value);
     else
-        SET_XYZ_MEMBER(contrast_invert, value);
+        set_xyz_member(api::set_xy_contrast_invert, api::set_xz_contrast_invert, api::set_yz_contrast_invert, value);
 }
 
 void GSH::set_contrast_min(float value)
@@ -161,7 +191,7 @@ void GSH::set_contrast_min(float value)
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_min(value);
     else
-        SET_XYZ_MEMBER(contrast_min, value);
+        set_xyz_member(api::set_xy_contrast_min, api::set_xz_contrast_min, api::set_yz_contrast_min, value);
 }
 
 void GSH::set_contrast_max(float value)
@@ -171,7 +201,7 @@ void GSH::set_contrast_max(float value)
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_max(value);
     else
-        SET_XYZ_MEMBER(contrast_max, value);
+        set_xyz_member(api::set_xy_contrast_max, api::set_xz_contrast_max, api::set_yz_contrast_max, value);
 }
 
 void GSH::set_log_enabled(bool value)
@@ -180,14 +210,17 @@ void GSH::set_log_enabled(bool value)
     if (window == WindowKind::Filter2D)
         api::set_filter2d_log_enabled(value);
     else
-        SET_XYZ_MEMBER(log_enabled, value);
+        set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
 }
 
 void GSH::set_accumulation_level(int value)
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    SET_XYZ_MEMBER(accumulation_level, value);
+    set_xyz_member(api::set_xy_accumulation_level,
+                   api::set_xz_accumulation_level,
+                   api::set_yz_accumulation_level,
+                   value);
 }
 
 void GSH::set_rotation(double value)
@@ -195,7 +228,7 @@ void GSH::set_rotation(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    SET_XYZ_MEMBER(rotation, value);
+    set_xyz_member(api::set_xy_rotation, api::set_xz_rotation, api::set_yz_rotation, value);
 }
 
 void GSH::set_horizontal_flip(double value)
@@ -203,22 +236,22 @@ void GSH::set_horizontal_flip(double value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    SET_XYZ_MEMBER(horizontal_flip, value);
+    set_xyz_member(api::set_xy_horizontal_flip, api::set_xz_horizontal_flip, api::set_yz_horizontal_flip, value);
 }
 
 void GSH::set_composite_p_h()
 {
-    //this->notify();
+    // this->notify();
 }
 
 void GSH::set_rgb_p()
 {
-    //this->notify();
+    // this->notify();
 }
 
 void GSH::set_weight_rgb()
 {
-    //this->notify();
+    // this->notify();
 }
 
 static void load_convolution_matrix(std::vector<float> convo_matrix, const std::string& file)
