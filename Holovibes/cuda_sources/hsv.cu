@@ -106,8 +106,11 @@ void normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_re
 }
 
 /// @brief get the real z value, because of the FFT frequency shift
-__device__ float get_real_z(size_t z, int depth)
+__device__ float get_real_z(size_t z, int depth, bool z_fft_shift)
 {
+    if (!z_fft_shift)
+        return (float)z;
+
     if ((float)z < (float)depth / 2.0f)
         return (float)z;
     else if (z == depth / 2)
@@ -128,7 +131,8 @@ __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
                                           const size_t frame_res,
                                           const uint min_h_index,
                                           const uint max_h_index,
-                                          int depth)
+                                          int depth,
+                                          bool z_fft_shift)
 {
     size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
@@ -142,7 +146,7 @@ __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
             float input_elm = get_input_elm(current_p_frame[id]);
 
-            size_t real_z = get_real_z(z, depth);
+            size_t real_z = get_real_z(z, depth, z_fft_shift);
             num += input_elm * real_z;
             denom += input_elm;
         }
@@ -156,7 +160,8 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* gpu_input,
                                           const size_t frame_res,
                                           const uint min_s_index,
                                           const uint max_s_index,
-                                          int depth)
+                                          int depth,
+                                          bool z_fft_shift)
 {
     size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
@@ -171,7 +176,7 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* gpu_input,
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
             float input_elm = get_input_elm(current_p_frame[id]);
 
-            num += input_elm * get_real_z(z, depth);
+            num += input_elm * get_real_z(z, depth, z_fft_shift);
             denom += input_elm;
         }
         float avg = (denom == 0.0f ? 0.0f : num / denom);
@@ -183,7 +188,7 @@ __global__ void kernel_compute_and_fill_s(const cuComplex* gpu_input,
             const cuComplex* current_p_frame = gpu_input + (z * frame_res);
             float input_elm = get_input_elm(current_p_frame[id]);
 
-            float centered_z = get_real_z(z, depth) - avg;
+            float centered_z = get_real_z(z, depth, z_fft_shift) - avg;
             num += input_elm * centered_z * centered_z;
         }
 
@@ -195,8 +200,7 @@ __global__ void kernel_compute_and_fill_v(const cuComplex* gpu_input,
                                           float* gpu_output,
                                           const size_t frame_res,
                                           const uint min_v_index,
-                                          const uint max_v_index,
-                                          int depth)
+                                          const uint max_v_index)
 {
     size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if (id < frame_res)
@@ -220,7 +224,8 @@ void compute_and_fill_h(const cuComplex* gpu_input,
                         const size_t frame_res,
                         const holovibes::CompositeHSV& hsv_struct,
                         const cudaStream_t stream,
-                        int depth)
+                        int depth,
+                        bool z_fft_shift)
 {
     const uint min_h_index = hsv_struct.h.frame_index.min;
     const uint max_h_index = hsv_struct.h.frame_index.max;
@@ -234,7 +239,8 @@ void compute_and_fill_h(const cuComplex* gpu_input,
                                                               frame_res,
                                                               min_h_index,
                                                               max_h_index,
-                                                              depth);
+                                                              depth,
+                                                              z_fft_shift);
     cudaCheckError();
 }
 
@@ -243,7 +249,8 @@ void compute_and_fill_s(const cuComplex* gpu_input,
                         const size_t frame_res,
                         const holovibes::CompositeHSV& hsv_struct,
                         const cudaStream_t stream,
-                        int depth)
+                        int depth,
+                        bool z_fft_shift)
 {
     const uint min_s_index =
         hsv_struct.s.frame_index.activated ? hsv_struct.s.frame_index.min : hsv_struct.h.frame_index.min;
@@ -259,7 +266,8 @@ void compute_and_fill_s(const cuComplex* gpu_input,
                                                               frame_res,
                                                               min_s_index,
                                                               max_s_index,
-                                                              depth);
+                                                              depth,
+                                                              z_fft_shift);
     cudaCheckError();
 }
 
@@ -267,8 +275,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
                         float* gpu_output,
                         const size_t frame_res,
                         const holovibes::CompositeHSV& hsv_struct,
-                        const cudaStream_t stream,
-                        int depth)
+                        const cudaStream_t stream)
 {
     const uint min_v_index =
         hsv_struct.v.frame_index.activated ? hsv_struct.v.frame_index.min : hsv_struct.h.frame_index.min;
@@ -283,8 +290,7 @@ void compute_and_fill_v(const cuComplex* gpu_input,
                                                               gpu_v_output,
                                                               frame_res,
                                                               min_v_index,
-                                                              max_v_index,
-                                                              depth);
+                                                              max_v_index);
     cudaCheckError();
 }
 
@@ -294,11 +300,12 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                           const size_t frame_res,
                           const holovibes::CompositeHSV& hsv_struct,
                           const cudaStream_t stream,
-                          int depth)
+                          int depth,
+                          bool z_fft_shift)
 {
-    compute_and_fill_h(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth);
-    compute_and_fill_s(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth);
-    compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth);
+    compute_and_fill_h(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth, z_fft_shift);
+    compute_and_fill_s(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth, z_fft_shift);
+    compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream);
 }
 
 // Apply a box blur on the specified array
@@ -503,13 +510,14 @@ void hsv(const cuComplex* gpu_input,
          const uint height,
          const cudaStream_t stream,
          const int time_transformation_size,
-         const holovibes::CompositeHSV& hsv_struct)
+         const holovibes::CompositeHSV& hsv_struct,
+         bool z_fft_shift)
 {
     const uint frame_res = height * width;
 
     float* tmp_hsv_arr = nullptr;
     cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
-    compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size);
+    compute_and_fill_hsv(gpu_input, tmp_hsv_arr, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
 
     apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
 

@@ -1020,6 +1020,11 @@ inline bool get_composite_auto_weights() noexcept
     return holovibes::Holovibes::instance().get_setting<settings::CompositeAutoWeights>().value;
 }
 
+inline bool get_z_fft_shift() noexcept
+{
+    return holovibes::Holovibes::instance().get_setting<settings::ZFFTShift>().value;
+}
+
 // RGB
 inline CompositeRGB get_rgb() noexcept { return holovibes::Holovibes::instance().get_setting<settings::RGB>().value; }
 inline uint get_rgb_p_min() noexcept
@@ -1207,6 +1212,12 @@ inline void set_weight_rgb(double r, double g, double b)
 }
 
 // HSV
+
+inline void set_z_fft_shift(bool checked)
+{
+    Holovibes::instance().update_setting(settings::ZFFTShift{checked});
+}
+
 inline void set_composite_p_h(int min, int max, bool notify = false)
 {
     holovibes::CompositeHSV hsv = get_hsv();

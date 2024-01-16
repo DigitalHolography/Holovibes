@@ -106,6 +106,7 @@
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
+    holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -422,6 +423,7 @@ class Holovibes
                                              settings::CompositeAutoWeights{false},
                                              settings::RGB{CompositeRGB{}},
                                              settings::HSV{CompositeHSV{}},
+                                             settings::ZFFTShift{false},
                                              settings::RecordQueueOnGPU{false}))
     {
     }

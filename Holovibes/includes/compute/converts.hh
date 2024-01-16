@@ -31,6 +31,7 @@
     holovibes::settings::CompositeKind,            \
     holovibes::settings::CompositeAutoWeights,     \
     holovibes::settings::HSV,                      \
+    holovibes::settings::ZFFTShift,                \
     holovibes::settings::CompositeZone,            \
     holovibes::settings::UnwrapHistorySize
 

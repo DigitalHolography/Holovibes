@@ -25,6 +25,10 @@ class CompositePanel : public Panel
     void on_notify() override;
 
   public slots:
+
+    /*! \brief Enable or disable the FFT shift on Z axis */
+    void click_z_fft_shift(bool checked);
+
     /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
     void set_composite_intervals();
 

@@ -68,6 +68,7 @@
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
+    holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode
 
