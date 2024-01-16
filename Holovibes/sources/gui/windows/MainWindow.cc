@@ -365,6 +365,10 @@ void MainWindow::load_gui()
 
     set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
 
+    setBaseSize(json_get_or_default(j_us, 879, "main window", "width"), json_get_or_default(j_us, 470, "main window", "height"));
+    resize(baseSize());
+    move(json_get_or_default(j_us, 560, "main window", "x"), json_get_or_default(j_us, 290, "main window", "y"));
+
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
     auxiliary_window_max_size =
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
@@ -412,12 +416,19 @@ void MainWindow::save_gui()
     if (holovibes::settings::user_settings_filepath.empty())
         return;
 
-    json j_us;
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
 
     j_us["display"]["theme"] = theme_;
 
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
+
+    j_us["main window"]["width"] = size().width();
+    j_us["main window"]["height"] = size().height();
+    j_us["main window"]["x"] = pos().x();
+    j_us["main window"]["y"] = pos().y();
 
     j_us["display"]["refresh rate"] = api::get_display_rate();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
@@ -431,7 +442,6 @@ void MainWindow::save_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
 
-    auto path = holovibes::settings::user_settings_filepath;
     std::ofstream file(path);
     file << j_us.dump(1);
 

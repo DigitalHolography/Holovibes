@@ -149,7 +149,7 @@ void ImportPanel::import_start()
     if (!api::get_is_computation_stopped())
         import_stop();
 
-    parent_->shift_screen();
+    //parent_->shift_screen();
 
     bool res_import_start = api::import_start();
 

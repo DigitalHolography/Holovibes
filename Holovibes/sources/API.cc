@@ -93,6 +93,8 @@ bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
 
 void close_windows()
 {
+    if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
+        UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
@@ -196,14 +198,37 @@ void create_pipe()
     }
 }
 
+QPoint getSavedHoloWindowPos()
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int x = json_get_or_default(j_us, 0, "holo window", "x");
+    int y = json_get_or_default(j_us, 0, "holo window", "y");
+    return QPoint(x, y);
+}
+
+QSize getSavedHoloWindowSize(ushort& width, ushort& height)
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int final_width = json_get_or_default(j_us, width, "holo window", "width");
+    int final_height = json_get_or_default(j_us, height, "holo window", "height");
+    return QSize(final_width, final_height);
+}
+
 void set_raw_mode(uint window_max_size)
 {
-    QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_max_size);
-    QSize size(width, height);
+
+    QPoint pos = getSavedHoloWindowPos();
+    QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
     set_compute_mode(Computation::Raw);
@@ -222,12 +247,13 @@ void set_raw_mode(uint window_max_size)
 
 void create_holo_window(ushort window_size)
 {
-    QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_size);
-    QSize size(width, height);
+
+    QPoint pos = getSavedHoloWindowPos();
+    QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
     try
