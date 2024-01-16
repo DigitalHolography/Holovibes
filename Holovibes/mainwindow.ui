@@ -1709,7 +1709,7 @@
               <item row="5" column="0" colspan="5">
                <widget class="QLabel" name="label_28">
                 <property name="text">
-                 <string>Shift</string>
+                 <string>H Streching</string>
                 </property>
                </widget>
               </item>
@@ -2052,7 +2052,7 @@
               <item row="2" column="0" colspan="5">
                <widget class="QLabel" name="label_saturation_threshold">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>S Streching</string>
                 </property>
                </widget>
               </item>
@@ -2260,7 +2260,7 @@
               <item row="3" column="0" colspan="5">
                <widget class="QLabel" name="label_value_threshold">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>V Streching</string>
                 </property>
                </widget>
               </item>
