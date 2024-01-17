@@ -62,7 +62,7 @@ class Queue final : public DisplayQueue
 
     /*! \return Pointer to internal buffer that contains data. */
     // void* get_data() const { return (gpu_ ? (void*)(std::get<0>(data_)) : (void*)(&std::get<1>(data_))); }
-    void* get_data() const { return *data_; }
+    void* get_data() const { return data_; }
 
     /*! \return The number of elements the Queue currently contains. */
     unsigned int get_size() const { return size_; }
@@ -72,14 +72,14 @@ class Queue final : public DisplayQueue
 
     /*! \return Pointer to first frame. */
     // void* get_start() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + start_index_ * fd_.get_frame_size(); }
-    void* get_start() const { return data_->get() + start_index_ * fd_.get_frame_size(); }
+    void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
     // void* get_end() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
-    void* get_end() const { return data_->get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
+    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
     void* get_last_image() const override
@@ -87,7 +87,7 @@ class Queue final : public DisplayQueue
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
         // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
-        return data_->get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
     }
 
     /*! \return Index of the frame right after the last one containing data */
@@ -264,7 +264,7 @@ class Queue final : public DisplayQueue
     const bool is_big_endian_;
     /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
     // std::variant<cuda_tools::CudaUniquePtr<char>,cuda_tools::CPUUniquePtr<char>> data_;
-    std::shared_ptr<cuda_tools::UniquePtr<char>> data_;
+    cuda_tools::UniquePtr<char> data_;
 
     /*! \brief Whether frames have been overridden during an enqueue. */
     bool has_overridden_;

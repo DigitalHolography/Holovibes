@@ -27,7 +27,7 @@ class Queue;
 
 /*! \class BatchInputQueue
  *
- * \brief #TODO Add a description for this class
+ * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be read and written simultaneously
  *
  * Conditons:
  *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer

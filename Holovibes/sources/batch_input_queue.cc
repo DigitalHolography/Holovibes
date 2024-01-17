@@ -286,12 +286,12 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     struct Queue::QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
 
-    char* begin_to_enqueue = dest.data_->get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
+    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
-        dst.second = dest.data_->get();
+        dst.second = dest.data_.get();
         dst.second_size = nb_elts - dst.first_size;
     }
     else

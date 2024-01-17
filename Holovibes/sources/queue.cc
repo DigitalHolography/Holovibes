@@ -31,11 +31,11 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , gpu_(std::get<2>(*fast_updates_entry_))
 {
     gpu_ = gpu;
-    data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
+    data_ = cuda_tools::UniquePtr<char>(gpu_);
 
     max_size_ = max_size;
 
-    if (max_size_ == 0 || !data_->resize(fd_.get_frame_size() * max_size_))
+    if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
 
@@ -44,11 +44,11 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
     // // Needed if input is embedded into a bigger square
     // if (gpu_)
-    //     cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    //     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     // else
-    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
-    cudaXMemset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     
 
     fd_.byteEndian = Endianness::LittleEndian;
@@ -60,7 +60,7 @@ void Queue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, 
     fd_ = fd;
     if (gpu_ != gpu) {
         gpu_ = gpu;
-        data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
+        data_ = cuda_tools::UniquePtr<char>(gpu_);
     }
     resize(size, stream);
 }
@@ -71,7 +71,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     max_size_ = size;
 
-    if (max_size_ == 0 || !data_->resize(fd_.get_frame_size() * max_size_))
+    if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not resize queue");
         throw std::logic_error("Could not resize queue");
@@ -79,13 +79,13 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     // Needed if input is embedded into a bigger square
     // if (gpu_) {
-    //     cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    //     cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
     //     cudaXStreamSynchronize(stream);
     // }
     // else
-    //     std::memset(data_->get(), 0, fd_.get_frame_size() * max_size_);
+    //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
-    cudaXMemsetAsync(data_->get(), 0, fd_.get_frame_size() * max_size_, stream);
+    cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
     cudaXStreamSynchronize(stream);
 
 
@@ -98,7 +98,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     MutexGuard mGuard(mutex_);
 
     const uint end_ = (start_index_ + size_) % max_size_;
-    char* new_elt_adress = data_->get() + (end_ * fd_.get_frame_size());
+    char* new_elt_adress = data_.get() + (end_ * fd_.get_frame_size());
 
     cudaError_t cuda_status;
     // No async needed for Qt buffer
@@ -108,7 +108,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (cuda_status) // 0 = CUDA_SUCCESS
     {
         LOG_ERROR("Queue: could not enqueue: {}", std::string(cudaGetErrorString(cuda_status)));
-        data_->reset();
+        data_.reset();
         return false;
     }
 
@@ -167,7 +167,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
     {
         src.first = static_cast<char*>(get_start());
         src.first_size = max_size_ - start_index_;
-        src.second = data_->get();
+        src.second = data_.get();
         src.second_size = nb_elts - src.first_size;
     }
     else
@@ -178,12 +178,12 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
 
     struct QueueRegion dst;
     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
-    char* begin_to_enqueue = dest.data_->get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
+    char* begin_to_enqueue = dest.data_.get() + (begin_to_enqueue_index * dest.fd_.get_frame_size());
     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
     {
         dst.first = begin_to_enqueue;
         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
-        dst.second = dest.data_->get();
+        dst.second = dest.data_.get();
         dst.second_size = nb_elts - dst.first_size;
     }
     else
@@ -304,7 +304,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
     }
 
     const uint begin_to_enqueue_index = (start_index_ + size_) % max_size_;
-    void* begin_to_enqueue = data_->get() + (begin_to_enqueue_index * fd_.get_frame_size());
+    void* begin_to_enqueue = data_.get() + (begin_to_enqueue_index * fd_.get_frame_size());
 
     if (begin_to_enqueue_index + nb_elts > max_size_)
     {
@@ -314,7 +314,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
         elts_char += nb_elts_to_insert_at_end * fd_.get_frame_size();
 
         unsigned int nb_elts_to_insert_at_beginning = nb_elts - nb_elts_to_insert_at_end;
-        enqueue_multiple_aux(data_->get(), elts_char, nb_elts_to_insert_at_beginning, stream, cuda_kind);
+        enqueue_multiple_aux(data_.get(), elts_char, nb_elts_to_insert_at_beginning, stream, cuda_kind);
     }
     else
     {
@@ -347,7 +347,7 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
     MutexGuard mGuard(mutex_);
 
     CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
-    void* first_img = data_->get() + start_index_ * fd_.get_frame_size();
+    void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
     cudaXStreamSynchronize(stream);
