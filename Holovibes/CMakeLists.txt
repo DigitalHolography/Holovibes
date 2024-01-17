@@ -144,7 +144,16 @@ add_custom_command(TARGET Holovibes POST_BUILD
     # Deploy Qt in windeployqt directory so that it can be used by the installer
     COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
 
-    # Copy camera config files to AppData/Roaming/Holovibes/VERSION
+    # Copy camera config files to AppData
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/adimec.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/adimec.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/bitflow.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bitflow.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/hamamatsu.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/hamamatsu.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ids.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ids.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bfml/
 )
 
 # ---------------------------------------------------------------------
@@ -190,19 +199,14 @@ install(FILES "${HOLO_DIR}/holovibes_logo.png"
     COMPONENT application
 )
 
-message(STATUS "CUDA_TOOLKIT_ROOT_DIR: ${CUDA_TOOLKIT_ROOT_DIR}")
 
 install(FILES 
-    # $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
-    # $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraOpenCV.dll
-    # $<TARGET_FILE_DIR:Holovibes>/CameraPhantom.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
     $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-    #$<TARGET_FILE_DIR:Holovibes>/gpib.dll
     $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
@@ -215,6 +219,7 @@ install(FILES
     DESTINATION .
     COMPONENT application
 )
+
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
@@ -241,6 +246,12 @@ install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
     COMPONENT application
 )
 
+install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
+    DESTINATION "AppData/"
+    COMPONENT application
+)
+
+
 # ---------------------------------------------------------------------
 # Packaging
 # ---------------------------------------------------------------------
@@ -256,5 +267,6 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
     SetCompress off
 ")
+
 
 include(CPack)
