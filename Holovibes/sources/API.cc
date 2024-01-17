@@ -115,6 +115,20 @@ void close_windows()
 
 void camera_none()
 {
+    camera_none_without_json();
+
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    j_us["camera"]["dll"] = "None";
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
+}
+
+void camera_none_without_json()
+{
     close_windows();
     close_critical_compute();
 

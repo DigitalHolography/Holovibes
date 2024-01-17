@@ -173,7 +173,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none();
+    api::camera_none_without_json();
 
     delete ui_;
 }
@@ -416,9 +416,12 @@ void MainWindow::save_gui()
     if (holovibes::settings::user_settings_filepath.empty())
         return;
 
+    json j_us;
+
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
+    try {j_us = json::parse(input_file);}
+    catch(const std::exception& e) {}
 
     j_us["display"]["theme"] = theme_;
 
@@ -454,7 +457,7 @@ void MainWindow::save_gui()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    api::camera_none();
+    api::camera_none_without_json();
     Logger::flush();
 
     save_gui();
