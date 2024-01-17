@@ -104,6 +104,7 @@ class MainWindow : public QMainWindow, public Observer
     void camera_xiq();
     void camera_xib();
     void camera_opencv();
+    void camera_ametek_s991_coaxlink_qspf_plus();
 
     /*! \brief Opens the credit display */
     void credits();

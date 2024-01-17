@@ -128,6 +128,7 @@ class EHoloGrabber
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
         grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
+        grabbers_[0]->setString<RemoteModule>("SensorShutterMode", "Rolling");
 
         /* 100 fps -> 10000us */
         // float factor = fps / 100;
@@ -140,14 +141,13 @@ class EHoloGrabber
                                                   cycleMinimumPeriod);               // set the trigger rate to 250K Hz
             grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
             grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
-            grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
         }
 
         /* 100 fps -> 9000us */
         // float factor = fps / 100;
         // float Expvalue = 9000 / factor;
         grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
-        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", "BalanceWhiteMarkerOff");
+        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", "Off");
     }
 
     void init(unsigned int nb_buffers)

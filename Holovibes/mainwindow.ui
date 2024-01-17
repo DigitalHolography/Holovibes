@@ -3131,6 +3131,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
      <addaction name="actionOpenCV"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3341,6 +3342,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
   <action name="actionReload_ini">
@@ -5123,6 +5129,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+    <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
@@ -5342,6 +5364,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_bitflow_cyton()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>

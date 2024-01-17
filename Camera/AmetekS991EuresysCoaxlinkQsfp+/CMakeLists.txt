@@ -1,7 +1,7 @@
-project (CameraPhantom CXX CUDA)
+project (AmetekS991EuresysCoaxlinkQsfp+ CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
-    camera_phantom.cc
+    camera_phantom_s991.cc
     ../Camera/camera_logger.cc
 )
 

@@ -5,7 +5,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "camera_phantom.hh"
+#include "camera_phantom_s991.hh"
 #include "camera_logger.hh"
 
 namespace camera
@@ -13,7 +13,7 @@ namespace camera
 CameraPhantom::CameraPhantom()
     : Camera("phantom.ini")
 {
-    name_ = "Phantom S710";
+    name_ = "Phantom S991";
     pixel_size_ = 20;
 
     load_default_params();
@@ -80,7 +80,7 @@ void CameraPhantom::load_default_params()
 {
     nb_buffers_ = 64;
     nb_images_per_buffer_ = 4;
-    nb_grabbers_ = 4;
+    nb_grabbers_ = 2;
     fullHeight_ = 512;
     width_ = 512;
     trigger_source_ = "SWTRIGGER";

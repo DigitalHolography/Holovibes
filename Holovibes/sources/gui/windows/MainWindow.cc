@@ -501,6 +501,9 @@ void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
 void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP);}
+
+
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
 /* ------------ */
