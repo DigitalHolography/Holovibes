@@ -16,23 +16,27 @@ namespace holovibes
 using camera::Endianness;
 using camera::FrameDescriptor;
 
+HoloQueue::HoloQueue(QueueType type,
+             const bool gpu)
+    : fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
+    , type_(type)
+    , gpu_(std::get<2>(*fast_updates_entry_))
+    , start_index_(0)
+    , has_overridden_(false)
+    , size_(std::get<0>(*fast_updates_entry_))
+{
+    gpu_ = gpu;
+    data_ = cuda_tools::UniquePtr<char>(gpu_);
+}
+
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
              const bool gpu)
-    : DisplayQueue(fd)
-    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
-    , size_(std::get<0>(*fast_updates_entry_))//(fast_updates_entry_->first)
+    : DisplayQueue(fd), HoloQueue(type, gpu)
     , max_size_(std::get<1>(*fast_updates_entry_))//(fast_updates_entry_->second)
-    , type_(type)
-    , start_index_(0)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
-    , has_overridden_(false)
-    , gpu_(std::get<2>(*fast_updates_entry_))
 {
-    gpu_ = gpu;
-    data_ = cuda_tools::UniquePtr<char>(gpu_);
-
     max_size_ = max_size;
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))

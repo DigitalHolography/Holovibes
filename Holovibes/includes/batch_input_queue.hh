@@ -224,7 +224,7 @@ class BatchInputQueue final : public DisplayQueue
     uint batch_size_{0};
     /*! \brief Max number of batch of frames in the queue
      *
-     * Batch size can only be changed by the consumer when the producer is
+     * Max size can only be changed by the consumer when the producer is
      * blocked. Thus std:atomic is not required.
      */
     uint max_size_{0};

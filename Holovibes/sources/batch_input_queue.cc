@@ -100,7 +100,7 @@ void BatchInputQueue::stop_producer()
     }
 }
 
-void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
+bool BatchInputQueue::enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind)
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && not gpu_)
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
@@ -128,7 +128,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
                      input_frame,
                      sizeof(char) * fd_.get_frame_size(),
                      memcpy_kind,
-                     batch_streams_[end_index_]);
+                     stream);
     else
         cudaXMemcpyAsync(new_frame_adress,
                      input_frame,
@@ -168,6 +168,12 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         // (consumer)
         m_producer_busy_.unlock();
     }
+    return true;
+}
+
+void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
+{
+    enqueue(input_frame, batch_streams_[end_index_], memcpy_kind);
 }
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
