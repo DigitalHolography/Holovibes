@@ -1292,7 +1292,7 @@ void set_record_device(const bool gpu)
         GSH::instance().set_raw_view_queue_location(gpu);
 
     if (GSH::instance().get_record_queue_location() != gpu)
-        GSH::instance().set_record_queue_location(gpu);
+        set_record_queue_location(gpu);
 
     if (GSH::instance().get_input_queue_location() != gpu)
     {
@@ -1301,6 +1301,8 @@ void set_record_device(const bool gpu)
         else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
             import_stop();
         GSH::instance().set_input_queue_location(gpu);
+        if (!gpu)
+            set_compute_mode(Computation::Raw);
     }
     // Holovibes::instance().init_input_queue(GSH::instance().get_input_buffer_size());
     // Holovibes::instance().init_record_queue();

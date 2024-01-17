@@ -113,6 +113,7 @@ void AdvancedSettingsWindow::set_current_values()
     ui.CutsContrastSpinBox->setValue(api::get_cuts_contrast_p_offset());
 
     ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location());
+    ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location());
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());

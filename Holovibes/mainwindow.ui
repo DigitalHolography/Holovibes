@@ -619,9 +619,9 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="currentText">
+             <!-- <property name="currentText">
                 <string>GPU</string>
-            </property>
+            </property> -->
              <item>
               <property name="text">
                <string>GPU</string>

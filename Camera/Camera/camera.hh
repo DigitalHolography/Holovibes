@@ -49,11 +49,12 @@ class Camera : public ICamera
      * Try to open the corresponding configuration file, if any, and parse it
      * with Boost to extract some useful data for further configuration.
      */
-    Camera(const std::string& ini_filename)
+    Camera(const std::string& ini_filename, const bool gpu=true)
         : fd_()
         , name_("Unknown")
         , exposure_time_(0.0f)
         , pixel_size_(0.0f)
+        , gpu_(gpu)
         , ini_pt_()
     {
         ini_name_ = (__CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
@@ -118,6 +119,10 @@ class Camera : public ICamera
 
     /*! \brief INI configuration file data stream */
     std::ifstream ini_file_;
+
+    /*! \brief Indicates whether the grabber must send the frames on the cpu or the gpu memory. 
+    Be aware that the frames are not directly sent to the gpu, but on mapped memory (see the init funciton in camera_pantom.hh)*/
+    bool gpu_;
 
   private:
     /*! \brief INI configuration file's absolute path */
