@@ -348,22 +348,10 @@ void actualize_frequency_channel_s(bool composite_p_activated_s);
  */
 void actualize_frequency_channel_v(bool composite_p_activated_v);
 
-/*! \brief Enables or disables Hue gaussian blur
- *
- * \param h_blur_activated true: enable, false: disable
- */
-void actualize_selection_h_gaussian_blur(bool h_blur_activated);
-
 /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
 void check_p_limits();
 /*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
 void check_q_limits();
-
-/*! \brief Modified Hue blur size
- *
- * \param h_blur_kernel_size the new value
- */
-void actualize_kernel_size_blur(uint h_blur_kernel_size);
 
 /*! \brief Increment p by 1 */
 void increment_p();

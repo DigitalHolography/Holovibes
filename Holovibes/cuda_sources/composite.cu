@@ -162,3 +162,4 @@ void postcolor_normalize(float* output,
         cudaXFree(gpu_zone_data);
     }
 }
+

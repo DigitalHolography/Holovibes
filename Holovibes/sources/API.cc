@@ -798,11 +798,6 @@ void actualize_frequency_channel_v(bool composite_p_activated_v)
     set_composite_p_activated_v(composite_p_activated_v);
 }
 
-void actualize_selection_h_gaussian_blur(bool h_blur_activated)
-{
-    set_h_blur_activated(h_blur_activated);
-}
-
 void check_p_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
@@ -827,11 +822,6 @@ void check_q_limits()
 
     if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
         api::set_q_index(upper_bound);
-}
-
-void actualize_kernel_size_blur(uint h_blur_kernel_size) 
-{
-    set_h_blur_kernel_size(h_blur_kernel_size);
 }
 
 bool slide_update_threshold(
@@ -870,7 +860,7 @@ void set_space_transformation(const SpaceTransformation value)
 void set_time_transformation(const TimeTransformation value) 
 { 
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
-    api::set_z_fft_shift(value == TimeTransformation::STFT);
+    set_z_fft_shift(value == TimeTransformation::STFT);
 }
 
 void set_unwrapping_2d(const bool value)
