@@ -308,73 +308,6 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
     compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream);
 }
 
-// Apply a box blur on the specified array
-void apply_blur(float* gpu_arr, uint height, uint width, float kernel_size, const cudaStream_t stream)
-{
-    size_t frame_res = height * width;
-
-    float* gpu_float_blur_matrix;
-    cudaSafeCall(cudaMalloc(&gpu_float_blur_matrix, frame_res * sizeof(float)));
-    cudaSafeCall(cudaMemsetAsync(gpu_float_blur_matrix, 0, frame_res * sizeof(float), stream));
-
-    float* blur_matrix;
-    cudaSafeCall(cudaMallocHost(&blur_matrix, kernel_size * sizeof(float)));
-    float blur_value = 1.0f / (float)(kernel_size * kernel_size);
-    unsigned min_pos_kernel_y = height / 2 - kernel_size / 2;
-    unsigned min_pos_kernel_x = width / 2 - kernel_size / 2;
-    for (size_t i = 0; i < kernel_size; i++)
-        blur_matrix[i] = blur_value;
-
-    for (size_t i = 0; i < kernel_size; i++)
-    {
-        cudaXMemcpyAsync(gpu_float_blur_matrix + min_pos_kernel_x + width * (i + min_pos_kernel_y),
-                         blur_matrix,
-                         kernel_size * sizeof(float),
-                         cudaMemcpyHostToDevice,
-                         stream);
-    }
-
-    float* cpu_float_blur_matrix = new float[frame_res];
-    cudaSafeCall(cudaMemcpyAsync(cpu_float_blur_matrix,
-                                 gpu_float_blur_matrix,
-                                 frame_res * sizeof(float),
-                                 cudaMemcpyDeviceToHost,
-                                 stream));
-
-    cuComplex* gpu_complex_blur_matrix;
-    cudaSafeCall(cudaMalloc(&gpu_complex_blur_matrix, frame_res * sizeof(cuComplex)));
-    cudaSafeCall(cudaMemcpy2DAsync(gpu_complex_blur_matrix,
-                                   sizeof(cuComplex),
-                                   gpu_float_blur_matrix,
-                                   sizeof(float),
-                                   sizeof(float),
-                                   frame_res,
-                                   cudaMemcpyDeviceToDevice,
-                                   stream));
-
-    shift_corners(gpu_complex_blur_matrix, 1, width, height, stream);
-
-    CufftHandle handle{static_cast<int>(width), static_cast<int>(height), CUFFT_C2C};
-    cufftSafeCall(cufftExecC2C(handle, gpu_complex_blur_matrix, gpu_complex_blur_matrix, CUFFT_FORWARD));
-
-    cuComplex* gpu_cuComplex_buffer;
-    cudaSafeCall(cudaMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex)));
-
-    convolution_kernel(gpu_arr,
-                       nullptr,
-                       gpu_cuComplex_buffer,
-                       &handle,
-                       frame_res,
-                       gpu_complex_blur_matrix,
-                       false,
-                       false,
-                       stream);
-
-    cudaXFree(gpu_cuComplex_buffer);
-    cudaXFree(gpu_float_blur_matrix);
-    cudaXFree(gpu_complex_blur_matrix);
-}
-
 void hsv_normalize(
     float* const gpu_arr, const uint frame_res, float* const gpu_min, float* const gpu_max, const cudaStream_t stream)
 {
@@ -436,7 +369,7 @@ void apply_operations(float* gpu_arr,
     }
 }
 
-/// @brief Special function for hue channel because hue has two UI sliders and a blur option
+/// @brief Special function for hue channel because hue has two UI sliders
 void apply_operations_on_h(
     float* gpu_h_arr, uint height, uint width, const holovibes::CompositeH& h_struct, const cudaStream_t stream)
 {
@@ -445,14 +378,6 @@ void apply_operations_on_h(
     holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
     const uint frame_res = height * width;
     auto exec_policy = thrust::cuda::par.on(stream);
-
-    // H channel has a blur option
-    if (h_struct.blur.enabled)
-    {
-        apply_blur(gpu_h_arr, height, width, h_struct.blur.kernel_size, stream);
-
-        //hsv_normalize(gpu_h_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
-    }
 
     apply_percentile_and_threshold(gpu_h_arr,
                                    frame_res,
@@ -481,7 +406,7 @@ void apply_operations_on_h(
     thrust::transform(exec_policy, gpu_h_arr, gpu_h_arr + frame_res, gpu_h_arr, op);
 }
 
-/// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
+/// @brief Apply basic image processing operations on h,s and v (threshold, normalization...)
 void apply_operations_on_hsv(float* tmp_hsv_arr,
                              const uint height,
                              const uint width,

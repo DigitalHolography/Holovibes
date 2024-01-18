@@ -1086,10 +1086,6 @@ inline float get_composite_high_h_threshold() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.threshold.max;
 }
-inline uint get_h_blur_kernel_size() noexcept
-{
-    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.kernel_size;
-}
 inline uint get_composite_p_min_s() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.min;
@@ -1137,10 +1133,6 @@ inline float get_composite_low_v_threshold() noexcept
 inline float get_composite_high_v_threshold() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.threshold.max;
-}
-inline bool get_h_blur_activated() noexcept
-{
-    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.enabled;
 }
 inline bool get_composite_p_activated_s() noexcept
 {
@@ -1278,12 +1270,6 @@ inline void set_composite_p_max_h(uint value)
     hsv.h.frame_index.max = value;
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
-inline void set_h_blur_kernel_size(uint value)
-{
-    holovibes::CompositeHSV hsv = get_hsv();
-    hsv.h.blur.kernel_size = value;
-    Holovibes::instance().update_setting(settings::HSV{hsv});
-}
 inline void set_composite_p_min_s(uint value)
 {
     holovibes::CompositeHSV hsv = get_hsv();
@@ -1354,12 +1340,6 @@ inline void set_composite_high_v_threshold(float value)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.v.threshold.max = value;
-    Holovibes::instance().update_setting(settings::HSV{hsv});
-}
-inline void set_h_blur_activated(bool value)
-{
-    holovibes::CompositeHSV hsv = get_hsv();
-    hsv.h.blur.enabled = value;
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
 inline void set_composite_p_activated_s(bool value)

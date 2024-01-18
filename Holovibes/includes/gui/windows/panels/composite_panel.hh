@@ -89,12 +89,6 @@ class CompositePanel : public Panel
     /*! \brief Enables or disables Value frequency channel min and max from ui checkbox */
     void actualize_frequency_channel_v();
 
-    /*! \brief Enables or disables Hue gaussian blur from ui checkbox */
-    void actualize_checkbox_h_gaussian_blur();
-
-    /*! \brief Modified Hue blur size from ui value */
-    void actualize_kernel_size_blur();
-
     /*! \brief Make the ui composite overlay visible */
     void set_composite_area();
 };
