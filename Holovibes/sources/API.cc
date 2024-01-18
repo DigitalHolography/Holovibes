@@ -99,6 +99,8 @@ static bool is_current_window_xyz_type()
 
 void close_windows()
 {
+    if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
+        UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
@@ -118,6 +120,20 @@ void close_windows()
 #pragma region Close Compute
 
 void camera_none()
+{
+    camera_none_without_json();
+
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    j_us["camera"]["dll"] = "None";
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
+}
+
+void camera_none_without_json()
 {
     close_windows();
     close_critical_compute();
@@ -202,14 +218,37 @@ void create_pipe()
     }
 }
 
+QPoint getSavedHoloWindowPos()
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int x = json_get_or_default(j_us, 0, "holo window", "x");
+    int y = json_get_or_default(j_us, 0, "holo window", "y");
+    return QPoint(x, y);
+}
+
+QSize getSavedHoloWindowSize(ushort& width, ushort& height)
+{
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int final_width = json_get_or_default(j_us, width, "holo window", "width");
+    int final_height = json_get_or_default(j_us, height, "holo window", "height");
+    return QSize(final_width, final_height);
+}
+
 void set_raw_mode(uint window_max_size)
 {
-    QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_max_size);
-    QSize size(width, height);
+
+    QPoint pos = getSavedHoloWindowPos();
+    QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
     set_compute_mode(Computation::Raw);
@@ -228,12 +267,13 @@ void set_raw_mode(uint window_max_size)
 
 void create_holo_window(ushort window_size)
 {
-    QPoint pos(0, 0);
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
     get_good_size(width, height, window_size);
-    QSize size(width, height);
+
+    QPoint pos = getSavedHoloWindowPos();
+    QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
     try
@@ -769,8 +809,6 @@ void actualize_frequency_channel_v(bool composite_p_activated_v)
     set_composite_p_activated_v(composite_p_activated_v);
 }
 
-void actualize_selection_h_gaussian_blur(bool h_blur_activated) { set_h_blur_activated(h_blur_activated); }
-
 void check_p_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
@@ -796,8 +834,6 @@ void check_q_limits()
     if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
         api::set_q_index(upper_bound);
 }
-
-void actualize_kernel_size_blur(uint h_blur_kernel_size) { set_h_blur_kernel_size(h_blur_kernel_size); }
 
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
@@ -835,7 +871,7 @@ void set_space_transformation(const SpaceTransformation value)
 void set_time_transformation(const TimeTransformation value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
-    api::set_z_fft_shift(value == TimeTransformation::STFT);
+    set_z_fft_shift(value == TimeTransformation::STFT);
 }
 
 void set_unwrapping_2d(const bool value)

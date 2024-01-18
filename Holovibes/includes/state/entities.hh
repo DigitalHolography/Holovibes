@@ -64,10 +64,6 @@ struct NotifyCompositePanel
     const HSVSpan slider_hsv_span; // previously slider_threshold_min and max
     const HSVSpan hsv_span;        // previously threshold_min and max
 
-    // H
-    const bool h_blur_enabled;
-    const unsigned int h_blur_kernel_size;
-
     // S
     const bool s_p_enabled;
 

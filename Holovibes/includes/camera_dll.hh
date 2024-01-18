@@ -53,5 +53,7 @@ class CameraDLL
 
   private:
     using FnInit = ICamera* (*)();
+
+    static void save_camera(const std::string& dll_filepath);
 };
 } // namespace camera
