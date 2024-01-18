@@ -60,6 +60,11 @@ void set_input_file_end_index(size_t value);
  */
 void camera_none();
 
+/*! \brief Switchs operating camera to none without changes on the user_setting.json
+ *
+ */
+void camera_none_without_json();
+
 /*! \brief Stops the program compute
  *
  */
