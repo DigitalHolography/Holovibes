@@ -3797,7 +3797,7 @@ p, li { white-space: pre-wrap; }
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_auto_refresh_contrast(bool)</slot>
+   <slot>set_contrast_auto_refresh(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>349</x>
@@ -4695,7 +4695,7 @@ p, li { white-space: pre-wrap; }
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>invert_contrast(bool)</slot>
+   <slot>set_contrast_invert(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>259</x>
@@ -5414,7 +5414,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
-  <slot>invert_contrast(bool)</slot>
+  <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_view_mode(QString)</slot>
@@ -5495,7 +5495,7 @@ p, li { white-space: pre-wrap; }
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
-  <slot>set_auto_refresh_contrast(bool)</slot>
+  <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>

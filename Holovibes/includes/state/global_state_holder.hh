@@ -62,46 +62,6 @@ class GSH
     template <class T>
     static inline FastUpdatesHolder<T> fast_updates_map;
 
-#pragma region(collapsed) GETTERS
-
-    bool get_contrast_auto_refresh() const noexcept;
-    bool get_contrast_invert() const noexcept;
-    bool get_contrast_enabled() const noexcept;
-
-    bool is_current_window_xyz_type() const;
-
-    // Over current window
-    float get_contrast_min() const;
-    float get_contrast_max() const;
-    double get_rotation() const;
-    bool get_horizontal_flip() const;
-    bool get_log_enabled() const;
-    unsigned get_accumulation_level() const;
-
-#pragma endregion
-
-#pragma region(collapsed) SETTERS
-    void set_batch_size(uint value);
-    void set_time_transformation_size(uint value);
-    void set_time_stride(uint value);
-
-    void disable_convolution();
-    void enable_convolution(std::optional<std::string> file);
-    // Over current window
-    void set_contrast_enabled(bool contrast_enabled);
-    void set_contrast_auto_refresh(bool contrast_auto_refresh);
-    void set_contrast_invert(bool contrast_invert);
-    void set_contrast_min(float value);
-    void set_contrast_max(float value);
-    void set_log_enabled(bool value);
-    void set_accumulation_level(int value);
-    void set_rotation(double value);
-    void set_horizontal_flip(double value);
-
-    void set_rgb_p();
-    void set_weight_rgb();
-    void set_composite_p_h();
-
     enum class ComputeSettingsVersion
     {
         V2,
@@ -111,21 +71,16 @@ class GSH
     };
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
 
-#pragma endregion
-
     void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
 
-    void update_contrast(WindowKind kind, float min, float max);
-
-    static void load_input_filter(std::vector<float> input_filter, const std::string& file);
-
+    void notify() { notify_callback_(); }
   private:
     GSH() noexcept {}
 
     std::shared_ptr<holovibes::ViewWindow> get_window(WindowKind kind);
 
     std::function<void()> notify_callback_ = []() {};
-    void notify() { notify_callback_(); }
+    
 
     mutable std::mutex mutex_;
 };

@@ -46,7 +46,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
@@ -83,7 +83,7 @@ void ViewPanel::on_notify()
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
@@ -441,14 +441,14 @@ void ViewPanel::set_auto_contrast()
     api::set_auto_contrast();
 }
 
-void ViewPanel::set_auto_refresh_contrast(bool value)
+void ViewPanel::set_contrast_auto_refresh(bool value)
 {
-    api::set_auto_refresh_contrast(value);
+    api::set_contrast_auto_refresh(value);
 
     parent_->notify();
 }
 
-void ViewPanel::invert_contrast(bool value)
+void ViewPanel::set_contrast_invert(bool value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
@@ -456,7 +456,7 @@ void ViewPanel::invert_contrast(bool value)
     if (!api::get_contrast_enabled())
         return;
 
-    api::invert_contrast(value);
+    api::set_contrast_invert(value);
 }
 
 void ViewPanel::set_contrast_min(const double value)

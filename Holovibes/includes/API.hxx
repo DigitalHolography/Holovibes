@@ -699,12 +699,6 @@ inline void set_raw_view_enabled(bool value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawViewEnabled{value});
 }
 
-inline bool get_contrast_enabled() { return GSH::instance().get_contrast_enabled(); }
-
-inline bool get_contrast_auto_refresh() { return GSH::instance().get_contrast_auto_refresh(); }
-
-inline bool get_contrast_invert() { return GSH::instance().get_contrast_invert(); }
-
 inline bool get_filter2d_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::Filter2dEnabled>().value;
@@ -1005,10 +999,6 @@ inline bool get_filter_enabled()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::FilterEnabled>().value;
 };
 
-inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip(); }
-
-inline double get_rotation() { return GSH::instance().get_rotation(); }
-
 // Ex composite_cache
 inline CompositeKind get_composite_kind() noexcept
 {
@@ -1173,14 +1163,12 @@ inline void set_composite_auto_weights(bool value)
 // RGB
 inline void set_rgb(CompositeRGB value) { holovibes::Holovibes::instance().update_setting(settings::RGB{value}); }
 
-inline void set_rgb_p(int min, int max, bool notify = false)
+inline void set_rgb_p(int min, int max)
 {
     holovibes::CompositeRGB rgb = get_rgb();
     rgb.frame_index.min = min;
     rgb.frame_index.max = max;
     holovibes::Holovibes::instance().update_setting(settings::RGB{rgb});
-    if (notify)
-        GSH::instance().set_rgb_p();
 }
 
 inline void set_weight_r(double value)
@@ -1218,14 +1206,12 @@ inline void set_z_fft_shift(bool checked)
     Holovibes::instance().update_setting(settings::ZFFTShift{checked});
 }
 
-inline void set_composite_p_h(int min, int max, bool notify = false)
+inline void set_composite_p_h(int min, int max)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.h.frame_index.min = min;
     hsv.h.frame_index.max = max;
     holovibes::Holovibes::instance().update_setting(settings::HSV{hsv});
-    if (notify)
-        GSH::instance().set_composite_p_h();
 }
 
 inline void set_hsv(CompositeHSV value) { holovibes::Holovibes::instance().update_setting(settings::HSV{value}); }

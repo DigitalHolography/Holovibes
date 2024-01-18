@@ -1,5 +1,6 @@
 #include "API.hh"
 #include "logger.hh"
+#include "input_filter.hh"
 
 namespace holovibes::api
 {
@@ -15,7 +16,6 @@ void pipe_refresh()
     {
         spdlog::info("pipe_refresh");
         get_compute_pipe()->request_refresh();
-        
     }
     catch (const std::runtime_error& e)
     {
@@ -90,6 +90,12 @@ const std::string get_credits()
 }
 
 bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
+
+static bool is_current_window_xyz_type()
+{
+    static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
+    return types.contains(api::get_current_window_type());
+}
 
 void close_windows()
 {
@@ -243,8 +249,8 @@ void create_holo_window(ushort window_size)
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
         UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(GSH::instance().get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(GSH::instance().get_horizontal_flip());
+        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
+        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
     }
     catch (const std::runtime_error& e)
     {
@@ -266,7 +272,7 @@ bool set_holographic_mode(ushort window_size)
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
-        GSH::instance().set_contrast_enabled(true);
+        api::set_contrast_mode(true);
 
         return true;
     }
@@ -331,8 +337,8 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 {
     if (batch_size == api::get_batch_size())
         return;
-        
-    //checks if time_stride has changed
+
+    // checks if time_stride has changed
     if (api::set_batch_size(batch_size))
     {
         Holovibes::instance().get_compute_pipe()->request_update_time_stride();
@@ -505,9 +511,15 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
 
-void set_chart_display_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartDisplayEnabled{value}); }
+void set_chart_display_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartDisplayEnabled{value});
+}
 
-void set_filter2d_view_enabled(bool value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dViewEnabled{value}); }
+void set_filter2d_view_enabled(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dViewEnabled{value});
+}
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
@@ -740,7 +752,6 @@ void set_composite_intervals_hsv_v_max(uint composite_p_max_v)
 void set_composite_weights(double weight_r, double weight_g, double weight_b)
 {
     set_weight_rgb(weight_r, weight_g, weight_b);
-    GSH::instance().set_weight_rgb();
     pipe_refresh();
 }
 
@@ -758,10 +769,7 @@ void actualize_frequency_channel_v(bool composite_p_activated_v)
     set_composite_p_activated_v(composite_p_activated_v);
 }
 
-void actualize_selection_h_gaussian_blur(bool h_blur_activated)
-{
-    set_h_blur_activated(h_blur_activated);
-}
+void actualize_selection_h_gaussian_blur(bool h_blur_activated) { set_h_blur_activated(h_blur_activated); }
 
 void check_p_limits()
 {
@@ -789,10 +797,7 @@ void check_q_limits()
         api::set_q_index(upper_bound);
 }
 
-void actualize_kernel_size_blur(uint h_blur_kernel_size) 
-{
-    set_h_blur_kernel_size(h_blur_kernel_size);
-}
+void actualize_kernel_size_blur(uint h_blur_kernel_size) { set_h_blur_kernel_size(h_blur_kernel_size); }
 
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound)
@@ -822,13 +827,13 @@ void set_z_distance(float value)
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value) 
+void set_space_transformation(const SpaceTransformation value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::SpaceTransformation{value});
 }
 
-void set_time_transformation(const TimeTransformation value) 
-{ 
+void set_time_transformation(const TimeTransformation value)
+{
     holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
     api::set_z_fft_shift(value == TimeTransformation::STFT);
 }
@@ -849,20 +854,13 @@ ViewWindow get_current_window()
 {
     WindowKind window = get_current_window_type();
     if (window == WindowKind::XYview)
-        return api::get_xy();
+        return get_xy();
     else if (window == WindowKind::XZview)
-        return api::get_xz();
+        return get_xz();
     else if (window == WindowKind::YZview)
-        return api::get_yz();
+        return get_yz();
     else
-        return api::get_filter2d();
-}
-
-void set_accumulation_level(int value)
-{
-    GSH::instance().set_accumulation_level(value);
-
-    pipe_refresh();
+        return get_filter2d();
 }
 
 void set_composite_area()
@@ -886,8 +884,6 @@ void close_critical_compute()
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
 
-unsigned get_accumulation_level() { return GSH::instance().get_accumulation_level(); }
-
 int get_gpu_input_queue_fd_width() { return get_fd().width; }
 
 int get_gpu_input_queue_fd_height() { return get_fd().height; }
@@ -900,10 +896,10 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 static void change_angle()
 {
-    double rot = GSH::instance().get_rotation();
+    double rot = api::get_rotation();
     double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
 
-    GSH::instance().set_rotation(new_rot);
+    api::set_rotation(new_rot);
 }
 
 void rotateTexture()
@@ -918,11 +914,16 @@ void rotateTexture()
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
 }
 
-static void change_flip() { GSH::instance().set_horizontal_flip(!GSH::instance().get_horizontal_flip()); }
+void set_horizontal_flip() { 
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    set_xyz_member(api::set_xy_horizontal_flip, api::set_xz_horizontal_flip, api::set_yz_horizontal_flip, !api::get_horizontal_flip());
+}
 
 void flipTexture()
 {
-    change_flip();
+    set_horizontal_flip();
     WindowKind window = get_current_window_type();
     if (window == WindowKind::XYview)
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_horizontal_flip());
@@ -938,7 +939,12 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
-    GSH::instance().set_contrast_enabled(value);
+    auto window = api::get_current_window_type();
+
+    if (window == WindowKind::Filter2D)
+        api::set_filter2d_contrast_enabled(value);
+    else
+        set_xyz_member(api::set_xy_contrast_enabled, api::set_xz_contrast_enabled, api::set_yz_contrast_enabled, value);
     pipe_refresh();
 }
 
@@ -982,7 +988,7 @@ void set_auto_contrast_all()
     pipe_refresh();
 }
 
-void set_contrast_min(const double value)
+void set_contrast_min(float value)
 {
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
@@ -990,26 +996,17 @@ void set_contrast_min(const double value)
     const float val = value;
     if (old_val != val)
     {
-        GSH::instance().set_contrast_min(value);
+        auto window = api::get_current_window_type();
+        float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
+        if (window == WindowKind::Filter2D)
+            api::set_filter2d_contrast_min(new_val);
+        else
+            set_xyz_member(api::set_xy_contrast_min, api::set_xz_contrast_min, api::set_yz_contrast_min, new_val);
         pipe_refresh();
     }
 }
 
-float get_truncate_contrast_max(const int precision)
-{
-    float value = GSH::instance().get_contrast_max();
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
-}
-
-float get_truncate_contrast_min(const int precision)
-{
-    float value = GSH::instance().get_contrast_min();
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
-}
-
-void set_contrast_max(const double value)
+void set_contrast_max(float value)
 {
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
@@ -1018,52 +1015,300 @@ void set_contrast_max(const double value)
 
     if (old_val != val)
     {
-        GSH::instance().set_contrast_max(value);
+        auto window = api::get_current_window_type();
+        float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
+        if (window == WindowKind::Filter2D)
+            api::set_filter2d_contrast_max(new_val);
+        else
+            set_xyz_member(api::set_xy_contrast_max, api::set_xz_contrast_max, api::set_yz_contrast_max, new_val);
         pipe_refresh();
     }
 }
 
-void invert_contrast(bool value)
+void set_contrast_invert(bool value)
 {
-    GSH::instance().set_contrast_invert(value);
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        api::set_filter2d_contrast_invert(value);
+    else
+        set_xyz_member(api::set_xy_contrast_invert, api::set_xz_contrast_invert, api::set_yz_contrast_invert, value);
     pipe_refresh();
 }
 
-void set_auto_refresh_contrast(bool value)
+void set_contrast_auto_refresh(bool value)
 {
-    GSH::instance().set_contrast_auto_refresh(value);
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        api::set_filter2d_contrast_auto_refresh(value);
+    else
+        set_xyz_member(api::set_xy_contrast_auto_refresh,
+                       api::set_xz_contrast_auto_refresh,
+                       api::set_yz_contrast_auto_refresh,
+                       value);
     pipe_refresh();
+}
+
+void update_contrast(WindowKind kind, float min, float max)
+{
+    auto window = api::get_current_window_type();
+
+    switch (window)
+    {
+    case WindowKind::XYview:
+        api::set_xy_contrast(min, max);
+        break;
+    case WindowKind::XZview:
+        api::set_xz_contrast(min, max);
+        break;
+    case WindowKind::YZview:
+        api::set_yz_contrast(min, max);
+        break;
+    // TODO : set_filter2d_contrast_auto
+    default:
+        api::set_filter2d_contrast(min, max);
+        break;
+    }
+
+    GSH::instance().notify();
 }
 
 void set_log_scale(const bool value)
 {
-    GSH::instance().set_log_enabled(value);
-    if (value && GSH::instance().get_contrast_enabled())
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        api::set_filter2d_log_enabled(value);
+    else
+        set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
+    if (value && api::get_contrast_enabled())
         set_auto_contrast();
 
     pipe_refresh();
 }
 
-void set_raw_bitshift(unsigned int value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value}); }
+void set_raw_bitshift(unsigned int value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
+}
 
 unsigned int get_raw_bitshift() { return holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value; }
 
-float get_contrast_min() { return GSH::instance().get_contrast_min(); }
+float get_contrast_min()
+{
+    bool log_enabled =
+        get_view_member(get_filter2d_log_enabled(), get_xy_log_enabled(), get_xz_log_enabled(), get_yz_log_enabled());
+    float contrast_min = get_view_member(get_filter2d_contrast_min(),
+                                         get_xy_contrast_min(),
+                                         get_xz_contrast_min(),
+                                         get_yz_contrast_min());
+    return log_enabled ? contrast_min : log10(contrast_min);
+}
 
-float get_contrast_max() { return GSH::instance().get_contrast_max(); }
+float get_contrast_max()
+{
+    bool log_enabled =
+        get_view_member(get_filter2d_log_enabled(), get_xy_log_enabled(), get_xz_log_enabled(), get_yz_log_enabled());
+    float contrast_max = get_view_member(get_filter2d_contrast_max(),
+                                         get_xy_contrast_max(),
+                                         get_xz_contrast_max(),
+                                         get_yz_contrast_max());
 
-bool get_contrast_invert_enabled() { return GSH::instance().get_contrast_invert(); }
+    return log_enabled ? contrast_max : log10(contrast_max);
+}
 
-bool get_log_enabled() { return GSH::instance().get_log_enabled(); }
+bool get_contrast_invert()
+{
+    return get_view_member(get_filter2d_contrast_invert(),
+                           get_xy_contrast_invert(),
+                           get_xz_contrast_invert(),
+                           get_yz_contrast_invert());
+}
+
+bool get_contrast_auto_refresh()
+{
+    return get_view_member(get_filter2d_contrast_auto_refresh(),
+                           get_xy_contrast_auto_refresh(),
+                           get_xz_contrast_auto_refresh(),
+                           get_yz_contrast_auto_refresh());
+}
+
+bool get_contrast_enabled()
+{
+    return get_view_member(get_filter2d_contrast_enabled(),
+                           get_xy_contrast_enabled(),
+                           get_xz_contrast_enabled(),
+                           get_yz_contrast_enabled());
+}
+
+double get_rotation()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    return get_xyz_member(api::get_xy_rotation(), api::get_xz_rotation(), api::get_yz_rotation());
+}
+
+bool get_horizontal_flip()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    return get_xyz_member(api::get_xy_horizontal_flip(), api::get_xz_horizontal_flip(), api::get_yz_horizontal_flip());
+}
+
+bool get_log_enabled()
+{
+    return get_view_member(get_filter2d_log_enabled(),
+                           get_xy_log_enabled(),
+                           get_xz_log_enabled(),
+                           get_yz_log_enabled());
+}
+
+unsigned get_accumulation_level()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    return get_xyz_member(api::get_xy_accumulation_level(),
+                          api::get_xz_accumulation_level(),
+                          api::get_yz_accumulation_level());
+}
+
+void set_accumulation_level(int value)
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+    set_xyz_member(api::set_xy_accumulation_level,
+                   api::set_xz_accumulation_level,
+                   api::set_yz_accumulation_level,
+                   value);
+
+    pipe_refresh();
+}
+
+void set_rotation(double value)
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    set_xyz_member(api::set_xy_rotation, api::set_xz_rotation, api::set_yz_rotation, value);
+
+    pipe_refresh();
+}
+
+float get_truncate_contrast_max(const int precision)
+{
+    float value = get_contrast_max();
+    const double multiplier = std::pow(10.0, precision);
+    return std::round(value * multiplier) / multiplier;
+}
+
+float get_truncate_contrast_min(const int precision)
+{
+    float value = get_contrast_min();
+    const double multiplier = std::pow(10.0, precision);
+    return std::round(value * multiplier) / multiplier;
+}
 
 #pragma endregion
 
 #pragma region Convolution
 
+static inline const std::filesystem::path dir(get_exe_dir());
+
+void load_convolution_matrix(std::optional<std::string> filename)
+{
+    api::set_convolution_enabled(true);
+    api::set_convo_matrix({});
+
+    // There is no file None.txt for convolution
+    if (!filename || filename.value() == UID_CONVOLUTION_TYPE_DEFAULT)
+        return;
+    std::vector<float> convo_matrix = api::get_convo_matrix();
+    const std::string& file = filename.value();
+    auto& holo = Holovibes::instance();
+
+    try
+    {
+        auto path_file = dir / "convolution_kernels" / file;
+        std::string path = path_file.string();
+
+        std::vector<float> matrix;
+        uint matrix_width = 0;
+        uint matrix_height = 0;
+        uint matrix_z = 1;
+
+        // Doing this the C way because it's faster
+        FILE* c_file;
+        fopen_s(&c_file, path.c_str(), "r");
+
+        if (c_file == nullptr)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid file path");
+        }
+
+        // Read kernel dimensions
+        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid kernel dimensions");
+        }
+
+        size_t matrix_size = matrix_width * matrix_height * matrix_z;
+        matrix.resize(matrix_size);
+
+        // Read kernel values
+        for (size_t i = 0; i < matrix_size; ++i)
+        {
+            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+            {
+                fclose(c_file);
+                throw std::runtime_error("Missing values");
+            }
+        }
+
+        fclose(c_file);
+
+        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+        const uint size = output_width * output_height;
+
+        // The convo matrix is centered and padded with 0 since the kernel is
+        // usally smaller than the output Example: kernel size is (2, 2) and
+        // output size is (4, 4) The kernel is represented by 'x' and
+        //  | 0 | 0 | 0 | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | 0 | 0 | 0 |
+        const uint first_col = (output_width / 2) - (matrix_width / 2);
+        const uint last_col = (output_width / 2) + (matrix_width / 2);
+        const uint first_row = (output_height / 2) - (matrix_height / 2);
+        const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+        convo_matrix.resize(size, 0.0f);
+
+        uint kernel_indice = 0;
+        for (uint i = first_row; i < last_row; i++)
+        {
+            for (uint j = first_col; j < last_col; j++)
+            {
+                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+                kernel_indice++;
+            }
+        }
+        api::set_convo_matrix(convo_matrix);
+    }
+    catch (std::exception& e)
+    {
+        api::set_convo_matrix({});
+        LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
+    }
+}
+
 void enable_convolution(const std::string& filename)
 {
-    GSH::instance().enable_convolution(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt
-                                                                                : std::make_optional(filename));
+    load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
     {
@@ -1089,8 +1334,8 @@ void enable_convolution(const std::string& filename)
 
 void disable_convolution()
 {
-
-    GSH::instance().disable_convolution();
+    set_convo_matrix({});
+    set_convolution_enabled(false);
     try
     {
         auto pipe = get_compute_pipe();
@@ -1117,9 +1362,33 @@ void set_divide_convolution(const bool value)
 
 #pragma region Filter
 
-std::vector<float> get_input_filter() { return holovibes::Holovibes::instance().get_setting<settings::InputFilter>().value;}
+std::vector<float> get_input_filter()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::InputFilter>().value;
+}
 
-void set_input_filter(std::vector<float> value) { holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilter{value});}
+void set_input_filter(std::vector<float> value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilter{value});
+}
+
+void load_input_filter(std::vector<float> input_filter, const std::string& file)
+{
+    auto& holo = Holovibes::instance();
+    try
+    {
+        auto path_file = dir / "input_filters" / file;
+        InputFilter(input_filter,
+                    path_file.string(),
+                    holo.get_gpu_output_queue()->get_fd().width,
+                    holo.get_gpu_output_queue()->get_fd().height);
+    }
+    catch (std::exception& e)
+    {
+        api::set_input_filter({});
+        LOG_ERROR("Couldn't load input filter : {}", e.what());
+    }
+}
 
 void enable_filter(const std::string& filename)
 {
@@ -1130,16 +1399,16 @@ void enable_filter(const std::string& filename)
 
     // There is no file None.txt for filtering
     if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
-        GSH::load_input_filter(get_input_filter(), file.value());
+        load_input_filter(get_input_filter(), file.value());
     else
         disable_filter();
 
     // Refresh because the current filter might have change.
-    //pipe_refresh();
+    // pipe_refresh();
 
     if (filename == UID_FILTER_TYPE_DEFAULT)
         return;
-    
+
     try
     {
         auto pipe = get_compute_pipe();
@@ -1163,7 +1432,8 @@ void disable_filter()
     {
         auto pipe = get_compute_pipe();
         pipe->request_disable_filter();
-        while (pipe->get_disable_filter_requested()){
+        while (pipe->get_disable_filter_requested())
+        {
             continue;
         }
     }
@@ -1264,16 +1534,19 @@ const std::string browse_record_output_file(std::string& std_filepath)
     return file_ext;
 }
 
-void set_record_buffer_size(uint value) { 
+void set_record_buffer_size(uint value)
+{
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
-    
+
     // When Holovibes starts, this function will be accessed before the pipe is built.
-    try {
-        if (Holovibes::instance().is_recording()) 
-                stop_record();
+    try
+    {
+        if (Holovibes::instance().is_recording())
+            stop_record();
         get_compute_pipe()->init_record_queue();
     }
-    catch(const std::exception &e) {
+    catch (const std::exception& e)
+    {
         LOG_DEBUG("Pipe not initialized");
     }
 }
@@ -1300,18 +1573,20 @@ void set_record_mode(const std::string& text)
 
     RecordMode record_mode = api::get_record_mode();
     // When Holovibes starts, this function will be accessed before the pipe is built.
-    try {
+    try
+    {
         auto pipe = get_compute_pipe();
         if (record_mode != RecordMode::CHART)
         {
-            if (Holovibes::instance().is_recording()) 
+            if (Holovibes::instance().is_recording())
                 stop_record();
-            
-            get_compute_pipe()->init_record_queue();    
+
+            get_compute_pipe()->init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
     }
-    catch(const std::exception &e) {
+    catch (const std::exception& e)
+    {
         LOG_DEBUG("Pipe not initialized");
     }
 }

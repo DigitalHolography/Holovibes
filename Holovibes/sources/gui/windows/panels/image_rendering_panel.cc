@@ -275,7 +275,7 @@ void ImageRenderingPanel::refresh_input_filter(){
         return;
     }
 
-    GSH::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
     holovibes::api::pipe_refresh();
 }
 
