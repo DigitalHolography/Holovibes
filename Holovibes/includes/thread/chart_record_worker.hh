@@ -57,7 +57,7 @@ class ChartRecordWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::info("[ChartRecordWorker] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[ChartRecordWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

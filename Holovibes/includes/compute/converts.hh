@@ -93,7 +93,7 @@ class Converts
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::info("[Converts] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[Converts] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
     }

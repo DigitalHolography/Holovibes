@@ -123,7 +123,7 @@ class DelayedSettingsContainer
     template <typename T>
     enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
-        spdlog::info("[SettingsContainer] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(buffer_) = setting;
     }
 
@@ -158,7 +158,7 @@ class DelayedSettingsContainer
         if (std::get<S>(buffer_) == std::get<S>(settings_))
             return;
 
-        spdlog::info("[SettingsContainer] [apply_update] {}", typeid(S).name());
+        spdlog::trace("[SettingsContainer] [apply_update] {}", typeid(S).name());
         std::get<S>(settings_) = std::get<S>(buffer_);
     }
 
