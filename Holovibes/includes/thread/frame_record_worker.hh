@@ -36,6 +36,11 @@ class ICompute;
 class Holovibes;
 } // namespace holovibes
 
+namespace holovibes
+{
+  std::string get_record_filename(std::string filename);
+} // namespace holovibes
+
 namespace holovibes::worker
 {
 /*! \class FrameRecordWorker

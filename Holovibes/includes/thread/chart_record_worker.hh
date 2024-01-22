@@ -5,6 +5,7 @@
 #pragma once
 
 #include "worker.hh"
+#include "tools.hh"
 
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
@@ -19,6 +20,11 @@
   holovibes::settings::ZDistance
 
 #define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
+
+namespace holovibes
+{
+  std::string get_record_filename(std::string filename);
+} // namespace holovibes
 
 namespace holovibes::worker
 {

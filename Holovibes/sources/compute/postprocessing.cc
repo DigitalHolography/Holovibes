@@ -18,7 +18,6 @@ namespace holovibes::compute
 void Postprocessing::init()
 {
     LOG_FUNC();
-
     const size_t frame_res = fd_.get_frame_res();
 
     // No need for memset here since it will be completely overwritten by

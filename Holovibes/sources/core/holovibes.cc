@@ -60,11 +60,13 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             {CameraKind::Adimec, "CameraAdimec.dll"},
             {CameraKind::BitflowCyton, "BitflowCyton.dll"},
             {CameraKind::IDS, "CameraIds.dll"},
-            {CameraKind::Phantom, "CameraPhantom.dll"},
+            {CameraKind::Phantom, "AmetekS710EuresysCoaxlinkOcto.dll"},
             {CameraKind::Hamamatsu, "CameraHamamatsu.dll"},
             {CameraKind::xiQ, "CameraXiq.dll"},
             {CameraKind::xiB, "CameraXib.dll"},
             {CameraKind::OpenCV, "CameraOpenCV.dll"},
+            {CameraKind::AmetekS991EuresysCoaxlinkQSFP, "AmetekS991EuresysCoaxlinkQsfp+.dll"},
+            {CameraKind::Ametek, "EuresyseGrabber.dll"},
         };
         active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
     }
