@@ -1,9 +1,0 @@
-{
-    "version": 4,
-    "vendor": {
-        "conan": {}
-    },
-    "include": [
-        "C:\\Users\\compu\\Documents\\Holovibes\\Holovibes\\build\\generators\\CMakePresets.json"
-    ]
-}
