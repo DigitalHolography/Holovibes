@@ -57,6 +57,8 @@ qt_add_executable(Holovibes
     mainwindow.ui
     advancedsettingswindow.ui
     plotwindow.ui
+    Holovibes.ico
+    holovibes.rc
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
@@ -265,8 +267,15 @@ set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
 set(CPACK_COMPONENTS_ALL application)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
-set(CPACK_NSIS_INSTALLER_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/Holovibes.ico")
-set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/Holovibes.ico")
+
+set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "Holovibes.exe")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
+
+# Add SetCompress off to NSIS script
+set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
+    SetCompress off
+")
 
 include(CPack)
