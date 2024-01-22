@@ -14,7 +14,7 @@ void pipe_refresh()
 
     try
     {
-        spdlog::info("pipe_refresh");
+        spdlog::trace("pipe_refresh");
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)

@@ -88,7 +88,7 @@ class ThreadWorkerController
         if (!worker_)
             return;
 
-        spdlog::info("[ThreadWorkerController] [update_setting] {}", typeid(S).name());
+        spdlog::trace("[ThreadWorkerController] [update_setting] {}", typeid(S).name());
         worker_->update_setting(setting);
     }
 

@@ -49,7 +49,7 @@ class InformationWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::info("[InformationWorker] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[InformationWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {

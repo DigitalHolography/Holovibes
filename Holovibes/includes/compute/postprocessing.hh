@@ -88,12 +88,12 @@ class Postprocessing
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
-            spdlog::info("[PostProcessing] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
             onrestart_settings_.update_setting(setting);
         }
     }

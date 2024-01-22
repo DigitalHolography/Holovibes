@@ -89,7 +89,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::info("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {

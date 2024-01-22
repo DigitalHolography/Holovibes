@@ -311,7 +311,7 @@ class Holovibes
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::info("[Holovibes] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[Holovibes] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
             realtime_settings_.update_setting(setting);
