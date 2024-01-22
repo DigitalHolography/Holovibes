@@ -506,18 +506,7 @@ void set_reticle_zone(const units::RectFd& rect);
  */
 unsigned int get_raw_bitshift();
 
-/**
- * \brief Helper functions to get the member of the current view
- * \tparam T is the getter function
- */
-template <typename T>
-static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_member)
-{
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::Filter2D)
-        return filter2d_member;
-    return get_xyz_member(xy_member, xz_member, yz_member);
-}
+
 
 template <typename T>
 static T get_xyz_member(T xy_member, T xz_member, T yz_member)
@@ -541,6 +530,19 @@ static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
         xz_member(value);
     else
         yz_member(value);
+}
+
+/**
+ * \brief Helper functions to get the member of the current view
+ * \tparam T is the getter function
+ */
+template <typename T>
+static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_member)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        return filter2d_member;
+    return get_xyz_member(xy_member, xz_member, yz_member);
 }
 
 /*! \brief Gets the contrast min of a given window
