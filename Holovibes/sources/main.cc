@@ -106,6 +106,24 @@ static void print_help(holovibes::OptionsParser parser)
     std::cout << parser.get_opts_desc();
 }
 
+void copy_ini_files()
+{
+    std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
+    std::filesystem::path src = __CAMERAS_CONFIG_REFERENCE__;
+
+    if (std::filesystem::exists(dest))
+        return;
+
+    std::filesystem::create_directories(dest);
+
+    for (const auto& entry : std::filesystem::directory_iterator(src))
+    {
+        std::filesystem::path file = entry.path();
+        std::filesystem::path dest_file = dest / file.filename();
+        std::filesystem::copy(file, dest_file);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
@@ -133,6 +151,8 @@ int main(int argc, char* argv[])
     int ret = 0;
     try
     {
+        copy_ini_files();
+
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(false);

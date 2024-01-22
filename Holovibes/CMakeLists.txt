@@ -107,7 +107,7 @@ target_compile_options(Holovibes PRIVATE
 )
 
 target_compile_definitions(Holovibes PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:
+    $<$<COMPILE_LANGUAGE:CXX>:.
         _CRT_SECURE_NO_WARNINGS
     >
 )
@@ -150,10 +150,11 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/hamamatsu.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/hamamatsu.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ids.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ids.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
-    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s710_euresys_coaxlink_octo.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s710_euresys_coaxlink_octo.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s991_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s991_euresys_coaxlink_qsfp+.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bfml/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
 )
 
 # ---------------------------------------------------------------------
@@ -236,7 +237,9 @@ if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
 endif()
 
 if (HAVE_EGrabber AND HAVE_EGrabbers)
-    install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraPhantom.dll
+    install(FILES 
+        $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
+        $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
         DESTINATION .
         COMPONENT application)
 endif()
@@ -262,11 +265,8 @@ set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
 set(CPACK_COMPONENTS_ALL application)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
-
-# Add SetCompress off to NSIS script
-set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
-    SetCompress off
-")
-
+set(CPACK_NSIS_INSTALLER_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/Holovibes.ico")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
 include(CPack)

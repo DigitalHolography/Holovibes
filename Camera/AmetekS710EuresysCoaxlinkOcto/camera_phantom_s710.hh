@@ -90,6 +90,12 @@ class EHoloGrabber
                float exposureTime,
                std::string& cycleMinimumPeriod,
                std::string& pixelFormat,
+               std::string& trigger_mode,
+               std::string& fan_ctrl,
+               float gain,
+               std::string& balance_white_marker,
+               std::string& gain_selector,
+               std::string& flat_field_correction,
                EGenTL& gentl)
     {
         grabbers_.root[0][0].reposition(0);
@@ -124,7 +130,7 @@ class EHoloGrabber
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", "TriggerModeOn"); // camera in triggered mode
+        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
         grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
@@ -147,7 +153,12 @@ class EHoloGrabber
         // float factor = fps / 100;
         // float Expvalue = 9000 / factor;
         grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
-        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", "BalanceWhiteMarkerOff");
+        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
+
+        grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
+        grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
+        grabbers_[0]->setString<RemoteModule>("FanCtrl", fan_ctrl);
+        grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
     }
 
     void init(unsigned int nb_buffers)
@@ -257,5 +268,12 @@ class CameraPhantom : public Camera
     float exposure_time_;
     std::string cycle_minimum_period_;
     std::string pixel_format_;
+
+    std::string trigger_mode_;
+    std::string fan_ctrl_;
+    float gain_;
+    std::string balance_white_marker_;
+    std::string gain_selector_;
+    std::string flat_field_correction_;
 };
 } // namespace camera

@@ -11,12 +11,11 @@
 namespace camera
 {
 CameraPhantom::CameraPhantom()
-    : Camera("phantom.ini")
+    : Camera("ametek_s710_euresys_coaxlink_octo.ini")
 {
     name_ = "Phantom S710";
     pixel_size_ = 20;
 
-    load_default_params();
     if (ini_file_is_open())
     {
         load_ini_params();
@@ -38,6 +37,12 @@ void CameraPhantom::init_camera()
                     exposure_time_,
                     cycle_minimum_period_,
                     pixel_format_,
+                    trigger_mode_,
+                    fan_ctrl_,
+                    gain_,
+                    balance_white_marker_,
+                    gain_selector_,
+                    flat_field_correction_,
                     *gentl_);
     grabber_->init(nb_buffers_);
 
@@ -76,33 +81,28 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
     return ret;
 }
 
-void CameraPhantom::load_default_params()
-{
-    nb_buffers_ = 64;
-    nb_images_per_buffer_ = 4;
-    nb_grabbers_ = 2;
-    fullHeight_ = 512;
-    width_ = 512;
-    trigger_source_ = "SWTRIGGER";
-    trigger_selector_ = "ExposureStart";
-    exposure_time_ = 9000;
-    cycle_minimum_period_ = "10000.0";
-    pixel_format_ = "Mono8";
-}
+void CameraPhantom::load_default_params() {}
 
 void CameraPhantom::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
-    nb_buffers_ = pt.get<unsigned int>("phantom.NbBuffers", nb_buffers_);
-    nb_images_per_buffer_ = pt.get<unsigned int>("phantom.NbImagesPerBuffer", nb_images_per_buffer_);
-    nb_grabbers_ = pt.get<unsigned int>("phantom.NbGrabbers", nb_grabbers_);
-    fullHeight_ = pt.get<unsigned int>("phantom.FullHeight", fullHeight_);
-    width_ = pt.get<unsigned int>("phantom.Width", width_);
-    trigger_source_ = pt.get<std::string>("phantom.TriggerSource", trigger_source_);
-    trigger_selector_ = pt.get<std::string>("phantom.TriggerSelector", trigger_selector_);
-    exposure_time_ = pt.get<float>("phantom.ExposureTime", exposure_time_);
-    cycle_minimum_period_ = pt.get<std::string>("phantom.CycleMinimumPeriod", cycle_minimum_period_);
-    pixel_format_ = pt.get<std::string>("phantom.PixelFormat", pixel_format_);
+    nb_buffers_ = pt.get<unsigned int>("s710.NbBuffers", nb_buffers_);
+    nb_images_per_buffer_ = pt.get<unsigned int>("s710.NbImagesPerBuffer", nb_images_per_buffer_);
+    nb_grabbers_ = pt.get<unsigned int>("s710.NbGrabbers", nb_grabbers_);
+    fullHeight_ = pt.get<unsigned int>("s710.FullHeight", fullHeight_);
+    width_ = pt.get<unsigned int>("s710.Width", width_);
+    trigger_source_ = pt.get<std::string>("s710.TriggerSource", trigger_source_);
+    trigger_selector_ = pt.get<std::string>("s710.TriggerSelector", trigger_selector_);
+    exposure_time_ = pt.get<float>("s710.ExposureTime", exposure_time_);
+    cycle_minimum_period_ = pt.get<std::string>("s710.CycleMinimumPeriod", cycle_minimum_period_);
+    pixel_format_ = pt.get<std::string>("s710.PixelFormat", pixel_format_);
+
+    trigger_mode_ = pt.get<std::string>("s710.TriggerMode", trigger_mode_);
+    fan_ctrl_ = pt.get<std::string>("s710.FanCtrl", fan_ctrl_);
+    gain_ = pt.get<float>("s710.Gain", gain_);
+    balance_white_marker_ = pt.get<std::string>("s710.BalanceWhiteMarker", balance_white_marker_);
+    gain_selector_ = pt.get<std::string>("s710.GainSelector", gain_selector_);
+    flat_field_correction_ = pt.get<std::string>("s710.FlatFieldCorrection", flat_field_correction_);
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
     {

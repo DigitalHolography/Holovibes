@@ -57,22 +57,24 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
 class EHoloGrabber
 {
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format)
+    EHoloGrabber(EGenTL& gentl)
         : grabbers_(gentl)
-        , nb_images_per_buffer_(nb_images_per_buffer)
     {
         // Fetch the first grabber info to determine the width, height and depth
         // of the full image.
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
+        // Get pixel format and nb images
+        std::string pixel_format = grabbers_[0]->getPixelFormat();
+        nb_images_per_buffer_ = grabbers_[0]->getInteger<StreamModule>("BufferPartCount");
+
         width_ = grabbers_[0]->getWidth();
         height_ = grabbers_[0]->getHeight() * grabbers_.length();
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
-        for (unsigned i = 0; i < grabbers_.length(); ++i)
-            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+        //for (unsigned i = 0; i < grabbers_.length(); ++i)
+        //    grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
     virtual ~EHoloGrabber()
@@ -83,74 +85,21 @@ class EHoloGrabber
         cudaFreeHost(ptr_);
     }
 
-    void setup(unsigned int fullHeight,
-               unsigned int width,
-               unsigned int nb_grabbers,
-               std::string& triggerSource,
-               float exposureTime,
-               unsigned int cycleMinimumPeriod,
-               std::string& pixelFormat,
-               std::string& gain_selector,
-               float gain,
-               std::string& balance_white_marker,
-               std::string& trigger_mode,
-               std::string& trigger_selector,
-               EGenTL& gentl)
-    {
-        grabbers_.root[0][0].reposition(0);
+    void setup() {
+        grabbers_.root[0][1].reposition(0);
         grabbers_.root[0][1].reposition(1);
-        grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
 
-        size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
-        size_t grabberCount = grabbers_.length();
-        size_t height = fullHeight / grabberCount;
-        size_t stripeHeight = 4;
-        size_t stripePitch = stripeHeight * grabberCount;
-        
-        for (size_t ix = 0; ix < grabberCount; ++ix)
+        // grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
+        // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
+
+        size_t block_height = grabbers_.length() == 2 ? 0 : 8;
+        size_t stripe_offset = grabbers_.length() == 2 ? 4 : 8;
+
+        for (size_t ix = 0; ix < grabbers_.length(); ix++)
         {
-            grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
-            grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
-            grabbers_[ix]->setString<RemoteModule>("PixelFormat", pixelFormat);
-
-            grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_1Y");
-            grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("LineWidth", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
-            grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
-            grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
-            grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
-            grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+            grabbers_[ix]->setInteger<StreamModule>("BlockHeight", block_height);
+            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", stripe_offset * ix);
         }
-
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
-        grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
-        std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
-        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
-        grabbers_[0]->setString<RemoteModule>("TriggerSelector", trigger_selector); // source of trigger CXP
-
-        /* 100 fps -> 10000us */
-        // float factor = fps / 100;
-        // float cycleMinimumPeriod = 10000 / factor;
-        // float cycleMinimumPeriod = 1e6 / fps;
-        // std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
-        if (triggerSource == "SWTRIGGER")
-        {
-            grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
-                                                  cycleMinimumPeriod);               // set the trigger rate to 250K Hz
-            grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
-            grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
-        }
-
-        /* 100 fps -> 9000us */
-        // float factor = fps / 100;
-        // float Expvalue = 9000 / factor;
-        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
-        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
-    
-        grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
-        grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
     }
 
     void init(unsigned int nb_buffers)
@@ -258,12 +207,14 @@ class CameraPhantom : public Camera
     std::string trigger_source_;
     std::string trigger_selector_;
     float exposure_time_;
-    unsigned int cycle_minimum_period_;
+    std::string cycle_minimum_period_;
     std::string pixel_format_;
 
-    std::string gain_selector_;
     std::string trigger_mode_;
+    std::string fan_ctrl_;
     float gain_;
     std::string balance_white_marker_;
+    std::string gain_selector_;
+    std::string flat_field_correction_;
 };
 } // namespace camera
