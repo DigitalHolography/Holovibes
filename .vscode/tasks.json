@@ -1,37 +1,32 @@
 {
+    "version": "2.0.0",
     "tasks": [
         {
             "type": "shell",
-            "label": "Build",
-            "command": "./dev.py",
-            "args": [
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
+            "label": "Conan: install",
+            "command": "conan install . --build missing --settings compiler.cppstd=20 --settings \"&:build_type=RelWithDebInfo\" --settings build_type=Release",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "detail": "Build"
+            }
         },
         {
             "type": "shell",
-            "label": "Clean",
-            "command": "./dev.py",
-            "args": [
-                "clean"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
+            "label": "CMake: configure",
+            "command": "build\\generators\\conanbuild.bat && cmake --preset conan-relwithdebinfo",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "detail": "Clean"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "CMake: build",
+            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
-    ],
-    "version": "2.0.0"
+    ]
 }

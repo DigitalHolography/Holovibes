@@ -60,6 +60,8 @@ class Camera : public ICamera
         ini_file_ = std::ifstream(ini_name_);
         if (ini_file_is_open())
             boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
+        else
+            spdlog::warn("Unable to open INI file {}", ini_name_);
     }
 
     bool ini_file_is_open() const { return ini_file_.is_open(); }

@@ -322,7 +322,7 @@ class ICompute
     template <typename T>
     inline void update_setting_icompute(T setting)
     {
-        spdlog::info("[ICompute] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[ICompute] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {

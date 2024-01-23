@@ -19,7 +19,6 @@
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
 
-#define SAMPLING_FREQUENCY 1
 static constexpr ushort max_ushort_value = (1 << (sizeof(ushort) * 8)) - 1;
 
 __global__ void kernel_normalized_convert_hsv_to_rgb(const float* src, float* dst, size_t frame_res)
@@ -121,10 +120,7 @@ __device__ float get_real_z(size_t z, int depth, bool z_fft_shift)
 /// @brief Convert the input complex number to a float
 /// @param input_elm input complex number
 /// @return a float, reprensenting the magnitude of the input complex number
-__device__ float get_input_elm(cuComplex input_elm)
-{
-    return hypotf(input_elm.x, input_elm.y);
-}
+__device__ float get_input_elm(cuComplex input_elm) { return hypotf(input_elm.x, input_elm.y); }
 
 __global__ void kernel_compute_and_fill_h(const cuComplex* gpu_input,
                                           float* gpu_output,
@@ -303,104 +299,27 @@ void compute_and_fill_hsv(const cuComplex* gpu_input,
                           int depth,
                           bool z_fft_shift)
 {
+    // HUE
     compute_and_fill_h(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth, z_fft_shift);
+    // SATURATION
     compute_and_fill_s(gpu_input, gpu_output, frame_res, hsv_struct, stream, depth, z_fft_shift);
+    // VALUE
     compute_and_fill_v(gpu_input, gpu_output, frame_res, hsv_struct, stream);
 }
 
-// Apply a box blur on the specified array
-void apply_blur(float* gpu_arr, uint height, uint width, float kernel_size, const cudaStream_t stream)
-{
-    size_t frame_res = height * width;
-
-    float* gpu_float_blur_matrix;
-    cudaSafeCall(cudaMalloc(&gpu_float_blur_matrix, frame_res * sizeof(float)));
-    cudaSafeCall(cudaMemsetAsync(gpu_float_blur_matrix, 0, frame_res * sizeof(float), stream));
-
-    float* blur_matrix;
-    cudaSafeCall(cudaMallocHost(&blur_matrix, kernel_size * sizeof(float)));
-    float blur_value = 1.0f / (float)(kernel_size * kernel_size);
-    unsigned min_pos_kernel_y = height / 2 - kernel_size / 2;
-    unsigned min_pos_kernel_x = width / 2 - kernel_size / 2;
-    for (size_t i = 0; i < kernel_size; i++)
-        blur_matrix[i] = blur_value;
-
-    for (size_t i = 0; i < kernel_size; i++)
-    {
-        cudaXMemcpyAsync(gpu_float_blur_matrix + min_pos_kernel_x + width * (i + min_pos_kernel_y),
-                         blur_matrix,
-                         kernel_size * sizeof(float),
-                         cudaMemcpyHostToDevice,
-                         stream);
-    }
-
-    float* cpu_float_blur_matrix = new float[frame_res];
-    cudaSafeCall(cudaMemcpyAsync(cpu_float_blur_matrix,
-                                 gpu_float_blur_matrix,
-                                 frame_res * sizeof(float),
-                                 cudaMemcpyDeviceToHost,
-                                 stream));
-
-    cuComplex* gpu_complex_blur_matrix;
-    cudaSafeCall(cudaMalloc(&gpu_complex_blur_matrix, frame_res * sizeof(cuComplex)));
-    cudaSafeCall(cudaMemcpy2DAsync(gpu_complex_blur_matrix,
-                                   sizeof(cuComplex),
-                                   gpu_float_blur_matrix,
-                                   sizeof(float),
-                                   sizeof(float),
-                                   frame_res,
-                                   cudaMemcpyDeviceToDevice,
-                                   stream));
-
-    shift_corners(gpu_complex_blur_matrix, 1, width, height, stream);
-
-    CufftHandle handle{static_cast<int>(width), static_cast<int>(height), CUFFT_C2C};
-    cufftSafeCall(cufftExecC2C(handle, gpu_complex_blur_matrix, gpu_complex_blur_matrix, CUFFT_FORWARD));
-
-    cuComplex* gpu_cuComplex_buffer;
-    cudaSafeCall(cudaMalloc(&gpu_cuComplex_buffer, frame_res * sizeof(cuComplex)));
-
-    convolution_kernel(gpu_arr,
-                       nullptr,
-                       gpu_cuComplex_buffer,
-                       &handle,
-                       frame_res,
-                       gpu_complex_blur_matrix,
-                       false,
-                       false,
-                       stream);
-
-    cudaXFree(gpu_cuComplex_buffer);
-    cudaXFree(gpu_float_blur_matrix);
-    cudaXFree(gpu_complex_blur_matrix);
-}
-
-void hsv_normalize(
-    float* const gpu_arr, const uint frame_res, float* const gpu_min, float* const gpu_max, const cudaStream_t stream)
-{
-    reduce_min(gpu_arr, gpu_min, frame_res, stream); // Get the minimum value
-    reduce_max(gpu_arr, gpu_max, frame_res, stream); // Get the maximum value
-
-    const auto lambda = [gpu_min, gpu_max] __device__(const float pixel)
-    { return (pixel - *gpu_min) * (1 / (*gpu_max - *gpu_min)); };
-
-    auto exec_policy = thrust::cuda::par.on(stream);
-    thrust::transform(exec_policy, gpu_arr, gpu_arr + frame_res, gpu_arr, lambda);
-}
-
-/// @brief Basic operation on any specified channel, with any operation requested
+/// @brief Basic operation on any specified channel (S or V)
 void apply_operations(float* gpu_arr,
                       uint height,
                       uint width,
                       const holovibes::CompositeChannel& channel_struct,
                       HSV channel,
-                      threshold_op op,
                       const cudaStream_t stream)
 {
     const uint frame_res = height * width;
     float* gpu_channel_arr = gpu_arr + frame_res * channel;
     auto exec_policy = thrust::cuda::par.on(stream);
 
+    // Apply the percentile and threshold on the specified channel
     apply_percentile_and_threshold(gpu_channel_arr,
                                    frame_res,
                                    width,
@@ -409,51 +328,30 @@ void apply_operations(float* gpu_arr,
                                    channel_struct.threshold.max,
                                    stream);
 
-    if (op == CLAMP || op == CRUSH)
-    {
-        threshold_top_bottom(gpu_channel_arr,
-                             channel_struct.slider_threshold.min,
-                             channel_struct.slider_threshold.max,
-                             frame_res,
-                             stream);
+    // Apply a clamping operation with the sliders min and max on the specified channel
+    threshold_top_bottom(gpu_channel_arr,
+                         channel_struct.slider_threshold.min,
+                         channel_struct.slider_threshold.max,
+                         frame_res,
+                         stream);
 
-        if (op == CRUSH)
-        {
-            auto min = channel_struct.slider_threshold.min;
-            auto scale = 1.0f / (channel_struct.slider_threshold.max - min);
-            const auto crush_op = [min, scale] __device__(const float pixel) { return (pixel - min) * scale; };
+    // The operation is a linear stretching of the values between the min and max sliders
+    auto min = channel_struct.slider_threshold.min;
+    auto scale = 1.0f / (channel_struct.slider_threshold.max - min);
+    const auto op = [min, scale] __device__(const float pixel) { return (pixel - min) * scale; };
 
-            thrust::transform(exec_policy, gpu_channel_arr, gpu_channel_arr + frame_res, gpu_channel_arr, crush_op);
-        }
-    }
-    else if (op == ZOOM)
-    {
-        auto min = channel_struct.slider_threshold.min;
-        auto diff = channel_struct.slider_threshold.max - min;
-        const auto zoom_op = [min, diff] __device__(const float pixel) { return (pixel * diff) + min; };
-
-        thrust::transform(exec_policy, gpu_channel_arr, gpu_channel_arr + frame_res, gpu_channel_arr, zoom_op);
-    }
+    // Apply the operation on the specified channel
+    thrust::transform(exec_policy, gpu_channel_arr, gpu_channel_arr + frame_res, gpu_channel_arr, op);
 }
 
-/// @brief Special function for hue channel because hue has two UI sliders and a blur option
+/// @brief Special function for hue channel because hue has two UI sliders
 void apply_operations_on_h(
     float* gpu_h_arr, uint height, uint width, const holovibes::CompositeH& h_struct, const cudaStream_t stream)
 {
-    // To perform a renormalization, a single min buffer and single max buffer is needed gpu side
-    holovibes::cuda_tools::CudaUniquePtr<float> gpu_min(1);
-    holovibes::cuda_tools::CudaUniquePtr<float> gpu_max(1);
     const uint frame_res = height * width;
     auto exec_policy = thrust::cuda::par.on(stream);
 
-    // H channel has a blur option
-    if (h_struct.blur.enabled)
-    {
-        apply_blur(gpu_h_arr, height, width, h_struct.blur.kernel_size, stream);
-
-        //hsv_normalize(gpu_h_arr, height * width, gpu_min.get(), gpu_max.get(), stream);
-    }
-
+    // Apply the percentile and threshold on the hue channel
     apply_percentile_and_threshold(gpu_h_arr,
                                    frame_res,
                                    width,
@@ -462,13 +360,17 @@ void apply_operations_on_h(
                                    h_struct.threshold.max,
                                    stream);
 
+    // Get the parameters from the two sliders on the GUI
     float range_min = h_struct.slider_threshold.min;
     float range_max = h_struct.slider_threshold.max;
     float shift_min = h_struct.slider_shift.min;
     float shift_max = h_struct.slider_shift.max;
 
+    // m is the slope of the linear function, p is the offset
     auto m = (range_max - range_min) / (shift_max - shift_min);
     auto p = range_min - m * shift_min;
+
+    // The operation is constant between 0 and shift_min, linear between shift_min and shift_max, and constant after
     const auto op = [m, p, shift_min, shift_max, range_min, range_max] __device__(const float pixel)
     {
         if (pixel < shift_min)
@@ -478,10 +380,12 @@ void apply_operations_on_h(
         else
             return m * pixel + p;
     };
+
+    // Apply the operation on the hue channel
     thrust::transform(exec_policy, gpu_h_arr, gpu_h_arr + frame_res, gpu_h_arr, op);
 }
 
-/// @brief Apply basic image processing operations on h,s and v (threshold, normalization, blur...)
+/// @brief Apply basic image processing operations on h,s and v (threshold, normalization...)
 void apply_operations_on_hsv(float* tmp_hsv_arr,
                              const uint height,
                              const uint width,
@@ -491,9 +395,9 @@ void apply_operations_on_hsv(float* tmp_hsv_arr,
     // HUE
     apply_operations_on_h(tmp_hsv_arr, height, width, hsv_struct.h, stream);
     // SATURATION
-    apply_operations(tmp_hsv_arr, height, width, hsv_struct.s, HSV::S, threshold_op::CRUSH, stream);
+    apply_operations(tmp_hsv_arr, height, width, hsv_struct.s, HSV::S, stream);
     // VALUE
-    apply_operations(tmp_hsv_arr, height, width, hsv_struct.v, HSV::V, threshold_op::CRUSH, stream);
+    apply_operations(tmp_hsv_arr, height, width, hsv_struct.v, HSV::V, stream);
 }
 
 /// @brief Create rgb color by using hsv computation and then converting to rgb
@@ -526,6 +430,7 @@ void hsv(const cuComplex* gpu_input,
     cudaXFree(tmp_hsv_arr);
 }
 
+// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly gradient overlay
 /*
 __global__ void kernel_fill_hsv_xz_cut(const float* gpu_in_cut,
                                        float* gpu_hsv_cut,

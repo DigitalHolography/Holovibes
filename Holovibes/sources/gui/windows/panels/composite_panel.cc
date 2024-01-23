@@ -398,17 +398,5 @@ void CompositePanel::actualize_frequency_channel_v()
     ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
 }
 
-void CompositePanel::actualize_checkbox_h_gaussian_blur()
-{
-    api::actualize_selection_h_gaussian_blur(ui_->checkBox_h_gaussian_blur->isChecked());
-
-    ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
-}
-
-void CompositePanel::actualize_kernel_size_blur()
-{
-    api::actualize_kernel_size_blur(ui_->SpinBox_hue_blur_kernel_size->value());
-}
-
 void CompositePanel::set_composite_area() { api::set_composite_area(); }
 } // namespace holovibes::gui

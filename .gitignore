@@ -38,6 +38,7 @@ $RECYCLE.BIN/
 bin/
 Testing/
 build/Ninja
+build/
 
 # Folders for setup creation
 setup_creator_files
@@ -69,3 +70,4 @@ venv/
 
 # spdlog
 libs/spdlog/build
+CMakeUserPresets.json

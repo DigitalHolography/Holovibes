@@ -2,6 +2,7 @@
 #include "frame_desc.hh"
 #include "icompute.hh"
 
+#include "API.hh"
 #include "concurrent_deque.hh"
 #include "contrast_correction.cuh"
 #include "chart.cuh"
@@ -306,7 +307,7 @@ void Rendering::autocontrast_caller(
                                    setting<settings::ReticleZone>(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-        GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+        api::update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch
         compute_percentile_yz_view(input,
@@ -319,7 +320,7 @@ void Rendering::autocontrast_caller(
                                    setting<settings::ReticleZone>(),
                                    setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
-        GSH::instance().update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
+        api::update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;
     }
 }

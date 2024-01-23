@@ -36,6 +36,11 @@ class ICompute;
 class Holovibes;
 } // namespace holovibes
 
+namespace holovibes
+{
+  std::string get_record_filename(std::string filename);
+} // namespace holovibes
+
 namespace holovibes::worker
 {
 /*! \class FrameRecordWorker
@@ -74,7 +79,7 @@ class FrameRecordWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::info("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
+        spdlog::trace("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

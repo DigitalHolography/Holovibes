@@ -6,6 +6,7 @@
 #include "global_state_holder.hh"
 #include "API.hh"
 #include "logger.hh"
+#include <spdlog/spdlog.h>
 
 namespace holovibes::worker
 {
@@ -25,6 +26,8 @@ void FrameRecordWorker::integrate_fps_average()
 size_t FrameRecordWorker::compute_fps_average() const
 {
     LOG_FUNC();
+    spdlog::trace("fps_current_index_ = {}", fps_current_index_);
+
 
     if (fps_current_index_ == 0)
         return 0;
@@ -121,7 +124,8 @@ void FrameRecordWorker::run()
 
         //api::set_record_frame_skip(nb_frames_to_skip);
 
-        LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded);
+        //api::set_record_frame_skip(nb_frames_to_skip);
+        LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
         if (contiguous_frames.has_value())

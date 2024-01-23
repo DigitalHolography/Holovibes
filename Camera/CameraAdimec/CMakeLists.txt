@@ -28,12 +28,6 @@ target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/R64d.lib"
     "${BITFLOW_SDK}/Lib64/clallserial.lib"
     "${BITFLOW_SDK}/Lib64/clserbit.lib"
-
     Boost::boost
-)
-
-# Generate the dll file in build/Debug or build/Release
-set_target_properties("${PROJECT_NAME}"
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
+    spdlog::spdlog_header_only
 )

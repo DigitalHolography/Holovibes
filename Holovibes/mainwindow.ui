@@ -1817,53 +1817,10 @@
                 </property>
                </widget>
               </item>
-              <item row="8" column="4" colspan="2">
-               <widget class="QSpinBox" name="SpinBox_hue_blur_kernel_size">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="maximum">
-                 <number>100</number>
-                </property>
-                <property name="value">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="1">
-               <widget class="QCheckBox" name="checkBox_h_gaussian_blur">
-                <property name="minimumSize">
-                 <size>
-                  <width>10</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="0" colspan="5">
                <widget class="QLabel" name="label_hue_freq">
                 <property name="text">
                  <string>Z selection </string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Blur</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="3">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Size</string>
                 </property>
                </widget>
               </item>
@@ -3193,6 +3150,8 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
      <addaction name="actionOpenCV"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionEGrabberStudio"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3403,6 +3362,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionEGrabberStudio">
+   <property name="text">
+    <string>Euresys eGrabber</string>
    </property>
   </action>
   <action name="actionReload_ini">
@@ -3797,7 +3766,7 @@ p, li { white-space: pre-wrap; }
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_auto_refresh_contrast(bool)</slot>
+   <slot>set_contrast_auto_refresh(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>349</x>
@@ -4404,22 +4373,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_h_gaussian_blur</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>CompositePanel</receiver>
-   <slot>actualize_checkbox_h_gaussian_blur()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>498</x>
-     <y>228</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SpinBox_saturation_freq_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
@@ -4564,22 +4517,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SpinBox_hue_blur_kernel_size</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>CompositePanel</receiver>
-   <slot>actualize_kernel_size_blur()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>591</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SpinBox_saturation_freq_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
@@ -4695,7 +4632,7 @@ p, li { white-space: pre-wrap; }
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>invert_contrast(bool)</slot>
+   <slot>set_contrast_invert(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>259</x>
@@ -5203,6 +5140,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+    <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEGrabberStudio</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_euresys_egrabber()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
@@ -5414,7 +5383,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
-  <slot>invert_contrast(bool)</slot>
+  <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_view_mode(QString)</slot>
@@ -5422,6 +5391,8 @@ p, li { white-space: pre-wrap; }
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_bitflow_cyton()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>camera_euresys_egrabber()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>
@@ -5486,7 +5457,6 @@ p, li { white-space: pre-wrap; }
   <slot>slide_update_threshold_s_max()</slot>
   <slot>slide_update_threshold_v_min()</slot>
   <slot>slide_update_threshold_v_max()</slot>
-  <slot>actualize_kernel_size_blur()</slot>
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
   <slot>set_composite_area()</slot>
@@ -5495,7 +5465,7 @@ p, li { white-space: pre-wrap; }
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
-  <slot>set_auto_refresh_contrast(bool)</slot>
+  <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>

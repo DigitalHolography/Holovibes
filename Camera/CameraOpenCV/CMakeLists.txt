@@ -14,13 +14,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 )
 
 target_link_libraries("${PROJECT_NAME}"
-
     Boost::boost
-    opencv::videoio
-)
-
-# Generate the dll file in build/Debug or build/Release
-set_target_properties("${PROJECT_NAME}"
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
+    opencv_videoio
+    spdlog::spdlog_header_only
 )

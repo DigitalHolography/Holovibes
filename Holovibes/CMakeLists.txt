@@ -1,50 +1,5 @@
-project(Holovibes CXX CUDA)
-
-# ---------------------------------------------------------------------
-# Options and utils
-# ---------------------------------------------------------------------
-
-# compile_commands.json for vscode
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Force cmake to generate MOC from *.ui files for Qt
-cmake_policy(SET CMP0100 NEW)
-
-# Qt file generators
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+# Where to look for .ui files.
 set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
-
-### CUDA Flags
-
-# "--extended-lambda"                                      : enable __device__ lambda
-# "-Xcudafe --diag_suppress=field_without_dll_interface"   : suppressed warning caused by Qt and NVCC conflict
-string(APPEND CMAKE_CUDA_FLAGS " --extended-lambda -Xcudafe --diag_suppress=field_without_dll_interface")
-
-### C++ Flags
-
-# "/W3"                     : Activate almost all warningd
-# "/WX"                     : Transform all warnings into errors
-string(APPEND CMAKE_CXX_FLAGS " /W3 /WX")
-
-# ---------------------------------------------------------------------
-# Includes and linkages
-# ---------------------------------------------------------------------
-
-# Packages
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
-find_package(opengl_system REQUIRED)
-find_package(GTest REQUIRED)
-find_package(glm REQUIRED)
-find_package(nlohmann_json REQUIRED)
-
-# Includes
-function(target_include_external_dirs target type)
-    foreach(dir ${ARGN})
-        target_compile_options(${target} ${type} "/external:I${dir}")
-    endforeach()
-endfunction()
 
 SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
@@ -82,61 +37,39 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
     includes/tools/logger/
-
+    "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )
 
-# The following targets are going to be generated:
-# - Holovibes_cuda_lib (lib)
-# - Holovibes_lib (lib, inherits from Holovibes_cuda_lib)
-# - Holovibes (executable, inherits from Holovibes_lib)
-# - unit_tests (executable, inherits from Holovibes_lib)
-#
-# Holovibes_lib is the core containing all sources and linked to every external
-# libraries (QT, Boost, ...). This way we can prevent redundancy and generate
-# the main executable and tests based on it.
-
-
 # ---------------------------------------------------------------------
-# Target "${PROJECT_NAME}_cuda_lib"
+# The executable
 # ---------------------------------------------------------------------
+file(GLOB_RECURSE SOURCES sources/*.cc)
+file(GLOB_RECURSE HEADERS includes/*.hh)
+file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
+file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
 
-add_library("${PROJECT_NAME}_cuda_lib" STATIC)
-
-set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_ARCHITECTURES OFF)
-set_property(TARGET "${PROJECT_NAME}_cuda_lib" PROPERTY CUDA_STANDARD 17)
-
-target_include_directories("${PROJECT_NAME}_cuda_lib" PRIVATE ${CUDA_EXTERNAL_INCLUDES} ${INTERNAL_INCLUDES})
-
-add_subdirectory(cuda_sources) # Add cuda sources to the target
-# ---------------------------------------------------------------------
-# Target "${PROJECT_NAME}_lib"
-# ---------------------------------------------------------------------
-
-add_library("${PROJECT_NAME}_lib" STATIC
-     # CMake will automatically generate C++ headers
-     # (ui_xxx.h) from the following QT .ui files.
-     # Add the relevent .hh in Holovibes/includes/CMakeList.txt
-
-     mainwindow.ui
-     advancedsettingswindow.ui
-     plotwindow.ui
+qt_add_executable(Holovibes
+    ${SOURCES}
+    ${HEADERS}
+    ${CUDA_SOURCES}
+    ${CUDA_HEADERS}
+    mainwindow.ui
+    advancedsettingswindow.ui
+    plotwindow.ui
+    Holovibes.ico
+    holovibes.rc
 )
 
-target_include_external_dirs("${PROJECT_NAME}_cuda_lib" INTERFACE ${EXTERNAL_INCLUDES})
-target_include_directories("${PROJECT_NAME}_cuda_lib" INTERFACE ${INTERNAL_INCLUDES})
+qt_add_resources(Holovibes "HolovibesRessources"
+    PREFIX "/"
+    FILES
+    Holovibes.ico
+    holovibes_logo.png
+)
 
-# Add sources to the target and includes that
-# need to be compiled to the target
-add_subdirectory(sources)
-add_subdirectory(includes)
-
-# Precompile header (to remove)
-if(COMMAND target_precompile_headers)
-    target_precompile_headers("${PROJECT_NAME}_lib" PUBLIC "includes/stdafx.hh")
-endif()
-
-target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
+target_link_libraries(Holovibes PRIVATE 
+    spdlog::spdlog_header_only
     Boost::program_options
     Qt6::OpenGL
     Qt6::OpenGLWidgets
@@ -144,126 +77,205 @@ target_link_libraries("${PROJECT_NAME}_lib" PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    opencv::videoio
+    opencv_videoio
     opengl::opengl
-
     cufft
     cublas
     cusolver
     nvml
-
-    CUDA::cuda_driver
-
-    "${PROJECT_NAME}_cuda_lib"
 )
 
-# Quick fix: https://stackoverflow.com/questions/44746308/how-to-make-include-directories-added-with-autouic-available-to-downstream-targe
-add_custom_command(TARGET "${PROJECT_NAME}_lib" POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_lib_autogen/include/"
-        "${CMAKE_CURRENT_BINARY_DIR}/Holovibes_autogen/include/"
+target_include_directories(Holovibes PRIVATE 
+    ${EXTERNAL_INCLUDES} 
+    ${INTERNAL_INCLUDES}
+    ${CUDA_EXTERNAL_INCLUDES}
 )
 
-# On MSVC, the Boost headers contains #pragma directives pointing to the
-# corresponding libraries, automatically linking them.
-if(MSVC)
-    target_link_directories("${PROJECT_NAME}_lib" PUBLIC "${Boost_LIBRARY_DIRS}")
-else()
-    target_link_libraries("${PROJECT_NAME}_lib" PUBLIC Boost::program_options)
-endif(MSVC)
-
-# ---------------------------------------------------------------------
-# Target unit_tests (unit tests)
-# ---------------------------------------------------------------------
-
-set(SRC_TESTS
-    unit_tests/test_example.cc
-    unit_tests/test_queue.cc
-    unit_tests/test_chart.cc
-    unit_tests/test_reduce.cc
-    unit_tests/test_map.cc
-    unit_tests/test_batch_input_queue.cc
-    unit_tests/test_subsample_frame.cc
-    unit_tests/test_fast_updates_holder.cc
-    # Add your test files here
+set_target_properties(Holovibes PROPERTIES
+    CUDA_ARCHITECTURES "89"
+    CUDA_STANDARD 17
 )
 
-enable_testing()
-find_package(Threads)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND ${THREADS_FOUND})
+target_compile_options(Holovibes PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:
+        --extended-lambda
+        -Xcudafe --diag_suppress=field_without_dll_interface
+    >
+    $<$<COMPILE_LANGUAGE:CXX>:
+        /W3
+        /wd4005
+        /wd4003
+    >
+)
 
-    message(STATUS "TESTS: Unit tests enabled")
-    set(TEST_NAME "gtests")
+target_compile_definitions(Holovibes PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:.
+        _CRT_SECURE_NO_WARNINGS
+    >
+)
 
-    # Create an executable with all sources and lib needed
-    add_executable(${TEST_NAME} ${SRC_TESTS})
-
-    target_link_libraries(${TEST_NAME} PRIVATE
-        "${PROJECT_NAME}_lib"
-        GTest::gtest
-        GTest::gtest_main
-    )
-
-    set_target_properties(${TEST_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/")
-
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME} "--gtest_color=yes")
-    set_tests_properties(${TEST_NAME} PROPERTIES TIMEOUT 120)
-
-else()
-    message(STATUS "TESTS: Unit tests disabled in Release mode")
+if(COMMAND target_precompile_headers)
+    target_precompile_headers(Holovibes PUBLIC "includes/stdafx.hh")
 endif()
-
-
-
-# ---------------------------------------------------------------------
-# Target Holovibes
-# ---------------------------------------------------------------------
-
-add_executable("${PROJECT_NAME}"
-    # mainwindow.ui
-    # advancedsettingswindow.ui
-    # plotwindow.ui
-
-    Holovibes.rc
-    Holovibes.qrc
-
-    sources/main.cc
-)
-
-target_link_libraries("${PROJECT_NAME}" PRIVATE "${PROJECT_NAME}_lib")
-
-# Generate Holovibes.exe in build/Debug or build/Release
-set_target_properties("${PROJECT_NAME}" PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/"
-)
-
 
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
-
-add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
+add_custom_command(TARGET Holovibes POST_BUILD
     # Copy shaders and convolution kernels and json patch
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" "${BUILD_DIR}/shaders/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/"
-                                               "${BUILD_DIR}/convolution_kernels/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/"
-                                               "${BUILD_DIR}/input_filters/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/"
-                                               "${BUILD_DIR}/json_patches_holofile/"
-
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/input_filters/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
 
     # Copy camera libs
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" "${BUILD_DIR}/xiapi64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" "${BUILD_DIR}/uEye_api_64.dll"
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" "${BUILD_DIR}/dcamapi.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
     # Copy not all but some resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/"
-                                               "${BUILD_DIR}/resources/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
 
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" "${BUILD_DIR}/Holovibes.ico"
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" "${BUILD_DIR}/holovibes_logo.png"
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+
+    # Deploy Qt
+    COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
+
+    # Deploy Qt in windeployqt directory so that it can be used by the installer
+    COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
+
+    # Copy camera config files to AppData
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/adimec.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/adimec.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/bitflow.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bitflow.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/hamamatsu.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/hamamatsu.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ids.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ids.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s710_euresys_coaxlink_octo.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s710_euresys_coaxlink_octo.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s991_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s991_euresys_coaxlink_qsfp+.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
 )
+
+# ---------------------------------------------------------------------
+# Install
+# ---------------------------------------------------------------------
+install(TARGETS Holovibes
+    RUNTIME DESTINATION .
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/shaders/"
+    DESTINATION shaders
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/convolution_kernels/"
+    DESTINATION convolution_kernels
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/input_filters/"
+    DESTINATION input_filters
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
+    DESTINATION json_patches_holofile
+    COMPONENT application
+)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
+    DESTINATION resources
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/Holovibes.ico"
+    DESTINATION .
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/holovibes_logo.png"
+    DESTINATION .
+    COMPONENT application
+)
+
+
+install(FILES 
+    $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraOpenCV.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
+    $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
+    $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
+    $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
+    $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cufft64_11.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
+    ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
+    DESTINATION .
+    COMPONENT application
+)
+
+
+if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
+    install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
+    install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
+        DESTINATION .
+        COMPONENT application
+    )
+endif()
+
+if (HAVE_EGrabber AND HAVE_EGrabbers)
+    install(FILES 
+        $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
+        $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
+        DESTINATION .
+        COMPONENT application)
+endif()
+
+install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
+    DESTINATION .
+    COMPONENT application
+)
+
+install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
+    DESTINATION "AppData/"
+    COMPONENT application
+)
+
+
+# ---------------------------------------------------------------------
+# Packaging
+# ---------------------------------------------------------------------
+set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
+
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
+set(CPACK_COMPONENTS_ALL application)
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
+
+set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "Holovibes.exe")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
+
+# Add SetCompress off to NSIS script
+set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
+    SetCompress off
+")
+
+include(CPack)

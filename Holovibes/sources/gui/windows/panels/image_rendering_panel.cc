@@ -85,7 +85,7 @@ void ImageRenderingPanel::on_notify()
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
     // Might need to find a better fix one day or another
     try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
-    catch(const std::exception& e) {}
+    catch(const std::exception&) {}
 
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
@@ -275,7 +275,7 @@ void ImageRenderingPanel::refresh_input_filter(){
         return;
     }
 
-    GSH::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
     holovibes::api::pipe_refresh();
 }
 

@@ -708,12 +708,6 @@ inline void set_raw_view_enabled(bool value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawViewEnabled{value});
 }
 
-inline bool get_contrast_enabled() { return GSH::instance().get_contrast_enabled(); }
-
-inline bool get_contrast_auto_refresh() { return GSH::instance().get_contrast_auto_refresh(); }
-
-inline bool get_contrast_invert() { return GSH::instance().get_contrast_invert(); }
-
 inline bool get_filter2d_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::Filter2dEnabled>().value;
@@ -1014,10 +1008,6 @@ inline bool get_filter_enabled()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::FilterEnabled>().value;
 };
 
-inline bool get_horizontal_flip() { return GSH::instance().get_horizontal_flip(); }
-
-inline double get_rotation() { return GSH::instance().get_rotation(); }
-
 // Ex composite_cache
 inline CompositeKind get_composite_kind() noexcept
 {
@@ -1095,10 +1085,6 @@ inline float get_composite_high_h_threshold() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.threshold.max;
 }
-inline uint get_h_blur_kernel_size() noexcept
-{
-    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.kernel_size;
-}
 inline uint get_composite_p_min_s() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.min;
@@ -1147,10 +1133,6 @@ inline float get_composite_high_v_threshold() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.v.threshold.max;
 }
-inline bool get_h_blur_activated() noexcept
-{
-    return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.h.blur.enabled;
-}
 inline bool get_composite_p_activated_s() noexcept
 {
     return holovibes::Holovibes::instance().get_setting<settings::HSV>().value.s.frame_index.activated;
@@ -1182,14 +1164,12 @@ inline void set_composite_auto_weights(bool value)
 // RGB
 inline void set_rgb(CompositeRGB value) { holovibes::Holovibes::instance().update_setting(settings::RGB{value}); }
 
-inline void set_rgb_p(int min, int max, bool notify = false)
+inline void set_rgb_p(int min, int max)
 {
     holovibes::CompositeRGB rgb = get_rgb();
     rgb.frame_index.min = min;
     rgb.frame_index.max = max;
     holovibes::Holovibes::instance().update_setting(settings::RGB{rgb});
-    if (notify)
-        GSH::instance().set_rgb_p();
 }
 
 inline void set_weight_r(double value)
@@ -1227,14 +1207,12 @@ inline void set_z_fft_shift(bool checked)
     Holovibes::instance().update_setting(settings::ZFFTShift{checked});
 }
 
-inline void set_composite_p_h(int min, int max, bool notify = false)
+inline void set_composite_p_h(int min, int max)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.h.frame_index.min = min;
     hsv.h.frame_index.max = max;
     holovibes::Holovibes::instance().update_setting(settings::HSV{hsv});
-    if (notify)
-        GSH::instance().set_composite_p_h();
 }
 
 inline void set_hsv(CompositeHSV value) { holovibes::Holovibes::instance().update_setting(settings::HSV{value}); }
@@ -1285,12 +1263,6 @@ inline void set_composite_p_max_h(uint value)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.h.frame_index.max = value;
-    Holovibes::instance().update_setting(settings::HSV{hsv});
-}
-inline void set_h_blur_kernel_size(uint value)
-{
-    holovibes::CompositeHSV hsv = get_hsv();
-    hsv.h.blur.kernel_size = value;
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
 inline void set_composite_p_min_s(uint value)
@@ -1363,12 +1335,6 @@ inline void set_composite_high_v_threshold(float value)
 {
     holovibes::CompositeHSV hsv = get_hsv();
     hsv.v.threshold.max = value;
-    Holovibes::instance().update_setting(settings::HSV{hsv});
-}
-inline void set_h_blur_activated(bool value)
-{
-    holovibes::CompositeHSV hsv = get_hsv();
-    hsv.h.blur.enabled = value;
     Holovibes::instance().update_setting(settings::HSV{hsv});
 }
 inline void set_composite_p_activated_s(bool value)

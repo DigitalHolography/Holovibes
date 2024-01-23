@@ -115,12 +115,12 @@ class FourierTransform
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[FourierTransform] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
         if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            spdlog::info("[FourierTransform] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[FourierTransform] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }

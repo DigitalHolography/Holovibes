@@ -337,8 +337,8 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
 {
     MutexGuard mGuard(mutex_);
 
-    CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
-    void* first_img = data_->get() + start_index_ * fd_.get_frame_size();
+    // CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
+    void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
     cudaXStreamSynchronize(stream);
@@ -355,7 +355,7 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    CHECK(size_ >= nb_elts, "When dequeuing {} elements, queue size should be bigger than it, not {};", nb_elts, size_);
+    //CHECK(size_ >= nb_elts, "When dequeuing {} elements, queue size should be bigger than it, not {};", nb_elts, size_);
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }
