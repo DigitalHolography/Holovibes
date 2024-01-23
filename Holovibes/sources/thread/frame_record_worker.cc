@@ -118,8 +118,21 @@ void FrameRecordWorker::run()
                 continue;
             }
 
-            record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyHostToHost);
+            record_queue_.load()->dequeue(frame_buffer, stream_, GSH::instance().get_record_queue_location() ? cudaMemcpyDeviceToHost : cudaMemcpyDeviceToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
+
+            // if (GSH::instance().get_record_queue_location()) {
+            //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
+            //     output_frame_file->write_frame(frame_buffer, output_frame_size);
+            // }
+            // else
+            // {
+            //     {
+            //         MutexGuard mGuard(record_queue_.load()->get_guard());
+            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()), record_queue_.load()->get_size() * output_frame_size);
+            //     }
+            //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
+            // }
             (*processed_fps)++;
             nb_frames_recorded++;
 

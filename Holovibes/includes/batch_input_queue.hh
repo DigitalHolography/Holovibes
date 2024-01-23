@@ -52,6 +52,8 @@ class BatchInputQueue final : public DisplayQueue
      */
     void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
+    // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+
     /*! \brief Copy multiple
      *
      * Called by the consumer.
@@ -87,6 +89,8 @@ class BatchInputQueue final : public DisplayQueue
      * \param func Apply a function to the batch of frames being dequeued
      */
     void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
+
+    // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *

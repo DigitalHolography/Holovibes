@@ -21,9 +21,35 @@ class HoloQueue
   public:
     HoloQueue(QueueType type = QueueType::UNDEFINED, const bool gpu = true);
 
+    /*! \brief Enqueue method
+     *
+     * Copies the given elt according to cuda_kind cuda memory type, then convert
+     * to little endian if the camera is in big endian.
+     *
+     * If the maximum element number has been reached, the Queue overwrite the first frame.
+     *
+     * The memcpy are synch for Qt.
+     *
+     * \param elt Pointer to element to enqueue
+     * \param stream
+     * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
+     */
     virtual bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
 
-    virtual void dequeue(void* dest, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
+
+    /*! \brief Dequeue method overload
+     *
+     * Copy the first element(s) of the Queue into dest according to cuda_kind
+     * cuda memory type then update internal attributes.
+     *
+     * \param dest Destination of element copy
+     * \param stream
+     * \param nb_elts Number of element to dequeue. If equal to -1, empties the queue.
+     * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
+     * 
+     * \return The number of elts dequeued
+     */
+    virtual int dequeue(void* dest, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice, int nb_elts = 1) = 0;
 
 
     /*! \return Pointer to internal buffer that contains data. */
@@ -53,7 +79,7 @@ class HoloQueue
     /*! \brief Number of batches. Batch size can only be changed by the consumer */
     std::atomic<bool> has_overridden_{false};
 
-    /*! \brief Current number of full batches Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize) */
+    /*! \brief Current size of the queue (number of frames)*/
     std::atomic<uint>& size_;
 
 
@@ -211,9 +237,12 @@ class Queue final : public DisplayQueue, public HoloQueue
      *
      * \param dest Destination of element copy
      * \param stream
+     * \param nb_elts Number of element to dequeue. If equal to -1, empties the queue.
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
+     * 
+     * \return The number of elts dequeued
      */
-    void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
+    int dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice, int nb_elts = 1) override;
 
     /*! \brief Dequeue method
      *

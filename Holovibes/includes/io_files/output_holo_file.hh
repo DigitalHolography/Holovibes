@@ -40,7 +40,7 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \throw FileException if an error occurred while writing the frame
      */
     size_t write_frame(const char* frame, size_t frame_size) override;
-
+    
     /*! \brief Write the footer in the file
      *
      * \throw FileException if an error occurred while writing the footer
