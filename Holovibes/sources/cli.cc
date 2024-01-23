@@ -210,6 +210,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
 static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    LOG_INFO("Starting CLI workers");
     // Force some values
     holovibes.is_cli = true;
     auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;

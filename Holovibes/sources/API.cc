@@ -255,6 +255,8 @@ void set_raw_mode(uint window_max_size)
     set_compute_mode(Computation::Raw);
     create_pipe(); // To remove ?
 
+    LOG_INFO("Raw mode set");
+
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -314,6 +316,8 @@ bool set_holographic_mode(ushort window_size)
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         api::set_contrast_mode(true);
+
+        LOG_INFO("Holographic mode set");
 
         return true;
     }

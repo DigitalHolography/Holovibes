@@ -16,6 +16,7 @@
 #include "tools.hh"
 #include "logger.hh"
 #include "camera_dll.hh"
+#include "image_rendering_panel.hh"
 
 #include "API.hh"
 
@@ -117,7 +118,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
 
     // Display default values
-    api::set_compute_mode(Computation::Raw);
+    api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
@@ -405,17 +406,27 @@ void MainWindow::load_gui()
                             "files",
                             "batch input directory");
 
+    auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
-    LOG_INFO("BBBB");
+    api::change_camera(camera);
 
-    api::change_camera(json_get_or_default(j_us, CameraKind::NONE, "camera", "type"));
+    if (camera != CameraKind::NONE)
+    {
+        int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
 
-    LOG_INFO("CCCC");
-
-    api::set_compute_mode(json_get_or_default(j_us, Computation::Raw, "image rendering", "mode"));
-
-    LOG_INFO("AAAA");
-
+        if (compute_mode == 0)
+        {
+            LOG_INFO("RAW");
+            api::set_compute_mode(Computation::Raw);
+            api::set_raw_mode(1);
+        }
+        else
+        {
+            LOG_INFO("HOLO");
+            api::set_compute_mode(Computation::Hologram);
+            api::set_holographic_mode(1);
+        }
+    }
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
@@ -453,6 +464,8 @@ void MainWindow::save_gui()
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
+
+    j_us["image rendering"]["mode"] = (int) api::get_compute_mode();
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
