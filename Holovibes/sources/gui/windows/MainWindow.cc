@@ -405,11 +405,16 @@ void MainWindow::load_gui()
                             "files",
                             "batch input directory");
 
-    LOG_DEBUG("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+    LOG_INFO("BBBB");
+
+    api::change_camera(json_get_or_default(j_us, CameraKind::NONE, "camera", "type"));
+
+    LOG_INFO("CCCC");
 
     api::set_compute_mode(json_get_or_default(j_us, Computation::Raw, "image rendering", "mode"));
 
-    api::change_camera(json_get_or_default(j_us, CameraKind::NONE, "camera", "type"));
+    LOG_INFO("AAAA");
 
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
