@@ -12,6 +12,15 @@ inline Computation get_compute_mode()
 inline void set_compute_mode(Computation mode)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::ComputeMode{mode});
+
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    j_us["image rendering"]["mode"] = mode;
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
 }
 
 inline float get_pixel_size()

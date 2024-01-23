@@ -15,6 +15,7 @@
 #include "gui_group_box.hh"
 #include "tools.hh"
 #include "logger.hh"
+#include "camera_dll.hh"
 
 #include "API.hh"
 
@@ -360,7 +361,6 @@ void MainWindow::load_gui()
         LOG_INFO("{} : User settings file not found. Initialization with default values.",
                  ::holovibes::settings::user_settings_filepath);
         save_gui();
-        return;
     }
 
     set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
@@ -404,6 +404,13 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().batch_input_directory_,
                             "files",
                             "batch input directory");
+
+    LOG_DEBUG("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+    api::set_compute_mode(json_get_or_default(j_us, Computation::Raw, "image rendering", "mode"));
+
+    api::change_camera(json_get_or_default(j_us, CameraKind::NONE, "camera", "type"));
+
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
