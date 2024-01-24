@@ -119,10 +119,7 @@ void close_windows()
 
 #pragma region Close Compute
 
-void camera_none()
-{
-    camera_none_without_json();
-}
+void camera_none() { camera_none_without_json(); }
 
 void camera_none_without_json()
 {
@@ -163,15 +160,18 @@ bool change_camera(CameraKind c)
 
     try
     {
-        if (get_compute_mode() == Computation::Raw)
-            Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
+        for (size_t i = 0; i < 2; i++)
+        {
+            if (get_compute_mode() == Computation::Raw)
+                Holovibes::instance().stop_compute();
+            Holovibes::instance().stop_frame_read();
 
-        Holovibes::instance().start_camera_frame_read(c);
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        UserInterfaceDescriptor::instance().kCamera = c;
+            Holovibes::instance().start_camera_frame_read(c);
+            UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+            UserInterfaceDescriptor::instance().kCamera = c;
 
-        set_is_computation_stopped(false);
+            set_is_computation_stopped(false);
+        }
 
         return true;
     }
@@ -955,11 +955,15 @@ void rotateTexture()
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
 }
 
-void set_horizontal_flip() { 
+void set_horizontal_flip()
+{
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
 
-    set_xyz_member(api::set_xy_horizontal_flip, api::set_xz_horizontal_flip, api::set_yz_horizontal_flip, !api::get_horizontal_flip());
+    set_xyz_member(api::set_xy_horizontal_flip,
+                   api::set_xz_horizontal_flip,
+                   api::set_yz_horizontal_flip,
+                   !api::get_horizontal_flip());
 }
 
 void flipTexture()
