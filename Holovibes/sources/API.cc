@@ -154,6 +154,8 @@ bool change_camera(CameraKind c)
 
     if (c == CameraKind::NONE)
     {
+        std::ofstream output_file(path);
+        output_file << j_us.dump(1);
         return false;
     }
 
@@ -199,6 +201,8 @@ bool change_camera(CameraKind c)
         LOG_ERROR("Catch {}", e.what());
     }
 
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
     return false;
 }
 
