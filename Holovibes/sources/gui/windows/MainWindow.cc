@@ -407,13 +407,15 @@ void MainWindow::load_gui()
                             "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
+    int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
+
+    for (auto it = panels_.begin(); it != panels_.end(); it++)
+        (*it)->load_gui(j_us);
 
     api::change_camera(camera);
 
     if (camera != CameraKind::NONE)
     {
-        int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
-
         if (compute_mode == 0)
         {
             LOG_INFO("RAW");
@@ -427,9 +429,6 @@ void MainWindow::load_gui()
             api::set_holographic_mode(1);
         }
     }
-
-    for (auto it = panels_.begin(); it != panels_.end(); it++)
-        (*it)->load_gui(j_us);
 
     notify();
 }

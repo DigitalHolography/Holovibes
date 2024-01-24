@@ -146,12 +146,11 @@ bool change_camera(CameraKind c)
     camera_none();
 
     auto path = holovibes::settings::user_settings_filepath;
+    LOG_INFO("path: {}", path);
     std::ifstream input_file(path);
     json j_us = json::parse(input_file);
 
     j_us["camera"]["type"] = c;
-    std::ofstream output_file(path);
-    output_file << j_us.dump(1);
 
     if (c == CameraKind::NONE)
     {
@@ -166,13 +165,29 @@ bool change_camera(CameraKind c)
                 Holovibes::instance().stop_compute();
             Holovibes::instance().stop_frame_read();
 
-            Holovibes::instance().start_camera_frame_read(c);
+            try
+            {
+                Holovibes::instance().start_camera_frame_read(c);
+            }
+            catch(const std::exception& e)
+            {
+                LOG_INFO("Set camera to NONE");
+
+                j_us["camera"]["type"] = 0;
+                std::ofstream output_file(path);
+                output_file << j_us.dump(1);
+                Holovibes::instance().stop_frame_read();
+                return false;
+            }
+            
             UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
             UserInterfaceDescriptor::instance().kCamera = c;
 
             set_is_computation_stopped(false);
         }
 
+        std::ofstream output_file(path);
+        output_file << j_us.dump(1);
         return true;
     }
     catch (const camera::CameraException& e)

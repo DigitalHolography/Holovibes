@@ -72,7 +72,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
     }
     catch (const std::exception& e)
     {
-        LOG_ERROR("Camera library cannot be loaded. (Exception: {})", e.what());
+        LOG_INFO("Camera library cannot be loaded. (Exception: {})", e.what());
         throw;
     }
 
