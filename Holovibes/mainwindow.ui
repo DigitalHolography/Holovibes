@@ -4491,12 +4491,12 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-  <connection>
+  <!-- <connection>
    <sender>ImageDeviceComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>ImageRenderingPanel</receiver>
    <slot>set_device(Qstring)</slot>
-  </connection>
+  </connection> -->
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
@@ -5358,7 +5358,7 @@ p, li { white-space: pre-wrap; }
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>set_record_device(bool)</slot>
-  <slot>set_device(Qstring)</slot>
+  <!-- <slot>set_device(Qstring)</slot> -->
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>

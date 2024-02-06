@@ -368,9 +368,12 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     return nb_elts;
 }
 
-void Queue::dequeue(const unsigned int nb_elts)
+void Queue::dequeue(int nb_elts)
 {
     MutexGuard mGuard(mutex_);
+
+    if (nb_elts == -1)
+        nb_elts = size_;
 
     dequeue_non_mutex(nb_elts);
 }

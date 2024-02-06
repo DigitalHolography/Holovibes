@@ -252,7 +252,7 @@ class Queue final : public DisplayQueue, public HoloQueue
      *
      * \param nb_elt The number of elements to dequeue
      */
-    void dequeue(const unsigned int nb_elts = 1);
+    void dequeue(int nb_elts = 1);
 
     /*! \brief Dequeue method without mutex
      *
