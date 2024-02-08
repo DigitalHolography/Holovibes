@@ -3146,12 +3146,12 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAdimec"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
-     <addaction name="actionPhantom_S710"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
      <addaction name="actionOpenCV"/>
-     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
      <addaction name="actionEGrabberStudio"/>
     </widget>
     <addaction name="menu_Model"/>
@@ -3355,24 +3355,24 @@ p, li { white-space: pre-wrap; }
     <string>Hamamatsu C11440</string>
    </property>
   </action>
-  <action name="actionPhantom_S710">
-   <property name="text">
-    <string>Phantom S710 (Euresys)</string>
-   </property>
-  </action>
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
    </property>
   </action>
-  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+  <action name="actionPhantom_S710">
    <property name="text">
-    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
    </property>
   </action>
   <action name="actionAmetekS711EuresysCoaxlinkQSPF+">
    <property name="text">
     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
   <action name="actionEGrabberStudio">
