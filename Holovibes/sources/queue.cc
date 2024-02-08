@@ -1,4 +1,5 @@
 #include <cuda.h>
+#include <spdlog/spdlog.h>
 
 #include "queue.hh"
 #include "tools_conversion.cuh"
@@ -30,8 +31,9 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , has_overridden_(false)
     , gpu_(gpu)
 {
-
     data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
+    spdlog::critical("Queue: {}", (int)type_);
+    spdlog::critical("GPU: {}", gpu_);
 
     max_size_ = max_size;
 
@@ -337,7 +339,7 @@ void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_k
 {
     MutexGuard mGuard(mutex_);
 
-    // CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
+    CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
 
