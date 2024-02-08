@@ -452,6 +452,7 @@ void MainWindow::save_gui()
 
     j_us["main window"]["width"] = size().width();
     j_us["main window"]["height"] = size().height();
+
     j_us["main window"]["x"] = pos().x();
     j_us["main window"]["y"] = pos().y();
 
@@ -723,7 +724,8 @@ void MainWindow::open_advanced_settings()
 
 void MainWindow::shift_screen()
 {
-    // shift main window when camera view appears
+    return;
+    // we want to remain at the position indicated in the user_settings.json
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();

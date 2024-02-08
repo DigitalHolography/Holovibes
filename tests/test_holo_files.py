@@ -7,20 +7,14 @@ import difflib
 import pytest
 import json
 from typing import List, Tuple
-from build import build_utils
 
-from build.build_constants import *
 from .constant_name import *
 from . import holo
 
 DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
-    os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Release", RUN_BINARY_FILE)
-
-if not os.path.isfile(HOLOVIBES_BIN):
-    HOLOVIBES_BIN = os.path.join(
-        os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Debug", RUN_BINARY_FILE)
+    os.getcwd(), "build/Holovibes.exe")
 
 assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"
@@ -49,8 +43,7 @@ def generate_holo_from(input: str, output: str, output_error: str, cli_argument:
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = build_utils.get_conan_venv_start_cmd(None)
-    cmd += [HOLOVIBES_BIN, "-i", input, "-o", output] + \
+    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
         get_cli_arguments(cli_argument)
     if config:
         cmd += ['--compute_settings', config]
