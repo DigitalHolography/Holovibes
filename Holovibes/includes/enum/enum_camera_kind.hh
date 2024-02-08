@@ -22,6 +22,7 @@ enum class CameraKind
     xiB,          /*!< xiB camera */
     OpenCV,       /*!< OpenCV camera */
     AmetekS991EuresysCoaxlinkQSFP, /*!< Ametek S991 Euresys Coaxlink QSFP+ */
+    AmetekS711EuresysCoaxlinkQSFP, /*!< Ametek S711 Euresys Coaxlink QSFP+ */
     Ametek, /*!< Ametek camera with EGrabber Studio */
 };
 } // namespace holovibes

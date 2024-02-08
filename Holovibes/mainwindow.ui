@@ -3146,10 +3146,11 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAdimec"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
-     <addaction name="actionPhantom_S710"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
      <addaction name="actionOpenCV"/>
+     <addaction name="actionPhantom_S710"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
      <addaction name="actionEGrabberStudio"/>
     </widget>
@@ -3354,14 +3355,19 @@ p, li { white-space: pre-wrap; }
     <string>Hamamatsu C11440</string>
    </property>
   </action>
-  <action name="actionPhantom_S710">
-   <property name="text">
-    <string>Phantom S710 (Euresys)</string>
-   </property>
-  </action>
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710">
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
@@ -5157,6 +5163,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionEGrabberStudio</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5392,6 +5414,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_phantom()</slot>
   <slot>camera_bitflow_cyton()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
   <slot>camera_euresys_egrabber()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>

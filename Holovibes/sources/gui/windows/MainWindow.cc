@@ -540,6 +540,8 @@ void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 
 void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP);}
 
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP);}
+
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek);}
 
 void MainWindow::configure_camera() { api::configure_camera(); }

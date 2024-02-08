@@ -27,6 +27,15 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "CMake: clean",
+            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo --target clean",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
