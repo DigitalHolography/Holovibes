@@ -1,8 +1,31 @@
 ## Changelog
 
+### 12.9.5
+
+### 12.9.1
+
+### 12.9.0
+* Sticky windows
+
+### 12.8.0
+* Update camera and compute mode when closing
+
+### 12.7.0
+* Conan 2 toolchain
+
+### 12.6.0
+* Add s991 camera support
+* Remove hue blue HSV option 
+
+### 12.5.0
+* Remove HSV auto weight normalization
+
+### 12.4.0
+* Add different HSV treshold normalization methods
+
 ### 12.3.0
-* stop record when changing the record mode or the record queue size
-* ensure contiguity of the first *record queue size* images recorded
+* Stop record when changing the record mode or the record queue size
+* Ensure contiguity of the first *record queue size* images recorded
 
 ### 12.2.0
 * Add button too chose dynamically between CPU/GPU for the record queue
