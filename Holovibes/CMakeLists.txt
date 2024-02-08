@@ -154,6 +154,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s710_euresys_coaxlink_octo.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s710_euresys_coaxlink_octo.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s991_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s991_euresys_coaxlink_qsfp+.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s711_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s711_euresys_coaxlink_qsfp+.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
@@ -241,6 +242,7 @@ endif()
 if (HAVE_EGrabber AND HAVE_EGrabbers)
     install(FILES 
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
+        $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
         DESTINATION .
         COMPONENT application)
