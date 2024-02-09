@@ -1,5 +1,9 @@
 ## Changelog
 
+### 12.9.6
+* Add s711 camera support
+* Partial record fix : possible to record holograms and raw images (when indicating number of frames)
+
 ### 12.9.5
 
 ### 12.9.1
