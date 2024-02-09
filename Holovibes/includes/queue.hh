@@ -185,6 +185,7 @@ class Queue final : public DisplayQueue, public HoloQueue
      */
     void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu);
 
+    void reset();
 
     /*! \brief Enqueue method
      *

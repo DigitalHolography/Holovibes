@@ -208,7 +208,7 @@ bool Pipe::make_requests()
     if (disable_frame_record_requested_)
     {
         LOG_DEBUG("disable_frame_record_requested");
-        record_queue_.dequeue(-1); // we only empty the queue, since it is preallocated and stays allocated
+        record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         GSH::instance().set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }

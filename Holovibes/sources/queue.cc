@@ -97,6 +97,12 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
     start_index_ = 0;
 }
 
+void Queue::reset()
+{
+    dequeue(-1);
+    has_overridden_ = false;
+}
+
 bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
 {
     MutexGuard mGuard(mutex_);

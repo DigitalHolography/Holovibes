@@ -6,6 +6,7 @@
 
 #include "frame_file.hh"
 #include "logger.hh"
+#include <stdio.h>
 
 namespace holovibes::io_files
 {
@@ -65,10 +66,7 @@ class OutputFrameFile : public FrameFile
      * \param file_path The path of the file to open
      * \throw FileException if an error occurred while opening the file
      */
-    OutputFrameFile(const std::string& file_path)
-        : FrameFile(file_path, FrameFile::OpeningMode::WRITE)
-    {
-    }
+    OutputFrameFile(const std::string& file_path);
 
     /*!
      * \brief Compute the output fps as follow: input_fps / time_stride.
