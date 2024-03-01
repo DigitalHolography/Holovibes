@@ -3,8 +3,17 @@
     "tasks": [
         {
             "type": "shell",
+            "label": "CMake: Release",
+            "command": "conan install . --build missing --settings compiler.cppstd=20 --settings \"&:build_type=RelWithDebInfo\" --settings build_type=Release && build\\generators\\conanbuild.bat && cmake --preset conan-relwithdebinfo && build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo --clean-first",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
             "label": "Conan: install",
-            "command": "conan install . --build missing --settings compiler.cppstd=20 --settings \"&:build_type=RelWithDebInfo\" --settings build_type=Release",
+            "command": "conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -13,7 +22,7 @@
         {
             "type": "shell",
             "label": "CMake: configure",
-            "command": "build\\generators\\conanbuild.bat && cmake --preset conan-relwithdebinfo",
+            "command": "build\\generators\\conanbuild.bat && cmake --preset conan-debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -22,7 +31,7 @@
         {
             "type": "shell",
             "label": "CMake: build",
-            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo",
+            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -31,7 +40,7 @@
         {
             "type": "shell",
             "label": "CMake: clean",
-            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo --target clean",
+            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-debug --target clean",
             "group": {
                 "kind": "build",
                 "isDefault": true

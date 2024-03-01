@@ -41,10 +41,10 @@ def goal(func, name: str = None):
 
 
 @goal
-def conan(args: GoalArgs) -> int:
-    generator = build_utils.get_generator(args.generator)
+def install(args: GoalArgs) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    build_mode = "RelWithDebInfo" if build_mode == "Release" else "Debug"
+    build_dir = build_utils.get_build_dir(args.build_dir)
 
     # if build dir exist, remove it
     if os.path.isdir(build_dir):
@@ -52,22 +52,17 @@ def conan(args: GoalArgs) -> int:
         sys.stdout.flush()
         if subprocess.call(f"rm -rf {build_dir}", shell=True):
             return 1
-
-    if build_mode == "Debug":
-        runtime = "MDd"
-    else:
-        runtime = "MD"
+    if subprocess.call(f"mkdir {build_dir}", shell=True):
+        return 1
 
     cmd = [
         "conan", "install", ".",
-        "-if", build_dir,
         "--build", "missing",
-        "-s", f"build_type={build_mode}",
-        "-s", f"compiler.runtime={runtime}",
-        "-o", f"cmake_generator={generator}",
-        "-o", f"cmake_compiler={args.toolchain}",
-    ] + args.goal_args
-    print("TOOLCHAIN USED = ", args.toolchain)
+        "--settings", "compiler.cppstd=20",
+        "--settings", f"&:build_type={build_mode}",
+    ]
+
+    cmd.extend(args.goal_args)
 
     if args.verbose:
         print("conan cmd: {}".format(" ".join(cmd)))
@@ -75,14 +70,13 @@ def conan(args: GoalArgs) -> int:
 
     try:
         return subprocess.call(cmd)
-    except:
+    except Exception as e:
         print("Please make sure you have installed the build/requirements.txt")
         raise
 
 
 def conan_build_goal(args: GoalArgs, option: str) -> int:
-    generator = build_utils.get_generator(args.generator)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    build_dir = build_utils.get_build_dir(args.build_dir)
 
     if not os.path.isdir(build_dir):
         sys.stdout.flush()
@@ -92,15 +86,13 @@ def conan_build_goal(args: GoalArgs, option: str) -> int:
             return 1
         if option == "--build" and conan_build_goal(args, "--configure"):
             return 1
-        if option == "--configure" and conan(args):
+        if option == "--configure" and install(args):
             return 1
 
+    build = "--build" if option == "--build" else ""
+    preset = "conan-debug" if args.build_mode == "Debug" else "conan-relwithdebinfo"
     cmd = [
-        "conan", "build", ".",
-        "-bf", build_dir,
-        "-if", build_dir,
-        "-sf", ".",
-        option
+        os.path.join(DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir, "generators", "conanbuild.bat"), "&&", "cmake", build, "--preset", preset
     ] + args.goal_args
 
     if args.verbose:
@@ -135,8 +127,7 @@ def doc(args: GoalArgs) -> int:
         print("Fail to build project needed for documentation")
         return 1
 
-    generator = build_utils.get_generator(args.generator)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    build_dir = build_utils.get_build_dir(args.build_dir)
 
     cmd = ["cmake",
            "--build",
@@ -162,17 +153,15 @@ def run(args: GoalArgs) -> int:
         print("Holovibes is only runnable on Windows")
         return 1
 
-    build_mode = build_utils.get_build_mode(args.build_mode)
     exe_path = os.path.join(
-        build_utils.get_build_dir(
-            args.build_dir, build_utils.get_generator(args.generator)
-        ),
+        build_utils.get_build_dir(args.build_dir),
         build_mode,
         RUN_BINARY_FILE,
     )
 
-    cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
-    cmd.append(exe_path)
+    # cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
+    # cmd.append(exe_path)
+    cmd = [exe_path]
     cmd.extend(args.goal_args)
 
     if args.verbose:
@@ -258,7 +247,8 @@ def build_ref(args: GoalArgs) -> int:
             os.remove(ref_error)
 
         print(name)
-        generate_holo_from(input, ref, ref_error, cli_argument, config)
+        ref_time = generate_holo_from(input, ref, ref_error, cli_argument, config)
+        write_time(ref_time)
 
     return 0
 
@@ -393,25 +383,25 @@ def parse_args():
         default=None,
         help="Choose between Release mode and Debug mode (Default: Debug)",
     )
-    build.add_argument(
-        "-g",
-        choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT,
-        default=None,
-        help="Choose between NMake, Make and Ninja (Default: Ninja)",
-    )
-    build.add_argument(
-        "-t",
-        choices=CLANG_CL_OPT + CL_OPT,
-        default=None,
-        help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)",
-    )
+    # build.add_argument(
+    #     "-g",
+    #     choices=NINJA_OPT + NMAKE_OPT + MAKE_OPT,
+    #     default=None,
+    #     help="Choose between NMake, Make and Ninja (Default: Ninja)",
+    # )
+    # build.add_argument(
+    #     "-t",
+    #     choices=CLANG_CL_OPT + CL_OPT,
+    #     default=None,
+    #     help="Choose between MSVC(CL) and ClangCL (Default: ClangCL)",
+    # )
 
     build_env = parser.add_argument_group("Build environment")
-    build_env.add_argument(
-        "-p",
-        help="Path to find the VS Developer Prompt to use to build (Default: auto-find)",
-        default=None,
-    )
+    # build_env.add_argument(
+    #     "-p",
+    #     help="Path to find the VS Developer Prompt to use to build (Default: auto-find)",
+    #     default=None,
+    # )
     build_env.add_argument(
         "-i",
         help=f"Path used by cmake to store compiled objects and exe (Default: {DEFAULT_BUILD_BASE}/<generator>/)",
@@ -447,7 +437,7 @@ if __name__ == "__main__":
 
     for goal, goal_args in goals.items():
         run_goal(
-            goal, GoalArgs(args.b, args.g, args.t, args.p,
+            goal, GoalArgs(args.b, None, None, None,
                            args.i, args.v, goal_args)
         )
 

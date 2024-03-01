@@ -11,6 +11,8 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
     - Ximea CMOSIS XiQ and XiB
     - Adimec Quartz-2A750 (requires [BitFlow](http://www.bitflow.com/downloads/bfsdk640.zip))
     - Hamamatsu C11440
+    - Adimec Phantom S710
+    - Adimec Phantom S711
 - Import interferograms from `.cine` files
 - Import or export interferograms/holograms with `.holo` files
 - Modular configurations with `.json` files

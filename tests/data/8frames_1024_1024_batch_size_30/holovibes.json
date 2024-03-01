@@ -171,6 +171,10 @@
             "inner_radius": 0,
             "outer_radius": 1
         },
+        "input_filter": {
+            "enabled": false,
+            "type": "None"
+        },
         "lambda": 8.519999710188131e-07,
         "batch_size": 30,
         "image_mode": "HOLOGRAM",

@@ -25,12 +25,15 @@ class HolovibesRecipe(ConanFile):
         # Override requirements to resolve dependencies
         # versions conflicts
         self.requires("freetype/2.13.2", override=True)
+        self.requires("libpng/1.6.42", override=True)
+
 
     #def build_requirements(self):
         #self.tool_requires("doxygen/1.9.4")
 
     def layout(self):
         cmake_layout(self)
+        self.folders.build = "build/bin"
     
     def generate(self):
         toolchain = CMakeToolchain(self, 'Ninja')

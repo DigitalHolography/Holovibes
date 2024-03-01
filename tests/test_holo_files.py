@@ -14,7 +14,7 @@ from . import holo
 DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
-    os.getcwd(), "build/Holovibes.exe")
+    os.getcwd(), "build/bin/Holovibes.exe")
 
 assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"
@@ -22,6 +22,14 @@ assert os.path.isfile(
 
 def read_holo(path: str) -> holo.HoloFile:
     return holo.HoloFile.from_file(path)
+
+def read_time(path: str) -> float:
+    with open(path, "r") as f:
+        return float(f.readline())
+
+def write_time(time: float, path: str = "ref_time") -> None:
+    with open(file_path, "w") as file:
+        file.write(str(time))
 
 
 def read_holo_lazy(path: str) -> Tuple[bytes, bytes, bytes]:
@@ -123,8 +131,7 @@ def test_holo(folder: str):
     if os.path.isfile(output_error):
         os.remove(output_error)
 
-
-    generate_holo_from(input, output, output_error, cli_argument, config)
+    current_time = generate_holo_from(input, output, output_error, cli_argument, config)
 
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
@@ -146,7 +153,11 @@ def test_holo(folder: str):
         else:
             out = read_holo(output)
             ref = read_holo(ref)
-
+            try:
+                ref_time = read_time(os.path.join(path, "ref_time"))
+                print(f"Current time: {current_time} Ref time: {ref_time}")
+            except:
+                pass
             ref.assertHolo(out, path)
 
     elif not error_wanted: # LAZY_COMPARE
