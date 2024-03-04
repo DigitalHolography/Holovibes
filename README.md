@@ -30,4 +30,4 @@ It is developed using `C++/CUDA`.
 ## Documention
 
 - website : https://holovibes.com/
-- Documentation : https://docs.google.com/document/d/1H8BcAD9Gsdpc1Rs8rBjZxRaCEdW1teBxsvuC9opWElw/edit?usp=sharing
+- Documentation : https://docs.google.com/document/d/1lsb1NurdSkN1GNGuATdMJ4Oubo48MSvrl203TqHH6Bs
