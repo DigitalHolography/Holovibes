@@ -124,7 +124,7 @@ class EHoloGrabber
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
 
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
+        // grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
         grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger

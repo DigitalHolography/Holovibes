@@ -155,7 +155,6 @@ def run(args: GoalArgs) -> int:
 
     exe_path = os.path.join(
         build_utils.get_build_dir(args.build_dir),
-        build_mode,
         RUN_BINARY_FILE,
     )
 

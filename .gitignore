@@ -35,10 +35,9 @@ $RECYCLE.BIN/
 # =========================
 
 # Build results
-bin/
+build/bin/
 Testing/
-build/Ninja
-build/
+build/generators/
 
 # Folders for setup creation
 setup_creator_files
