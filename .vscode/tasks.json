@@ -39,6 +39,15 @@
         },
         {
             "type": "shell",
+            "label": "CMake: build release",
+            "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-relwithdebinfo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
             "label": "CMake: clean",
             "command": "build\\generators\\conanbuild.bat && cmake --build --preset conan-debug --target clean",
             "group": {

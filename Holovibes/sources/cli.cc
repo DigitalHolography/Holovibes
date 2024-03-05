@@ -127,7 +127,6 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         catch (std::exception& e)
         {
-            LOG_WARN("Configuration file not found.");
             LOG_DEBUG(e.what());
             return 1;
         }

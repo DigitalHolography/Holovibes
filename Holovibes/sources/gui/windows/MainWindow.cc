@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO("{}: Compute settings file not found. Initialization with default values.",
+        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
