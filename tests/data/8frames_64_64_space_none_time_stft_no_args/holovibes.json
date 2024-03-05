@@ -112,6 +112,11 @@
                 },
                 "frame_index": {
                     "max": 0,
+                    "min": 0,
+                    "activated": false
+                },
+                "slider_shift": {
+                    "max": 1,
                     "min": 0
                 }
             },
