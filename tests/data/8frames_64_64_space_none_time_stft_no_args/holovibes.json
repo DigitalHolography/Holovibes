@@ -98,10 +98,6 @@
     "color_composite_image": {
         "hsv": {
             "h": {
-                "blur": {
-                    "enabled": false,
-                    "kernel_size": 1
-                },
                 "threshold": {
                     "max": 99.80000305175781,
                     "min": 0.20000000298023224
@@ -116,8 +112,8 @@
                     "activated": false
                 },
                 "slider_shift": {
-                    "max": 1,
-                    "min": 0
+                    "max": 1.0,
+                    "min": 0.0
                 }
             },
             "s": {
@@ -176,6 +172,10 @@
             "inner_radius": 0,
             "outer_radius": 1
         },
+        "input_filter": {
+            "enabled": false,
+            "type": "None"
+        },
         "lambda": 8.519999710188131e-07,
         "batch_size": 1,
         "image_mode": "HOLOGRAM",
@@ -183,10 +183,6 @@
         "time_transformation": "STFT",
         "time_transformation_size": 32,
         "time_transformation_stride": 1,
-        "propagation_distance": 0.38499999046325684,
-        "input_filter": {
-            "enabled": false,
-            "type": "None"
-        }
+        "propagation_distance": 0.38499999046325684
     }
 }

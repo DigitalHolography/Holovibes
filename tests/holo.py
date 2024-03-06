@@ -7,8 +7,9 @@ from PIL import Image
 from PIL import ImageChops
 from deepdiff import DeepDiff
 import numpy as np
+from PIL import Image
 
-from .constant_name import *
+from . import constant_name
 
 holo_header_version = 3
 holo_header_size = 64
@@ -148,19 +149,19 @@ class HoloFile:
                          )
 
         if 'values_changed' in ddiff:
-            if "root['compute settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
+            if "root['compute_settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
                 diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
-                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= constant_name.CONTRAST_MAX_PERCENT_DIFF:
                     del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
-            if "root['compute settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
+            if "root['compute_settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
                 diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
-                if abs(diff["new_value"] / diff["old_value"] - 1) <= CONTRAST_MAX_PERCENT_DIFF:
+                if abs(diff["new_value"] / diff["old_value"] - 1) <= constant_name.CONTRAST_MAX_PERCENT_DIFF:
                     del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
 
             if not ddiff['values_changed']:
                 del ddiff['values_changed']
 
-        assert not ddiff, ddiff
+        assert not ddiff
 
     def assertHolo(ref, chal: "HoloFile", basepath: str):
 
@@ -170,15 +171,15 @@ class HoloFile:
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
-        # ref.assert_footer(chal)
+        ref.assert_footer(chal)
 
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
             diffMatrix = (np.array(l_image) == np.array(r_image))
             diff = np.any(diffMatrix == False)
             #TODO print diff matrix
-            #if diff:
-            #    l_image.save(os.path.join(basepath, REF_FAILED_IMAGE))
-            #    r_image.save(os.path.join(basepath, OUTPUT_FAILED_IMAGE))
+            if diff:
+                Image.fromarray(l_image).save(os.path.join(basepath, constant_name.REF_FAILED_IMAGE))
+                Image.fromarray(r_image).save(os.path.join(basepath, constant_name.OUTPUT_FAILED_IMAGE))
 
             assert not diff
 

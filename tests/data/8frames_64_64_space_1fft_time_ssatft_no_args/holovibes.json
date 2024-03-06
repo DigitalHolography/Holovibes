@@ -98,10 +98,6 @@
     "color_composite_image": {
         "hsv": {
             "h": {
-                "blur": {
-                    "enabled": false,
-                    "kernel_size": 1
-                },
                 "threshold": {
                     "max": 99.80000305175781,
                     "min": 0.20000000298023224
@@ -116,8 +112,8 @@
                     "activated": false
                 },
                 "slider_shift": {
-                    "max": 1,
-                    "min": 0
+                    "max": 1.0,
+                    "min": 0.0
                 }
             },
             "s": {
