@@ -36,6 +36,7 @@ $RECYCLE.BIN/
 
 # Build results
 build/bin/
+bin/
 Testing/
 build/generators/
 
