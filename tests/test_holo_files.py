@@ -7,6 +7,7 @@ import difflib
 import pytest
 import json
 from typing import List, Tuple
+import logging
 
 from .constant_name import *
 from . import holo
@@ -20,6 +21,23 @@ assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"
 
 
+# Create a named logger
+logger = logging.getLogger("test_holo")
+logger.setLevel(logging.INFO)
+
+# Create a console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# Set the formatter for the console handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+datefmt='%m/%d/%Y %I:%M:%S%p')
+console_handler.setFormatter(formatter)
+
+# Add the console handler to the logger
+logger.addHandler(console_handler)
+
+
 def read_holo(path: str) -> holo.HoloFile:
     return holo.HoloFile.from_file(path)
 
@@ -27,8 +45,8 @@ def read_time(path: str) -> float:
     with open(path, "r") as f:
         return float(f.readline())
 
-def write_time(time: float, path: str = "ref_time") -> None:
-    with open(file_path, "w") as file:
+def write_time(time: float, path: str) -> None:
+    with open(path, "w") as file:
         file.write(str(time))
 
 
@@ -154,8 +172,8 @@ def test_holo(folder: str):
             out = read_holo(output)
             ref = read_holo(ref)
             try:
-                ref_time = read_time(os.path.join(path, "ref_time"))
-                print(f"Current time: {current_time} Ref time: {ref_time}")
+                ref_time = read_time(os.path.join(path, "ref_time.txt"))
+                logger.info(f"Current time: {current_time} Ref time: {ref_time}")
             except:
                 pass
             ref.assertHolo(out, path)

@@ -185,7 +185,7 @@ def pytest(args: GoalArgs) -> int:
         print("Pytest: Running pytest main...")
         sys.stdout.flush()
 
-    return pytest.main(args=["-v"] + args.goal_args)
+    return pytest.main(args=["-v", "-o", "log_cli=true"] + args.goal_args)
 
 
 @goal
@@ -216,7 +216,7 @@ def ctest(args: GoalArgs) -> int:
 
 @goal
 def build_ref(args: GoalArgs) -> int:
-    from tests.test_holo_files import generate_holo_from
+    from tests.test_holo_files import generate_holo_from, write_time
 
     for name in args.goal_args or find_tests():
         path = os.path.join(TESTS_DATA, name)
@@ -227,6 +227,7 @@ def build_ref(args: GoalArgs) -> int:
         input = os.path.join(path, INPUT_FILENAME)
         ref_error = os.path.join(path, ERROR_FILENAME)
         ref = os.path.join(path, REF_FILENAME)
+        ref_time_path = os.path.join(path, REF_TIME_FILENAME)
         cli_argument = os.path.join(path, CLI_ARGUMENT_FILENAME)
         config = os.path.join(path, CONFIG_FILENAME)
 
@@ -247,7 +248,7 @@ def build_ref(args: GoalArgs) -> int:
 
         print(name)
         ref_time = generate_holo_from(input, ref, ref_error, cli_argument, config)
-        write_time(ref_time)
+        write_time(ref_time, ref_time_path)
 
     return 0
 
