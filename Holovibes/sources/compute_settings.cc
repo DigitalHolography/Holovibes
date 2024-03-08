@@ -38,7 +38,10 @@ void load_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
     if (json_path.empty())
+    {
+        LOG_WARN("Configuration file not found.");
         return;
+    }
 
     std::ifstream ifs(json_path);
     auto j_cs = json::parse(ifs);
@@ -48,10 +51,10 @@ void load_compute_settings(const std::string& json_path)
     {
         from_json(j_cs, compute_settings);
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
         LOG_ERROR("{} is an invalid compute settings", json_path);
-        return;
+        throw std::exception(e);
     }
 
 

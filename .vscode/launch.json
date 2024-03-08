@@ -8,11 +8,19 @@
             "name": "Debug Holovibes",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Holovibes.exe",
-            "args": [],
+            "program": "${workspaceFolder}/build/bin/Holovibes.exe",
+            "args": ["-i", "${workspaceFolder}/tests/inputs/8frames_64_64.holo",
+                    "-o", "${workspaceFolder}/tmp",
+                    "-n",
+                    "20",
+                    "-s",
+                    "3"
+                    "--compute_settings", "${workspaceFolder}/tests/data/8frames_64_64_2/holovibes.json"],
+            // "args": [],
+            // "args": ["-i", "${workspaceFolder}/tests/inputs/8frames_64_64.holo", "-o", "${workspaceFolder}/tmp2.holo", "--compute_settings", "${workspaceFolder}/../data/8frames_64_64_1/holovibes.json"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
             "preLaunchTask": "CMake: build"
         }
     ]
-}
+} 

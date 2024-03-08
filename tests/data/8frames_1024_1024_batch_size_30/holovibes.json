@@ -98,10 +98,6 @@
     "color_composite_image": {
         "hsv": {
             "h": {
-                "blur": {
-                    "enabled": false,
-                    "kernel_size": 1
-                },
                 "threshold": {
                     "max": 99.80000305175781,
                     "min": 0.20000000298023224
@@ -112,7 +108,12 @@
                 },
                 "frame_index": {
                     "max": 0,
-                    "min": 0
+                    "min": 0,
+                    "activated": false
+                },
+                "slider_shift": {
+                    "max": 1.0,
+                    "min": 0.0
                 }
             },
             "s": {
@@ -178,6 +179,10 @@
         "time_transformation": "STFT",
         "time_transformation_size": 32,
         "time_transformation_stride": 60,
-        "propagation_distance": 0.38499999046325684
+        "propagation_distance": 0.38499999046325684,
+        "input_filter": {
+            "enabled": false,
+            "type": "None"
+        }
     }
 }

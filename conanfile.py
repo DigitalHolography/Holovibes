@@ -32,6 +32,7 @@ class HolovibesRecipe(ConanFile):
 
     def layout(self):
         cmake_layout(self)
+        self.folders.build = "build/bin"
     
     def generate(self):
         toolchain = CMakeToolchain(self, 'Ninja')
