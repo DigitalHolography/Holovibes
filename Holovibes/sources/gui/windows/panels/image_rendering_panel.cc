@@ -66,8 +66,8 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
-    ui_->WaveLengthDoubleSpinBox->setEnabled(!is_raw);
-    ui_->WaveLengthDoubleSpinBox->setValue(api::get_lambda() * 1.0e9f);
+    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
@@ -85,7 +85,7 @@ void ImageRenderingPanel::on_notify()
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
     // Might need to find a better fix one day or another
     try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
-    catch(const std::exception& e) {}
+    catch(const std::exception&) {}
 
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
@@ -235,7 +235,6 @@ void ImageRenderingPanel::set_filter2d(bool checked)
         // sets the filter_2d_n2 so the frame fits in the lens diameter by default
         api::set_filter2d_n2(size_max);
         ui_->Filter2DN2SpinBox->setValue(size_max);
-        // refresh_input_filter();
     }
     else
         update_filter2d_view(false);
@@ -276,7 +275,7 @@ void ImageRenderingPanel::refresh_input_filter(){
         return;
     }
 
-    GSH::load_input_filter(GSH::instance().get_input_filter_ref(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
+    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
     holovibes::api::pipe_refresh();
 }
 
@@ -361,20 +360,21 @@ void ImageRenderingPanel::set_time_transformation_size()
     api::set_time_transformation_size(callback);
 }
 
-void ImageRenderingPanel::set_wavelength(const double value)
+//λ
+void ImageRenderingPanel::set_lambda(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_wavelength(value * 1.0e-9f);
+    api::set_lambda(static_cast<float>(value) * 1.0e-9f);
 }
 
-void ImageRenderingPanel::set_z(const double value)
+void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z_distance(value);
+    api::set_z_distance(static_cast<float>(value));
 }
 
 void ImageRenderingPanel::increment_z()
@@ -382,7 +382,7 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() + z_step_);
+    set_z_distance(api::get_z_distance() + z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
@@ -391,7 +391,7 @@ void ImageRenderingPanel::decrement_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_z(api::get_z_distance() - z_step_);
+    set_z_distance(api::get_z_distance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 

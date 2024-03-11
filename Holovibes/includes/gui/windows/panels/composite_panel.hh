@@ -25,6 +25,10 @@ class CompositePanel : public Panel
     void on_notify() override;
 
   public slots:
+
+    /*! \brief Enable or disable the FFT shift on Z axis */
+    void click_z_fft_shift(bool checked);
+
     /*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values */
     void set_composite_intervals();
 
@@ -64,6 +68,9 @@ class CompositePanel : public Panel
     /*! \brief Modifies Hue max threshold and guaratees that Hue max threshold is higher than Hue min threshold */
     void slide_update_threshold_h_max();
 
+    void slide_update_shift_h_min();
+    void slide_update_shift_h_max();
+
     /*! \brief Change Saturation min threshold. Saturation min threshold does not exceed max threshold */
     void slide_update_threshold_s_min();
 
@@ -81,12 +88,6 @@ class CompositePanel : public Panel
 
     /*! \brief Enables or disables Value frequency channel min and max from ui checkbox */
     void actualize_frequency_channel_v();
-
-    /*! \brief Enables or disables Hue gaussian blur from ui checkbox */
-    void actualize_checkbox_h_gaussian_blur();
-
-    /*! \brief Modified Hue blur size from ui value */
-    void actualize_kernel_size_blur();
 
     /*! \brief Make the ui composite overlay visible */
     void set_composite_area();

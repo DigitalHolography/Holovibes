@@ -6,6 +6,7 @@
 
 #include <windows.h>
 
+#include "API.hh"
 #include "logger.hh"
 
 namespace camera
@@ -14,6 +15,7 @@ std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
 {
     LOG_FUNC(dll_filepath);
     HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
+
     if (!dll_handle)
         throw std::runtime_error("unable to load DLL camera");
 
@@ -36,4 +38,5 @@ void CameraDLL::DeleterDLL::operator()(ICamera* camera)
     delete camera;
     FreeLibrary(dll_handle_);
 }
+
 } // namespace camera

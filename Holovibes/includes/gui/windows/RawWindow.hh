@@ -8,6 +8,7 @@
 
 namespace holovibes::gui
 {
+
 class SliceWindow;
 
 /*! \class RawWindow
@@ -24,6 +25,8 @@ class RawWindow : public BasicOpenGLWindow
 
     bool is_resize_call() const;
     void set_is_resize(bool b);
+
+    void save_gui(std::string window);
 
   protected:
     int texDepth, texType;
@@ -48,5 +51,7 @@ class RawWindow : public BasicOpenGLWindow
     void mouseReleaseEvent(QMouseEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
     void wheelEvent(QWheelEvent* e) override;
+
+    void closeEvent(QCloseEvent* event) override;
 };
 } // namespace holovibes

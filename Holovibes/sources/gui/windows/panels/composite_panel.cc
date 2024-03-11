@@ -23,7 +23,8 @@ CompositePanel::~CompositePanel() {}
 
 void CompositePanel::on_notify()
 {
-
+    if (!isVisible())
+        return;
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -55,6 +56,12 @@ void CompositePanel::on_notify()
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
                          static_cast<int>(api::get_slider_h_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_min,
+                         static_cast<int>(api::get_slider_h_shift_min() * 1000));
+    ui_->CompositePanel->slide_update_shift_h_min();
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_max,
+                         static_cast<int>(api::get_slider_h_shift_max() * 1000));
+    ui_->CompositePanel->slide_update_shift_h_max();
 
     QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, api::get_composite_p_min_s());
     QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_max, api::get_composite_p_max_s());
@@ -82,10 +89,20 @@ void CompositePanel::on_notify()
 
     ui_->groupBox->setVisible(rgbMode);   // Frequency channel
     ui_->groupBox_5->setVisible(rgbMode); // Color equalization box
+    ui_->RenormalizationCheckBox->setVisible(rgbMode);
+    ui_->CompositeAreaButton->setVisible(rgbMode);
 
     ui_->groupBox_hue->setVisible(!rgbMode);
     ui_->groupBox_saturation->setVisible(!rgbMode);
     ui_->groupBox_value->setVisible(!rgbMode);
+
+    ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
+}
+
+void CompositePanel::click_z_fft_shift(bool checked) {
+    api::set_z_fft_shift(checked);
+
+    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals()
@@ -159,6 +176,7 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_B->setEnabled(!value);
 
     ui_->ViewPanel->set_auto_contrast();
+    parent_->notify();
 }
 
 void CompositePanel::click_composite_rgb_or_hsv()
@@ -256,6 +274,42 @@ void CompositePanel::slide_update_threshold_h_max()
     api::set_slider_h_threshold_min(bound_to_update);
 }
 
+void CompositePanel::slide_update_shift_h_min()
+{
+    // Avoid modification from panel instead of API
+    float receiver = api::get_slider_h_shift_min();
+    float bound_to_update = api::get_slider_h_shift_max();
+
+    slide_update_threshold(*ui_->horizontalSlider_hue_shift_min,
+                           receiver,
+                           bound_to_update,
+                           *ui_->horizontalSlider_hue_shift_max,
+                           *ui_->label_hue_shift_min,
+                           api::get_slider_h_shift_min(),
+                           api::get_slider_h_shift_max());
+
+    api::set_slider_h_shift_min(receiver);
+    api::set_slider_h_shift_max(bound_to_update);
+}
+
+void CompositePanel::slide_update_shift_h_max()
+{
+
+    float receiver = api::get_slider_h_shift_max();
+    float bound_to_update = api::get_slider_h_shift_min();
+
+    slide_update_threshold(*ui_->horizontalSlider_hue_shift_max,
+                           receiver,
+                           bound_to_update,
+                           *ui_->horizontalSlider_hue_shift_min,
+                           *ui_->label_hue_shift_max,
+                           api::get_slider_h_shift_min(),
+                           api::get_slider_h_shift_max());
+
+    api::set_slider_h_shift_max(receiver);
+    api::set_slider_h_shift_min(bound_to_update);
+}
+
 void CompositePanel::slide_update_threshold_s_min()
 {
 
@@ -342,18 +396,6 @@ void CompositePanel::actualize_frequency_channel_v()
 
     ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
     ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
-}
-
-void CompositePanel::actualize_checkbox_h_gaussian_blur()
-{
-    api::actualize_selection_h_gaussian_blur(ui_->checkBox_h_gaussian_blur->isChecked());
-
-    ui_->SpinBox_hue_blur_kernel_size->setEnabled(ui_->checkBox_h_gaussian_blur->isChecked());
-}
-
-void CompositePanel::actualize_kernel_size_blur()
-{
-    api::actualize_kernel_size_blur(ui_->SpinBox_hue_blur_kernel_size->value());
 }
 
 void CompositePanel::set_composite_area() { api::set_composite_area(); }

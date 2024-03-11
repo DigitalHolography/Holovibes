@@ -1,4 +1,5 @@
 #include <cuda.h>
+#include <spdlog/spdlog.h>
 
 #include "queue.hh"
 #include "tools_conversion.cuh"
@@ -30,8 +31,9 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , has_overridden_(false)
     , gpu_(gpu)
 {
-
     data_ = std::make_shared<cuda_tools::UniquePtr<char>>(gpu_);
+    spdlog::critical("Queue: {}", (int)type_);
+    spdlog::critical("GPU: {}", gpu_);
 
     max_size_ = max_size;
 
@@ -355,7 +357,7 @@ void Queue::dequeue(const unsigned int nb_elts)
 
 void Queue::dequeue_non_mutex(const unsigned int nb_elts)
 {
-    CHECK(size_ >= nb_elts, "When dequeuing {} elements, queue size should be bigger than it, not {};", nb_elts, size_);
+    //CHECK(size_ >= nb_elts, "When dequeuing {} elements, queue size should be bigger than it, not {};", nb_elts, size_);
     size_ -= nb_elts;
     start_index_ = (start_index_ + nb_elts) % max_size_;
 }

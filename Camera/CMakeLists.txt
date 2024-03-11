@@ -18,16 +18,24 @@ find_file(HAVE_EGrabbers "EGrabbers.h" PATHS "${EURESYS_SDK}/include")
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     add_subdirectory(BitflowCyton)
+else()
+    message(WARNING "#####################################################\nBitflow SDK not found, BitflowCyton will not be built\n#####################################################")
 endif()
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     add_subdirectory(CameraAdimec)
+else()
+    message(WARNING "#####################################################\nBitflow SDK not found, CameraAdimec will not be built\n#####################################################")
 endif()
 
 if (HAVE_EGrabber AND HAVE_EGrabbers)
-    add_subdirectory(CameraPhantom)
+    add_subdirectory(AmetekS710EuresysCoaxlinkOcto)
+    add_subdirectory(AmetekS991EuresysCoaxlinkQsfp+)
+    add_subdirectory(AmetekS711EuresysCoaxlinkQsfp+)
+    add_subdirectory(EuresysEGrabber)
+else()
+    message(WARNING "######################################################\nEuresys SDK not found, CameraPhantom will not be built\n######################################################")
 endif()
-
 
 
 add_subdirectory(CameraHamamatsu)

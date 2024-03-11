@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include <map>
 
 #include "logger.hh"
@@ -47,7 +48,11 @@ void ThreadWorkerController<T>::start(Args&&... args)
     thread_ = std::thread(&ThreadWorkerController::run, this);
     Logger::add_thread(thread_.get_id(), typeid(T).name());
 
-    LOG_INFO("Worker of type {} started with ID: {}", typeid(T).name(), thread_.get_id());
+    // uint64_t id = std::hash<std::thread::id>{}(thread_.get_id());
+    std::stringstream ss;
+    ss << thread_.get_id();
+    std::string id = ss.str();
+    LOG_INFO("Worker of type {} started with ID: {}", typeid(T).name(), id);
 }
 
 template <WorkerDerived T>

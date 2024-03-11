@@ -40,16 +40,30 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
  * \return true on success
  * \return false on failure
  */
-bool import_start(
-    std::string& file_path, unsigned int fps, size_t first_frame, bool load_file_in_gpu, size_t last_frame);
+bool import_start();
 
 /*! \brief Stops the display */
 void import_stop();
+
+/**
+ * \brief Sets the file start index
+ */
+void set_input_file_start_index(size_t value);
+
+/**
+ * \brief Sets the file end index
+ */
+void set_input_file_end_index(size_t value);
 
 /*! \brief Switchs operating camera to none
  *
  */
 void camera_none();
+
+/*! \brief Switchs operating camera to none without changes on the user_setting.json
+ *
+ */
+void camera_none_without_json();
 
 /*! \brief Stops the program compute
  *
@@ -66,7 +80,7 @@ void stop_all_worker_controller();
  *
  * \return unsigned accumulation slice level
  */
-unsigned get_img_accu_level();
+unsigned get_accumulation_level();
 
 /*! \brief Gets the gpu input queue frame desciptor width
  *
@@ -100,6 +114,21 @@ bool is_gpu_input_queue();
 void enable_convolution(const std::string& file);
 
 void disable_convolution();
+
+std::vector<float> get_input_filter();
+
+/*! \brief Sets the input filter
+ *
+ * \param value the new value of the input filter
+ */
+void set_input_filter(std::vector<float> value);
+
+/*! \brief Loads the input filter
+ *
+ * \param input_filter the input filter to load
+ * \param file the file path
+ */
+void load_input_filter(std::vector<float> input_filter, const std::string& file);
 
 /*! \brief Enables the input filter mode
  *
@@ -155,11 +184,7 @@ bool start_record_preconditions(const bool batch_enabled,
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
-void start_record(const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback);
+void start_record(std::function<void()> callback);
 
 /*! \brief Stops recording
  *
@@ -335,22 +360,10 @@ void actualize_frequency_channel_s(bool composite_p_activated_s);
  */
 void actualize_frequency_channel_v(bool composite_p_activated_v);
 
-/*! \brief Enables or disables Hue gaussian blur
- *
- * \param h_blur_activated true: enable, false: disable
- */
-void actualize_selection_h_gaussian_blur(bool h_blur_activated);
-
 /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
 void check_p_limits();
 /*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
 void check_q_limits();
-
-/*! \brief Modified Hue blur size
- *
- * \param h_blur_kernel_size the new value
- */
-void actualize_kernel_size_blur(uint h_blur_kernel_size);
 
 /*! \brief Increment p by 1 */
 void increment_p();
@@ -363,13 +376,13 @@ void decrement_p();
  *
  * \param value the new value
  */
-void set_wavelength(double value);
+void set_lambda(float value);
 
 /*! \brief Modifies z
  *
  * \param value the new value
  */
-void set_z_distance(const double value);
+void set_z_distance(float value);
 
 /*! \brief Modifies space transform calculation
  *
@@ -388,6 +401,12 @@ void set_time_transformation(const TimeTransformation value);
  * \param value true: enable, false: disable
  */
 void set_unwrapping_2d(const bool value);
+
+/*! \brief Returns the current window type
+ */
+WindowKind get_current_window_type();
+
+ViewWindow get_current_window();
 
 /*! \brief Modifies the accumulation level on the current window
  *
@@ -409,12 +428,6 @@ void rotateTexture();
  *
  */
 void flipTexture();
-
-/*! \brief Enables or Disables the contrast mode and update the current focused window
- *
- * \param value true: enable, false: disable
- */
-void set_contrast_mode(bool value);
 
 /*! \brief Adds auto contrast to the pipe over cut views
  *
@@ -444,29 +457,25 @@ float get_truncate_contrast_max(const int precision = 2);
  */
 float get_truncate_contrast_min(const int precision = 2);
 
-/*! \brief Modifies the min contrast value on the current window
- *
- * \param value the new value
- */
-void set_contrast_min(const double value);
-
-/*! \brief Modifies the max contrast value on the current window
- *
- * \param value the new value
- */
-void set_contrast_max(const double value);
-
 /*! \brief Enables or Disables contrast invertion
  *
  * \param value true: enable, false: disable
  */
-void invert_contrast(bool value);
+void set_contrast_invert(bool value);
 
 /*! \brief Enables or Disables auto refresh contrast
  *
  * \param value true: enable, false: disable
  */
-void set_auto_refresh_contrast(bool value);
+void set_contrast_auto_refresh(bool value);
+
+/*! \brief Update the contrast of a window
+ *
+ * \param kind the window to update
+ * \param min the min contrast value
+ * \param max the max contrast value
+ */
+void update_contrast(WindowKind kind, float min, float max);
 
 /*! \brief Enables or Disables log scale on the current window
  *
@@ -497,34 +506,146 @@ void set_reticle_zone(const units::RectFd& rect);
  */
 unsigned int get_raw_bitshift();
 
-/*!
- * \brief Gets the contrast min of a given window
+
+
+template <typename T>
+static T get_xyz_member(T xy_member, T xz_member, T yz_member)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        return xy_member;
+    else if (window == WindowKind::XZview)
+        return xz_member;
+    else
+        return yz_member;
+}
+
+template <typename T, typename U>
+static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        xy_member(value);
+    else if (window == WindowKind::XZview)
+        xz_member(value);
+    else
+        yz_member(value);
+}
+
+/**
+ * \brief Helper functions to get the member of the current view
+ * \tparam T is the getter function
+ */
+template <typename T>
+static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_member)
+{
+    auto window = api::get_current_window_type();
+    if (window == WindowKind::Filter2D)
+        return filter2d_member;
+    return get_xyz_member(xy_member, xz_member, yz_member);
+}
+
+/*! \brief Gets the contrast min of a given window
  *
  * \return float the contrast minimum of the given window kind
  */
 float get_contrast_min();
 
-/*!
- * \brief Gets the contrast max of a given window
+/*! \brief Gets the contrast max of a given window
  *
  * \return float the contrast maximum of the given window kind
  */
 float get_contrast_max();
 
-/*!
- * \brief Gets the contrast max of a given window
+/*! \brief Gets the contrast max of a given window
  *
  * \return bool the contrast maximum of the given window kind
  */
-bool get_contrast_invert_enabled();
+bool get_contrast_invert();
 
-/*!
- * \brief Checks if log scale is enabled for a given window
+/*! \brief Gets if the contrast is enabled for the current window
+ *
+ * \return bool the contrast is enabled for the current window
+ */
+bool get_contrast_enabled();
+
+/*! \brief Gets the rotation of a given window
+ *
+ * \return double the rotation of the given window kind
+ */
+double get_rotation();
+
+/*! \brief Gets the horizontal flip of a given window
+ *
+ * \return bool the horizontal flip of the given window kind
+ */
+bool get_horizontal_flip();
+
+/*! \brief Checks if log scale is enabled for a given window
  *
  * \return true Enabled
  * \return false Disabled
  */
-bool get_img_log_scale_slice_enabled();
+bool get_log_enabled();
+
+/*! \brief Returns if the auto contrast is enabled for the current window
+ *
+ * \return double the rotation of the given window kind
+ */
+bool get_contrast_auto_refresh();
+
+/*! \brief Disables convolution
+ *
+ */
+void disable_convolution();
+
+/*! \brief Loads convolution matrix from a given file
+ *
+ * \param file the file containing the convolution's settings
+ */
+void load_convolution_matrix(std::optional<std::string> filename);
+
+/*! \brief Enables convolution
+ *
+ * \param file the file containing the convolution's settings
+ */
+void enable_convolution(std::optional<std::string> file);
+
+/*! \brief Sets the contrast mode
+ *
+ *  \param value true: enable, false: disable
+ */
+void set_contrast_mode(bool contrast_enabled);
+
+/*! \brief Sets the contrast invert mode
+ *
+ *  \param value true: enable, false: disable
+ */
+void set_contrast_invert(bool contrast_invert);
+
+/*! \brief Sets the contrast min
+ *
+ *  \param value the new value
+ */
+void set_contrast_min(float value);
+
+/*! \brief Sets the contrast max
+ *
+ *  \param value the new value
+ */
+void set_contrast_max(float value);
+
+/*! \brief Sets the rotation
+ *
+ *  \param value the new value
+ */
+void set_rotation(double value);
+
+/*! \brief Sets the horizontal flip
+ *
+ *  \param value the new value
+ */
+void set_horizontal_flip(double value);
 
 /*! \brief get x
  *
@@ -606,6 +727,10 @@ void stop_chart_display();
 /*! \brief Adds or removes lens view */
 void set_lens_view(bool checked, uint auxiliary_window_max_size);
 
+void set_chart_display_enabled(bool value);
+
+void set_filter2d_view_enabled(bool value);
+
 /*! \brief Adds or removes raw view */
 void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
@@ -663,32 +788,6 @@ void update_batch_size(std::function<void()> callback, const uint batch_size);
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
  */
 void set_view_mode(const std::string& value, std::function<void()> callback);
-
-/*! \brief Restarts everything to change the view mode
- *
- */
-
-/*! \brief Changes display mode to Holographic
- *
- * \param window_size size of the window
- * \param fd the frame descriptor that will be initialized and returned by reference
- * \return true on success
- * \return false on failure
- */
-
-/*! \brief Creates the windows for processed image output
- *
- * \param window_size the size of the window
- */
-
-/*! \brief Creates the pipeline
- *
- */
-
-/*!
- * \brief Set the raw mode object
- *
- */
 
 /*! \brief Configures the camera */
 void configure_camera();

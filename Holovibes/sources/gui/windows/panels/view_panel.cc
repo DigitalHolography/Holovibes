@@ -46,7 +46,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
@@ -83,7 +83,7 @@ void ViewPanel::on_notify()
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert_enabled());
+    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
@@ -96,7 +96,7 @@ void ViewPanel::on_notify()
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
-    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_img_log_scale_slice_enabled());
+    ui_->LogScaleCheckBox->setChecked(!is_raw && api::get_log_enabled());
 
     // ImgAccWindow
     auto set_xyzf_visibility = [&](bool val)
@@ -113,7 +113,7 @@ void ViewPanel::on_notify()
     {
         set_xyzf_visibility(true);
 
-        ui_->ImgAccuSpinBox->setValue(api::get_img_accu_level());
+        ui_->ImgAccuSpinBox->setValue(api::get_accumulation_level());
 
         constexpr int max_digit_rotate = 3;
         constexpr int max_digit_flip = 1;
@@ -125,11 +125,11 @@ void ViewPanel::on_notify()
         current_rotation.replace(current_rotation.size() - 3, max_digit_rotate, rotation_degree.c_str());
 
         auto current_flip = ui_->FlipPushButton->text();
-        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_flip_enabled()).c_str());
+        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_horizontal_flip()).c_str());
 
         ui_->RotatePushButton->setText(current_rotation);
         ui_->FlipPushButton->setText(current_flip); //(current_rotation.toStdString() +
-                                                    // std::to_string(api::get_flip_enabled())).c_str());
+                                                    // std::to_string(api::get_horizontal_flip())).c_str());
     }
 
     // Deactivate previous maximum (chetor)
@@ -139,14 +139,14 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
-    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease);
+    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease && api::get_img_type() != ImgType::Composite);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
     // Enforce maximum value for p_index and p_accu_level
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
-    ui_->PSpinBox->setEnabled(!is_raw);
+    ui_->PSpinBox->setEnabled(!is_raw && api::get_img_type() != ImgType::Composite);
 
     // q accu
     bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
@@ -273,7 +273,7 @@ void ViewPanel::set_fft_shift(const bool value)
 
     api::set_fft_shift_enabled(value);
 
-    api::pipe_refresh();
+    //api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)
@@ -298,7 +298,12 @@ void ViewPanel::update_raw_view(bool checked)
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::set_x_y() { api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value()); }
+void ViewPanel::set_x_y()
+{
+    api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
+    
+    parent_->notify();
+}
 
 void ViewPanel::set_x_accu()
 {
@@ -369,7 +374,6 @@ void ViewPanel::decrement_p()
 void ViewPanel::set_p_accu()
 {
     api::set_p_accu_level(ui_->PAccSpinBox->value());
-
     parent_->notify();
 }
 
@@ -437,14 +441,14 @@ void ViewPanel::set_auto_contrast()
     api::set_auto_contrast();
 }
 
-void ViewPanel::set_auto_refresh_contrast(bool value)
+void ViewPanel::set_contrast_auto_refresh(bool value)
 {
-    api::set_auto_refresh_contrast(value);
+    api::set_contrast_auto_refresh(value);
 
     parent_->notify();
 }
 
-void ViewPanel::invert_contrast(bool value)
+void ViewPanel::set_contrast_invert(bool value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
@@ -452,7 +456,7 @@ void ViewPanel::invert_contrast(bool value)
     if (!api::get_contrast_enabled())
         return;
 
-    api::invert_contrast(value);
+    api::set_contrast_invert(value);
 }
 
 void ViewPanel::set_contrast_min(const double value)

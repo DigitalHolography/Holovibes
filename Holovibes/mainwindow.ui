@@ -379,7 +379,7 @@
             <number>6</number>
            </property>
            <item row="4" column="0">
-            <widget class="QLabel" name="WaveLengthLabel">
+            <widget class="QLabel" name="LambdaLabel">
              <property name="text">
               <string>λ (nm)</string>
              </property>
@@ -425,7 +425,7 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
+            <widget class="QDoubleSpinBox" name="LambdaSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -433,7 +433,7 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Wavelength of light used to record interferograms</string>
+              <string>Wavelength (lambda) of light used to record interferograms</string>
              </property>
              <property name="decimals">
               <number>4</number>
@@ -1501,6 +1501,19 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="zFFTShiftCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+             <kerning>true</kerning>
+            </font>
+           </property>
+           <property name="text">
+            <string>Z FFT Shift</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
             <string>Frequency channels (p)</string>
@@ -1618,7 +1631,7 @@
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="2" column="3">
+              <item row="1" column="1" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_freq_min">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1643,21 +1656,21 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="6">
+              <item row="4" column="5">
                <widget class="QLabel" name="label_hue_threshold_max">
                 <property name="text">
                  <string>1000</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="6">
+              <item row="3" column="5">
                <widget class="QLabel" name="label_hue_threshold_min">
                 <property name="text">
                  <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="4">
+              <item row="1" column="3">
                <widget class="QLabel" name="label_hue_freq_max">
                 <property name="text">
                  <string>Max</string>
@@ -1667,14 +1680,8 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="3" colspan="3">
+              <item row="4" column="1" colspan="4">
                <widget class="QSlider" name="horizontalSlider_hue_threshold_max">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -1684,38 +1691,37 @@
                 <property name="maximum">
                  <number>1000</number>
                 </property>
-                <property name="singleStep">
-                 <number>1</number>
-                </property>
                 <property name="pageStep">
                  <number>100</number>
-                </property>
-                <property name="value">
-                 <number>1000</number>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksAbove</enum>
-                </property>
                </widget>
               </item>
-              <item row="4" column="2" colspan="5">
+              <item row="2" column="0" colspan="5">
                <widget class="QLabel" name="label_27">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>Range</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="3" colspan="3">
-               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="5" column="0" colspan="5">
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>H Streching</string>
                 </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_hue_shift_min_name">
+                <property name="text">
+                 <string>  Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_min">
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -1731,12 +1737,68 @@
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksBelow</enum>
+               </widget>
+              </item>
+              <item row="6" column="5">
+               <widget class="QLabel" name="label_hue_shift_min">
+                <property name="text">
+                 <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="5" colspan="2">
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_hue_shift_max_name">
+                <property name="text">
+                 <string>  Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_shift_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="5">
+               <widget class="QLabel" name="label_hue_shift_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="4">
+               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_freq_max">
                 <property name="minimumSize">
                  <size>
@@ -1755,77 +1817,34 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="6">
-               <widget class="QSpinBox" name="SpinBox_hue_blur_kernel_size">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="maximum">
-                 <number>100</number>
-                </property>
-                <property name="value">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="3">
-               <widget class="QCheckBox" name="checkBox_h_gaussian_blur">
-                <property name="minimumSize">
-                 <size>
-                  <width>10</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2" colspan="5">
+              <item row="0" column="0" colspan="5">
                <widget class="QLabel" name="label_hue_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
-              <item row="7" column="2">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Blur</string>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="4" colspan="2">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Size</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="2">
+              <item row="4" column="0">
                <widget class="QLabel" name="label_hue_threshold_max_name">
                 <property name="text">
-                 <string>Max</string>
+                 <string>  Max</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="1" column="0">
                <widget class="QLabel" name="label_hue_freq_min">
                 <property name="text">
-                 <string>Min</string>
+                 <string>  Min</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="5" column="2">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_hue_threshold_min_name">
                 <property name="text">
-                 <string>Min</string>
+                 <string>  Min</string>
                 </property>
                </widget>
               </item>
@@ -1990,7 +2009,7 @@
               <item row="2" column="0" colspan="5">
                <widget class="QLabel" name="label_saturation_threshold">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>S Streching</string>
                 </property>
                </widget>
               </item>
@@ -2004,7 +2023,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_saturation_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
@@ -2134,7 +2153,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_value_freq">
                 <property name="text">
-                 <string>Freq. channels (p) selection </string>
+                 <string>Z selection </string>
                 </property>
                </widget>
               </item>
@@ -2198,7 +2217,7 @@
               <item row="3" column="0" colspan="5">
                <widget class="QLabel" name="label_value_threshold">
                 <property name="text">
-                 <string>Threshold</string>
+                 <string>V Streching</string>
                 </property>
                </widget>
               </item>
@@ -3127,10 +3146,13 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAdimec"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
-     <addaction name="actionPhantom_S710"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
      <addaction name="actionOpenCV"/>
+     <addaction name="actionPhantom_S710"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionEGrabberStudio"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3333,14 +3355,29 @@ p, li { white-space: pre-wrap; }
     <string>Hamamatsu C11440</string>
    </property>
   </action>
-  <action name="actionPhantom_S710">
-   <property name="text">
-    <string>Phantom S710 (Euresys)</string>
-   </property>
-  </action>
   <action name="actionBitflowCyton">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710">
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionEGrabberStudio">
+   <property name="text">
+    <string>Euresys eGrabber</string>
    </property>
   </action>
   <action name="actionReload_ini">
@@ -3735,7 +3772,7 @@ p, li { white-space: pre-wrap; }
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_auto_refresh_contrast(bool)</slot>
+   <slot>set_contrast_auto_refresh(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>349</x>
@@ -3780,10 +3817,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>WaveLengthDoubleSpinBox</sender>
+   <sender>LambdaSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_wavelength(double)</slot>
+   <slot>set_lambda(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -3831,7 +3868,7 @@ p, li { white-space: pre-wrap; }
    <sender>ZDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_z(double)</slot>
+   <slot>set_z_distance(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -4180,6 +4217,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>horizontalSlider_hue_shift_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_min()</slot>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_hue_shift_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>slide_update_shift_h_max()</slot>
+  </connection>
+  <connection>
    <sender>LensViewCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -4226,6 +4275,12 @@ p, li { white-space: pre-wrap; }
      <y>255</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>zFFTShiftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>CompositePanel</receiver>
+   <slot>click_z_fft_shift(bool)</slot>
   </connection>
   <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
@@ -4316,22 +4371,6 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>561</x>
      <y>470</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_h_gaussian_blur</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>CompositePanel</receiver>
-   <slot>actualize_checkbox_h_gaussian_blur()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>498</x>
-     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -4484,22 +4523,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SpinBox_hue_blur_kernel_size</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>CompositePanel</receiver>
-   <slot>actualize_kernel_size_blur()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>591</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SpinBox_saturation_freq_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
@@ -4615,7 +4638,7 @@ p, li { white-space: pre-wrap; }
    <sender>InvertContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>invert_contrast(bool)</slot>
+   <slot>set_contrast_invert(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>259</x>
@@ -4791,7 +4814,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportStartIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_start_spinbox_update()</slot>
+   <slot>update_input_file_start_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -4807,7 +4830,7 @@ p, li { white-space: pre-wrap; }
    <sender>ImportEndIndexSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
-   <slot>import_end_spinbox_update()</slot>
+   <slot>update_input_file_end_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>881</x>
@@ -5123,6 +5146,54 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+    <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEGrabberStudio</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_euresys_egrabber()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
@@ -5226,6 +5297,66 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+    <sender>BatchGroupBox</sender>
+    <signal>toggled()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_batch_enabled()</slot>
+  </connection>
+  <connection>
+    <sender>NumberOfFramesCheckBox</sender>
+    <signal>stateChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_frame_count_enabled()</slot>
+  </connection>
+  <connection>
+    <sender>NumberOfFramesSpinBox</sender>
+    <signal>valueChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_frame_count_enabled()</slot>
+  </connection>
+  <connection>
+    <sender>OutputFilePathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_file_path()</slot>
+  </connection>
+  <connection>
+    <sender>BatchInputPathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_batch_file_path()</slot>
+  </connection>
+  <connection>
+    <sender>RecordExtComboBox</sender>
+    <signal>currentTextChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_file_extension(QString)</slot>
+  </connection>
+  <connection>
+    <sender>RecordImageModeComboBox</sender>
+    <signal>currentTextChanged()</signal>
+    <receiver>ExportPanel</receiver>
+    <slot>update_record_mode()</slot>
+  </connection>
+  <connection>
+    <sender>LoadFileInGpuCheckBox</sender>
+    <signal>stateChanged()</signal>
+    <receiver>ImportPanel</receiver>
+    <slot>update_load_file_in_gpu()</slot>
+  </connection>
+  <connection>
+   <sender>ImportStartIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_start_index()</slot>
+  </connection>
+  <connection>
+   <sender>ImportEndIndexSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_input_file_end_index()</slot>
+  </connection>
+  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>
@@ -5240,6 +5371,12 @@ p, li { white-space: pre-wrap; }
      <y>117</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+    <sender>ImportPathLineEdit</sender>
+    <signal>textChanged()</signal>
+    <receiver>ImportPanel</receiver>
+    <slot>update_import_file_path()</slot>
   </connection>
   <connection>
    <sender>actionOpenCV</sender>
@@ -5261,14 +5398,14 @@ p, li { white-space: pre-wrap; }
  <slots>
   <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
-  <slot>set_wavelength(double)</slot>
-  <slot>set_z(double)</slot>
+  <slot>set_lambda(double)</slot>
+  <slot>set_z_distance(double)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
-  <slot>invert_contrast(bool)</slot>
+  <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
   <slot>set_view_mode(QString)</slot>
@@ -5276,6 +5413,9 @@ p, li { white-space: pre-wrap; }
   <slot>camera_ids()</slot>
   <slot>camera_phantom()</slot>
   <slot>camera_bitflow_cyton()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>camera_euresys_egrabber()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>
   <slot>camera_adimec()</slot>
@@ -5294,8 +5434,8 @@ p, li { white-space: pre-wrap; }
   <slot>import_browse_file()</slot>
   <slot>import_start()</slot>
   <slot>import_stop()</slot>
-  <slot>import_start_spinbox_update(int)</slot>
-  <slot>import_end_spinbox_update()</slot>
+  <slot>update_input_file_start_index(int)</slot>
+  <slot>update_input_file_end_index(int)</slot>
   <slot>layout_toggled()</slot>
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
@@ -5334,11 +5474,12 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals_hsv_v_max()</slot>
   <slot>slide_update_threshold_h_min()</slot>
   <slot>slide_update_threshold_h_max()</slot>
+  <slot>slide_update_shift_h_min()</slot>
+  <slot>slide_update_shift_h_max()</slot>
   <slot>slide_update_threshold_s_min()</slot>
   <slot>slide_update_threshold_s_max()</slot>
   <slot>slide_update_threshold_v_min()</slot>
   <slot>slide_update_threshold_v_max()</slot>
-  <slot>actualize_kernel_size_blur()</slot>
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
   <slot>set_composite_area()</slot>
@@ -5347,7 +5488,7 @@ p, li { white-space: pre-wrap; }
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
-  <slot>set_auto_refresh_contrast(bool)</slot>
+  <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
@@ -5357,6 +5498,7 @@ p, li { white-space: pre-wrap; }
   <slot>open_advanced_settings()</slot>
   <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
+  <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>
  </slots>
 </ui>

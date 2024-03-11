@@ -20,4 +20,17 @@ void hsv(const cuComplex* d_input,
          const uint height,
          const cudaStream_t stream,
          const int time_transformation_size,
-         const holovibes::CompositeHSV& hsv_struct);
+         const holovibes::CompositeHSV& hsv_struct,
+         bool checked);
+
+/*
+void hsv_cuts(const float* gpu_in_cut_xz,
+              const float* gpu_in_cut_yz,
+              float* gpu_out_cut_xz,
+              float* gpu_out_cut_yz,
+              uint width,
+              uint height,
+              int time_transformation_size,
+              const holovibes::CompositeHSV& hsv_struct,
+              const cudaStream_t stream);
+*/

@@ -262,7 +262,7 @@ void RawWindow::paintGL()
 
     // Put the frame inside the cuda ressrouce
 
-    if (GSH::instance().get_img_type() == ImgType::Composite)
+    if (api::get_img_type() == ImgType::Composite)
     {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     }
@@ -392,5 +392,28 @@ void RawWindow::wheelEvent(QWheelEvent* e)
             setTransform();
         }
     }
+}
+
+void RawWindow::closeEvent(QCloseEvent* event) {
+    if (kView == KindOfView::Raw || kView == KindOfView::Hologram)
+    {
+        save_gui("holo window");
+    }
+}
+
+void RawWindow::save_gui(std::string window) 
+{
+    // Don't forget to test the cases where the window is out ouf the screen boundaries
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    j_us[window]["width"] = width();
+    j_us[window]["height"] = height();
+    j_us[window]["x"] = x();
+    j_us[window]["y"] = y();
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
 }
 } // namespace holovibes::gui

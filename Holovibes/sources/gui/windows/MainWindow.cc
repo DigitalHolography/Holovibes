@@ -15,6 +15,8 @@
 #include "gui_group_box.hh"
 #include "tools.hh"
 #include "logger.hh"
+#include "camera_dll.hh"
+#include "image_rendering_panel.hh"
 
 #include "API.hh"
 
@@ -110,13 +112,13 @@ MainWindow::MainWindow(QWidget* parent)
     }
     catch (const std::exception&)
     {
-        LOG_INFO("{}: Compute settings file not found. Initialization with default values.",
+        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
     // Display default values
-    api::set_compute_mode(Computation::Raw);
+    api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
@@ -125,7 +127,7 @@ MainWindow::MainWindow(QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
-    spinBoxDecimalPointReplacement(ui_->WaveLengthDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
@@ -173,7 +175,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none();
+    api::camera_none_without_json();
 
     delete ui_;
 }
@@ -229,7 +231,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_img_accu_xy_level(1); }
+static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -360,10 +362,13 @@ void MainWindow::load_gui()
         LOG_INFO("{} : User settings file not found. Initialization with default values.",
                  ::holovibes::settings::user_settings_filepath);
         save_gui();
-        return;
     }
 
     set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
+
+    setBaseSize(json_get_or_default(j_us, 879, "main window", "width"), json_get_or_default(j_us, 470, "main window", "height"));
+    resize(baseSize());
+    move(json_get_or_default(j_us, 560, "main window", "x"), json_get_or_default(j_us, 290, "main window", "y"));
 
     window_max_size = json_get_or_default(j_us, window_max_size, "windows", "main window max size");
     auxiliary_window_max_size =
@@ -401,8 +406,29 @@ void MainWindow::load_gui()
                             "files",
                             "batch input directory");
 
+    auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
+    int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
+
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
+
+    api::change_camera(camera);
+
+    if (camera != CameraKind::NONE)
+    {
+        if (compute_mode == 0)
+        {
+            LOG_INFO("RAW");
+            api::set_compute_mode(Computation::Raw);
+            api::set_raw_mode(1);
+        }
+        else
+        {
+            LOG_INFO("HOLO");
+            api::set_compute_mode(Computation::Hologram);
+            api::set_holographic_mode(1);
+        }
+    }
 
     notify();
 }
@@ -414,10 +440,21 @@ void MainWindow::save_gui()
 
     json j_us;
 
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    try {j_us = json::parse(input_file);}
+    catch(const std::exception& e) {}
+
     j_us["display"]["theme"] = theme_;
 
     j_us["windows"]["main window max size"] = window_max_size;
     j_us["windows"]["auxiliary window max size"] = auxiliary_window_max_size;
+
+    j_us["main window"]["width"] = size().width();
+    j_us["main window"]["height"] = size().height();
+
+    j_us["main window"]["x"] = pos().x();
+    j_us["main window"]["y"] = pos().y();
 
     j_us["display"]["refresh rate"] = api::get_display_rate();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
@@ -428,10 +465,11 @@ void MainWindow::save_gui()
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
+    j_us["image rendering"]["mode"] = (int) api::get_compute_mode();
+
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
 
-    auto path = holovibes::settings::user_settings_filepath;
     std::ofstream file(path);
     file << j_us.dump(1);
 
@@ -444,7 +482,7 @@ void MainWindow::save_gui()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    api::camera_none();
+    api::camera_none_without_json();
     Logger::flush();
 
     save_gui();
@@ -501,6 +539,12 @@ void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
 void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP);}
+
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP);}
+
+void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek);}
+
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
 /* ------------ */
@@ -550,7 +594,6 @@ void MainWindow::set_view_image_type(const QString& value)
     }
 
     const std::string& str = value.toStdString();
-
     if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
     {
         refresh_view_mode();
@@ -681,7 +724,8 @@ void MainWindow::open_advanced_settings()
 
 void MainWindow::shift_screen()
 {
-    // shift main window when camera view appears
+    return;
+    // we want to remain at the position indicated in the user_settings.json
     QRect rec = QGuiApplication::primaryScreen()->geometry();
     int screen_height = rec.height();
     int screen_width = rec.width();

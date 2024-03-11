@@ -7,27 +7,47 @@ import difflib
 import pytest
 import json
 from typing import List, Tuple
-from build import build_utils
+import logging
 
-from build.build_constants import *
 from .constant_name import *
 from . import holo
 
 DEEP_COMPARE = True
 
 HOLOVIBES_BIN = os.path.join(
-    os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Release", RUN_BINARY_FILE)
-
-if not os.path.isfile(HOLOVIBES_BIN):
-    HOLOVIBES_BIN = os.path.join(
-        os.getcwd(), DEFAULT_BUILD_BASE, DEFAULT_GENERATOR, "Debug", RUN_BINARY_FILE)
+    os.getcwd(), "build/bin/Holovibes.exe")
 
 assert os.path.isfile(
     HOLOVIBES_BIN), "Cannot find Holovibes.exe, Change the HOLOVIBES_BIN var"
 
 
+# Create a named logger
+logger = logging.getLogger("test_holo")
+logger.setLevel(logging.INFO)
+
+# Create a console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+# Set the formatter for the console handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+datefmt='%m/%d/%Y %I:%M:%S%p')
+console_handler.setFormatter(formatter)
+
+# Add the console handler to the logger
+logger.addHandler(console_handler)
+
+
 def read_holo(path: str) -> holo.HoloFile:
     return holo.HoloFile.from_file(path)
+
+def read_time(path: str) -> float:
+    with open(path, "r") as f:
+        return float(f.readline())
+
+def write_time(time: float, path: str) -> None:
+    with open(path, "w") as file:
+        file.write(str(time))
 
 
 def read_holo_lazy(path: str) -> Tuple[bytes, bytes, bytes]:
@@ -49,8 +69,7 @@ def generate_holo_from(input: str, output: str, output_error: str, cli_argument:
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = build_utils.get_conan_venv_start_cmd(None)
-    cmd += [HOLOVIBES_BIN, "-i", input, "-o", output] + \
+    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
         get_cli_arguments(cli_argument)
     if config:
         cmd += ['--compute_settings', config]
@@ -63,7 +82,7 @@ def generate_holo_from(input: str, output: str, output_error: str, cli_argument:
         error_file.close()
 
     t2 = time.time()
-    return (t2 - t1),
+    return (t2 - t1)
 
 def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> bool:
     a_header, a_data, a_footer = a
@@ -92,6 +111,8 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
 @pytest.mark.parametrize("folder", find_tests())
 def test_holo(folder: str):
+
+    print(folder)
 
     path = os.path.join(TESTS_DATA, folder)
     input = os.path.join(path, INPUT_FILENAME)
@@ -128,7 +149,7 @@ def test_holo(folder: str):
     if os.path.isfile(output_error):
         os.remove(output_error)
 
-    generate_holo_from(input, output, output_error, cli_argument, config)
+    current_time = generate_holo_from(input, output, output_error, cli_argument, config)
 
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
@@ -150,7 +171,11 @@ def test_holo(folder: str):
         else:
             out = read_holo(output)
             ref = read_holo(ref)
-
+            try:
+                ref_time = read_time(os.path.join(path, "ref_time.txt"))
+                logger.info(f"Current time: {current_time} Ref time: {ref_time}")
+            except:
+                pass
             ref.assertHolo(out, path)
 
     elif not error_wanted: # LAZY_COMPARE

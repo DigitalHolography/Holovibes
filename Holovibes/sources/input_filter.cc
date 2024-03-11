@@ -1,11 +1,12 @@
 #include "input_filter.hh"
+#include "API.hh"
 
 #include <iostream>
 #include <fstream>
 
 namespace holovibes
 {
-void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, const char* path)
+void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
 {
     FILE* f = fopen(path, "rb");
     if(f == NULL)
@@ -14,7 +15,7 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
         exit(0);
     }
     // Clear data if already holds information
-    cache_image->clear();
+    cache_image.clear();
 	bmp_identificator identificator;
     int e = fread(identificator.identificator, sizeof(identificator), 1, f);
     if(e < 0)
@@ -59,7 +60,7 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
     this->height = di_info.height;
 
     // Reallocate the vector with the new size
-    cache_image->resize(width * height);
+    cache_image.resize(width * height);
 
 	// Only support for 24-bit images
 	if (di_info.bits_per_pixel != 24)
@@ -102,14 +103,13 @@ void InputFilter::read_bmp(std::shared_ptr<std::vector<float>> cache_image, cons
             // Flatten in [0,1]
             color /= 255.0f;
 
-            cache_image->at(index) = color;
+            cache_image.at(index) = color;
         }
-
         // Rows are padded so that they're always a multiple of 4
 		// bytes. This line skips the padding at the end of each row.
         e = fseek(f, width % 4, std::ios::cur);
     }
-
+    api::set_input_filter(cache_image);
     fclose(f);
 }
 
@@ -176,14 +176,17 @@ void bilinear_interpolation(
     }
 }
 
-void InputFilter::interpolate_filter(std::shared_ptr<std::vector<float>> cache_image, size_t fd_width, size_t fd_height)
+void InputFilter::interpolate_filter(size_t fd_width, size_t fd_height)
 {
-    std::vector<float> copy_filter(cache_image->begin(), cache_image->end());
+    auto cache_image = api::get_input_filter();
+    std::vector<float> copy_filter(cache_image.begin(), cache_image.end());
 
-    cache_image->resize(fd_width * fd_height);
-    std::fill(cache_image->begin(), cache_image->end(), 0.0f);
+    cache_image.resize(fd_width * fd_height);
+    std::fill(cache_image.begin(), cache_image.end(), 0.0f);
 
-    bilinear_interpolation(copy_filter.data(), cache_image->data(), width, height, fd_width, fd_height);
+    bilinear_interpolation(copy_filter.data(), cache_image.data(), width, height, fd_width, fd_height);
+
+    api::set_input_filter(cache_image);
 
     width = fd_width;
     height = fd_height;
