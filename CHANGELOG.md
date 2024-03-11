@@ -1,5 +1,10 @@
 ## Changelog
 
+### 12.9.7
+* Fix testsuite
+* Fix dev.py
+* Add pseudo-benchmarks on testsuite
+
 ### 12.9.6
 * Add s711 camera support
 * Partial record fix : possible to record holograms and raw images (when indicating number of frames)

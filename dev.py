@@ -255,9 +255,13 @@ def build_ref(args: GoalArgs) -> int:
 
 @goal
 def clean(args: GoalArgs) -> int:
+    # args.goal_args.extend(["--target", "clean"])
+    # conan_build_goal(args, "--build")
+    # args.goal_args[:-2]
+
     # Remove build directory
-    if os.path.isdir(DEFAULT_BUILD_BASE):
-        if subprocess.call(f"rm -rf {DEFAULT_BUILD_BASE}", shell=True):
+    if os.path.isdir(os.path.join(DEFAULT_BUILD_FOLDER, DEFAULT_BUILD_BASE)):
+        if subprocess.call(f"rm -rf {os.path.join(DEFAULT_BUILD_FOLDER, DEFAULT_BUILD_BASE)}", shell=True):
             return 1
 
     # Remove last_generated_output.holo from tests/data
@@ -280,10 +284,8 @@ def release(args: GoalArgs) -> int:
         print("Please specify part of version to bump (major/minor/patch)")
         return 1
 
-    cmd = []
-    generator = build_utils.get_generator(args.generator)
     build_mode = build_utils.get_build_mode(args.build_mode)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    build_dir = build_utils.get_build_dir(args.build_dir)
     bump_part = args.goal_args[0]
     args.build_mode = "Release"
     args.goal_args = []
@@ -297,32 +299,19 @@ def release(args: GoalArgs) -> int:
         if clean(args):
             return 1
 
-    if not os.path.isdir(INSTALLER_OUTPUT):
-        os.mkdir(INSTALLER_OUTPUT)
-
     # run goal conan, cmake, build, test and
     # Get libs paths and add them to the installer file
-    conan_build_goal(args, option="--install")
+    conan_build_goal(args, option="--build")
 
-    paths = build_utils.get_lib_paths()
-    nvcc_path = build_utils.get_cmake_variable(
-        build_dir, 'CMAKE_CUDA_COMPILER')
-    build_dir = os.path.join(build_dir, "Release")
+    build_utils.create_release_file(build_dir)
 
-    # Temporary fix
-    paths["cuda"] = os.path.abspath(
-        os.path.join(os.path.dirname(nvcc_path), '..'))
-
-    build_utils.create_release_file(paths, build_dir)
-
-    return subprocess.call(["iscc", ISCC_FILE])
+    return 0
 
 
 @goal
 def preRelease(args: GoalArgs) -> int:
-    cmd = []
-    generator = build_utils.get_generator(args.generator)
-    build_dir = build_utils.get_build_dir(args.build_dir, generator)
+    build_mode = build_utils.get_build_mode(args.build_mode)
+    build_dir = build_utils.get_build_dir(args.build_dir)
     args.build_mode = "Release"
     args.goal_args = []
 
@@ -332,25 +321,13 @@ def preRelease(args: GoalArgs) -> int:
         if clean(args):
             return 1
 
-    if not os.path.isdir(INSTALLER_OUTPUT):
-        os.mkdir(INSTALLER_OUTPUT)
-
     # run goal conan, cmake, build, test and
     # Get libs paths and add them to the installer file
-    conan_build_goal(args, option="--install")
+    conan_build_goal(args, option="--build")
 
-    paths = build_utils.get_lib_paths()
-    nvcc_path = build_utils.get_cmake_variable(
-        build_dir, 'CMAKE_CUDA_COMPILER')
-    build_dir = os.path.join(build_dir, "Release")
+    build_utils.create_release_file(build_dir)
 
-    # Temporary fix
-    paths["cuda"] = os.path.abspath(
-        os.path.join(os.path.dirname(nvcc_path), '..'))
-
-    build_utils.create_release_file(paths, build_dir)
-
-    return subprocess.call(["iscc", ISCC_FILE])
+    return 0
 
 
 def run_goal(goal: str, args: GoalArgs) -> int:
