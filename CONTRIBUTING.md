@@ -45,3 +45,4 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
  7. Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
  if you want to modify either X, Y, or Z of the version number X.Y.Z
  8. do a `git push --follow-tags`
+ 9. Merge master with `develop`

@@ -193,16 +193,12 @@ def ctest(args: GoalArgs) -> int:
 
     # cmd = build_utils.get_vcvars_start_cmd(
     #     args.build_env) if build_utils.is_windows() else []
-    cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
 
-    exe_path = args.build_dir or os.path.join(
-        DEFAULT_BUILD_BASE, build_utils.get_generator(
-            args.generator), "Holovibes"
-    )
-    previous_path = os.getcwd()
+    # build_dir = build_utils.get_build_dir(args.build_dir)
+    # previous_path = os.getcwd()
 
-    os.chdir(exe_path)
-    cmd += ["ctest", "--verbose"] + args.goal_args
+    # os.chdir(build_dir)
+    cmd = ["ctest", "--verbose"] + args.goal_args
 
     if args.verbose:
         print("Ctest cmd: {}".format(" ".join(cmd)))
