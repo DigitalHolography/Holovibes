@@ -11,7 +11,7 @@
 namespace holovibes::settings
 {
 // Very ugly to redefine the version in the "camera" folder but we have no choice if we want to define it only once.
-#define __HOLOVIBES_VERSION__ "12.9.6"
+#define __HOLOVIBES_VERSION__ "12.9.7"
 #define __APPNAME__ "Holovibes"
 
 #define __CAMERAS_CONFIG_FOLDER__ "cameras_config"
@@ -21,6 +21,6 @@ namespace holovibes::settings
 
 #define __CAMERAS_CONFIG_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
 
-#define __CAMERAS_CONFIG_REFERENCE__ ((std::filesystem::path("AppData") / "cameras_config"))
+#define __CAMERAS_CONFIG_REFERENCE__ (__APPDATA_HOLOVIBES_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
 
 } // namespace holovibes::settings
