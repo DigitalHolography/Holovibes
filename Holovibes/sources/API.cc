@@ -31,6 +31,10 @@ const std::string get_credits()
 
            "Developers:\n\n"
 
+           "Chloé Magnier\n"
+           "Noé Topeza\n"
+           "Maxime Boy-Arnould\n"
+
            "Oscar Morand\n"
            "Paul Duhot\n"
            "Thomas Xu\n"

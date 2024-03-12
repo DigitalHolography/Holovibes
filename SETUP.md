@@ -2,8 +2,13 @@
 - [GIT](https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe)
 - [Visual Studio 2022, Desktop application in C++](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) <br>
 **Reboot your PC**, <br>
-**Add *C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin* to PATH**
+ - **Add *C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin* to PATH**
+ - **Add *C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x64* to PATH**
+   - **Add *C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x86* to PATH**
+
 - [CUDA 12.2](https://developer.nvidia.com/cuda-12-2-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local) <br>
+**Add *C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.2\bin* to PATH**
+
 **Reboot your PC**
 - [Python 3.8.10](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe) <br>
 **Tick *Add Python 3.8 to PATH***
