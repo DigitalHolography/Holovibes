@@ -1,15 +1,18 @@
 # Holovibes
 
-Holovibes is a software, written in `C++/CUDA`, to generate holograms from interferograms in real time.
+Holovibes is designed for real-time computation of holograms from high-bitrate interferograms.
+It is developed using `C++/CUDA`.
 
 ## Features
 
-- Hologram computation using the FFT1/FFT2/STFT/PCA algorithms
+- Hologram computation using angular spectrum propagation and Fresnel transform.
+- Time demodulation by short-time Fourier transform (STFT) and principal component analysis (PCA) algorithms
 - Graphical user interface (change parameters on the fly, keyboard shortcuts)
 - Support the following cameras:
+    - Ametek streaming cameras S710, S711, S991 interfaced with Euresys Coaxlink Octo & Coaxlink QSFP+ frame grabbers
+    - Adimec Quartz-2A750 interfaced with Bitflow CYT-PC2-CXP4 frame grabbers
     - IDS imaging CMOSIS CMV 4000
     - Ximea CMOSIS XiQ and XiB
-    - Adimec Quartz-2A750 (requires [BitFlow](http://www.bitflow.com/downloads/bfsdk640.zip))
     - Hamamatsu C11440
     - Adimec Phantom S710
     - Adimec Phantom S711
@@ -23,10 +26,6 @@ Holovibes is a software, written in `C++/CUDA`, to generate holograms from inter
 - Batch savings (CSV)
 - Batch output as raw images, controlling instruments with GPIB interface
 - Real time chart plot
-- Image stabilization
-- Image coloring
-- Image averaging in the three axis
-- Lens displaying
 
 ## Requirements
 
