@@ -66,3 +66,8 @@ Holovibes\build>$ cpack
 # Test
 
 # Release
+
+
+# TroubleShooting
+
+If you're having trouble launching the app (like errors popping a few moment after launch followed by a crash), try removing the app settings `C:\Users\[user]\AppData\Roaming\Holovibes\[version]\*`

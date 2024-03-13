@@ -24,71 +24,66 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
-{
-    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
-                                                     time_transformation_size);
-
-    if (setting<settings::TimeTransformation>() == TimeTransformation::STFT)
-    {
-        /* CUFFT plan1d realloc */
-        int inembed_stft[1] = {time_transformation_size};
-
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
-
-        time_transformation_env_.stft_plan
-            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
-    }
-    else if (setting<settings::TimeTransformation>() == TimeTransformation::PCA)
-    {
-        // Pre allocate all the buffer only when n changes to avoid 1 allocation
-        // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
-                                                time_transformation_size);
-        time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
-        time_transformation_env_.pca_dev_info.resize(1);
-    }
-    else if (setting<settings::TimeTransformation>() == TimeTransformation::NONE)
-    {
-        // Nothing to do
-    }
-    else if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT)
-    {
-        /* CUFFT plan1d realloc */
-        int inembed_stft[1] = {time_transformation_size};
-
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
-
-        time_transformation_env_.stft_plan
-            .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
-
-        // Pre allocate all the buffer only when n changes to avoid 1 allocation
-        // every frame Static cast to avoid ushort overflow
-        time_transformation_env_.pca_cov.resize(static_cast<const uint>(time_transformation_size) *
-                                                time_transformation_size);
-        time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
-        time_transformation_env_.pca_dev_info.resize(1);
-    }
-    else // Should not happend or be handled (if add more time transformation)
-        CHECK(false);
-
-    try
-    {
-        /* This will resize cuts buffers: Some modifications are to be applied
-         * on opengl to work */
-        time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
-    }
-    catch (const std::exception& e)
-    {
-        time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
-        request_time_transformation_cuts_ = false;
-        request_delete_time_transformation_cuts_ = true;
-        dispose_cuts();
-        LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
+bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size) {
+    try {
+        resize_gpu_p_acc_buffer(time_transformation_size);
+        perform_time_transformation_setting_specific_tasks(time_transformation_size);
+        resize_gpu_time_transformation_queue(time_transformation_size);
+    } catch (const std::exception& e) {
+        handle_exception(e);
         return false;
     }
-
     return true;
+}
+
+void ICompute::resize_gpu_p_acc_buffer(const unsigned short time_transformation_size) {
+    auto frame_res = gpu_input_queue_.get_fd().get_frame_res();
+    time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * time_transformation_size);
+}
+
+void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size) {
+    switch (setting<settings::TimeTransformation>()) {
+        case TimeTransformation::STFT:
+        case TimeTransformation::SSA_STFT:
+            update_stft(time_transformation_size);
+            if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT) {
+                update_pca(time_transformation_size);
+            }
+            break;
+        case TimeTransformation::PCA:
+            update_pca(time_transformation_size);
+            break;
+        case TimeTransformation::NONE:
+            break;
+        default:
+            LOG_ERROR("Unhandled Time transformation settings");
+            break;
+    }
+}
+
+void ICompute::update_stft(const unsigned short time_transformation_size) {
+    int inembed_stft[1] = {time_transformation_size};
+    int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+    time_transformation_env_.stft_plan.planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
+}
+
+void ICompute::update_pca(const unsigned short time_transformation_size) {
+    auto size = static_cast<const uint>(time_transformation_size);
+    time_transformation_env_.pca_cov.resize(size * size);
+    time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
+    time_transformation_env_.pca_dev_info.resize(1);
+}
+
+void ICompute::resize_gpu_time_transformation_queue(const unsigned short time_transformation_size) {
+    time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
+}
+
+void ICompute::handle_exception(const std::exception& e) {
+    time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
+    request_time_transformation_cuts_ = false;
+    request_delete_time_transformation_cuts_ = true;
+    dispose_cuts();
+    LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
 }
 
 void ICompute::update_spatial_transformation_parameters()

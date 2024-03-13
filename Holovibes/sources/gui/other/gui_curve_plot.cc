@@ -89,7 +89,7 @@ void CurvePlot::resize_plot(const int size)
 {
     points_nb_ = size;
     chart_vector_.resize(size);
-    chart->axisX()->setMax(QVariant(points_nb_));
+    chart->axisX()->setMax(QVariant(points_nb_)); // warning C4996: 'QChart::axisX': was declared deprecated
 }
 
 void CurvePlot::resizeEvent(QResizeEvent* e)
