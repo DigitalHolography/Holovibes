@@ -14,13 +14,11 @@ FPSLimiter::FPSLimiter()
 
 void FPSLimiter::wait(size_t target_fps)
 {
-    auto target_frame_time = std::chrono::duration<double>(1.0 / static_cast<double>(target_fps));
+    auto target_frame_time = std::chrono::duration<double>(1.0 / (double)target_fps);
     auto end_time = last_time_called_ + target_frame_time;
 
-    auto now = std::chrono::high_resolution_clock::now();
-    if (now < end_time)
-        std::this_thread::sleep_for(end_time - now);
+    std::chrone::wait_until(end_time);
 
-    last_time_called_ = std::move(end_time);
+    last_time_called_ = std::chrono::high_resolution_clock::now();
 }
 } // namespace holovibes
