@@ -69,11 +69,20 @@ The execution time is also printed, and you can compare it with the reference ex
 
 An auto-discover function is already implemented.
 Just create a folder in the `tests/data/` folder. This is the name of your test.
-You shall put 1 to 3 files in the folder:
-* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen)
+You shall put 1 to 4 files in the folder:
+* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen. You can provide different default inputs by making the name of the input match a part of your test name)
 * a `ref.holo` file as intended output
 * an optional `holovibes.json` config file for the parameters
 * an oprional `cli_argument.json` containing the command line arguments
+
+#### Build reference
+
+From the root, run 
+```sh
+Holovobes>$ ./dev.py build_ref [test_name]
+```
+If no test_name is given, all refs will be built. It will generate a *ref.holo* or a *error.txt* and a *ref_time.txt* for each test.
+**CAREFULL** : this command should be runned only for newly-added tests for which the behavior has been verified and validated by hand, or when the software's output has improved, and **if you know for sure that it's stable**
 
 ##### Usage
 
@@ -88,7 +97,9 @@ or using our dev tool:
 $ ./dev.py build pytest
 ```
 
-#### Unit tests
+This will generate a *last_generated_output.holo*, or an *output_error.txt*
+
+#### Unit tests (NOT SUPPORTED)
 
 Unit tests are build with [GTest](https://github.com/google/googletest)
 
