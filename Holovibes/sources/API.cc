@@ -165,32 +165,29 @@ bool change_camera(CameraKind c)
 
     try
     {
-        for (size_t i = 0; i < 2; i++)
+        if (get_compute_mode() == Computation::Raw)
+            Holovibes::instance().stop_compute();
+        Holovibes::instance().stop_frame_read();
+
+        try
         {
-            if (get_compute_mode() == Computation::Raw)
-                Holovibes::instance().stop_compute();
-            Holovibes::instance().stop_frame_read();
-
-            try
-            {
-                Holovibes::instance().start_camera_frame_read(c);
-            }
-            catch(const std::exception& e)
-            {
-                LOG_INFO("Set camera to NONE");
-
-                j_us["camera"]["type"] = 0;
-                std::ofstream output_file(path);
-                output_file << j_us.dump(1);
-                Holovibes::instance().stop_frame_read();
-                return false;
-            }
-            
-            UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-            UserInterfaceDescriptor::instance().kCamera = c;
-
-            set_is_computation_stopped(false);
+            Holovibes::instance().start_camera_frame_read(c);
         }
+        catch(const std::exception& e)
+        {
+            LOG_INFO("Set camera to NONE");
+
+            j_us["camera"]["type"] = 0;
+            std::ofstream output_file(path);
+            output_file << j_us.dump(1);
+            Holovibes::instance().stop_frame_read();
+            return false;
+        }
+        
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+        UserInterfaceDescriptor::instance().kCamera = c;
+
+        set_is_computation_stopped(false);
 
         std::ofstream output_file(path);
         output_file << j_us.dump(1);
