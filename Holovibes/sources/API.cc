@@ -1129,8 +1129,6 @@ void update_contrast(WindowKind kind, float min, float max)
         api::set_filter2d_contrast(min, max);
         break;
     }
-
-    GSH::instance().notify();
 }
 
 void set_log_scale(const bool value)
@@ -1597,58 +1595,66 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
 void set_record_buffer_size(uint value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+    //since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (get_record_buffer_size() != value) {
 
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try
-    {
-        if (Holovibes::instance().is_recording())
-            stop_record();
-        get_compute_pipe()->init_record_queue();
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
+        Holovibes::instance().init_record_queue();   
     }
-    catch (const std::exception& e)
-    {
-        LOG_DEBUG("Pipe not initialized");
+}
+
+void set_record_queue_location(bool gpu) {
+    // we check since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (get_record_buffer_size() != gpu) {
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueOnGPU{gpu});
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
+        Holovibes::instance().init_record_queue(); 
     }
 }
 
 void set_record_mode(const std::string& text)
 {
     LOG_FUNC(text);
+
+    RecordMode record_mode;
+
     // TODO: Dictionnary
     if (text == "Chart")
-        set_record_mode(RecordMode::CHART);
+    {
+        record_mode = RecordMode::CHART;
+    }
     else if (text == "Processed Image")
-        set_record_mode(RecordMode::HOLOGRAM);
+    {
+        record_mode = RecordMode::HOLOGRAM;
+    }
     else if (text == "Raw Image")
-        set_record_mode(RecordMode::RAW);
+    {
+        record_mode = RecordMode::RAW;
+    }
     else if (text == "3D Cuts XZ")
-        set_record_mode(RecordMode::CUTS_XZ);
+    {
+        record_mode = RecordMode::CUTS_XZ;
+    }
     else if (text == "3D Cuts YZ")
-        set_record_mode(RecordMode::CUTS_YZ);
+    {
+        record_mode = RecordMode::CUTS_YZ;
+    }
     else
-    {
-        LOG_ERROR("Unknown record mode {}", text);
         throw std::exception("Record mode not handled");
-    }
 
-    RecordMode record_mode = api::get_record_mode();
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try
+    UserInterfaceDescriptor::instance().record_mode_ = record_mode;
+    set_record_mode(record_mode);
+    if (record_mode != RecordMode::CHART)
     {
-        auto pipe = get_compute_pipe();
-        if (record_mode != RecordMode::CHART)
-        {
-            if (Holovibes::instance().is_recording())
-                stop_record();
-
-            get_compute_pipe()->init_record_queue();
-            LOG_DEBUG("Pipe initialized");
-        }
-    }
-    catch (const std::exception& e)
-    {
-        LOG_DEBUG("Pipe not initialized");
+        if (Holovibes::instance().is_recording()) 
+            stop_record();
+        
+        Holovibes::instance().init_record_queue();    
+        LOG_DEBUG("Pipe initialized");
     }
 }
 
@@ -1678,7 +1684,41 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
-void start_record(std::function<void()> callback)
+void set_record_device(const bool gpu)
+{
+    if (Holovibes::instance().is_recording()) 
+        stop_record();
+
+    if (get_compute_mode() == Computation::Hologram)
+        Holovibes::instance().stop_compute();
+
+    // set_compute_mode(Computation::Raw);
+
+    if (get_raw_view_queue_location() != gpu)
+        set_raw_view_queue_location(gpu);
+
+    if (get_record_queue_location() != gpu)
+        set_record_queue_location(gpu);
+
+    if (get_input_queue_location() != gpu)
+    {
+        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+            camera_none();
+        else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            import_stop();
+        set_input_queue_location(gpu);
+        if (!gpu)
+            set_compute_mode(Computation::Raw);
+    }
+    // Holovibes::instance().init_input_queue(Holovibes::instance().get_setting(_input_buffer_size());
+    // Holovibes::instance().init_record_queue();
+}
+
+void start_record(const bool batch_enabled,
+                  std::optional<unsigned int> nb_frames_to_record,
+                  std::string& output_path,
+                  std::string& batch_input_path,
+                  std::function<void()> callback)
 {
     RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
 

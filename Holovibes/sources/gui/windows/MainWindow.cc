@@ -102,6 +102,7 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
+
     load_gui();
 
     try
@@ -159,6 +160,7 @@ MainWindow::MainWindow(QWidget* parent)
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         files.push_front(QString(UID_FILTER_TYPE_DEFAULT));
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
+
     }
 
     // Initialize all panels

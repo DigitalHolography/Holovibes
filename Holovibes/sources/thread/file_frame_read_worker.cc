@@ -69,7 +69,7 @@ void FileFrameReadWorker::run()
     }
 
     // No more enqueue, thus release the producer ressources
-    gpu_input_queue_.load()->stop_producer();
+    input_queue_.load()->stop_producer();
 
     remove_fast_update_map_entries();
     free_frame_buffers();
@@ -289,7 +289,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (stop_requested_)
             break;
 
-        gpu_input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
+        input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, GSH::instance().get_input_queue_location() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
 
         current_nb_frames_read_++;
         processed_frames_++;
@@ -303,7 +303,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file in in the buffer,
     // so we don't have to sync
-    if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
-        gpu_input_queue_.load()->sync_current_batch();
+    if (setting<settings::LoadFileInGPU>() == false) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
+        input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker

@@ -20,9 +20,9 @@ Holovibes& Holovibes::instance()
 
 const float Holovibes::get_boundary()
 {
-    if (gpu_input_queue_.load())
+    if (input_queue_.load())
     {
-        FrameDescriptor fd = gpu_input_queue_.load()->get_fd();
+        FrameDescriptor fd = input_queue_.load()->get_fd();
         const float d = api::get_pixel_size() * 0.000001f;
         const float n = static_cast<float>(fd.height);
         return (n * d * d) / api::get_lambda();
@@ -32,24 +32,80 @@ const float Holovibes::get_boundary()
 
 bool Holovibes::is_recording() const { return frame_record_worker_controller_.is_running(); }
 
+void Holovibes::init_input_queue(const unsigned int input_queue_size)
+{
+    if(!input_queue_.load())
+        throw std::runtime_error("Must initialize input queue with a camera frame descriptor");
+
+    init_input_queue(input_queue_.load()->get_fd(), input_queue_size);
+}
+
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
-    camera::FrameDescriptor queue_fd = fd;
+    if (!input_queue_.load())
+        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd, api::get_input_queue_location());
+    else
+        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
+    LOG_DEBUG("Input queue allocated");
+}
 
-    gpu_input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, get_setting<settings::BatchSize>().value, queue_fd);
+void Holovibes::init_record_queue() {
+    bool on_gpu = api::get_record_queue_location();
+    auto record_mode = api::get_record_mode();
+    if (record_mode == RecordMode::RAW) {
+        if (!input_queue_.load()) {
+            LOG_DEBUG("Cannot create record queue : input queue not created");
+            return;
+        }
+        LOG_DEBUG("RecordMode = Raw");
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(input_queue_.load()->get_fd(), api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (record_mode == RecordMode::HOLOGRAM) {
+        LOG_DEBUG("RecordMode = Hologram");
+        auto record_fd = gpu_output_queue_.load()->get_fd();
+        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(record_fd, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+        LOG_DEBUG("Record queue allocated");
+    }
+    else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
+        LOG_DEBUG("RecordMode = CUTS");
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
+        fd_xyz.depth = sizeof(ushort);
+        if (record_mode == RecordMode::CUTS_XZ)
+            fd_xyz.height = api::get_time_transformation_size();
+        else
+            fd_xyz.width = api::get_time_transformation_size();
+        
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+        else
+            record_queue_.load()->rebuild(fd_xyz, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+        LOG_DEBUG("Record queue allocated");
+    }
+    else {
+        LOG_DEBUG("RecordMode = None");
+    }
 }
 
 // TODO(julesguillou): Why using input fps here?
 void Holovibes::start_file_frame_read(const std::function<void()>& callback)
 {
-    CHECK(gpu_input_queue_.load() != nullptr);
+    CHECK(input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
     file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-    file_read_worker_controller_.start(gpu_input_queue_, all_settings);
+    file_read_worker_controller_.start(input_queue_, all_settings);
 }
 
 void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback)
@@ -88,7 +144,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         camera_read_worker_controller_.set_callback(callback);
         camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
-        camera_read_worker_controller_.start(active_camera_, gpu_input_queue_);
+        camera_read_worker_controller_.start(active_camera_, input_queue_);
     }
     catch (std::exception& e)
     {
@@ -104,7 +160,7 @@ void Holovibes::stop_frame_read()
     camera_read_worker_controller_.stop();
     file_read_worker_controller_.stop();
     active_camera_.reset();
-    gpu_input_queue_.store(nullptr);
+    input_queue_.store(nullptr);
 }
 /*
 void Holovibes::start_cli_record_and_compute(const std::string& path,
@@ -125,12 +181,15 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
 
     api::set_nb_frames_to_record(get_setting<settings::RecordFrameCount>().value);
 
+    if (!record_queue_.load())
+        init_record_queue();
+
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-    frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream);
+    frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream, record_queue_);
 }
 
 void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
@@ -161,19 +220,22 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
-    camera::FrameDescriptor output_fd = gpu_input_queue_.load()->get_fd();
-    if (get_setting<settings::ComputeMode>().value == Computation::Hologram)
+    camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
+    if (api::get_compute_mode() == Computation::Hologram)
     {
         output_fd.depth = 2;
         if (api::get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
     gpu_output_queue_.store(
-        std::make_shared<Queue>(output_fd, get_setting<settings::OutputBufferSize>().value, QueueType::OUTPUT_QUEUE));
+        std::make_shared<Queue>(output_fd, api::get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
-        compute_pipe_.store(std::make_shared<Pipe>(*(gpu_input_queue_.load()),
+        if (!record_queue_.load())
+            init_record_queue();
+        compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
+                                                   *(record_queue_.load()),
                                                    get_cuda_streams().compute_stream,
                                                    realtime_settings_.settings_));
     }
@@ -193,9 +255,9 @@ void Holovibes::start_compute(const std::function<void()>& callback)
     /**
      * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
      * Here is a suggestion :
-     * // CHECK(!!gpu_input_queue_.load()) << "Input queue not initialized";
+     * // CHECK(!!input_queue_.load()) << "Input queue not initialized";
      */
-    CHECK(gpu_input_queue_.load() != nullptr, "Input queue not initialized");
+    CHECK(input_queue_.load() != nullptr, "Input queue not initialized");
     try
     {
         init_pipe();

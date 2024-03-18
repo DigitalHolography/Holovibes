@@ -15,6 +15,56 @@
 #include "global_state_holder.hh"
 namespace holovibes
 {
+
+class HoloQueue
+{
+  public:
+    HoloQueue(QueueType type = QueueType::UNDEFINED, const bool gpu = true);
+
+    virtual bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
+
+    virtual void dequeue(void* dest, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
+
+
+    /*! \return Pointer to internal buffer that contains data. */
+    void* get_data() const { return data_; }
+
+    /*! \return The number of elements the Queue currently contains. */
+    unsigned int get_size() const { return size_; }
+
+    /*! \return If queue has overridden at least a frame during an enqueue */
+    bool has_overridden() const { return has_overridden_; }
+
+
+  protected:
+    /*! \name FastUpdatesHolder entry and all variables linked to it */
+    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
+
+    /*! \brief Type of the queue */
+    QueueType type_;
+    
+    /*! \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr) */
+    std::atomic<bool>& gpu_;
+
+    /*! \brief The index of the first frame in the queue */
+    std::atomic<uint> start_index_{0};
+    /*! \brief End index is the index after the last batch */
+    std::atomic<uint> end_index_{0};
+    /*! \brief Number of batches. Batch size can only be changed by the consumer */
+    std::atomic<bool> has_overridden_{false};
+
+    /*! \brief Current number of full batches Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize) */
+    std::atomic<uint>& size_;
+
+
+    /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
+    cuda_tools::UniquePtr<char> data_{nullptr};
+
+
+};
+
+
+
 /*! \class Queue
  *
  * \brief Circular queue to handle CPU and GPU data
@@ -31,7 +81,7 @@ namespace holovibes
  *
  * The Queue ensures that all elements it contains are written in little endian.
  */
-class Queue final : public DisplayQueue
+class Queue final : public DisplayQueue, public HoloQueue
 {
     friend class BatchInputQueue;
 
@@ -60,26 +110,19 @@ class Queue final : public DisplayQueue
      * \{
      */
 
-    /*! \return Pointer to internal buffer that contains data. */
-    // void* get_data() const { return (gpu_ ? (void*)(std::get<0>(data_)) : (void*)(&std::get<1>(data_))); }
-    void* get_data() const { return *data_; }
-
-    /*! \return The number of elements the Queue currently contains. */
-    unsigned int get_size() const { return size_; }
-
     /*! \return The number of elements the Queue can contains at its maximum. */
     unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
     // void* get_start() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + start_index_ * fd_.get_frame_size(); }
-    void* get_start() const { return data_->get() + start_index_ * fd_.get_frame_size(); }
+    void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
     // void* get_end() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
-    void* get_end() const { return data_->get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
+    void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
     void* get_last_image() const override
@@ -87,7 +130,7 @@ class Queue final : public DisplayQueue
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
         // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
-        return data_->get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+        return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
     }
 
     /*! \return Index of the frame right after the last one containing data */
@@ -96,9 +139,6 @@ class Queue final : public DisplayQueue
     /*! \return Getter to the queue mutex */
     std::mutex& get_guard() { return mutex_; }
     /*! \} */
-
-    /*! \return If queue has overridden at least a frame during an enqueue */
-    bool has_overridden() const { return has_overridden_; }
 
     /*! \name Methods
      * \{
@@ -109,6 +149,16 @@ class Queue final : public DisplayQueue
      * \param stream
      */
     void resize(const unsigned int size, const cudaStream_t stream);
+
+    /*!
+     * \brief Change the frame descriptor of the queue and change its size.
+     * 
+     * \param size 
+     * \param fd 
+     * \param stream 
+     */
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu);
+
 
     /*! \brief Enqueue method
      *
@@ -123,7 +173,7 @@ class Queue final : public DisplayQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
      */
-    bool enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    bool enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
 
     /*! \brief Copy elements (no dequeue) and enqueue in dest.
      *
@@ -163,7 +213,7 @@ class Queue final : public DisplayQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
      */
-    void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
 
     /*! \brief Dequeue method
      *
@@ -227,39 +277,10 @@ class Queue final : public DisplayQueue
     /*! \brief Mutex to lock the queue */
     mutable std::mutex mutex_;
 
-    /*! \name FastUpdatesHolder entry and all variables linked to it
-     * \{
-     */
-    FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
-
-    /*! \brief Size of the queue (number of frames currently stored in the queue)
-     *
-     * This attribute is atomic because it is required by the wait frames function.
-     * A thread is enqueueing a frame, meanwhile the other thread is waiting
-     * for a specific size of the queue. Using an atomic avoid locking the queue.
-     * This is only used by the concurrent queue. However, it is needed to be declare in the regular queue.
-     */
-    std::atomic<unsigned int>& size_;
-
     /*! \brief Maximum size of the queue (capacity) */
     std::atomic<unsigned int>& max_size_;
 
-    /* \} */
-
-    /*! \brief Type of the queue */
-    QueueType type_;
-
-    /*! \brief The index of the first frame in the queue */
-    unsigned int start_index_;
     const bool is_big_endian_;
-    /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
-    // std::variant<cuda_tools::CudaUniquePtr<char>,cuda_tools::CPUUniquePtr<char>> data_;
-    std::shared_ptr<cuda_tools::UniquePtr<char>> data_;
-
-    /*! \brief Wheter frames have been overridden during an enqueue. */
-    bool has_overridden_;
-
-    bool gpu_;
 
   private:
     /*! \struct QueueRegion

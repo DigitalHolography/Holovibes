@@ -26,7 +26,7 @@ using camera::FrameDescriptor;
 
 bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
 {
-    time_transformation_env_.gpu_p_acc_buffer.resize(gpu_input_queue_.get_fd().get_frame_res() *
+    time_transformation_env_.gpu_p_acc_buffer.resize(input_queue_.get_fd().get_frame_res() *
                                                      time_transformation_size);
 
     if (setting<settings::TimeTransformation>() == TimeTransformation::STFT)
@@ -34,7 +34,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -57,7 +57,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
         /* CUFFT plan1d realloc */
         int inembed_stft[1] = {time_transformation_size};
 
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
@@ -93,7 +93,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
 
 void ICompute::update_spatial_transformation_parameters()
 {
-    const auto& gpu_input_queue_fd = gpu_input_queue_.get_fd();
+    const auto& gpu_input_queue_fd = input_queue_.get_fd();
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
@@ -168,7 +168,7 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
+// std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
 
 void ICompute::delete_stft_slice_queue()
 {

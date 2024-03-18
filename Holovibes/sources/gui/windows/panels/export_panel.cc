@@ -77,6 +77,8 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().default_output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+
+    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_queue_location() && !api::get_input_queue_location());
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -239,6 +241,14 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
     api::record_finished();
+}
+
+void ExportPanel::set_record_device(bool value)
+{
+    LOG_DEBUG("Set record device");
+    // Mind that we negate the boolean, since true means gpu for the queues
+    api::set_record_device(!value);
+    parent_->notify();
 }
 
 void ExportPanel::start_record()
