@@ -4,6 +4,14 @@
 
 namespace holovibes::io_files
 {
+
+OutputFrameFile::OutputFrameFile(const std::string& file_path)
+        : FrameFile(file_path, FrameFile::OpeningMode::WRITE)
+{
+    // if (setvbuf(file_, NULL, _IOFBF, 512 * 512 * 2048) != 0)
+    //     throw std::runtime_error("Incorrect type or size of output file's buffer");
+}
+
 double OutputFrameFile::compute_output_fps()
 {
     // TODO(julesguillou): Remove very bad, this class should not need to have access to holovibes singleton

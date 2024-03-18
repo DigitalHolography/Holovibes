@@ -168,12 +168,6 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         // (consumer)
         m_producer_busy_.unlock();
     }
-    return true;
-}
-
-void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
-{
-    enqueue(input_frame, batch_streams_[end_index_], memcpy_kind);
 }
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
@@ -264,7 +258,74 @@ void BatchInputQueue::resize(const uint new_batch_size)
     // End of critical section
 }
 
+// void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice)
+// {
+
+//     CHECK(size_ > 0, "Queue is empty. Cannot dequeue.");
+
+//     // Order cannot be guaranteed because of the try lock because a producer
+//     // might start enqueue between two try locks
+//     // Active waiting until the start batch is available to dequeue
+//     uint start_index_locked = wait_and_lock(start_index_);
+
+//     Queue::MutexGuard m_guard_dst(dest.get_guard());
+
+//     // Determine source region info
+//     struct Queue::QueueRegion src;
+//     // Get the start of the starting batch
+//     src.first = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
+//     // Copy multiple nb_elts which might be lower than batch_size.
+//     src.first_size = nb_elts;
+
+//     // Determine destination region info
+//     struct Queue::QueueRegion dst;
+//     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
+
+//     char* begin_to_enqueue = dest + (begin_to_enqueue_index * dest.fd_.get_frame_size());
+//     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
+//     {
+//         dst.first = begin_to_enqueue;
+//         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
+//         dst.second = dest.data_.get();
+//         dst.second_size = nb_elts - dst.first_size;
+//     }
+//     else
+//     {
+//         dst.first = begin_to_enqueue;
+//         dst.first_size = nb_elts;
+//     }
+
+//     // Use the source start index (first batch of frames in the queue) stream
+//     // An enqueue operation on this stream (if happens) is blocked until the
+//     // copy is completed. Make the copy according to the region
+//     if (gpu_)
+//         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
+//     else
+//         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), 0, cuda_kind);
+
+//     // The consumer has the responsability to give data that
+//     // finished processing.
+//     // would kill this queue design with only 1 producer and 1 consumer).
+//     if (gpu_)
+//         cudaXStreamSynchronize(batch_streams_[start_index_locked]);
+
+//     // Update dest queue parameters
+//     dest.size_ += nb_elts;
+
+//     // Copy done, release the batch.
+//     batch_mutexes_[start_index_locked].unlock();
+
+//     if (dest.size_ > dest.max_size_)
+//     {
+//         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
+//         dest.size_.store(dest.max_size_.load());
+//         dest.has_overridden_ = true;
+//     }
+
+// }
+
 void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { copy_multiple(dest, batch_size_, cuda_kind); }
+
 
 void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {

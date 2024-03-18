@@ -38,9 +38,6 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     , max_size_(std::get<1>(*fast_updates_entry_))//(fast_updates_entry_->second)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
-    spdlog::critical("Queue: {}", (int)type_);
-    spdlog::critical("GPU: {}", gpu_);
-
     max_size_ = max_size;
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
@@ -99,6 +96,12 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 
     size_ = 0;
     start_index_ = 0;
+}
+
+void Queue::reset()
+{
+    dequeue(-1);
+    has_overridden_ = false;
 }
 
 bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
@@ -350,22 +353,34 @@ void Queue::enqueue_from_48bit(void* src, const cudaStream_t stream, cudaMemcpyK
     enqueue(src_uchar, stream, cuda_kind);
 }
 
-void Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
+int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind, int nb_elts)
 {
     MutexGuard mGuard(mutex_);
 
     CHECK(size_ > 0, "Queue size cannot be empty at dequeue");
+    CHECK(nb_elts >= -1, "Nb elmts must be equal or greater than -1");    
+    if (nb_elts == -1)
+        nb_elts = size_;
+        
+    CHECK(nb_elts <= size_, "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+
+    
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
-    cudaXMemcpyAsync(dest, first_img, fd_.get_frame_size(), cuda_kind, stream);
+    cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
 
     cudaXStreamSynchronize(stream);
 
-    dequeue_non_mutex(); // Update indexes
+    dequeue_non_mutex(nb_elts); // Update indexes
+
+    return nb_elts;
 }
 
-void Queue::dequeue(const unsigned int nb_elts)
+void Queue::dequeue(int nb_elts)
 {
     MutexGuard mGuard(mutex_);
+
+    if (nb_elts == -1)
+        nb_elts = size_;
 
     dequeue_non_mutex(nb_elts);
 }

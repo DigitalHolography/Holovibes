@@ -700,7 +700,7 @@ inline bool get_raw_view_queue_location()
     return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueOnGPU>().value;
 }
 
-inline void get_raw_view_queue_location(bool value)
+inline void set_raw_view_queue_location(bool value)
 {
     Holovibes::instance().update_setting(holovibes::settings::RawViewQueueOnGPU{value});
 }

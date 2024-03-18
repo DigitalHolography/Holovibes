@@ -107,7 +107,9 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueOnGPU
+    holovibes::settings::RecordQueueOnGPU,                       \
+    holovibes::settings::RawViewQueueOnGPU,                      \
+    holovibes::settings::InputQueueOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -444,7 +446,9 @@ class Holovibes
                                              settings::RGB{CompositeRGB{}},
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
-                                             settings::RecordQueueOnGPU{false}))
+                                             settings::RecordQueueOnGPU{false},
+                                             settings::RawViewQueueOnGPU{true},
+                                             settings::InputQueueOnGPU{true}))
     {
     }
 

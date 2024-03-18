@@ -1743,6 +1743,8 @@ void stop_record()
              UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
              UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
+
+    // Holovibes::instance().get_record_queue().load()->dequeue(-1);
 }
 
 void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
@@ -1759,6 +1761,7 @@ void import_stop()
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
+
     Holovibes::instance().start_information_display();
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
