@@ -71,3 +71,6 @@ venv/
 # spdlog
 libs/spdlog/build
 CMakeUserPresets.json
+
+tests/data/*/output_error.txt
+test_logs/*
