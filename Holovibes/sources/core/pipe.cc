@@ -49,35 +49,42 @@ Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS)
 Queue& Pipe::init_record_queue() {
     bool on_gpu = setting<settings::RecordQueueOnGPU>();
     auto record_mode = setting<settings::RecordMode>();
-    if (record_mode == RecordMode::RAW) {
-        LOG_DEBUG("RecordMode = Raw");
-        frame_record_env_.frame_record_queue_.reset(
+    switch (record_mode) {
+        case RecordMode::RAW: {
+            LOG_DEBUG("RecordMode = Raw");
+            frame_record_env_.frame_record_queue_.reset(
                 new Queue(gpu_input_queue_.get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else if (record_mode == RecordMode::HOLOGRAM) {
-        LOG_DEBUG("RecordMode = Hologram");
-        auto record_fd = gpu_output_queue_.get_fd();
-        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
-        frame_record_env_.frame_record_queue_.reset(
+            LOG_DEBUG("Record queue allocated");
+            break;
+        }
+        case RecordMode::HOLOGRAM: {
+            LOG_DEBUG("RecordMode = Hologram");
+            auto record_fd = gpu_output_queue_.get_fd();
+            record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
+            frame_record_env_.frame_record_queue_.reset(
                 new Queue(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
-        LOG_DEBUG("RecordMode = CUTS");
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-        fd_xyz.depth = sizeof(ushort);
-        if (record_mode == RecordMode::CUTS_XZ)
-            fd_xyz.height = setting<settings::TimeTransformationSize>();
-        else
-            fd_xyz.width = setting<settings::TimeTransformationSize>();
-        
-        frame_record_env_.frame_record_queue_.reset(
+            LOG_DEBUG("Record queue allocated");
+            break;
+        }
+        case RecordMode::CUTS_YZ:
+        case RecordMode::CUTS_XZ: {
+            LOG_DEBUG("RecordMode = CUTS");
+            camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
+            fd_xyz.depth = sizeof(ushort);
+            if (record_mode == RecordMode::CUTS_XZ)
+                fd_xyz.height = setting<settings::TimeTransformationSize>();
+            else
+                fd_xyz.width = setting<settings::TimeTransformationSize>();
+
+            frame_record_env_.frame_record_queue_.reset(
                 new Queue(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else {
-        LOG_DEBUG("RecordMode = None");
+            LOG_DEBUG("Record queue allocated");
+            break;
+        }
+        default: {
+            LOG_DEBUG("RecordMode = None");
+            break;
+        }
     }
     return *frame_record_env_.frame_record_queue_;
 }

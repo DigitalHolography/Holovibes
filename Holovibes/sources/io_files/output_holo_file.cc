@@ -3,6 +3,7 @@
 #include "logger.hh"
 #include "holovibes.hh"
 #include "API.hh"
+#include "camera_config.hh"
 
 namespace holovibes::io_files
 {
@@ -38,7 +39,8 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         auto j_fi =
             json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
                  {"input_fps", input_fps},
-                 {"contiguous", contiguous}};
+                 {"contiguous", contiguous},
+                 {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);

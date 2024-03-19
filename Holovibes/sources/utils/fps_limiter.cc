@@ -17,7 +17,7 @@ void FPSLimiter::wait(size_t target_fps)
     auto target_frame_time = std::chrono::duration<double>(1.0 / (double)target_fps);
     auto end_time = last_time_called_ + target_frame_time;
 
-    while(std::chrono::high_resolution_clock::now() < end_time) {}
+    std::this_thread::sleep_until(end_time);
 
     last_time_called_ = std::chrono::high_resolution_clock::now();
 }
