@@ -218,7 +218,7 @@ void FourierTransform::insert_time_transform()
             });
             break;
         default:
-            // TODO: Add error handling
+            LOG_ERROR("Unknown time transformation");
             break;
     }
 }
