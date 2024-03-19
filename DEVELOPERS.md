@@ -99,6 +99,16 @@ $ ./dev.py build pytest
 
 This will generate a *last_generated_output.holo*, or an *output_error.txt*
 
+###### Launching only one test
+
+To test only specific tests, you can run use
+
+```sh
+$ ./dev.py build pytest --specific-tests=test1,test2
+```
+
+It you can give it a comma separated list of folders you want to test.
+
 #### Unit tests (NOT SUPPORTED)
 
 Unit tests are build with [GTest](https://github.com/google/googletest)

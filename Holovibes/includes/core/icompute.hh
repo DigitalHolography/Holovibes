@@ -436,6 +436,36 @@ class ICompute
     void dispose_cuts();
     /*! \} */
 
+    /*! \brief Updates the size of the GPU P acc buffer based on the time transformation size.
+     *  \param time_transformation_size The new size for time transformation.
+     */
+    void resize_gpu_p_acc_buffer(const unsigned short time_transformation_size);
+
+    /*! \brief Performs tasks specific to the current time transformation setting.
+     *  \param time_transformation_size The size for time transformation.
+     */
+    void perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size);
+
+    /*! \brief Updates the STFT configuration based on the time transformation size.
+     *  \param time_transformation_size The size for time transformation.
+     */
+    void update_stft(const unsigned short time_transformation_size);
+
+    /*! \brief Updates the PCA configuration based on the time transformation size.
+     *  \param time_transformation_size The size for time transformation.
+     */
+    void update_pca(const unsigned short time_transformation_size);
+
+    /*! \brief Resizes the GPU time transformation queue.
+     *  \param time_transformation_size The new size for time transformation.
+     */
+    void resize_gpu_time_transformation_queue(const unsigned short time_transformation_size);
+
+    /*! \brief Handles exceptions that occur during the update of time transformation size.
+     *  \param e The exception caught during the update process.
+     */
+    void handle_exception(const std::exception& e);
+
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
     virtual ~ICompute() {}
