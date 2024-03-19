@@ -12,6 +12,7 @@ CLI_ARGUMENT_FILENAME = "cli_argument.json"
 
 OUTPUT_FAILED_IMAGE = "out.png"
 REF_FAILED_IMAGE = "ref.png"
+DIFF_FAILED_IMAGE = "diff.png"
 
 TESTS_DATA = os.path.join(os.getcwd(), "tests", "data")
 TESTS_INPUTS = os.path.join(TESTS_DATA, "inputs")
