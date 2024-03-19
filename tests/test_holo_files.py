@@ -77,10 +77,11 @@ def generate_holo_from(folder: str, input: str, output: str, output_error: str, 
     sub = subprocess.run(cmd, stderr=subprocess.PIPE)
 
     if sub.returncode != 0:
-        with open(os.path.join("test_logs", "all_errcode.txt"), "a") as f_all, \
-             open(output_error, "w") as f_out:
+        with open(output_error, "w") as f_out:
             f_out.write(f"{sub.returncode}\n{sub.stderr.decode('utf-8')}")
-            f_all.write(f"=== {folder} ===\nReturn: {sub.returncode}\n{sub.stderr.decode('utf-8')}\n")
+    
+    with open(os.path.join("test_logs", "all_errcode.txt"), "a") as f_all:
+        f_all.write(f"=== {folder} ===\nReturn: {sub.returncode}\n{sub.stderr.decode('utf-8')}\n")
 
     t2 = time.time()
     return (t2 - t1)
