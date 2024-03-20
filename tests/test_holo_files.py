@@ -154,9 +154,11 @@ def test_holo(folder: str):
 
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
+        pass
     else:
         assert os.path.isfile(output), f"Should have succeded but {OUTPUT_FILENAME} not found"
         assert not os.path.isfile(output_error), f"Should have succeded but {OUTPUT_ERROR_FILENAME} found"
+        pass
 
     if DEEP_COMPARE:
         if error_wanted:

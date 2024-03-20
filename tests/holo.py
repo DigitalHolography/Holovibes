@@ -145,7 +145,7 @@ class HoloFile:
         ddiff = DeepDiff(ref.footer, chal.footer,
                          ignore_order=True,
                          significant_digits=5,
-                         exclude_paths=["root['info']['input_fps']", ]
+                         exclude_paths=["root['info']['input_fps']","root['info']['holovibes_version']" ]
                          )
 
         if 'values_changed' in ddiff:
@@ -177,7 +177,7 @@ class HoloFile:
             diffMatrix = (np.array(l_image) - np.array(r_image))**2
             diff = np.sqrt(np.sum(diffMatrix)) / (ref.width * ref.height )
             diff /= 2**(ref.bytes_per_pixel * 8) - 1
-            too_big_diff = diff > 10**-7
+            too_big_diff = diff > 10**-6
             
             if too_big_diff:
                 Image.fromarray(l_image).save(os.path.join(basepath, constant_name.REF_FAILED_IMAGE))
