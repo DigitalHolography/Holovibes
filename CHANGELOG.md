@@ -1,5 +1,10 @@
 ## Changelog
 
+### 12.9.8
+* Add the possibility to move the input queue on the cpu to record in cpu mode
+* Only allocate the queues when the size is changed (no wait time when changing the image mode)
+* Add tests
+
 ### 12.9.7
 * Fix testsuite
 * Fix dev.py
