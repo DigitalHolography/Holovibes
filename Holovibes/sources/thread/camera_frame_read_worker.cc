@@ -1,12 +1,13 @@
 #include "camera_frame_read_worker.hh"
 #include "holovibes.hh"
 #include "global_state_holder.hh"
+#include "api.hh"
 
 namespace holovibes::worker
 {
 CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
-                                             std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
-    : FrameReadWorker(gpu_input_queue)
+                                             std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue)
+    : FrameReadWorker(input_queue)
     , camera_(camera)
 {
 }
@@ -36,7 +37,7 @@ void CameraFrameReadWorker::run()
             enqueue_loop(captured_fd, camera_fd);
         }
 
-        gpu_input_queue_.load()->stop_producer();
+        input_queue_.load()->stop_producer();
         camera_->stop_acquisition();
         camera_->shutdown_camera();
     }
@@ -55,24 +56,31 @@ void CameraFrameReadWorker::run()
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
                                          const camera::FrameDescriptor& camera_fd)
 {
-    auto copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+    cudaMemcpyKind copy_kind;
+    bool input_queue_on_gpu = api::get_input_queue_location();
+    if (input_queue_on_gpu) // if the input queue is on gpu
+        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
+    else // if it is on CPU
+        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost;
+
 
     for (unsigned i = 0; i < captured_fd.count1; ++i)
     {
         auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();
-        gpu_input_queue_.load()->enqueue(ptr, copy_kind);
+        input_queue_.load()->enqueue(ptr, copy_kind);
     }
 
     for (unsigned i = 0; i < captured_fd.count2; ++i)
     {
         auto ptr = (uint8_t*)(captured_fd.region2) + i * camera_fd.get_frame_size();
-        gpu_input_queue_.load()->enqueue(ptr, copy_kind);
+        input_queue_.load()->enqueue(ptr, copy_kind);
     }
 
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
 
-    gpu_input_queue_.load()->sync_current_batch();
+    if (input_queue_on_gpu)
+        input_queue_.load()->sync_current_batch();
 }
 
 } // namespace holovibes::worker

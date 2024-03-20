@@ -154,6 +154,7 @@ DECLARE_SETTING(ChartRecordEnabled, bool)
 // ex Advanced Cache
 DECLARE_SETTING(DisplayRate, float)
 DECLARE_SETTING(InputBufferSize, size_t)
+DECLARE_SETTING(InputQueueOnGPU, bool)
 DECLARE_SETTING(RecordBufferSize, size_t)
 DECLARE_SETTING(ContrastLowerThreshold, float)
 DECLARE_SETTING(RawBitshift, size_t)
@@ -202,4 +203,5 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV)
 DECLARE_SETTING(ZFFTShift, bool)
 
 DECLARE_SETTING(RecordQueueOnGPU, bool)
+DECLARE_SETTING(RawViewQueueOnGPU, bool)
 } // namespace holovibes::settings

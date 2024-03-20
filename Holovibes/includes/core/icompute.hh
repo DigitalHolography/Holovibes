@@ -87,12 +87,8 @@ struct CoreBuffersEnv
     unsigned int gpu_postprocess_frame_size = 0;
     /*! \brief Float XZ buffer of 1 frame, filled with the correct computer p XZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz = nullptr;
-    //cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz_final = nullptr;
-    //unsigned int gpu_postprocess_frame_xz_size = 0;
     /*! \brief Float YZ buffer of 1 frame, filled with the correct computed p YZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz = nullptr;
-    //cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz_final = nullptr;
-    //unsigned int gpu_postprocess_frame_yz_size = 0;
 
     /*! \brief Unsigned Short output buffer of 1 frame, inserted after all postprocessing on float_buffer */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame = nullptr;
@@ -180,15 +176,6 @@ struct TimeTransformationEnv
     /*! \} */
 };
 
-/*! \struct FrameRecordEnv
- *
- * \brief #TODO Add a description for this struct
- */
-struct FrameRecordEnv
-{
-    std::unique_ptr<Queue> frame_record_queue_ = nullptr;
-};
-
 /*! \struct ChartEnv
  *
  * \brief Structure containing variables related to the chart display and
@@ -235,9 +222,10 @@ class ICompute
 {
   public:
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ICompute(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
-        : gpu_input_queue_(input)
+    ICompute(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
+        : input_queue_(input)
         , gpu_output_queue_(output)
+        , record_queue_(record)
         , stream_(stream)
         , past_time_(std::chrono::high_resolution_clock::now())
         , realtime_settings_(settings)
@@ -245,9 +233,9 @@ class ICompute
     {
         int err = 0;
 
-        plan_unwrap_2d_.plan(gpu_input_queue_.get_fd().width, gpu_input_queue_.get_fd().height, CUFFT_C2C);
+        plan_unwrap_2d_.plan(input_queue_.get_fd().width, input_queue_.get_fd().height, CUFFT_C2C);
 
-        const camera::FrameDescriptor& fd = gpu_input_queue_.get_fd();
+        const camera::FrameDescriptor& fd = input_queue_.get_fd();
         long long int n[] = {fd.height, fd.width};
 
         // This plan has a useful significant memory cost, check XtplanMany comment
@@ -265,14 +253,14 @@ class ICompute
                                                 CUDA_C_32F);                    // Computation type
 
         int inembed[1];
-        int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         inembed[0] = setting<settings::TimeTransformationSize>();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-        camera::FrameDescriptor new_fd = gpu_input_queue_.get_fd();
+        camera::FrameDescriptor new_fd = input_queue_.get_fd();
         new_fd.depth = 8;
         // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
         time_transformation_env_.gpu_time_transformation_queue.reset(
@@ -280,15 +268,15 @@ class ICompute
 
         // Static cast size_t to avoid overflow
         if (!buffers_.gpu_spatial_transformation_buffer.resize(
-                static_cast<const size_t>(setting<settings::BatchSize>()) * gpu_input_queue_.get_fd().get_frame_res()))
+                static_cast<const size_t>(setting<settings::BatchSize>()) * input_queue_.get_fd().get_frame_res()))
             err++;
 
-        int output_buffer_size = gpu_input_queue_.get_fd().get_frame_res();
+        int output_buffer_size = input_queue_.get_fd().get_frame_res();
         if (setting<settings::ImageType>() == ImgType::Composite)
             image::grey_to_rgb_size(output_buffer_size);
         if (!buffers_.gpu_output_frame.resize(output_buffer_size))
             err++;
-        buffers_.gpu_postprocess_frame_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+        buffers_.gpu_postprocess_frame_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
 
         if (setting<settings::ImageType>() == ImgType::Composite)
             image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
@@ -422,8 +410,6 @@ class ICompute
 
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
-    virtual std::unique_ptr<Queue>& get_frame_record_queue();
-    
   protected:
     virtual void refresh() = 0;
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
@@ -472,10 +458,13 @@ class ICompute
 
   protected:
     /*! \brief Reference on the input queue */
-    BatchInputQueue& gpu_input_queue_;
+    BatchInputQueue& input_queue_;
 
     /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;
+
+    /*! \brief Reference on the record queue */
+    Queue& record_queue_;
 
     /*! \brief Main buffers. */
     CoreBuffersEnv buffers_;
@@ -485,9 +474,6 @@ class ICompute
 
     /*! \brief STFT environment. */
     TimeTransformationEnv time_transformation_env_;
-
-    /*! \brief Frame Record environment (Raw + Hologram + Cuts) */
-    FrameRecordEnv frame_record_env_;
 
     /*! \brief Chart environment. */
     ChartEnv chart_env_;

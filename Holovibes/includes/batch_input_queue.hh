@@ -27,7 +27,7 @@ class Queue;
 
 /*! \class BatchInputQueue
  *
- * \brief #TODO Add a description for this class
+ * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be read and written simultaneously
  *
  * Conditons:
  *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
@@ -39,7 +39,7 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const bool gpu = true);
 
     ~BatchInputQueue();
 
@@ -51,6 +51,8 @@ class BatchInputQueue final : public DisplayQueue
      * in order to let the resize occure if needed.
      */
     void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
+
+    // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
@@ -88,12 +90,23 @@ class BatchInputQueue final : public DisplayQueue
      */
     void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
 
+    // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
+
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
      * The queue must have at least a batch of frames filled
      * Called by the consumer
      */
     void dequeue();
+
+    /*!
+     * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue. Useful to keep using the pointer.
+     * 
+     * \param fd 
+     * \param size 
+     * \param gpu 
+     */
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu);
 
     /*! \brief Resize with a new batch size
      *
@@ -118,7 +131,8 @@ class BatchInputQueue final : public DisplayQueue
 
     inline void* get_last_image() const override
     {
-        sync_current_batch();
+        if (gpu_)
+          sync_current_batch();
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
@@ -181,7 +195,7 @@ class BatchInputQueue final : public DisplayQueue
     }
 
   private: /* Private attributes */
-    cuda_tools::CudaUniquePtr<char> data_{nullptr};
+    cuda_tools::UniquePtr<char> data_{nullptr};
 
     /*! \brief FastUpdatesHolder entry */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
@@ -214,7 +228,7 @@ class BatchInputQueue final : public DisplayQueue
     uint batch_size_{0};
     /*! \brief Max number of batch of frames in the queue
      *
-     * Batch size can only be changed by the consumer when the producer is
+     * Max size can only be changed by the consumer when the producer is
      * blocked. Thus std:atomic is not required.
      */
     uint max_size_{0};
@@ -237,5 +251,12 @@ class BatchInputQueue final : public DisplayQueue
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
     /*! \} */
+
+    /*!
+     * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
+     * 
+     */
+    std::atomic<bool>& gpu_;
+
 };
 } // namespace holovibes
