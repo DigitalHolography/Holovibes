@@ -62,12 +62,15 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
 void Queue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu){
-    fd_ = fd;
+    set_fd(fd);
+
     if (gpu_ != gpu) {
         gpu_ = gpu;
         data_ = cuda_tools::UniquePtr<char>(gpu_);
+        resize(size, stream);
     }
-    resize(size, stream);
+    else if (size != max_size_)
+        resize(size, stream);
 }
 
 void Queue::resize(const unsigned int size, const cudaStream_t stream)

@@ -61,7 +61,10 @@ class HoloQueue
     /*! \return If queue has overridden at least a frame during an enqueue */
     bool has_overridden() const { return has_overridden_; }
 
+  protected:
 
+    void set_type(const QueueType type) { type_ = type; }
+    
   protected:
     /*! \name FastUpdatesHolder entry and all variables linked to it */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
@@ -85,7 +88,6 @@ class HoloQueue
 
     /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
     cuda_tools::UniquePtr<char> data_{nullptr};
-
 
 };
 
@@ -177,7 +179,7 @@ class Queue final : public DisplayQueue, public HoloQueue
     void resize(const unsigned int size, const cudaStream_t stream);
 
     /*!
-     * \brief Change the frame descriptor of the queue and change its size.
+     * \brief Change the frame descriptor of the queue and change its size. Reallocate the queue only if the size or the device (cpu/gpu) has changed.
      * 
      * \param size 
      * \param fd 

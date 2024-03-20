@@ -303,7 +303,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     //
     // With load_file_in_gpu_ == true, all the file in in the buffer,
     // so we don't have to sync
-    if (setting<settings::LoadFileInGPU>() == false) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
+    //
+    // If the input queue is not on the GPU no sync is needed
+    if (setting<settings::LoadFileInGPU>() == false && api::get_input_queue_location()) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
         input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker
