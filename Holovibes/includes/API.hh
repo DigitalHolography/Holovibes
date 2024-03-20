@@ -186,6 +186,8 @@ bool start_record_preconditions(const bool batch_enabled,
  */
 void start_record(std::function<void()> callback);
 
+void set_record_device(const bool gpu);
+
 /*! \brief Stops recording
  *
  */
@@ -204,6 +206,13 @@ const std::string browse_record_output_file(std::string& std_filepath);
  * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
  */
 void set_record_mode(const std::string& text);
+
+/*!
+ * \brief Set the record queue location, between gpu and cpu
+ * 
+ * \param gpu whether the record queue is on the gpu or the cpu
+ */
+void set_record_queue_location(bool gpu);
 
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *

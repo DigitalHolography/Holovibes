@@ -37,7 +37,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
 }
 
 void ICompute::resize_gpu_p_acc_buffer(const unsigned short time_transformation_size) {
-    auto frame_res = gpu_input_queue_.get_fd().get_frame_res();
+    auto frame_res = input_queue_.get_fd().get_frame_res();
     time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * time_transformation_size);
 }
 
@@ -63,7 +63,7 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
 
 void ICompute::update_stft(const unsigned short time_transformation_size) {
     int inembed_stft[1] = {time_transformation_size};
-    int zone_size = static_cast<int>(gpu_input_queue_.get_fd().get_frame_res());
+    int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
     time_transformation_env_.stft_plan.planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
 }
 
@@ -88,14 +88,14 @@ void ICompute::handle_exception(const std::exception& e) {
 
 void ICompute::update_spatial_transformation_parameters()
 {
-    const auto& gpu_input_queue_fd = gpu_input_queue_.get_fd();
+    const auto& input_queue_fd = input_queue_.get_fd();
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() *
-                                                      gpu_input_queue_fd.get_frame_res());
+                                                      input_queue_fd.get_frame_res());
 
-    long long int n[] = {gpu_input_queue_fd.height, gpu_input_queue_fd.width};
+    long long int n[] = {input_queue_fd.height, input_queue_fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
     spatial_transformation_plan_.XtplanMany(
@@ -103,11 +103,11 @@ void ICompute::update_spatial_transformation_parameters()
         n,                                  // Dimension of inner most & outer most dimension
         n,                                  // Storage dimension size
         1,                                  // Between two inputs (pixels) of same image distance is one
-        gpu_input_queue_fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
+        input_queue_fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
         CUDA_C_32F,                         // Input type
         n,
         1,
-        gpu_input_queue_fd.get_frame_res(), // Ouput layout same as input
+        input_queue_fd.get_frame_res(), // Ouput layout same as input
         CUDA_C_32F,                         // Output type
         setting<settings::BatchSize>(),    // Batch size
         CUDA_C_32F);                        // Computation type
@@ -163,7 +163,7 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
+// std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
 
 void ICompute::delete_stft_slice_queue()
 {

@@ -25,6 +25,10 @@ class DisplayQueue
     const camera::FrameDescriptor& get_fd() const { return fd_; }
 
   protected:
+    /*! \brief Sets the frame descriptor of the queue */
+    void set_fd(const camera::FrameDescriptor& fd) { fd_ = fd; }
+
+  protected:
     camera::FrameDescriptor fd_;
 };
 } // namespace holovibes

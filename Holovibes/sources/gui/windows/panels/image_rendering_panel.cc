@@ -42,6 +42,7 @@ void ImageRenderingPanel::on_notify()
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
+    ui_->ImageModeComboBox->setEnabled(api::get_input_queue_location());
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
@@ -394,6 +395,13 @@ void ImageRenderingPanel::decrement_z()
     set_z_distance(api::get_z_distance() - z_step_);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
+
+void ImageRenderingPanel::set_device(const QString& value)
+{
+    LOG_DEBUG(value.toStdString());
+    LOG_DEBUG("AAAH");
+}
+
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {

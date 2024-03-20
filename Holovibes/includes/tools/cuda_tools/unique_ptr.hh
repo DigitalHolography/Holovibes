@@ -149,7 +149,7 @@ class UniquePtr
       resize(size); 
     }
 
-    T* get() { 
+    T* get() const { 
       return gpu_ ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
     }
 

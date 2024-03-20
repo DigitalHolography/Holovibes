@@ -234,12 +234,14 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
-    auto pipe = holovibes.get_compute_pipe();
-    pipe->init_record_queue();
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
 
+    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+    // TO DO: Remove, since the record_queue is initialized in the function start_frame_record
+    holovibes.init_record_queue();
+    
     holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.

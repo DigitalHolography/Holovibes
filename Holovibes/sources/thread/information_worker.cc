@@ -56,17 +56,20 @@ void InformationWorker::run()
                 input_frame_size = gpu_input_queue->get_fd().get_frame_size();
             }
 
-            std::shared_ptr<ICompute> pipe = Holovibes::instance().get_compute_pipe_nothrow();
-            if (pipe != nullptr)
-            {
-                std::unique_ptr<Queue>& frame_record_queue = pipe->get_frame_record_queue();
-                if (frame_record_queue)
-                    record_frame_size = frame_record_queue->get_fd().get_frame_size();
-            }
-            else
-            {
-                record_frame_size = 0;
-            }
+            auto frame_record_queue = Holovibes::instance().get_record_queue().load();
+            record_frame_size = 0;
+            if (frame_record_queue)
+                record_frame_size = frame_record_queue->get_fd().get_frame_size();
+            // if (pipe != nullptr)
+            // {
+            //     std::unique_ptr<Queue>& frame_record_queue = pipe->get_frame_record_queue();
+            //     if (frame_record_queue)
+            //         record_frame_size = frame_record_queue->get_fd().get_frame_size();
+            // }
+            // else
+            // {
+            //     record_frame_size = 0;
+            // }
 
             compute_throughput(output_frame_res, input_frame_size, record_frame_size);
 
@@ -217,8 +220,9 @@ void InformationWorker::display_gui_information()
         if (key == QueueType::UNDEFINED)
             continue;
 
-        to_display << queue_type_to_string_.at(key) << ":\n  ";
-        to_display << value->first.load() << "/" << value->second.load() << "\n";
+        to_display << (std::get<2>(*value).load() ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":\n  ";
+        to_display << std::get<0>(*value).load() << "/" << std::get<1>(*value).load() << "\n";
+        // to_display << value->first.load() << "/" << value->second.load() << "\n";
     }
 
     if (fps_map.contains(FpsType::INPUT_FPS))
