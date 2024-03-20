@@ -87,12 +87,8 @@ struct CoreBuffersEnv
     unsigned int gpu_postprocess_frame_size = 0;
     /*! \brief Float XZ buffer of 1 frame, filled with the correct computer p XZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz = nullptr;
-    //cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz_final = nullptr;
-    //unsigned int gpu_postprocess_frame_xz_size = 0;
     /*! \brief Float YZ buffer of 1 frame, filled with the correct computed p YZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz = nullptr;
-    //cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz_final = nullptr;
-    //unsigned int gpu_postprocess_frame_yz_size = 0;
 
     /*! \brief Unsigned Short output buffer of 1 frame, inserted after all postprocessing on float_buffer */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame = nullptr;
@@ -414,8 +410,6 @@ class ICompute
 
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
 
-    // virtual std::unique_ptr<Queue>& get_frame_record_queue();
-    
   protected:
     virtual void refresh() = 0;
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);

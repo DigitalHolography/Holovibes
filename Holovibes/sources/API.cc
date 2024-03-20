@@ -1714,11 +1714,7 @@ void set_record_device(const bool gpu)
     // Holovibes::instance().init_record_queue();
 }
 
-void start_record(const bool batch_enabled,
-                  std::optional<unsigned int> nb_frames_to_record,
-                  std::string& output_path,
-                  std::string& batch_input_path,
-                  std::function<void()> callback)
+void start_record(std::function<void()> callback)
 {
     RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
 

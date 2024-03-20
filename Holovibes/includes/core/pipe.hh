@@ -218,8 +218,6 @@ class Pipe : public ICompute
 
     ~Pipe() override;
 
-    // Queue& init_record_queue();
-
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
 

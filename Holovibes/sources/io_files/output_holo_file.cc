@@ -63,7 +63,7 @@ size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
     const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
 
-    std::fflush(file_);
+    // std::fflush(file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");
