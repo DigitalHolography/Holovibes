@@ -29,14 +29,19 @@ void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_post
     {
     case ImgType::Composite:
         insert_to_composite(buffers_gpu_postprocess_frame);
+        break;
     case ImgType::Modulus:
         insert_to_modulus(buffers_gpu_postprocess_frame);
+        break;
     case ImgType::SquaredModulus:
         insert_to_squaredmodulus(buffers_gpu_postprocess_frame);
+        break;
     case ImgType::Argument:
         insert_to_argument(unwrap_2d_requested, buffers_gpu_postprocess_frame);
+        break;
     case ImgType::PhaseIncrease:
         insert_to_phase_increase(unwrap_2d_requested, buffers_gpu_postprocess_frame);
+        break;
     default:
         break;
     }
@@ -55,6 +60,7 @@ void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_post
             });
     }
 }
+
 
 void Converts::insert_to_ushort()
 {

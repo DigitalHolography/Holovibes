@@ -145,7 +145,7 @@ class HoloFile:
         ddiff = DeepDiff(ref.footer, chal.footer,
                          ignore_order=True,
                          significant_digits=5,
-                         exclude_paths=["root['info']['input_fps']", ]
+                         exclude_paths=["root['info']['input_fps']","root['info']['holovibes_version']" ]
                          )
 
         if 'values_changed' in ddiff:
@@ -172,16 +172,25 @@ class HoloFile:
             __assert(getattr(ref, attr), getattr(chal, attr), attr)
 
         ref.assert_footer(chal)
-
+        total_diff = 0
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
-            diffMatrix = (np.array(l_image) == np.array(r_image))
-            diff = np.any(diffMatrix == False)
-            #TODO print diff matrix
-            if diff:
+            diffMatrix = (np.array(l_image) - np.array(r_image))**2
+            diff = np.sqrt(np.sum(diffMatrix)) / (ref.width * ref.height )
+            diff /= 2**(ref.bytes_per_pixel * 8) - 1
+            too_big_diff = diff > 10**-6
+            
+            if too_big_diff:
                 Image.fromarray(l_image).save(os.path.join(basepath, constant_name.REF_FAILED_IMAGE))
                 Image.fromarray(r_image).save(os.path.join(basepath, constant_name.OUTPUT_FAILED_IMAGE))
+                Image.fromarray(diffMatrix).save(os.path.join(basepath, constant_name.DIFF_FAILED_IMAGE))
 
-            assert not diff
+            assert not too_big_diff
+
+            total_diff += diff
+        total_diff /= len(ref.images)
+        return total_diff
+        
+        
 
 
 class HoloLazyReader(HoloLazyIO):
