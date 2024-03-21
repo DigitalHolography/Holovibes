@@ -177,8 +177,16 @@ def test_holo(folder: str):
                 logger.info(f"Current time: {current_time} Ref time: {ref_time}")
             except:
                 pass
-            current_tol = ref.assertHolo(out, path)
-            logger.info(f"Tolerance score: {current_tol}")
+            
+            current_tol, errors = ref.assertHolo(out, path)
+            if current_tol != 0.0:
+               logger.info(f"Total diff: {current_tol}")
+
+            if len(errors) > 0:
+               logger.error(f"Errors: {errors}")
+               assert False, f"Errors: {errors}"
+            
+                
 
     elif not error_wanted: # LAZY_COMPARE
         out = read_holo_lazy(output)
