@@ -173,7 +173,20 @@ def run(args: GoalArgs) -> int:
 
 @goal
 def pytest(args: GoalArgs) -> int:
+    directory = "tests/data"
 
+    # delete old output files
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name)
+        last_output_holo = os.path.join(path, OUTPUT_FILENAME)
+        last_output_image = os.path.join(path, OUTPUT_FAILED_IMAGE)
+        last_ref_image = os.path.join(path, REF_FAILED_IMAGE)
+        last_diff_image = os.path.join(path, DIFF_FAILED_IMAGE)
+        last_error= os.path.join(path, OUTPUT_ERROR_FILENAME)
+
+        for file in (last_output_holo, last_output_image, last_ref_image, last_diff_image, last_error):
+            if os.path.isfile(file):
+                os.remove(file)
     try:
         import pytest
     except ImportError as e:
