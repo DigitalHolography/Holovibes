@@ -69,10 +69,11 @@ def generate_holo_from(folder: str, input: str, output: str, output_error: str, 
     t1 = time.time()
 
     # Run holovibes on file
-    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + \
-        get_cli_arguments(cli_argument)
+    cmd = [HOLOVIBES_BIN, "-i", input, "-o", output] + get_cli_arguments(cli_argument)
     if config:
         cmd += ['--compute_settings', config]
+
+    logger.info(f"\n Running: {' '.join(cmd)}")
 
     sub = subprocess.run(cmd, stderr=subprocess.PIPE)
 

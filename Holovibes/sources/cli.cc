@@ -128,11 +128,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         catch (std::exception& e)
         {
             LOG_DEBUG(e.what());
-            return 1;
+            return 2;
         }
     }
     else if (!load)
-        input_frame_file->import_compute_settings();
+    {
+        LOG_DEBUG("No compute settings file provided and no footer found in input file");
+        return 2;
+    }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
