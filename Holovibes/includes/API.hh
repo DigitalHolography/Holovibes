@@ -138,6 +138,9 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
+/*! \brief Sets the image mode to Raw or Holographic*/
+void set_image_mode(Computation mode, uint window_max_size);
+
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(uint window_max_size);
 

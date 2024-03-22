@@ -261,6 +261,18 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
     return QSize(final_width, final_height);
 }
 
+void set_image_mode(Computation mode, uint window_max_size)
+{
+    if (mode == Computation::Raw)
+    {
+        set_raw_mode(window_max_size);
+    }
+    else if (mode == Computation::Hologram)
+    {
+        set_holographic_mode(window_max_size);
+    }
+}
+
 void set_raw_mode(uint window_max_size)
 {
     const camera::FrameDescriptor& fd = get_fd();
@@ -1722,7 +1734,9 @@ void set_record_device(const bool gpu)
             change_camera(c);
         else 
             import_start();
-        create_pipe();
+        // create_pipe();
+
+        set_image_mode(get_compute_mode(), 1);
     }
     // Holovibes::instance().init_input_queue(Holovibes::instance().get_setting(_input_buffer_size());
     // Holovibes::instance().init_record_queue();
