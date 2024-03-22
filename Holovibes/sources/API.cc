@@ -1706,13 +1706,23 @@ void set_record_device(const bool gpu)
 
     if (get_input_queue_location() != gpu)
     {
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+
+        auto c = CameraKind::NONE;
+        if (it == ImportType::Camera) {
+            c = UserInterfaceDescriptor::instance().kCamera;
             camera_none();
-        else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        }
+        else if (it == ImportType::File)
             import_stop();
         set_input_queue_location(gpu);
         if (!gpu)
             set_compute_mode(Computation::Raw);
+        if (it == ImportType::Camera)
+            change_camera(c);
+        else 
+            import_start();
+        create_pipe();
     }
     // Holovibes::instance().init_input_queue(Holovibes::instance().get_setting(_input_buffer_size());
     // Holovibes::instance().init_record_queue();

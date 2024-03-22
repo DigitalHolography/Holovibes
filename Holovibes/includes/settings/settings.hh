@@ -161,6 +161,7 @@ DECLARE_SETTING(RawBitshift, size_t)
 DECLARE_SETTING(ContrastUpperThreshold, float)
 DECLARE_SETTING(RenormConstant, unsigned)
 DECLARE_SETTING(CutsContrastPOffset, size_t)
+DECLARE_SETTING(RecordOnGPU, bool)
 
 // ex ComputeCache
 DECLARE_SETTING(BatchSize, uint)

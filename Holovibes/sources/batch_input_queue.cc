@@ -226,7 +226,7 @@ void BatchInputQueue::dequeue_update_attr()
 }
 
 void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu){
-    fd_ = fd;
+    set_fd(fd);
     if (gpu_ != gpu) {
         gpu_ = gpu;
         data_ = cuda_tools::UniquePtr<char>(gpu_);

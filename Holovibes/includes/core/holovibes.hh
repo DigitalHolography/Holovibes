@@ -109,7 +109,8 @@
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueOnGPU,                       \
     holovibes::settings::RawViewQueueOnGPU,                      \
-    holovibes::settings::InputQueueOnGPU
+    holovibes::settings::InputQueueOnGPU,                        \
+    holovibes::settings::RecordOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -448,7 +449,8 @@ class Holovibes
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueOnGPU{false},
                                              settings::RawViewQueueOnGPU{true},
-                                             settings::InputQueueOnGPU{true}))
+                                             settings::InputQueueOnGPU{true},
+                                             settings::RecordOnGPU{true}))
     {
     }
 

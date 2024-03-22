@@ -72,6 +72,7 @@ class EHoloGrabber
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
+            // grabbers_[i]->setInteger<StreamModule>("BufferPartCount", 1);
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
@@ -119,7 +120,7 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
+            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 0 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }

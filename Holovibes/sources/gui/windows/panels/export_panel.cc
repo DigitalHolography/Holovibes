@@ -78,7 +78,7 @@ void ExportPanel::on_notify()
             .string();
     path_line_edit->insert(record_output_path.c_str());
 
-    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_queue_location() && !api::get_input_queue_location());
+    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -247,7 +247,7 @@ void ExportPanel::set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
     // Mind that we negate the boolean, since true means gpu for the queues
-    api::set_record_device(!value);
+    api::set_record_on_gpu(!value);
     parent_->notify();
 }
 
