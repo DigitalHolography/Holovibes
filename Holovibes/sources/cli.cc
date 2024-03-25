@@ -105,8 +105,15 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
 {
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
-    holovibes::io_files::InputFrameFile* input_frame_file =
-        holovibes::io_files::InputFrameFileFactory::open(input_path);
+    
+    holovibes::io_files::InputFrameFile* input_frame_file = holovibes::io_files::InputFrameFileFactory::open(input_path);
+    if (!input_frame_file)
+    {
+        LOG_ERROR("Failed to open input file");
+        return 1;
+    }
+
+    
 
     bool load = false;
     if (input_frame_file->get_has_footer())
