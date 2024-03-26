@@ -188,10 +188,10 @@ inline void set_display_rate(float value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::DisplayRate{value});
 }
-inline bool get_input_queue_location(){ return holovibes::Holovibes::instance().get_setting<settings::InputQueueOnGPU>().value;}
-inline void set_input_queue_location(bool value)
+inline holovibes::Device get_input_queue_location(){ return holovibes::Holovibes::instance().get_setting<settings::InputQueueLocation>().value;}
+inline void set_input_queue_location(holovibes::Device value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueOnGPU{value});
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueLocation{value});
 }
 
 inline ViewXY get_x(void) { return holovibes::Holovibes::instance().get_setting<settings::X>().value; }
@@ -412,9 +412,9 @@ inline void set_xz_contrast_auto_refresh(bool value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline bool get_record_queue_location()
+inline holovibes::Device get_record_queue_location()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueOnGPU>().value;
+    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueLocation>().value;
 }
 
 inline void set_xz_contrast_invert(bool value) noexcept
@@ -695,14 +695,14 @@ inline bool get_raw_view_enabled()
     return holovibes::Holovibes::instance().get_setting<settings::RawViewEnabled>().value;
 }
 
-inline bool get_raw_view_queue_location()
+inline holovibes::Device get_raw_view_queue_location()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueOnGPU>().value;
+    return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueLocation>().value;
 }
 
-inline void set_raw_view_queue_location(bool value)
+inline void set_raw_view_queue_location(holovibes::Device value)
 {
-    Holovibes::instance().update_setting(holovibes::settings::RawViewQueueOnGPU{value});
+    Holovibes::instance().update_setting(holovibes::settings::RawViewQueueLocation{value});
 }
 
 

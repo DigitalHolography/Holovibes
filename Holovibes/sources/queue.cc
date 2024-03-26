@@ -18,23 +18,23 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 
 HoloQueue::HoloQueue(QueueType type,
-             const bool gpu)
+             const Device device)
     : fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
     , type_(type)
-    , gpu_(std::get<2>(*fast_updates_entry_))
+    , device_(std::get<2>(*fast_updates_entry_))
     , start_index_(0)
     , has_overridden_(false)
     , size_(std::get<0>(*fast_updates_entry_))
 {
-    gpu_ = gpu;
-    data_ = cuda_tools::UniquePtr<char>(gpu_);
+    device_ = device;
+    data_ = cuda_tools::UniquePtr<char>(device_);
 }
 
 Queue::Queue(const camera::FrameDescriptor& fd,
              const unsigned int max_size,
              QueueType type,
-             const bool gpu)
-    : DisplayQueue(fd), HoloQueue(type, gpu)
+             const Device device)
+    : DisplayQueue(fd), HoloQueue(type, device)
     , max_size_(std::get<1>(*fast_updates_entry_))//(fast_updates_entry_->second)
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
@@ -48,7 +48,7 @@ Queue::Queue(const camera::FrameDescriptor& fd,
     }
 
     // // Needed if input is embedded into a bigger square
-    // if (gpu_)
+    // if (device_)
     //     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     // else
     //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
@@ -61,12 +61,12 @@ Queue::Queue(const camera::FrameDescriptor& fd,
 
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
 
-void Queue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu){
+void Queue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const Device device){
     set_fd(fd);
 
-    if (gpu_ != gpu) {
-        gpu_ = gpu;
-        data_ = cuda_tools::UniquePtr<char>(gpu_);
+    if (device_ != device) {
+        device_ = device;
+        data_ = cuda_tools::UniquePtr<char>(device_);
         resize(size, stream);
     }
     else if (size != max_size_)
@@ -86,7 +86,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
     }
 
     // Needed if input is embedded into a bigger square
-    // if (gpu_) {
+    // if (device_) {
     //     cudaXMemsetAsync(data_.get(), 0, fd_.get_frame_size() * max_size_, stream);
     //     cudaXStreamSynchronize(stream);
     // }

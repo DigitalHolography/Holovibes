@@ -214,7 +214,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("raw_view_requested");
 
         auto fd = input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>(), QueueType::UNDEFINED, setting<settings::RawViewQueueOnGPU>()));
+        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>(), QueueType::UNDEFINED, setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -531,10 +531,10 @@ void Pipe::insert_raw_view()
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
                 cudaMemcpyKind memcpy_kind;
-                if (setting<settings::InputQueueOnGPU>())
-                    memcpy_kind = setting<settings::RawViewQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                if (setting<settings::InputQueueLocation>() == Device::GPU)
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
                 else
-                    memcpy_kind = setting<settings::RawViewQueueOnGPU>() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyHostToHost;
 
                 input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
             });
@@ -562,10 +562,10 @@ void Pipe::insert_raw_record()
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;
-                if (setting<settings::InputQueueOnGPU>())
-                    memcpy_kind = setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                if (setting<settings::InputQueueLocation>() == Device::GPU)
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
                 else
-                    memcpy_kind = setting<settings::RecordQueueOnGPU>() ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
 
                 input_queue_.copy_multiple(record_queue_,
                                             setting<settings::BatchSize>(), memcpy_kind);
@@ -588,9 +588,9 @@ void Pipe::insert_hologram_record()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                                                                                  stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 else
-                    record_queue_.enqueue(buffers_.gpu_output_frame.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                    record_queue_.enqueue(buffers_.gpu_output_frame.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -603,13 +603,13 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                { record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
         else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                { record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
     }
 }

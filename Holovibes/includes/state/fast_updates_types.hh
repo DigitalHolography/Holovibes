@@ -1,5 +1,7 @@
 #pragma once
 
+#include "enum_device.hh"
+
 /*!
  * \brief Documentation on how to add entry types to the FastUpdatesHolder class
  *
@@ -93,7 +95,7 @@ template <>
 struct TypeValue<QueueType>
 {
     using key = QueueType;
-    using value = std::tuple<std::atomic<uint>, std::atomic<uint>, std::atomic<bool>>;
+    using value = std::tuple<std::atomic<uint>, std::atomic<uint>, std::atomic<holovibes::Device>>;
 };
 
 } // namespace holovibes::_internal

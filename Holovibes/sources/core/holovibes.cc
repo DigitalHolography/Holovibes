@@ -50,7 +50,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 }
 
 void Holovibes::init_record_queue() {
-    bool on_gpu = api::get_record_queue_location();
+    auto device = api::get_record_queue_location();
     auto record_mode = api::get_record_mode();
     switch (record_mode) {
         case RecordMode::RAW: {
@@ -60,9 +60,9 @@ void Holovibes::init_record_queue() {
             }
             LOG_DEBUG("RecordMode = Raw");
             if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+                record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
             else
-                record_queue_.load()->rebuild(input_queue_.load()->get_fd(), api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+                record_queue_.load()->rebuild(input_queue_.load()->get_fd(), api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
 
             LOG_DEBUG("Record queue allocated");
             break;
@@ -72,9 +72,9 @@ void Holovibes::init_record_queue() {
             auto record_fd = gpu_output_queue_.load()->get_fd();
             record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
             if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+                record_queue_ = std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
             else
-                record_queue_.load()->rebuild(record_fd, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+                record_queue_.load()->rebuild(record_fd, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
             LOG_DEBUG("Record queue allocated");
             break;
         }
@@ -89,9 +89,9 @@ void Holovibes::init_record_queue() {
                 fd_xyz.width = api::get_time_transformation_size();
             
             if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu);
+                record_queue_ = std::make_shared<Queue>(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
             else
-                record_queue_.load()->rebuild(fd_xyz, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, on_gpu);
+                record_queue_.load()->rebuild(fd_xyz, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
             LOG_DEBUG("Record queue allocated");
             break;
         }
@@ -190,7 +190,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
 
     // if the record is on the cpu
     if (api::get_record_on_gpu() == false)
-        api::set_record_device(false);
+        api::set_record_device(Device::CPU);
 
     if (!record_queue_.load())
         init_record_queue();
@@ -208,7 +208,7 @@ void Holovibes::stop_frame_record() {
 
     // if the record was on the cpu, we have to put the queues on gpu again
     if (api::get_record_on_gpu() == false)
-        api::set_record_device(true);
+        api::set_record_device(Device::GPU);
 }
 
 void Holovibes::start_chart_record(const std::function<void()>& callback)

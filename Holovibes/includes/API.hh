@@ -189,7 +189,7 @@ bool start_record_preconditions(const bool batch_enabled,
  */
 void start_record(std::function<void()> callback);
 
-void set_record_device(const bool gpu);
+void set_record_device(const Device device);
 
 /*! \brief Stops recording
  *
@@ -226,7 +226,7 @@ bool get_record_on_gpu();
  * 
  * \param gpu whether the record queue is on the gpu or the cpu
  */
-void set_record_queue_location(bool gpu);
+void set_record_queue_location(Device device);
 
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *

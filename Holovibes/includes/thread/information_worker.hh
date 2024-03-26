@@ -6,6 +6,7 @@
 
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
+#include "enum/enum_device.hh"
 #include "worker.hh"
 
 #pragma region Settings configuration

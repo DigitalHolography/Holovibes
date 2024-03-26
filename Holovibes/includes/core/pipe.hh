@@ -80,9 +80,9 @@
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::RenormConstant,           \
     holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::RecordQueueOnGPU,         \
-    holovibes::settings::RawViewQueueOnGPU,        \
-    holovibes::settings::InputQueueOnGPU
+    holovibes::settings::RecordQueueLocation,         \
+    holovibes::settings::RawViewQueueLocation,        \
+    holovibes::settings::InputQueueLocation
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::TimeStride,               \

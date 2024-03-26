@@ -13,13 +13,15 @@
 #include "batch_input_queue.hh"
 #include "display_queue.hh"
 #include "global_state_holder.hh"
+#include "enum_device.hh"
+
 namespace holovibes
 {
 
 class HoloQueue
 {
   public:
-    HoloQueue(QueueType type = QueueType::UNDEFINED, const bool gpu = true);
+    HoloQueue(QueueType type = QueueType::UNDEFINED, const Device device = Device::GPU);
 
     /*! \brief Enqueue method
      *
@@ -73,7 +75,7 @@ class HoloQueue
     QueueType type_;
     
     /*! \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr) */
-    std::atomic<bool>& gpu_;
+    std::atomic<Device>& device_;
 
     /*! \brief The index of the first frame in the queue */
     std::atomic<uint> start_index_{0};
@@ -129,7 +131,7 @@ class Queue final : public DisplayQueue, public HoloQueue
     Queue(const camera::FrameDescriptor& fd,
           const unsigned int max_size,
           QueueType type = QueueType::UNDEFINED,
-          const bool gpu = true);
+          const Device device = Device::GPU);
 
     /*! \brief Destructor of the queue */
     ~Queue();
@@ -185,7 +187,7 @@ class Queue final : public DisplayQueue, public HoloQueue
      * \param fd 
      * \param stream 
      */
-    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const bool gpu);
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const Device device);
 
     void reset();
 
