@@ -372,7 +372,7 @@ void ExportPanel::update_record_mode()
     else
     {
         spdlog::critical("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
-        exit(1);
+        exit(4);
     }
 
     api::set_record_mode(record_mode);
