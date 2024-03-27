@@ -78,6 +78,11 @@ OptionsParser::OptionsParser()
         "end_frame,e",
         po::value<unsigned int>(),
         "End frame (default = eof). Everything striclty after end frame is not read."
+    )
+    ( // 8 arguments, 4 pairs of points coordinates of each area on the image
+        "chart,t",
+        po::value<std::vector<unsigned int>>()->multitoken()->default_value(std::vector<unsigned int>(8, 0), "0 0 0 0 0 0 0 0"),
+        "Chart to record with area coordinates (x11 y11 x21 y21 x12 y12 x22 y22) (first being for the signal and second for the noise)"
     );
     // clang-format on
 
@@ -146,6 +151,21 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
                 exit(2);
             }
         }
+        if (vm_.count("chart")) {
+            try {
+                auto chart = vm_["chart"].as<std::vector<unsigned int>>();
+                if (chart.size() != 8)
+                {
+                    LOG_ERROR("Chart coordinates should be 8 uint");
+                    std::exit(21);
+                }
+                options_.chart = chart;
+            } catch (const std::exception& e) {
+                LOG_INFO("Could not parse chart coordinates: {}, make sure those are 8 uint", e.what());
+                std::exit(21);
+            }
+        }
+
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();

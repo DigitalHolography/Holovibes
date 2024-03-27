@@ -33,6 +33,7 @@ struct OptionsDescriptor
     bool record_raw;
     bool verbose;
     bool gpu;
+    std::optional<std::vector<unsigned int>> chart;
 };
 
 /*! \class OptionsParser

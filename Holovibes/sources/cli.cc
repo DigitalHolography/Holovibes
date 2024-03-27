@@ -204,6 +204,17 @@ static void main_loop(holovibes::Holovibes& holovibes)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
+    while (holovibes::api::get_chart_record_enabled()) {  // Chart record
+        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::CHART_RECORD)){
+            if (!progress)
+                progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
+                    holovibes::ProgressType::CHART_RECORD);
+            else
+                progress_bar(progress->first, progress->second, 40);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
 }
@@ -213,9 +224,43 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     LOG_INFO("Starting CLI workers");
     // Force some values
     holovibes.is_cli = true;
+
     auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    if (opts.chart.has_value())
+    {
+        if (mode == holovibes::RecordMode::RAW)
+        {
+            LOG_ERROR("Chart mode is not available in raw mode, abort");
+            return 35;
+        }
+        mode = holovibes::RecordMode::CHART;
+
+        auto coords = opts.chart.value();
+  
+        // printf("Conversion data: %f \n", conv_data.get_opengl()->getAngle());
+        auto signal_zone_default = holovibes::api::get_signal_zone();
+        printf("Signal zone default: %f %f\n", signal_zone_default.topLeft().x(), signal_zone_default.topLeft().y());
+
+        /* auto topLeft = holovibes::units::PointFd{coords[0], coords[1]};
+        auto bottomRight = holovibes::units::PointFd{coords[2], coords[3]};
+
+        auto signal_zone = holovibes::units::RectFd{topLeft, bottomRight};
+
+        topLeft = holovibes::units::PointFd{coords[4], coords[5]};
+        bottomRight = holovibes::units::PointFd{coords[6], coords[7]};
+
+        auto noise_zone = holovibes::units::RectFd{topLeft, bottomRight};
+
+        holovibes::api::set_signal_zone(signal_zone);
+        holovibes::api::set_noise_zone(noise_zone); */
+    }
+
     holovibes.update_setting(holovibes::settings::RecordMode{mode});
-    holovibes::api::set_frame_record_enabled(true);
+    
+    if (mode == holovibes::RecordMode::CHART)
+        holovibes::api::set_chart_record_enabled(true);
+    else
+        holovibes::api::set_frame_record_enabled(true);
     holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
 
     // Value used in more than 1 thread
@@ -242,12 +287,21 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // TO DO: Remove, since the record_queue is initialized in the function start_frame_record
     holovibes.init_record_queue();
     
-    holovibes.start_frame_record();
+    if (mode == holovibes::RecordMode::CHART)
+        holovibes.start_chart_record();
+    else
+        holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.
-    while ((!holovibes.get_compute_pipe()->get_frame_record_requested()))
-        continue;
-
+    if (mode == holovibes::RecordMode::CHART) {
+        while ((!holovibes.get_compute_pipe()->get_chart_record_requested()))
+            continue;
+    }
+    else {
+        while ((!holovibes.get_compute_pipe()->get_frame_record_requested()))
+            continue;
+    }
+    
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.
     // It has to be refresh in the main thread because the read of file is launched just after.
     holovibes.get_compute_pipe()->refresh();
