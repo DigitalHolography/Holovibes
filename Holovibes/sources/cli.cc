@@ -1,5 +1,6 @@
 #include "cli.hh"
 
+#include <iostream>
 #include "chrono.hh"
 
 #include "tools.hh"
@@ -249,8 +250,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
 
     holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
-    // TO DO: Remove, since the record_queue is initialized in the function start_frame_record
-    holovibes.init_record_queue();
     
     holovibes.start_frame_record();
 
