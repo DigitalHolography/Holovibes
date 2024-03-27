@@ -120,7 +120,7 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 0 * ix);
+            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
@@ -235,7 +235,7 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom();
+    CameraPhantom(bool gpu=true);
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;
