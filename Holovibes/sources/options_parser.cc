@@ -77,8 +77,9 @@ OptionsParser::OptionsParser()
     (
         "end_frame,e",
         po::value<unsigned int>(),
-        "End frame (default = eof). Everything striclty after end frame is not read."
-    );
+        "End frame (default = eof). Everything strictly after end frame is not read."
+    )
+    ;
     // clang-format on
 
     opts_desc_.add(general_opts_desc).add(run_opts_desc);
@@ -110,7 +111,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             else
             {
                 LOG_ERROR("fps value should be positive");
-                exit(2);
+                exit(22);
             }
         }
         if (vm_.count("n_rec"))
@@ -121,7 +122,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             else
             {
                 LOG_ERROR("n_rec value should be positive");
-                exit(2);
+                exit(23);
             }
         }
         if (vm_.count("start_frame"))
@@ -132,7 +133,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             else
             {
                 LOG_ERROR("start_frame value should be positive");
-                exit(2);
+                exit(24);
             }
         }
         if (vm_.count("end_frame"))
@@ -143,7 +144,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             else
             {
                 LOG_ERROR("end_frame value should be positive");
-                exit(2);
+                exit(25);
             }
         }
         options_.record_raw = vm_["raw"].as<bool>();
@@ -153,8 +154,8 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
     }
     catch (std::exception& e)
     {
-        LOG_INFO("{}", e.what());
-        std::exit(1);
+        LOG_INFO("Error when parsing options: {}", e.what());
+        std::exit(20);
     }
 
     return options_;

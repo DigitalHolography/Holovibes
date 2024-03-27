@@ -80,7 +80,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     if (!is_between(start_frame, (uint)1, nb_frames))
     {
         err_message("start_frame", start_frame, "-s");
-        return 2;
+        return 31;
     }
     holovibes::api::set_input_file_start_index(start_frame - 1);
 
@@ -88,14 +88,14 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
     if (!is_between(end_frame, (uint)1, nb_frames))
     {
         err_message("end_frame", end_frame, "-e");
-        return 2;
+        return 31;
     }
     holovibes::api::set_input_file_end_index(end_frame);
 
     if (start_frame > end_frame)
     {
         holovibes::Logger::logger()->error("-s (start_frame) must be lower or equal than -e (end_frame).");
-        return 2;
+        return 32;
     }
 
     return 0;
@@ -128,7 +128,9 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         catch (std::exception& e)
         {
             LOG_DEBUG(e.what());
-            return 1;
+            LOG_INFO(e.what());
+            LOG_INFO("Error while loading compute settings, abort");
+            return 33;
         }
     }
     else if (!load)
@@ -137,7 +139,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
-        return ret;
+        return ret;  // error 31, 32
 
     holovibes.init_input_queue(fd, holovibes::api::get_input_buffer_size());
 
@@ -148,7 +150,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     catch (std::exception& e)
     {
         LOG_ERROR("{}", e.what());
-        return 1;
+        return 34;
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -177,10 +179,8 @@ static void main_loop(holovibes::Holovibes& holovibes)
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !holovibes::api::get_xy_contrast_auto_refresh();
 
-    while (holovibes::api::get_frame_record_enabled())
-    {
-        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
-        {
+    while (holovibes::api::get_frame_record_enabled()) {
+        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD)) {
             if (!progress)
                 progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
                     holovibes::ProgressType::FRAME_RECORD);
@@ -199,11 +199,10 @@ static void main_loop(holovibes::Holovibes& holovibes)
                 }
             }
         }
-
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
+   
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
 }
@@ -213,8 +212,11 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     LOG_INFO("Starting CLI workers");
     // Force some values
     holovibes.is_cli = true;
+
     auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    
     holovibes.update_setting(holovibes::settings::RecordMode{mode});
+
     holovibes::api::set_frame_record_enabled(true);
     holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
 
@@ -225,7 +227,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (record_nb_frames <= 0)
     {
         LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));
-        return 2;
+        return 36;
     }
 
     // Thread 1
@@ -239,8 +241,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
 
     holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
-    // TO DO: Remove, since the record_queue is initialized in the function start_frame_record
-    holovibes.init_record_queue();
+    
     
     holovibes.start_frame_record();
 
@@ -263,17 +264,19 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    LOG_INFO("Starting CLI");
     if (int ret = set_parameters(holovibes, opts))
         return ret;
-
+    LOG_INFO("Parameters set");
     if (opts.verbose)
         print_verbose(opts);
 
     Chrono chrono;
     if (int ret = start_cli_workers(holovibes, opts))
         return ret;
+    LOG_INFO("CLI workers started, main looping");
     main_loop(holovibes);
-
+    LOG_INFO("Main loop ended");
     LOG_DEBUG("Time: {:.3f}s", chrono.get_milliseconds() / 1000.0f);
     holovibes.stop_all_worker_controller();
     return 0;
