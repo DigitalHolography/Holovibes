@@ -195,11 +195,11 @@ void ImportPanel::update_input_file_start_index()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
 
-    api::set_input_file_start_index(start_spinbox->value());
+    api::set_input_file_start_index(start_spinbox->value() - 1); 
 
-    start_spinbox->setValue(api::get_input_file_start_index());
+    start_spinbox->setValue(api::get_input_file_start_index() + 1);
 
-    if (api::get_input_file_start_index() > api::get_input_file_end_index())
+    if (api::get_input_file_start_index() + 1 > api::get_input_file_end_index())
     {
         QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
         end_spinbox->setValue(api::get_input_file_start_index());

@@ -116,33 +116,33 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("n_rec"))
         {
             int n_rec = boost::any_cast<uint>(vm_["n_rec"].value());
-            if (n_rec >= 0)
+            if (n_rec > 0)
                 options_.n_rec = n_rec; // Implicit cast to uint
             else
             {
-                LOG_ERROR("n_rec value should be positive");
+                LOG_ERROR("n_rec value should be positive and above 0");
                 exit(2);
             }
         }
         if (vm_.count("start_frame"))
         {
             int start_frame = boost::any_cast<uint>(vm_["start_frame"].value());
-            if (start_frame >= 0)
+            if (start_frame > 0)
                 options_.start_frame = start_frame; // Implicit cast to uint
             else
             {
-                LOG_ERROR("start_frame value should be positive");
+                LOG_ERROR("start_frame value should be positive and above 0");
                 exit(2);
             }
         }
         if (vm_.count("end_frame"))
         {
             int end_frame = boost::any_cast<uint>(vm_["end_frame"].value());
-            if (end_frame >= 0)
+            if (end_frame > 0)
                 options_.end_frame = end_frame; // Implicit cast to uint
             else
             {
-                LOG_ERROR("end_frame value should be positive");
+                LOG_ERROR("end_frame value should be positive and above 0");
                 exit(2);
             }
         }
