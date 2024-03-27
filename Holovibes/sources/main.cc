@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         LOG_ERROR("Uncaught exception: {}", e.what());
-        ret = 1;
+        ret = 2;
     }
 
     return ret;

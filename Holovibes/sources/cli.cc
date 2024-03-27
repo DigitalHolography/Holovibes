@@ -111,7 +111,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     if (!input_frame_file)
     {
         LOG_ERROR("Failed to open input file");
-        return 1;
+        return 2;
     }
 
     
@@ -159,7 +159,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     catch (std::exception& e)
     {
         LOG_ERROR("{}", e.what());
-        return 1;
+        return 2;
     }
 
     auto pipe = holovibes.get_compute_pipe();
