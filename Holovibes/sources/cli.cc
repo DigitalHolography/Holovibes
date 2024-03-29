@@ -1,5 +1,6 @@
 #include "cli.hh"
 
+#include <iostream>
 #include "chrono.hh"
 
 #include "tools.hh"
@@ -105,8 +106,15 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
 {
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
-    holovibes::io_files::InputFrameFile* input_frame_file =
-        holovibes::io_files::InputFrameFileFactory::open(input_path);
+    
+    holovibes::io_files::InputFrameFile* input_frame_file = holovibes::io_files::InputFrameFileFactory::open(input_path);
+    if (!input_frame_file)
+    {
+        LOG_ERROR("Failed to open input file");
+        return 2;
+    }
+
+    
 
     bool load = false;
     if (input_frame_file->get_has_footer())
@@ -128,11 +136,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         catch (std::exception& e)
         {
             LOG_DEBUG(e.what());
-            return 1;
+            return 2;
         }
     }
     else if (!load)
-        input_frame_file->import_compute_settings();
+    {
+        LOG_DEBUG("No compute settings file provided and no footer found in input file");
+        return 2;
+    }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
@@ -148,7 +159,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     catch (std::exception& e)
     {
         LOG_ERROR("{}", e.what());
-        return 1;
+        return 2;
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -239,8 +250,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
 
     holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
-    // TO DO: Remove, since the record_queue is initialized in the function start_frame_record
-    holovibes.init_record_queue();
     
     holovibes.start_frame_record();
 
