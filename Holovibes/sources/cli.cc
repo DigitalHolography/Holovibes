@@ -111,7 +111,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     if (!input_frame_file)
     {
         LOG_ERROR("Failed to open input file");
-        return 2;
+        return 33;
     }
 
     
@@ -137,13 +137,13 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         {
             LOG_INFO(e.what());
             LOG_INFO("Error while loading compute settings, abort");
-            return 33;
+            return 34;
         }
     }
     else if (!load)
     {
         LOG_DEBUG("No compute settings file provided and no footer found in input file");
-        return 2;
+        return 35;
     }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
@@ -160,7 +160,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     catch (std::exception& e)
     {
         LOG_ERROR("{}", e.what());
-        return 34;
+        return 36;
     }
 
     auto pipe = holovibes.get_compute_pipe();
@@ -237,7 +237,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (record_nb_frames <= 0)
     {
         LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));
-        return 36;
+        return 37;
     }
 
     // Thread 1
