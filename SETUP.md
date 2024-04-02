@@ -12,7 +12,6 @@
 **Reboot your PC**
 - [Python 3.8.10](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe) <br>
 **Tick *Add Python 3.8 to PATH***
-- [NSIS](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=)
 - [conan](https://conan.io/) <br>
 ```sh
 pip install conan && conan profile detect --force
