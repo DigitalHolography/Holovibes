@@ -131,7 +131,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     {
         try
         {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value(), true);
         }
         catch (std::exception& e)
         {
