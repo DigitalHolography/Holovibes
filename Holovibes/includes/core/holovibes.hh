@@ -379,7 +379,7 @@ class Holovibes
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
-                                             settings::RecordFrameCount{0},
+                                             settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordFrameSkip{0},
                                              settings::OutputBufferSize{1024},

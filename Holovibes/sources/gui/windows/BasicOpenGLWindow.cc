@@ -148,7 +148,6 @@ void BasicOpenGLWindow::resetTransform()
 {
     translate_ = {0.f, 0.f, 0.f, 0.f};
     scale_ = 1.f;
-    flip_ = false;
     setTransform();
 }
 

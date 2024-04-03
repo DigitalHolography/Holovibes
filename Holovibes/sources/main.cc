@@ -55,7 +55,7 @@ static void check_cuda_graphic_card(bool gui)
     {
         LOG_CRITICAL("{}", error_message);
     }
-    std::exit(1);
+    std::exit(11);
 }
 
 static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, const std::string filename = "")
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         LOG_ERROR("Uncaught exception: {}", e.what());
-        ret = 1;
+        ret = 10;
     }
 
     return ret;

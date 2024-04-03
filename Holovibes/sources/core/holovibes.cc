@@ -188,8 +188,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
 
     api::set_nb_frames_to_record(get_setting<settings::RecordFrameCount>().value);
 
-    if (!record_queue_.load())
-        init_record_queue();
+    init_record_queue();
 
     frame_record_worker_controller_.set_callback(callback);
     frame_record_worker_controller_.set_error_callback(error_callback_);
