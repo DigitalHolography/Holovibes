@@ -9,6 +9,8 @@
 #include "spdlog/spdlog.h"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
 using namespace Euresys;
@@ -72,7 +74,10 @@ class EHoloGrabber
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
+        {
+            std::cout << nb_images_per_buffer_ << std::endl;
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+        }
     }
 
     virtual ~EHoloGrabber()
@@ -100,6 +105,7 @@ class EHoloGrabber
     {
         grabbers_.root[0][0].reposition(0);
         grabbers_.root[0][1].reposition(1);
+        
         grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
 
         if (nb_grabbers == 4)
@@ -114,7 +120,14 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-        for (size_t ix = 0; ix < grabberCount; ++ix)
+
+        std::cout << "Pitch: " << pitch << std::endl;
+        std::cout << "Grabber Count: " << grabberCount << std::endl;
+        std::cout << "Height: " << height << std::endl;
+        std::cout << "Stripe Height: " << stripeHeight << std::endl;
+        std::cout << "Stripe Pitch: " << stripePitch << std::endl;
+        
+        for (size_t ix = 0; ix < grabberCount ; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
             grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
@@ -126,10 +139,14 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
+            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
+        grabbers_[0]->setInteger<StreamModule>("StripeOffset", 16);
+        grabbers_[1]->setInteger<StreamModule>("StripeOffset", 24);
+        grabbers_[2]->setInteger<StreamModule>("StripeOffset", 0);
+        grabbers_[3]->setInteger<StreamModule>("StripeOffset", 8);
         grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
