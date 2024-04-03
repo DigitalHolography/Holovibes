@@ -1670,7 +1670,7 @@ void set_record_mode(const std::string& text)
             {
                 stop_record();
             }
-            pipe->init_record_queue();
+            get_compute_pipe()->init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
         catch (const std::exception& e)
