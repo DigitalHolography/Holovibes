@@ -1658,7 +1658,7 @@ void set_record_mode(const std::string& text)
             {
                 stop_record();
             }
-            get_compute_pipe()->init_record_queue();
+            Holovibes::instance().init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
         catch (const std::exception& e)
