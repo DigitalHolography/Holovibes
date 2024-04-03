@@ -2,6 +2,8 @@
 #include "logger.hh"
 #include "input_filter.hh"
 
+#include <unordered_map>
+
 namespace holovibes::api
 {
 
@@ -1585,16 +1587,19 @@ void stop_chart_display()
 
 const std::string browse_record_output_file(std::string& std_filepath)
 {
-    // FIXME: path separator should depend from system
-    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
-    std::filesystem::path path = std::filesystem::path(std_filepath);
+    // Let std::filesystem handle path normalization and system compatibility
+    std::filesystem::path normalizedPath(std_filepath);
 
-    // FIXME Opti: we could be all these 3 operations below on a single string processing
-    UserInterfaceDescriptor::instance().record_output_directory_ = path.parent_path().string();
-    const std::string file_ext = path.extension().string();
-    UserInterfaceDescriptor::instance().default_output_filename_ = path.stem().string();
+    // Using std::filesystem to derive parent path, extension, and stem directly
+    std::string parentPath = normalizedPath.parent_path().string();
+    std::string fileExt = normalizedPath.extension().string();
+    std::string fileNameWithoutExt = normalizedPath.stem().string();
 
-    return file_ext;
+    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
+    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
+    UserInterfaceDescriptor::instance().default_output_filename_ = std::move(fileNameWithoutExt);
+
+    return fileExt;
 }
 
 void set_record_buffer_size(uint value)
@@ -1623,42 +1628,43 @@ void set_record_queue_location(bool gpu) {
 void set_record_mode(const std::string& text)
 {
     LOG_FUNC(text);
-
-    RecordMode record_mode;
-
-    // TODO: Dictionnary
-    if (text == "Chart")
+    
+    // Mapping from string to RecordMode
+    static const std::unordered_map<std::string, RecordMode> recordModeMap = {
+        {"Chart", RecordMode::CHART},
+        {"Processed Image", RecordMode::HOLOGRAM},
+        {"Raw Image", RecordMode::RAW},
+        {"3D Cuts XZ", RecordMode::CUTS_XZ},
+        {"3D Cuts YZ", RecordMode::CUTS_YZ}
+    };
+    
+    auto it = recordModeMap.find(text);
+    if (it == recordModeMap.end())
     {
-        record_mode = RecordMode::CHART;
+        LOG_ERROR("Unknown record mode {}", text);
+        throw std::runtime_error("Record mode not handled");
     }
-    else if (text == "Processed Image")
-    {
-        record_mode = RecordMode::HOLOGRAM;
-    }
-    else if (text == "Raw Image")
-    {
-        record_mode = RecordMode::RAW;
-    }
-    else if (text == "3D Cuts XZ")
-    {
-        record_mode = RecordMode::CUTS_XZ;
-    }
-    else if (text == "3D Cuts YZ")
-    {
-        record_mode = RecordMode::CUTS_YZ;
-    }
-    else
-        throw std::exception("Record mode not handled");
-
-    UserInterfaceDescriptor::instance().record_mode_ = record_mode;
-    set_record_mode(record_mode);
+    
+    set_record_mode(it->second);
+    RecordMode record_mode = api::get_record_mode();
+    
+    // Attempt to initialize compute pipe for non-CHART record modes
     if (record_mode != RecordMode::CHART)
     {
-        if (Holovibes::instance().is_recording()) 
-            stop_record();
-        
-        Holovibes::instance().init_record_queue();    
-        LOG_DEBUG("Pipe initialized");
+        try
+        {
+            auto pipe = get_compute_pipe();
+            if (Holovibes::instance().is_recording())
+            {
+                stop_record();
+            }
+            pipe->init_record_queue();
+            LOG_DEBUG("Pipe initialized");
+        }
+        catch (const std::exception& e)
+        {
+            LOG_DEBUG("Pipe not initialized: {}", e.what());
+        }
     }
 }
 
