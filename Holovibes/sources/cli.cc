@@ -219,6 +219,54 @@ static void main_loop(holovibes::Holovibes& holovibes)
     progress_bar(1, 1, 40);
 }
 
+void set_chart_coords(std::vector<unsigned int> coords)
+{
+    LOG_INFO("Setting chart coords");
+    std::string coords_str = "Chart coords: ";
+    for (auto& coord : coords)
+        coords_str += std::to_string(coord) + " ";
+    LOG_INFO(coords_str);
+    // printing square width and height
+    std::string square_width = "Square width: " + std::to_string(coords[2] - coords[0]);
+    std::string square_height = "Square height: " + std::to_string(coords[3] - coords[1]);
+    LOG_INFO(square_width + " " + square_height);
+
+    std::string noise_width = "Noise width: " + std::to_string(coords[6] - coords[4]);
+    std::string noise_height = "Noise height: " + std::to_string(coords[7] - coords[5]);
+    LOG_INFO(noise_width + " " + noise_height);
+    
+    holovibes::units::RectFd signal_zone;
+    holovibes::units::Point<holovibes::units::FDPixel> p1;
+    p1.x().set(coords[0]);
+    p1.y().set(coords[1]);
+    signal_zone.setTopLeft(p1);
+
+    holovibes::units::Point<holovibes::units::FDPixel> p2;
+    p2.x().set(coords[2]);
+    p2.y().set(coords[3]);
+    signal_zone.setBottomRight(p2);
+
+    signal_zone.setWidth(coords[2] - coords[0]);
+    signal_zone.setHeight(coords[3] - coords[1]);
+
+    holovibes::units::RectFd noise_zone;
+    holovibes::units::Point<holovibes::units::FDPixel> p3;
+    p3.x().set(coords[4]);
+    p3.y().set(coords[5]);
+    noise_zone.setTopLeft(p3);
+    
+    holovibes::units::Point<holovibes::units::FDPixel> p4;
+    p4.x().set(coords[6]);
+    p4.y().set(coords[7]);
+    noise_zone.setBottomRight(p4);
+    
+    noise_zone.setWidth(coords[6] - coords[4]);
+    noise_zone.setHeight(coords[7] - coords[5]);
+
+    holovibes::api::set_signal_zone(signal_zone);
+    holovibes::api::set_noise_zone(noise_zone);
+}
+
 static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI workers");
@@ -237,22 +285,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 
         auto coords = opts.chart.value();
   
-        // printf("Conversion data: %f \n", conv_data.get_opengl()->getAngle());
-        auto signal_zone_default = holovibes::api::get_signal_zone();
-        printf("Signal zone default: %f %f\n", signal_zone_default.topLeft().x(), signal_zone_default.topLeft().y());
-
-        /* auto topLeft = holovibes::units::PointFd{coords[0], coords[1]};
-        auto bottomRight = holovibes::units::PointFd{coords[2], coords[3]};
-
-        auto signal_zone = holovibes::units::RectFd{topLeft, bottomRight};
-
-        topLeft = holovibes::units::PointFd{coords[4], coords[5]};
-        bottomRight = holovibes::units::PointFd{coords[6], coords[7]};
-
-        auto noise_zone = holovibes::units::RectFd{topLeft, bottomRight};
-
-        holovibes::api::set_signal_zone(signal_zone);
-        holovibes::api::set_noise_zone(noise_zone); */
+        set_chart_coords(coords);
     }
 
     holovibes.update_setting(holovibes::settings::RecordMode{mode});
