@@ -133,6 +133,7 @@ struct Windows
 
     void Update();
     void Load();
+    void Assert(bool cli) const;
 };
 
 /*! \class Reticle
@@ -148,6 +149,7 @@ struct Reticle
 
     void Update();
     void Load();
+    void Assert(bool cli) const;
 };
 
 /*! \class View
@@ -170,6 +172,7 @@ struct Views
 
     void Update();
     void Load();
+    void Assert(bool cli) const;
 };
 
 } // namespace holovibes

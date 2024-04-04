@@ -103,13 +103,13 @@ void load_compute_settings(const std::string& json_path, bool cli)
         throw std::exception(e);
     }
 
-
+    compute_settings.Assert(cli);
     compute_settings.Load();
     compute_settings.Dump("cli_load_compute_settings");
 
     LOG_INFO("Compute settings loaded from : {}", json_path);
 
-    after_load_checks(cli);
+    // after_load_checks(cli);
     pipe_refresh();
 }
 
