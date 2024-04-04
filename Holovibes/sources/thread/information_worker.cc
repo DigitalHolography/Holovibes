@@ -220,7 +220,7 @@ void InformationWorker::display_gui_information()
         if (key == QueueType::UNDEFINED)
             continue;
 
-        to_display << (std::get<2>(*value).load() ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":\n  ";
+        to_display << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":\n  ";
         to_display << std::get<0>(*value).load() << "/" << std::get<1>(*value).load() << "\n";
         // to_display << value->first.load() << "/" << value->second.load() << "\n";
     }

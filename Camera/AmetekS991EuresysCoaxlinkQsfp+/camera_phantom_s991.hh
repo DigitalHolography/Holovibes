@@ -72,6 +72,7 @@ class EHoloGrabber
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
+            // grabbers_[i]->setInteger<StreamModule>("BufferPartCount", 1);
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
@@ -234,7 +235,7 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom();
+    CameraPhantom(bool gpu=true);
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;

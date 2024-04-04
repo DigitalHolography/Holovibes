@@ -10,8 +10,8 @@
 
 namespace camera
 {
-CameraPhantom::CameraPhantom()
-    : Camera("ametek_s711_euresys_coaxlink_qsfp+.ini")
+CameraPhantom::CameraPhantom(bool gpu)
+    : Camera("ametek_s711_euresys_coaxlink_qsfp+.ini", gpu)
 {
     name_ = "Phantom S711";
     pixel_size_ = 20;

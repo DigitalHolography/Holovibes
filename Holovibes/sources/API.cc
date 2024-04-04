@@ -261,6 +261,18 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
     return QSize(final_width, final_height);
 }
 
+void set_image_mode(Computation mode, uint window_max_size)
+{
+    if (mode == Computation::Raw)
+    {
+        set_raw_mode(window_max_size);
+    }
+    else if (mode == Computation::Hologram)
+    {
+        set_holographic_mode(window_max_size);
+    }
+}
+
 void set_raw_mode(uint window_max_size)
 {
     const camera::FrameDescriptor& fd = get_fd();
@@ -1610,10 +1622,10 @@ void set_record_buffer_size(uint value)
     }
 }
 
-void set_record_queue_location(bool gpu) {
+void set_record_queue_location(Device device) {
     // we check since this function is always triggered when we save the advanced settings, even if the location was not modified
-    if (get_record_buffer_size() != gpu) {
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueOnGPU{gpu});
+    if (get_record_queue_location() != device) {
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueLocation{device});
         if (Holovibes::instance().is_recording()) 
                 stop_record();
         Holovibes::instance().init_record_queue(); 
@@ -1688,7 +1700,7 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
-void set_record_device(const bool gpu)
+void set_record_device(const Device device)
 {
     if (Holovibes::instance().is_recording()) 
         stop_record();
@@ -1698,24 +1710,33 @@ void set_record_device(const bool gpu)
 
     // set_compute_mode(Computation::Raw);
 
-    if (get_raw_view_queue_location() != gpu)
-        set_raw_view_queue_location(gpu);
+    if (get_raw_view_queue_location() != device)
+        set_raw_view_queue_location(device);
 
-    if (get_record_queue_location() != gpu)
-        set_record_queue_location(gpu);
+    if (get_record_queue_location() != device && (device == Device::CPU)) // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
+        set_record_queue_location(device);
 
-    if (get_input_queue_location() != gpu)
+    if (get_input_queue_location() != device)
     {
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera)
+        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+
+        auto c = CameraKind::NONE;
+        if (it == ImportType::Camera) {
+            c = UserInterfaceDescriptor::instance().kCamera;
             camera_none();
-        else if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        }
+        else if (it == ImportType::File)
             import_stop();
-        set_input_queue_location(gpu);
-        if (!gpu)
+        set_input_queue_location(device);
+        if (device == Device::CPU)
             set_compute_mode(Computation::Raw);
+        if (it == ImportType::Camera)
+            change_camera(c);
+        else 
+            import_start();
+
+        set_image_mode(get_compute_mode(), 1);
     }
-    // Holovibes::instance().init_input_queue(Holovibes::instance().get_setting(_input_buffer_size());
-    // Holovibes::instance().init_record_queue();
 }
 
 void start_record(std::function<void()> callback)

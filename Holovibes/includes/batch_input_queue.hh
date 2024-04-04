@@ -17,6 +17,7 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "global_state_holder.hh"
+#include "enum_device.hh"
 
 using uint = unsigned int;
 
@@ -39,7 +40,7 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const bool gpu = true);
+    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const Device device = Device::GPU);
 
     ~BatchInputQueue();
 
@@ -106,7 +107,7 @@ class BatchInputQueue final : public DisplayQueue
      * \param size 
      * \param gpu 
      */
-    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu);
+    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const Device device);
 
     /*! \brief Resize with a new batch size
      *
@@ -131,7 +132,7 @@ class BatchInputQueue final : public DisplayQueue
 
     inline void* get_last_image() const override
     {
-        if (gpu_)
+        if (device_ == Device::GPU)
           sync_current_batch();
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
@@ -256,7 +257,7 @@ class BatchInputQueue final : public DisplayQueue
      * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
      * 
      */
-    std::atomic<bool>& gpu_;
+    std::atomic<Device>& device_;
 
 };
 } // namespace holovibes

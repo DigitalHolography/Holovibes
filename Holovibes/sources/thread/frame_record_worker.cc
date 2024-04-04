@@ -112,7 +112,7 @@ void FrameRecordWorker::run()
                 continue;
             }
 
-            record_queue_.load()->dequeue(frame_buffer, stream_, api::get_record_queue_location() ? cudaMemcpyDeviceToHost : cudaMemcpyDeviceToHost);
+            record_queue_.load()->dequeue(frame_buffer, stream_, api::get_record_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
             // if (api::get_record_queue_location()) {

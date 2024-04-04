@@ -10,8 +10,8 @@
 
 namespace camera
 {
-CameraPhantom::CameraPhantom()
-    : Camera("ametek_s710_euresys_coaxlink_octo.ini")
+CameraPhantom::CameraPhantom(bool gpu)
+    : Camera("ametek_s710_euresys_coaxlink_octo.ini", gpu)
 {
     name_ = "Phantom S710";
     pixel_size_ = 20;
