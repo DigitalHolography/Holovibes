@@ -102,9 +102,6 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-
-    load_gui();
-
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
@@ -117,6 +114,8 @@ MainWindow::MainWindow(QWidget* parent)
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
+
+    load_gui();
 
     // Display default values
     api::set_compute_mode(api::get_compute_mode());
