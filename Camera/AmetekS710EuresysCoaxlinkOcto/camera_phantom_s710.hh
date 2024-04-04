@@ -68,9 +68,6 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
-        width_ = grabbers_[0]->getWidth();
-        height_ = grabbers_[0]->getHeight() * grabbers_.length();
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
@@ -103,6 +100,8 @@ class EHoloGrabber
                std::string& flat_field_correction,
                EGenTL& gentl)
     {
+        width_ = width;
+        height_ = fullHeight;
         grabbers_.root[0][0].reposition(0);
         grabbers_.root[0][1].reposition(1);
         
@@ -183,6 +182,10 @@ class EHoloGrabber
         nb_buffers_ = nb_buffers;
         size_t grabber_count = grabbers_.length();
         size_t frame_size = width_ * height_ * depth_;
+        std::cout << nb_buffers << std::endl;
+        std::cout << width_ << std::endl;
+        std::cout << height_ << std::endl;
+        std::cout << depth_ << std::endl;
 
         // Allocate buffers in pinned memory
         // Learn more about pinned memory:
@@ -193,7 +196,6 @@ class EHoloGrabber
         cudaError_t alloc_res =
             cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
         cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
-
         if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
             Logger::camera()->error("Could not allocate buffers.");
 
@@ -204,9 +206,17 @@ class EHoloGrabber
             // the host pointer and the associated pointer in device memory.
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
+
+            std::cout << "Buffer " << i << " Offset: " << offset << std::endl;
+
             for (size_t ix = 0; ix < grabber_count; ix++)
+            {
                 grabbers_[ix]->announceAndQueue(
                     UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+
+                //std::cout << "Grabber " << ix << " Buffer " << i << " Address: " << (void*)(ptr_ + offset) << std::endl;
+                //std::cout << "Grabber " << ix << " Buffer " << i << " Device Address: " << (void*)(device_ptr + offset) << std::endl;
+            }
         }
     }
 
