@@ -160,9 +160,9 @@ void Composite::Load()
 
 void ComputeSettings::Load()
 {
+    this->advanced.Load();
     this->image_rendering.Load();
     this->color_composite_image.Load();
-    this->advanced.Load();
     this->view.Load();
 }
 

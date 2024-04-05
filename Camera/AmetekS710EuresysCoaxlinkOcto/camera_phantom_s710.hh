@@ -9,6 +9,8 @@
 #include "spdlog/spdlog.h"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
 using namespace Euresys;
@@ -67,11 +69,7 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
-        width_ = grabbers_[0]->getWidth();
-        height_ = grabbers_[0]->getHeight() * grabbers_.length();
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
-
         for (unsigned i = 0; i < grabbers_.length(); ++i)
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
@@ -99,8 +97,11 @@ class EHoloGrabber
                std::string& flat_field_correction,
                EGenTL& gentl)
     {
+        width_ = width;
+        height_ = fullHeight;
         grabbers_.root[0][0].reposition(0);
         grabbers_.root[0][1].reposition(1);
+        
         grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
 
         if (nb_grabbers == 4)
@@ -115,7 +116,8 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-        for (size_t ix = 0; ix < grabberCount; ++ix)
+        
+        for (size_t ix = 0; ix < grabberCount ; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
             grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
@@ -127,10 +129,14 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
         }
+        grabbers_[0]->setInteger<StreamModule>("StripeOffset", 16);
+        grabbers_[1]->setInteger<StreamModule>("StripeOffset", 24);
+        grabbers_[2]->setInteger<StreamModule>("StripeOffset", 0);
+        grabbers_[3]->setInteger<StreamModule>("StripeOffset", 8);
         grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
@@ -190,8 +196,23 @@ class EHoloGrabber
         if (alloc_res != cudaSuccess || (gpu_ && device_ptr_res != cudaSuccess))
             Logger::camera()->error("Could not allocate buffers.");
 
+        float prog = 0.0;
         for (size_t i = 0; i < nb_buffers; ++i)
         {
+            // progress bar of the allocation of the ram buffers on the cpu.
+            prog = (float)i / (nb_buffers - 1);
+            int barWidth = 100;
+
+            std::cout << "[";
+            int pos = barWidth * prog;
+            for (int i = 0; i < barWidth; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::cout << "] " << int(prog * 100.0) << " %\r";
+            std::cout.flush();
+
             // The EGrabber API can handle directly buffers alocated in pinned
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
@@ -206,6 +227,7 @@ class EHoloGrabber
                         UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_));
             }
         }
+        std::cout << std::endl;
     }
 
     void start()

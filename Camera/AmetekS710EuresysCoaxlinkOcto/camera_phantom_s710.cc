@@ -8,6 +8,8 @@
 #include "camera_phantom_s710.hh"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
 CameraPhantom::CameraPhantom(bool gpu)
@@ -21,7 +23,6 @@ CameraPhantom::CameraPhantom(bool gpu)
         load_ini_params();
         ini_file_.close();
     }
-
     gentl_ = std::make_unique<Euresys::EGenTL>();
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_, pixel_format_);
 
@@ -47,8 +48,8 @@ void CameraPhantom::init_camera()
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
-    fd_.width = grabber_->width_;
-    fd_.height = grabber_->height_;
+    fd_.width = width_;
+    fd_.height = fullHeight_;
     fd_.depth = grabber_->depth_;
     fd_.byteEndian = Endianness::LittleEndian;
 }
