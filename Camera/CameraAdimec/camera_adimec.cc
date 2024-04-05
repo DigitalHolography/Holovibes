@@ -221,5 +221,5 @@ void CameraAdimec::bind_params()
     fd_.height = roi_height_;
 }
 
-ICamera* new_camera_device() { return new CameraAdimec(); }
+ICamera* new_camera_device(bool gpu) { return new CameraAdimec(); }
 } // namespace camera

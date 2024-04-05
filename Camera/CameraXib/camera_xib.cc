@@ -259,5 +259,5 @@ void CameraXib::bind_params()
     name_ = std::string(name);
 }
 
-ICamera* new_camera_device() { return new CameraXib(); }
+ICamera* new_camera_device(bool gpu) { return new CameraXib(); }
 } // namespace camera

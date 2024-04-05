@@ -247,5 +247,5 @@ int CameraIds::get_trigger_mode(const std::string ui) const
         return IS_SET_TRIGGER_OFF;
 }
 
-ICamera* new_camera_device() { return new CameraIds(); }
+ICamera* new_camera_device(bool gpu) { return new CameraIds(); }
 } // namespace camera

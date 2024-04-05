@@ -71,5 +71,5 @@ void CameraPhantom::load_ini_params() { return; }
 
 void CameraPhantom::bind_params() { return; }
 
-ICamera* new_camera_device() { return new CameraPhantom(); }
+ICamera* new_camera_device(bool gpu) { return new CameraPhantom(); }
 } // namespace camera

@@ -157,5 +157,5 @@ CapturedFramesDescriptor CameraOpenCV::get_frames()
     return CapturedFramesDescriptor(frame_.data);
 }
 
-ICamera* new_camera_device() { return new CameraOpenCV(); }
+ICamera* new_camera_device(bool gpu) { return new CameraOpenCV(); }
 } // namespace camera

@@ -311,5 +311,5 @@ void CameraPhantomBitflow::bind_params()
     fd_.depth = depth;
 }
 
-ICamera* new_camera_device() { return new CameraPhantomBitflow(); }
+ICamera* new_camera_device(bool gpu) { return new CameraPhantomBitflow(); }
 } // namespace camera

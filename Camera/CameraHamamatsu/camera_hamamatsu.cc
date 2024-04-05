@@ -345,5 +345,5 @@ void CameraHamamatsu::bind_params()
         throw CameraException(CameraException::CANT_SET_CONFIG);
 }
 
-ICamera* new_camera_device() { return new CameraHamamatsu(); }
+ICamera* new_camera_device(bool gpu) { return new CameraHamamatsu(); }
 } // namespace camera

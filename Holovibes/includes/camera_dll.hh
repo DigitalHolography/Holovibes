@@ -52,6 +52,6 @@ class CameraDLL
     };
 
   private:
-    using FnInit = ICamera* (*)();
+    using FnInit = ICamera* (*)(bool);
 };
 } // namespace camera
