@@ -417,6 +417,8 @@ void MainWindow::load_gui()
 
     if (camera != CameraKind::NONE)
     {
+        
+        ui_->actionSettings->setEnabled(true);
         if (compute_mode == 0)
         {
             LOG_INFO("RAW");
