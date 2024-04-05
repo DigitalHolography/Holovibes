@@ -36,6 +36,7 @@ void CameraPhantom::init_camera()
                     trigger_source_,
                     exposure_time_,
                     cycle_minimum_period_,
+                    acquisition_frame_rate_,
                     pixel_format_,
                     gain_selector_,
                     gain_,
@@ -96,6 +97,7 @@ void CameraPhantom::load_ini_params()
     trigger_selector_ = pt.get<std::string>("s991.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s991.ExposureTime", exposure_time_);
     cycle_minimum_period_ = pt.get<unsigned int>("s991.CycleMinimumPeriod", cycle_minimum_period_);
+    acquisition_frame_rate_ = pt.get<unsigned int>("s991.AcquisitionFrameRate", acquisition_frame_rate_);
     pixel_format_ = pt.get<std::string>("s991.PixelFormat", pixel_format_);
     
     gain_selector_ = pt.get<std::string>("s991.GainSelector", gain_selector_);

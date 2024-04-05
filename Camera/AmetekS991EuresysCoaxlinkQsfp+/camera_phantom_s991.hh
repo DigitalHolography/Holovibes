@@ -67,9 +67,7 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
-        width_ = grabbers_[0]->getWidth();
-        height_ = grabbers_[0]->getHeight() * grabbers_.length();
+       
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
@@ -91,6 +89,7 @@ class EHoloGrabber
                std::string& triggerSource,
                float exposureTime,
                unsigned int cycleMinimumPeriod,
+               unsigned int acquisitionFrameRate,
                std::string& pixelFormat,
                std::string& gain_selector,
                float gain,
@@ -99,6 +98,9 @@ class EHoloGrabber
                std::string& trigger_selector,
                EGenTL& gentl)
     {
+
+        width_ = width;
+        height_ = fullHeight;
         grabbers_.root[0][0].reposition(0);
         grabbers_.root[0][1].reposition(1);
         grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
@@ -121,12 +123,13 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
+            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
         
-
+        grabbers_[0]->setInteger<StreamModule>("StripeOffset", 4);
+        grabbers_[1]->setInteger<StreamModule>("StripeOffset", 0);
         // grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
@@ -142,6 +145,10 @@ class EHoloGrabber
         {
             grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
                                                   cycleMinimumPeriod);               // set the trigger rate to 250K Hz
+
+            grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate",
+                                                  acquisitionFrameRate);  
+
             grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
             grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
         }
@@ -184,8 +191,23 @@ class EHoloGrabber
         if (alloc_res != cudaSuccess || (gpu_ && device_ptr_res != cudaSuccess))
             Logger::camera()->error("Could not allocate buffers.");
 
+        float prog = 0.0;
         for (size_t i = 0; i < nb_buffers; ++i)
         {
+            // progress bar of the allocation of the ram buffers on the cpu.
+            prog = (float)i / (nb_buffers - 1);
+            int barWidth = 100;
+
+            std::cout << "[";
+            int pos = barWidth * prog;
+            for (int i = 0; i < barWidth; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::cout << "] " << int(prog * 100.0) << " %\r";
+            std::cout.flush();
+            
             // The EGrabber API can handle directly buffers alocated in pinned
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
@@ -200,6 +222,7 @@ class EHoloGrabber
                         UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_));
             }
         }
+        std::cout << std::endl;
     }
 
     void start()
@@ -279,6 +302,7 @@ class CameraPhantom : public Camera
     std::string trigger_selector_;
     float exposure_time_;
     unsigned int cycle_minimum_period_;
+    unsigned int acquisition_frame_rate_;
     std::string pixel_format_;
 
     std::string gain_selector_;
