@@ -5,6 +5,9 @@
 * Fix hflip zoom
 * Fix record with no number of frames specified
 * Handle Adimec Camera
+* Fix camera double load
+* Solve s710 stripe offset
+* Solve user settings crash
 
 ### 12.9.9
 * Only allocate the queues when the size is changed (no wait time when changing the image mode)
