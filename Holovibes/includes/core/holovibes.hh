@@ -24,6 +24,7 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_device.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -107,9 +108,10 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueOnGPU,                       \
-    holovibes::settings::RawViewQueueOnGPU,                      \
-    holovibes::settings::InputQueueOnGPU
+    holovibes::settings::RecordQueueLocation,                       \
+    holovibes::settings::RawViewQueueLocation,                      \
+    holovibes::settings::InputQueueLocation,                        \
+    holovibes::settings::RecordOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -446,9 +448,10 @@ class Holovibes
                                              settings::RGB{CompositeRGB{}},
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
-                                             settings::RecordQueueOnGPU{false},
-                                             settings::RawViewQueueOnGPU{true},
-                                             settings::InputQueueOnGPU{true}))
+                                             settings::RecordQueueLocation{Device::CPU},
+                                             settings::RawViewQueueLocation{Device::GPU},
+                                             settings::InputQueueLocation{Device::GPU},
+                                             settings::RecordOnGPU{true}))
     {
     }
 

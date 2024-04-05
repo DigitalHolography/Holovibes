@@ -288,7 +288,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (stop_requested_)
             break;
 
-        input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, api::get_input_queue_location() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+        input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, api::get_input_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
 
         current_nb_frames_read_++;
         processed_frames_++;
@@ -304,7 +304,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     // so we don't have to sync
     //
     // If the input queue is not on the GPU no sync is needed
-    if (setting<settings::LoadFileInGPU>() == false && api::get_input_queue_location()) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
+    if (setting<settings::LoadFileInGPU>() == false && (api::get_input_queue_location() == holovibes::Device::GPU)) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
         input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker

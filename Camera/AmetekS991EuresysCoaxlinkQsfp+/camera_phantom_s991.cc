@@ -10,8 +10,8 @@
 
 namespace camera
 {
-CameraPhantom::CameraPhantom()
-    : Camera("ametek_s991_euresys_coaxlink_qsfp+.ini")
+CameraPhantom::CameraPhantom(bool gpu)
+    : Camera("ametek_s991_euresys_coaxlink_qsfp+.ini", gpu)
 {
     name_ = "Phantom S991";
     pixel_size_ = 20;
@@ -71,7 +71,8 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
     CapturedFramesDescriptor ret;
 
     // ret.on_gpu = false;
-    ret.on_gpu = gpu_;
+    // ret.on_gpu = gpu_;
+    ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
 

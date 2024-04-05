@@ -268,7 +268,7 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom();
+    CameraPhantom(bool gpu=true);
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;

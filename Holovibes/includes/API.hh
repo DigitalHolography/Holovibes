@@ -138,6 +138,9 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
+/*! \brief Sets the image mode to Raw or Holographic*/
+void set_image_mode(Computation mode, uint window_max_size);
+
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(uint window_max_size);
 
@@ -186,7 +189,7 @@ bool start_record_preconditions(const bool batch_enabled,
  */
 void start_record(std::function<void()> callback);
 
-void set_record_device(const bool gpu);
+void set_record_device(const Device device);
 
 /*! \brief Stops recording
  *
@@ -207,12 +210,23 @@ const std::string browse_record_output_file(std::string& std_filepath);
  */
 void set_record_mode(const std::string& text);
 
+/*! \brief Choose if the record will be done using the GPU or the CPU. If the GPU is selected, the input queue will be on the GPU,
+ * meaning that Hologramm image mode and record mode will be enabled. If the CPU is selected, the input queue will be on the CPU,
+ * meaning that only Raw image mode and record mode will be enabled. The record queue will always be on the CPU in CPU mode, but it 
+ * can be either on GPU or CPU in GPU mode.
+ * In order for the user to vizualise the hologramm up until the record, the displacement of the input queue from the GPU to the CPU
+ * is done only when the record is requested ; see set_record_device() function.
+*/
+void set_record_on_gpu(bool value);
+
+bool get_record_on_gpu();
+
 /*!
  * \brief Set the record queue location, between gpu and cpu
  * 
  * \param gpu whether the record queue is on the gpu or the cpu
  */
-void set_record_queue_location(bool gpu);
+void set_record_queue_location(Device device);
 
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *

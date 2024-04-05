@@ -597,46 +597,6 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="ImageDeviceLayout">
-           <item>
-            <widget class="QLabel" name="ImageDeviceLabel">
-             <property name="text">
-              <string>Device</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="ImageDeviceComboBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <!-- <property name="currentText">
-                <string>GPU</string>
-            </property> -->
-             <item>
-              <property name="text">
-               <string>GPU</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>CPU</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
           <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -4530,12 +4490,6 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-  <!-- <connection>
-   <sender>ImageDeviceComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>ImageRenderingPanel</receiver>
-   <slot>set_device(Qstring)</slot>
-  </connection> -->
   <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
@@ -5498,7 +5452,6 @@ p, li { white-space: pre-wrap; }
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
   <slot>set_record_device(bool)</slot>
-  <!-- <slot>set_device(Qstring)</slot> -->
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>
