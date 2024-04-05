@@ -21,7 +21,6 @@ CameraPhantom::CameraPhantom(bool gpu)
     if (ini_file_is_open())
     {
         load_ini_params();
-        std::cout << width_ <<std::endl;
         ini_file_.close();
     }
     gentl_ = std::make_unique<Euresys::EGenTL>();
@@ -47,7 +46,6 @@ void CameraPhantom::init_camera()
                     flat_field_correction_,
                     *gentl_);
     grabber_->init(nb_buffers_);
-    std::cout << "3" << std::endl;
 
     // Set frame descriptor according to grabber settings
     fd_.width = width_;
