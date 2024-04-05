@@ -157,7 +157,7 @@ extern "C"
      *
      * \return A pointer to the new camera object.
      */
-    __declspec(dllexport) ICamera* new_camera_device();
+    __declspec(dllexport) ICamera* new_camera_device(bool gpu=true);
 }
 
 /*! \} */ // End of Camera Interface group

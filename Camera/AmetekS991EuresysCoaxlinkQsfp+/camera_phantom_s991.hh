@@ -57,9 +57,10 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
 class EHoloGrabber
 {
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format)
+    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format, bool gpu=true)
         : grabbers_(gentl)
         , nb_images_per_buffer_(nb_images_per_buffer)
+        , gpu_(gpu)
     {
         // Fetch the first grabber info to determine the width, height and depth
         // of the full image.
@@ -166,12 +167,21 @@ class EHoloGrabber
         // https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/.
 
         uint8_t* device_ptr;
+        cudaError_t alloc_res;
+        cudaError_t device_ptr_res;
+        if (gpu_) 
+        {
+            alloc_res =
+                cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+            device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
+        }
+        else
+        {
+            alloc_res =
+                cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+        }
 
-        cudaError_t alloc_res =
-            cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
-        cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
-
-        if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
+        if (alloc_res != cudaSuccess || (gpu_ && device_ptr_res != cudaSuccess))
             Logger::camera()->error("Could not allocate buffers.");
 
         for (size_t i = 0; i < nb_buffers; ++i)
@@ -181,9 +191,14 @@ class EHoloGrabber
             // the host pointer and the associated pointer in device memory.
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
-            for (size_t ix = 0; ix < grabber_count; ix++)
-                grabbers_[ix]->announceAndQueue(
-                    UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+            for (size_t ix = 0; ix < grabber_count; ix++) {
+                if (gpu_)
+                    grabbers_[ix]->announceAndQueue(
+                        UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+                else	
+                    grabbers_[ix]->announceAndQueue(
+                        UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_));
+            }
         }
     }
 
@@ -230,6 +245,9 @@ class EHoloGrabber
     /*! \brief A pointer the cuda memory allocated for the buffers.
      */
     uint8_t* ptr_;
+
+    bool gpu_;
+
 };
 
 class CameraPhantom : public Camera

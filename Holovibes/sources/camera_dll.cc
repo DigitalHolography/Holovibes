@@ -11,7 +11,7 @@
 
 namespace camera
 {
-std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
+std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath, bool gpu)
 {
     LOG_FUNC(dll_filepath);
     HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
@@ -24,6 +24,9 @@ std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
 
     if (!init)
         throw std::runtime_error("unable to retrieve the 'new_camera_device' function");
+
+    // if (dll_filepath == "AmetekS991EuresysCoaxlinkQsfp+.dll")
+    //     return std::shared_ptr<ICamera>(init(gpu), DeleterDLL(dll_handle));
 
     return std::shared_ptr<ICamera>(init(), DeleterDLL(dll_handle));
 }
