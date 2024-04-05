@@ -69,12 +69,6 @@ class EHoloGrabber
         // full height is two times the height of the first grabber.
 
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
-
-        for (unsigned i = 0; i < grabbers_.length(); ++i)
-        {
-            std::cout << nb_images_per_buffer_ << std::endl;
-            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
-        }
     }
 
     virtual ~EHoloGrabber()
@@ -119,12 +113,6 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-
-        std::cout << "Pitch: " << pitch << std::endl;
-        std::cout << "Grabber Count: " << grabberCount << std::endl;
-        std::cout << "Height: " << height << std::endl;
-        std::cout << "Stripe Height: " << stripeHeight << std::endl;
-        std::cout << "Stripe Pitch: " << stripePitch << std::endl;
         
         for (size_t ix = 0; ix < grabberCount ; ++ix)
         {
@@ -138,14 +126,10 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+            // stripe offset seems to be calculated automaticaly.
         }
-        grabbers_[0]->setInteger<StreamModule>("StripeOffset", 16);
-        grabbers_[1]->setInteger<StreamModule>("StripeOffset", 24);
-        grabbers_[2]->setInteger<StreamModule>("StripeOffset", 0);
-        grabbers_[3]->setInteger<StreamModule>("StripeOffset", 8);
         grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
@@ -182,10 +166,6 @@ class EHoloGrabber
         nb_buffers_ = nb_buffers;
         size_t grabber_count = grabbers_.length();
         size_t frame_size = width_ * height_ * depth_;
-        std::cout << nb_buffers << std::endl;
-        std::cout << width_ << std::endl;
-        std::cout << height_ << std::endl;
-        std::cout << depth_ << std::endl;
 
         // Allocate buffers in pinned memory
         // Learn more about pinned memory:
@@ -199,25 +179,36 @@ class EHoloGrabber
         if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
             Logger::camera()->error("Could not allocate buffers.");
 
+        float prog = 0.0;
         for (size_t i = 0; i < nb_buffers; ++i)
         {
+            // progress bar of the allocation of the ram buffers on the cpu.
+            prog = (float)i / (nb_buffers - 1);
+            int barWidth = 100;
+
+            std::cout << "[";
+            int pos = barWidth * prog;
+            for (int i = 0; i < barWidth; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::cout << "] " << int(prog * 100.0) << " %\r";
+            std::cout.flush();
+
             // The EGrabber API can handle directly buffers alocated in pinned
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
 
-            std::cout << "Buffer " << i << " Offset: " << offset << std::endl;
-
             for (size_t ix = 0; ix < grabber_count; ix++)
             {
                 grabbers_[ix]->announceAndQueue(
                     UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
-
-                //std::cout << "Grabber " << ix << " Buffer " << i << " Address: " << (void*)(ptr_ + offset) << std::endl;
-                //std::cout << "Grabber " << ix << " Buffer " << i << " Device Address: " << (void*)(device_ptr + offset) << std::endl;
             }
         }
+        std::cout << std::endl;
     }
 
     void start()
