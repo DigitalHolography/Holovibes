@@ -1,16 +1,16 @@
 ## Changelog
 
 ### 12.10.0
+* CPU record mode only activates when record is triggered
 * Fix hflip zoom
 * Fix record with no number of frames specified
 * Handle Adimec Camera
 
 ### 12.9.9
-* CPU record mode only activates when record is triggered
+* Only allocate the queues when the size is changed (no wait time when changing the image mode)
 
 ### 12.9.8
 * Add the possibility to move the input queue on the cpu to record in cpu mode
-* Only allocate the queues when the size is changed (no wait time when changing the image mode)
 * Add tests
 
 ### 12.9.7
