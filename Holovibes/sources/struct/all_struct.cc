@@ -1,3 +1,4 @@
+#include <climits>  // for UINT_MAX
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
@@ -5,6 +6,8 @@
 #include "compute_settings_struct.hh"
 #include "API.hh"
 #include "all_struct.hh"
+
+#define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
 namespace holovibes
 {
@@ -239,155 +242,119 @@ void ComputeSettings::Dump(const std::string& filename)
     file_content << std::setw(1) << compute_json;
 }
 
-void Rendering::Convolution::Assert(bool cli) const
+void Rendering::Convolution::Assert() const
 {
-    if (cli)
-    {
-        /* if (this->enabled && this->type.empty())
-            throw std::exception("Convolution type is empty");
-        if (this->divide && !this->enabled)
-            throw std::exception("Divide convolution is enabled but convolution is not"); */  // TODO: check if divide convolution can be enabled when convolution is disabled
-    }
+    /* if (this->enabled && this->type.empty())
+        throw std::exception("Convolution type is empty");
+    if (this->divide && !this->enabled)
+        throw std::exception("Divide convolution is enabled but convolution is not"); */  // TODO: check if divide convolution can be enabled when convolution is disabled
 }
 
-void Rendering::Filter::Assert(bool cli) const
+void Rendering::Filter::Assert() const
 {
-    if (cli)
-    {
         /* if (this->enabled && this->type.empty())
             throw std::exception("Filter type is empty");
         if (!this->enabled && !this->type.empty())
             throw std::exception("Filter type is not empty but filter is disabled"); */  // TODO: check if filter type can be empty when filter is disabled
-    }
 }
 
-void Rendering::Filter2D::Assert(bool cli) const
+void Rendering::Filter2D::Assert() const
 {
-    if (cli)
-    {
-        if (this->enabled && this->inner_radius >= this->outer_radius)
-            throw std::exception("Inner radius is greater than outer radius");
-    }
+    if (this->inner_radius >= this->outer_radius)
+        throw std::exception("Inner radius is greater than outer radius");
 }
 
-void Rendering::Assert(bool cli) const
+void Rendering::Assert() const  // TODO: check for a more appropriate upper bound, abose is probably a negative value that was flipped to positive
 {
-    if (cli)
-    {
-        if (this->time_transformation_stride == 0)
-            throw std::exception("Time transformation stride is 0");
-        auto img_mode = this->image_mode;
-        if (img_mode != Computation::Raw)
-            LOG_INFO("Image mode is not raw");
-        if (this->batch_size == 0)
-            throw std::exception("Batch size is 0");
-        this->filter2d.Assert(cli);
-        if (this->time_transformation_size == 0)
-            throw std::exception("Time transformation size is 0");
-        // TODO: does lamba and propagation distance have to be positive/have borbidden values ?
-        this->convolution.Assert(cli);
-        this->input_filter.Assert(cli);
-    }
+    if (this->time_transformation_stride == 0 || this->time_transformation_stride > UPPER_BOUND(0.01))  // UPPER_BOUND(0.01) = ~429 000+
+        throw std::exception("Time transformation stride value is invalid");
+    if (this->batch_size == 0 || this->batch_size > UPPER_BOUND(0.01))
+        throw std::exception("Batch size is value is invalid");
+    if (this->time_transformation_size == 0 || this->time_transformation_size > UPPER_BOUND(0.01))
+        throw std::exception("Time transformation size is 0");
+    // TODO: does lamba and propagation distance have to be positive/have borbidden values ?
+    this->filter2d.Assert();
+    this->convolution.Assert();
+    this->input_filter.Assert();
 }
 
-void AdvancedSettings::BufferSizes::Assert(bool cli) const
+void AdvancedSettings::BufferSizes::Assert() const
 {
-    if (cli)
-    {
-        if (this->file == 0 || this->file > 10000)  // TODO: check for a more appropriate upper bound
-            throw std::exception("File buffer size is invalid");
-        if (this->input == 0 || this->input > 10000)
-            throw std::exception("Input buffer size is invalid");
-        if (this->output == 0 || this->output > 10000)
-            throw std::exception("Output buffer size is invalid");
-        if (this->record == 0 || this->record > 10000)
-            throw std::exception("Record buffer size is invalid");
-        if (this->time_transformation_cuts == 0 || this->time_transformation_cuts > 10000)
-            throw std::exception("Time transformation cuts buffer size is invalid");
-    }
+    if (this->file == 0 || this->file > UPPER_BOUND(0.01))  // TODO: check for a more appropriate upper bound
+        throw std::exception("File buffer size is invalid");
+    if (this->input == 0 || this->input > UPPER_BOUND(0.01))
+        throw std::exception("Input buffer size is invalid");
+    if (this->output == 0 || this->output > UPPER_BOUND(0.01))
+        throw std::exception("Output buffer size is invalid");
+    if (this->record == 0 || this->record > UPPER_BOUND(0.01))
+        throw std::exception("Record buffer size is invalid");
+    if (this->time_transformation_cuts == 0 || this->time_transformation_cuts > UPPER_BOUND(0.01))
+        throw std::exception("Time transformation cuts buffer size is invalid");
 }
 
-void AdvancedSettings::Filter2DSmooth::Assert(bool cli) const
+void AdvancedSettings::Filter2DSmooth::Assert() const
 {
-    if (cli)
-    {
-        if (this->low < 0 || this->low > 100)  // TODO: check for a more appropriate upper bound
-            throw std::exception("Low filter 2d smooth value is invalid");
-        if (this->high < 0 || this->high > 100)
-            throw std::exception("High filter 2d smooth value is invalid");
-    }
+    if (this->low < 0 || this->low > 100)  // TODO: check for a more appropriate upper bound
+        throw std::exception("Low filter 2d smooth value is invalid");
+    if (this->high < 0 || this->high > 100)
+        throw std::exception("High filter 2d smooth value is invalid");
 }
 
-void AdvancedSettings::ContrastThreshold::Assert(bool cli) const
+void AdvancedSettings::ContrastThreshold::Assert() const
 {
-    if (cli)
-    {
-        if (this->lower < 0 || this->lower > 100)
-            throw std::exception("Lower contrast threshold value is invalid");
-        if (this->upper < 0 || this->upper > 100)
-            throw std::exception("Upper contrast threshold value is invalid");
-        /* if (this->frame_index_offset < 0)
-            throw std::exception("Frame index offset negative"); */  // TODO: check if frame index offset can be negative
-    }
+    if (this->lower < 0 || this->lower > 100)
+        throw std::exception("Lower contrast threshold value is invalid");
+    if (this->upper < 0 || this->upper > 100)
+        throw std::exception("Upper contrast threshold value is invalid");
+    /* if (this->frame_index_offset < 0)
+        throw std::exception("Frame index offset negative"); */  // TODO: check if frame index offset can be negative
 }
 
-void AdvancedSettings::Assert(bool cli) const
+void AdvancedSettings::Assert() const
 {
-    if (cli)
-    {
-        this->buffer_size.Assert(cli);
-        this->filter2d_smooth.Assert(cli);
-        this->contrast.Assert(cli);
-        if (this->renorm_constant == 0)
-            throw std::exception("Renorm constant is 0");
-        if (this->raw_bitshift < 0)
-            throw std::exception("Raw bitshift is negative");
-    }
+    if (this->renorm_constant == 0)
+        throw std::exception("Renorm constant is 0");
+    if (this->raw_bitshift < 0)
+        throw std::exception("Raw bitshift is negative");
+    
+    this->buffer_size.Assert();
+    this->filter2d_smooth.Assert();
+    this->contrast.Assert();
 }
 
-void Composite::Assert(bool cli) const
+void Composite::Assert() const
 {
-    /* if (cli)
-    {
-        if (this->mode == Computation::RGB && this->auto_weight)
-            throw std::exception("Auto weight is enabled but composite mode is RGB");
-        if (this->mode == Computation::HSV && this->auto_weight)
-            throw std::exception("Auto weight is enabled but composite mode is HSV");
-    } */  // TODO: check if auto weight can be enabled when composite mode is RGB or HSV
+    /*
+    if (this->mode == Computation::RGB && this->auto_weight)
+        throw std::exception("Auto weight is enabled but composite mode is RGB");
+    if (this->mode == Computation::HSV && this->auto_weight)
+        throw std::exception("Auto weight is enabled but composite mode is HSV");
+    */  // TODO: check if auto weight can be enabled when composite mode is RGB or HSV
 }
 
-void ComputeSettings::Assert(bool cli) const
+void ComputeSettings::Assert() const
 {
-    this->image_rendering.Assert(cli);
-    this->view.Assert(cli);
-    this->color_composite_image.Assert(cli);
-    this->advanced.Assert(cli);
+    this->image_rendering.Assert();
+    this->view.Assert();
+    this->color_composite_image.Assert();
+    this->advanced.Assert();
 }
 
-void Windows::Assert(bool cli) const
+void Windows::Assert() const
 {
-    if (cli)
-    {
-        // TODO: check if xy, yz, xz and filter2d have to be positive/have forbidden values
-    }
+    // TODO: check if xy, yz, xz and filter2d have to be positive/have forbidden values
 }
 
-void Reticle::Assert(bool cli) const
+void Reticle::Assert() const
 {
-    if (cli)
-    {
-        if (this->scale <= 0)
-            throw std::exception("Reticle scale is 0 or negative");
-    }
+    if (this->scale <= 0)
+        throw std::exception("Reticle scale is 0 or negative");
 }
 
-void Views::Assert(bool cli) const
+void Views::Assert() const
 {
-    if (cli)
-    {
-        this->window.Assert(cli);
-        this->reticle.Assert(cli);
-    }
+    this->window.Assert();
+    this->reticle.Assert();
 }
 
 } // namespace holovibes

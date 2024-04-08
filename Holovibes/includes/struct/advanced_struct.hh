@@ -31,7 +31,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
-        void Assert(bool cli) const;
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
     };
@@ -47,7 +47,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
-        void Assert(bool cli) const;
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
     };
@@ -64,7 +64,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
-        void Assert(bool cli) const;
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, frame_index_offset)
     };
@@ -77,7 +77,7 @@ struct AdvancedSettings
 
     void Update();
     void Load();
-    void Assert(bool cli) const;
+    void Assert() const;
 
     SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant, raw_bitshift)
 };

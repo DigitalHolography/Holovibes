@@ -820,7 +820,7 @@ json compute_settings_to_json();
  *
  * \param path the path where the .json file is
  */
-void load_compute_settings(const std::string& path, bool cli = false);
+void load_compute_settings(const std::string& path);
 
 /*! \brief Gets the documentation url
  *

@@ -161,7 +161,7 @@ struct Composite
 
     void Load();
     void Update();
-    void Assert(bool cli) const;
+    void Assert() const;
 
     SERIALIZE_JSON_STRUCT(Composite, mode, auto_weight, rgb, hsv)
 };
