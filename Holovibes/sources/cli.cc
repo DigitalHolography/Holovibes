@@ -104,6 +104,16 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    
+    holovibes.update_setting(holovibes::settings::RecordMode{mode});
+
+    holovibes::api::set_frame_record_enabled(true);
+    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
+
+    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+
+
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
     
@@ -223,13 +233,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Force some values
     holovibes.is_cli = true;
 
-    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
-    
-    holovibes.update_setting(holovibes::settings::RecordMode{mode});
-
-    holovibes::api::set_frame_record_enabled(true);
-    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
-
     // Value used in more than 1 thread
     size_t input_nb_frames =
         holovibes::api::get_input_file_end_index() - holovibes::api::get_input_file_start_index();
@@ -249,8 +252,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
-
-    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
     
     holovibes.start_frame_record();
 
