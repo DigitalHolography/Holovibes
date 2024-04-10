@@ -33,6 +33,7 @@ struct Rendering
 
         void Update();
         void Load();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius)
     };
@@ -48,6 +49,7 @@ struct Rendering
 
         void Update();
         void Load();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(Filter, enabled, type)
     };
@@ -64,6 +66,7 @@ struct Rendering
 
         void Update();
         void Load();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(Convolution, enabled, type, divide)
     };
@@ -82,6 +85,7 @@ struct Rendering
 
     void Update();
     void Load();
+    void Assert() const;
 
     SERIALIZE_JSON_STRUCT(Rendering,
                           input_filter,

@@ -132,8 +132,17 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
         // the footer and then import info
-        input_frame_file->import_compute_settings();
-        input_frame_file->import_info();
+        try
+        {
+            input_frame_file->import_compute_settings();
+            input_frame_file->import_info();
+        }
+        catch (std::exception& e)
+        {
+            LOG_ERROR("{}", e.what());
+            LOG_ERROR("Error while loading compute settings, abort");
+            return 34;
+        }
         load = true;
     }
 
@@ -231,7 +240,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 {
     LOG_INFO("Starting CLI workers");
     // Force some values
-    holovibes.is_cli = true;
 
     // Value used in more than 1 thread
     size_t input_nb_frames =
@@ -275,6 +283,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI");
+    holovibes.is_cli = true;
     if (int ret = set_parameters(holovibes, opts))
         return ret;
     LOG_INFO("Parameters set");
