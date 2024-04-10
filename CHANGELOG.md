@@ -8,6 +8,7 @@
 * Fix camera double load
 * Solve s710 stripe offset
 * Solve user settings crash
+* Fallback to default settings in case of faulty footer in file
 
 ### 12.9.9
 * Only allocate the queues when the size is changed (no wait time when changing the image mode)
