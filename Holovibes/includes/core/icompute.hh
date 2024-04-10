@@ -227,7 +227,6 @@ class ICompute
         , gpu_output_queue_(output)
         , record_queue_(record)
         , stream_(stream)
-        , past_time_(std::chrono::high_resolution_clock::now())
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
@@ -495,13 +494,6 @@ class ICompute
 
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
-
-    /*! \brief Chrono counting time between two iteration
-     *
-     * Taking into account steps, since it is executing at the end of pipe.
-     */
-    /* FIXME: not used anywhere */
-    std::chrono::time_point<std::chrono::steady_clock> past_time_;
 
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};

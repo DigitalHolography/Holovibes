@@ -84,55 +84,38 @@ size_t FileFrameReadWorker::get_buffer_nb_frames()
 
 bool FileFrameReadWorker::init_frame_buffers()
 {
+    // Function used within this method to handle any error that may occur during initialization.
+    auto handleError = [&](const std::string& error_message_base, bool cleanupCpu = false, bool cleanupGpu = false) {
+        std::string error_message = error_message_base;
+        if (setting<settings::LoadFileInGPU>())
+            error_message += " (consider disabling \"Load file in GPU\" option)";
+        LOG_ERROR("{}", error_message);
+        if (cleanupCpu) cudaXFreeHost(cpu_frame_buffer_);
+        if (cleanupGpu) cudaXFree(gpu_frame_buffer_);
+
+        return false; // Explicitly return false for clarity.
+    };
+
     size_t buffer_size = frame_size_ * get_buffer_nb_frames();
 
     cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
-
-    if (error_code != cudaSuccess)
-    {
-        std::string error_message = "Not enough CPU RAM to read file";
-
-        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
-
-        return false;
+    if (error_code != cudaSuccess) {
+        return handleError("Not enough CPU RAM to read file");
     }
 
     error_code = cudaXRMalloc(&gpu_frame_buffer_, buffer_size);
-
-    if (error_code != cudaSuccess)
-    {
-        std::string error_message = "Not enough GPU DRAM to read file";
-
-        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
-
-        cudaXFreeHost(cpu_frame_buffer_);
-        return false;
+    if (error_code != cudaSuccess) {
+        return handleError("Not enough GPU DRAM to read file", true);
     }
 
     error_code = cudaXRMalloc(&gpu_packed_buffer_, frame_size_);
-
-    if (error_code != cudaSuccess)
-    {
-        std::string error_message = "Not enough GPU DRAM to read file";
-
-        if (setting<settings::LoadFileInGPU>()) // onrestart_settings_.get<settings::LoadFileInGPU>().value)
-            error_message += " (consider disabling \"Load file in GPU\" option)";
-
-        LOG_ERROR("{}", error_message);
-
-        cudaXFreeHost(cpu_frame_buffer_);
-        cudaXFree(gpu_frame_buffer_);
-        return false;
+    if (error_code != cudaSuccess) {
+        return handleError("Not enough GPU DRAM to read file", true, true);
     }
 
     return true;
 }
+
 
 void FileFrameReadWorker::free_frame_buffers()
 {
