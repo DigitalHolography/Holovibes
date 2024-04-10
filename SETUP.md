@@ -64,6 +64,8 @@ Holovibes\build>$ cpack
 ```
 # Test
 
+You may want to first generate the refs for every test from the last stable commit before testing. You will find more details about those in the DEVELOPERS.md file
+
 # Release
 
 
