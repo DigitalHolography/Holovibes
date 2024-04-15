@@ -115,6 +115,7 @@ void FrameRecordWorker::run()
             record_queue_.load()->dequeue(frame_buffer, stream_, api::get_record_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
+            // FIXME: to check if it's still relevant
             // if (api::get_record_queue_location()) {
             //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             //     output_frame_file->write_frame(frame_buffer, output_frame_size);
