@@ -79,6 +79,11 @@ OptionsParser::OptionsParser()
         po::value<unsigned int>(),
         "End frame (default = eof). Everything strictly after end frame is not read."
     )
+    (
+        "benchmark,b",
+        po::bool_switch()->default_value(false),
+        "Benchmark mode (default = false)"
+    )
     ;
     // clang-format on
 
@@ -151,6 +156,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
+        options_.benchmark = vm_["benchmark"].as<bool>();
     }
     catch (std::exception& e)
     {

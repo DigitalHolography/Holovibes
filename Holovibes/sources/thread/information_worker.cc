@@ -28,6 +28,16 @@ const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_t
     {QueueType::RECORD_QUEUE, "Record Queue"},
 };
 
+std::string get_current_date_time()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%H-%M-%S");
+    return ss.str();
+}
+
 void InformationWorker::run()
 {
     std::shared_ptr<ICompute> pipe;
@@ -37,6 +47,21 @@ void InformationWorker::run()
 
     // Init start
     Chrono chrono;
+
+    if (Holovibes::instance().get_benchmark_mode())  // #TODO Find a way to reduce the amount of benchmark mode checks, maybe through preprocessor between debug and release
+    {
+        std::ofstream benchmark_file;
+        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".txt";
+        benchmark_file.open(benchmark_file_path);
+        if (!benchmark_file.is_open())
+        {
+            LOG_ERROR("Could not open benchmark file");
+            return;
+        }
+        // write headers
+        benchmark_file << "Benchmarking results"
+         << "\n";
+    }
 
     while (!stop_requested_)
     {
@@ -269,4 +294,48 @@ void InformationWorker::display_gui_information()
     for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
         update_progress_function_(key, value->first.load(), value->second.load());
 }
+
+void InformationWorker::write_information(std::ofstream csvFile)
+{
+    // metadata
+    for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
+        csvFile << indication_type_to_string_.at(key) << ": " << *value << ",";
+    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
+        csvFile << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load() << ",";
+
+    // 11 headers
+    csvFile << "Input Queue;Output Queue;Record Queue;Input FPS;Output FPS;Input Throughput;Output Throughput;GPU memory free;GPU memory total;GPU load;GPU memory load\n";
+
+    auto& fps_map = GSH::fast_updates_map<FpsType>;
+
+    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>) {
+        csvFile << std::get<0>(*value).load() << ";";
+    }
+
+    csvFile << input_fps_);
+    csvFile << output_fps_);
+
+    if (fps_map.contains(FpsType::OUTPUT_FPS)) {
+        csvFile << format_throughput(input_throughput_, "B/s").c_str());
+        csvFile << format_throughput(output_throughput_, "Voxels/s").c_str());
+    }
+
+    // Exemple d'écriture dans le fichier CSV pour le débit de sauvegarde
+    if (fps_map.contains(FpsType::SAVING_FPS)) {
+        csvFile << format_throughput(saving_throughput_, "B/s").c_str());
+    }
+
+    // Exemple d'écriture dans le fichier CSV pour la mémoire GPU
+    csvFile <<", engineering_notation(free, 3).c_str());
+    csvFile <<", engineering_notation(total, 3).c_st());
+
+    // Exemple d'écriture dans le fichier CSV pour la charge GPU
+    csvFile << gpu_load().c_str());
+    csvFile <<", gpu_memory_load().c_str());
+
+    // Exemple d'écriture dans le fichier CSV pour la limite z
+    csvFile << Holovibes::instance().get_boundary());
+}
+
+
 } // namespace holovibes::worker
