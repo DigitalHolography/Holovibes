@@ -10,8 +10,8 @@
 
 namespace camera
 {
-CameraPhantom::CameraPhantom(bool gpu)
-    : Camera("ametek_s991_euresys_coaxlink_qsfp+.ini", gpu)
+CameraPhantom::CameraPhantom()
+    : Camera("ametek_s991_euresys_coaxlink_qsfp+.ini")
 {
     name_ = "Phantom S991";
     pixel_size_ = 20;
@@ -96,8 +96,8 @@ void CameraPhantom::load_ini_params()
     fullHeight_ = pt.get<unsigned int>("s991.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s991.Width", width_);
 
-    stripeOffset_grabber_0_ = pt.get<unsigned int>("s710.Offset0", stripeOffset_grabber_0_);
-    stripeOffset_grabber_1_ = pt.get<unsigned int>("s710.Offset1", stripeOffset_grabber_1_);
+    stripeOffset_grabber_0_ = pt.get<unsigned int>("s991.Offset0", stripeOffset_grabber_0_);
+    stripeOffset_grabber_1_ = pt.get<unsigned int>("s991.Offset1", stripeOffset_grabber_1_);
 
     trigger_source_ = pt.get<std::string>("s991.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s991.TriggerSelector", trigger_selector_);
@@ -121,5 +121,5 @@ void CameraPhantom::load_ini_params()
 
 void CameraPhantom::bind_params() { return; }
 
-ICamera* new_camera_device(bool gpu) { return new CameraPhantom(gpu); }
+ICamera* new_camera_device() { return new CameraPhantom(); }
 } // namespace camera

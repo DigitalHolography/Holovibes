@@ -123,7 +123,7 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
+            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
@@ -176,6 +176,7 @@ class EHoloGrabber
         uint8_t* device_ptr;
         cudaError_t alloc_res;
         cudaError_t device_ptr_res;
+        gpu_ = true; // FIXME
         if (gpu_) 
         {
             alloc_res =
@@ -269,14 +270,14 @@ class EHoloGrabber
      */
     uint8_t* ptr_;
 
-    bool gpu_;
+    bool gpu_ = true;
 
 };
 
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom(bool gpu=true);
+    CameraPhantom();
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;
