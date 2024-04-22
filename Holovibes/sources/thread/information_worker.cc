@@ -6,6 +6,8 @@
 #include <chrono>
 #include "global_state_holder.hh"
 #include <nvml.h>
+#include "logger.hh"
+#include "spdlog/spdlog.h"
 
 namespace holovibes::worker
 {
@@ -221,7 +223,13 @@ void InformationWorker::display_gui_information()
             continue;
 
         to_display << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":\n  ";
-        to_display << std::get<0>(*value).load() << "/" << std::get<1>(*value).load() << "\n";
+        to_display << std::get<0>(*value).load() << "/" << std::get<1>(*value).load();
+        if (std::get<0>(*value).load() == std::get<1>(*value).load() && queue_type_to_string_.at(key) == "Input Queue") {
+            to_display << " /!\\ Input queue full";
+            LOG_ERROR("Input Queue Full !");
+        }
+        to_display << "\n";
+
         // to_display << value->first.load() << "/" << value->second.load() << "\n";
     }
 
