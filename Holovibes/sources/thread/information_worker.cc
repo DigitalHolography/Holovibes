@@ -1,3 +1,4 @@
+#include <fstream>
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
@@ -54,7 +55,7 @@ void InformationWorker::run()
 
     if (benchmark_mode)  // #TODO Find a way to reduce the amount of benchmark mode checks, maybe through preprocessor between debug and release
     {
-        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".csv";
+        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
         if (!benchmark_file.is_open())
             LOG_ERROR("Could not open benchmark file");
@@ -106,13 +107,14 @@ void InformationWorker::run()
                 if (!GSH::fast_updates_map<IndicationType>.empty())
                 {    
                     // metadata
+                    benchmark_file << "Version: 0";
                     for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
-                        benchmark_file << indication_type_to_string_.at(key) << ": " << *value << ",";
+                        benchmark_file << "," << indication_type_to_string_.at(key) << ": " << *value;
                     for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
-                        benchmark_file << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load() << ",";
+                        benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
                     benchmark_file << "\n";
                     // 11 headers
-                    benchmark_file << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output Throughput,GPU memory free,GPU memory total,GPU load,GPU memory load\n";
+                    benchmark_file << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output Throughput,GPU memory free,GPU memory total,GPU load,GPU memory load, z_boundary\n";
                     info_found = true;
                 }
             }
@@ -124,7 +126,12 @@ void InformationWorker::run()
     }
 
     if (benchmark_mode)
+    {
         benchmark_file.close();
+        // rename file
+        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".csv";
+        std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
+    }
 }
 
 void InformationWorker::compute_fps(const long long waited_time)
@@ -387,11 +394,19 @@ void InformationWorker::display_gui_information()
 
 void InformationWorker::write_information(std::ofstream& csvFile)
 {
-    auto& fps_map = GSH::fast_updates_map<FpsType>;
-
-    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>) {
+    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in GSH::fast_updates_map<QueueType> check if key present then write valuem if not write 0
+    uint8_t i = 3;
+    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
+    {
+        if (key == QueueType::UNDEFINED)
+            continue;
+        
         csvFile << std::get<0>(*value).load() << ",";
+        i--;
     }
+
+    for (; i > 0; i--)
+        csvFile << "0,";
 
     csvFile << input_fps_ << ",";
     csvFile << output_fps_ << ",";
