@@ -58,7 +58,7 @@ void InformationWorker::run()
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
         if (!benchmark_file.is_open())
-            LOG_ERROR("Could not open benchmark file");
+            LOG_ERROR("Could not open benchmark file at " + benchmark_file_path);
     }
 
     while (!stop_requested_)
