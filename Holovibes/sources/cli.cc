@@ -112,8 +112,9 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
 
     holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+#ifdef _DEBUG
     holovibes::api::set_benchmark_mode(opts.benchmark);
-
+#endif
 
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
