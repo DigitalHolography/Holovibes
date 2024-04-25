@@ -44,14 +44,14 @@ struct Rendering
      */
     struct Filter
     {
-        bool enabled = false;
         std::string type;
+        bool enabled = false;
 
         void Update();
         void Load();
         void Assert() const;
 
-        SERIALIZE_JSON_STRUCT(Filter, enabled, type)
+        SERIALIZE_JSON_STRUCT(Filter, type, enabled)
     };
 
     /*! \class Convolution

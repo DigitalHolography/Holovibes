@@ -131,7 +131,7 @@ namespace holovibes
  */
 class Pipe : public ICompute
 {
-    public:
+  public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      *
      * \param input Input queue containing acquired frames.
@@ -181,14 +181,13 @@ class Pipe : public ICompute
                                                         input.get_fd(),
                                                         stream_,
                                                         settings);
-        postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
-                                                                 buffers_,
-                                                                 input.get_fd(),
-                                                                 stream_,
-                                                                 settings);
+        postprocess_ =
+            std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
         update_time_transformation_size_requested_ = true;
+
+        post_init();
 
         try
         {
@@ -234,6 +233,15 @@ class Pipe : public ICompute
      * Check if a ICompute refresh has been requested.
      */
     void exec() override;
+
+    void post_init()
+    {
+        if (setting<settings::FilterEnabled>())
+            request_filter();
+
+        if (setting<settings::ConvolutionEnabled>())
+            request_convolution();
+    }
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
@@ -292,15 +300,12 @@ class Pipe : public ICompute
         }
     }
 
-    inline void on_restart_apply_settings()
-    {
-        onrestart_settings_.apply_updates();
-    }
+    inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
 
     /**
      * @brief Apply the updates of the settings on pipe refresh,
      */
-    inline void pipe_refresh_apply_updates() 
+    inline void pipe_refresh_apply_updates()
     {
         fourier_transforms_->pipe_refresh_apply_updates();
         icompute_pipe_refresh_apply_updates();
@@ -355,7 +360,6 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
-    
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
