@@ -3,6 +3,7 @@
 ### 12.10.1
 
 * Improved memory management for 3d cuts
+* 8 bit recording are still being fixed
 
 ### 12.10.0
 
