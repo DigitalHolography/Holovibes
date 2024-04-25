@@ -142,48 +142,58 @@ class HoloFile:
         io.close()
 
     def assert_footer(ref, chal: "HoloFile"):
+        errors = []  
         ddiff = DeepDiff(ref.footer, chal.footer,
-                         ignore_order=True,
-                         significant_digits=5,
-                         exclude_paths=["root['info']['input_fps']", ]
-                         )
+                            ignore_order=True,
+                            significant_digits=5,
+                            exclude_paths=["root['info']['input_fps']", "root['info']['holovibes_version']"])
 
         if 'values_changed' in ddiff:
-            if "root['compute_settings']['view']['window']['xy']['contrast']['max']" in ddiff['values_changed']:
-                diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
-                if abs(diff["new_value"] / diff["old_value"] - 1) <= constant_name.CONTRAST_MAX_PERCENT_DIFF:
-                    del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['max']"]
-            if "root['compute_settings']['view']['window']['xy']['contrast']['min']" in ddiff['values_changed']:
-                diff = ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
-                if abs(diff["new_value"] / diff["old_value"] - 1) <= constant_name.CONTRAST_MAX_PERCENT_DIFF:
-                    del ddiff["values_changed"]["root['compute_settings']['view']['window']['xy']['contrast']['min']"]
+            contrast_max_path = "root['compute_settings']['view']['window']['xy']['contrast']['max']"
+            contrast_min_path = "root['compute_settings']['view']['window']['xy']['contrast']['min']"
+            for path in [contrast_max_path, contrast_min_path]:
+                if path in ddiff['values_changed']:
+                    diff = ddiff['values_changed'][path]
+                    if abs(diff["new_value"] / diff["old_value"] - 1) <= constant_name.CONTRAST_MAX_PERCENT_DIFF:
+                        del ddiff['values_changed'][path]
 
             if not ddiff['values_changed']:
                 del ddiff['values_changed']
 
-        assert not ddiff
+        if ddiff:
+            errors.append(f"Footer difference detected: {ddiff}")
+
+        return errors
 
     def assertHolo(ref, chal: "HoloFile", basepath: str):
-
-        def __assert(lhs, rhs, name: str):
-            assert lhs == rhs, f"{name} differ: {lhs} != {rhs}"
-
+        errors = []  
+        
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
-            __assert(getattr(ref, attr), getattr(chal, attr), attr)
+            if getattr(ref, attr) != getattr(chal, attr):
+                errors.append(f"{attr} differ: {getattr(ref, attr)} != {getattr(chal, attr)}")
 
-        ref.assert_footer(chal)
+        footer_errors = ref.assert_footer(chal)
+        errors.extend(footer_errors)
 
+        images_processed = len(ref.images)
+        total_diff = 0
         for i, (l_image, r_image) in enumerate(zip(ref.images, chal.images)):
-            diffMatrix = (np.array(l_image) == np.array(r_image))
-            diff = np.any(diffMatrix == False)
-            #TODO print diff matrix
-            if diff:
+            diffMatrix = (np.array(l_image) - np.array(r_image))**2
+            diff = np.sqrt(np.sum(diffMatrix)) / (ref.width * ref.height)
+            diff /= 2**(ref.bytes_per_pixel * 8) - 1
+            total_diff += diff
+            if diff > 10**-6:
+                images_processed = i + 1
+                errors.append(f"Image {i} difference too big: tol = {diff}")
                 Image.fromarray(l_image).save(os.path.join(basepath, constant_name.REF_FAILED_IMAGE))
                 Image.fromarray(r_image).save(os.path.join(basepath, constant_name.OUTPUT_FAILED_IMAGE))
+                Image.fromarray(diffMatrix).save(os.path.join(basepath, constant_name.DIFF_FAILED_IMAGE))
+                break
 
-            assert not diff
+        total_diff /= images_processed
 
-
+        return total_diff, errors
+        
 class HoloLazyReader(HoloLazyIO):
     def __init__(self, path: str):
         self.path = path

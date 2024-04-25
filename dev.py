@@ -173,7 +173,20 @@ def run(args: GoalArgs) -> int:
 
 @goal
 def pytest(args: GoalArgs) -> int:
+    directory = "tests/data"
 
+    # delete old output files
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name)
+        last_output_holo = os.path.join(path, OUTPUT_FILENAME)
+        last_output_image = os.path.join(path, OUTPUT_FAILED_IMAGE)
+        last_ref_image = os.path.join(path, REF_FAILED_IMAGE)
+        last_diff_image = os.path.join(path, DIFF_FAILED_IMAGE)
+        last_error= os.path.join(path, OUTPUT_ERROR_FILENAME)
+
+        for file in (last_output_holo, last_output_image, last_ref_image, last_diff_image, last_error):
+            if os.path.isfile(file):
+                os.remove(file)
     try:
         import pytest
     except ImportError as e:
@@ -193,16 +206,12 @@ def ctest(args: GoalArgs) -> int:
 
     # cmd = build_utils.get_vcvars_start_cmd(
     #     args.build_env) if build_utils.is_windows() else []
-    cmd = build_utils.get_conan_venv_start_cmd(args.build_dir, args.generator)
 
-    exe_path = args.build_dir or os.path.join(
-        DEFAULT_BUILD_BASE, build_utils.get_generator(
-            args.generator), "Holovibes"
-    )
-    previous_path = os.getcwd()
+    # build_dir = build_utils.get_build_dir(args.build_dir)
+    # previous_path = os.getcwd()
 
-    os.chdir(exe_path)
-    cmd += ["ctest", "--verbose"] + args.goal_args
+    # os.chdir(build_dir)
+    cmd = ["ctest", "--verbose"] + args.goal_args
 
     if args.verbose:
         print("Ctest cmd: {}".format(" ".join(cmd)))
@@ -247,7 +256,7 @@ def build_ref(args: GoalArgs) -> int:
             os.remove(ref_error)
 
         print(name)
-        ref_time = generate_holo_from(input, ref, ref_error, cli_argument, config)
+        ref_time = generate_holo_from(path, input, ref, ref_error, cli_argument, config)
         write_time(ref_time, ref_time_path)
 
     return 0

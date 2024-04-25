@@ -5,8 +5,8 @@
 #### Install compilers dependencies
 
 You will need to install manually several things to build Holovibes:
-* [CMake 3.19.0-rc1 win32](https://github.com/Kitware/CMake/releases/tag/v3.19.0-rc1)
-* [CUDA 11.5](https://developer.nvidia.com/cuda-downloads)
+* [CMake 3.27.2-msvc1 win32](https://github.com/Kitware/CMake/releases/tag/v3.27.2)
+* [CUDA 12.0](https://developer.nvidia.com/cuda-downloads)
 * [Python 3.7+](https://www.python.org/)
 * A windows compiler, either MSVC or ClangCL (See below for further details)
 
@@ -32,7 +32,7 @@ The minimum requirements in _Individual Components_ (installable from Visual Stu
 * MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
 * MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
 
-##### Install Clang (With LLVM)
+##### (NOT SUPPORTED) Install Clang (With LLVM) 
 
 Install [LLVM](https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/LLVM-13.0.0-win64.exe)
 Make sure to choose the option to put LLVm in the PATH
@@ -52,15 +52,8 @@ Conan will download all the dependencies missing in your system, sometimes it wi
 Usually our dev tool will do everything for you:
 Use `./dev.py` to build using our dev tool (cf. Dev tool documentation)
 
-To choose to build with Visual Studio (MSVC) or Clang
-
-By default *Ninja* is used but you can rely on other build systems (*Visual Studio 16*, *NMake Makefiles* or *Unix Makefiles*) with `./dev.py -g [generator]`.
-
 Alternatively, you can build from the command line directly calling conan:
 `conan build . -if bin/<generator> -bf bin/<generator> -sf .`
-
-Note: After changing an element of the front or to change between release/debug mode, please delete your build folder and recompile.
-
 
 ### Test suite
 
@@ -68,18 +61,28 @@ Note: After changing an element of the front or to change between release/debug 
 
 The framework used here is [PyTest](https://github.com/pytest-dev/pytest)
 For now integration testing is done using the CLI mode of Holovibes
-and combining an input holo file and a optional configuration file.
-The 2 files are passed as parameters to the CLI to create an output file which is then compared
-to a reference file.
+and combining an input holo file, an optional configuration file and an optional file containing cli arguments.
+The 3 files are passed as parameters to the CLI to create an output file which is then compared to a reference file.
+The execution time is also printed, and you can compare it with the reference execution time. This can't be considered as benchmarks, and only indicates if a major change has slown down / accelerated the programm. 
 
 ##### How to add tests
 
 An auto-discover function is already implemented.
 Just create a folder in the `tests/data/` folder. This is the name of your test.
-You shall put 1 to 3 files in the folder:
-* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen)
+You shall put 1 to 4 files in the folder:
+* an optional `input.holo` file as input (if you provide no input, the default one in the input folder will be chosen. You can provide different default inputs by making the name of the input match a part of your test name)
 * a `ref.holo` file as intended output
-* an optional `holovibes.ini` config file for the parameters
+* an optional `holovibes.json` config file for the parameters
+* an oprional `cli_argument.json` containing the command line arguments
+
+#### Build reference
+
+From the root, run 
+```sh
+Holovobes>$ ./dev.py build_ref [test_name]
+```
+If no test_name is given, all refs will be built. It will generate a *ref.holo* or a *error.txt* and a *ref_time.txt* for each test.
+**CAREFULL** : this command should be runned only for newly-added tests for which the behavior has been verified and validated by hand, or when the software's output has improved, and **if you know for sure that it's stable**
 
 ##### Usage
 
@@ -94,7 +97,19 @@ or using our dev tool:
 $ ./dev.py build pytest
 ```
 
-#### Unit tests
+This will generate a *last_generated_output.holo*, or an *output_error.txt*
+
+###### Launching only one test
+
+To test only specific tests, you can run use
+
+```sh
+$ ./dev.py build pytest --specific-tests=test1,test2
+```
+
+It you can give it a comma separated list of folders you want to test.
+
+#### Unit tests (NOT SUPPORTED)
 
 Unit tests are build with [GTest](https://github.com/google/googletest)
 
@@ -116,7 +131,7 @@ The script works like a makefile using goals to run. There are:
 * run: running the last generated executable
 * ctest: running unit tests from GTest using ctest
 * pytest: running integration tests using pytest
-* build_ref: build the reference outputs for integration tests (run it only if the software's output improved, and if you know for sure that it's stable.)
+* build_ref: build the reference outputs for integration tests (run it only if the software's output improved, and **if you know for sure that it's stable**.)
 * clean: remove the buid folder and the generated outputs of the integration tests
 
 Futhermore, there is several options to manipulate the tool:
@@ -134,11 +149,6 @@ optional arguments:
 Build Arguments:
   -b {Release,release,R,r,Debug,debug,D,d}
                         Choose between Release mode and Debug mode (Default: Debug)
-  -g {Ninja,ninja,N,n,NMake,nmake,NM,nm,Make,make,M,m}
-                        Choose between NMake, Make and Ninja (Default: Ninja)
-  -t {clang-cl,ClangCL,clangcl,Clang-cl,Clang-CL,cl,CL,MSVC,msvc}
-                        Choose between MSVC(CL) and ClangCL (Default: ClangCL)
-
 Build environment:
   -p P                  Path to find the VS Developer Prompt to use to build (Default: auto-find)
   -i I                  Path used by cmake to store compiled objects and exe (Default: bin/<generator>/)

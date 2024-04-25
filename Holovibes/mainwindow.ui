@@ -2951,6 +2951,22 @@
                  </item>
                 </layout>
                </item>
+                <item>
+                    <widget class="QCheckBox" name="RecordDeviceCheckbox">
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="checked">
+                            <bool>false</bool>
+                        </property>
+                        <property name="styleSheet">
+                            <string notr="true"/>
+                        </property>
+                        <property name="text">
+                            <string>CPU Record</string>
+                        </property>
+                    </widget>
+                </item>
               </layout>
              </widget>
             </item>
@@ -4763,6 +4779,12 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+  <sender>RecordDeviceCheckbox</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>set_record_device(bool)</slot>
+  </connection>
+  <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
@@ -5429,6 +5451,7 @@ p, li { white-space: pre-wrap; }
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
+  <slot>set_record_device(bool)</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>

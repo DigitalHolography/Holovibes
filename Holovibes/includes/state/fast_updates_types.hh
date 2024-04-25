@@ -1,5 +1,7 @@
 #pragma once
 
+#include "enum_device.hh"
+
 /*!
  * \brief Documentation on how to add entry types to the FastUpdatesHolder class
  *
@@ -86,11 +88,14 @@ struct TypeValue<ProgressType>
     using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
 };
 
+/*!
+ * \brief entry type for queues. 3 values : current occupancy of the queue, max size and device (GPU or CPU)
+ */
 template <>
 struct TypeValue<QueueType>
 {
     using key = QueueType;
-    using value = std::pair<std::atomic<uint>, std::atomic<uint>>;
+    using value = std::tuple<std::atomic<uint>, std::atomic<uint>, std::atomic<holovibes::Device>>;
 };
 
 } // namespace holovibes::_internal

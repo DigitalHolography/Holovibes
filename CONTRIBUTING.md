@@ -37,7 +37,7 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 
 ### Create a new release
 
- 1. Merge all your feature branches on `develop`
+ 1. Merge all your feature branches on `dev`
  3. Update `CHANGELOG.md`.
  4. Make a clean build in release mode (`./dev.py clean build -b Release`).
  5. Make sure everything works as intended and run test suite (`./dev.py ctest pytest -b Release`).
@@ -45,3 +45,4 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
  7. Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
  if you want to modify either X, Y, or Z of the version number X.Y.Z
  8. do a `git push --follow-tags`
+ 9. Merge master with `dev`

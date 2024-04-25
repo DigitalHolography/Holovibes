@@ -102,8 +102,6 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    load_gui();
-
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
@@ -116,6 +114,8 @@ MainWindow::MainWindow(QWidget* parent)
                  ::holovibes::settings::compute_settings_filepath);
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
+
+    load_gui();
 
     // Display default values
     api::set_compute_mode(api::get_compute_mode());
@@ -159,6 +159,7 @@ MainWindow::MainWindow(QWidget* parent)
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         files.push_front(QString(UID_FILTER_TYPE_DEFAULT));
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
+
     }
 
     // Initialize all panels
@@ -313,10 +314,18 @@ void MainWindow::reload_ini(const std::string& filename)
     ImportType it = UserInterfaceDescriptor::instance().import_type_;
     ui_->ImportPanel->import_stop();
 
-    api::load_compute_settings(filename);
-
-    // Set values not set by notify
-    ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    try
+    {
+        api::load_compute_settings(filename);
+        // Set values not set by notify
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    }
+    catch (const std::exception&)
+    {
+        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
+                 ::holovibes::settings::compute_settings_filepath);
+        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+    }
 
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
@@ -416,6 +425,8 @@ void MainWindow::load_gui()
 
     if (camera != CameraKind::NONE)
     {
+        
+        ui_->actionSettings->setEnabled(true);
         if (compute_mode == 0)
         {
             LOG_INFO("RAW");

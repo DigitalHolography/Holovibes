@@ -104,8 +104,18 @@ void ImportPanel::import_file(const QString& filename)
 
         // Import Compute Settings there before init_pipe to
         // Allocate correctly buffer
-        input_file->import_compute_settings();
-        input_file->import_info();
+        try {
+            input_file->import_compute_settings();
+            input_file->import_info();
+        }
+        catch (const std::exception& e)
+        {
+            QMessageBox messageBox;
+            messageBox.critical(nullptr, "File Error", e.what());
+            LOG_ERROR("Catch {}", e.what());
+            LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
+            api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+        }
 
         parent_->notify();
 
@@ -195,11 +205,11 @@ void ImportPanel::update_input_file_start_index()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
 
-    api::set_input_file_start_index(start_spinbox->value());
+    api::set_input_file_start_index(start_spinbox->value() - 1); 
 
-    start_spinbox->setValue(api::get_input_file_start_index());
+    start_spinbox->setValue(api::get_input_file_start_index() + 1);
 
-    if (api::get_input_file_start_index() > api::get_input_file_end_index())
+    if (api::get_input_file_start_index() + 1 > api::get_input_file_end_index())
     {
         QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
         end_spinbox->setValue(api::get_input_file_start_index());

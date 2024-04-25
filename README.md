@@ -29,10 +29,14 @@ It is developed using `C++/CUDA`.
 
 ## Requirements
 
-- Microsoft Windows 10 pro x64 (or later)
-- NVIDIA graphic card supporting CUDA 12
+- Microsoft Windows 7 x64 (or later)
+- NVIDIA graphic card supporting CUDA 12.0 ([supported graphic cards](https://en.wikipedia.org/wiki/CUDA#GPUs_supported))
 
-## Documention
+## Documentation
 
-- website : https://holovibes.com/
-- Documentation : https://docs.google.com/document/d/1lsb1NurdSkN1GNGuATdMJ4Oubo48MSvrl203TqHH6Bs
+- Holovibes GitHub : https://github.com/DigitalHolography/Holovibes
+- Holovibes website : https://holovibes.com/
+- How Holovibes works : https://docs.google.com/document/d/1H8BcAD9Gsdpc1Rs8rBjZxRaCEdW1teBxsvuC9opWElw/edit?usp=sharing
+- Build requirements, testsuite usage, logging : [here](DEVELOPERS.md)
+- Setup tutorial : [here](SETUP.md)
+- Contribution practices : [here](CONTRIBUTING.md)

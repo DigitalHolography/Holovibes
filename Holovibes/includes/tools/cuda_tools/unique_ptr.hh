@@ -13,6 +13,7 @@
 #include "cuda_memory.cuh"
 #include "logger.hh"
 #include "common.cuh"
+#include "enum_device.hh"
 
 /*! \brief Contains memory handlers for cuda buffers. */
 namespace holovibes::cuda_tools
@@ -122,19 +123,19 @@ template <typename T>
 class UniquePtr
 {
   public:
-    UniquePtr(T* ptr, bool gpu)
-        : gpu_(gpu)
+    UniquePtr(T* ptr, Device device)
+        : device_(device)
     {
-      if (gpu_)
+      if (device_ == Device::GPU)
         ptr_ = CudaUniquePtr<T>(ptr);
       else 
         ptr_ = CPUUniquePtr<T>(ptr);
     }
 
-    UniquePtr(bool gpu=true)
-      : gpu_(gpu)
+    UniquePtr(Device device=Device::GPU)
+      : device_(device)
     {
-      if (gpu_)
+      if (device_ == Device::GPU)
         ptr_ = CudaUniquePtr<T>();
       else 
         ptr_ = CPUUniquePtr<T>();
@@ -142,37 +143,37 @@ class UniquePtr
 
     UniquePtr(T* ptr)
     {
-      UniquePtr(ptr, true);
+      UniquePtr(ptr, Device::GPU);
     }
 
     UniquePtr(const size_t size) { 
       resize(size); 
     }
 
-    T* get() { 
-      return gpu_ ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
+    T* get() const { 
+      return device_ == Device::GPU ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
     }
 
     /*! \brief Implicit cast operator */
     operator T*() const{
-      return gpu_ ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
+      return device_ == Device::GPU ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get();
     }
 
     /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
     bool resize(size_t size){
-      return gpu_ ? std::get<0>(ptr_).resize(size) : std::get<1>(ptr_).resize(size);
+      return device_ == Device::GPU ? std::get<0>(ptr_).resize(size) : std::get<1>(ptr_).resize(size);
     }
 
      void reset(T* ptr){
-      return gpu_ ? std::get<0>(ptr_).reset(ptr) : std::get<1>(ptr_).reset(ptr);
+      return device_ == Device::GPU ? std::get<0>(ptr_).reset(ptr) : std::get<1>(ptr_).reset(ptr);
      }
 
      void reset(){
-      return gpu_ ? std::get<0>(ptr_).reset() : std::get<1>(ptr_).reset();
+      return device_ == Device::GPU ? std::get<0>(ptr_).reset() : std::get<1>(ptr_).reset();
      }
 
   private:
-    bool gpu_;
+    Device device_;
     std::variant<CudaUniquePtr<T>, CPUUniquePtr<T>> ptr_;
 
 };

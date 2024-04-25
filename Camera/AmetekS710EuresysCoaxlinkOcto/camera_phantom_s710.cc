@@ -8,10 +8,12 @@
 #include "camera_phantom_s710.hh"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
-CameraPhantom::CameraPhantom()
-    : Camera("ametek_s710_euresys_coaxlink_octo.ini")
+CameraPhantom::CameraPhantom(bool gpu)
+    : Camera("ametek_s710_euresys_coaxlink_octo.ini", gpu)
 {
     name_ = "Phantom S710";
     pixel_size_ = 20;
@@ -21,7 +23,6 @@ CameraPhantom::CameraPhantom()
         load_ini_params();
         ini_file_.close();
     }
-
     gentl_ = std::make_unique<Euresys::EGenTL>();
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_, pixel_format_);
 
@@ -33,6 +34,10 @@ void CameraPhantom::init_camera()
     grabber_->setup(fullHeight_,
                     width_,
                     nb_grabbers_,
+                    stripeOffset_grabber_0_,
+                    stripeOffset_grabber_1_,
+                    stripeOffset_grabber_2_,
+                    stripeOffset_grabber_3_,
                     trigger_source_,
                     exposure_time_,
                     cycle_minimum_period_,
@@ -47,8 +52,8 @@ void CameraPhantom::init_camera()
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
-    fd_.width = grabber_->width_;
-    fd_.height = grabber_->height_;
+    fd_.width = width_;
+    fd_.height = fullHeight_;
     fd_.depth = grabber_->depth_;
     fd_.byteEndian = Endianness::LittleEndian;
 }
@@ -91,6 +96,13 @@ void CameraPhantom::load_ini_params()
     nb_grabbers_ = pt.get<unsigned int>("s710.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s710.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s710.Width", width_);
+
+    stripeOffset_grabber_0_ = pt.get<unsigned int>("s710.Offset0", stripeOffset_grabber_0_);
+    stripeOffset_grabber_1_ = pt.get<unsigned int>("s710.Offset1", stripeOffset_grabber_1_);
+    stripeOffset_grabber_2_ = pt.get<unsigned int>("s710.Offset2", stripeOffset_grabber_2_);
+    stripeOffset_grabber_3_ = pt.get<unsigned int>("s710.Offset3", stripeOffset_grabber_3_);
+
+
     trigger_source_ = pt.get<std::string>("s710.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s710.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s710.ExposureTime", exposure_time_);
@@ -109,6 +121,7 @@ void CameraPhantom::load_ini_params()
         nb_grabbers_ = 4;
         Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
     }
+
 }
 
 void CameraPhantom::bind_params() { return; }

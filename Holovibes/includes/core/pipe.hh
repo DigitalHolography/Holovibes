@@ -79,8 +79,10 @@
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::RenormConstant,           \
-    holovibes::settings::CutsContrastPOffset,     \
-    holovibes::settings::RecordQueueOnGPU
+    holovibes::settings::CutsContrastPOffset,      \
+    holovibes::settings::RecordQueueLocation,         \
+    holovibes::settings::RawViewQueueLocation,        \
+    holovibes::settings::InputQueueLocation
 
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::TimeStride,               \
@@ -129,7 +131,7 @@ namespace holovibes
  */
 class Pipe : public ICompute
 {
-  public:
+    public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      *
      * \param input Input queue containing acquired frames.
@@ -137,8 +139,8 @@ class Pipe : public ICompute
      * \param stream The compute stream on which all the computations are processed
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Pipe(BatchInputQueue& input, Queue& output, const cudaStream_t& stream, InitSettings settings)
-        : ICompute(input, output, stream, settings)
+    Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
+        : ICompute(input, output, record, stream, settings)
         , realtime_settings_(settings)
         , onrestart_settings_(settings)
         , pipe_refresh_settings_(settings)
@@ -212,12 +214,9 @@ class Pipe : public ICompute
                 throw e;
             }
         }
-        init_record_queue();
     }
 
     ~Pipe() override;
-
-    Queue& init_record_queue();
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
@@ -356,6 +355,7 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
+    
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */

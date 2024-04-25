@@ -29,8 +29,8 @@ namespace holovibes
 
 void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
-    while (frame_record_env_.frame_record_queue_->get_size() + nb_elm_to_add >
-               frame_record_env_.frame_record_queue_->get_max_size() &&
+    while (record_queue_.get_size() + nb_elm_to_add >
+               record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
            Holovibes::instance().is_recording())
     {
@@ -40,47 +40,6 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 using camera::FrameDescriptor;
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
-
-// Queue& Pipe::init_chart_record_queue() {
-//     chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-// }
-
-
-Queue& Pipe::init_record_queue() {
-    bool on_gpu = setting<settings::RecordQueueOnGPU>();
-    auto record_mode = setting<settings::RecordMode>();
-    if (record_mode == RecordMode::RAW) {
-        LOG_DEBUG("RecordMode = Raw");
-        frame_record_env_.frame_record_queue_.reset(
-                new Queue(gpu_input_queue_.get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else if (record_mode == RecordMode::HOLOGRAM) {
-        LOG_DEBUG("RecordMode = Hologram");
-        auto record_fd = gpu_output_queue_.get_fd();
-        record_fd.depth = record_fd.depth == 6 ? 3 : record_fd.depth; // ?
-        frame_record_env_.frame_record_queue_.reset(
-                new Queue(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else if (record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::CUTS_XZ) {
-        LOG_DEBUG("RecordMode = CUTS");
-        camera::FrameDescriptor fd_xyz = gpu_output_queue_.get_fd();
-        fd_xyz.depth = sizeof(ushort);
-        if (record_mode == RecordMode::CUTS_XZ)
-            fd_xyz.height = setting<settings::TimeTransformationSize>();
-        else
-            fd_xyz.width = setting<settings::TimeTransformationSize>();
-        
-        frame_record_env_.frame_record_queue_.reset(
-                new Queue(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, on_gpu));
-        LOG_DEBUG("Record queue allocated");
-    }
-    else {
-        LOG_DEBUG("RecordMode = None");
-    }
-    return *frame_record_env_.frame_record_queue_;
-}
 
 bool Pipe::make_requests()
 {
@@ -164,6 +123,7 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("disable_frame_record_requested");
 
+        record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         api::set_frame_record_enabled(false);
         disable_frame_record_requested_ = false;
     }
@@ -227,7 +187,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        gpu_input_queue_.resize(setting<settings::BatchSize>());
+        input_queue_.resize(setting<settings::BatchSize>());
         request_update_batch_size_ = false;
     }
 
@@ -253,8 +213,8 @@ bool Pipe::make_requests()
     {
         LOG_DEBUG("raw_view_requested");
 
-        auto fd = gpu_input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>()));
+        auto fd = input_queue_.get_fd();
+        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>(), QueueType::UNDEFINED, setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -359,12 +319,12 @@ void Pipe::refresh()
 
     insert_raw_view();
 
-    converts_->insert_complex_conversion(gpu_input_queue_);
+    converts_->insert_complex_conversion(input_queue_);
 
     // Spatial transform
     fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
-                                    gpu_input_queue_.get_fd().width,
-                                    gpu_input_queue_.get_fd().height);
+                                    input_queue_.get_fd().width,
+                                    input_queue_.get_fd().height);
 
     // Move frames from gpu_space_transformation_buffer to
     // gpu_time_transformation_queue (with respect to
@@ -379,7 +339,7 @@ void Pipe::refresh()
 
     // time transform
     fourier_transforms_->insert_time_transform();
-    fourier_transforms_->insert_time_transformation_cuts_view(gpu_input_queue_.get_fd(),
+    fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
                                                               buffers_.gpu_postprocess_frame_xz.get(),
                                                               buffers_.gpu_postprocess_frame_yz.get());
     insert_cuts_record();
@@ -441,7 +401,7 @@ void Pipe::insert_wait_frames()
         [&]()
         {
             // Wait while the input queue is enough filled
-            while (gpu_input_queue_.is_empty())
+            while (input_queue_.is_empty())
                 continue;
         });
 }
@@ -492,12 +452,12 @@ void Pipe::insert_dequeue_input()
             // the gpu input queue for display
             /* safe_enqueue_output(
             **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(gpu_input_queue_.get_start()),
+            **    static_cast<unsigned short*>(input_queue_.get_start()),
             **    "Can't enqueue the input frame in gpu_output_queue");
             */
 
             // Dequeue a batch
-            gpu_input_queue_.dequeue();
+            input_queue_.dequeue();
         });
 }
 
@@ -570,7 +530,13 @@ void Pipe::insert_raw_view()
             {
                 // Copy a batch of frame from the input queue to the raw view
                 // queue
-                gpu_input_queue_.copy_multiple(*get_raw_view_queue());
+                cudaMemcpyKind memcpy_kind;
+                if (setting<settings::InputQueueLocation>() == Device::GPU)
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                else
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyHostToHost;
+
+                input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
             });
     }
 }
@@ -595,8 +561,14 @@ void Pipe::insert_raw_record()
                 {
                     return;
                 }
-                gpu_input_queue_.copy_multiple(*frame_record_env_.frame_record_queue_,
-                                            setting<settings::BatchSize>(), setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                cudaMemcpyKind memcpy_kind;
+                if (setting<settings::InputQueueLocation>() == Device::GPU)
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                else
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+
+                input_queue_.copy_multiple(record_queue_,
+                                            setting<settings::BatchSize>(), memcpy_kind);
                 
 
                 inserted += setting<settings::BatchSize>();
@@ -615,10 +587,10 @@ void Pipe::insert_hologram_record()
             [&]()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
-                    frame_record_env_.frame_record_queue_->enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                    record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                                                  stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
                 else
-                    frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                    record_queue_.enqueue(buffers_.gpu_output_frame.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -631,13 +603,13 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_xz.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                { record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
         else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { frame_record_env_.frame_record_queue_->enqueue(buffers_.gpu_output_frame_yz.get(), stream_, setting<settings::RecordQueueOnGPU>() ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                { record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
         }
     }
 }

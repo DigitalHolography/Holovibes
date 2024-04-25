@@ -9,6 +9,8 @@
 #include "spdlog/spdlog.h"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
 using namespace Euresys;
@@ -66,11 +68,7 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        grabbers_[0]->setInteger<StreamModule>("BufferPartCount", 1);
-        width_ = grabbers_[0]->getWidth();
-        height_ = grabbers_[0]->getHeight() * grabbers_.length();
         depth_ = gentl.imageGetBytesPerPixel(pixel_format);
-
         for (unsigned i = 0; i < grabbers_.length(); ++i)
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
@@ -86,6 +84,10 @@ class EHoloGrabber
     void setup(unsigned int fullHeight,
                unsigned int width,
                unsigned int nb_grabbers,
+               unsigned int offset0,
+               unsigned int offset1,
+               unsigned int offset2,
+               unsigned int offset3,
                std::string& triggerSource,
                float exposureTime,
                std::string& cycleMinimumPeriod,
@@ -98,14 +100,13 @@ class EHoloGrabber
                std::string& flat_field_correction,
                EGenTL& gentl)
     {
-        grabbers_.root[0][0].reposition(0);
-        grabbers_.root[0][1].reposition(1);
-        grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+        width_ = width;
+        height_ = fullHeight;
 
-        if (nb_grabbers == 4)
-        {
-            grabbers_.root[1][0].reposition(2);
-            grabbers_.root[1][1].reposition(3);
+        if (nb_grabbers == 2) {
+            grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+        }
+        else if (nb_grabbers == 4) {
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
         }
 
@@ -114,7 +115,8 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-        for (size_t ix = 0; ix < grabberCount; ++ix)
+        
+        for (size_t ix = 0; ix < grabberCount ; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
             grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
@@ -126,10 +128,16 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
         }
+
+        grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
+        grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
+        grabbers_[2]->setInteger<StreamModule>("StripeOffset", offset2);
+        grabbers_[3]->setInteger<StreamModule>("StripeOffset", offset3);
+
         grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
@@ -176,21 +184,39 @@ class EHoloGrabber
         cudaError_t alloc_res =
             cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
         cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
-
         if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
             Logger::camera()->error("Could not allocate buffers.");
 
+        float prog = 0.0;
         for (size_t i = 0; i < nb_buffers; ++i)
         {
+            // progress bar of the allocation of the ram buffers on the cpu.
+            prog = (float)i / (nb_buffers - 1);
+            int barWidth = 100;
+
+            std::cout << "[";
+            int pos = barWidth * prog;
+            for (int i = 0; i < barWidth; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::cout << "] " << int(prog * 100.0) << " %\r";
+            std::cout.flush();
+
             // The EGrabber API can handle directly buffers alocated in pinned
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
+
             for (size_t ix = 0; ix < grabber_count; ix++)
+            {
                 grabbers_[ix]->announceAndQueue(
                     UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+            }
         }
+        std::cout << std::endl;
     }
 
     void start()
@@ -241,7 +267,7 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom();
+    CameraPhantom(bool gpu=true);
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;
@@ -263,6 +289,12 @@ class CameraPhantom : public Camera
     unsigned int nb_grabbers_;
     unsigned int fullHeight_;
     unsigned int width_;
+
+    unsigned int stripeOffset_grabber_0_;
+    unsigned int stripeOffset_grabber_1_;
+    unsigned int stripeOffset_grabber_2_;
+    unsigned int stripeOffset_grabber_3_;
+
     std::string trigger_source_;
     std::string trigger_selector_;
     float exposure_time_;

@@ -57,10 +57,11 @@ class FrameRecordWorker final : public Worker
      * \param nb_frames_skip Number of frames to skip before starting
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FrameRecordWorker(InitSettings settings, cudaStream_t stream)
+    FrameRecordWorker(InitSettings settings, cudaStream_t stream, std::atomic<std::shared_ptr<Queue>>& record_queue)
         : Worker()
         , stream_(stream)
         , onrestart_settings_(settings)
+        , record_queue_(record_queue)
     {
         // Holovibes::instance().get_cuda_streams().recorder_stream
         std::string file_path = setting<settings::RecordFilePath>();
@@ -106,12 +107,8 @@ class FrameRecordWorker final : public Worker
      */
     // Queue& init_record_queue();
 
-    /*! \brief Wait for frames to be present in the record queue
-     *
-     * \param record_queue The record queue
-     * \param pipe The compute pipe used to perform the operations
-     */
-    void wait_for_frames(Queue& record_queue);
+    /*! \brief Wait for frames to be present in the record queue*/
+    void wait_for_frames();
 
     /*! \brief Reset the record queue to free memory
      *
@@ -138,6 +135,8 @@ class FrameRecordWorker final : public Worker
      * on restart.
      */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    /*! \brief The queue in which the frames are stored for record*/
+    std::atomic<std::shared_ptr<Queue>>& record_queue_;
 };
 } // namespace holovibes::worker
 

@@ -34,6 +34,10 @@ CurvePlot::CurvePlot(ConcurrentDeque<ChartPoint>& data_vect,
     chart->legend()->hide();
     chart->addSeries(line_series);
     chart->createDefaultAxes();
+    // reverse the x axis
+    chart->axisX()->setRange(0, points_nb_);
+    chart->axisX()->setReverse(true);
+    
     chart->setTitle(title);
 
     chart_view->setRenderHint(QPainter::Antialiasing);
@@ -89,7 +93,7 @@ void CurvePlot::resize_plot(const int size)
 {
     points_nb_ = size;
     chart_vector_.resize(size);
-    chart->axisX()->setMax(QVariant(points_nb_));
+    chart->axisX()->setMax(QVariant(points_nb_)); // warning C4996: 'QChart::axisX': was declared deprecated
 }
 
 void CurvePlot::resizeEvent(QResizeEvent* e)
@@ -147,7 +151,7 @@ void CurvePlot::stop()
 {
     if (timer_.isActive())
         timer_.stop();
-}
+} 
 
 void CurvePlot::set_points_nb(const unsigned int n)
 {

@@ -24,6 +24,7 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_device.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -107,7 +108,10 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueOnGPU
+    holovibes::settings::RecordQueueLocation,                       \
+    holovibes::settings::RawViewQueueLocation,                      \
+    holovibes::settings::InputQueueLocation,                        \
+    holovibes::settings::RecordOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -200,6 +204,12 @@ class Holovibes
     std::shared_ptr<Queue> get_gpu_output_queue();
     /*! \} */
 
+    /*!
+     * \brief Used to record frames
+     */
+    std::atomic<std::shared_ptr<Queue>> get_record_queue();
+
+
     /*! \name Getters/Setters
      * \{
      */
@@ -236,6 +246,19 @@ class Holovibes
      * \param input_queue_size size of the input queue
      */
     void init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size);
+
+    /*!
+     * \brief Initializes the input queue with the same fd, when it already exist
+     * 
+     * \param input_queue_size size of the input queue
+     */
+    void init_input_queue(const unsigned int input_queue_size);
+    
+    /*!
+     * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
+     * 
+     */
+    void init_record_queue();
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
@@ -329,6 +352,7 @@ class Holovibes
         }
     }
 
+    
     template <typename T>
     inline T get_setting()
     {
@@ -357,7 +381,7 @@ class Holovibes
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
                                              settings::RecordFilePath{std::string("")},
-                                             settings::RecordFrameCount{0},
+                                             settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordFrameSkip{0},
                                              settings::OutputBufferSize{1024},
@@ -424,7 +448,10 @@ class Holovibes
                                              settings::RGB{CompositeRGB{}},
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
-                                             settings::RecordQueueOnGPU{false}))
+                                             settings::RecordQueueLocation{Device::CPU},
+                                             settings::RawViewQueueLocation{Device::GPU},
+                                             settings::InputQueueLocation{Device::GPU},
+                                             settings::RecordOnGPU{true}))
     {
     }
 
@@ -443,8 +470,9 @@ class Holovibes
     /*! \name Frames queue (GPU)
      * \{
      */
-    std::atomic<std::shared_ptr<BatchInputQueue>> gpu_input_queue_{nullptr};
+    std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
+    std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
 
     CudaStreams cuda_streams_;

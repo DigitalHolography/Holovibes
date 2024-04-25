@@ -3,6 +3,7 @@
 #include "logger.hh"
 #include "holovibes.hh"
 #include "API.hh"
+#include "camera_config.hh"
 
 namespace holovibes::io_files
 {
@@ -38,7 +39,8 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
         auto j_fi =
             json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
                  {"input_fps", input_fps},
-                 {"contiguous", contiguous}};
+                 {"contiguous", contiguous},
+                 {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);
@@ -58,9 +60,12 @@ void OutputHoloFile::write_header()
         throw FileException("Unable to write output holo file header");
 }
 
+
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
     const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
+
+    // std::fflush(file_);
 
     if (written_bytes != frame_size)
         throw FileException("Unable to write output holo file frame");

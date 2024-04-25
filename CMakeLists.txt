@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(Holovibes
-	VERSION 12.9.7
+	VERSION 12.10.1
 	DESCRIPTION "Holovibes"
 	LANGUAGES CXX CUDA
 )
@@ -16,8 +16,8 @@ set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
 # All packages used by the project.
 find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(CUDA 11.5 REQUIRED)
-find_package(CUDAToolkit 11.5 REQUIRED)
+find_package(CUDA 12.2 REQUIRED)
+find_package(CUDAToolkit 12.2 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Core Charts OpenGL OpenGLWidgets)
 find_package(opengl_system REQUIRED)

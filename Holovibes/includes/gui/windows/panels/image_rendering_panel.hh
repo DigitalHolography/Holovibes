@@ -111,6 +111,7 @@ class ImageRenderingPanel : public Panel
      * \param enable true: enable, false: disable
      */
     void set_convolution_mode(const bool enable);
+
     /*! \brief Modifies convolution kernel
      *
      * \param value The new kernel to apply

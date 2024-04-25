@@ -188,6 +188,11 @@ inline void set_display_rate(float value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::DisplayRate{value});
 }
+inline holovibes::Device get_input_queue_location(){ return holovibes::Holovibes::instance().get_setting<settings::InputQueueLocation>().value;}
+inline void set_input_queue_location(holovibes::Device value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueLocation{value});
+}
 
 inline ViewXY get_x(void) { return holovibes::Holovibes::instance().get_setting<settings::X>().value; }
 
@@ -407,13 +412,9 @@ inline void set_xz_contrast_auto_refresh(bool value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline bool get_record_queue_location()
+inline holovibes::Device get_record_queue_location()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueOnGPU>().value;
-}
-inline void set_record_queue_location(bool value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueOnGPU{value});
+    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueLocation>().value;
 }
 
 inline void set_xz_contrast_invert(bool value) noexcept
@@ -694,6 +695,17 @@ inline bool get_raw_view_enabled()
     return holovibes::Holovibes::instance().get_setting<settings::RawViewEnabled>().value;
 }
 
+inline holovibes::Device get_raw_view_queue_location()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueLocation>().value;
+}
+
+inline void set_raw_view_queue_location(holovibes::Device value)
+{
+    Holovibes::instance().update_setting(holovibes::settings::RawViewQueueLocation{value});
+}
+
+
 inline void set_raw_view_enabled(bool value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawViewEnabled{value});
@@ -819,6 +831,16 @@ inline RecordMode get_record_mode()
 inline void set_record_mode(RecordMode value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordMode{value});
+}
+
+inline void set_record_on_gpu(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordOnGPU{value});
+}
+
+inline bool get_record_on_gpu()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordOnGPU>().value;
 }
 
 inline size_t get_record_frame_skip()

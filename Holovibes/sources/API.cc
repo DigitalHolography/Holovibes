@@ -2,6 +2,8 @@
 #include "logger.hh"
 #include "input_filter.hh"
 
+#include <unordered_map>
+
 namespace holovibes::api
 {
 
@@ -30,6 +32,10 @@ const std::string get_credits()
            "\n\n"
 
            "Developers:\n\n"
+
+           "Chloé Magnier\n"
+           "Noé Topeza\n"
+           "Maxime Boy-Arnould\n"
 
            "Oscar Morand\n"
            "Paul Duhot\n"
@@ -161,32 +167,29 @@ bool change_camera(CameraKind c)
 
     try
     {
-        for (size_t i = 0; i < 2; i++)
+        if (get_compute_mode() == Computation::Raw)
+            Holovibes::instance().stop_compute();
+        Holovibes::instance().stop_frame_read();
+
+        try
         {
-            if (get_compute_mode() == Computation::Raw)
-                Holovibes::instance().stop_compute();
-            Holovibes::instance().stop_frame_read();
-
-            try
-            {
-                Holovibes::instance().start_camera_frame_read(c);
-            }
-            catch(const std::exception& e)
-            {
-                LOG_INFO("Set camera to NONE");
-
-                j_us["camera"]["type"] = 0;
-                std::ofstream output_file(path);
-                output_file << j_us.dump(1);
-                Holovibes::instance().stop_frame_read();
-                return false;
-            }
-            
-            UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-            UserInterfaceDescriptor::instance().kCamera = c;
-
-            set_is_computation_stopped(false);
+            Holovibes::instance().start_camera_frame_read(c);
         }
+        catch(const std::exception& e)
+        {
+            LOG_INFO("Set camera to NONE");
+
+            j_us["camera"]["type"] = 0;
+            std::ofstream output_file(path);
+            output_file << j_us.dump(1);
+            Holovibes::instance().stop_frame_read();
+            return false;
+        }
+        
+        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
+        UserInterfaceDescriptor::instance().kCamera = c;
+
+        set_is_computation_stopped(false);
 
         std::ofstream output_file(path);
         output_file << j_us.dump(1);
@@ -258,6 +261,18 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
     int final_width = json_get_or_default(j_us, width, "holo window", "width");
     int final_height = json_get_or_default(j_us, height, "holo window", "height");
     return QSize(final_width, final_height);
+}
+
+void set_image_mode(Computation mode, uint window_max_size)
+{
+    if (mode == Computation::Raw)
+    {
+        set_raw_mode(window_max_size);
+    }
+    else if (mode == Computation::Hologram)
+    {
+        set_holographic_mode(window_max_size);
+    }
 }
 
 void set_raw_mode(uint window_max_size)
@@ -1132,8 +1147,6 @@ void update_contrast(WindowKind kind, float min, float max)
         api::set_filter2d_contrast(min, max);
         break;
     }
-
-    GSH::instance().notify();
 }
 
 void set_log_scale(const bool value)
@@ -1586,72 +1599,84 @@ void stop_chart_display()
 
 const std::string browse_record_output_file(std::string& std_filepath)
 {
-    // FIXME: path separator should depend from system
-    std::replace(std_filepath.begin(), std_filepath.end(), '/', '\\');
-    std::filesystem::path path = std::filesystem::path(std_filepath);
+    // Let std::filesystem handle path normalization and system compatibility
+    std::filesystem::path normalizedPath(std_filepath);
 
-    // FIXME Opti: we could be all these 3 operations below on a single string processing
-    UserInterfaceDescriptor::instance().record_output_directory_ = path.parent_path().string();
-    const std::string file_ext = path.extension().string();
-    UserInterfaceDescriptor::instance().default_output_filename_ = path.stem().string();
+    // Using std::filesystem to derive parent path, extension, and stem directly
+    std::string parentPath = normalizedPath.parent_path().string();
+    std::string fileExt = normalizedPath.extension().string();
+    std::string fileNameWithoutExt = normalizedPath.stem().string();
 
-    return file_ext;
+    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
+    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
+    UserInterfaceDescriptor::instance().default_output_filename_ = std::move(fileNameWithoutExt);
+
+    return fileExt;
 }
 
 void set_record_buffer_size(uint value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+    //since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (get_record_buffer_size() != value) {
 
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try
-    {
-        if (Holovibes::instance().is_recording())
-            stop_record();
-        get_compute_pipe()->init_record_queue();
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
+        Holovibes::instance().init_record_queue();   
     }
-    catch (const std::exception& e)
-    {
-        LOG_DEBUG("Pipe not initialized");
+}
+
+void set_record_queue_location(Device device) {
+    // we check since this function is always triggered when we save the advanced settings, even if the location was not modified
+    if (get_record_queue_location() != device) {
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueLocation{device});
+        if (Holovibes::instance().is_recording()) 
+                stop_record();
+        Holovibes::instance().init_record_queue(); 
     }
 }
 
 void set_record_mode(const std::string& text)
 {
     LOG_FUNC(text);
-    // TODO: Dictionnary
-    if (text == "Chart")
-        set_record_mode(RecordMode::CHART);
-    else if (text == "Processed Image")
-        set_record_mode(RecordMode::HOLOGRAM);
-    else if (text == "Raw Image")
-        set_record_mode(RecordMode::RAW);
-    else if (text == "3D Cuts XZ")
-        set_record_mode(RecordMode::CUTS_XZ);
-    else if (text == "3D Cuts YZ")
-        set_record_mode(RecordMode::CUTS_YZ);
-    else
+    
+    // Mapping from string to RecordMode
+    static const std::unordered_map<std::string, RecordMode> recordModeMap = {
+        {"Chart", RecordMode::CHART},
+        {"Processed Image", RecordMode::HOLOGRAM},
+        {"Raw Image", RecordMode::RAW},
+        {"3D Cuts XZ", RecordMode::CUTS_XZ},
+        {"3D Cuts YZ", RecordMode::CUTS_YZ}
+    };
+    
+    auto it = recordModeMap.find(text);
+    if (it == recordModeMap.end())
     {
         LOG_ERROR("Unknown record mode {}", text);
-        throw std::exception("Record mode not handled");
+        throw std::runtime_error("Record mode not handled");
     }
-
+    
+    set_record_mode(it->second);
     RecordMode record_mode = api::get_record_mode();
-    // When Holovibes starts, this function will be accessed before the pipe is built.
-    try
+    
+    // Attempt to initialize compute pipe for non-CHART record modes
+    if (record_mode != RecordMode::CHART)
     {
-        auto pipe = get_compute_pipe();
-        if (record_mode != RecordMode::CHART)
+        try
         {
+            auto pipe = get_compute_pipe();
             if (Holovibes::instance().is_recording())
+            {
                 stop_record();
-
-            get_compute_pipe()->init_record_queue();
+            }
+            Holovibes::instance().init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
-    }
-    catch (const std::exception& e)
-    {
-        LOG_DEBUG("Pipe not initialized");
+        catch (const std::exception& e)
+        {
+            LOG_DEBUG("Pipe not initialized: {}", e.what());
+        }
     }
 }
 
@@ -1681,6 +1706,45 @@ bool start_record_preconditions(const bool batch_enabled,
     return true;
 }
 
+void set_record_device(const Device device)
+{
+    if (Holovibes::instance().is_recording()) 
+        stop_record();
+
+    if (get_compute_mode() == Computation::Hologram)
+        Holovibes::instance().stop_compute();
+
+    // set_compute_mode(Computation::Raw);
+
+    if (get_raw_view_queue_location() != device)
+        set_raw_view_queue_location(device);
+
+    if (get_record_queue_location() != device && (device == Device::CPU)) // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
+        set_record_queue_location(device);
+
+    if (get_input_queue_location() != device)
+    {
+        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+
+        auto c = CameraKind::NONE;
+        if (it == ImportType::Camera) {
+            c = UserInterfaceDescriptor::instance().kCamera;
+            camera_none();
+        }
+        else if (it == ImportType::File)
+            import_stop();
+        set_input_queue_location(device);
+        if (device == Device::CPU)
+            set_compute_mode(Computation::Raw);
+        if (it == ImportType::Camera)
+            change_camera(c);
+        else 
+            import_start();
+
+        set_image_mode(get_compute_mode(), 1);
+    }
+}
+
 void start_record(std::function<void()> callback)
 {
     RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
@@ -1706,6 +1770,8 @@ void stop_record()
              UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
              UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
+
+    // Holovibes::instance().get_record_queue().load()->dequeue(-1);
 }
 
 void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
@@ -1722,6 +1788,7 @@ void import_stop()
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
+
     Holovibes::instance().start_information_display();
 
     UserInterfaceDescriptor::instance().import_type_ = ImportType::None;

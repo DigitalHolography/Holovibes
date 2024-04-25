@@ -195,23 +195,20 @@ void FourierTransform::insert_time_transform()
     auto time_transformation = setting<settings::TimeTransformation>();
     auto time_transformation_size = setting<settings::TimeTransformationSize>();
 
-    if (time_transformation == TimeTransformation::STFT)
-    {
-        insert_stft();
-    }
-    else if (time_transformation == TimeTransformation::PCA)
-    {
-        insert_pca();
-    }
-    else if (time_transformation == TimeTransformation::SSA_STFT)
-    {
-        insert_ssa_stft(setting<settings::Q>());
-    }
-    else // TimeTransformation::None
-    {
-        // Just copy data to the next buffer
-        fn_compute_vect_.conditional_push_back(
-            [=]()
+    switch (time_transformation) {
+        case TimeTransformation::STFT:
+            insert_stft();
+            break;
+        case TimeTransformation::PCA:
+            insert_pca();
+            break;
+        case TimeTransformation::SSA_STFT:
+            insert_ssa_stft(setting<settings::Q>());
+            break;
+        case TimeTransformation::NONE:
+            // Just copy data to the next buffer
+            fn_compute_vect_.conditional_push_back(
+                [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
                 auto& q = time_transformation_env_.gpu_time_transformation_queue;
@@ -219,6 +216,10 @@ void FourierTransform::insert_time_transform()
 
                 cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
             });
+            break;
+        default:
+            LOG_ERROR("Unknown time transformation");
+            break;
     }
 }
 
