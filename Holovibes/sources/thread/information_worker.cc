@@ -110,7 +110,7 @@ void InformationWorker::run()
                     benchmark_file << "Version: 0";
                     for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
                         benchmark_file << "," << indication_type_to_string_.at(key) << ": " << *value;
-                    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
+                    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)  //! FIXME causes a crash on start when camera pre-selected
                         benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
                     benchmark_file << "\n";
                     // 11 headers
