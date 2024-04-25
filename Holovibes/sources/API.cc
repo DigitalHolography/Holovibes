@@ -287,10 +287,11 @@ void set_raw_mode(uint window_max_size)
     init_image_mode(pos, size);
 
     set_compute_mode(Computation::Raw);
+
     create_pipe(); // To remove ?
 
     LOG_INFO("Raw mode set");
-
+    Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -312,6 +313,8 @@ void create_holo_window(ushort window_size)
     QPoint pos = getSavedHoloWindowPos();
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
+
+    Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
 
     try
     {
