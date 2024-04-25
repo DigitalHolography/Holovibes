@@ -1,6 +1,11 @@
 ## Changelog
 
+### 12.10.1
+
+* Improved memory management for 3d cuts
+
 ### 12.10.0
+
 * CPU record mode only activates when record is triggered
 * Fix hflip zoom
 * Fix record with no number of frames specified
@@ -11,18 +16,22 @@
 * Fallback to default settings in case of faulty footer in file
 
 ### 12.9.9
+
 * Only allocate the queues when the size is changed (no wait time when changing the image mode)
 
 ### 12.9.8
+
 * Add the possibility to move the input queue on the cpu to record in cpu mode
 * Add tests
 
 ### 12.9.7
+
 * Fix testsuite
 * Fix dev.py
 * Add pseudo-benchmarks on testsuite
 
 ### 12.9.6
+
 * Add s711 camera support
 * Partial record fix : possible to record holograms and raw images (when indicating number of frames)
 
@@ -31,32 +40,41 @@
 ### 12.9.1
 
 ### 12.9.0
+
 * Sticky windows
 
 ### 12.8.0
+
 * Update camera and compute mode when closing
 
 ### 12.7.0
+
 * Conan 2 toolchain
 
 ### 12.6.0
+
 * Add s991 camera support
-* Remove hue blue HSV option 
+* Remove hue blue HSV option
 
 ### 12.5.0
+
 * Remove HSV auto weight normalization
 
 ### 12.4.0
+
 * Add different HSV treshold normalization methods
 
 ### 12.3.0
+
 * Stop record when changing the record mode or the record queue size
 * Ensure contiguity of the first *record queue size* images recorded
 
 ### 12.2.0
+
 * Add button too chose dynamically between CPU/GPU for the record queue
 
 ### 12.1.1
+
 * Use variants instead of dynamic polymorphism for choosing the location of the queue (CPU/GPU)
 
 ### 12.1.0
@@ -164,11 +182,11 @@
 ### 10.7.0
 
 * Global state refacto, needed to organize and gather up the global state (formerly in the compute descriptor) :
-  - Creation of the global state holder (GSH), which puts rules on the flow of variables from the front to the backend (getters and setters), and centralizes the value specific state logic (like thresholds or constraints between variables)
-  - Removal of the hundreds of std::atomic<> used everywhere there was some state flowing between workers, by :
-    - mofifying the GSH only from the API, and the pipe's make request (to be modified)
-    - providing caches to the ComputeWorker, in order to have a quick access to needed variables, and to be able to choose when to synchronize the pipe (a first step towards the removal of the request mechanism)
-    - creating the FastUpdateHolder (has been implemented for a few releases already) for the high updated rate variables used by the InformationWorker
+  * Creation of the global state holder (GSH), which puts rules on the flow of variables from the front to the backend (getters and setters), and centralizes the value specific state logic (like thresholds or constraints between variables)
+  * Removal of the hundreds of std::atomic<> used everywhere there was some state flowing between workers, by :
+    * mofifying the GSH only from the API, and the pipe's make request (to be modified)
+    * providing caches to the ComputeWorker, in order to have a quick access to needed variables, and to be able to choose when to synchronize the pipe (a first step towards the removal of the request mechanism)
+    * creating the FastUpdateHolder (has been implemented for a few releases already) for the high updated rate variables used by the InformationWorker
 
 ### 10.6.4
 
@@ -407,6 +425,7 @@
 * GUI: simplify export panel
 * Add support for camera Phantom S710
 * More error handling and bug fixes
+
 ### 8.8.1
 
 * Fix crash when loading camera Adimec
@@ -520,7 +539,7 @@
 
 * Fix small bugs preventing composite HSV and RGB images to render correctly
 * Remove features related to motion and focus (crop STFT, zoom lock, stabilization, interpolation, jitterm zernike, aberration, autofocus)
-* Rename class attributes for classes ComputeDescriptor and FrameDescriptor by cd_ and fd_ for consistency
+* Rename class attributes for classes ComputeDescriptor and FrameDescriptor by cd_and fd_ for consistency
 * Clean code of the pipe and add some comments
 * Clean and split README in multiple files: AUTHORS, CHANGELOG, CONTRIBUTORS, DEVELOPERS and TODO
 
@@ -911,8 +930,8 @@ Eloi C., Florian L., and Julien G. are now working on the project until December
 * Add Beta feature: 3D view
 * Phase accumulation
 * Add: STFT cuts:
-    - Record
-    - Image type (Modulus / Squared Modulus / Argument / Complex)
+  * Record
+  * Image type (Modulus / Squared Modulus / Argument / Complex)
 * Full screen
 * External Trigger (STFT)
 * Update: Rotation and Flip mechanism
@@ -920,18 +939,18 @@ Eloi C., Florian L., and Julien G. are now working on the project until December
 ### v.4.3.0
 
 * Add: STFT cuts :
-    - Cross Cursor
-    - Auto contrast at start
+  * Cross Cursor
+  * Auto contrast at start
 * Add: FocusIn event to select windows in program
 * Add: Direct output buffer
 
 ### v.4.2.0
 
 * Add: STFT cuts :
-    - Rotation and flip
-    - Contrast
-    - Log Scale
-    - Spacial images accumulations
+  * Rotation and flip
+  * Contrast
+  * Log Scale
+  * Spacial images accumulations
 * Add: title detect for imported files
 * Add: New colors for Autofocus, 2DFilter, and Average when selected
 * Update: Record now outputs a raw with properties in title readable by title detect feature
@@ -948,12 +967,10 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 * Bug fixing
 * Jump a version to match CNRS repository (4.0)
 
-
 ### v.2.5.0
 
 * Bug fixing
 * Errors in Holovibes are now displayed & better handled.
-
 
 ### v.2.4.0
 
@@ -965,7 +982,6 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 * Add Filter2D feature.
 * Add Complex display & record
 
-
 ### v.2.3.0
 
 * FFT1 & FFT2 fixed
@@ -973,14 +989,12 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 * add accumulation stack feature
 * fix several bugs
 
-
 ### v.2.2.0
 
 * Add float file import
 * Add complex file write/import
 * Add complex color display
 * several GUI changes
-
 
 ### v.2.1.0
 
@@ -991,16 +1005,13 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 * Add: cine file parsing
 * Add: GUI themes
 
-
 ### v.2.0.1
 
 * Several bugs fixed
 
-
 ## September 2016 -- January 2017 ##
 
 Cyril, Cl�ment are now working on the project until January 2017.
-
 
 ### v.1.5.0
 
@@ -1011,23 +1022,19 @@ Cyril, Cl�ment are now working on the project until January 2017.
 * Dependencies are now handled in a smarter way (not including things where they should not be)
 * Ini file is now more dense and can configure more parameters
 
-
 ### v.1.4.0
 
 * Pipeline has been renamed to Pipe, and Pipeline now refers to a another way to treat buffers, with several actions being done at the same time by workers
-
 
 ### v.1.3.0
 
 * GPIB is now working with VISA, handling several instructions per blocks
 * Minor changes
 
-
 ### v.1.2.0
 
 * Adimec Quartz A2750 camera is now supported
 * Stft can be applied to the image (instead of fft1/fft2)
-
 
 ### v.1.1.0
 
@@ -1036,7 +1043,6 @@ Cyril, Cl�ment are now working on the project until January 2017.
 * Edge camera is now heavily handled
 * XIQ now supports ROI
 
-
 ### v.1.0.2
 
 * The autofocus can now be done recursively, allowing it to be performed must faster.
@@ -1044,18 +1050,15 @@ Cyril, Cl�ment are now working on the project until January 2017.
 * Zoom is properly working now.
 * The interface is responsive
 
-
 ### v.1.0.1
 
 * Instead of taking the source images directly from the camera, the user can specify an input file (.raw) which will be read by the program.
 * The autofocus has been improved a lot in terms of precision.
 * Some small performance changes.
 
-
 ## September 2015 -- January 2016 ##
 
 Eric, Arnaud and Geoffrey are now working on the project until January 2016.
-
 
 ### v1.0.0 ###
 
@@ -1064,24 +1067,20 @@ Major release
 * Add documentation `;-)`
 * Add HoloVibes' icon
 
-
 ### v0.7.4 ###
 
 * Minor GUI fix
-
 
 ### v0.7.3 ###
 
 * GUI average/ROI plot and record bug fix
 * Minor GUI fix
 
-
 ### v0.7.1 ###
 
 * All records can now be stopped
 * Autofocus is now handling selection zones
 * Minor GUI changes
-
 
 ### v0.7 ###
 
@@ -1090,22 +1089,18 @@ Major release
 * update to qwt 6.1.2
 * update to qt 5.4
 
-
 ### v0.6.1 ###
 
 * CSV plot and batch simultaneously
-
 
 ### v.0.6.0 ###
 
 * CSV batch
 
-
 ### v.0.5.9 ###
 
 * Improved DLL loader
 * Add smart pointers (memory safety)
-
 
 ### v.0.5.8 ###
 
@@ -1114,12 +1109,10 @@ Major release
 * Recorder bug fixed
 * Camera DLL loader
 
-
 ### v.0.5.7 ###
 
 * GUI ROI plot is freezing when recording
 * GUI changing ROI plot number of points on the fly
-
 
 ### v.0.5.6 ###
 
@@ -1127,33 +1120,27 @@ Major release
 * GUI auto scale for plot average
 * GUI minor bugs fixed
 
-
 ### v.0.5.5 ###
 
 * GUI plot average
-
 
 ### v.0.5.4 ###
 
 * GUI/CLI minor changes
 * Update iXon camera
 
-
 ### v.0.5.3 ###
 
 * GUI bug fixes
 * Add average values recording
 
-
 ### v.0.5.2 ###
 
 * Fix FFT shift corner algorithm
 
-
 ### v.0.5.1 ###
 
 * Fix dequeue method for Recorder
-
 
 ### v.0.5 ###
 
@@ -1166,7 +1153,6 @@ Major release
 * Auto-contrast
 * Camera Andor iXon support (beta)
 
-
 ### v.0.4.3 ###
 
 * GUI
@@ -1178,7 +1164,6 @@ Major release
 * Update CLI
   * Display mode is not available in --nogui mode
   * No Qt in CLI mode
-
 
 ### v.0.4.2 ###
 
@@ -1203,14 +1188,12 @@ Major release
 * CLI updated (--nogui mode)
 * CLI can set parameters on GUI.
 
-
 ### v.0.3.0 ###
 
 * Add FFT2 algorithm written in CUDA.
 * Images to be displayed remains in GPU memory (no more copy to CPU-GPU).
 * Fix queue endianness handling.
 * 8-bit frames are rescaled in 16-bit frames before computation.
-
 
 ### v.0.2.0 ###
 
@@ -1219,12 +1202,10 @@ Major release
 * When FFT is enabled, the display shows output frames at 30fps.
 * Some bug fixes.
 
-
 ### v.0.1.1 ###
 
 * Fix recorder issue.
 * Fix pike 16-bit issue.
-
 
 ### v.0.1 ###
 
