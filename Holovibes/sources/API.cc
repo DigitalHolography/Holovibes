@@ -1488,19 +1488,21 @@ void enable_filter(const std::string& filename)
     if (filename == UID_FILTER_TYPE_DEFAULT)
         return;
 
-    try
-    {
-        auto pipe = get_compute_pipe();
-        pipe->request_filter();
-        // Wait for the filter to be enabled for notify
-        while (pipe->get_filter_requested())
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        disable_filter();
-        LOG_ERROR("Catch {}", e.what());
-    }
+    pipe_refresh();
+
+    // try
+    // {
+    //     auto pipe = get_compute_pipe();
+    //     pipe->request_filter();
+    //     // Wait for the filter to be enabled for notify
+    //     while (pipe->get_filter_requested())
+    //         continue;
+    // }
+    // catch (const std::exception& e)
+    // {
+    //     disable_filter();
+    //     LOG_ERROR("Catch {}", e.what());
+    // }
 }
 
 void disable_filter()

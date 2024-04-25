@@ -102,36 +102,6 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    try
-    {
-        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
-        // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-    }
-    catch (const std::exception&)
-    {
-        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
-                 ::holovibes::settings::compute_settings_filepath);
-        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
-    }
-
-    load_gui();
-
-    // Display default values
-    api::set_compute_mode(api::get_compute_mode());
-    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
-                                                             ? "Composite image"
-                                                             : UserInterfaceDescriptor::instance().last_img_type_;
-    notify();
-
-    setFocusPolicy(Qt::StrongFocus);
-
-    // spinBox allow ',' and '.' as decimal point
-    spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
-    spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
-
     // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
@@ -159,8 +129,35 @@ MainWindow::MainWindow(QWidget* parent)
         std::sort(files.begin(), files.end(), [&](const auto& a, const auto& b) { return a < b; });
         files.push_front(QString(UID_FILTER_TYPE_DEFAULT));
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
-
     }
+
+    try
+    {
+        api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+        // Set values not set by notify
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
+    }
+    catch (const std::exception&)
+    {
+        LOG_INFO("{}: Compute settings incorrect or file not found. Initialization with default values.",
+                 ::holovibes::settings::compute_settings_filepath);
+        api::save_compute_settings(holovibes::settings::compute_settings_filepath);
+    }
+
+    // Display default values
+    api::set_compute_mode(api::get_compute_mode());
+    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
+                                                             ? "Composite image"
+                                                             : UserInterfaceDescriptor::instance().last_img_type_;
+    load_gui();
+
+    setFocusPolicy(Qt::StrongFocus);
+
+    // spinBox allow ',' and '.' as decimal point
+    spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
+    spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
@@ -375,7 +372,8 @@ void MainWindow::load_gui()
 
     set_theme(json_get_or_default(j_us, Theme::Dark, "display", "theme"));
 
-    setBaseSize(json_get_or_default(j_us, 879, "main window", "width"), json_get_or_default(j_us, 470, "main window", "height"));
+    setBaseSize(json_get_or_default(j_us, 879, "main window", "width"),
+                json_get_or_default(j_us, 470, "main window", "height"));
     resize(baseSize());
     move(json_get_or_default(j_us, 560, "main window", "x"), json_get_or_default(j_us, 290, "main window", "y"));
 
@@ -425,7 +423,7 @@ void MainWindow::load_gui()
 
     if (camera != CameraKind::NONE)
     {
-        
+
         ui_->actionSettings->setEnabled(true);
         if (compute_mode == 0)
         {
@@ -453,8 +451,13 @@ void MainWindow::save_gui()
 
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);
-    try {j_us = json::parse(input_file);}
-    catch(const std::exception& e) {}
+    try
+    {
+        j_us = json::parse(input_file);
+    }
+    catch (const std::exception& e)
+    {
+    }
 
     j_us["display"]["theme"] = theme_;
 
@@ -476,7 +479,7 @@ void MainWindow::save_gui()
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
-    j_us["image rendering"]["mode"] = (int) api::get_compute_mode();
+    j_us["image rendering"]["mode"] = (int)api::get_compute_mode();
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -550,11 +553,11 @@ void MainWindow::camera_xib() { change_camera(CameraKind::xiB); }
 
 void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 
-void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP);}
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP); }
 
-void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP);}
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
-void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek);}
+void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion

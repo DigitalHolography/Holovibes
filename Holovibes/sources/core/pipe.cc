@@ -29,8 +29,7 @@ namespace holovibes
 
 void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
-    while (record_queue_.get_size() + nb_elm_to_add >
-               record_queue_.get_max_size() &&
+    while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
            Holovibes::instance().is_recording())
     {
@@ -144,7 +143,9 @@ bool Pipe::make_requests()
         LOG_DEBUG("filter_requested");
 
         // TODO
-        //fourier_transforms_->init();
+        // fourier_transforms_->init();
+        api::enable_filter();
+        fourier_transforms_->update_setting(settings::InputFilter{api::get_input_filter()});
         filter_requested_ = false;
     }
 
@@ -214,7 +215,10 @@ bool Pipe::make_requests()
         LOG_DEBUG("raw_view_requested");
 
         auto fd = input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>(), QueueType::UNDEFINED, setting<settings::RawViewQueueLocation>()));
+        gpu_raw_view_queue_.reset(new Queue(fd,
+                                            setting<settings::OutputBufferSize>(),
+                                            QueueType::UNDEFINED,
+                                            setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
         raw_view_requested_ = false;
     }
@@ -282,6 +286,8 @@ void Pipe::refresh()
     // This call has to be after make_requests() because this method needs
     // to honor cache modifications
     synchronize_caches();
+
+    pipe_refresh_apply_updates();
 
     /*
      * With the --default-stream per-thread nvcc options, each thread runs cuda
@@ -351,8 +357,7 @@ void Pipe::refresh()
 
     insert_filter2d_view();
 
-    postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(),
-                                     buffers_.gpu_convolution_buffer.get());
+    postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     auto insert = [&]()
@@ -373,7 +378,7 @@ void Pipe::refresh()
                                 autocontrast_slice_yz_requested_,
                                 autocontrast_filter2d_requested_);
 
-    //converts_->insert_cuts_final();
+    // converts_->insert_cuts_final();
 
     converts_->insert_to_ushort();
 
@@ -532,9 +537,11 @@ void Pipe::insert_raw_view()
                 // queue
                 cudaMemcpyKind memcpy_kind;
                 if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                           : cudaMemcpyDeviceToHost;
                 else
-                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyHostToHost;
+                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
+                                                                                           : cudaMemcpyHostToHost;
 
                 input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
             });
@@ -543,33 +550,36 @@ void Pipe::insert_raw_view()
 
 void Pipe::insert_raw_record()
 {
-    
-    // Increment the number of frames inserted in the record queue, so that when it bypasses the requested number, the record finishes
-    // This counter happens during the enqueing instead of the dequeuing, because the frequency of the gpu_input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of the record queue
-    // When a new record is started, a refresh of the pipe is requested, and this variable is reset
+
+    // Increment the number of frames inserted in the record queue, so that when it bypasses the requested number, the
+    // record finishes This counter happens during the enqueing instead of the dequeuing, because the frequency of the
+    // gpu_input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of
+    // the record queue When a new record is started, a refresh of the pipe is requested, and this variable is reset
     static size_t inserted = 0;
     inserted = 0;
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::RAW)
     {
-        //if (Holovibes::instance().is_cli)
+        // if (Holovibes::instance().is_cli)
         fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
 
         fn_compute_vect_.push_back(
-            [&]() {
+            [&]()
+            {
                 // If the number of frames to record is reached, stop
-                if (setting<settings::RecordFrameCount>() != std::nullopt && inserted >= setting<settings::RecordFrameCount>().value())
+                if (setting<settings::RecordFrameCount>() != std::nullopt &&
+                    inserted >= setting<settings::RecordFrameCount>().value())
                 {
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;
                 if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                          : cudaMemcpyDeviceToHost;
                 else
-                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice : cudaMemcpyDeviceToHost;
+                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
+                                                                                          : cudaMemcpyDeviceToHost;
 
-                input_queue_.copy_multiple(record_queue_,
-                                            setting<settings::BatchSize>(), memcpy_kind);
-                
+                input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
                 inserted += setting<settings::BatchSize>();
             });
@@ -588,9 +598,16 @@ void Pipe::insert_hologram_record()
             {
                 if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
                     record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                                                  stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                                                     stream_,
+                                                     setting<settings::RecordQueueLocation>() == Device::GPU
+                                                         ? cudaMemcpyDeviceToDevice
+                                                         : cudaMemcpyDeviceToHost);
                 else
-                    record_queue_.enqueue(buffers_.gpu_output_frame.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+                    record_queue_.enqueue(buffers_.gpu_output_frame.get(),
+                                          stream_,
+                                          setting<settings::RecordQueueLocation>() == Device::GPU
+                                              ? cudaMemcpyDeviceToDevice
+                                              : cudaMemcpyDeviceToHost);
             });
     }
 }
@@ -603,13 +620,25 @@ void Pipe::insert_cuts_record()
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                {
+                    record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(),
+                                          stream_,
+                                          setting<settings::RecordQueueLocation>() == Device::GPU
+                                              ? cudaMemcpyDeviceToDevice
+                                              : cudaMemcpyDeviceToHost);
+                });
         }
         else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
         {
             fn_compute_vect_.push_back(
                 [&]()
-                { record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(), stream_, setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost); });
+                {
+                    record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(),
+                                          stream_,
+                                          setting<settings::RecordQueueLocation>() == Device::GPU
+                                              ? cudaMemcpyDeviceToDevice
+                                              : cudaMemcpyDeviceToHost);
+                });
         }
     }
 }

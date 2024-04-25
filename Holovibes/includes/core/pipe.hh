@@ -187,7 +187,7 @@ class Pipe : public ICompute
         *processed_output_fps_ = 0;
         update_time_transformation_size_requested_ = true;
 
-        post_init();
+        pre_init();
 
         try
         {
@@ -234,7 +234,7 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    void post_init()
+    void pre_init()
     {
         if (setting<settings::FilterEnabled>())
             request_filter();
