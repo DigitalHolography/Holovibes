@@ -266,11 +266,6 @@ bool Pipe::make_requests()
 void Pipe::refresh()
 {
     pipe_refresh_apply_updates();
-    // This call has to be before make_requests() because this method needs
-    // to get updated values during exec_all() call
-    // This call could be removed if make_requests() only gets value through
-    // reference caches as such: GSH::instance().get_*() instead of *_cache_.get_*()
-    synchronize_caches();
 
     refresh_requested_ = false;
 
@@ -282,10 +277,6 @@ void Pipe::refresh()
         refresh_requested_ = false;
         return;
     }
-
-    // This call has to be after make_requests() because this method needs
-    // to honor cache modifications
-    synchronize_caches();
 
     pipe_refresh_apply_updates();
 
@@ -656,8 +647,6 @@ void Pipe::exec()
     if (refresh_requested_)
         refresh();
 
-    synchronize_caches();
-
     while (!termination_requested_)
     {
         try
@@ -668,7 +657,6 @@ void Pipe::exec()
             if (refresh_requested_)
             {
                 refresh();
-                synchronize_caches();
             }
         }
         catch (CustomException& e)
@@ -689,8 +677,6 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
 
 void Pipe::run_all()
 {
-    synchronize_caches();
-
     for (FnType& f : fn_compute_vect_)
         f();
     {
@@ -701,9 +687,4 @@ void Pipe::run_all()
     }
 }
 
-void Pipe::synchronize_caches()
-{
-    // never updated during the life time of the app
-    // all updated params will be catched on json file when the app will load
-}
 } // namespace holovibes

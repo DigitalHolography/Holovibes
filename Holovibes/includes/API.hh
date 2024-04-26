@@ -804,6 +804,13 @@ void update_time_stride(std::function<void()> callback, const uint time_stride);
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
 
+/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
+ * time_stride were modified on the GUI, so no notify is needed.
+ *
+ * \param batch_size the new value
+ */
+void update_batch_size(const uint batch_size);
+
 /*! \brief Modifies view image type
  *
  * \param value The new image type

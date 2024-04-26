@@ -421,23 +421,23 @@ void MainWindow::load_gui()
 
     api::change_camera(camera);
 
-    if (camera != CameraKind::NONE)
-    {
+    // if (camera != CameraKind::NONE)
+    // {
 
-        ui_->actionSettings->setEnabled(true);
-        if (compute_mode == 0)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
-    }
+    //     ui_->actionSettings->setEnabled(true);
+    //     if (compute_mode == 0)
+    //     {
+    //         LOG_INFO("RAW");
+    //         api::set_compute_mode(Computation::Raw);
+    //         api::set_raw_mode(1);
+    //     }
+    //     else
+    //     {
+    //         LOG_INFO("HOLO");
+    //         api::set_compute_mode(Computation::Hologram);
+    //         api::set_holographic_mode(1);
+    //     }
+    // }
 
     notify();
 }

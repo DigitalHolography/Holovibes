@@ -189,30 +189,30 @@ class Pipe : public ICompute
 
         pre_init();
 
-        try
-        {
-            refresh();
-        }
-        catch (const holovibes::CustomException& e)
-        {
-            // If refresh() fails the compute descriptor settings will be
-            // changed to something that should make refresh() work
-            // (ex: lowering the GPU memory usage)
-            LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-            LOG_WARN("Exception: {}", e.what());
-            try
-            {
-                refresh();
-            }
-            catch (const holovibes::CustomException& e)
-            {
-                // If it still didn't work holovibes is probably going to freeze
-                // and the only thing you can do is restart it manually
-                LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-                LOG_ERROR("Exception: {}", e.what());
-                throw e;
-            }
-        }
+        // try
+        // {
+        //     refresh();
+        // }
+        // catch (const holovibes::CustomException& e)
+        // {
+        //     // If refresh() fails the compute descriptor settings will be
+        //     // changed to something that should make refresh() work
+        //     // (ex: lowering the GPU memory usage)
+        //     LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
+        //     LOG_WARN("Exception: {}", e.what());
+        //     try
+        //     {
+        //         refresh();
+        //     }
+        //     catch (const holovibes::CustomException& e)
+        //     {
+        //         // If it still didn't work holovibes is probably going to freeze
+        //         // and the only thing you can do is restart it manually
+        //         LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
+        //         LOG_ERROR("Exception: {}", e.what());
+        //         throw e;
+        //     }
+        // }
     }
 
     ~Pipe() override;
@@ -393,9 +393,6 @@ class Pipe : public ICompute
      * \param nb_elm_to_add the number of elements that might be added in the record queue
      */
     void keep_contiguous(int nb_elm_to_add) const;
-
-    /*! \brief Updates all attribute caches with the reference held by GSH */
-    void synchronize_caches();
 
     /**
      * @brief Helper function to get a settings value.

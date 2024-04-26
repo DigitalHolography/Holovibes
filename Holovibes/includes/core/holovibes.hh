@@ -209,12 +209,11 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<Queue>> get_record_queue();
 
-
     /*! \name Getters/Setters
      * \{
      */
     std::shared_ptr<Pipe> get_compute_pipe();
-    std::shared_ptr<Pipe> get_compute_pipe_nothrow();
+    std::shared_ptr<Pipe> get_compute_pipe_no_throw();
 
     const CudaStreams& get_cuda_streams() const;
 
@@ -249,14 +248,14 @@ class Holovibes
 
     /*!
      * \brief Initializes the input queue with the same fd, when it already exist
-     * 
+     *
      * \param input_queue_size size of the input queue
      */
     void init_input_queue(const unsigned int input_queue_size);
-    
+
     /*!
      * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
-     * 
+     *
      */
     void init_record_queue();
 
@@ -352,7 +351,6 @@ class Holovibes
         }
     }
 
-    
     template <typename T>
     inline T get_setting()
     {
@@ -369,7 +367,6 @@ class Holovibes
             return realtime_settings_.get<T>().value;
         }
     }
-    
 
     /*! \brief Construct the holovibes object. */
     Holovibes()

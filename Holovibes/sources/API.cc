@@ -351,6 +351,8 @@ bool set_holographic_mode(ushort window_size)
         /* Contrast */
         api::set_contrast_mode(true);
 
+        update_batch_size(get_batch_size());
+
         LOG_INFO("Holographic mode set");
 
         return true;
@@ -411,8 +413,8 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 #pragma endregion
 
 #pragma region Batch
-// FIXME: Same function as under
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
+
+void update_batch_size(const uint batch_size)
 {
     if (batch_size == api::get_batch_size())
         return;
@@ -423,6 +425,11 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
         Holovibes::instance().get_compute_pipe()->request_update_time_stride();
     }
     Holovibes::instance().get_compute_pipe()->request_update_batch_size();
+}
+
+void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
+{
+    update_batch_size(batch_size);
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
@@ -1476,19 +1483,22 @@ void enable_filter(const std::string& filename)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{true});
     set_input_filter({});
 
-    // There is no file None.txt for filtering
-    if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
-        load_input_filter(get_input_filter(), file.value());
-    else
-        disable_filter();
+    if (get_compute_pipe_no_throw() != nullptr)
+    {
+        // There is no file None.txt for filtering
+        if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
+            load_input_filter(get_input_filter(), file.value());
+        else
+            disable_filter();
 
-    // Refresh because the current filter might have change.
-    // pipe_refresh();
+        // Refresh because the current filter might have change.
+        // pipe_refresh();
 
-    if (filename == UID_FILTER_TYPE_DEFAULT)
-        return;
+        if (filename == UID_FILTER_TYPE_DEFAULT)
+            return;
 
-    pipe_refresh();
+        pipe_refresh();
+    }
 
     // try
     // {

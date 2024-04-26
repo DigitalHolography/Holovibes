@@ -188,7 +188,10 @@ inline void set_display_rate(float value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::DisplayRate{value});
 }
-inline holovibes::Device get_input_queue_location(){ return holovibes::Holovibes::instance().get_setting<settings::InputQueueLocation>().value;}
+inline holovibes::Device get_input_queue_location()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::InputQueueLocation>().value;
+}
 inline void set_input_queue_location(holovibes::Device value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueLocation{value});
@@ -705,7 +708,6 @@ inline void set_raw_view_queue_location(holovibes::Device value)
     Holovibes::instance().update_setting(holovibes::settings::RawViewQueueLocation{value});
 }
 
-
 inline void set_raw_view_enabled(bool value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawViewEnabled{value});
@@ -934,6 +936,7 @@ inline uint get_q_accu_level()
 inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
 
 inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };
+inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::instance().get_compute_pipe_no_throw(); };
 
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
@@ -1215,10 +1218,7 @@ inline void set_weight_rgb(double r, double g, double b)
 
 // HSV
 
-inline void set_z_fft_shift(bool checked)
-{
-    Holovibes::instance().update_setting(settings::ZFFTShift{checked});
-}
+inline void set_z_fft_shift(bool checked) { Holovibes::instance().update_setting(settings::ZFFTShift{checked}); }
 
 inline void set_composite_p_h(int min, int max)
 {
