@@ -204,21 +204,19 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
+    
     // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
     api::disable_pipe_refresh();
 
     // Disable the notify for the same reason
-    // disable_notify();
+    disable_notify();
     // Notify all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->on_notify();
 
-    // enable_notify();
+    enable_notify();
 
-    api::enable_pipe_refresh();
-    api::pipe_refresh();
-
-    
+    api::enable_pipe_refresh();  
 
     // Tabs
     if (api::get_is_computation_stopped())

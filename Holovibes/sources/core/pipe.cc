@@ -644,7 +644,7 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (refresh_requested_)
+    if (refresh_requested_ && refresh_enabled_)
         refresh();
 
     while (!termination_requested_)
@@ -654,7 +654,7 @@ void Pipe::exec()
             // Run the entire pipeline of calculation
             run_all();
 
-            if (refresh_requested_)
+            if (refresh_requested_ && refresh_enabled_)
             {
                 refresh();
             }

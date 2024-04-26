@@ -214,8 +214,7 @@ void ICompute::disable_refresh()
 }
 
 void ICompute::request_refresh() { 
-    if (refresh_enabled_)
-        refresh_requested_ = true; 
+    refresh_requested_ = true; 
 }
 
 void ICompute::request_termination() { termination_requested_ = true; }
