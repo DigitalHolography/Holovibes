@@ -251,6 +251,18 @@ bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
+
+/*! \brief Enables the pipe refresh
+ *
+ * \param value true: enable, false: disable
+ */
+void enable_pipe_refresh();
+
+/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe refresh.
+ *
+ */
+void disable_pipe_refresh();
+
 void create_holo_window(ushort window_size);
 void create_pipe();
 

@@ -9,6 +9,28 @@ namespace holovibes::api
 
 #pragma region Local
 
+void disable_pipe_refresh()
+{
+    try 
+    {
+        get_compute_pipe()->disable_refresh();
+    }
+    catch (const std::runtime_error& e)
+    {
+    }
+}
+
+void enable_pipe_refresh()
+{
+    try 
+    {
+        get_compute_pipe()->enable_refresh();
+    }
+    catch (const std::runtime_error& e)
+    {
+    }
+}
+
 void pipe_refresh()
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
@@ -1474,10 +1496,14 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     }
 }
 
-void enable_filter() { enable_filter(UserInterfaceDescriptor::instance().filter_name); }
+void enable_filter(const std::string& filename) { 
+    UserInterfaceDescriptor::instance().filter_name = filename;
+    enable_filter(); 
+}
 
-void enable_filter(const std::string& filename)
+void enable_filter()
 {
+    auto filename = UserInterfaceDescriptor::instance().filter_name;
     auto file = filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename);
 
     holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{true});

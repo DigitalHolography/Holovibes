@@ -192,16 +192,33 @@ void MainWindow::synchronize_thread(std::function<void()> f)
         f();
 }
 
+void MainWindow::enable_notify() { notify_enabled_ = true; }
+
+void MainWindow::disable_notify() { notify_enabled_ = false; }
+
 void MainWindow::notify()
 {
-    synchronize_thread([this]() { on_notify(); });
+    if (notify_enabled_)
+        synchronize_thread([this]() { on_notify(); });
 }
 
 void MainWindow::on_notify()
 {
+    // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
+    api::disable_pipe_refresh();
+
+    // Disable the notify for the same reason
+    // disable_notify();
     // Notify all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->on_notify();
+
+    // enable_notify();
+
+    api::enable_pipe_refresh();
+    api::pipe_refresh();
+
+    
 
     // Tabs
     if (api::get_is_computation_stopped())

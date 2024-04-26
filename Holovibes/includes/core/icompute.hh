@@ -328,6 +328,8 @@ class ICompute
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
+    void enable_refresh();
+    void disable_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
@@ -505,6 +507,7 @@ class ICompute
     std::atomic<bool> autocontrast_slice_yz_requested_{false};
     std::atomic<bool> autocontrast_filter2d_requested_{false};
     std::atomic<bool> refresh_requested_{false};
+    std::atomic<bool> refresh_enabled_{true};
     std::atomic<bool> update_time_transformation_size_requested_{false};
     std::atomic<bool> stft_update_roi_requested_{false};
     std::atomic<bool> chart_display_requested_{false};

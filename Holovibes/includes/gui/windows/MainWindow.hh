@@ -182,5 +182,12 @@ class MainWindow : public QMainWindow, public Observer
     // Additional attributes
     Theme theme_ = Theme::Dark;
     bool save_cs = true;
+
+  private:
+
+    void enable_notify();
+    void disable_notify();
+
+    bool notify_enabled_ = true;
 };
 } // namespace holovibes::gui

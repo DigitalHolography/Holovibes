@@ -203,7 +203,20 @@ void ICompute::soft_request_refresh()
         refresh_requested_ = true;
 }
 
-void ICompute::request_refresh() { refresh_requested_ = true; }
+void ICompute::enable_refresh()
+{
+    refresh_enabled_ = true;
+}
+
+void ICompute::disable_refresh()
+{
+    refresh_enabled_ = false;
+}
+
+void ICompute::request_refresh() { 
+    if (refresh_enabled_)
+        refresh_requested_ = true; 
+}
 
 void ICompute::request_termination() { termination_requested_ = true; }
 
