@@ -145,7 +145,8 @@ bool Pipe::make_requests()
         // TODO
         // fourier_transforms_->init();
         api::enable_filter();
-        fourier_transforms_->update_setting(settings::InputFilter{api::get_input_filter()});
+        auto filter = api::get_input_filter();
+        fourier_transforms_->update_setting(settings::InputFilter{filter});
         filter_requested_ = false;
     }
 

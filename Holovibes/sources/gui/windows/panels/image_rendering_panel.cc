@@ -80,7 +80,7 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
-    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
+
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
 
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
@@ -92,6 +92,8 @@ void ImageRenderingPanel::on_notify()
     catch (const std::exception&)
     {
     }
+
+    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
 
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
@@ -258,9 +260,11 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     LOG_FUNC();
 
-    api::enable_filter(value.toStdString());
-
-    parent_->notify();
+    if (value.toStdString() != UserInterfaceDescriptor::instance().filter_name)
+    {
+        api::enable_filter(value.toStdString());
+        parent_->notify();
+    }
 }
 
 void ImageRenderingPanel::refresh_input_filter()
