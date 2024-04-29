@@ -42,11 +42,24 @@ void Holovibes::init_input_queue(const unsigned int input_queue_size)
 
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
-    if (!input_queue_.load())
-        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd, api::get_input_queue_location());
-    else
-        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
+    if (!input_queue_.load()) {
+        if (api::get_compute_mode() == Computation::Hologram) {
+            input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd, api::get_input_queue_location());
+        }
+        else if (api::get_compute_mode() == Computation::Raw) {
+            input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, 1, fd, api::get_input_queue_location());
+        }    
+    }
+    else {
+        if (api::get_compute_mode() == Computation::Hologram) {
+            input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
+        }
+        else if (api::get_compute_mode() == Computation::Raw) {
+            input_queue_.load()->rebuild(fd, input_queue_size, 1, api::get_input_queue_location());
+        }
+    }
     LOG_DEBUG("Input queue allocated");
+    
 }
 
 void Holovibes::init_record_queue() {

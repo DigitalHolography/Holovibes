@@ -135,8 +135,10 @@ class EHoloGrabber
 
         grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
         grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
-        grabbers_[2]->setInteger<StreamModule>("StripeOffset", offset2);
-        grabbers_[3]->setInteger<StreamModule>("StripeOffset", offset3);
+        if (nb_grabbers == 4) {
+            grabbers_[2]->setInteger<StreamModule>("StripeOffset", offset2);
+            grabbers_[3]->setInteger<StreamModule>("StripeOffset", offset3);
+        }
 
         grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
