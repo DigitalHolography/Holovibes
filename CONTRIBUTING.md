@@ -40,7 +40,7 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
  1. Merge all your feature branches on `dev`
  3. Update `CHANGELOG.md`.
  4. Make a clean build in release mode (`./dev.py clean build -b Release`).
- 5. Make sure everything works as intended and run test suite (`./dev.py ctest pytest -b Release`).
+ 5. Make sure everything works as intended and run test suite (`./dev.py pytest -b Release`). (`ctest` aren't working and are not to be used for now)
  6. Make sure the git repository has no work in progress
  7. Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
  if you want to modify either X, Y, or Z of the version number X.Y.Z

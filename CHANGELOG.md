@@ -1,5 +1,9 @@
 ## Changelog
 
+### 12.10.3
+
+* 8 bit recording and other camera settings fixed
+
 ### 12.10.1
 
 * Improved memory management for 3d cuts
