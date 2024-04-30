@@ -421,9 +421,9 @@ void MainWindow::load_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
-    api::change_camera(camera);
+    bool is_camera = api::change_camera(camera);
 
-    if (camera != CameraKind::NONE)
+    if (is_camera)
     {
         
         ui_->actionSettings->setEnabled(true);
