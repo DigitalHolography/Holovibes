@@ -40,6 +40,10 @@ class InformationWorker final : public Worker
     {
     }
 
+#ifndef
+    void write_information(std::ofstream& csvFile);
+#endif
+
     void run() override;
 
     static inline std::function<void(const std::string&)> display_info_text_function_;
