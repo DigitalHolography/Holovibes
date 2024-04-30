@@ -40,7 +40,7 @@ class InformationWorker final : public Worker
     {
     }
 
-#ifndef
+#ifndef _DEBUG
     void write_information(std::ofstream& csvFile);
 #endif
 
