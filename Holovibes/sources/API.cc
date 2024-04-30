@@ -11,7 +11,7 @@ namespace holovibes::api
 
 void disable_pipe_refresh()
 {
-    try 
+    try
     {
         get_compute_pipe()->disable_refresh();
     }
@@ -22,7 +22,7 @@ void disable_pipe_refresh()
 
 void enable_pipe_refresh()
 {
-    try 
+    try
     {
         get_compute_pipe()->enable_refresh();
     }
@@ -1158,9 +1158,7 @@ void set_contrast_auto_refresh(bool value)
 
 void update_contrast(WindowKind kind, float min, float max)
 {
-    auto window = api::get_current_window_type();
-
-    switch (window)
+    switch (kind)
     {
     case WindowKind::XYview:
         api::set_xy_contrast(min, max);
@@ -1496,9 +1494,10 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     }
 }
 
-void enable_filter(const std::string& filename) { 
+void enable_filter(const std::string& filename)
+{
     UserInterfaceDescriptor::instance().filter_name = filename;
-    enable_filter(); 
+    enable_filter();
 }
 
 void enable_filter()
@@ -1701,6 +1700,9 @@ void set_record_mode(const std::string& text)
 
     set_record_mode(it->second);
     RecordMode record_mode = api::get_record_mode();
+
+    if (record_mode != RecordMode::RAW)
+        api::set_record_on_gpu(true);
 
     // Attempt to initialize compute pipe for non-CHART record modes
     if (record_mode != RecordMode::CHART)

@@ -78,6 +78,7 @@ void ExportPanel::on_notify()
             .string();
     path_line_edit->insert(record_output_path.c_str());
 
+    ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
 }
 
@@ -153,7 +154,6 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->clear();
     batch_input_line_edit->insert(filename);
 }
-
 
 void ExportPanel::set_record_mode(const QString& value)
 {
@@ -285,10 +285,14 @@ void ExportPanel::start_record()
     ui_->InfoPanel->set_visible_record_progress(true);
 
     auto callback = [record_mode = api::get_record_mode(), compute_mode = api::get_compute_mode(), this]()
-    { parent_->synchronize_thread([=]() { 
-        record_finished(record_mode); 
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
-    }); };
+    {
+        parent_->synchronize_thread(
+            [=]()
+            {
+                record_finished(record_mode);
+                ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
+            });
+    };
 
     api::start_record(callback);
 }
@@ -341,9 +345,7 @@ void ExportPanel::update_record_frame_count_enabled()
         api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
-void ExportPanel::update_record_frame_count() { 
-     
-}
+void ExportPanel::update_record_frame_count() {}
 
 void ExportPanel::update_record_file_path()
 {
@@ -383,7 +385,7 @@ void ExportPanel::update_record_mode()
 
 /**
  * @brief called when change output file extension
-*/
+ */
 void ExportPanel::update_record_file_extension(const QString& value)
 {
     std::string path = ui_->OutputFilePathLineEdit->text().toStdString();
