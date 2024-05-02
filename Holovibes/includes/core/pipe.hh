@@ -131,7 +131,7 @@ namespace holovibes
  */
 class Pipe : public ICompute
 {
-    public:
+  public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      *
      * \param input Input queue containing acquired frames.
@@ -181,39 +181,38 @@ class Pipe : public ICompute
                                                         input.get_fd(),
                                                         stream_,
                                                         settings);
-        postprocess_ = std::make_unique<compute::Postprocessing>(fn_compute_vect_,
-                                                                 buffers_,
-                                                                 input.get_fd(),
-                                                                 stream_,
-                                                                 settings);
+        postprocess_ =
+            std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
         update_time_transformation_size_requested_ = true;
 
-        try
-        {
-            refresh();
-        }
-        catch (const holovibes::CustomException& e)
-        {
-            // If refresh() fails the compute descriptor settings will be
-            // changed to something that should make refresh() work
-            // (ex: lowering the GPU memory usage)
-            LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-            LOG_WARN("Exception: {}", e.what());
-            try
-            {
-                refresh();
-            }
-            catch (const holovibes::CustomException& e)
-            {
-                // If it still didn't work holovibes is probably going to freeze
-                // and the only thing you can do is restart it manually
-                LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-                LOG_ERROR("Exception: {}", e.what());
-                throw e;
-            }
-        }
+        pre_init();
+
+        // try
+        // {
+        //     refresh();
+        // }
+        // catch (const holovibes::CustomException& e)
+        // {
+        //     // If refresh() fails the compute descriptor settings will be
+        //     // changed to something that should make refresh() work
+        //     // (ex: lowering the GPU memory usage)
+        //     LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
+        //     LOG_WARN("Exception: {}", e.what());
+        //     try
+        //     {
+        //         refresh();
+        //     }
+        //     catch (const holovibes::CustomException& e)
+        //     {
+        //         // If it still didn't work holovibes is probably going to freeze
+        //         // and the only thing you can do is restart it manually
+        //         LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
+        //         LOG_ERROR("Exception: {}", e.what());
+        //         throw e;
+        //     }
+        // }
     }
 
     ~Pipe() override;
@@ -234,6 +233,15 @@ class Pipe : public ICompute
      * Check if a ICompute refresh has been requested.
      */
     void exec() override;
+
+    void pre_init()
+    {
+        if (setting<settings::FilterEnabled>())
+            request_filter();
+
+        if (setting<settings::ConvolutionEnabled>())
+            request_convolution();
+    }
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
@@ -292,15 +300,12 @@ class Pipe : public ICompute
         }
     }
 
-    inline void on_restart_apply_settings()
-    {
-        onrestart_settings_.apply_updates();
-    }
+    inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
 
     /**
      * @brief Apply the updates of the settings on pipe refresh,
      */
-    inline void pipe_refresh_apply_updates() 
+    inline void pipe_refresh_apply_updates()
     {
         fourier_transforms_->pipe_refresh_apply_updates();
         icompute_pipe_refresh_apply_updates();
@@ -355,7 +360,6 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
-    
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
@@ -389,9 +393,6 @@ class Pipe : public ICompute
      * \param nb_elm_to_add the number of elements that might be added in the record queue
      */
     void keep_contiguous(int nb_elm_to_add) const;
-
-    /*! \brief Updates all attribute caches with the reference held by GSH */
-    void synchronize_caches();
 
     /**
      * @brief Helper function to get a settings value.

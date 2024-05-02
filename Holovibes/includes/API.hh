@@ -134,6 +134,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
  *
  * \param value the file containing the filter's settings
  */
+void enable_filter();
 void enable_filter(const std::string& file);
 
 void disable_filter();
@@ -210,20 +211,20 @@ const std::string browse_record_output_file(std::string& std_filepath);
  */
 void set_record_mode(const std::string& text);
 
-/*! \brief Choose if the record will be done using the GPU or the CPU. If the GPU is selected, the input queue will be on the GPU,
- * meaning that Hologramm image mode and record mode will be enabled. If the CPU is selected, the input queue will be on the CPU,
- * meaning that only Raw image mode and record mode will be enabled. The record queue will always be on the CPU in CPU mode, but it 
- * can be either on GPU or CPU in GPU mode.
- * In order for the user to vizualise the hologramm up until the record, the displacement of the input queue from the GPU to the CPU
- * is done only when the record is requested ; see set_record_device() function.
-*/
+/*! \brief Choose if the record will be done using the GPU or the CPU. If the GPU is selected, the input queue will be
+ * on the GPU, meaning that Hologramm image mode and record mode will be enabled. If the CPU is selected, the input
+ * queue will be on the CPU, meaning that only Raw image mode and record mode will be enabled. The record queue will
+ * always be on the CPU in CPU mode, but it can be either on GPU or CPU in GPU mode. In order for the user to vizualise
+ * the hologramm up until the record, the displacement of the input queue from the GPU to the CPU is done only when the
+ * record is requested ; see set_record_device() function.
+ */
 void set_record_on_gpu(bool value);
 
 bool get_record_on_gpu();
 
 /*!
  * \brief Set the record queue location, between gpu and cpu
- * 
+ *
  * \param gpu whether the record queue is on the gpu or the cpu
  */
 void set_record_queue_location(Device device);
@@ -250,6 +251,18 @@ bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
+
+/*! \brief Enables the pipe refresh
+ *
+ * \param value true: enable, false: disable
+ */
+void enable_pipe_refresh();
+
+/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe refresh.
+ *
+ */
+void disable_pipe_refresh();
+
 void create_holo_window(ushort window_size);
 void create_pipe();
 
@@ -529,8 +542,6 @@ void set_reticle_zone(const units::RectFd& rect);
  */
 unsigned int get_raw_bitshift();
 
-
-
 template <typename T>
 static T get_xyz_member(T xy_member, T xz_member, T yz_member)
 {
@@ -804,6 +815,13 @@ void update_time_stride(std::function<void()> callback, const uint time_stride);
  * \param batch_size the new value
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
+
+/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
+ * time_stride were modified on the GUI, so no notify is needed.
+ *
+ * \param batch_size the new value
+ */
+void update_batch_size(const uint batch_size);
 
 /*! \brief Modifies view image type
  *

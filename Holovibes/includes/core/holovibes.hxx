@@ -13,13 +13,14 @@ inline std::atomic<std::shared_ptr<Queue>> Holovibes::get_record_queue() { retur
 inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe()
 {
     auto loaded = compute_pipe_.load();
-    if (!loaded){
+    if (!loaded)
+    {
         throw std::runtime_error("Pipe is not initialized");
-        }
+    }
     return loaded;
 }
 
-inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe_nothrow() { return compute_pipe_.load(); }
+inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe_no_throw() { return compute_pipe_.load(); }
 
 inline const char* Holovibes::get_camera_ini_name() const { return active_camera_->get_ini_name(); }
 

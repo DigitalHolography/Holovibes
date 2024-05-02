@@ -5355,12 +5355,6 @@ p, li { white-space: pre-wrap; }
     <slot>update_record_file_extension(QString)</slot>
   </connection>
   <connection>
-    <sender>RecordImageModeComboBox</sender>
-    <signal>currentTextChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_record_mode()</slot>
-  </connection>
-  <connection>
     <sender>LoadFileInGpuCheckBox</sender>
     <signal>stateChanged()</signal>
     <receiver>ImportPanel</receiver>

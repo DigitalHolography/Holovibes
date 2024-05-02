@@ -24,61 +24,74 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size) {
-    try {
+bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
+{
+    try
+    {
         resize_gpu_p_acc_buffer(time_transformation_size);
         perform_time_transformation_setting_specific_tasks(time_transformation_size);
         resize_gpu_time_transformation_queue(time_transformation_size);
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         handle_exception(e);
         return false;
     }
     return true;
 }
 
-void ICompute::resize_gpu_p_acc_buffer(const unsigned short time_transformation_size) {
+void ICompute::resize_gpu_p_acc_buffer(const unsigned short time_transformation_size)
+{
     auto frame_res = input_queue_.get_fd().get_frame_res();
     time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * time_transformation_size);
 }
 
-void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size) {
-    switch (setting<settings::TimeTransformation>()) {
-        case TimeTransformation::STFT:
-        case TimeTransformation::SSA_STFT:
-            update_stft(time_transformation_size);
-            if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT) {
-                update_pca(time_transformation_size);
-            }
-            break;
-        case TimeTransformation::PCA:
+void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size)
+{
+    switch (setting<settings::TimeTransformation>())
+    {
+    case TimeTransformation::STFT:
+    case TimeTransformation::SSA_STFT:
+        update_stft(time_transformation_size);
+        if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT)
+        {
             update_pca(time_transformation_size);
-            break;
-        case TimeTransformation::NONE:
-            break;
-        default:
-            LOG_ERROR("Unhandled Time transformation settings");
-            break;
+        }
+        break;
+    case TimeTransformation::PCA:
+        update_pca(time_transformation_size);
+        break;
+    case TimeTransformation::NONE:
+        break;
+    default:
+        LOG_ERROR("Unhandled Time transformation settings");
+        break;
     }
 }
 
-void ICompute::update_stft(const unsigned short time_transformation_size) {
+void ICompute::update_stft(const unsigned short time_transformation_size)
+{
     int inembed_stft[1] = {time_transformation_size};
     int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
-    time_transformation_env_.stft_plan.planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
+    time_transformation_env_.stft_plan
+        .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
 }
 
-void ICompute::update_pca(const unsigned short time_transformation_size) {
+void ICompute::update_pca(const unsigned short time_transformation_size)
+{
     auto size = static_cast<const uint>(time_transformation_size);
     time_transformation_env_.pca_cov.resize(size * size);
     time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
     time_transformation_env_.pca_dev_info.resize(1);
 }
 
-void ICompute::resize_gpu_time_transformation_queue(const unsigned short time_transformation_size) {
+void ICompute::resize_gpu_time_transformation_queue(const unsigned short time_transformation_size)
+{
     time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
 }
 
-void ICompute::handle_exception(const std::exception& e) {
+void ICompute::handle_exception(const std::exception& e)
+{
     time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
     request_time_transformation_cuts_ = false;
     request_delete_time_transformation_cuts_ = true;
@@ -92,30 +105,29 @@ void ICompute::update_spatial_transformation_parameters()
     batch_env_.batch_index = 0;
     // We avoid the depth in the multiplication because the resize already take
     // it into account
-    buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() *
-                                                      input_queue_fd.get_frame_res());
+    buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() * input_queue_fd.get_frame_res());
 
     long long int n[] = {input_queue_fd.height, input_queue_fd.width};
 
     // This plan has a useful significant memory cost, check XtplanMany comment
     spatial_transformation_plan_.XtplanMany(
-        2,                                  // 2D
-        n,                                  // Dimension of inner most & outer most dimension
-        n,                                  // Storage dimension size
-        1,                                  // Between two inputs (pixels) of same image distance is one
+        2,                              // 2D
+        n,                              // Dimension of inner most & outer most dimension
+        n,                              // Storage dimension size
+        1,                              // Between two inputs (pixels) of same image distance is one
         input_queue_fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
-        CUDA_C_32F,                         // Input type
+        CUDA_C_32F,                     // Input type
         n,
         1,
         input_queue_fd.get_frame_res(), // Ouput layout same as input
-        CUDA_C_32F,                         // Output type
-        setting<settings::BatchSize>(),    // Batch size
-        CUDA_C_32F);                        // Computation type
+        CUDA_C_32F,                     // Output type
+        setting<settings::BatchSize>(), // Batch size
+        CUDA_C_32F);                    // Computation type
 }
 
 void ICompute::init_cuts()
 {
-   camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
+    camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
     fd_xz.depth = sizeof(ushort);
     auto fd_yz = fd_xz;
@@ -203,6 +215,10 @@ void ICompute::soft_request_refresh()
         refresh_requested_ = true;
 }
 
+void ICompute::enable_refresh() { refresh_enabled_ = true; }
+
+void ICompute::disable_refresh() { refresh_enabled_ = false; }
+
 void ICompute::request_refresh() { refresh_requested_ = true; }
 
 void ICompute::request_termination() { termination_requested_ = true; }
@@ -251,10 +267,12 @@ void ICompute::request_disable_frame_record()
 
 void ICompute::request_autocontrast(WindowKind kind)
 {
-    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled){
+    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
+    {
         autocontrast_requested_ = true;
     }
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
+    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
+             setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;
     else if (kind == WindowKind::YZview && setting<settings::CutsViewEnabled>())
         autocontrast_slice_yz_requested_ = true;
