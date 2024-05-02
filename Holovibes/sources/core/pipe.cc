@@ -364,7 +364,7 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
 
-    // insert_request_autocontrast();
+    insert_request_autocontrast();
     rendering_->insert_contrast(autocontrast_requested_,
                                 autocontrast_slice_xz_requested_,
                                 autocontrast_slice_yz_requested_,
