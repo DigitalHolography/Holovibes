@@ -58,9 +58,9 @@ Run the project
 Holovibes>$ ./dev.py run
 ```
 
-Create an installer by running cpack in the build folder.
+Create an installer by running cpack in the build/bin folder.
 ```sh
-Holovibes\build>$ cpack
+Holovibes\build\bin>$ cpack
 ```
 # Test
 
