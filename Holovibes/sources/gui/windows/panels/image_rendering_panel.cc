@@ -80,11 +80,7 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> fix_input_filter
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
 
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
