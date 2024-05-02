@@ -13,13 +13,12 @@
 
 namespace holovibes
 {
-using cuda_tools::CufftHandle;
 using cuda_tools::CudaUniquePtr;
+using cuda_tools::CufftHandle;
 } // namespace holovibes
 
 namespace holovibes::compute
 {
-
 
 void ImageAccumulation::insert_image_accumulation(float& gpu_postprocess_frame,
                                                   unsigned int& gpu_postprocess_frame_size,
@@ -194,6 +193,9 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
 {
     LOG_FUNC();
 
+    if (setting<settings::CutsViewEnabled>())
+        LOG_INFO("hey");
+
     auto copy_accumulation_result = [&]()
     {
         // XY view
@@ -205,7 +207,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
                              stream_);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && setting<settings::XZ>().output_image_accumulation > 1)
+        if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz,
                              image_acc_env_.gpu_float_average_xz_frame,
                              image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_size(),
@@ -213,7 +215,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
                              stream_);
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && setting<settings::YZ>().output_image_accumulation > 1)
+        if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
             cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz,
                              image_acc_env_.gpu_float_average_yz_frame,
                              image_acc_env_.gpu_accumulation_yz_queue->get_fd().get_frame_size(),

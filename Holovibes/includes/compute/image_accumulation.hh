@@ -24,6 +24,7 @@
     holovibes::settings::XY,                       \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \
+    holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::TimeTransformationSize
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -150,9 +151,10 @@ class ImageAccumulation
 };
 } // namespace holovibes::compute
 
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, compute::ImageAccumulation> : is_any_of<T, ALL_SETTINGS>
 {
 };
-}
+} // namespace holovibes
