@@ -436,6 +436,25 @@ void MainWindow::load_gui()
 
     bool is_camera = api::change_camera(camera);
 
+    // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
+    if (camera != CameraKind::NONE)
+    {
+
+        ui_->actionSettings->setEnabled(true);
+        if (compute_mode == 0)
+        {
+            LOG_INFO("RAW");
+            api::set_compute_mode(Computation::Raw);
+            api::set_raw_mode(1);
+        }
+        else
+        {
+            LOG_INFO("HOLO");
+            api::set_compute_mode(Computation::Hologram);
+            api::set_holographic_mode(1);
+        }
+    }
+
     notify();
 }
 
