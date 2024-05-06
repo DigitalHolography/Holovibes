@@ -1,5 +1,10 @@
 ## Changelog
 
+### 12.10.5
+
+- Fix automatic load for s991
+- Fix input filter for Adimec 2A750
+
 ### 12.10.4
 
 - Fix input filter crash : now possible to start in processed with camera open and input filter
@@ -662,7 +667,7 @@
 - up: Remove qwt library, plot now uses QtCharts
 - fix: Use std::filesystem instead of std::experimental::filesystem
 - up: Remove complex mode
-- up: remove _.ccincludes for moc\__ files
+- up: remove \_.ccincludes for moc\_\_ files
 - up: remove vibrmetry
 - up: remove flowraphy
 - up: fix build ad Qt moc file generation
