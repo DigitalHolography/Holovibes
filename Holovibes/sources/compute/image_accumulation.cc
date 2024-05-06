@@ -76,7 +76,7 @@ void ImageAccumulation::init()
     }
 
     // XZ view
-    if (setting<settings::XZ>().output_image_accumulation > 1)
+    if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
@@ -88,7 +88,7 @@ void ImageAccumulation::init()
     }
 
     // YZ view
-    if (setting<settings::YZ>().output_image_accumulation > 1)
+    if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = sizeof(float);
@@ -106,9 +106,9 @@ void ImageAccumulation::dispose()
 
     if (!(setting<settings::XY>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
-    if (!(setting<settings::XZ>().output_image_accumulation > 1))
+    if (setting<settings::CutsViewEnabled>() && !(setting<settings::XZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
-    if (!(setting<settings::YZ>().output_image_accumulation > 1))
+    if (setting<settings::CutsViewEnabled>() && !(setting<settings::YZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 }
 
@@ -118,9 +118,9 @@ void ImageAccumulation::clear()
 
     if (setting<settings::XY>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_xy_queue->clear();
-    if (setting<settings::XZ>().output_image_accumulation > 1)
+    if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_xz_queue->clear();
-    if (setting<settings::YZ>().output_image_accumulation > 1)
+    if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
         image_acc_env_.gpu_accumulation_yz_queue->clear();
 }
 
@@ -165,7 +165,7 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
                             buffers_.gpu_postprocess_frame_size);
 
         // XZ view
-        if (image_acc_env_.gpu_accumulation_xz_queue && setting<settings::XZ>().output_image_accumulation > 1)
+        if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
             compute_average(image_acc_env_.gpu_accumulation_xz_queue,
                             buffers_.gpu_postprocess_frame_xz.get(),
                             image_acc_env_.gpu_float_average_xz_frame,
@@ -173,7 +173,7 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
                             image_acc_env_.gpu_accumulation_xz_queue->get_fd().get_frame_res());
 
         // YZ view
-        if (image_acc_env_.gpu_accumulation_yz_queue && setting<settings::YZ>().output_image_accumulation > 1)
+        if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
             compute_average(image_acc_env_.gpu_accumulation_yz_queue,
                             buffers_.gpu_postprocess_frame_yz.get(),
                             image_acc_env_.gpu_float_average_yz_frame,

@@ -153,10 +153,7 @@ void ICompute::dispose_cuts()
 
     image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
     image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
-    /*
-    buffers_.gpu_postprocess_frame_xz_final.reset(nullptr);
-    buffers_.gpu_postprocess_frame_yz_final.reset(nullptr);
-    */
+
     buffers_.gpu_output_frame_xz.reset(nullptr);
     buffers_.gpu_output_frame_yz.reset(nullptr);
 
