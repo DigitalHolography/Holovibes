@@ -514,10 +514,14 @@ void MainWindow::closeEvent(QCloseEvent*)
 {
     api::camera_none_without_json();
     Logger::flush();
-
-    save_gui();
-    if (save_cs)
-        api::save_compute_settings();
+    if (api::get_saving_option() == false)
+    {
+        save_gui();
+        LOG_INFO("Holovibes closed");
+    
+        if (save_cs)
+            api::save_compute_settings();
+    }
 }
 
 #pragma endregion

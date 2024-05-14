@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>600</height>
+    <height>642</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -42,9 +42,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>20</y>
       <width>428</width>
-      <height>428</height>
+      <height>541</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -586,19 +586,83 @@ threshold</string>
               </widget>
              </item>
              <item row="7" column="0">
-                <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
-                    <property name="text">
-                        <string>Record on GPU</string>
-                    </property>
-                    <property name="checkable">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </item>
+              <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
+               <property name="text">
+                <string>Record on GPU</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
              <item row="3" column="1">
               <widget class="QDoubleSpinBox" name="ContrastLowerSpinBox">
                <property name="maximum">
                 <double>100.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="holovibes::gui::GroupBox" name="SavingGroupbox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>210</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>210</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="title">
+           <string>Settings overwrite</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_20">
+           <property name="bottomMargin">
+            <number>9</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QCheckBox" name="SaveCheckBox">
+               <property name="text">
+                <string>Block settings</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1028,6 +1092,16 @@ threshold</string>
    <signal>clicked()</signal>
    <receiver>AdvancedSettingsWindow</receiver>
    <slot>change_output_folder_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
  <slots>

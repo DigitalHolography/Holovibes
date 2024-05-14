@@ -420,6 +420,11 @@ inline holovibes::Device get_record_queue_location()
     return holovibes::Holovibes::instance().get_setting<settings::RecordQueueLocation>().value;
 }
 
+inline bool get_saving_option()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::SaveOption>().value;
+}
+
 inline void set_xz_contrast_invert(bool value) noexcept
 {
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;

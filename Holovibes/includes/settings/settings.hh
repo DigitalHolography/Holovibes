@@ -208,4 +208,5 @@ DECLARE_SETTING(ZFFTShift, bool)
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device)
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device)
+DECLARE_SETTING(SaveOption, bool);
 } // namespace holovibes::settings

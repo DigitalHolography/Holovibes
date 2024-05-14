@@ -1683,6 +1683,10 @@ void set_record_queue_location(Device device)
     }
 }
 
+void set_saving_option(bool value) {
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::SaveOption{value});
+}
+
 void set_record_mode(const std::string& text)
 {
     LOG_FUNC(text);

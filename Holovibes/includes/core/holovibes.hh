@@ -109,6 +109,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                       \
+    holovibes::settings::SaveOption,                              \
     holovibes::settings::RawViewQueueLocation,                      \
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
@@ -447,6 +448,7 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
+                                             settings::SaveOption{false},
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{true},

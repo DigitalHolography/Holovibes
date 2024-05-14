@@ -47,6 +47,8 @@ void AdvancedSettingsWindow::set_ui_values()
 {
     api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
     
+    api::set_saving_option(ui.SaveCheckBox->isChecked());
+
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
     api::set_record_buffer_size(static_cast<int>(ui.RecordBSSpinBox->value()));
@@ -116,6 +118,9 @@ void AdvancedSettingsWindow::set_current_values()
 
     ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location() == Device::GPU);
     ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location() == Device::GPU);
+
+    ui.SaveCheckBox->setChecked(api::get_saving_option());
+    
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());

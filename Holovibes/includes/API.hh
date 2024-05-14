@@ -229,6 +229,12 @@ bool get_record_on_gpu();
  */
 void set_record_queue_location(Device device);
 
+/*! \brief block the saving of settings
+ *
+ * \param is settings saving blocked ?
+ */
+void set_saving_option(bool value);
+
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *
  * \param value the size of the buffer

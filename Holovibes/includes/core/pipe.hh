@@ -81,6 +81,7 @@
     holovibes::settings::RenormConstant,           \
     holovibes::settings::CutsContrastPOffset,      \
     holovibes::settings::RecordQueueLocation,         \
+    holovibes::settings::SaveOption,                  \
     holovibes::settings::RawViewQueueLocation,        \
     holovibes::settings::InputQueueLocation
 
