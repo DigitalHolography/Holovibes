@@ -60,7 +60,7 @@ void InfoPanel::set_text(const char* text)
 {
     QTextEdit* text_edit = ui_->InfoTextEdit;
 
-    text_edit->setText(text);
+    text_edit->setHtml(text);
 
     // For some reason, the GUI needs multiple updates to return to its base layout
     if (resize_again_-- > 0)
