@@ -87,7 +87,11 @@ void BatchInputQueue::destroy_mutexes_streams()
     batch_mutexes_.reset(nullptr);
 }
 
-void BatchInputQueue::reset_override() { has_overridden_ = false; }
+void BatchInputQueue::reset_override()
+{
+    has_overridden_ = false;
+    make_empty();
+}
 
 void BatchInputQueue::make_empty()
 {
