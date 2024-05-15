@@ -216,11 +216,9 @@ std::string gpu_load()
     // Print GPU load
     auto load = gpuLoad.gpu;
     ss << "<font color=";
-    if (load <= 50)
-        ss << "green";
-    else if (load >= 51 && load <= 70)
-        ss << "yellow";
-    else if (load >= 71 && load <= 95)
+    if (load < 80)
+        ss << "white";
+    else if (load < 90)
         ss << "orange";
     else
         ss << "red";
@@ -305,11 +303,9 @@ std::string gpu_memory_load()
     // Print GPU load
     auto load = gpuLoad.memory;
     ss << "<font color=";
-    if (load <= 50)
-        ss << "green";
-    else if (load >= 51 && load <= 70)
-        ss << "yellow";
-    else if (load >= 71 && load <= 95)
+    if (load < 80)
+        ss << "white";
+    else if (load < 90)
         ss << "orange";
     else
         ss << "red";
@@ -373,40 +369,35 @@ void InformationWorker::display_gui_information()
             continue;
         auto currentLoad = std::get<0>(*value).load();
         auto maxLoad = std::get<1>(*value).load();
-        to_display << "<font color=" << (queue_type_to_string_.at(key) == "Input Queue" && maxLoad - currentLoad < 3 ? "red" : "white") << ">";
-        to_display << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
-                   << ":<br/>  ";
-        to_display << currentLoad << "/" << maxLoad;
-        to_display << "</font>";
-        to_display << "<br/>";
+
+        to_display << "<font color=";
+        if (queue_type_to_string_.at(key) == "Output Queue" || currentLoad < maxLoad * 0.8)
+            to_display << "white";
+        else if (currentLoad < maxLoad * 0.9)
+            to_display << "orange";
+        else
+            to_display << "red";
+
+        to_display << ">" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":<br/>  ";
+        to_display << currentLoad << "/" << maxLoad << "</font>" << "<br/>";
     }
 
     if (fps_map.contains(FpsType::INPUT_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":<br/>  ";
-        to_display << "<font color=";
-        if (input_fps_ <= 249)
-            to_display << "red";
-        else if (input_fps_ >= 250 && input_fps_ <= 999)
-            to_display << "orange";
-        else
-            to_display << "green";
-        to_display << ">" << input_fps_ << "</font>" << "<br/>";
+        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":<br/>  " << input_fps_ << "<br/>";
     }
 
     if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
         to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":<br/>  ";
-        to_display << "<font color=";
         if (output_fps_ == 0)
+        {
+            to_display << "<font color=";
             to_display << "red";
-        else if (output_fps_ >= 1 && output_fps_ <= 5)
-            to_display << "orange";
-        else if (output_fps_ >= 6 && output_fps_ <= 10)
-            to_display << "yellow";
+            to_display << ">" << output_fps_ << "</font>" << "<br/>";
+        }
         else
-            to_display << "green";
-        to_display << ">" << output_fps_ << "</font>" << "<br/>";
+            to_display << output_fps_ << "<br/>";
     }
 
     if (fps_map.contains(FpsType::SAVING_FPS))
