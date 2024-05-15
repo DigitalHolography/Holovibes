@@ -6,11 +6,14 @@
 
 namespace holovibes
 {
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const Device device)
+BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
+                                 const uint batch_size,
+                                 const camera::FrameDescriptor& fd,
+                                 const Device device)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
-    , curr_nb_frames_(std::get<0>(*fast_updates_entry_))//->first)
-    , total_nb_frames_(std::get<1>(*fast_updates_entry_))//->second)
+    , curr_nb_frames_(std::get<0>(*fast_updates_entry_))  //->first)
+    , total_nb_frames_(std::get<1>(*fast_updates_entry_)) //->second)
     , frame_capacity_(total_nb_frames)
     , device_(std::get<2>(*fast_updates_entry_))
 {
@@ -45,11 +48,13 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     max_size_ = total_nb_frames_ / batch_size_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[]>(new std::mutex[max_size_]);
-    if(device_ == Device::GPU) {
+    if (device_ == Device::GPU)
+    {
         batch_streams_ = std::unique_ptr<cudaStream_t[]>(new cudaStream_t[max_size_]);
 
-    for (uint i = 0; i < max_size_; ++i)
-        cudaSafeCall(cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
+        for (uint i = 0; i < max_size_; ++i)
+            cudaSafeCall(
+                cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
     }
 
     data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
@@ -69,7 +74,8 @@ bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0
 
 void BatchInputQueue::destroy_mutexes_streams()
 {
-    if(device_ == Device::GPU) {
+    if (device_ == Device::GPU)
+    {
         for (uint i = 0; i < max_size_; i++)
             cudaSafeCall(cudaStreamSynchronize(batch_streams_[i]));
         for (uint i = 0; i < max_size_; i++)
@@ -80,6 +86,8 @@ void BatchInputQueue::destroy_mutexes_streams()
     // All the mutexes are unlocked before deleting.
     batch_mutexes_.reset(nullptr);
 }
+
+void BatchInputQueue::reset_override() { has_overridden_ = false; }
 
 void BatchInputQueue::make_empty()
 {
@@ -104,7 +112,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
-    
+
     if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
 
@@ -123,17 +131,14 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     char* const new_frame_adress =
         data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-    if(device_ == Device::GPU)
+    if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
-                     input_frame,
-                     sizeof(char) * fd_.get_frame_size(),
-                     memcpy_kind,
-                     batch_streams_[end_index_]);
+                         input_frame,
+                         sizeof(char) * fd_.get_frame_size(),
+                         memcpy_kind,
+                         batch_streams_[end_index_]);
     else
-        cudaXMemcpyAsync(new_frame_adress,
-                     input_frame,
-                     sizeof(char) * fd_.get_frame_size(),
-                     memcpy_kind);
+        cudaXMemcpyAsync(new_frame_adress, input_frame, sizeof(char) * fd_.get_frame_size(), memcpy_kind);
 
     // No sync needed here, the host doesn't need to wait for the copy to
     // end. Only the consumer needs to be sure the data is here before
@@ -185,15 +190,15 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
     // From the queue
     const char* const src =
         data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
-    
-    if(device_ == Device::GPU)
+
+    if (device_ == Device::GPU)
         func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
     else
         func(src, dest, batch_size_, fd_.get_frame_res(), depth, 0);
 
     // The consumer has the responsability to give data that
     // finished processing.
-    if(device_ == Device::GPU)
+    if (device_ == Device::GPU)
         cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update index
@@ -225,9 +230,14 @@ void BatchInputQueue::dequeue_update_attr()
     curr_nb_frames_ -= batch_size_;
 }
 
-void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const Device device){
+void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
+                              const unsigned int size,
+                              const unsigned int batch_size,
+                              const Device device)
+{
     set_fd(fd);
-    if (device_ != device) {
+    if (device_ != device)
+    {
         device_ = device;
         data_ = cuda_tools::UniquePtr<char>(device_);
     }
@@ -236,7 +246,6 @@ void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd, const unsigned 
 
     resize(batch_size);
 }
-
 
 void BatchInputQueue::resize(const uint new_batch_size)
 {
@@ -258,7 +267,8 @@ void BatchInputQueue::resize(const uint new_batch_size)
     // End of critical section
 }
 
-// void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice)
+// void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind =
+// cudaMemcpyDeviceToDevice)
 // {
 
 //     CHECK(size_ > 0, "Queue is empty. Cannot dequeue.");
@@ -324,8 +334,10 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
 // }
 
-void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { copy_multiple(dest, batch_size_, cuda_kind); }
-
+void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind)
+{
+    copy_multiple(dest, batch_size_, cuda_kind);
+}
 
 void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {
@@ -370,7 +382,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Use the source start index (first batch of frames in the queue) stream
     // An enqueue operation on this stream (if happens) is blocked until the
     // copy is completed. Make the copy according to the region
-    if(device_ == Device::GPU)
+    if (device_ == Device::GPU)
         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
     else
         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), 0, cuda_kind);
@@ -378,7 +390,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // As in dequeue, the consumer has the responsability to give data that
     // finished processing.
     // would kill this queue design with only 1 producer and 1 consumer).
-    if(device_ == Device::GPU)
+    if (device_ == Device::GPU)
         cudaXStreamSynchronize(batch_streams_[start_index_locked]);
 
     // Update dest queue parameters
@@ -394,4 +406,4 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
         dest.has_overridden_ = true;
     }
 }
-} // namespace 0holovibes
+} // namespace holovibes

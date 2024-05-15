@@ -31,6 +31,7 @@ CameraPhantom::CameraPhantom(bool gpu)
 
 void CameraPhantom::init_camera()
 {
+
     grabber_->setup(fullHeight_,
                     width_,
                     nb_grabbers_,
@@ -49,6 +50,7 @@ void CameraPhantom::init_camera()
                     gain_selector_,
                     flat_field_correction_,
                     *gentl_);
+
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
@@ -102,7 +104,6 @@ void CameraPhantom::load_ini_params()
     stripeOffset_grabber_2_ = pt.get<unsigned int>("s710.Offset2", stripeOffset_grabber_2_);
     stripeOffset_grabber_3_ = pt.get<unsigned int>("s710.Offset3", stripeOffset_grabber_3_);
 
-
     trigger_source_ = pt.get<std::string>("s710.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s710.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s710.ExposureTime", exposure_time_);
@@ -115,13 +116,6 @@ void CameraPhantom::load_ini_params()
     balance_white_marker_ = pt.get<std::string>("s710.BalanceWhiteMarker", balance_white_marker_);
     gain_selector_ = pt.get<std::string>("s710.GainSelector", gain_selector_);
     flat_field_correction_ = pt.get<std::string>("s710.FlatFieldCorrection", flat_field_correction_);
-
-    if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
-    {
-        nb_grabbers_ = 4;
-        Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
-    }
-
 }
 
 void CameraPhantom::bind_params() { return; }

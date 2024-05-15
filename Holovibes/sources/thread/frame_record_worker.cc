@@ -28,7 +28,6 @@ size_t FrameRecordWorker::compute_fps_average() const
     LOG_FUNC();
     spdlog::trace("fps_current_index_ = {}", fps_current_index_);
 
-
     if (fps_current_index_ == 0)
         return 0;
 
@@ -87,6 +86,8 @@ void FrameRecordWorker::run()
 
         size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
 
+        Holovibes::instance().get_gpu_input_queue()->reset_override();
+
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
         {
@@ -112,7 +113,11 @@ void FrameRecordWorker::run()
                 continue;
             }
 
-            record_queue_.load()->dequeue(frame_buffer, stream_, api::get_record_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost);
+            record_queue_.load()->dequeue(frame_buffer,
+                                          stream_,
+                                          api::get_record_queue_location() == holovibes::Device::GPU
+                                              ? cudaMemcpyDeviceToHost
+                                              : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
             // FIXME: to check if it's still relevant
@@ -124,7 +129,8 @@ void FrameRecordWorker::run()
             // {
             //     {
             //         MutexGuard mGuard(record_queue_.load()->get_guard());
-            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()), record_queue_.load()->get_size() * output_frame_size);
+            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()),
+            //         record_queue_.load()->get_size() * output_frame_size);
             //     }
             //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
             // }
@@ -136,9 +142,9 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        //api::set_record_frame_skip(nb_frames_to_skip);
+        // api::set_record_frame_skip(nb_frames_to_skip);
 
-        //api::set_record_frame_skip(nb_frames_to_skip);
+        // api::set_record_frame_skip(nb_frames_to_skip);
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
