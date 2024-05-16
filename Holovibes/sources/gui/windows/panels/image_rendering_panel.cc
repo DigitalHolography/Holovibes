@@ -44,7 +44,7 @@ void ImageRenderingPanel::on_notify()
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled((api::get_input_queue_location() == holovibes::Device::GPU));
 
-    ui_->TimeStrideSpinBox->setEnabled(!is_raw);
+    ui_->TimeStrideSpinBox->setEnabled(true);
 
     ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
@@ -52,7 +52,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -187,8 +187,11 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    // if (api::get_compute_mode() == Computation::Raw ||
+    //     UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    //     return;
+
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -212,9 +215,6 @@ void ImageRenderingPanel::update_time_stride()
 
     auto callback = [=]()
     {
-        api::set_time_stride(time_stride);
-        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
-
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.
         if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)

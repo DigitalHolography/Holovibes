@@ -34,7 +34,7 @@ bool Holovibes::is_recording() const { return frame_record_worker_controller_.is
 
 void Holovibes::init_input_queue(const unsigned int input_queue_size)
 {
-    if(!input_queue_.load())
+    if (!input_queue_.load())
         throw std::runtime_error("Must initialize input queue with a camera frame descriptor");
 
     init_input_queue(input_queue_.load()->get_fd(), input_queue_size);
@@ -42,76 +42,87 @@ void Holovibes::init_input_queue(const unsigned int input_queue_size)
 
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
-    if (!input_queue_.load()) {
-        if (api::get_compute_mode() == Computation::Hologram) {
-            input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd, api::get_input_queue_location());
-        }
-        else if (api::get_compute_mode() == Computation::Raw) {
-            input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, 1, fd, api::get_input_queue_location());
-        }    
-    }
-    else {
-        if (api::get_compute_mode() == Computation::Hologram) {
-            input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
-        }
-        else if (api::get_compute_mode() == Computation::Raw) {
-            input_queue_.load()->rebuild(fd, input_queue_size, 1, api::get_input_queue_location());
-        }
-    }
+    if (!input_queue_.load())
+        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size,
+                                                         api::get_batch_size(),
+                                                         fd,
+                                                         api::get_input_queue_location());
+    else
+        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
     LOG_DEBUG("Input queue allocated");
-    
 }
 
-void Holovibes::init_record_queue() {
+void Holovibes::init_record_queue()
+{
     auto device = api::get_record_queue_location();
     auto record_mode = api::get_record_mode();
-    switch (record_mode) {
-        case RecordMode::RAW: {
-            if (!input_queue_.load()) {
-                LOG_DEBUG("Cannot create record queue : input queue not created");
-                return;
-            }
-            LOG_DEBUG("RecordMode = Raw");
-            if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(), api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
-            else
-                record_queue_.load()->rebuild(input_queue_.load()->get_fd(), api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
+    switch (record_mode)
+    {
+    case RecordMode::RAW:
+    {
+        if (!input_queue_.load())
+        {
+            LOG_DEBUG("Cannot create record queue : input queue not created");
+            return;
+        }
+        LOG_DEBUG("RecordMode = Raw");
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(input_queue_.load()->get_fd(),
+                                                    api::get_record_buffer_size(),
+                                                    QueueType::RECORD_QUEUE,
+                                                    device);
+        else
+            record_queue_.load()->rebuild(input_queue_.load()->get_fd(),
+                                          api::get_record_buffer_size(),
+                                          get_cuda_streams().recorder_stream,
+                                          device);
 
-            LOG_DEBUG("Record queue allocated");
-            break;
-        }
-        case RecordMode::HOLOGRAM: {
-            LOG_DEBUG("RecordMode = Hologram");
-            auto record_fd = gpu_output_queue_.load()->get_fd();
-            record_fd.depth = record_fd.depth == 1 ? 2 : record_fd.depth; 
-            if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
-            else
-                record_queue_.load()->rebuild(record_fd, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
-            LOG_DEBUG("Record queue allocated");
-            break;
-        }
-        case RecordMode::CUTS_YZ:
-        case RecordMode::CUTS_XZ: {
-            LOG_DEBUG("RecordMode = CUTS");
-            camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
-            fd_xyz.depth = sizeof(ushort);
-            if (record_mode == RecordMode::CUTS_XZ)
-                fd_xyz.height = api::get_time_transformation_size();
-            else
-                fd_xyz.width = api::get_time_transformation_size();
-            
-            if (!record_queue_.load())
-                record_queue_ = std::make_shared<Queue>(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
-            else
-                record_queue_.load()->rebuild(fd_xyz, api::get_record_buffer_size(), get_cuda_streams().recorder_stream, device);
-            LOG_DEBUG("Record queue allocated");
-            break;
-        }
-        default: {
-            LOG_DEBUG("RecordMode = None");
-            break;
-        }
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    case RecordMode::HOLOGRAM:
+    {
+        LOG_DEBUG("RecordMode = Hologram");
+        auto record_fd = gpu_output_queue_.load()->get_fd();
+        record_fd.depth = record_fd.depth == 1 ? 2 : record_fd.depth;
+        if (!record_queue_.load())
+            record_queue_ =
+                std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        else
+            record_queue_.load()->rebuild(record_fd,
+                                          api::get_record_buffer_size(),
+                                          get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    case RecordMode::CUTS_YZ:
+    case RecordMode::CUTS_XZ:
+    {
+        LOG_DEBUG("RecordMode = CUTS");
+        camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
+        fd_xyz.depth = sizeof(ushort);
+        if (record_mode == RecordMode::CUTS_XZ)
+            fd_xyz.height = api::get_time_transformation_size();
+        else
+            fd_xyz.width = api::get_time_transformation_size();
+
+        if (!record_queue_.load())
+            record_queue_ =
+                std::make_shared<Queue>(fd_xyz, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        else
+            record_queue_.load()->rebuild(fd_xyz,
+                                          api::get_record_buffer_size(),
+                                          get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    default:
+    {
+        LOG_DEBUG("RecordMode = None");
+        break;
+    }
     }
 }
 
@@ -216,8 +227,9 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
     frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream, record_queue_);
 }
 
-void Holovibes::stop_frame_record() { 
-    frame_record_worker_controller_.stop(); 
+void Holovibes::stop_frame_record()
+{
+    frame_record_worker_controller_.stop();
 
     // if the record was on the cpu, we have to put the queues on gpu again
     if (api::get_record_on_gpu() == false)
@@ -257,8 +269,7 @@ void Holovibes::init_pipe()
         if (api::get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
-    gpu_output_queue_.store(
-        std::make_shared<Queue>(output_fd, api::get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, api::get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
         if (!record_queue_.load())
