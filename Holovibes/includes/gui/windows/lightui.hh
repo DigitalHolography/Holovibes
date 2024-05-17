@@ -11,17 +11,19 @@ class LightUI;
 
 namespace holovibes::gui
 {
+class MainWindow;
 
 class LightUI : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LightUI(QWidget *parent = nullptr);
+    explicit LightUI(QWidget *parent = nullptr, MainWindow* main_window = nullptr);
     ~LightUI();
 
 private:
-    Ui::LightUI *ui;
+    Ui::LightUI *ui_;
+    MainWindow* main_window_;
 };
 }
 

@@ -1,17 +1,20 @@
 #include "lightui.hh"
+#include "MainWindow.hh"
+#pragma warning(push, 0)
 #include "ui_lightui.h"
+#pragma warning(pop)
 
 namespace holovibes::gui
 {
-LightUI::LightUI(QWidget *parent)
+LightUI::LightUI(QWidget *parent, MainWindow* main_window)
     : QDialog(parent)
-    , ui(new Ui::LightUI)
+    , ui_(new Ui::LightUI), main_window_(main_window)
 {
-    ui->setupUi(this);
+    ui_->setupUi(this);
 }
 
 LightUI::~LightUI()
 {
-    delete ui;
+    delete ui_;
 }
 }

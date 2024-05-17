@@ -77,6 +77,7 @@ MainWindow::MainWindow(QWidget* parent)
                ui_->ImportPanel,
                ui_->ExportPanel,
                ui_->InfoPanel};
+    light_ui_ = new LightUI(nullptr, this);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -166,6 +167,9 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    light_ui_->show();
+    this->hide();
 }
 
 MainWindow::~MainWindow()
