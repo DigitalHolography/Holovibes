@@ -367,16 +367,18 @@ bool set_holographic_mode(ushort window_size)
     {
         set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
+        auto fd = get_fd();
+        Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
         create_pipe();
         create_holo_window(window_size);
         /* Info Manager */
-        auto fd = get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         api::set_contrast_mode(true);
 
-        update_batch_size(get_batch_size());
+        // update_batch_size(get_batch_size());
+
 
         LOG_INFO("Holographic mode set");
 

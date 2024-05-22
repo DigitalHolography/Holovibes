@@ -44,7 +44,7 @@ void ImageRenderingPanel::on_notify()
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled((api::get_input_queue_location() == holovibes::Device::GPU));
 
-    ui_->TimeStrideSpinBox->setEnabled(true);
+    ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
     ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());

@@ -262,6 +262,7 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
+    LOG_INFO("init pipe");
     camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
     if (api::get_compute_mode() == Computation::Hologram)
     {
