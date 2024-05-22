@@ -248,6 +248,8 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
+ExportPanel* MainWindow::get_export_panel() { return ui_->ExportPanel; }
+
 static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 
 void MainWindow::notify_error(const std::exception& e)
