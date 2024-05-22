@@ -310,6 +310,8 @@ void set_raw_mode(uint window_max_size)
 
     set_compute_mode(Computation::Raw);
 
+    create_pipe();
+
     LOG_INFO("Raw mode set");
     // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
     UserInterfaceDescriptor::instance().mainDisplay.reset(
