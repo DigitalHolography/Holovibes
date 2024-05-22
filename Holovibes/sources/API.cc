@@ -310,8 +310,6 @@ void set_raw_mode(uint window_max_size)
 
     set_compute_mode(Computation::Raw);
 
-    create_pipe(); // To remove ?
-
     LOG_INFO("Raw mode set");
     // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
     UserInterfaceDescriptor::instance().mainDisplay.reset(
@@ -368,6 +366,8 @@ bool set_holographic_mode(ushort window_size)
         set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
         auto fd = get_fd();
+
+        // It is necessary to build the input queue again since the batch size might have changed in raw mode
         Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
         create_pipe();
         create_holo_window(window_size);
