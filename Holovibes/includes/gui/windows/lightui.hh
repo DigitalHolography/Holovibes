@@ -1,7 +1,7 @@
 #ifndef LIGHTUI_HH
 #define LIGHTUI_HH
 
-#include <QDialog>
+#include <QMainWindow>
 
 #include "export_panel.hh"
 
@@ -15,7 +15,7 @@ namespace holovibes::gui
 {
 class MainWindow;
 
-class LightUI : public QDialog
+class LightUI : public QMainWindow
 {
     Q_OBJECT
 
@@ -28,13 +28,12 @@ public slots:
      * replacement*/
     void browse_record_output_file_ui();
 
-    /**
-     * @brief Handles the update of the record file path setting line edit.
-     */
-    void update_record_file_path();
+    void open_configuration_ui();
 
     /*! \brief Start/Stops the record */
     void start_stop_recording(bool start);
+
+    void quit();
 
 private:
     Ui::LightUI *ui_;

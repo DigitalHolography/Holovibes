@@ -768,6 +768,12 @@ void MainWindow::shift_screen()
     move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
 }
 
+void MainWindow::open_light_ui()
+{
+    light_ui_->show();
+    this->hide();
+}
+
 #pragma endregion
 
 /* ------------ */

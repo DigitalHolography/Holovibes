@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LightUI</class>
- <widget class="QDialog" name="LightUI">
+ <widget class="QMainWindow" name="LightUI">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -19,18 +19,10 @@
   <property name="windowTitle">
    <string>Holovibes</string>
   </property>
-  <property name="sizeGripEnabled">
+  <property name="sizeGripEnabled" stdset="0">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="formLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>402</width>
-     <height>41</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="sizeConstraint">
      <enum>QLayout::SetNoConstraint</enum>
@@ -92,6 +84,24 @@
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>457</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionConfiguration_UI"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menuOptions"/>
+  </widget>
   <action name="actionStart_Stop">
    <property name="text">
     <string>Start_Stop</string>
@@ -101,6 +111,16 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionConfiguration_UI">
+   <property name="text">
+    <string>Configuration UI</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
    </property>
   </action>
  </widget>
@@ -145,10 +165,43 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>quit</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>38</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConfiguration_UI</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>open_configuration_ui</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>38</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>browse_record_output_file_ui</slot>
-  <slot>update_record_file_path</slot>
-  <slot>start_stop_recording</slot>
+  <slot>browse_record_output_file_ui()</slot>
+  <slot>start_stop_recording()</slot>
+  <slot>open_configuration_ui()</slot>
+  <slot>quit()</slot>
  </slots>
 </ui>

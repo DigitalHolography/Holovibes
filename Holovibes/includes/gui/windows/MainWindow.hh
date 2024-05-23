@@ -151,6 +151,8 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
+    void open_light_ui();
+
   signals:
     /*! \brief TODO: comment
      *

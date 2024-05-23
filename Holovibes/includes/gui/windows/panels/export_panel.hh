@@ -33,7 +33,7 @@ class ExportPanel : public Panel
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
-    void browse_record_output_file();
+    QString browse_record_output_file();
 
     /*! \brief Enables or Disables number of frame restriction for recording
      *

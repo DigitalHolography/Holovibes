@@ -2244,10 +2244,10 @@
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
                 <property name="minimum">
-                    <double>0.000000000000000</double>
+                 <double>0.000000000000000</double>
                 </property>
                 <property name="maximum">
-                    <double>100.000000000000000</double>
+                 <double>100.000000000000000</double>
                 </property>
                 <property name="singleStep">
                  <double>0.010000000000000</double>
@@ -2264,7 +2264,7 @@
               <item row="2" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
                 <property name="minimum">
-                    <double>0.000000000000000</double>
+                 <double>0.000000000000000</double>
                 </property>
                 <property name="maximum">
                  <double>100.000000000000000</double>
@@ -2284,7 +2284,7 @@
               <item row="3" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
                 <property name="minimum">
-                    <double>0.000000000000000</double>
+                 <double>0.000000000000000</double>
                 </property>
                 <property name="maximum">
                  <double>100.000000000000000</double>
@@ -2951,22 +2951,22 @@
                  </item>
                 </layout>
                </item>
-                <item>
-                    <widget class="QCheckBox" name="RecordDeviceCheckbox">
-                        <property name="enabled">
-                            <bool>true</bool>
-                        </property>
-                        <property name="checked">
-                            <bool>false</bool>
-                        </property>
-                        <property name="styleSheet">
-                            <string notr="true"/>
-                        </property>
-                        <property name="text">
-                            <string>CPU Record</string>
-                        </property>
-                    </widget>
-                </item>
+               <item>
+                <widget class="QCheckBox" name="RecordDeviceCheckbox">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>CPU Record</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
             </item>
@@ -3056,10 +3056,13 @@
            </property>
            <property name="html">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -3120,7 +3123,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1210</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3188,6 +3191,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionView"/>
     <addaction name="actionImportExport"/>
     <addaction name="actionInfo"/>
+    <addaction name="actionLightUI"/>
    </widget>
    <widget class="QMenu" name="menuTheme">
     <property name="title">
@@ -3429,6 +3433,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionReset">
    <property name="text">
     <string>Reset settings and quit</string>
+   </property>
+  </action>
+  <action name="actionLightUI">
+   <property name="text">
+    <string>LightUI</string>
    </property>
   </action>
  </widget>
@@ -4237,12 +4246,32 @@ p, li { white-space: pre-wrap; }
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
    <slot>slide_update_shift_h_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>horizontalSlider_hue_shift_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
    <slot>slide_update_shift_h_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>LensViewCheckBox</sender>
@@ -4297,6 +4326,16 @@ p, li { white-space: pre-wrap; }
    <signal>clicked(bool)</signal>
    <receiver>CompositePanel</receiver>
    <slot>click_z_fft_shift(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>horizontalSlider_hue_threshold_max</sender>
@@ -4779,10 +4818,20 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-  <sender>RecordDeviceCheckbox</sender>
+   <sender>RecordDeviceCheckbox</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
    <slot>set_record_device(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>ExportRecPushButton</sender>
@@ -5168,7 +5217,7 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
-    <connection>
+  <connection>
    <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5301,6 +5350,16 @@ p, li { white-space: pre-wrap; }
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>open_advanced_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>WindowSelectionComboBox</sender>
@@ -5319,58 +5378,148 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-    <sender>BatchGroupBox</sender>
-    <signal>toggled()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_batch_enabled()</slot>
+   <sender>BatchGroupBox</sender>
+   <signal>toggled()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_batch_enabled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>NumberOfFramesCheckBox</sender>
-    <signal>stateChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_record_frame_count_enabled()</slot>
+   <sender>NumberOfFramesCheckBox</sender>
+   <signal>stateChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_frame_count_enabled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>NumberOfFramesSpinBox</sender>
-    <signal>valueChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_record_frame_count_enabled()</slot>
+   <sender>NumberOfFramesSpinBox</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_frame_count_enabled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>OutputFilePathLineEdit</sender>
-    <signal>textChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_record_file_path()</slot>
+   <sender>OutputFilePathLineEdit</sender>
+   <signal>textChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>BatchInputPathLineEdit</sender>
-    <signal>textChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_batch_file_path()</slot>
+   <sender>BatchInputPathLineEdit</sender>
+   <signal>textChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_batch_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>RecordExtComboBox</sender>
-    <signal>currentTextChanged()</signal>
-    <receiver>ExportPanel</receiver>
-    <slot>update_record_file_extension(QString)</slot>
+   <sender>RecordExtComboBox</sender>
+   <signal>currentTextChanged()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>update_record_file_extension(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
-    <sender>LoadFileInGpuCheckBox</sender>
-    <signal>stateChanged()</signal>
-    <receiver>ImportPanel</receiver>
-    <slot>update_load_file_in_gpu()</slot>
+   <sender>LoadFileInGpuCheckBox</sender>
+   <signal>stateChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_load_file_in_gpu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>ImportStartIndexSpinBox</sender>
    <signal>valueChanged()</signal>
    <receiver>ImportPanel</receiver>
    <slot>update_input_file_start_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>ImportEndIndexSpinBox</sender>
    <signal>valueChanged()</signal>
    <receiver>ImportPanel</receiver>
    <slot>update_input_file_end_index()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>ImportInputFpsSpinBox</sender>
@@ -5389,10 +5538,20 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-    <sender>ImportPathLineEdit</sender>
-    <signal>textChanged()</signal>
-    <receiver>ImportPanel</receiver>
-    <slot>update_import_file_path()</slot>
+   <sender>ImportPathLineEdit</sender>
+   <signal>textChanged()</signal>
+   <receiver>ImportPanel</receiver>
+   <slot>update_import_file_path()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>actionOpenCV</sender>
@@ -5403,6 +5562,22 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLightUI</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>open_light_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>168</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>
@@ -5517,5 +5692,6 @@ p, li { white-space: pre-wrap; }
   <slot>reset_settings()</slot>
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>
+  <slot>open_light_ui()</slot>
  </slots>
 </ui>
