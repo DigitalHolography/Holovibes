@@ -369,8 +369,6 @@ bool set_holographic_mode(ushort window_size)
         /* Pipe & Window */
         auto fd = get_fd();
 
-        // It is necessary to build the input queue again since the batch size might have changed in raw mode
-        Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
         create_pipe();
         create_holo_window(window_size);
         /* Info Manager */
