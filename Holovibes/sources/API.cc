@@ -287,12 +287,6 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
 
 void write_ui_mode(bool lightUI)
 {
-    char str[20];
-    if (lightUI)
-        strcpy(str, "Light UI");
-    else
-        strcpy(str, "Configure UI");
-    LOG_INFO(str);
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);
     json j_us = json::parse(input_file);
