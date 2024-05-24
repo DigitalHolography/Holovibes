@@ -168,8 +168,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
-    light_ui_->show();
-    this->hide();
+    if (!api::get_light_ui_mode())
+        light_ui_->hide();
 }
 
 MainWindow::~MainWindow()

@@ -28,15 +28,21 @@
      <enum>QLayout::SetNoConstraint</enum>
     </property>
     <property name="leftMargin">
-     <number>0</number>
+     <number>10</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>10</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="outputFileSelectionLayout">
       <property name="spacing">
        <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
       </property>
       <item>
        <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFilePathLineEdit">
@@ -150,42 +156,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>OutputFileBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LightUI</receiver>
-   <slot>browse_record_output_file_ui</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>322</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>228</x>
-     <y>85</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionQuit</sender>
    <signal>triggered()</signal>
    <receiver>LightUI</receiver>
-   <slot>quit</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>228</x>
-     <y>38</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionConfiguration_UI</sender>
-   <signal>triggered()</signal>
-   <receiver>LightUI</receiver>
-   <slot>open_configuration_ui</slot>
+   <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -199,9 +173,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>browse_record_output_file_ui()</slot>
   <slot>start_stop_recording()</slot>
-  <slot>open_configuration_ui()</slot>
-  <slot>quit()</slot>
  </slots>
 </ui>

@@ -25,12 +25,19 @@ LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_p
     */
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
-    connect(ui_->actionQuit, &QAction::triggered, this, &LightUI::quit);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
+
+    if (api::get_light_ui_mode())
+        main_window_->hide();
 }
 
 LightUI::~LightUI()
 {
+    api::close_windows(true);
+    api::close_critical_compute();
+    api::stop_all_worker_controller();
+    api::camera_none_without_json();
+
     delete ui_;
 }
 
@@ -44,9 +51,13 @@ void LightUI::start_stop_recording(bool start) {
     if (start) {
         strcpy(str, "Start recording");
         export_panel_->start_record();
+        ui_->startButton->setText("Stop");
+        ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 255);");
     } else {
         strcpy(str, "Stop recording");
         export_panel_->stop_record();
+        ui_->startButton->setText("Start");
+        ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 0);");
     }
     LOG_INFO(str);
 }
@@ -55,11 +66,6 @@ void LightUI::open_configuration_ui() {
     LOG_INFO("Opening configuration UI");
     main_window_->show();
     this->hide();
-}
-
-void LightUI::quit() {
-    LOG_INFO("Quitting");
-    main_window_->reset_settings();
 }
 
 } // namespace holovibes::gui

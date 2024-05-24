@@ -33,8 +33,6 @@ public slots:
     /*! \brief Start/Stops the record */
     void start_stop_recording(bool start);
 
-    void quit();
-
 private:
     Ui::LightUI *ui_;
     MainWindow* main_window_;
