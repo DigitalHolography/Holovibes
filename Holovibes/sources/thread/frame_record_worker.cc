@@ -86,8 +86,8 @@ void FrameRecordWorker::run()
 
         size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
 
-        if (Holovibes::instance().get_gpu_input_queue()->has_overridden())
-            Holovibes::instance().get_gpu_input_queue()->reset_override();
+        if (Holovibes::instance().get_input_queue()->has_overridden())
+            Holovibes::instance().get_input_queue()->reset_override();
 
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
