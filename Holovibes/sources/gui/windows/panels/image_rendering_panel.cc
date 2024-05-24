@@ -187,10 +187,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    // if (api::get_compute_mode() == Computation::Raw ||
-    //     UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-    //     return;
-
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 

@@ -379,9 +379,6 @@ bool set_holographic_mode(ushort window_size)
         /* Contrast */
         api::set_contrast_mode(true);
 
-        // update_batch_size(get_batch_size());
-
-
         LOG_INFO("Holographic mode set");
 
         return true;
@@ -478,7 +475,6 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 
 #pragma region STFT
 
-// FIXME: Same function as above
 void update_time_stride(std::function<void()> callback, const uint time_stride)
 {
     api::set_time_stride(time_stride);
