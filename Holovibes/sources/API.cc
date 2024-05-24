@@ -117,7 +117,7 @@ const std::string get_credits()
            "Michael Atlan\n";
 }
 
-bool is_gpu_input_queue() { return get_gpu_input_queue() != nullptr; }
+bool is_input_queue() { return get_input_queue() != nullptr; }
 
 static bool is_current_window_xyz_type()
 {
@@ -317,7 +317,7 @@ void set_raw_mode(uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
-                                      get_gpu_input_queue().get(),
+                                      get_input_queue().get(),
                                       static_cast<float>(width) / static_cast<float>(height)));
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
     UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
@@ -442,10 +442,10 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 void update_batch_size(const uint batch_size)
 {
-    if (batch_size == api::get_batch_size())
+    if (batch_size == get_batch_size())
         return;
 
-    bool time_stride_changed = api::set_batch_size(batch_size);
+    bool time_stride_changed = set_batch_size(batch_size);
 
     if (get_compute_mode() == Computation::Hologram)
     {
@@ -455,6 +455,8 @@ void update_batch_size(const uint batch_size)
         }
         Holovibes::instance().get_compute_pipe()->request_update_batch_size();
     }
+    else
+        Holovibes::instance().get_input_queue()->resize(get_batch_size());
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
@@ -743,7 +745,7 @@ void set_x_accu_level(uint x_value)
 void set_x_cuts(uint value)
 {
     auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    const auto& fd = holo.get_input_queue()->get_fd();
     if (value < fd.width)
     {
         auto x = Holovibes::instance().get_setting<settings::X>().value;
@@ -764,7 +766,7 @@ void set_y_accu_level(uint y_value)
 void set_y_cuts(uint value)
 {
     auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_gpu_input_queue()->get_fd();
+    const auto& fd = holo.get_input_queue()->get_fd();
     if (value < fd.height)
     {
         auto y = Holovibes::instance().get_setting<settings::Y>().value;
@@ -779,14 +781,14 @@ void set_x_y(uint x, uint y)
     if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
     auto x_ = Holovibes::instance().get_setting<settings::X>().value;
-    if (x < Holovibes::instance().get_gpu_input_queue()->get_fd().width)
+    if (x < Holovibes::instance().get_input_queue()->get_fd().width)
     {
         x_.start = x;
         holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x_});
     }
 
     auto y_ = Holovibes::instance().get_setting<settings::Y>().value;
-    if (y < Holovibes::instance().get_gpu_input_queue()->get_fd().width)
+    if (y < Holovibes::instance().get_input_queue()->get_fd().width)
     {
         y_.start = y;
         holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y_});
@@ -1003,9 +1005,9 @@ void close_critical_compute()
 
 void stop_all_worker_controller() { Holovibes::instance().stop_all_worker_controller(); }
 
-int get_gpu_input_queue_fd_width() { return get_fd().width; }
+int get_input_queue_fd_width() { return get_fd().width; }
 
-int get_gpu_input_queue_fd_height() { return get_fd().height; }
+int get_input_queue_fd_height() { return get_fd().height; }
 
 float get_boundary() { return Holovibes::instance().get_boundary(); }
 

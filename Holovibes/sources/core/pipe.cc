@@ -545,7 +545,7 @@ void Pipe::insert_raw_record()
 
     // Increment the number of frames inserted in the record queue, so that when it bypasses the requested number, the
     // record finishes This counter happens during the enqueing instead of the dequeuing, because the frequency of the
-    // gpu_input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of
+    // input_queue is usually way faster than the gpu_frame_record queue's, and it would cause the overwritting of
     // the record queue When a new record is started, a refresh of the pipe is requested, and this variable is reset
     static size_t inserted = 0;
     inserted = 0;
