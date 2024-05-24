@@ -9,13 +9,14 @@ std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 std::unique_ptr<spdlog::pattern_formatter> Logger::formatter_ = nullptr;
 std::vector<spdlog::sink_ptr> Logger::sinks_;
 std::map<size_t, std::string> Logger::thread_map_;
+std::shared_mutex Logger::map_mutex_;
 
 std::shared_ptr<spdlog::logger> Logger::logger()
 {
     if (logger_ == nullptr)
     {
         logger_ = init_logger("logger", spdlog::level::trace);
-        logger_->flush_on(spdlog::level::trace);
+        //logger_->flush_on(spdlog::level::trace);
     }
     return logger_;
 }
@@ -91,6 +92,7 @@ bool Logger::add_thread(std::thread::id thread_id, std::string thread_name)
 
 std::pair<std::string, bool> Logger::get_thread_name(size_t thread_id)
 {
+    std::shared_lock lock(map_mutex_);
     std::map<size_t, std::string>::iterator search = thread_map_.find(thread_id);
     if (search == thread_map_.end())
     {
