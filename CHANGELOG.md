@@ -5,6 +5,9 @@
 - Now possible to modify batch size in raw mode
 - Fix cpu record crash
 - Camera doesn't reload after record
+- 710 camera works with 2 banks
+- 0 continuity record fixed
+- Color added in the info pannel to notify the user of performance issues.
 
 ### 12.10.5
 
