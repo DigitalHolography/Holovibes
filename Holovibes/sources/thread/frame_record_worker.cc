@@ -92,7 +92,7 @@ void FrameRecordWorker::run()
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
         {
-            if (record_queue_.load()->has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
+            if (record_queue_.load()->has_overridden() || Holovibes::instance().get_input_queue()->has_overridden())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())

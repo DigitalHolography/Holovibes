@@ -700,7 +700,7 @@
 											"top": 702,
 											"width": 380.9482421875,
 											"height": 13,
-											"text": "#gpu_input_queue_: atomic shared_ptr Queue",
+											"text": "#input_queue_: atomic shared_ptr Queue",
 											"horizontalAlignment": 0
 										},
 										{
@@ -751,7 +751,7 @@
 											"top": 740,
 											"width": 380.9482421875,
 											"height": 13,
-											"text": "+FrameReadWorker(gpu_input_queue: atomic shared_ptr Queue)",
+											"text": "+FrameReadWorker(input_queue: atomic shared_ptr Queue)",
 											"horizontalAlignment": 0
 										}
 									],
@@ -1195,7 +1195,7 @@
 											"top": 1269,
 											"width": 1188.90966796875,
 											"height": 13,
-											"text": "+FileFrameReadWorker(file_path: string, loop: bool, fps: unsigned int, first_frame_id: unsigned int, total_nb_frames_to_read: unsigned int, load_file_in_gpu: bool, gpu_input_queue: atomic shared_ptr Queue)",
+											"text": "+FileFrameReadWorker(file_path: string, loop: bool, fps: unsigned int, first_frame_id: unsigned int, total_nb_frames_to_read: unsigned int, load_file_in_gpu: bool, input_queue: atomic shared_ptr Queue)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -4610,7 +4610,7 @@
 							"_parent": {
 								"$ref": "AAAAAAF2Ukd5SmeCF7w="
 							},
-							"name": "gpu_input_queue_",
+							"name": "input_queue_",
 							"visibility": "protected",
 							"type": "atomic shared_ptr Queue"
 						},
@@ -4640,7 +4640,7 @@
 									"_parent": {
 										"$ref": "AAAAAAF2UknWsWe7nus="
 									},
-									"name": "gpu_input_queue",
+									"name": "input_queue",
 									"type": "atomic shared_ptr Queue"
 								}
 							]
@@ -4831,7 +4831,7 @@
 									"_parent": {
 										"$ref": "AAAAAAF2Ulk6K2idAlY="
 									},
-									"name": "gpu_input_queue",
+									"name": "input_queue",
 									"type": "atomic shared_ptr Queue"
 								}
 							]

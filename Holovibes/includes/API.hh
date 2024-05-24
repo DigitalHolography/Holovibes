@@ -86,13 +86,13 @@ unsigned get_accumulation_level();
  *
  * \return int
  */
-int get_gpu_input_queue_fd_width();
+int get_input_queue_fd_width();
 
 /*! \brief Gets the gpu input queue frame desciptor height object
  *
  * \return int
  */
-int get_gpu_input_queue_fd_height();
+int get_input_queue_fd_height();
 
 /*! \brief Get the boundary of frame descriptor
  *
@@ -105,7 +105,7 @@ float get_boundary();
  * \return true on success
  * \return false on failure
  */
-bool is_gpu_input_queue();
+bool is_input_queue();
 
 /*! \brief Enables the divide convolution mode
  *

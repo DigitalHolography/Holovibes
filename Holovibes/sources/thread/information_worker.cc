@@ -75,12 +75,12 @@ void InformationWorker::run()
             compute_fps(waited_time);
 
             std::shared_ptr<Queue> gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> gpu_input_queue = Holovibes::instance().get_gpu_input_queue();
+            std::shared_ptr<BatchInputQueue> input_queue = Holovibes::instance().get_input_queue();
 
-            if (gpu_output_queue && gpu_input_queue)
+            if (gpu_output_queue && input_queue)
             {
                 output_frame_res = gpu_output_queue->get_fd().get_frame_res();
-                input_frame_size = gpu_input_queue->get_fd().get_frame_size();
+                input_frame_size = input_queue->get_fd().get_frame_size();
             }
 
             auto frame_record_queue = Holovibes::instance().get_record_queue().load();
