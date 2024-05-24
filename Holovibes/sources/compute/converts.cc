@@ -358,20 +358,21 @@ void Converts::insert_filter2d_ushort()
 void Converts::insert_complex_conversion(BatchInputQueue& gpu_input_queue)
 {
     LOG_FUNC(fd_.depth);
-    fn_compute_vect_.push_back(
-        [&]()
-        {
-            static const BatchInputQueue::dequeue_func_t convert_to_complex = [](const void* const src,
-                                                                                 void* const dest,
-                                                                                 const uint batch_size,
-                                                                                 const size_t frame_res,
-                                                                                 const uint depth,
-                                                                                 const cudaStream_t stream)
-            { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
+    
+    // Conversion function from input queue to input buffer
+    auto convert_to_complex = [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
+    {
+        input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream);
+    };
 
-            void* output = buffers_.gpu_spatial_transformation_buffer.get();
-            gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
-        });
+    // Task to convert input queue to input buffer
+    auto conversion_task = [this, &gpu_input_queue, convert_to_complex]()
+    {
+        void* output = buffers_.gpu_spatial_transformation_buffer.get();
+        gpu_input_queue.dequeue(output, fd_.depth, convert_to_complex);
+    };
+
+    fn_compute_vect_.push_back(conversion_task);
 }
 
 /*

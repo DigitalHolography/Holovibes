@@ -183,9 +183,7 @@ MainWindow::~MainWindow()
 #pragma region Notify
 void MainWindow::synchronize_thread(std::function<void()> f)
 {
-    // We can't update gui values from a different thread
-    // so we pass it to the right one using a signal
-    // FIXME - (This whole notify thing needs to be cleaned up / removed)
+    // Ensure GUI updates are done on the main thread
     if (QThread::currentThread() != this->thread())
         emit synchronize_thread_signal(f);
     else
@@ -210,9 +208,10 @@ void MainWindow::on_notify()
 
     // Disable the notify for the same reason
     disable_notify();
+
     // Notify all panels
-    for (auto it = panels_.begin(); it != panels_.end(); it++)
-        (*it)->on_notify();
+    for (auto& panel : panels_)
+        panel->on_notify();
 
     enable_notify();
 
