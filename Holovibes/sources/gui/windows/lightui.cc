@@ -13,7 +13,7 @@ namespace holovibes::gui
 {
 LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_panel)
     : QMainWindow(parent)
-    , ui_(new Ui::LightUI), main_window_(main_window), export_panel_(main_window->get_export_panel())
+    , ui_(new Ui::LightUI), main_window_(main_window), export_panel_(main_window->get_export_panel()), visible_(false)
 {
     ui_->setupUi(this);
 
@@ -27,18 +27,20 @@ LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
 
-    if (api::get_light_ui_mode())
-        main_window_->hide();
+    main_window_->set_light_ui(this);
 }
 
 LightUI::~LightUI()
 {
-    api::close_windows(true);
-    api::close_critical_compute();
-    api::stop_all_worker_controller();
-    api::camera_none_without_json();
+    api::write_ui_mode(visible_);
 
     delete ui_;
+}
+
+void LightUI::showEvent(QShowEvent *event) 
+{
+    QMainWindow::showEvent(event);
+    visible_ = true;
 }
 
 void LightUI::browse_record_output_file_ui() {
@@ -66,6 +68,7 @@ void LightUI::open_configuration_ui() {
     LOG_INFO("Opening configuration UI");
     main_window_->show();
     this->hide();
+    visible_ = false;
 }
 
 } // namespace holovibes::gui

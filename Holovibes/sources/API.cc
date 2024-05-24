@@ -125,23 +125,11 @@ static bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_type());
 }
 
-void write_ui_mode(bool lightUI)
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-    j_us["light_ui"] = lightUI;
-
-    std::ofstream output_file(path);
-    output_file << j_us.dump(1);
-}
-
-void close_windows(bool lightUI)
+void close_windows()
 {
     if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
         UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
     UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    write_ui_mode(lightUI);
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
@@ -297,7 +285,24 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
     return QSize(final_width, final_height);
 }
 
-bool get_light_ui_mode()
+void write_ui_mode(bool lightUI)
+{
+    char str[20];
+    if (lightUI)
+        strcpy(str, "Light UI");
+    else
+        strcpy(str, "Configure UI");
+    LOG_INFO(str);
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+    j_us["light_ui"] = lightUI;
+
+    std::ofstream output_file(path);
+    output_file << j_us.dump(1);
+}
+
+bool get_ui_mode()
 {
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);

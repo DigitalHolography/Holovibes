@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QSplashScreen>
 
+#include "API.hh"
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
@@ -83,8 +84,13 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window;
+    holovibes::gui::LightUI light_ui(nullptr, &window, window.get_export_panel());
+
     LOG_TRACE(" ");
-    window.show();
+    if (holovibes::api::get_ui_mode())
+        light_ui.show();
+    else
+        window.show();
     LOG_TRACE(" ");
     splash.finish(&window);
 

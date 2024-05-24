@@ -22,6 +22,7 @@ class LightUI : public QMainWindow
 public:
     explicit LightUI(QWidget *parent = nullptr, MainWindow* main_window = nullptr, ExportPanel* export_panel = nullptr);
     ~LightUI();
+    void showEvent(QShowEvent *event) override;
 
 public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
@@ -37,6 +38,7 @@ private:
     Ui::LightUI *ui_;
     MainWindow* main_window_;
     ExportPanel* export_panel_;
+    bool visible_;
 };
 }
 

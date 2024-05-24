@@ -237,12 +237,12 @@ void set_record_buffer_size(uint value);
 
 void write_ui_mode(bool lightUI);
 
-bool get_light_ui_mode();
+bool get_ui_mode();
 
 /*! \brief Closes all the currently displaying windows
  *
  */
-void close_windows(bool lightUI = false);
+void close_windows();
 
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();

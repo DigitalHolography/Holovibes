@@ -59,6 +59,8 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
+    void set_light_ui(LightUI* light_ui);
+
     void notify() override;
     void notify_error(const std::exception& e) override;
 

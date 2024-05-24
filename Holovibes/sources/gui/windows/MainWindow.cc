@@ -68,7 +68,7 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 #pragma region Constructor - Destructor
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , ui_(new Ui::MainWindow)
+    , ui_(new Ui::MainWindow), light_ui_(nullptr)
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -77,7 +77,6 @@ MainWindow::MainWindow(QWidget* parent)
                ui_->ImportPanel,
                ui_->ExportPanel,
                ui_->InfoPanel};
-    light_ui_ = new LightUI(nullptr, this);
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,
@@ -167,9 +166,6 @@ MainWindow::MainWindow(QWidget* parent)
     api::start_information_display();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
-
-    if (!api::get_light_ui_mode())
-        light_ui_->hide();
 }
 
 MainWindow::~MainWindow()
@@ -181,6 +177,8 @@ MainWindow::~MainWindow()
 
     delete ui_;
 }
+
+void MainWindow::set_light_ui(LightUI* light_ui) { light_ui_ = light_ui; }
 
 #pragma endregion
 /* ------------ */
