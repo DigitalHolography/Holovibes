@@ -56,7 +56,7 @@ void InformationWorker::run()
     std::ofstream benchmark_file;
     bool info_found = false;
 
-    if (benchmark_mode)  // #TODO Find a way to reduce the amount of benchmark mode checks, maybe through preprocessor between debug and release
+    if (benchmark_mode)
     {
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
@@ -182,7 +182,7 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
 std::string gpu_load()
 {
     std::stringstream ss;
-    ss << "GPU load: \n  ";
+    ss << "GPU load: <br/>  ";
     nvmlReturn_t result;
     nvmlDevice_t device;
     nvmlUtilization_t gpuLoad;
@@ -214,7 +214,16 @@ std::string gpu_load()
     }
 
     // Print GPU load
-    ss << gpuLoad.gpu << "%";
+    auto load = gpuLoad.gpu;
+    ss << "<font color=";
+    if (load < 80)
+        ss << "white";
+    else if (load < 90)
+        ss << "orange";
+    else
+        ss << "red";
+    ss << ">" << load << "</font>";
+    ss << " %";
 
     // Shutdown NVML
     nvmlShutdown();
@@ -260,7 +269,7 @@ std::string gpu_load_as_number()
 std::string gpu_memory_load()
 {
     std::stringstream ss;
-    ss << "GPU memory controller load: \n  ";
+    ss << "GPU memory controller load: <br/>  ";
     nvmlReturn_t result;
     nvmlDevice_t device;
     nvmlUtilization_t gpuLoad;
@@ -292,7 +301,16 @@ std::string gpu_memory_load()
     }
 
     // Print GPU load
-    ss << gpuLoad.memory << "%";
+    auto load = gpuLoad.memory;
+    ss << "<font color=";
+    if (load < 80)
+        ss << "white";
+    else if (load < 90)
+        ss << "orange";
+    else
+        ss << "red";
+    ss << ">" << load << "</font>";
+    ss << " %";
 
     // Shutdown NVML
     nvmlShutdown();
@@ -343,64 +361,73 @@ void InformationWorker::display_gui_information()
     auto& fps_map = GSH::fast_updates_map<FpsType>;
 
     for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
-        to_display << indication_type_to_string_.at(key) << ":\n  " << *value << "\n";
+        to_display << indication_type_to_string_.at(key) << ":<br/>  " << *value << "<br/>";
 
     for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
     {
         if (key == QueueType::UNDEFINED)
             continue;
+        auto currentLoad = std::get<0>(*value).load();
+        auto maxLoad = std::get<1>(*value).load();
 
-        to_display << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key)
-                   << ":\n  ";
-        to_display << std::get<0>(*value).load() << "/" << std::get<1>(*value).load();
-        if (std::get<0>(*value).load() == std::get<1>(*value).load() && queue_type_to_string_.at(key) == "Input Queue")
-        {
-            to_display << " /!\\ Input queue full";
-            // LOG_ERROR("Input Queue Full !"); TODO: Pas propre, trouver une meilleur solution.
-        }
-        to_display << "\n";
+        to_display << "<font color=";
+        if (queue_type_to_string_.at(key) == "Output Queue" || currentLoad < maxLoad * 0.8)
+            to_display << "white";
+        else if (currentLoad < maxLoad * 0.9)
+            to_display << "orange";
+        else
+            to_display << "red";
 
-        // to_display << value->first.load() << "/" << value->second.load() << "\n";
+        to_display << ">" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":<br/>  ";
+        to_display << currentLoad << "/" << maxLoad << "</font>" << "<br/>";
     }
 
     if (fps_map.contains(FpsType::INPUT_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":\n  " << input_fps_ << "\n";
+        to_display << fps_type_to_string_.at(FpsType::INPUT_FPS) << ":<br/>  " << input_fps_ << "<br/>";
     }
 
     if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":\n  " << output_fps_ << "\n";
+        to_display << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << ":<br/>  ";
+        if (output_fps_ == 0)
+        {
+            to_display << "<font color=";
+            to_display << "red";
+            to_display << ">" << output_fps_ << "</font>" << "<br/>";
+        }
+        else
+            to_display << output_fps_ << "<br/>";
     }
 
     if (fps_map.contains(FpsType::SAVING_FPS))
     {
-        to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":\n  " << saving_fps_ << "\n";
+        to_display << fps_type_to_string_.at(FpsType::SAVING_FPS) << ":<br/>  " << saving_fps_ << "<br/>";
     }
 
     if (fps_map.contains(FpsType::OUTPUT_FPS))
     {
-        to_display << "Input Throughput\n  " << format_throughput(input_throughput_, "B/s") << "\n";
-        to_display << "Output Throughput\n  " << format_throughput(output_throughput_, "Voxels/s") << "\n";
+        to_display << "Input Throughput<br/>  " << format_throughput(input_throughput_, "B/s") << "<br/>";
+        to_display << "Output Throughput<br/>  " << format_throughput(output_throughput_, "Voxels/s") << "<br/>";
     }
 
     if (fps_map.contains(FpsType::SAVING_FPS))
     {
-        to_display << "Saving Throughput\n  " << format_throughput(saving_throughput_, "B/s") << "\n";
+        to_display << "Saving Throughput<br/>  " << format_throughput(saving_throughput_, "B/s") << "<br/>";
     }
 
     size_t free, total;
     cudaMemGetInfo(&free, &total);
 
-    to_display << "GPU memory:\n"
-               << std::string("  ") << engineering_notation(free, 3) << "B free,\n"
-               << "  " << engineering_notation(total, 3) + "B total\n";
+    to_display << "GPU memory:<br/>"
+               << std::string("  ") << engineering_notation(free, 3) << "B free,<br/>"
+               << "  " << engineering_notation(total, 3) + "B total<br/>";
 
-    to_display << gpu_load() << '\n';
-    to_display << gpu_memory_load() << '\n';
+    to_display << gpu_load() << "<br/>";
+    to_display << gpu_memory_load() << "<br/>";
 
     // #TODO change this being called every frame to only being called to update the value if needed
-    to_display << "\nz boundary: " << Holovibes::instance().get_boundary() << "m\n";
+    to_display << "<br/>z boundary: " << Holovibes::instance().get_boundary() << "m<br/>";
 
     display_info_text_function_(to_display.str());
 
