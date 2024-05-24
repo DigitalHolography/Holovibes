@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <shared_mutex>
 
 #include "check.hh"
 #include "holovibes_config.hh"
@@ -62,6 +63,18 @@ constexpr const char* get_file_name(const char* path)
 #define INTERNAL_LOGGER_GET_FUNC_FMT_(el) #el "={}"
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
+// Custom formatter for std::thread::id
+namespace fmt {
+    template <>
+    struct formatter<std::thread::id> : formatter<std::string> {
+        auto format(std::thread::id id, format_context& ctx) -> decltype(ctx.out()) {
+            std::stringstream ss;
+            ss << id;
+            return formatter<std::string>::format(ss.str(), ctx);
+        }
+    };
+}
+
 namespace holovibes
 {
 class Logger
@@ -72,6 +85,7 @@ class Logger
     static bool add_thread(std::thread::id thread_id, std::string thread_name);
     static std::pair<std::string, bool> get_thread_name(size_t thread_id);
     static void flush();
+    static std::shared_mutex map_mutex_;
 
   private:
     static std::shared_ptr<spdlog::logger> init_logger(std::string name, spdlog::level::level_enum);

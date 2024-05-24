@@ -1,5 +1,11 @@
 ## Changelog
 
+### 12.11.0
+
+- Now possible to modify batch size in raw mode
+- Fix cpu record crash
+- Camera doesn't reload after record
+
 ### 12.10.5
 
 - Fix automatic load for s991

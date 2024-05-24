@@ -331,10 +331,10 @@ void set_raw_mode(uint window_max_size)
 
     set_compute_mode(Computation::Raw);
 
-    create_pipe(); // To remove ?
+    create_pipe();
 
     LOG_INFO("Raw mode set");
-    //Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
+    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -357,7 +357,7 @@ void create_holo_window(ushort window_size)
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
-    //Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
+    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
 
     try
     {
@@ -388,16 +388,17 @@ bool set_holographic_mode(ushort window_size)
     {
         set_compute_mode(Computation::Hologram);
         /* Pipe & Window */
+        auto fd = get_fd();
+
+        // It is necessary to build the input queue again since the batch size might have changed in raw mode
+        Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
         create_pipe();
         create_holo_window(window_size);
         /* Info Manager */
-        auto fd = get_fd();
         std::string fd_info =
             std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         api::set_contrast_mode(true);
-
-        update_batch_size(get_batch_size());
 
         LOG_INFO("Holographic mode set");
 
@@ -465,12 +466,16 @@ void update_batch_size(const uint batch_size)
     if (batch_size == api::get_batch_size())
         return;
 
-    // checks if time_stride has changed
-    if (api::set_batch_size(batch_size))
+    bool time_stride_changed = api::set_batch_size(batch_size);
+
+    if (get_compute_mode() == Computation::Hologram)
     {
-        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+        if (time_stride_changed)
+        {
+            Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+        }
+        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
     }
-    Holovibes::instance().get_compute_pipe()->request_update_batch_size();
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
@@ -483,7 +488,7 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
     }
     else
     {
-        LOG_INFO("could not get pipe");
+        notify_callback();
     }
 }
 
@@ -491,10 +496,17 @@ void update_batch_size(std::function<void()> notify_callback, const uint batch_s
 
 #pragma region STFT
 
-// FIXME: Same function as above
 void update_time_stride(std::function<void()> callback, const uint time_stride)
 {
-    get_compute_pipe()->insert_fn_end_vect(callback);
+    api::set_time_stride(time_stride);
+
+    if (get_compute_mode() == Computation::Hologram)
+    {
+        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+        get_compute_pipe()->insert_fn_end_vect(callback);
+    }
+    else
+        callback();
 }
 
 bool set_3d_cuts_view(uint time_transformation_size)

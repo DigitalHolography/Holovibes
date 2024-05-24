@@ -103,10 +103,16 @@ class EHoloGrabber
         width_ = width;
         height_ = fullHeight;
 
-        if (nb_grabbers == 2) {
+        // dynamic detection of the number of banks available.
+        if (nb_grabbers == 0)
+            nb_grabbers = grabbers_.length();
+
+        if (nb_grabbers == 2)
+        {
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
         }
-        else if (nb_grabbers == 4) {
+        else if (nb_grabbers == 4)
+        {
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
         }
 
@@ -115,8 +121,8 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-        
-        for (size_t ix = 0; ix < grabberCount ; ++ix)
+
+        for (size_t ix = 0; ix < grabberCount; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
             grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
@@ -130,17 +136,18 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
-            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
+            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
         }
 
         grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
         grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
-        if (nb_grabbers == 4) {
+        if (nb_grabbers == 4)
+        {
             grabbers_[2]->setInteger<StreamModule>("StripeOffset", offset2);
             grabbers_[3]->setInteger<StreamModule>("StripeOffset", offset3);
         }
 
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
+        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode);    // camera in triggered mode
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
         grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
@@ -198,10 +205,14 @@ class EHoloGrabber
 
             std::cout << "[";
             int pos = barWidth * prog;
-            for (int i = 0; i < barWidth; ++i) {
-                if (i < pos) std::cout << "=";
-                else if (i == pos) std::cout << ">";
-                else std::cout << " ";
+            for (int i = 0; i < barWidth; ++i)
+            {
+                if (i < pos)
+                    std::cout << "=";
+                else if (i == pos)
+                    std::cout << ">";
+                else
+                    std::cout << " ";
             }
             std::cout << "] " << int(prog * 100.0) << " %\r";
             std::cout.flush();
@@ -269,7 +280,7 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom(bool gpu=true);
+    CameraPhantom(bool gpu = true);
     virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;

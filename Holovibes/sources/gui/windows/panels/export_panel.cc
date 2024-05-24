@@ -286,13 +286,15 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), compute_mode = api::get_compute_mode(), this]()
+    auto callback = [record_mode = api::get_record_mode(), compute_mode = api::get_compute_mode(), gpu_record = api::get_record_on_gpu(), this]()
     {
         parent_->synchronize_thread(
             [=]()
             {
                 record_finished(record_mode);
-                ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
+                // if the record was in cpu mode, open the previous compute mode at the end of the record
+                if (!gpu_record)
+                    ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
             });
     };
 

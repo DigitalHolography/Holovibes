@@ -134,7 +134,11 @@ void copy_ini_files()
 
 int main(int argc, char* argv[])
 {
-    holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
+    {
+        std::unique_lock lock(holovibes::Logger::map_mutex_);
+        holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
+    }
+
 
     LOG_INFO("Start Holovibes");
     LOG_TRACE("hello");
