@@ -89,8 +89,14 @@ void BatchInputQueue::destroy_mutexes_streams()
 
 void BatchInputQueue::reset_override()
 {
-    has_overridden_ = false;
+    auto index = end_index_.load();
+    m_producer_busy_.lock();
+    batch_mutexes_[end_index_].lock();
+
     make_empty();
+
+    m_producer_busy_.unlock();
+    batch_mutexes_[index].unlock();
 }
 
 void BatchInputQueue::make_empty()
@@ -214,17 +220,21 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
 
 void BatchInputQueue::dequeue()
 {
-    CHECK(size_ > 0);
-    // Order cannot be guaranteed because of the try lock because a producer
-    // might start enqueue between two try locks
-    // Active waiting until the start batch is available to dequeue
-    uint start_index_locked = wait_and_lock(start_index_);
+    // CHECK(size_ > 0);
 
-    // Update index
-    dequeue_update_attr();
+    if (size_ > 0)
+    {
+        // Order cannot be guaranteed because of the try lock because a producer
+        // might start enqueue between two try locks
+        // Active waiting until the start batch is available to dequeue
+        uint start_index_locked = wait_and_lock(start_index_);
 
-    // Unlock the dequeued batch
-    batch_mutexes_[start_index_locked].unlock();
+        // Update index
+        dequeue_update_attr();
+
+        // Unlock the dequeued batch
+        batch_mutexes_[start_index_locked].unlock();
+    }
 }
 
 void BatchInputQueue::dequeue_update_attr()
