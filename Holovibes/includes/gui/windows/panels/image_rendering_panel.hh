@@ -6,6 +6,7 @@
 
 #include "panel.hh"
 #include "Filter2DWindow.hh"
+#include "lightui.hh"
 
 namespace holovibes::gui
 {
@@ -28,6 +29,8 @@ class ImageRenderingPanel : public Panel
 
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
+
+    void set_light_ui(LightUI* light_ui);
 
     //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
@@ -140,6 +143,7 @@ class ImageRenderingPanel : public Panel
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
+    LightUI* light_ui_;
 
   public:
   //should be moved to double in the ui if we need more precision than 5 digits

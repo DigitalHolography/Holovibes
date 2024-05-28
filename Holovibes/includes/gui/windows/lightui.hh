@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 
-#include "export_panel.hh"
-
 namespace Ui
 {
 class LightUI;
@@ -14,6 +12,8 @@ class LightUI;
 namespace holovibes::gui
 {
 class MainWindow;
+class ExportPanel;
+class ImageRenderingPanel;
 
 class LightUI : public QMainWindow
 {
@@ -23,6 +23,7 @@ public:
     explicit LightUI(QWidget *parent = nullptr, MainWindow* main_window = nullptr, ExportPanel* export_panel = nullptr);
     ~LightUI();
     void showEvent(QShowEvent *event) override;
+    void actualise_record_output_file_ui(const QString& filename);
 
 public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
@@ -38,6 +39,7 @@ private:
     Ui::LightUI *ui_;
     MainWindow* main_window_;
     ExportPanel* export_panel_;
+    ImageRenderingPanel* image_rendering_panel_;
     bool visible_;
 };
 }

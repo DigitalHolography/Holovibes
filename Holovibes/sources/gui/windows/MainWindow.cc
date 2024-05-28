@@ -178,7 +178,12 @@ MainWindow::~MainWindow()
     delete ui_;
 }
 
-void MainWindow::set_light_ui(LightUI* light_ui) { light_ui_ = light_ui; }
+void MainWindow::set_light_ui(LightUI* light_ui)
+{ 
+    light_ui_ = light_ui;
+    ui_->ExportPanel->set_light_ui(light_ui);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui);    
+}
 
 #pragma endregion
 /* ------------ */

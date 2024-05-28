@@ -2,6 +2,8 @@
 
 #include "lightui.hh"
 #include "MainWindow.hh"
+#include "export_panel.hh"
+#include "image_rendering_panel.hh"
 #include "logger.hh"
 #include "tools.hh"
 #include "API.hh"
@@ -41,6 +43,11 @@ void LightUI::showEvent(QShowEvent *event)
 {
     QMainWindow::showEvent(event);
     visible_ = true;
+}
+
+void LightUI::actualise_record_output_file_ui(const QString& filename)
+{
+    ui_->OutputFilePathLineEdit->setText(filename);
 }
 
 void LightUI::browse_record_output_file_ui() {
