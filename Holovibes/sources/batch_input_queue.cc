@@ -90,13 +90,15 @@ void BatchInputQueue::destroy_mutexes_streams()
 void BatchInputQueue::reset_override()
 {
     auto index = end_index_.load();
-    m_producer_busy_.lock();
-    batch_mutexes_[end_index_].lock();
 
+    // Use unique_lock to lock and automatically unlock the mutexes
+    std::unique_lock<std::mutex> producer_lock(m_producer_busy_);
+    std::unique_lock<std::mutex> batch_lock(batch_mutexes_[index]);
+
+    // Reset the queue to its empty state
     make_empty();
 
-    m_producer_busy_.unlock();
-    batch_mutexes_[index].unlock();
+    // Unlocks are handled by unique_lock going out of scope
 }
 
 void BatchInputQueue::make_empty()
