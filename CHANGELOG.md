@@ -2,7 +2,8 @@
 
 ### 12.11.1
 
-- Fix the occasional crash or the record
+- Fix s711 camera
+- Fix record crash
 
 ### 12.11.0
 
