@@ -8,6 +8,8 @@
 #include "camera_phantom_s711.hh"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
 CameraPhantom::CameraPhantom(bool gpu)
@@ -33,6 +35,8 @@ void CameraPhantom::init_camera()
     grabber_->setup(fullHeight_,
                     width_,
                     nb_grabbers_,
+                    stripeOffset_grabber_0_,
+                    stripeOffset_grabber_1_,
                     trigger_source_,
                     exposure_time_,
                     cycle_minimum_period_,
@@ -46,8 +50,8 @@ void CameraPhantom::init_camera()
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
-    fd_.width = grabber_->width_;
-    fd_.height = grabber_->height_;
+    fd_.width = width_;
+    fd_.height = fullHeight_;
     fd_.depth = grabber_->depth_;
     fd_.byteEndian = Endianness::LittleEndian;
 }
@@ -90,6 +94,10 @@ void CameraPhantom::load_ini_params()
     nb_grabbers_ = pt.get<unsigned int>("s711.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s711.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s711.Width", width_);
+
+    stripeOffset_grabber_0_ = pt.get<unsigned int>("s711.Offset0", stripeOffset_grabber_0_);
+    stripeOffset_grabber_1_ = pt.get<unsigned int>("s711.Offset1", stripeOffset_grabber_1_);
+
     trigger_source_ = pt.get<std::string>("s711.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s711.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s711.ExposureTime", exposure_time_);
