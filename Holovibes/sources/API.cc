@@ -1284,10 +1284,12 @@ void set_accumulation_level(int value)
 {
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
-    set_xyz_member(api::set_xy_accumulation_level,
+    set_xyz_members(api::set_xy_accumulation_level,
                    api::set_xz_accumulation_level,
                    api::set_yz_accumulation_level,
                    value);
+
+    LOG_INFO("global YZ: {}, XZ: {}", api::get_yz().output_image_accumulation, api::get_xz().output_image_accumulation);
 
     pipe_refresh();
 }

@@ -26,8 +26,6 @@
     holovibes::settings::Y,                        \
     holovibes::settings::P,                        \
     holovibes::settings::Q,                        \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
     holovibes::settings::Filter2dEnabled,          \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::TimeTransformationSize,   \
@@ -43,6 +41,8 @@
 
 #define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize,                  \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
     holovibes::settings::InputFilter,                \
     holovibes::settings::FilterEnabled
 

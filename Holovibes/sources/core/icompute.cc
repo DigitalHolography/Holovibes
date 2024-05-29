@@ -18,6 +18,8 @@
 #include "pipe.hh"
 #include "logger.hh"
 
+#include "API.hh"
+
 #include "holovibes.hh"
 
 namespace holovibes
@@ -144,6 +146,16 @@ void ICompute::init_cuts()
 
     buffers_.gpu_output_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_output_frame_yz.resize(fd_yz.get_frame_res());
+
+    // if image accumulation is enabled, we need to allocate the accumulation queues. This is done in the image accumulation init, in refresh
+    if (setting<settings::YZ>().output_image_accumulation > 1 ||
+        setting<settings::XZ>().output_image_accumulation > 1)
+        request_refresh();
+
+    LOG_INFO("YZ: {}, XZ: {}", setting<settings::YZ>().output_image_accumulation,
+             setting<settings::XZ>().output_image_accumulation);
+
+    LOG_INFO("global YZ: {}, XZ: {}", api::get_yz().output_image_accumulation, api::get_xz().output_image_accumulation);
 }
 
 void ICompute::dispose_cuts()
@@ -274,7 +286,7 @@ void ICompute::request_autocontrast(WindowKind kind)
     else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
              setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && setting<settings::CutsViewEnabled>())
+    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
         autocontrast_slice_yz_requested_ = true;
     else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              setting<settings::Filter2dEnabled>())

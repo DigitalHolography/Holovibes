@@ -370,6 +370,7 @@ inline bool get_xz_img_accu_enabled()
 }
 inline void set_xz(ViewXYZ value) noexcept
 {
+    LOG_INFO("New XZ");
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{value});
 }
 
@@ -389,6 +390,7 @@ inline void set_xz_rotation(float value) noexcept
 
 inline void set_xz_accumulation_level(uint value)
 {
+    LOG_INFO("New xz accumulation level: {}", value);
     auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
     xz.output_image_accumulation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
@@ -489,6 +491,7 @@ inline bool get_yz_img_accu_enabled()
 }
 inline void set_yz(ViewXYZ value) noexcept
 {
+    LOG_INFO("New YZ");
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{value});
 }
 
@@ -508,6 +511,7 @@ inline void set_yz_rotation(float value) noexcept
 
 inline void set_yz_accumulation_level(uint value)
 {
+    LOG_INFO("New yz accumulation level: {}", value);
     auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
     yz.output_image_accumulation = value;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});

@@ -21,13 +21,15 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ImageType,                \
-    holovibes::settings::XY,                       \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
     holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::XY,                       \
+    holovibes::settings::YZ,                       \
     holovibes::settings::TimeTransformationSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS
+#define PIPEREFRESH_SETTINGS                      \
+    holovibes::settings::XZ
+
+#define ALL_SETTINGS REALTIME_SETTINGS PIPEREFRESH_SETTINGS
 // clang-format on
 
 namespace holovibes
@@ -64,6 +66,7 @@ class ImageAccumulation
         , fd_(fd)
         , stream_(stream)
         , realtime_settings_(settings)
+        , pipe_refresh_settings_(settings)
     {
     }
 
@@ -87,13 +90,23 @@ class ImageAccumulation
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[ImageAccumulation] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
+            spdlog::trace("[ImageAccumulation] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            spdlog::trace("[ImageAccumulation] [update_setting] {}", typeid(T).name());
+            pipe_refresh_settings_.update_setting(setting);
+        }
     }
+
+    inline void pipe_refresh_apply_updates() {
+          pipe_refresh_settings_.apply_updates();
+      }
 
   private:
     /*! \brief Compute average on one view */
@@ -130,6 +143,11 @@ class ImageAccumulation
         {
             return realtime_settings_.get<T>().value;
         }
+
+        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
+        {
+            return pipe_refresh_settings_.get<T>().value;
+        }
     }
 
   private:
@@ -148,6 +166,8 @@ class ImageAccumulation
     const cudaStream_t& stream_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+
 };
 } // namespace holovibes::compute
 
