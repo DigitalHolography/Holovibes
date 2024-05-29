@@ -1,5 +1,9 @@
 ## Changelog
 
+### 12.11.1
+
+- Fix the occasional crash or the record
+
 ### 12.11.0
 
 - Now possible to modify batch size in raw mode

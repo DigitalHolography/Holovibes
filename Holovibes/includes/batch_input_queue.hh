@@ -135,6 +135,8 @@ class BatchInputQueue final : public DisplayQueue
      */
     void stop_producer();
 
+    // void start_producer();
+
     void sync_current_batch() const;
 
     bool is_current_batch_full();

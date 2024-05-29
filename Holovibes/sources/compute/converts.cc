@@ -61,7 +61,6 @@ void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_post
     }
 }
 
-
 void Converts::insert_to_ushort()
 {
     LOG_FUNC();
@@ -358,65 +357,24 @@ void Converts::insert_filter2d_ushort()
 void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
 {
     LOG_FUNC(fd_.depth);
-    
+
     // Conversion function from input queue to input buffer
-    auto convert_to_complex = [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
-    {
-        input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream);
-    };
+    auto convert_to_complex =
+        [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
+    { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
 
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, convert_to_complex]()
     {
+        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the next batch. We wait 0 ms to avoid blocking the thread.
+        while (input_queue.size_ == 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(0));
+        }
         void* output = buffers_.gpu_spatial_transformation_buffer.get();
         input_queue.dequeue(output, fd_.depth, convert_to_complex);
     };
 
     fn_compute_vect_.push_back(conversion_task);
 }
-
-/*
-void Converts::insert_cuts_final()
-{
-    LOG_FUNC();
-
-    if (view_cache_.get_cuts_view_enabled())
-    {
-        if (view_cache_.get_img_type() == ImgType::Composite &&
-            composite_cache_.get_composite_kind() == CompositeKind::HSV)
-        {
-
-            fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
-                    hsv_cuts(buffers_.gpu_postprocess_frame_xz.get(),
-                             buffers_.gpu_postprocess_frame_yz.get(),
-                             buffers_.gpu_postprocess_frame_xz_final.get(),
-                             buffers_.gpu_postprocess_frame_yz_final.get(),
-                             fd_.width,
-                             fd_.height,
-                             compute_cache_.get_time_transformation_size(),
-                             composite_cache_.get_hsv_const_ref(),
-                             stream_);
-                });
-        }
-        else {
-            fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
-                    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz_final.get(),
-                                     buffers_.gpu_postprocess_frame_xz.get(),
-                                     buffers_.gpu_postprocess_frame_xz_size,
-                                     cudaMemcpyDeviceToDevice,
-                                     stream_);
-                    cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz_final.get(),
-                                     buffers_.gpu_postprocess_frame_yz.get(),
-                                     buffers_.gpu_postprocess_frame_yz_size,
-                                     cudaMemcpyDeviceToDevice,
-                                     stream_);
-                });
-        }
-    }
-}
-*/
 } // namespace holovibes::compute

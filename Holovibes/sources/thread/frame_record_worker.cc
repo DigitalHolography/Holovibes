@@ -194,6 +194,7 @@ void FrameRecordWorker::reset_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
+    record_queue_.load()->reset();
 
     /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)
