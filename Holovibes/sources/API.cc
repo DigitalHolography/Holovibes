@@ -323,6 +323,8 @@ void set_raw_mode(uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
     std::string fd_info =
         std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+
+    api::pipe_refresh();
 }
 
 void create_holo_window(ushort window_size)
