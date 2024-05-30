@@ -68,7 +68,8 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 #pragma region Constructor - Destructor
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , ui_(new Ui::MainWindow), light_ui_(nullptr)
+    , ui_(new Ui::MainWindow)
+    , light_ui_(nullptr)
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -144,6 +145,11 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
+    // light ui
+    light_ui_ = std::make_shared<LightUI>(new LightUI(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel));
+    ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+
     // Display default values
     api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
@@ -176,13 +182,6 @@ MainWindow::~MainWindow()
     api::camera_none_without_json();
 
     delete ui_;
-}
-
-void MainWindow::set_light_ui(LightUI* light_ui)
-{ 
-    light_ui_ = light_ui;
-    ui_->ExportPanel->set_light_ui(light_ui);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui);
 }
 
 #pragma endregion

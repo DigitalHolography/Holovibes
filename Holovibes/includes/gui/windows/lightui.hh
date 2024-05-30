@@ -8,7 +8,6 @@ namespace Ui
 class LightUI;
 } // namespace Ui
 
-
 namespace holovibes::gui
 {
 class MainWindow;
@@ -19,14 +18,17 @@ class LightUI : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    explicit LightUI(QWidget *parent = nullptr, MainWindow* main_window = nullptr, ExportPanel* export_panel = nullptr);
+  public:
+    explicit LightUI(QWidget* parent = nullptr,
+                     MainWindow* main_window = nullptr,
+                     ExportPanel* export_panel = nullptr,
+                     ImageRenderingPanel* image_rendering_panel = nullptr);
     ~LightUI();
-    void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);
     void actualise_z_distance(const double z_distance);
 
-public slots:
+  public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
     void browse_record_output_file_ui();
@@ -37,13 +39,13 @@ public slots:
     void start_stop_recording(bool start);
     void z_value_changed(double z_distance);
 
-private:
-    Ui::LightUI *ui_;
+  private:
+    Ui::LightUI* ui_;
     MainWindow* main_window_;
     ExportPanel* export_panel_;
     ImageRenderingPanel* image_rendering_panel_;
     bool visible_;
 };
-}
+} // namespace holovibes::gui
 
 #endif // LIGHTUI_HH

@@ -32,7 +32,7 @@ class ImageRenderingPanel : public Panel
 
     void set_light_ui(LightUI* light_ui);
 
-    //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    // std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
@@ -70,7 +70,7 @@ class ImageRenderingPanel : public Panel
      * \param n The new filter2d n2 value
      */
     void set_filter2d_n2(int n);
-    
+
     /*! \brief Modifies input filter
      *
      * \param value The new filter to apply
@@ -144,10 +144,10 @@ class ImageRenderingPanel : public Panel
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
-    LightUI* light_ui_;
+    std::shared_ptr<LightUI> light_ui_;
 
   public:
-  //should be moved to double in the ui if we need more precision than 5 digits
+    // should be moved to double in the ui if we need more precision than 5 digits
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

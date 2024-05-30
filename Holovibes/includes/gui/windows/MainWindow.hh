@@ -59,8 +59,6 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void set_light_ui(LightUI* light_ui);
-
     void notify() override;
     void notify_error(const std::exception& e) override;
 
@@ -187,14 +185,13 @@ class MainWindow : public QMainWindow, public Observer
 
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
-    LightUI *light_ui_;
+    std::shared_ptr<LightUI> light_ui_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;
     bool save_cs = true;
 
   private:
-
     void enable_notify();
     void disable_notify();
 

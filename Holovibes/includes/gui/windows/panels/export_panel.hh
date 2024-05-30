@@ -112,10 +112,11 @@ class ExportPanel : public Panel
 
     /**
      * @brief Handles the update of the record file extension setting combo box.
-    */
+     */
     void update_record_file_extension(const QString& value);
+
   private:
     int record_frame_step_ = 512;
-    LightUI* light_ui_;
+    std::shared_ptr<LightUI> light_ui_;
 };
 } // namespace holovibes::gui

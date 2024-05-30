@@ -13,9 +13,16 @@
 
 namespace holovibes::gui
 {
-LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_panel)
+LightUI::LightUI(QWidget* parent,
+                 MainWindow* main_window,
+                 ExportPanel* export_panel,
+                 ImageRenderingPanel* image_rendering_panel)
     : QMainWindow(parent)
-    , ui_(new Ui::LightUI), main_window_(main_window), export_panel_(main_window->get_export_panel()), image_rendering_panel_(main_window->get_image_rendering_panel()), visible_(false)
+    , ui_(new Ui::LightUI)
+    , main_window_(main_window)
+    , export_panel_(export_panel)
+    , image_rendering_panel_(image_rendering_panel)
+    , visible_(false)
 {
     ui_->setupUi(this);
 
@@ -30,7 +37,6 @@ LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
     connect(ui_->ZDoubleSpinBox, &QDoubleSpinBox::valueChanged, this, &LightUI::z_value_changed);
 
-    main_window_->set_light_ui(this);
     actualise_z_distance(api::get_z_distance());
 }
 
@@ -41,7 +47,7 @@ LightUI::~LightUI()
     delete ui_;
 }
 
-void LightUI::showEvent(QShowEvent *event) 
+void LightUI::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
     visible_ = true;
@@ -58,24 +64,26 @@ void LightUI::actualise_z_distance(const double z_distance)
     ui_->ZDoubleSpinBox->setValue(z_distance);
 }
 
-void LightUI::z_value_changed(double z_distance)
-{
-    image_rendering_panel_->set_z_distance_from_lightui(z_distance);
-}
+void LightUI::z_value_changed(double z_distance) { image_rendering_panel_->set_z_distance_from_lightui(z_distance); }
 
-void LightUI::browse_record_output_file_ui() {
+void LightUI::browse_record_output_file_ui()
+{
     LOG_INFO("Browsing record output file");
     ui_->OutputFilePathLineEdit->setText(export_panel_->browse_record_output_file());
 }
 
-void LightUI::start_stop_recording(bool start) {
+void LightUI::start_stop_recording(bool start)
+{
     char str[20];
-    if (start) {
+    if (start)
+    {
         strcpy(str, "Start recording");
         export_panel_->start_record();
         ui_->startButton->setText("Stop");
         ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 255);");
-    } else {
+    }
+    else
+    {
         strcpy(str, "Stop recording");
         export_panel_->stop_record();
         ui_->startButton->setText("Start");
@@ -84,7 +92,8 @@ void LightUI::start_stop_recording(bool start) {
     LOG_INFO(str);
 }
 
-void LightUI::open_configuration_ui() {
+void LightUI::open_configuration_ui()
+{
     LOG_INFO("Opening configuration UI");
     main_window_->show();
     this->hide();
