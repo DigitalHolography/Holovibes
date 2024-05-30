@@ -1289,8 +1289,6 @@ void set_accumulation_level(int value)
                    api::set_yz_accumulation_level,
                    value);
 
-    LOG_INFO("global YZ: {}, XZ: {}", api::get_yz().output_image_accumulation, api::get_xz().output_image_accumulation);
-
     pipe_refresh();
 }
 

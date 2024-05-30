@@ -24,10 +24,10 @@
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::XY,                       \
     holovibes::settings::YZ,                       \
+    holovibes::settings::XZ,                       \
     holovibes::settings::TimeTransformationSize
 
 #define PIPEREFRESH_SETTINGS                      \
-    holovibes::settings::XZ
 
 #define ALL_SETTINGS REALTIME_SETTINGS PIPEREFRESH_SETTINGS
 // clang-format on

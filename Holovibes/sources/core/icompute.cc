@@ -146,16 +146,6 @@ void ICompute::init_cuts()
 
     buffers_.gpu_output_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_output_frame_yz.resize(fd_yz.get_frame_res());
-
-    // if image accumulation is enabled, we need to allocate the accumulation queues. This is done in the image accumulation init, in refresh
-    if (setting<settings::YZ>().output_image_accumulation > 1 ||
-        setting<settings::XZ>().output_image_accumulation > 1)
-        request_refresh();
-
-    LOG_INFO("YZ: {}, XZ: {}", setting<settings::YZ>().output_image_accumulation,
-             setting<settings::XZ>().output_image_accumulation);
-
-    LOG_INFO("global YZ: {}, XZ: {}", api::get_yz().output_image_accumulation, api::get_xz().output_image_accumulation);
 }
 
 void ICompute::dispose_cuts()
@@ -209,17 +199,6 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
-
-/*
-    FIXME: Need to delete because of merge ?
-void ICompute::pipe_error(const int& err_count, const std::exception& e)
-{
-    LOG_ERROR("Pipe error: ");
-    LOG_ERROR("  message: {}", e.what());
-    LOG_ERROR("  err_count: {}", err_count);
-    notify_error_observers(e);
-}
-*/
 
 void ICompute::soft_request_refresh()
 {
