@@ -103,6 +103,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of z
      */
+    void set_z_distance_from_lightui(const double value);
     void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();

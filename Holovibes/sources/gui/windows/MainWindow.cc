@@ -182,7 +182,7 @@ void MainWindow::set_light_ui(LightUI* light_ui)
 { 
     light_ui_ = light_ui;
     ui_->ExportPanel->set_light_ui(light_ui);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui);    
+    ui_->ImageRenderingPanel->set_light_ui(light_ui);
 }
 
 #pragma endregion
@@ -251,6 +251,8 @@ void MainWindow::on_notify()
 }
 
 ExportPanel* MainWindow::get_export_panel() { return ui_->ExportPanel; }
+
+ImageRenderingPanel* MainWindow::get_image_rendering_panel() { return ui_->ImageRenderingPanel; }
 
 static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 

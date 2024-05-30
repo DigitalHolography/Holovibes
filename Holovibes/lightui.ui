@@ -50,7 +50,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox"/>
+       <widget class="QDoubleSpinBox" name="ZDoubleSpinBox"/>
       </item>
      </layout>
     </item>
@@ -202,5 +202,6 @@
  </connections>
  <slots>
   <slot>start_stop_recording()</slot>
+  <slot>z_value_changed(double)</slot>
  </slots>
 </ui>

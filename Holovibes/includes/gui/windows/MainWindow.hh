@@ -82,6 +82,7 @@ class MainWindow : public QMainWindow, public Observer
     uint auxiliary_window_max_size = 512;
 
     ExportPanel* get_export_panel();
+    ImageRenderingPanel* get_image_rendering_panel();
 
   public slots:
     void on_notify();

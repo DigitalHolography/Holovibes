@@ -24,6 +24,7 @@ public:
     ~LightUI();
     void showEvent(QShowEvent *event) override;
     void actualise_record_output_file_ui(const QString& filename);
+    void actualise_z_distance(const double z_distance);
 
 public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
@@ -34,6 +35,7 @@ public slots:
 
     /*! \brief Start/Stops the record */
     void start_stop_recording(bool start);
+    void z_value_changed(double z_distance);
 
 private:
     Ui::LightUI *ui_;

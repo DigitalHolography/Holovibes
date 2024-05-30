@@ -15,7 +15,7 @@ namespace holovibes::gui
 {
 LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_panel)
     : QMainWindow(parent)
-    , ui_(new Ui::LightUI), main_window_(main_window), export_panel_(main_window->get_export_panel()), visible_(false)
+    , ui_(new Ui::LightUI), main_window_(main_window), export_panel_(main_window->get_export_panel()), image_rendering_panel_(main_window->get_image_rendering_panel()), visible_(false)
 {
     ui_->setupUi(this);
 
@@ -28,8 +28,10 @@ LightUI::LightUI(QWidget *parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
+    connect(ui_->ZDoubleSpinBox, &QDoubleSpinBox::valueChanged, this, &LightUI::z_value_changed);
 
     main_window_->set_light_ui(this);
+    actualise_z_distance(api::get_z_distance());
 }
 
 LightUI::~LightUI()
@@ -48,6 +50,17 @@ void LightUI::showEvent(QShowEvent *event)
 void LightUI::actualise_record_output_file_ui(const QString& filename)
 {
     ui_->OutputFilePathLineEdit->setText(filename);
+}
+
+void LightUI::actualise_z_distance(const double z_distance)
+{
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    ui_->ZDoubleSpinBox->setValue(z_distance);
+}
+
+void LightUI::z_value_changed(double z_distance)
+{
+    image_rendering_panel_->set_z_distance_from_lightui(z_distance);
 }
 
 void LightUI::browse_record_output_file_ui() {
