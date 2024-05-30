@@ -199,7 +199,7 @@ class Holovibes
      * \{
      */
     /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
+    std::shared_ptr<BatchInputQueue> get_input_queue();
 
     /*! \brief Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
@@ -277,7 +277,7 @@ class Holovibes
 
     /*! \brief Handle frame reading interruption
      *
-     * Stops both read_worker, resets the active camera and store the gpu_input_queue
+     * Stops both read_worker, resets the active camera and store the input_queue
      */
     void stop_frame_read();
 

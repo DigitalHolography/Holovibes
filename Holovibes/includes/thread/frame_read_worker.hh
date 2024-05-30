@@ -17,13 +17,13 @@ namespace holovibes::worker
 class FrameReadWorker : public Worker
 {
   public:
-    FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue);
+    FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue);
 
     /*! \brief Constructor
      *
-     * \param gpu_input_queue The input queue
+     * \param input_queue The input queue
      */
-    FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& gpu_input_queue);
+    FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& input_queue);
 
     virtual ~FrameReadWorker(){};
 

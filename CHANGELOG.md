@@ -1,10 +1,19 @@
 ## Changelog
 
+### 12.11.1
+
+- Fix s711 camera
+- Fix record crash
+- Fix input queue size overflow
+
 ### 12.11.0
 
 - Now possible to modify batch size in raw mode
 - Fix cpu record crash
 - Camera doesn't reload after record
+- 710 camera works with 2 banks
+- 0 continuity record fixed
+- Color added in the info pannel to notify the user of performance issues.
 
 ### 12.10.5
 
