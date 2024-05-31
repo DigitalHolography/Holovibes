@@ -96,7 +96,7 @@ void FrameRecordWorker::run()
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
-                    contiguous_frames = std::make_optional(nb_frames_recorded.load());
+                    contiguous_frames = std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
             }
 
             wait_for_frames();
@@ -149,7 +149,7 @@ void FrameRecordWorker::run()
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
-        if (contiguous_frames.has_value())
+        if (contiguous_frames.has_value() && contiguous_frames < nb_frames_recorded)
         {
             LOG_WARN("Record lost its contiguousity at frame {}.", contiguous_frames.value());
             LOG_WARN("To prevent this lost, you might need to increase Input AND/OR Record buffer size.");
