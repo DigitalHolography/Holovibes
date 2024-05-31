@@ -17,6 +17,7 @@ namespace holovibes::io_files
 class OutputAviFile : public OutputFrameFile, public AviFile
 {
   public:
+    void flush_buffer() override; // Override flush_buffer
     /*! \brief Getter on the total number of frames in the file */
     size_t get_total_nb_frames() const override { return img_nb_; }
 

@@ -40,7 +40,10 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \throw FileException if an error occurred while writing the frame
      */
     size_t write_frame(const char* frame, size_t frame_size) override;
-    
+
+    /*! \brief Flush the buffer to the file */
+    void flush_buffer() override;
+
     /*! \brief Write the footer in the file
      *
      * \throw FileException if an error occurred while writing the footer
@@ -70,5 +73,10 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \throw FileException if an error occurred while opening the file
      */
     OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
+
+    // Member variables for buffer handling
+    static const size_t buffer_size_ = 512 * 512 * 8 * 128;
+    char write_buffer_[buffer_size_];
+    size_t buffered_bytes_;
 };
 } // namespace holovibes::io_files

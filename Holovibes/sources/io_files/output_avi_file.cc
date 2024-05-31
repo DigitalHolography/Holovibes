@@ -3,6 +3,9 @@
 
 namespace holovibes::io_files
 {
+
+void OutputAviFile::flush_buffer() {}
+
 OutputAviFile::OutputAviFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , AviFile()

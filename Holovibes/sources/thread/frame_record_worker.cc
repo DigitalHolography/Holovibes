@@ -7,6 +7,7 @@
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
+#include <nvtx3/nvToolsExt.h>
 
 namespace holovibes::worker
 {
@@ -16,7 +17,7 @@ void FrameRecordWorker::integrate_fps_average()
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
     int current_fps = input_fps->load();
 
-    // An fps of 0 is not relevent. We do not includ it in fps average.
+    // Un fps de 0 n'est pas pertinent. Ne pas l'inclure dans la moyenne des fps.
     if (current_fps == 0)
         return;
 
@@ -43,32 +44,28 @@ size_t FrameRecordWorker::compute_fps_average() const
 
 void FrameRecordWorker::run()
 {
+    nvtxRangePushA("recording");
     onrestart_settings_.apply_updates();
     LOG_FUNC();
-    // Progress recording FastUpdatesHolder entry
+
+    int nb_frames_to_dequeue = 32;
 
     auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
     nb_frames_recorded = 0;
-
-    if (setting<settings::RecordFrameCount>().has_value())
-        nb_frames_to_record = setting<settings::RecordFrameCount>().value();
-    else
-        nb_frames_to_record = 0;
-
-    // Processed FPS FastUpdatesHolder entry
+    nb_frames_to_record = setting<settings::RecordFrameCount>().value_or(0);
 
     std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_frame_record();
-    // Queue& record_queue = *pipe->get_frame_record_queue();
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
-    char* frame_buffer = nullptr;
+    std::unique_ptr<char[]> frame_buffer(
+        new char[output_frame_size * nb_frames_to_dequeue]); // Allocate buffer for multiple frames
 
     try
     {
@@ -82,70 +79,57 @@ void FrameRecordWorker::run()
 
         std::optional<int> contiguous_frames = std::nullopt;
 
-        frame_buffer = new char[output_frame_size];
-
         size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
 
         if (Holovibes::instance().get_input_queue()->has_overridden())
             Holovibes::instance().get_input_queue()->reset_override();
 
-        while (setting<settings::RecordFrameCount>() == std::nullopt ||
+        while (!setting<settings::RecordFrameCount>() ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
         {
             if (record_queue_.load()->has_overridden() || Holovibes::instance().get_input_queue()->has_overridden())
             {
-                // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
                     contiguous_frames = std::make_optional(nb_frames_recorded.load());
             }
 
             wait_for_frames();
 
-            // While wait_for_frames() is running, a stop might be requested and the queue reset.
-            // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
-            // and stop recording if needed.
             if (stop_requested_)
                 break;
 
             if (nb_frames_to_skip > 0)
             {
-                record_queue_.load()->dequeue();
+                record_queue_.load()->dequeue(); // Skip single frame
                 nb_frames_to_skip--;
                 continue;
             }
 
-            record_queue_.load()->dequeue(frame_buffer,
-                                          stream_,
-                                          api::get_record_queue_location() == holovibes::Device::GPU
-                                              ? cudaMemcpyDeviceToHost
-                                              : cudaMemcpyHostToHost);
-            output_frame_file->write_frame(frame_buffer, output_frame_size);
+            nvtxRangePushA("dequeue_record");
+            int frames_dequeued = record_queue_.load()->dequeue(
+                frame_buffer.get(),
+                stream_,
+                api::get_record_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToHost
+                                                                           : cudaMemcpyHostToHost,
+                nb_frames_to_dequeue); // Dequeue multiple frames
+            nvtxRangePop();
 
-            // FIXME: to check if it's still relevant
-            // if (api::get_record_queue_location()) {
-            //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
-            //     output_frame_file->write_frame(frame_buffer, output_frame_size);
-            // }
-            // else
-            // {
-            //     {
-            //         MutexGuard mGuard(record_queue_.load()->get_guard());
-            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()),
-            //         record_queue_.load()->get_size() * output_frame_size);
-            //     }
-            //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
-            // }
-            (*processed_fps)++;
-            nb_frames_recorded++;
+            nvtxRangePushA("write_frame");
+            for (int i = 0; i < frames_dequeued; ++i)
+            {
+                output_frame_file->write_frame(frame_buffer.get() + i * output_frame_size,
+                                               output_frame_size); // Write each frame
+            }
+            nvtxRangePop();
+
+            (*processed_fps) += frames_dequeued;
+            nb_frames_recorded += frames_dequeued;
 
             integrate_fps_average();
-            if (!setting<settings::RecordFrameCount>().has_value())
-                nb_frames_to_record++;
+            if (!setting<settings::RecordFrameCount>())
+                nb_frames_to_record += 32;
         }
-
-        // api::set_record_frame_skip(nb_frames_to_skip);
-
-        // api::set_record_frame_skip(nb_frames_to_skip);
+        output_frame_file->flush_buffer();
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
@@ -161,7 +145,6 @@ void FrameRecordWorker::run()
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
         output_frame_file->export_compute_settings(compute_fps_average(), contiguous);
-
         output_frame_file->write_footer();
     }
     catch (const io_files::FileException& e)
@@ -170,7 +153,6 @@ void FrameRecordWorker::run()
     }
 
     delete output_frame_file;
-    delete[] frame_buffer;
 
     reset_record_queue();
 
@@ -178,16 +160,19 @@ void FrameRecordWorker::run()
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");
+    nvtxRangePop();
 }
 
 void FrameRecordWorker::wait_for_frames()
 {
+    nvtxRangePushA("wait_for_frames");
     auto pipe = Holovibes::instance().get_compute_pipe();
     while (!stop_requested_)
     {
         if (record_queue_.load()->get_size() != 0)
             break;
     }
+    nvtxRangePop();
 }
 
 void FrameRecordWorker::reset_record_queue()
@@ -195,13 +180,5 @@ void FrameRecordWorker::reset_record_queue()
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
     record_queue_.load()->reset();
-
-    /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
-    if (raw_view_queue)
-        raw_view_queue->resize(setting<settings::OutputBufferSize>(), stream_);
-
-    std::shared_ptr<Queue> output_queue = Holovibes::instance().get_gpu_output_queue();
-    if (output_queue)
-        output_queue->resize(setting<settings::OutputBufferSize>(), stream_);*/
 }
 } // namespace holovibes::worker

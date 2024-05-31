@@ -3,6 +3,7 @@
 
 namespace holovibes::io_files
 {
+void OutputMp4File::flush_buffer() {}
 OutputMp4File::OutputMp4File(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , Mp4File()

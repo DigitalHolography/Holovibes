@@ -7,9 +7,11 @@
 
 namespace holovibes::io_files
 {
+// Constructor implementation
 OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)
     : OutputFrameFile(file_path)
     , HoloFile()
+    , buffered_bytes_(0) // Initialize buffered_bytes_ to 0
 {
     fd_ = fd;
 
@@ -30,17 +32,17 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     meta_data_ = json();
 }
 
+// Export compute settings implementation
 void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 {
     LOG_FUNC(input_fps, contiguous);
 
     try
     {
-        auto j_fi =
-            json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
-                 {"input_fps", input_fps},
-                 {"contiguous", contiguous},
-                 {"holovibes_version", __HOLOVIBES_VERSION__}};
+        auto j_fi = json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
+                         {"input_fps", input_fps},
+                         {"contiguous", contiguous},
+                         {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);
@@ -54,25 +56,55 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
     }
 }
 
+// Write header implementation
 void OutputHoloFile::write_header()
 {
     if (std::fwrite(&holo_file_header_, 1, sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
         throw FileException("Unable to write output holo file header");
 }
 
-
+// Write frame implementation
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {
-    const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
+    // If the frame size is larger than the buffer, write directly
+    if (frame_size > buffer_size_)
+    {
+        const size_t written_bytes = std::fwrite(frame, 1, frame_size, file_);
+        if (written_bytes != frame_size)
+            throw FileException("Unable to write output holo file frame");
+        return written_bytes;
+    }
 
-    // std::fflush(file_);
+    // If the buffer is full, write the buffer to the file
+    if (buffered_bytes_ + frame_size > buffer_size_)
+    {
+        const size_t written_bytes = std::fwrite(write_buffer_, 1, buffered_bytes_, file_);
+        if (written_bytes != buffered_bytes_)
+            throw FileException("Unable to write output holo file frame");
+        buffered_bytes_ = 0; // Reset buffer
+    }
 
-    if (written_bytes != frame_size)
-        throw FileException("Unable to write output holo file frame");
+    // Add data to the buffer
+    std::memcpy(write_buffer_ + buffered_bytes_, frame, frame_size);
+    buffered_bytes_ += frame_size;
 
-    return written_bytes;
+    // Return the number of bytes written
+    return frame_size;
 }
 
+// Flush buffer implementation
+void OutputHoloFile::flush_buffer()
+{
+    if (buffered_bytes_ > 0)
+    {
+        const size_t written_bytes = std::fwrite(write_buffer_, 1, buffered_bytes_, file_);
+        if (written_bytes != buffered_bytes_)
+            throw FileException("Unable to write output holo file frame");
+        buffered_bytes_ = 0; // Reset buffer
+    }
+}
+
+// Write footer implementation
 void OutputHoloFile::write_footer()
 {
     LOG_FUNC();
@@ -90,6 +122,7 @@ void OutputHoloFile::write_footer()
     }
 }
 
+// Correct number of frames implementation
 void OutputHoloFile::correct_number_of_frames(size_t nb_frames_written)
 {
     fpos_t previous_pos;

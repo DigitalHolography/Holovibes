@@ -4,6 +4,8 @@
 
 #include "batch_input_queue.hh"
 
+#include <nvtx3/nvToolsExt.h>
+
 namespace holovibes
 {
 BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
@@ -62,12 +64,14 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
 
 void BatchInputQueue::sync_current_batch() const
 {
+    nvtxRangePushA("sync_current_batch");
     if (curr_batch_counter_ > 0) // A batch is currently enqueued
         cudaXStreamSynchronize(batch_streams_[end_index_]);
     else if (end_index_ > 0) // No batch is enqueued, sync the last one
         cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
     else // if end_index_ == 0: sync the last index in queue (max_size_ - 1)
         cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
+    nvtxRangePop();
 }
 
 bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
@@ -122,6 +126,7 @@ void BatchInputQueue::stop_producer()
 
 void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
 {
+    nvtxRangePushA("enqueue");
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
 
@@ -185,10 +190,12 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         // (consumer)
         m_producer_busy_.unlock();
     }
+    nvtxRangePop();
 }
 
 void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
+    nvtxRangePushA("dequeue");
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -218,10 +225,12 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
 
     // Unlock the dequeued batch
     batch_mutexes_[start_index_locked].unlock();
+    nvtxRangePop();
 }
 
 void BatchInputQueue::dequeue()
 {
+    nvtxRangePushA("dequeue_no_args");
     // CHECK(size_ > 0);
 
     if (size_ > 0)
@@ -237,6 +246,7 @@ void BatchInputQueue::dequeue()
         // Unlock the dequeued batch
         batch_mutexes_[start_index_locked].unlock();
     }
+    nvtxRangePop();
 }
 
 void BatchInputQueue::dequeue_update_attr()

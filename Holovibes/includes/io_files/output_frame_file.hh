@@ -23,6 +23,8 @@ class OutputFrameFile : public FrameFile
      */
     virtual void export_compute_settings(int input_fps, size_t contiguous) = 0;
 
+    virtual void flush_buffer() = 0;
+
     /*! \brief Write the header in the file
      *
      * \throw FileException if an error occurred while writing the header
