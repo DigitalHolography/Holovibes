@@ -5,6 +5,7 @@
 - Fix s711 camera
 - Fix record crash
 - Fix input queue size overflow
+- 0 continuity record trully fixed
 
 ### 12.11.0
 
