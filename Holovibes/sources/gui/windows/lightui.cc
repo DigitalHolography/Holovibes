@@ -35,7 +35,7 @@ LightUI::LightUI(QWidget* parent,
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
-    connect(ui_->ZDoubleSpinBox, &QDoubleSpinBox::valueChanged, this, &LightUI::z_value_changed);
+    connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed);
 
     actualise_z_distance(api::get_z_distance());
 }
@@ -60,11 +60,11 @@ void LightUI::actualise_record_output_file_ui(const QString& filename)
 
 void LightUI::actualise_z_distance(const double z_distance)
 {
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
-    ui_->ZDoubleSpinBox->setValue(z_distance);
+    const QSignalBlocker blocker(ui_->ZSpinBox);
+    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 100));
 }
 
-void LightUI::z_value_changed(double z_distance) { image_rendering_panel_->set_z_distance_from_lightui(z_distance); }
+void LightUI::z_value_changed(int z_distance) { image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 100.0f); }
 
 void LightUI::browse_record_output_file_ui()
 {

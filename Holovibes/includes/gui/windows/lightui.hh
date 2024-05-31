@@ -37,7 +37,7 @@ class LightUI : public QMainWindow
 
     /*! \brief Start/Stops the record */
     void start_stop_recording(bool start);
-    void z_value_changed(double z_distance);
+    void z_value_changed(int z_distance);
 
   private:
     Ui::LightUI* ui_;

@@ -44,13 +44,29 @@
       </item>
       <item>
        <widget class="QSlider" name="horizontalSlider">
+        <property name="maximum">
+         <number>1000</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="ZDoubleSpinBox"/>
+       <widget class="QSpinBox" name="ZSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -202,6 +218,6 @@
  </connections>
  <slots>
   <slot>start_stop_recording()</slot>
-  <slot>z_value_changed(double)</slot>
+  <slot>z_value_changed(int)</slot>
  </slots>
 </ui>
