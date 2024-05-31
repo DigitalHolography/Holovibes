@@ -29,7 +29,7 @@
 
 #define PIPEREFRESH_SETTINGS                      \
 
-// TODO: Add views here, since they should be updated in refresh, and not in realtime. For unknown reasons, it does not compile when adding them here.
+// TODO: Add views and TimeTransformationSize here, since they should be updated in refresh, and not in realtime. For unknown reasons, it does not compile when adding them here.
 
 #define ALL_SETTINGS REALTIME_SETTINGS PIPEREFRESH_SETTINGS
 // clang-format on
