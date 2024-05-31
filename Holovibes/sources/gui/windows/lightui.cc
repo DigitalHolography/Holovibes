@@ -26,12 +26,6 @@ LightUI::LightUI(QWidget* parent,
 {
     ui_->setupUi(this);
 
-    /*
-    QHBoxLayout *outputFileSelectionLayout;
-    holovibes::gui::Drag_drop_lineedit *OutputFilePathLineEdit;
-    QToolButton *OutputFileBrowseToolButton;
-    QPushButton *startButton;
-    */
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
@@ -61,10 +55,10 @@ void LightUI::actualise_record_output_file_ui(const QString& filename)
 void LightUI::actualise_z_distance(const double z_distance)
 {
     const QSignalBlocker blocker(ui_->ZSpinBox);
-    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 100));
+    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 1000));  // Convert to mm
 }
 
-void LightUI::z_value_changed(int z_distance) { image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 100.0f); }
+void LightUI::z_value_changed(int z_distance) { image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f); }  // Convert to m
 
 void LightUI::browse_record_output_file_ui()
 {
