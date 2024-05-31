@@ -18,6 +18,8 @@
 #include "pipe.hh"
 #include "logger.hh"
 
+#include "API.hh"
+
 #include "holovibes.hh"
 
 namespace holovibes
@@ -150,10 +152,10 @@ void ICompute::dispose_cuts()
 {
     buffers_.gpu_postprocess_frame_xz.reset(nullptr);
     buffers_.gpu_postprocess_frame_yz.reset(nullptr);
-    /*
-    buffers_.gpu_postprocess_frame_xz_final.reset(nullptr);
-    buffers_.gpu_postprocess_frame_yz_final.reset(nullptr);
-    */
+
+    image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
+    image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
+
     buffers_.gpu_output_frame_xz.reset(nullptr);
     buffers_.gpu_output_frame_yz.reset(nullptr);
 
@@ -197,17 +199,6 @@ std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
 }
-
-/*
-    FIXME: Need to delete because of merge ?
-void ICompute::pipe_error(const int& err_count, const std::exception& e)
-{
-    LOG_ERROR("Pipe error: ");
-    LOG_ERROR("  message: {}", e.what());
-    LOG_ERROR("  err_count: {}", err_count);
-    notify_error_observers(e);
-}
-*/
 
 void ICompute::soft_request_refresh()
 {
@@ -274,7 +265,7 @@ void ICompute::request_autocontrast(WindowKind kind)
     else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
              setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && setting<settings::CutsViewEnabled>())
+    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
         autocontrast_slice_yz_requested_ = true;
     else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              setting<settings::Filter2dEnabled>())

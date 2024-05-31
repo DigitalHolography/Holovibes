@@ -566,6 +566,14 @@ static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
         yz_member(value);
 }
 
+template <typename T, typename U>
+static void set_xyz_members(T xy_member, T xz_member, T yz_member, U value)
+{
+    xy_member(value);
+    xz_member(value);
+    yz_member(value);
+}
+
 /**
  * \brief Helper functions to get the member of the current view
  * \tparam T is the getter function

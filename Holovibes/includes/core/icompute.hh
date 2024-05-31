@@ -31,9 +31,6 @@
     holovibes::settings::Y,                                      \
     holovibes::settings::P,                                      \
     holovibes::settings::Q,                                      \
-    holovibes::settings::XY,                                     \
-    holovibes::settings::XZ,                                     \
-    holovibes::settings::YZ,                                     \
     holovibes::settings::Filter2d,                               \
     holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
@@ -58,6 +55,9 @@
     holovibes::settings::HSV
 
 #define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
     holovibes::settings::BatchSize
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
