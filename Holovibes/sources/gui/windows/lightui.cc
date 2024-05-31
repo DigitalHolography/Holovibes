@@ -29,9 +29,13 @@ LightUI::LightUI(QWidget* parent,
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
-    connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed);
+    connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed_spinBox);
+    connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
 
     actualise_z_distance(api::get_z_distance());
+
+    ui_->recordProgressBar->hide();
+    ui_->startButton->setStyleSheet("background-color: rgb(20, 20, 20);");
 }
 
 LightUI::~LightUI()
@@ -55,10 +59,24 @@ void LightUI::actualise_record_output_file_ui(const QString& filename)
 void LightUI::actualise_z_distance(const double z_distance)
 {
     const QSignalBlocker blocker(ui_->ZSpinBox);
-    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 1000));  // Convert to mm
+    const QSignalBlocker blocker2(ui_->ZSlider);
+    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 1000));
+    ui_->ZSlider->setValue(static_cast<int>(z_distance * 1000));
 }
 
-void LightUI::z_value_changed(int z_distance) { image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f); }  // Convert to m
+void LightUI::z_value_changed_spinBox(int z_distance)
+{
+    image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
+    const QSignalBlocker blocker(ui_->ZSlider);
+    ui_->ZSlider->setValue(z_distance);
+}
+
+void LightUI::z_value_changed_slider(int z_distance)
+{
+    image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
+    const QSignalBlocker blocker(ui_->ZSpinBox);
+    ui_->ZSpinBox->setValue(z_distance);
+}
 
 void LightUI::browse_record_output_file_ui()
 {
@@ -81,7 +99,7 @@ void LightUI::start_stop_recording(bool start)
         strcpy(str, "Stop recording");
         export_panel_->stop_record();
         ui_->startButton->setText("Start");
-        ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 0);");
+        ui_->startButton->setStyleSheet("background-color: rgb(20, 20, 20);");
     }
     LOG_INFO(str);
 }

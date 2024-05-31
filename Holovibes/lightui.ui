@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>638</width>
+    <width>430</width>
     <height>155</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
   <widget class="QWidget" name="formLayoutWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="sizeConstraint">
-     <enum>QLayout::SetNoConstraint</enum>
+     <enum>QLayout::SetMinAndMaxSize</enum>
     </property>
     <property name="leftMargin">
      <number>10</number>
@@ -38,14 +38,17 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Propagation distance (cm)</string>
+         <string>Propagation distance (mm)</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="horizontalSlider">
+       <widget class="QSlider" name="ZSlider">
         <property name="maximum">
          <number>1000</number>
+        </property>
+        <property name="pageStep">
+         <number>1</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -65,6 +68,9 @@
           <width>60</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
         </property>
        </widget>
       </item>
@@ -109,12 +115,24 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item alignment="Qt::AlignHCenter">
      <widget class="QPushButton" name="startButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
-        <width>90</width>
+        <width>75</width>
         <height>25</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>75</height>
        </size>
       </property>
       <property name="text">
@@ -126,7 +144,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QProgressBar" name="progressBar">
+     <widget class="QProgressBar" name="recordProgressBar">
       <property name="value">
        <number>24</number>
       </property>
@@ -139,7 +157,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>638</width>
+     <width>430</width>
      <height>22</height>
     </rect>
    </property>
