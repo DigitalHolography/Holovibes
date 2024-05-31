@@ -5,6 +5,8 @@
 - Fix s711 camera
 - Fix record crash
 - Fix input queue size overflow
+- 0 continuity record trully fixed
+- Stops the record when all contiguous frames have been recorded
 
 ### 12.11.0
 
