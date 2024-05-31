@@ -19,10 +19,10 @@ class LightUI : public QMainWindow
     Q_OBJECT
 
   public:
-    explicit LightUI(QWidget* parent = nullptr,
-                     MainWindow* main_window = nullptr,
-                     ExportPanel* export_panel = nullptr,
-                     ImageRenderingPanel* image_rendering_panel = nullptr);
+    explicit LightUI(QWidget* parent,
+                     MainWindow* main_window,
+                     ExportPanel* export_panel,
+                     ImageRenderingPanel* image_rendering_panel);
     ~LightUI();
     void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);

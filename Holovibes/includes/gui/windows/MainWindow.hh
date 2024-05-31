@@ -79,9 +79,6 @@ class MainWindow : public QMainWindow, public Observer
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
 
-    ExportPanel* get_export_panel();
-    ImageRenderingPanel* get_image_rendering_panel();
-
   public slots:
     void on_notify();
     /*! \brief Give a function to execute to the main thread with a signal

@@ -90,7 +90,7 @@ void ExportPanel::set_record_frame_step(int step)
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
-void ExportPanel::set_light_ui(LightUI* light_ui)
+void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
 { 
     light_ui_ = light_ui;
     light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());    

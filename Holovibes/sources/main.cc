@@ -87,7 +87,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     LOG_TRACE(" ");
     if (holovibes::api::get_ui_mode())
-        window.light_ui_.show();
+        window.light_ui_->show();
     else
         window.show();
     LOG_TRACE(" ");

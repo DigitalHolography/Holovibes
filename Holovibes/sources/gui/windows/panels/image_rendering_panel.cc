@@ -35,7 +35,7 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
-void ImageRenderingPanel::set_light_ui(LightUI* light_ui) { light_ui_ = light_ui; }
+void ImageRenderingPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
 
 void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
 

@@ -69,7 +69,6 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
-    , light_ui_(nullptr)
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -146,7 +145,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
 
     // light ui
-    light_ui_ = std::make_shared<LightUI>(new LightUI(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel));
+    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel);
     ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ImageRenderingPanel->set_light_ui(light_ui_);
 
@@ -248,10 +247,6 @@ void MainWindow::on_notify()
 
     adjustSize();
 }
-
-ExportPanel* MainWindow::get_export_panel() { return ui_->ExportPanel; }
-
-ImageRenderingPanel* MainWindow::get_image_rendering_panel() { return ui_->ImageRenderingPanel; }
 
 static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
 

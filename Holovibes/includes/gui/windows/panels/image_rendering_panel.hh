@@ -30,7 +30,7 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    void set_light_ui(LightUI* light_ui);
+    void set_light_ui(std::shared_ptr<LightUI> light_ui);
 
     // std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
