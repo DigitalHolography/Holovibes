@@ -35,7 +35,7 @@ LightUI::LightUI(QWidget* parent,
     actualise_z_distance(api::get_z_distance());
 
     ui_->recordProgressBar->hide();
-    ui_->startButton->setStyleSheet("background-color: rgb(20, 20, 20);");
+    ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
 }
 
 LightUI::~LightUI()
@@ -99,7 +99,7 @@ void LightUI::start_stop_recording(bool start)
         strcpy(str, "Stop recording");
         export_panel_->stop_record();
         ui_->startButton->setText("Start");
-        ui_->startButton->setStyleSheet("background-color: rgb(20, 20, 20);");
+        ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     }
     LOG_INFO(str);
 }
