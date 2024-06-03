@@ -272,8 +272,8 @@ void Holovibes::init_pipe()
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd, api::get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
-        if (!record_queue_.load())
-            init_record_queue();
+
+        init_record_queue();
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
                                                    *(record_queue_.load()),
