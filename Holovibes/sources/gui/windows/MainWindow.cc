@@ -145,7 +145,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
 
     // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel);
+    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
     ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ImageRenderingPanel->set_light_ui(light_ui_);
 

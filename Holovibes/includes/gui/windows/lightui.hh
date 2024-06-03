@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "notifier.hh"
+
 namespace Ui
 {
 class LightUI;
@@ -21,8 +23,7 @@ class LightUI : public QMainWindow
   public:
     explicit LightUI(QWidget* parent,
                      MainWindow* main_window,
-                     ExportPanel* export_panel,
-                     ImageRenderingPanel* image_rendering_panel);
+                     ExportPanel* export_panel);
     ~LightUI();
     void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);
@@ -44,8 +45,8 @@ class LightUI : public QMainWindow
     Ui::LightUI* ui_;
     MainWindow* main_window_;
     ExportPanel* export_panel_;
-    ImageRenderingPanel* image_rendering_panel_;
     bool visible_;
+    Subscriber<double> z_distance_subscriber_;
 };
 } // namespace holovibes::gui
 

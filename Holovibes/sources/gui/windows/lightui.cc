@@ -11,18 +11,25 @@
 #include "ui_lightui.h"
 #pragma warning(pop)
 
+#include "notifier.hh"
+
 namespace holovibes::gui
 {
 LightUI::LightUI(QWidget* parent,
                  MainWindow* main_window,
-                 ExportPanel* export_panel,
-                 ImageRenderingPanel* image_rendering_panel)
+                 ExportPanel* export_panel)
     : QMainWindow(parent)
     , ui_(new Ui::LightUI)
     , main_window_(main_window)
     , export_panel_(export_panel)
-    , image_rendering_panel_(image_rendering_panel)
     , visible_(false)
+    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { 
+        const QSignalBlocker blocker(ui_->ZSpinBox);
+        const QSignalBlocker blocker2(ui_->ZSlider);
+
+        ui_->ZSpinBox->setValue(static_cast<int>(value * 1000));
+        ui_->ZSlider->setValue(static_cast<int>(value * 1000));
+     }))
 {
     ui_->setupUi(this);
 
@@ -66,16 +73,27 @@ void LightUI::actualise_z_distance(const double z_distance)
 
 void LightUI::z_value_changed_spinBox(int z_distance)
 {
-    image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
-    const QSignalBlocker blocker(ui_->ZSlider);
-    ui_->ZSlider->setValue(z_distance);
+    api::set_z_distance(static_cast<double>(z_distance) / 1000.0f);
+
+    // auto& manager = NotifierManager::get_instance();
+    // auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
+    // zDistanceNotifier->notify(static_cast<double>(z_distance) / 1000.0f);
+
+    // //image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
+    // const QSignalBlocker blocker(ui_->ZSlider);
+    // ui_->ZSlider->setValue(z_distance);
 }
 
 void LightUI::z_value_changed_slider(int z_distance)
 {
-    image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
-    const QSignalBlocker blocker(ui_->ZSpinBox);
-    ui_->ZSpinBox->setValue(z_distance);
+    api::set_z_distance(static_cast<double>(z_distance) / 1000.0f);
+    // auto& manager = NotifierManager::get_instance();
+    // auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
+    // zDistanceNotifier->notify(static_cast<double>(z_distance) / 1000.0f);
+
+    // //image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
+    // const QSignalBlocker blocker(ui_->ZSpinBox);
+    // ui_->ZSpinBox->setValue(z_distance);
 }
 
 void LightUI::browse_record_output_file_ui()
