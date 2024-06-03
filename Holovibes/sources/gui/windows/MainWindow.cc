@@ -406,9 +406,9 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
                             "chart",
                             "auto scale point threshold");
-    UserInterfaceDescriptor::instance().default_output_filename_ =
+    UserInterfaceDescriptor::instance().output_filename_ =
         json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().default_output_filename_,
+                            UserInterfaceDescriptor::instance().output_filename_,
                             "files",
                             "default output filename");
     UserInterfaceDescriptor::instance().record_output_directory_ =
@@ -489,7 +489,7 @@ void MainWindow::save_gui()
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
-    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
+    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;

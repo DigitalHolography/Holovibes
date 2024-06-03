@@ -1665,7 +1665,7 @@ const std::string browse_record_output_file(std::string& std_filepath)
 
     // Setting values in UserInterfaceDescriptor instance in a more optimized manner
     UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
-    UserInterfaceDescriptor::instance().default_output_filename_ = std::move(fileNameWithoutExt);
+    UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
 
     return fileExt;
 }

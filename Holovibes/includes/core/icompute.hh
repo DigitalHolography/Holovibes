@@ -126,8 +126,8 @@ struct BatchEnv
      * Batch size frames are enqueued in the gpu_time_transformation_queue
      * This is done for perfomances reasons
      *
-     * The variable is incremented until it reachs batch_size in
-     *enqueue_multiple, then it is set back to 0
+     * The variable is incremented by batch_size until it reaches timestride in
+     * enqueue_multiple, then it is set back to 0
      */
     uint batch_index = 0;
 };

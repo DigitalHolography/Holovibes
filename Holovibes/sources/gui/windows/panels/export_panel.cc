@@ -74,7 +74,7 @@ void ExportPanel::on_notify()
 
     std::string record_output_path =
         (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) /
-         UserInterfaceDescriptor::instance().default_output_filename_)
+         UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
 

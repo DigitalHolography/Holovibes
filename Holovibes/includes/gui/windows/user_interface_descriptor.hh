@@ -78,7 +78,7 @@ class UserInterfaceDescriptor
 
     size_t auto_scale_point_threshold_ = 100;
 
-    std::string default_output_filename_{"capture"};
+    std::string output_filename_{"capture"};
     std::string record_output_directory_;
     std::string file_input_directory_{"C:\\"};
     std::string batch_input_directory_{"C:\\"};
