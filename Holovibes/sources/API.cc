@@ -1848,21 +1848,33 @@ void start_record(std::function<void()> callback)
     {
         Holovibes::instance().start_frame_record(callback);
     }
+
+    // Notify the changes
+    auto& manager = NotifierManager::get_instance();
+    auto stopComputeNotifier = manager.get_notifier<bool>("record_start");
+    stopComputeNotifier->notify(record_mode);
 }
 
 void stop_record()
 {
     LOG_FUNC();
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    auto record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
+
+    if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::HOLOGRAM ||
+             record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::CUTS_XZ ||
+             record_mode == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
+
+    // Notify the changes
+    auto& manager = NotifierManager::get_instance();
+    auto stopComputeNotifier = manager.get_notifier<bool>("record_stop");
+    stopComputeNotifier->notify(record_mode);
 }
 
 void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }

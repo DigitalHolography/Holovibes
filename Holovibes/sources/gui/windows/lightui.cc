@@ -23,13 +23,9 @@ LightUI::LightUI(QWidget* parent,
     , main_window_(main_window)
     , export_panel_(export_panel)
     , visible_(false)
-    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { 
-        const QSignalBlocker blocker(ui_->ZSpinBox);
-        const QSignalBlocker blocker2(ui_->ZSlider);
-
-        ui_->ZSpinBox->setValue(static_cast<int>(value * 1000));
-        ui_->ZSlider->setValue(static_cast<int>(value * 1000));
-     }))
+    , z_distance_subscriber_("z_distance", 
+        std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1)
+    )
 {
     ui_->setupUi(this);
 
@@ -74,26 +70,11 @@ void LightUI::actualise_z_distance(const double z_distance)
 void LightUI::z_value_changed_spinBox(int z_distance)
 {
     api::set_z_distance(static_cast<double>(z_distance) / 1000.0f);
-
-    // auto& manager = NotifierManager::get_instance();
-    // auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
-    // zDistanceNotifier->notify(static_cast<double>(z_distance) / 1000.0f);
-
-    // //image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
-    // const QSignalBlocker blocker(ui_->ZSlider);
-    // ui_->ZSlider->setValue(z_distance);
 }
 
 void LightUI::z_value_changed_slider(int z_distance)
 {
     api::set_z_distance(static_cast<double>(z_distance) / 1000.0f);
-    // auto& manager = NotifierManager::get_instance();
-    // auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
-    // zDistanceNotifier->notify(static_cast<double>(z_distance) / 1000.0f);
-
-    // //image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
-    // const QSignalBlocker blocker(ui_->ZSpinBox);
-    // ui_->ZSpinBox->setValue(z_distance);
 }
 
 void LightUI::browse_record_output_file_ui()
@@ -115,7 +96,11 @@ void LightUI::start_stop_recording(bool start)
     else
     {
         strcpy(str, "Stop recording");
-        export_panel_->stop_record();
+        
+        api::stop_record();
+
+        // TODO: move to subscriber  
+        //export_panel_->stop_record();
         ui_->startButton->setText("Start");
         ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     }
