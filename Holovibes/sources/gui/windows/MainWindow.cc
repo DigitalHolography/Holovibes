@@ -169,8 +169,9 @@ MainWindow::MainWindow(QWidget* parent)
 
     api::start_information_display();
 
-    ui_->ImageRenderingPanel->set_convolution_mode(conv); // Add the convolution after the initialisation of the panel
-                                                          // if the value is enabled in the compute settings.
+    ui_->ImageRenderingPanel->set_convolution_mode(
+        is_conv_enabled); // Add the convolution after the initialisation of the panel
+                          // if the value is enabled in the compute settings.
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
