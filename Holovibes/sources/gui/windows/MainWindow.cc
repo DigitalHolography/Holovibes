@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
@@ -149,6 +150,9 @@ MainWindow::MainWindow(QWidget* parent)
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
+    bool is_conv_enabled =
+        api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
+
     load_gui();
 
     setFocusPolicy(Qt::StrongFocus);
@@ -164,6 +168,9 @@ MainWindow::MainWindow(QWidget* parent)
         (*it)->init();
 
     api::start_information_display();
+
+    ui_->ImageRenderingPanel->set_convolution_mode(conv); // Add the convolution after the initialisation of the panel
+                                                          // if the value is enabled in the compute settings.
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
@@ -434,7 +441,6 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api::change_camera(camera);
-
     // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
     if (camera != CameraKind::NONE)
     {
@@ -511,12 +517,12 @@ void MainWindow::save_gui()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    api::camera_none_without_json();
-    Logger::flush();
-
     save_gui();
     if (save_cs)
         api::save_compute_settings();
+
+    api::camera_none_without_json();
+    Logger::flush();
 }
 
 #pragma endregion
