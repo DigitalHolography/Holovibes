@@ -186,7 +186,6 @@ bool change_camera(CameraKind c)
         output_file << j_us.dump(1);
         return false;
     }
-
     try
     {
         if (get_compute_mode() == Computation::Raw)
@@ -215,6 +214,7 @@ bool change_camera(CameraKind c)
 
         std::ofstream output_file(path);
         output_file << j_us.dump(1);
+
         return true;
     }
     catch (const camera::CameraException& e)
@@ -1299,9 +1299,9 @@ void set_accumulation_level(int value)
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
     set_xyz_members(api::set_xy_accumulation_level,
-                   api::set_xz_accumulation_level,
-                   api::set_yz_accumulation_level,
-                   value);
+                    api::set_xz_accumulation_level,
+                    api::set_yz_accumulation_level,
+                    value);
 
     pipe_refresh();
 }
