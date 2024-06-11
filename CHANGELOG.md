@@ -1,5 +1,13 @@
 ## Changelog
 
+### 12.11.2
+
+- Fix more record crashes
+- push backs updated and doc added
+- Convolutions are now correctly Saved and imported from compute settings
+- View windows stay at the same position when reloaded
+- CMakeList version updated
+
 ### 12.11.1
 
 - Fix s711 camera
