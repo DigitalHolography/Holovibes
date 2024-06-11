@@ -26,6 +26,12 @@ LightUI::LightUI(QWidget* parent,
     , z_distance_subscriber_("z_distance", 
         std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1)
     )
+    , record_start_subscriber_("record_start", 
+        std::bind(&LightUI::on_record_start, this, std::placeholders::_1)
+    )
+    , record_end_subscriber_("record_stop", 
+        std::bind(&LightUI::on_record_stop, this, std::placeholders::_1)
+    )
 {
     ui_->setupUi(this);
 
@@ -85,26 +91,28 @@ void LightUI::browse_record_output_file_ui()
 
 void LightUI::start_stop_recording(bool start)
 {
-    char str[20];
     if (start)
     {
-        strcpy(str, "Start recording");
         export_panel_->start_record();
-        ui_->startButton->setText("Stop");
-        ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 255);");
     }
     else
     {
-        strcpy(str, "Stop recording");
-        
         api::stop_record();
-
-        // TODO: move to subscriber  
-        //export_panel_->stop_record();
-        ui_->startButton->setText("Start");
-        ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     }
-    LOG_INFO(str);
+}
+
+void LightUI::on_record_start(RecordMode record)
+{
+    ui_->startButton->setText("Stop");
+    ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 255);");
+    LOG_INFO("Recording started");
+}
+
+void LightUI::on_record_stop(RecordMode record)
+{
+    ui_->startButton->setText("Start");
+    ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+    LOG_INFO("Recording stopped");
 }
 
 void LightUI::open_configuration_ui()

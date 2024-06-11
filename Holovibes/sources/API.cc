@@ -1851,7 +1851,7 @@ void start_record(std::function<void()> callback)
 
     // Notify the changes
     auto& manager = NotifierManager::get_instance();
-    auto stopComputeNotifier = manager.get_notifier<bool>("record_start");
+    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_start");
     stopComputeNotifier->notify(record_mode);
 }
 
@@ -1873,7 +1873,7 @@ void stop_record()
 
     // Notify the changes
     auto& manager = NotifierManager::get_instance();
-    auto stopComputeNotifier = manager.get_notifier<bool>("record_stop");
+    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_stop");
     stopComputeNotifier->notify(record_mode);
 }
 

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "notifier.hh"
+#include "enum_record_mode.hh"
 
 namespace Ui
 {
@@ -29,6 +30,9 @@ class LightUI : public QMainWindow
     void actualise_record_output_file_ui(const QString& filename);
     void actualise_z_distance(const double z_distance);
 
+    void on_record_start(RecordMode record);
+    void on_record_stop(RecordMode record);
+
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -47,6 +51,8 @@ class LightUI : public QMainWindow
     ExportPanel* export_panel_;
     bool visible_;
     Subscriber<double> z_distance_subscriber_;
+    Subscriber<RecordMode> record_start_subscriber_;
+    Subscriber<RecordMode> record_end_subscriber_;
 };
 } // namespace holovibes::gui
 
