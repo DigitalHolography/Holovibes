@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
@@ -154,6 +155,9 @@ MainWindow::MainWindow(QWidget* parent)
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
+    bool is_conv_enabled =
+        api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
+
     load_gui();
 
     setFocusPolicy(Qt::StrongFocus);
@@ -169,6 +173,10 @@ MainWindow::MainWindow(QWidget* parent)
         (*it)->init();
 
     api::start_information_display();
+
+    ui_->ImageRenderingPanel->set_convolution_mode(
+        is_conv_enabled); // Add the convolution after the initialisation of the panel
+                          // if the value is enabled in the compute settings.
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
@@ -411,9 +419,9 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
                             "chart",
                             "auto scale point threshold");
-    UserInterfaceDescriptor::instance().default_output_filename_ =
+    UserInterfaceDescriptor::instance().output_filename_ =
         json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().default_output_filename_,
+                            UserInterfaceDescriptor::instance().output_filename_,
                             "files",
                             "default output filename");
     UserInterfaceDescriptor::instance().record_output_directory_ =
@@ -439,7 +447,6 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api::change_camera(camera);
-
     // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
     if (camera != CameraKind::NONE)
     {
@@ -494,7 +501,7 @@ void MainWindow::save_gui()
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();
     j_us["gui settings"]["record frame step"] = ui_->ExportPanel->get_record_frame_step();
     j_us["chart"]["auto scale point threshold"] = UserInterfaceDescriptor::instance().auto_scale_point_threshold_;
-    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().default_output_filename_;
+    j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
@@ -516,12 +523,12 @@ void MainWindow::save_gui()
 
 void MainWindow::closeEvent(QCloseEvent*)
 {
-    api::camera_none_without_json();
-    Logger::flush();
-
     save_gui();
     if (save_cs)
         api::save_compute_settings();
+
+    api::camera_none_without_json();
+    Logger::flush();
 }
 
 #pragma endregion

@@ -489,6 +489,7 @@ inline bool get_yz_img_accu_enabled()
 }
 inline void set_yz(ViewXYZ value) noexcept
 {
+    LOG_INFO("New YZ");
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{value});
 }
 

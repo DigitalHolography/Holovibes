@@ -28,9 +28,6 @@
     holovibes::settings::Y,                        \
     holovibes::settings::P,                        \
     holovibes::settings::Q,                        \
-    holovibes::settings::XY,                       \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
     holovibes::settings::Filter2d,                 \
     holovibes::settings::CurrentWindow,            \
     holovibes::settings::LensViewEnabled,          \
@@ -87,6 +84,9 @@
 #define PIPEREFRESH_SETTINGS                       \
     holovibes::settings::TimeStride,               \
     holovibes::settings::BatchSize,                \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
     holovibes::settings::InputFilter,              \
     holovibes::settings::FilterEnabled
  
@@ -308,6 +308,7 @@ class Pipe : public ICompute
     inline void pipe_refresh_apply_updates()
     {
         fourier_transforms_->pipe_refresh_apply_updates();
+        image_accumulation_->pipe_refresh_apply_updates();
         icompute_pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
     }

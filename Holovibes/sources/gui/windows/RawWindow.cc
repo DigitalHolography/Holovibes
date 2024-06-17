@@ -34,6 +34,15 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView
 
     this->ratio = ratio;
     show();
+
+    auto path = holovibes::settings::user_settings_filepath;
+    std::ifstream input_file(path);
+    json j_us = json::parse(input_file);
+
+    int x = json_get_or_default(j_us, 0, "holo window", "x");
+    int y = json_get_or_default(j_us, 0, "holo window", "y");
+    QPoint point = QPoint(x, y);
+    this->setPosition(point);
 }
 
 RawWindow::~RawWindow()
@@ -394,14 +403,15 @@ void RawWindow::wheelEvent(QWheelEvent* e)
     }
 }
 
-void RawWindow::closeEvent(QCloseEvent* event) {
+void RawWindow::closeEvent(QCloseEvent* event)
+{
     if (kView == KindOfView::Raw || kView == KindOfView::Hologram)
     {
         save_gui("holo window");
     }
 }
 
-void RawWindow::save_gui(std::string window) 
+void RawWindow::save_gui(std::string window)
 {
     // Don't forget to test the cases where the window is out ouf the screen boundaries
     auto path = holovibes::settings::user_settings_filepath;
