@@ -86,13 +86,13 @@ void FrameRecordWorker::run()
 
         size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
 
-        if (Holovibes::instance().get_input_queue()->has_overridden())
+        if (Holovibes::instance().get_input_queue()->has_overwritten())
             Holovibes::instance().get_input_queue()->reset_override();
 
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
         {
-            if (record_queue_.load()->has_overridden() || Holovibes::instance().get_input_queue()->has_overridden())
+            if (record_queue_.load()->has_overwritten() || Holovibes::instance().get_input_queue()->has_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
@@ -101,12 +101,12 @@ void FrameRecordWorker::run()
                     contiguous_frames =
                         std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
 
-                    if (record_queue_.load()->has_overridden())
+                    if (record_queue_.load()->has_overwritten())
                         LOG_WARN(
                             "The record queue has been saturated ; the record will stop once all contiguous frames "
                             "are written");
 
-                    if (Holovibes::instance().get_input_queue()->has_overridden())
+                    if (Holovibes::instance().get_input_queue()->has_overwritten())
                         LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
                                  "are written");
                 }

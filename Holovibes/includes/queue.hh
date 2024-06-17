@@ -36,8 +36,8 @@ class HoloQueue
      * \param stream
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
      */
-    virtual bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
-
+    virtual bool
+    enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) = 0;
 
     /*! \brief Dequeue method overload
      *
@@ -48,11 +48,13 @@ class HoloQueue
      * \param stream
      * \param nb_elts Number of element to dequeue. If equal to -1, empties the queue.
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
-     * 
+     *
      * \return The number of elts dequeued
      */
-    virtual int dequeue(void* dest, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice, int nb_elts = 1) = 0;
-
+    virtual int dequeue(void* dest,
+                        const cudaStream_t stream,
+                        const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                        int nb_elts = 1) = 0;
 
     /*! \return Pointer to internal buffer that contains data. */
     void* get_data() const { return data_; }
@@ -60,20 +62,19 @@ class HoloQueue
     /*! \return The number of elements the Queue currently contains. */
     unsigned int get_size() const { return size_; }
 
-    /*! \return If queue has overridden at least a frame during an enqueue */
-    bool has_overridden() const { return has_overridden_; }
+    /*! \return If queue has overwritten at least a frame during an enqueue */
+    bool has_overwritten() const { return has_overwritten_; }
 
   protected:
-
     void set_type(const QueueType type) { type_ = type; }
-    
+
   protected:
     /*! \name FastUpdatesHolder entry and all variables linked to it */
     FastUpdatesHolder<QueueType>::Value fast_updates_entry_;
 
     /*! \brief Type of the queue */
     QueueType type_;
-    
+
     /*! \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr) */
     std::atomic<Device>& device_;
 
@@ -82,18 +83,15 @@ class HoloQueue
     /*! \brief End index is the index after the last batch */
     std::atomic<uint> end_index_{0};
     /*! \brief Number of batches. Batch size can only be changed by the consumer */
-    std::atomic<bool> has_overridden_{false};
+    std::atomic<bool> has_overwritten_{false};
 
     /*! \brief Current size of the queue (number of frames)*/
     std::atomic<uint>& size_;
 
-
-    /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU, or unique_ptr if it is on the CPU */
+    /*! \brief The actual buffer in which the frames are stored. Either a cuda CudaUniquePtr if the queue is on the GPU,
+     * or unique_ptr if it is on the CPU */
     cuda_tools::UniquePtr<char> data_{nullptr};
-
 };
-
-
 
 /*! \class Queue
  *
@@ -144,14 +142,16 @@ class Queue final : public DisplayQueue, public HoloQueue
     unsigned int get_max_size() const { return max_size_; }
 
     /*! \return Pointer to first frame. */
-    // void* get_start() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + start_index_ * fd_.get_frame_size(); }
+    // void* get_start() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + start_index_ *
+    // fd_.get_frame_size(); }
     void* get_start() const { return data_.get() + start_index_ * fd_.get_frame_size(); }
 
     /*! \return Index of first frame (as the Queue is circular, it is not always zero). */
     unsigned int get_start_index() const { return start_index_; }
 
     /*! \return Pointer right after last frame */
-    // void* get_end() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
+    // void* get_end() const { return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ +
+    // size_) % max_size_) * fd_.get_frame_size(); }
     void* get_end() const { return data_.get() + ((start_index_ + size_) % max_size_) * fd_.get_frame_size(); }
 
     /*! \return Pointer to the last image */
@@ -159,7 +159,8 @@ class Queue final : public DisplayQueue, public HoloQueue
     {
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
-        // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
+        // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) %
+        // max_size_) * fd_.get_frame_size();
         return data_.get() + ((start_index_ + size_ - 1) % max_size_) * fd_.get_frame_size();
     }
 
@@ -181,13 +182,15 @@ class Queue final : public DisplayQueue, public HoloQueue
     void resize(const unsigned int size, const cudaStream_t stream);
 
     /*!
-     * \brief Change the frame descriptor of the queue and change its size. Reallocate the queue only if the size or the device (cpu/gpu) has changed.
-     * 
-     * \param size 
-     * \param fd 
-     * \param stream 
+     * \brief Change the frame descriptor of the queue and change its size. Reallocate the queue only if the size or the
+     * device (cpu/gpu) has changed.
+     *
+     * \param size
+     * \param fd
+     * \param stream
      */
-    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const Device device);
+    void
+    rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const cudaStream_t stream, const Device device);
 
     void reset();
 
@@ -214,7 +217,10 @@ class Queue final : public DisplayQueue, public HoloQueue
      * \param nb_elts Number of elements to add in the queue
      * \param stream
      */
-    void copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    void copy_multiple(Queue& dest,
+                       unsigned int nb_elts,
+                       const cudaStream_t stream,
+                       cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Enqueue method for multiple elements
      *
@@ -244,10 +250,13 @@ class Queue final : public DisplayQueue, public HoloQueue
      * \param stream
      * \param nb_elts Number of element to dequeue. If equal to -1, empties the queue.
      * \param cuda_kind Kind of memory transfer (e-g: CudaMemCpyHostToDevice...)
-     * 
+     *
      * \return The number of elts dequeued
      */
-    int dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice, int nb_elts = 1) override;
+    int dequeue(void* dest,
+                const cudaStream_t stream,
+                cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice,
+                int nb_elts = 1) override;
 
     /*! \brief Dequeue method
      *
@@ -304,8 +313,11 @@ class Queue final : public DisplayQueue, public HoloQueue
      * \param frame_size Size of the frame in bytes
      * \param stream Stream perfoming the copy
      */
-    static void
-    copy_multiple_aux(QueueRegion& src, QueueRegion& dst, const size_t frame_size, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
+    static void copy_multiple_aux(QueueRegion& src,
+                                  QueueRegion& dst,
+                                  const size_t frame_size,
+                                  const cudaStream_t stream,
+                                  cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
   private: /* Attributes */
     /*! \brief Mutex to lock the queue */
