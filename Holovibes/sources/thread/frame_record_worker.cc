@@ -96,11 +96,20 @@ void FrameRecordWorker::run()
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
+                {
+
                     contiguous_frames =
                         std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
 
-                LOG_WARN("Frames have been lost, the record will automatically stop once the record queue writes "
-                         "all contiguous frames");
+                    if (record_queue_.load()->has_overridden())
+                        LOG_WARN(
+                            "The record queue has been saturated ; the record will stop once all contiguous frames "
+                            "are written");
+
+                    if (Holovibes::instance().get_input_queue()->has_overridden())
+                        LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
+                                 "are written");
+                }
             }
 
             wait_for_frames();

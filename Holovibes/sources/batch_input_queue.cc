@@ -415,7 +415,7 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Copy done, release the batch.
     batch_mutexes_[start_index_locked].unlock();
 
-    if (dest.size_ > dest.max_size_)
+    if (dest.size_ >= dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
