@@ -1789,13 +1789,8 @@ bool start_record_preconditions(const bool batch_enabled,
 
 void set_record_device(const Device device)
 {
-    if (Holovibes::instance().is_recording())
-        stop_record();
-
     if (get_compute_mode() == Computation::Hologram)
         Holovibes::instance().stop_compute();
-
-    // set_compute_mode(Computation::Raw);
 
     if (get_raw_view_queue_location() != device)
         set_raw_view_queue_location(device);
@@ -1858,7 +1853,13 @@ void stop_record()
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
 }
 
-void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
+void record_finished()
+{
+    UserInterfaceDescriptor::instance().is_recording_ = false;
+    // if the record was on the cpu, we have to put the queues on gpu again
+    if (api::get_record_on_gpu() == false)
+        api::set_record_device(Device::GPU);
+}
 
 #pragma endregion
 
