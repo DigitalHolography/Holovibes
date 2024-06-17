@@ -145,6 +145,11 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
+    // light ui
+    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel);
+    ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+
     // Display default values
     api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
@@ -766,6 +771,12 @@ void MainWindow::shift_screen()
     int screen_height = rec.height();
     int screen_width = rec.width();
     move(QPoint(210 + (screen_width - 800) / 2, 200 + (screen_height - 500) / 2));
+}
+
+void MainWindow::open_light_ui()
+{
+    light_ui_->show();
+    this->hide();
 }
 
 #pragma endregion

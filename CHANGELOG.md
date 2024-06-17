@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.0.0
+
+- New light UI added
+
 ### 12.11.2
 
 - Fix more record crashes

@@ -57,6 +57,7 @@ qt_add_executable(Holovibes
     mainwindow.ui
     advancedsettingswindow.ui
     plotwindow.ui
+    lightui.ui
     Holovibes.ico
     holovibes.rc
 )

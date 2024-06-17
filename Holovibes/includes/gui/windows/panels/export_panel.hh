@@ -7,6 +7,7 @@
 #include "enum_record_mode.hh"
 #include "panel.hh"
 #include "PlotWindow.hh"
+#include "lightui.hh"
 
 namespace holovibes::gui
 {
@@ -30,10 +31,12 @@ class ExportPanel : public Panel
     void set_record_frame_step(int step);
     int get_record_frame_step();
 
+    void set_light_ui(std::shared_ptr<LightUI> light_ui);
+
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
-    void browse_record_output_file();
+    QString browse_record_output_file();
 
     /*! \brief Enables or Disables number of frame restriction for recording
      *
@@ -109,9 +112,11 @@ class ExportPanel : public Panel
 
     /**
      * @brief Handles the update of the record file extension setting combo box.
-    */
+     */
     void update_record_file_extension(const QString& value);
+
   private:
     int record_frame_step_ = 512;
+    std::shared_ptr<LightUI> light_ui_;
 };
 } // namespace holovibes::gui

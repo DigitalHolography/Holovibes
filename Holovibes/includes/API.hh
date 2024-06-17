@@ -235,6 +235,10 @@ void set_record_queue_location(Device device);
  */
 void set_record_buffer_size(uint value);
 
+void write_ui_mode(bool lightUI);
+
+bool get_ui_mode();
+
 /*! \brief Closes all the currently displaying windows
  *
  */
@@ -886,6 +890,8 @@ const std::string get_credits();
  */
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
+
+bool getLightUIMode();
 
 /*! \brief Displays information
  *

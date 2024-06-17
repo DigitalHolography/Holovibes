@@ -21,6 +21,8 @@
 #include "import_panel.hh"
 #include "export_panel.hh"
 
+#include "lightui.hh"
+
 // Suppress all warnings in this auto-generated file
 #pragma warning(push, 0)
 
@@ -147,6 +149,8 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
+    void open_light_ui();
+
   signals:
     /*! \brief TODO: comment
      *
@@ -178,13 +182,13 @@ class MainWindow : public QMainWindow, public Observer
 
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
+    std::shared_ptr<LightUI> light_ui_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;
     bool save_cs = true;
 
   private:
-
     void enable_notify();
     void disable_notify();
 

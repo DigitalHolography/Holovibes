@@ -90,7 +90,13 @@ void ExportPanel::set_record_frame_step(int step)
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
-void ExportPanel::browse_record_output_file()
+void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
+{ 
+    light_ui_ = light_ui;
+    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());    
+}
+
+QString ExportPanel::browse_record_output_file()
 {
     QString filepath;
 
@@ -126,7 +132,7 @@ void ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return;
+        return filepath;
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
@@ -135,7 +141,10 @@ void ExportPanel::browse_record_output_file()
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
+    light_ui_->actualise_record_output_file_ui(filepath);
     parent_->notify();
+
+    return filepath;
 }
 
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }

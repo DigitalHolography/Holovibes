@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QSplashScreen>
 
+#include "API.hh"
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
@@ -83,8 +84,12 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window;
+
     LOG_TRACE(" ");
-    window.show();
+    if (holovibes::api::get_ui_mode())
+        window.light_ui_->show();
+    else
+        window.show();
     LOG_TRACE(" ");
     splash.finish(&window);
 
@@ -138,7 +143,6 @@ int main(int argc, char* argv[])
         std::unique_lock lock(holovibes::Logger::map_mutex_);
         holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
     }
-
 
     LOG_INFO("Start Holovibes");
     LOG_TRACE("hello");

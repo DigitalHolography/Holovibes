@@ -35,6 +35,8 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
+void ImageRenderingPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
+
 void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
 
 void ImageRenderingPanel::on_notify()
@@ -374,12 +376,24 @@ void ImageRenderingPanel::set_lambda(const double value)
     api::set_lambda(static_cast<float>(value) * 1.0e-9f);
 }
 
+void ImageRenderingPanel::set_z_distance_from_lightui(const double value)
+{
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    api::set_z_distance(static_cast<float>(value));
+
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox); // safely unlocks upon destruction
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
+}
+
 void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_z_distance(static_cast<float>(value));
+    light_ui_->actualise_z_distance(value);
 }
 
 void ImageRenderingPanel::increment_z()
