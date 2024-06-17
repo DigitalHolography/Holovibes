@@ -1,8 +1,10 @@
 ## Changelog
 
-### 13.0.0
+### 12.12.0
 
 - New light UI added
+- View windows now accessible and moveable
+- Add log to inform when the record is going to stop
 
 ### 12.11.2
 
