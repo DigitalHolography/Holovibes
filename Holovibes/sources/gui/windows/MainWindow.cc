@@ -145,11 +145,6 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel);
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-
     // Display default values
     api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
@@ -171,6 +166,11 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
+
+    // light ui
+    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel, ui_->ImageRenderingPanel);
+    ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 
