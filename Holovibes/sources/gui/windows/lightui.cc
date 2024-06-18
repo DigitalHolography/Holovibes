@@ -1,4 +1,4 @@
-#include <filesystem>
+ #include <filesystem>
 
 #include "lightui.hh"
 #include "MainWindow.hh"
@@ -102,6 +102,13 @@ void LightUI::start_stop_recording(bool start)
         ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     }
     LOG_INFO(str);
+}
+
+void LightUI::reset_start_button()
+{
+    ui_->startButton->setChecked(false);
+    ui_->startButton->setText("Start");
+    ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
 }
 
 void LightUI::open_configuration_ui()

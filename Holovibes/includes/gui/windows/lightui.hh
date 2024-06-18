@@ -27,6 +27,7 @@ class LightUI : public QMainWindow
     void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);
     void actualise_z_distance(const double z_distance);
+    void reset_start_button();
 
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension

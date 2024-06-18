@@ -249,6 +249,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+
+    light_ui_->reset_start_button();
     api::record_finished();
 }
 
