@@ -41,6 +41,9 @@ class LightUI : public QMainWindow
     void z_value_changed_spinBox(int z_distance);
     void z_value_changed_slider(int z_distance);
 
+  protected:
+    void closeEvent(QCloseEvent *event) override;
+  
   private:
     Ui::LightUI* ui_;
     MainWindow* main_window_;

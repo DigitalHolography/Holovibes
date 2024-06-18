@@ -119,4 +119,9 @@ void LightUI::open_configuration_ui()
     visible_ = false;
 }
 
+void LightUI::closeEvent(QCloseEvent *event)
+{
+    main_window_->close();
+}
+
 } // namespace holovibes::gui
