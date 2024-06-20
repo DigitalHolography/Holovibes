@@ -23,7 +23,7 @@ public:
         return instance;
     }
 
-    template <typename T>
+    template <typename T> // Name should be unique for each type
     std::shared_ptr<Notifier<T>> get_notifier(const std::string& name);
 
 private:

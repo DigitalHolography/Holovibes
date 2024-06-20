@@ -1768,11 +1768,14 @@ void set_record_mode(const std::string& text)
     }
 }
 
-bool start_record_preconditions(const bool batch_enabled,
-                                const bool nb_frame_checked,
-                                std::optional<unsigned int> nb_frames_to_record,
-                                const std::string& batch_input_path)
+bool start_record_preconditions()
 {
+    bool batch_enabled = api::get_batch_enabled();
+    std::optional<unsigned int> nb_frames_to_record = api::get_record_frame_count();
+    bool nb_frame_checked = nb_frames_to_record.has_value();
+
+    std::string batch_input_path = api::get_batch_file_path();
+
     // Preconditions to start record
 
     if (!nb_frame_checked)
@@ -1838,6 +1841,9 @@ void set_record_device(const Device device)
 
 void start_record(std::function<void()> callback)
 {
+    if (!start_record_preconditions()) // Check if the record can be started
+        return;
+
     RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
 
     if (record_mode == RecordMode::CHART)

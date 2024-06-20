@@ -90,7 +90,7 @@ void LightUI::browse_record_output_file_ui()
 }
 
 void LightUI::start_stop_recording(bool start)
-{
+{ 
     if (start)
     {
         export_panel_->start_record();
