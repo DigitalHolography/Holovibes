@@ -31,6 +31,8 @@ LightUI::LightUI(QWidget* parent,
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
     connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed_spinBox);
     connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
+    connect(ui_->frameNbCheckBox, &QCheckBox::toggled, this, &LightUI::frame_nb_checkbox_changed);
+    connect(ui_->frameNbSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &LightUI::frame_nb_value_changed);
 
     actualise_z_distance(api::get_z_distance());
 
@@ -64,6 +66,33 @@ void LightUI::actualise_z_distance(const double z_distance)
     ui_->ZSlider->setValue(static_cast<int>(z_distance * 1000));
 }
 
+void LightUI::actualise_frame_nb(const int frame_nb = 0, const bool checked = false)
+{
+    const QSignalBlocker blocker(ui_->frameNbCheckBox);
+    ui_->frameNbCheckBox->setChecked(checked);
+    const QSignalBlocker blocker2(ui_->frameNbSpinBox);
+    ui_->frameNbSpinBox->setValue(frame_nb);
+}
+
+void LightUI::actualise_record_progress(const int value, const int max)
+{
+    ui_->recordProgressBar->setMaximum(max);
+    ui_->recordProgressBar->setValue(value);
+}
+
+void LightUI::set_visible_record_progress(bool visible)
+{
+    if (visible)
+    {
+        ui_->recordProgressBar->reset();
+        ui_->recordProgressBar->show();
+    }
+    else
+    {
+        ui_->recordProgressBar->hide();
+    }
+}
+
 void LightUI::z_value_changed_spinBox(int z_distance)
 {
     image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
@@ -76,6 +105,16 @@ void LightUI::z_value_changed_slider(int z_distance)
     image_rendering_panel_->set_z_distance_from_lightui(static_cast<double>(z_distance) / 1000.0f);
     const QSignalBlocker blocker(ui_->ZSpinBox);
     ui_->ZSpinBox->setValue(z_distance);
+}
+
+void LightUI::frame_nb_checkbox_changed(bool checked)
+{
+    export_panel_->set_frame_nb_checkbox_from_lightui(checked);
+}
+
+void LightUI::frame_nb_value_changed(int frame_nb)
+{
+    export_panel_->set_frame_nb_from_lightui(frame_nb);
 }
 
 void LightUI::browse_record_output_file_ui()
@@ -113,7 +152,6 @@ void LightUI::reset_start_button()
 
 void LightUI::open_configuration_ui()
 {
-    LOG_INFO("Opening configuration UI");
     main_window_->show();
     this->hide();
     visible_ = false;

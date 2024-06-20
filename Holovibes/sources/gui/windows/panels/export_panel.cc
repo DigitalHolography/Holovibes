@@ -93,7 +93,21 @@ int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
 { 
     light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());    
+    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());
+    update_record_frame_count_enabled();
+}
+
+void ExportPanel::set_frame_nb_checkbox_from_lightui(bool checked)
+{
+    const QSignalBlocker blocker(ui_->NumberOfFramesCheckBox);
+    ui_->NumberOfFramesCheckBox->setChecked(checked);
+    update_record_frame_count_enabled();
+}
+
+void ExportPanel::set_frame_nb_from_lightui(int frame_nb)
+{
+    const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
+    ui_->NumberOfFramesSpinBox->setValue(frame_nb);
 }
 
 QString ExportPanel::browse_record_output_file()
@@ -353,9 +367,15 @@ void ExportPanel::update_record_frame_count_enabled()
     bool checked = ui_->NumberOfFramesCheckBox->isChecked();
 
     if (!checked)
+    {
         api::set_record_frame_count(std::nullopt);
+        light_ui_->actualise_frame_nb(ui_->NumberOfFramesSpinBox->value(), false);
+    }
     else
+    {
         api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+        light_ui_->actualise_frame_nb(ui_->NumberOfFramesSpinBox->value(), true);
+    }
 }
 
 void ExportPanel::update_record_frame_count() {}

@@ -37,6 +37,7 @@ void InfoPanel::init()
                 case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
+                    light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;
@@ -46,6 +47,8 @@ void InfoPanel::init()
     set_visible_file_reader_progress(false);
     set_visible_record_progress(false);
 }
+
+void InfoPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
 
 void InfoPanel::load_gui(const json& j_us)
 {
@@ -98,5 +101,7 @@ void InfoPanel::set_visible_record_progress(bool visible)
     {
         ui_->RecordProgressBar->hide();
     }
+
+    light_ui_->set_visible_record_progress(visible);
 }
 } // namespace holovibes::gui

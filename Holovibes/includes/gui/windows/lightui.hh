@@ -27,6 +27,9 @@ class LightUI : public QMainWindow
     void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);
     void actualise_z_distance(const double z_distance);
+    void actualise_frame_nb(const int frame_nb, const bool checked);
+    void actualise_record_progress(const int value, const int max);
+    void set_visible_record_progress(bool visible);
     void reset_start_button();
 
   public slots:
@@ -40,6 +43,8 @@ class LightUI : public QMainWindow
     void start_stop_recording(bool start);
     void z_value_changed_spinBox(int z_distance);
     void z_value_changed_slider(int z_distance);
+    void frame_nb_checkbox_changed(bool checked);
+    void frame_nb_value_changed(int frame_nb);
 
   protected:
     void closeEvent(QCloseEvent *event) override;
