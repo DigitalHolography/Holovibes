@@ -1,4 +1,4 @@
-#include <filesystem>
+ #include <filesystem>
 
 #include "lightui.hh"
 #include "MainWindow.hh"
@@ -115,12 +115,24 @@ void LightUI::on_record_stop(RecordMode record)
     LOG_INFO("Recording stopped");
 }
 
+void LightUI::reset_start_button()
+{
+    ui_->startButton->setChecked(false);
+    ui_->startButton->setText("Start");
+    ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+}
+
 void LightUI::open_configuration_ui()
 {
     LOG_INFO("Opening configuration UI");
     main_window_->show();
     this->hide();
     visible_ = false;
+}
+
+void LightUI::closeEvent(QCloseEvent *event)
+{
+    main_window_->close();
 }
 
 } // namespace holovibes::gui

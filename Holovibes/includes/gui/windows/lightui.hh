@@ -29,6 +29,7 @@ class LightUI : public QMainWindow
     void showEvent(QShowEvent* event) override;
     void actualise_record_output_file_ui(const QString& filename);
     void actualise_z_distance(const double z_distance);
+    void reset_start_button();
 
     void on_record_start(RecordMode record);
     void on_record_stop(RecordMode record);
@@ -45,6 +46,9 @@ class LightUI : public QMainWindow
     void z_value_changed_spinBox(int z_distance);
     void z_value_changed_slider(int z_distance);
 
+  protected:
+    void closeEvent(QCloseEvent *event) override;
+  
   private:
     Ui::LightUI* ui_;
     MainWindow* main_window_;

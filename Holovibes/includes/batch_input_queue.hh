@@ -155,7 +155,7 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_max_size() const { return max_size_; }
 
-    bool has_overridden() const { return has_overridden_; }
+    bool has_overwritten() const { return has_overwritten_; }
 
     void reset_override();
 
@@ -253,7 +253,7 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief End index is the index after the last batch */
     std::atomic<uint> end_index_{0};
     /*! \brief Number of batches. Batch size can only be changed by the consumer */
-    std::atomic<bool> has_overridden_{false};
+    std::atomic<bool> has_overwritten_{false};
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};

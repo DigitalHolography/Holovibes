@@ -74,7 +74,7 @@ void ExportPanel::on_notify()
 
     std::string record_output_path =
         (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) /
-         UserInterfaceDescriptor::instance().default_output_filename_)
+         UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
 
@@ -249,6 +249,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+
+    light_ui_->reset_start_button();
     api::record_finished();
 }
 

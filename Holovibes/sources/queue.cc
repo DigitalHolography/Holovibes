@@ -22,7 +22,7 @@ HoloQueue::HoloQueue(QueueType type, const Device device)
     , type_(type)
     , device_(std::get<2>(*fast_updates_entry_))
     , start_index_(0)
-    , has_overridden_(false)
+    , has_overwritten_(false)
     , size_(std::get<0>(*fast_updates_entry_))
 {
     device_ = device;
@@ -104,7 +104,7 @@ void Queue::resize(const unsigned int size, const cudaStream_t stream)
 void Queue::reset()
 {
     dequeue(-1);
-    has_overridden_ = false;
+    has_overwritten_ = false;
 }
 
 bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
@@ -143,7 +143,7 @@ bool Queue::enqueue(void* elt, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     else
     {
         start_index_ = (start_index_ + 1) % max_size_;
-        has_overridden_ = true;
+        has_overwritten_ = true;
     }
 
     return true;
@@ -220,7 +220,7 @@ void Queue::copy_multiple(Queue& dest, unsigned int nb_elts, const cudaStream_t 
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
-        dest.has_overridden_ = true;
+        dest.has_overwritten_ = true;
     }
 
     start_index_ = tmp_src_start_index;
@@ -330,7 +330,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
     {
         start_index_ = (start_index_ + size_ - max_size_) % max_size_;
         size_.store(max_size_.load());
-        has_overridden_ = true;
+        has_overwritten_ = true;
     }
 
     return true;

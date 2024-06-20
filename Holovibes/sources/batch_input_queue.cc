@@ -108,7 +108,7 @@ void BatchInputQueue::make_empty()
     start_index_ = 0;
     end_index_ = 0;
     curr_batch_counter_ = 0;
-    has_overridden_ = false;
+    has_overwritten_ = false;
 }
 
 void BatchInputQueue::stop_producer()
@@ -169,7 +169,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         // The queue is full (in terms of batch)
         if (size_ == max_size_)
         {
-            has_overridden_ = true;
+            has_overwritten_ = true;
             start_index_ = (start_index_ + 1) % max_size_;
         }
         else
@@ -345,7 +345,7 @@ void BatchInputQueue::resize(const uint new_batch_size)
 //     {
 //         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
 //         dest.size_.store(dest.max_size_.load());
-//         dest.has_overridden_ = true;
+//         dest.has_overwritten_ = true;
 //     }
 
 // }
@@ -415,11 +415,11 @@ void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyK
     // Copy done, release the batch.
     batch_mutexes_[start_index_locked].unlock();
 
-    if (dest.size_ > dest.max_size_)
+    if (dest.size_ >= dest.max_size_)
     {
         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
         dest.size_.store(dest.max_size_.load());
-        dest.has_overridden_ = true;
+        dest.has_overwritten_ = true;
     }
 }
 } // namespace holovibes
