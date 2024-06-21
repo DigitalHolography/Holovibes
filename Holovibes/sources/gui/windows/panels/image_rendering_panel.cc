@@ -393,6 +393,8 @@ void ImageRenderingPanel::set_z_distance(const double value)
         return;
 
     api::set_z_distance(static_cast<float>(value));
+
+    if (!light_ui_) return;  // safety check as this function runs on startup before light_ui_ is set
     light_ui_->actualise_z_distance(value);
 }
 
