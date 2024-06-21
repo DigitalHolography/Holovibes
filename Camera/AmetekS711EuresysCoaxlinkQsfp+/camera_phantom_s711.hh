@@ -157,7 +157,7 @@ class EHoloGrabber
         grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
 
         int framerate = 1e6 / cycleMinimumPeriod;
-        grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
+        // grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
     }
 
     void init(unsigned int nb_buffers)

@@ -1,5 +1,8 @@
 ## Changelog
 
+### 12.12.1
+- Fix s711 camera
+
 ### 12.12.0
 
 - New light UI added
