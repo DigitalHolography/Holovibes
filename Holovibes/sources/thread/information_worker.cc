@@ -266,7 +266,7 @@ std::string gpu_load_as_number()
     return std::to_string(gpuLoad.gpu);
 }
 
-std::string gpu_memory_load()
+std::string gpu_memory_controller_load()
 {
     std::stringstream ss;
     ss << "GPU memory controller load: <br/>  ";
@@ -318,7 +318,7 @@ std::string gpu_memory_load()
     return ss.str();
 }
 
-std::string gpu_memory_load_as_number()
+std::string gpu_memory_controller_load_as_number()
 {
     nvmlReturn_t result;
     nvmlDevice_t device;
@@ -351,6 +351,26 @@ std::string gpu_memory_load_as_number()
     nvmlShutdown();
 
     return std::to_string(gpuLoad.memory);
+}
+
+std::string gpu_memory()
+{
+    std::stringstream ss;
+    ss << "GPU memory: <br/>  ";
+    size_t free, total;
+    cudaMemGetInfo(&free, &total);
+    // if free < 0.1 * total then red
+    ss << "<font color=";
+    if (free < 0.1 * total)
+        ss << "red";
+    else if (free < 0.25 * total)
+        ss << "orange";
+    else
+        ss << "white";
+    ss << ">" << engineering_notation(free, 3) << "B free,  " << "</font><br/>";
+    ss << engineering_notation(total, 3) << "B total";
+
+    return ss.str();
 }
 
 void InformationWorker::display_gui_information()
@@ -419,12 +439,9 @@ void InformationWorker::display_gui_information()
     size_t free, total;
     cudaMemGetInfo(&free, &total);
 
-    to_display << "GPU memory:<br/>"
-               << std::string("  ") << engineering_notation(free, 3) << "B free,<br/>"
-               << "  " << engineering_notation(total, 3) + "B total<br/>";
-
+    to_display << gpu_memory() << "<br/>";
     to_display << gpu_load() << "<br/>";
-    to_display << gpu_memory_load() << "<br/>";
+    to_display << gpu_memory_controller_load() << "<br/>";
 
     // #TODO change this being called every frame to only being called to update the value if needed
     to_display << "<br/>z boundary: " << Holovibes::instance().get_boundary() << "m<br/>";
@@ -465,7 +482,7 @@ void InformationWorker::write_information(std::ofstream& csvFile)
     csvFile << total << ",";
 
     csvFile << gpu_load_as_number() << ",";
-    csvFile << gpu_memory_load_as_number() << ",";
+    csvFile << gpu_memory_controller_load_as_number() << ",";
 
     // Exemple d'écriture dans le fichier CSV pour la limite z
     csvFile << Holovibes::instance().get_boundary();
