@@ -1,5 +1,11 @@
 ## Changelog
 
+### 12.13.0
+- Fix crash/incorrect exit when trying to exit from light UI with a camera/file open
+- Fix crash case on startup
+- OutputFilePathLineEdit of lightUI is now corretly set on opening
+- Start button now resets when the recording stops automatically
+
 ### 12.12.1
 - Fix s711 camera
 
