@@ -254,7 +254,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 }
 
-void ExportPanel::set_record_device(bool value)
+void ExportPanel:: set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
     // Mind that we negate the boolean, since true means gpu for the queues
@@ -264,22 +264,7 @@ void ExportPanel::set_record_device(bool value)
 
 void ExportPanel::start_record()
 {
-    bool batch_enabled = ui_->BatchGroupBox->isChecked();
-    bool nb_frame_checked = ui_->NumberOfFramesCheckBox->isChecked();
-    std::optional<unsigned int> nb_frames_to_record = std::nullopt;
-
-    if (nb_frame_checked)
-        nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
-
-    std::string output_path =
-        ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
-    std::string batch_input_path = ui_->BatchInputPathLineEdit->text().toStdString();
-
-    // Preconditions to start record
-    const bool preconditions =
-        api::start_record_preconditions(batch_enabled, nb_frame_checked, nb_frames_to_record, batch_input_path);
-
-    if (!preconditions)
+    if (!api::start_record_preconditions()) // Check if the record can be started
         return;
 
     // Start record

@@ -168,24 +168,14 @@ void cancel_time_transformation_cuts(std::function<void()> callback);
 
 /*! \brief Checks preconditions to start recording
  *
- * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
- * \param nb_frame_checked if number of frame is allowed FIXME: shouldn't be stored in the wild.
- * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
  * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \return true on success
  * \return false on failure
  */
-bool start_record_preconditions(const bool batch_enabled,
-                                const bool nb_frame_checked,
-                                std::optional<unsigned int> nb_frames_to_record,
-                                const std::string& batch_input_path);
+bool start_record_preconditions();
 
 /*! \brief Launchs recording
  *
- * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
- * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
- * \param output_path where to locate the destination file FIXME: shouldn't be stored in the wild.
- * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
  */
 void start_record(std::function<void()> callback);
