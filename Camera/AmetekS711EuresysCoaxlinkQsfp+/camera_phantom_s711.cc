@@ -46,6 +46,7 @@ void CameraPhantom::init_camera()
                     balance_white_marker_,
                     trigger_mode_,
                     trigger_selector_,
+                    flat_field_correction_,
                     *gentl_);
     grabber_->init(nb_buffers_);
 
@@ -108,6 +109,8 @@ void CameraPhantom::load_ini_params()
     trigger_mode_ = pt.get<std::string>("s711.TriggerMode", trigger_mode_);
     gain_ = pt.get<float>("s711.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
+    flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
+
 
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
