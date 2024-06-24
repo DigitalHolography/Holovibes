@@ -62,6 +62,9 @@ private:
 /**
  * @brief Handles notification subscriptions and notifications.
  * @tparam T The type of data the notifier will handle.
+ * 
+ * @see NotifierManager
+ * @see Subscriber
  */
 template <typename T>
 class Notifier
@@ -71,6 +74,9 @@ public:
 
     /**
      * @brief Constructs a new Notifier object.
+     * 
+     * @note This constructor is private. Use the NotifierManager to get a notifier.
+     * @see NotifierManager::get_notifier()
      */
     Notifier();
 
