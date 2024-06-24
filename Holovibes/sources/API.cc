@@ -965,13 +965,13 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
-    if (get_compute_mode() == Computation::Raw)
-        return;
-
     // Notify the change to the z_distance notifier
     auto& manager = NotifierManager::get_instance();
     auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
     zDistanceNotifier->notify(value);
+
+    if (get_compute_mode() == Computation::Raw)
+        return;
 
     holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
     pipe_refresh();
