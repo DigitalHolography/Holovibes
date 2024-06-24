@@ -85,6 +85,10 @@ void LightUI::z_value_changed_slider(int z_distance)
 
 void LightUI::browse_record_output_file_ui()
 {
+    //! FIXME: This is a kind of hack that works with the current implementation of MainWindow. Ideally, lightui should not know about 
+    //! the MainWindow and the ExportPanel. It should only know about the API.
+    //! One way to fix it is to create a new browser in this class and then use notify to send the file path to the API 
+    //! (and synchronize the API with the file path).
     LOG_INFO("Browsing record output file");
     ui_->OutputFilePathLineEdit->setText(export_panel_->browse_record_output_file());
 }
