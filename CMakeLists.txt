@@ -26,10 +26,12 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads)
 
+
+
 # https://doc.qt.io/qt-6/qt-standard-project-setup.html
 qt_standard_project_setup()
 
 add_subdirectory(Camera)
 #add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
-# add_subdirectory(docs)
+add_subdirectory(docs)
