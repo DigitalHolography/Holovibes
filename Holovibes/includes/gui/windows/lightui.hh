@@ -76,6 +76,12 @@ class LightUI : public QMainWindow
      */
     void on_record_stop(RecordMode record);
 
+    /**
+     * @brief Sets the state of the ui depending on the pipeline state.
+     * @param active Boolean to set concerned widgets active (true) or inactive (false).
+     */
+    void pipeline_active(bool active);
+
   public slots:
     /**
      * @brief Opens the file explorer to let the user choose an output file with extension replacement.

@@ -153,6 +153,11 @@ MainWindow::MainWindow(QWidget* parent)
     bool is_conv_enabled =
         api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
 
+    // light ui
+    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
+    ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+
     load_gui();
 
     setFocusPolicy(Qt::StrongFocus);
@@ -166,11 +171,6 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
-    // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 
@@ -237,6 +237,7 @@ void MainWindow::on_notify()
         ui_->ImageRenderingPanel->setEnabled(false);
         ui_->ViewPanel->setEnabled(false);
         ui_->ExportPanel->setEnabled(false);
+        light_ui_->pipeline_active(false);
         layout_toggled();
         return;
     }
@@ -246,6 +247,7 @@ void MainWindow::on_notify()
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
         ui_->ExportPanel->setEnabled(true);
+        light_ui_->pipeline_active(true);
     }
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||

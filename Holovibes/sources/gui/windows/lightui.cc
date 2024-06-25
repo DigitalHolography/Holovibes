@@ -126,6 +126,13 @@ void LightUI::reset_start_button()
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
 }
 
+void LightUI::pipeline_active(bool active)
+{
+    ui_->startButton->setEnabled(active);
+    ui_->ZSpinBox->setEnabled(active);
+    ui_->ZSlider->setEnabled(active);
+}
+
 void LightUI::open_configuration_ui()
 {
     LOG_INFO("Opening configuration UI");
