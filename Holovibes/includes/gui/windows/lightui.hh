@@ -63,6 +63,12 @@ class LightUI : public QMainWindow
      * @brief Resets the start button to its initial state.
      */
     void reset_start_button();
+    void activate_start_button(bool activate);
+    void set_progress_bar_value(int value);
+    void set_progress_bar_maximum(int value);
+    void progress_bar_recording();
+    void progress_bar_stopped();
+    void progress_bar_saving();
 
     /**
      * @brief Handles the start of a recording.

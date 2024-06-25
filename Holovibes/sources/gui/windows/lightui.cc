@@ -43,7 +43,6 @@ LightUI::LightUI(QWidget* parent,
 
     actualise_z_distance(api::get_z_distance());
 
-    ui_->recordProgressBar->hide();
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
 }
 
@@ -131,6 +130,38 @@ void LightUI::pipeline_active(bool active)
     ui_->startButton->setEnabled(active);
     ui_->ZSpinBox->setEnabled(active);
     ui_->ZSlider->setEnabled(active);
+}
+
+void LightUI::activate_start_button(bool activate)
+{
+    ui_->startButton->setEnabled(activate);
+}
+
+void LightUI::set_progress_bar_value(int value)
+{
+    ui_->recordProgressBar->setValue(value);
+}
+
+void LightUI::set_progress_bar_maximum(int maximum)
+{
+    ui_->recordProgressBar->setMaximum(maximum);
+}
+
+void LightUI::progress_bar_recording()
+{
+    ui_->recordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: rgb(255, 165, 0); }");
+    ui_->recordProgressBar->setFormat("Recording");
+}
+
+void LightUI::progress_bar_stopped()
+{
+    ui_->recordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: rgb(255, 0, 0); }");
+}
+
+void LightUI::progress_bar_saving()
+{
+    ui_->recordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: rgb(0, 255, 0); }");
+    ui_->recordProgressBar->setFormat("Saving");
 }
 
 void LightUI::open_configuration_ui()
