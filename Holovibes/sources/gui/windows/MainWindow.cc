@@ -252,6 +252,7 @@ void MainWindow::on_notify()
 
     if (UserInterfaceDescriptor::instance().acquisition_complete_)
     {
+        LOG_INFO("acquisition complete noticed");
         // set the record progress bar color to green, the patient can start moving again
         ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0));
     }
