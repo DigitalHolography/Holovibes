@@ -109,6 +109,7 @@ void FrameRecordWorker::run()
                     if (Holovibes::instance().get_input_queue()->has_overwritten())
                         LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
                                  "are written");
+                    api::acquisition_finished();
                 }
             }
 

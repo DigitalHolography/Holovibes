@@ -36,6 +36,9 @@ class InfoPanel : public Panel
     /*! \brief Show or hide the record progress */
     void set_visible_record_progress(bool visible);
 
+    /*! \brief Set the value of the record progress bar */
+    void set_recordProgressBar_color(const QColor& color);
+
   private:
     int height_ = 0;
     int resize_again_ = 0;

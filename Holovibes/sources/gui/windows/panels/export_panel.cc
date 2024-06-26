@@ -275,6 +275,10 @@ void ExportPanel::start_record()
     ui_->BatchSizeSpinBox->setEnabled(false);
     UserInterfaceDescriptor::instance().is_recording_ = true;
 
+    UserInterfaceDescriptor::instance().acquisition_complete_ = false;
+    // set the record progress bar color to orange, the patient should not move
+    ui_->InfoPanel->set_recordProgressBar_color(QColor(255, 165, 0));
+
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
 

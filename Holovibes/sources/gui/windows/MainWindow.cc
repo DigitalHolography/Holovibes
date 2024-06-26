@@ -250,6 +250,12 @@ void MainWindow::on_notify()
         light_ui_->pipeline_active(true);
     }
 
+    if (UserInterfaceDescriptor::instance().acquisition_complete_)
+    {
+        // set the record progress bar color to green, the patient can start moving again
+        ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0));
+    }
+
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
                                    (api::get_img_type() != ImgType::Composite));
 

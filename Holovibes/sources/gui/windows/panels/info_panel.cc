@@ -99,4 +99,10 @@ void InfoPanel::set_visible_record_progress(bool visible)
         ui_->RecordProgressBar->hide();
     }
 }
+
+void InfoPanel::set_recordProgressBar_color(const QColor& color)
+{
+    ui_->RecordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: " + color.name() + "; }");
+}
+
 } // namespace holovibes::gui

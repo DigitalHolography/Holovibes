@@ -1880,6 +1880,11 @@ void stop_record()
     stopComputeNotifier->notify(record_mode);
 }
 
+void acquisition_finished()
+{
+    UserInterfaceDescriptor::instance().acquisition_complete_ = true;
+}
+
 void record_finished()
 {
     UserInterfaceDescriptor::instance().is_recording_ = false;
