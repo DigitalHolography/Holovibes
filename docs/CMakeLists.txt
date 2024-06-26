@@ -2,7 +2,7 @@ find_package(Doxygen REQUIRED)
 
 
 set(doxyfile ${CMAKE_CURRENT_SOURCE_DIR}/Doxygen/Doxyfile)
-set(DOXYGEN_EXECUTABLE ${CONAN_DOXYGEN_ROOT}/bin/doxygen.exe)
+set(DOXYGEN_EXECUTABLE "C:/Program Files/doxygen/bin/doxygen.exe")
 
 message("Doxygen build started.")
 

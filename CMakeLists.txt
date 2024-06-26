@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(Holovibes
-	VERSION 12.11.1
+	VERSION 12.13.1
 	DESCRIPTION "Holovibes"
 	LANGUAGES CXX CUDA
 )
@@ -26,10 +26,12 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads)
 
+
+
 # https://doc.qt.io/qt-6/qt-standard-project-setup.html
 qt_standard_project_setup()
 
 add_subdirectory(Camera)
 #add_subdirectory(GPIB)
 add_subdirectory(Holovibes)
-# add_subdirectory(docs)
+add_subdirectory(docs)

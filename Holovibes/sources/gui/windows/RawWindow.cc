@@ -39,8 +39,8 @@ RawWindow::RawWindow(QPoint p, QSize s, DisplayQueue* q, float ratio, KindOfView
     std::ifstream input_file(path);
     json j_us = json::parse(input_file);
 
-    int x = json_get_or_default(j_us, 0, "holo window", "x");
-    int y = json_get_or_default(j_us, 0, "holo window", "y");
+    int x = json_get_or_default(j_us, 30, "holo window", "x");
+    int y = json_get_or_default(j_us, 36, "holo window", "y");
     QPoint point = QPoint(x, y);
     this->setPosition(point);
 }

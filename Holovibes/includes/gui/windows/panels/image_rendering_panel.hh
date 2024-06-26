@@ -8,6 +8,8 @@
 #include "Filter2DWindow.hh"
 #include "lightui.hh"
 
+#include "notifier.hh"
+
 namespace holovibes::gui
 {
 class MainWindow;
@@ -103,7 +105,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of z
      */
-    void set_z_distance_from_lightui(const double value);
+    //void update_z_distance(const double value);
     void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
@@ -145,6 +147,7 @@ class ImageRenderingPanel : public Panel
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
     std::shared_ptr<LightUI> light_ui_;
+    Subscriber<double> z_distance_subscriber_;
 
   public:
     // should be moved to double in the ui if we need more precision than 5 digits

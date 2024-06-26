@@ -1,6 +1,7 @@
 #include "API.hh"
 #include "logger.hh"
 #include "input_filter.hh"
+#include "notifier.hh"
 
 #include <unordered_map>
 
@@ -964,6 +965,14 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
+    // Notify the change to the z_distance notifier
+    auto& manager = NotifierManager::get_instance();
+    auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
+    zDistanceNotifier->notify(value);
+
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
     holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
     pipe_refresh();
 }
@@ -1761,11 +1770,14 @@ void set_record_mode(const std::string& text)
     }
 }
 
-bool start_record_preconditions(const bool batch_enabled,
-                                const bool nb_frame_checked,
-                                std::optional<unsigned int> nb_frames_to_record,
-                                const std::string& batch_input_path)
+bool start_record_preconditions()
 {
+    bool batch_enabled = api::get_batch_enabled();
+    std::optional<unsigned int> nb_frames_to_record = api::get_record_frame_count();
+    bool nb_frame_checked = nb_frames_to_record.has_value();
+
+    auto batch_input_path = api::get_batch_file_path().value_or("");
+
     // Preconditions to start record
 
     if (!nb_frame_checked)
@@ -1789,13 +1801,8 @@ bool start_record_preconditions(const bool batch_enabled,
 
 void set_record_device(const Device device)
 {
-    if (Holovibes::instance().is_recording())
-        stop_record();
-
     if (get_compute_mode() == Computation::Hologram)
         Holovibes::instance().stop_compute();
-
-    // set_compute_mode(Computation::Raw);
 
     if (get_raw_view_queue_location() != device)
         set_raw_view_queue_location(device);
@@ -1831,6 +1838,9 @@ void set_record_device(const Device device)
 
 void start_record(std::function<void()> callback)
 {
+    if (!start_record_preconditions()) // Check if the record can be started
+        return;
+
     RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
 
     if (record_mode == RecordMode::CHART)
@@ -1841,24 +1851,42 @@ void start_record(std::function<void()> callback)
     {
         Holovibes::instance().start_frame_record(callback);
     }
+
+    // Notify the changes
+    auto& manager = NotifierManager::get_instance();
+    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_start");
+    stopComputeNotifier->notify(record_mode);
 }
 
 void stop_record()
 {
     LOG_FUNC();
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART)
+    auto record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
+
+    if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::HOLOGRAM ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::RAW ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_XZ ||
-             UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::HOLOGRAM ||
+             record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::CUTS_XZ ||
+             record_mode == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
+
+    // Notify the changes
+    auto& manager = NotifierManager::get_instance();
+    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_stop");
+    stopComputeNotifier->notify(record_mode);
 }
 
-void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
+void record_finished()
+{
+    UserInterfaceDescriptor::instance().is_recording_ = false;
+    // if the record was on the cpu, we have to put the queues on gpu again
+    if (api::get_record_on_gpu() == false)
+        api::set_record_device(Device::GPU);
+}
 
 #pragma endregion
 

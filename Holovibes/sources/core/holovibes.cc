@@ -227,14 +227,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
     frame_record_worker_controller_.start(all_settings, get_cuda_streams().recorder_stream, record_queue_);
 }
 
-void Holovibes::stop_frame_record()
-{
-    frame_record_worker_controller_.stop();
-
-    // if the record was on the cpu, we have to put the queues on gpu again
-    if (api::get_record_on_gpu() == false)
-        api::set_record_device(Device::GPU);
-}
+void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
 
 void Holovibes::start_chart_record(const std::function<void()>& callback)
 {

@@ -96,6 +96,7 @@ class EHoloGrabber
                std::string& balance_white_marker,
                std::string& trigger_mode,
                std::string& trigger_selector,
+               std::string& flat_field_correction,
                EGenTL& gentl)
     {
         width_ = width;
@@ -156,8 +157,11 @@ class EHoloGrabber
         grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
 
+        grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
+
+
         int framerate = 1e6 / cycleMinimumPeriod;
-        grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
+        // grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
     }
 
     void init(unsigned int nb_buffers)
@@ -299,5 +303,6 @@ class CameraPhantom : public Camera
     std::string trigger_mode_;
     float gain_;
     std::string balance_white_marker_;
+    std::string flat_field_correction_;
 };
 } // namespace camera
