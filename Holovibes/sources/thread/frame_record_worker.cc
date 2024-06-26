@@ -54,7 +54,9 @@ void FrameRecordWorker::run()
     nb_frames_recorded = 0;
 
     if (setting<settings::RecordFrameCount>().has_value())
+    {
         nb_frames_to_record = setting<settings::RecordFrameCount>().value();
+    }
     else
         nb_frames_to_record = 0;
 

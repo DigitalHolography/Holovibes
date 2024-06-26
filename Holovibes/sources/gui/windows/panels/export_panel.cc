@@ -80,6 +80,13 @@ void ExportPanel::on_notify()
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
+    if (api::get_record_frame_count().has_value())
+    {
+        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
+        ui_->NumberOfFramesSpinBox->setValue(api::get_record_frame_count().value());
+        ui_->NumberOfFramesCheckBox->setChecked(true);
+        ui_->NumberOfFramesSpinBox->setEnabled(true);
+    }
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -91,9 +98,9 @@ void ExportPanel::set_record_frame_step(int step)
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
 void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
-{ 
+{
     light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());    
+    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());
 }
 
 QString ExportPanel::browse_record_output_file()
@@ -254,7 +261,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 }
 
-void ExportPanel:: set_record_device(bool value)
+void ExportPanel::set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
     // Mind that we negate the boolean, since true means gpu for the queues
@@ -280,7 +287,10 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), compute_mode = api::get_compute_mode(), gpu_record = api::get_record_on_gpu(), this]()
+    auto callback = [record_mode = api::get_record_mode(),
+                     compute_mode = api::get_compute_mode(),
+                     gpu_record = api::get_record_on_gpu(),
+                     this]()
     {
         parent_->synchronize_thread(
             [=]()

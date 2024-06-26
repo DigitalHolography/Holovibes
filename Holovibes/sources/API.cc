@@ -1786,6 +1786,7 @@ bool start_record_preconditions()
     if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
         nb_frames_to_record == std::nullopt)
     {
+
         LOG_ERROR("Number of frames must be activated");
         return false;
     }
@@ -1866,10 +1867,8 @@ void stop_record()
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (record_mode == RecordMode::HOLOGRAM ||
-             record_mode == RecordMode::RAW ||
-             record_mode == RecordMode::CUTS_XZ ||
-             record_mode == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);

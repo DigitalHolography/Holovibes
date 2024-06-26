@@ -410,6 +410,9 @@ void MainWindow::load_gui()
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
+    int nb = json_get_or_default(j_us, 0, "record", "number of frames to record");
+    if (nb > 0)
+        api::set_record_frame_count(nb);
 
     ui_->ExportPanel->set_record_frame_step(
         json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
@@ -450,7 +453,6 @@ void MainWindow::load_gui()
     // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
     if (camera != CameraKind::NONE)
     {
-
         ui_->actionSettings->setEnabled(true);
         if (compute_mode == 0)
         {
@@ -505,6 +507,10 @@ void MainWindow::save_gui()
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
+    if (api::get_record_frame_count().has_value())
+        j_us["record"]["number of frames to record"] = api::get_record_frame_count().value();
+    else
+        j_us["record"]["number of frames to record"] = 0;
 
     j_us["image rendering"]["mode"] = (int)api::get_compute_mode();
 
