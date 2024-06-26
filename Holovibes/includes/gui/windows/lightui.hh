@@ -58,11 +58,20 @@ class LightUI : public QMainWindow
      * @param z_distance The Z distance value.
      */
     void actualise_z_distance(const double z_distance);
+    void actualise_frame_nb(const int frame_nb, const bool checked);
+    void actualise_record_progress(const int value, const int max);
+    void set_visible_record_progress(bool visible);
 
     /**
      * @brief Resets the start button to its initial state.
      */
     void reset_start_button();
+    void activate_start_button(bool activate);
+    void set_progress_bar_value(int value);
+    void set_progress_bar_maximum(int value);
+    void progress_bar_recording();
+    void progress_bar_stopped();
+    void progress_bar_saving();
 
     /**
      * @brief Handles the start of a recording.
@@ -75,6 +84,12 @@ class LightUI : public QMainWindow
      * @param record The recording mode.
      */
     void on_record_stop(RecordMode record);
+
+    /**
+     * @brief Sets the state of the ui depending on the pipeline state.
+     * @param active Boolean to set concerned widgets active (true) or inactive (false).
+     */
+    void pipeline_active(bool active);
 
   public slots:
     /**
@@ -104,6 +119,8 @@ class LightUI : public QMainWindow
      * @param z_distance The new Z distance value.
      */
     void z_value_changed_slider(int z_distance);
+    void frame_nb_checkbox_changed(bool checked);
+    void frame_nb_value_changed(int frame_nb);
 
   protected:
     /**

@@ -32,6 +32,8 @@ class ExportPanel : public Panel
     int get_record_frame_step();
 
     void set_light_ui(std::shared_ptr<LightUI> light_ui);
+    void set_frame_nb_checkbox_from_lightui(bool checked);
+    void set_frame_nb_from_lightui(int frame_nb);
 
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
