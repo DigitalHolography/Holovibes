@@ -69,6 +69,11 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
+    , acquisition_finished_subscriber_(
+        [this] () { 
+            ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0))
+        }
+    )
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,

@@ -193,5 +193,7 @@ class MainWindow : public QMainWindow, public Observer
     void disable_notify();
 
     bool notify_enabled_ = true;
+
+    Subscriber<void> acquisition_finished_subscriber_;
 };
 } // namespace holovibes::gui

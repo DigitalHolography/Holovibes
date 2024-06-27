@@ -5,6 +5,8 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
+#include "notifier.hh"
+
 #include "filter2D.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -562,6 +564,11 @@ void Pipe::insert_raw_record()
                     inserted >= setting<settings::RecordFrameCount>().value())
                 {
                     api::acquisition_finished();
+                    
+                    auto& manager = NotifierManager::get_instance();
+                    auto notifier = manager.get_notifier<void>("acquisition_finished");
+                    notifier->notify();
+
                     LOG_INFO("acquisition_finished");
                     return;
                 }
