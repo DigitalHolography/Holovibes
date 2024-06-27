@@ -566,8 +566,8 @@ void Pipe::insert_raw_record()
                     api::acquisition_finished();
                     
                     auto& manager = NotifierManager::get_instance();
-                    auto notifier = manager.get_notifier<void>("acquisition_finished");
-                    notifier->notify();
+                    auto notifier = manager.get_notifier<bool>("acquisition_finished");
+                    notifier->notify(true);
 
                     LOG_INFO("acquisition_finished");
                     return;
