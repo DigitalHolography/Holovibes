@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget* parent)
     , acquisition_finished_subscriber_(
         "acquisition_finished",
         [this] (bool success) { 
-            ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0))
+            ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0));
         }
     )
 {
