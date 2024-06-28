@@ -252,7 +252,8 @@ void pipe_refresh();
  */
 void enable_pipe_refresh();
 
-/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe refresh.
+/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe
+ * refresh.
  *
  */
 void disable_pipe_refresh();

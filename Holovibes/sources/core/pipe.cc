@@ -5,6 +5,8 @@
 #include "compute_bundles_2d.hh"
 #include "logger.hh"
 
+#include "notifier.hh"
+
 #include "filter2D.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -561,6 +563,9 @@ void Pipe::insert_raw_record()
                 if (setting<settings::RecordFrameCount>() != std::nullopt &&
                     inserted >= setting<settings::RecordFrameCount>().value())
                 {
+                    auto& manager = NotifierManager::get_instance();
+                    auto notifier = manager.get_notifier<bool>("acquisition_finished");
+                    notifier->notify(true);
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;

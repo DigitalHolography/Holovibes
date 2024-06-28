@@ -1855,7 +1855,9 @@ void start_record(std::function<void()> callback)
     // Notify the changes
     auto& manager = NotifierManager::get_instance();
     auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_start");
-    stopComputeNotifier->notify(record_mode);
+    stopComputeNotifier->notify(record_mode); // notifying lightUI
+    auto recordStartedNotifer = manager.get_notifier<bool>("acquisition_started");
+    recordStartedNotifer->notify(true); // notifying MainWindow
 }
 
 void stop_record()
@@ -1866,10 +1868,8 @@ void stop_record()
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (record_mode == RecordMode::HOLOGRAM ||
-             record_mode == RecordMode::RAW ||
-             record_mode == RecordMode::CUTS_XZ ||
-             record_mode == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);

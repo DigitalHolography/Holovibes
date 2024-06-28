@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "lightui.hh"
 #include "panel.hh"
 
 namespace holovibes::gui
@@ -24,6 +25,8 @@ class InfoPanel : public Panel
 
     void init() override;
 
+    void set_light_ui(std::shared_ptr<LightUI> light_ui);
+
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
@@ -36,8 +39,12 @@ class InfoPanel : public Panel
     /*! \brief Show or hide the record progress */
     void set_visible_record_progress(bool visible);
 
+    /*! \brief Set the value of the record progress bar */
+    void set_recordProgressBar_color(const QColor& color);
+
   private:
     int height_ = 0;
     int resize_again_ = 0;
+    std::shared_ptr<LightUI> light_ui_;
 };
 } // namespace holovibes::gui

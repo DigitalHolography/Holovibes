@@ -32,9 +32,7 @@ class LightUI : public QMainWindow
      * @param main_window Pointer to the MainWindow instance.
      * @param export_panel Pointer to the ExportPanel instance.
      */
-    explicit LightUI(QWidget* parent,
-                     MainWindow* main_window,
-                     ExportPanel* export_panel);
+    explicit LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_panel);
 
     /**
      * @brief Destructor for LightUI class.
@@ -64,6 +62,10 @@ class LightUI : public QMainWindow
      */
     void reset_start_button();
 
+    void activate_start_button(bool activate);
+    void set_progress_bar_value(int value);
+    void set_progress_bar_maximum(int value);
+
     /**
      * @brief Handles the start of a recording.
      * @param record The recording mode.
@@ -75,6 +77,18 @@ class LightUI : public QMainWindow
      * @param record The recording mode.
      */
     void on_record_stop(RecordMode record);
+
+    void actualise_record_progress(const int value, const int max);
+    void set_visible_record_progress(bool visible);
+
+    /*! \brief Set the value of the record progress bar */
+    void set_recordProgressBar_color(const QColor& color);
+
+    /**
+     * @brief Sets the state of the ui depending on the pipeline state.
+     * @param active Boolean to set concerned widgets active (true) or inactive (false).
+     */
+    void pipeline_active(bool active);
 
   public slots:
     /**
@@ -110,16 +124,16 @@ class LightUI : public QMainWindow
      * @brief Overridden closeEvent handler.
      * @param event The QCloseEvent instance.
      */
-    void closeEvent(QCloseEvent *event) override;
-  
+    void closeEvent(QCloseEvent* event) override;
+
   private:
-    Ui::LightUI* ui_; ///< Pointer to the UI instance.
-    MainWindow* main_window_; ///< Pointer to the MainWindow instance.
-    ExportPanel* export_panel_; ///< Pointer to the ExportPanel instance.
-    bool visible_; ///< Boolean to track the visibility state of the UI.
-    Subscriber<double> z_distance_subscriber_; ///< Subscriber for Z distance changes.
+    Ui::LightUI* ui_;                                ///< Pointer to the UI instance.
+    MainWindow* main_window_;                        ///< Pointer to the MainWindow instance.
+    ExportPanel* export_panel_;                      ///< Pointer to the ExportPanel instance.
+    bool visible_;                                   ///< Boolean to track the visibility state of the UI.
+    Subscriber<double> z_distance_subscriber_;       ///< Subscriber for Z distance changes.
     Subscriber<RecordMode> record_start_subscriber_; ///< Subscriber for record start events.
-    Subscriber<RecordMode> record_end_subscriber_; ///< Subscriber for record end events.
+    Subscriber<RecordMode> record_end_subscriber_;   ///< Subscriber for record end events.
 };
 
 } // namespace holovibes::gui

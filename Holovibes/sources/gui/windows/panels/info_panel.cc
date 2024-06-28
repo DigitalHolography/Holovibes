@@ -37,6 +37,7 @@ void InfoPanel::init()
                 case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
+                    light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;
@@ -53,6 +54,8 @@ void InfoPanel::load_gui(const json& j_us)
     ui_->actionInfo->setChecked(!h);
     setHidden(h);
 }
+
+void InfoPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
 
 void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 
@@ -98,5 +101,15 @@ void InfoPanel::set_visible_record_progress(bool visible)
     {
         ui_->RecordProgressBar->hide();
     }
+
+    light_ui_->set_visible_record_progress(visible);
 }
+
+void InfoPanel::set_recordProgressBar_color(const QColor& color)
+{
+    ui_->RecordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: " + color.name() +
+                                          "; } "
+                                          "QProgressBar { text-align: center; padding-top: 2px; }");
+}
+
 } // namespace holovibes::gui
