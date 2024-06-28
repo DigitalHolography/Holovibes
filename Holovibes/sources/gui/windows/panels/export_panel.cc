@@ -80,6 +80,13 @@ void ExportPanel::on_notify()
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
+    if (api::get_record_frame_count().has_value())
+    {
+        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
+        ui_->NumberOfFramesSpinBox->setValue(api::get_record_frame_count().value());
+        ui_->NumberOfFramesCheckBox->setChecked(true);
+        ui_->NumberOfFramesSpinBox->setEnabled(true);
+    }
 }
 
 void ExportPanel::set_record_frame_step(int step)

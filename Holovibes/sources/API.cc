@@ -1786,6 +1786,7 @@ bool start_record_preconditions()
     if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
         nb_frames_to_record == std::nullopt)
     {
+
         LOG_ERROR("Number of frames must be activated");
         return false;
     }
