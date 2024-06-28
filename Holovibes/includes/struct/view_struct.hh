@@ -22,7 +22,7 @@ namespace holovibes
  */
 struct ViewContrast
 {
-    bool enabled = false;
+    bool enabled = true;
     bool auto_refresh = true;
     bool invert = false;
     float min = 1.f;
