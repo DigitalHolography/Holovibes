@@ -67,7 +67,6 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
     bool is_recording_ = false;
-    bool acquisition_complete_ = false;
     RecordMode record_mode_ = RecordMode::RAW;
 
     bool is_enabled_camera_ = false;

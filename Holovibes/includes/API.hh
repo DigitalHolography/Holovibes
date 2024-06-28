@@ -187,11 +187,6 @@ void set_record_device(const Device device);
  */
 void stop_record();
 
-/*! used to propagate the information that the aquisition part of the record has been stopped
- *
- */
-void acquisition_finished();
-
 /*! \brief Gets the destination of the output file
  *
  * \param std_filepath the output filepath FIXME: shouldn't be stored in the wild.
@@ -257,7 +252,8 @@ void pipe_refresh();
  */
 void enable_pipe_refresh();
 
-/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe refresh.
+/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe
+ * refresh.
  *
  */
 void disable_pipe_refresh();

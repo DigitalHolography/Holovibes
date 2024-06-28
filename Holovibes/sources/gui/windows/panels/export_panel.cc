@@ -91,9 +91,9 @@ void ExportPanel::set_record_frame_step(int step)
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
 void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
-{ 
+{
     light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());    
+    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());
 }
 
 QString ExportPanel::browse_record_output_file()
@@ -254,7 +254,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 }
 
-void ExportPanel:: set_record_device(bool value)
+void ExportPanel::set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
     // Mind that we negate the boolean, since true means gpu for the queues
@@ -275,16 +275,19 @@ void ExportPanel::start_record()
     ui_->BatchSizeSpinBox->setEnabled(false);
     UserInterfaceDescriptor::instance().is_recording_ = true;
 
-    UserInterfaceDescriptor::instance().acquisition_complete_ = false;
     // set the record progress bar color to orange, the patient should not move
-    ui_->InfoPanel->set_recordProgressBar_color(QColor(255, 165, 0));
+    ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25));
+    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25));
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), compute_mode = api::get_compute_mode(), gpu_record = api::get_record_on_gpu(), this]()
+    auto callback = [record_mode = api::get_record_mode(),
+                     compute_mode = api::get_compute_mode(),
+                     gpu_record = api::get_record_on_gpu(),
+                     this]()
     {
         parent_->synchronize_thread(
             [=]()

@@ -69,12 +69,17 @@ void spinBoxDecimalPointReplacement(QDoubleSpinBox* doubleSpinBox)
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_(new Ui::MainWindow)
-    , acquisition_finished_subscriber_(
-        "acquisition_finished",
-        [this] (bool success) { 
-            ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0));
-        }
-    )
+    , acquisition_started_subscriber_("acquisition_started",
+                                      [this](bool success) { acquisition_finished_notification_received = false; })
+    , acquisition_finished_subscriber_("acquisition_finished",
+                                       [this](bool success)
+                                       {
+                                           if (acquisition_finished_notification_received)
+                                               return;
+                                           acquisition_finished_notification_received = true;
+                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236));
+                                           light_ui_->set_recordProgressBar_color(QColor(48, 143, 236));
+                                       })
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -163,6 +168,7 @@ MainWindow::MainWindow(QWidget* parent)
     light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
     ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+    ui_->InfoPanel->set_light_ui(light_ui_);
 
     load_gui();
 
@@ -221,7 +227,6 @@ void MainWindow::notify()
 
 void MainWindow::on_notify()
 {
-
     // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
     api::disable_pipe_refresh();
 
@@ -254,13 +259,6 @@ void MainWindow::on_notify()
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
         ui_->ExportPanel->setEnabled(true);
         light_ui_->pipeline_active(true);
-    }
-
-    if (UserInterfaceDescriptor::instance().acquisition_complete_)
-    {
-        LOG_INFO("acquisition complete noticed");
-        // set the record progress bar color to green, the patient can start moving again
-        ui_->InfoPanel->set_recordProgressBar_color(QColor(0, 255, 0));
     }
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||

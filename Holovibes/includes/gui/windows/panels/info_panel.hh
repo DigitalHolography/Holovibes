@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "lightui.hh"
 #include "panel.hh"
 
 namespace holovibes::gui
@@ -24,6 +25,8 @@ class InfoPanel : public Panel
 
     void init() override;
 
+    void set_light_ui(std::shared_ptr<LightUI> light_ui);
+
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
@@ -42,5 +45,6 @@ class InfoPanel : public Panel
   private:
     int height_ = 0;
     int resize_again_ = 0;
+    std::shared_ptr<LightUI> light_ui_;
 };
 } // namespace holovibes::gui
