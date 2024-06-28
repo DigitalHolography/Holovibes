@@ -1,12 +1,26 @@
 ## Changelog
 
+### 12.14.0
+
+- Contrast now on by default
+- nb_frame_record is now a user setting (saved upon closing)
+- Changed "configurationUI" button location on lightUI upper settings
+- LightUI pipeline buttons now are only active when a pipeline is active (prevents crash when pressing start button - with no pipeline active)
+- record progress bar now changes color both on info_panel and lightUI according to acquisition status
+
+### 12.13.1
+
+- Add FlatFieldCorrection parameter to s711
+
 ### 12.13.0
+
 - Fix crash/incorrect exit when trying to exit from light UI with a camera/file open
 - Fix crash case on startup
 - OutputFilePathLineEdit of lightUI is now corretly set on opening
 - Start button now resets when the recording stops automatically
 
 ### 12.12.1
+
 - Fix s711 camera
 
 ### 12.12.0
