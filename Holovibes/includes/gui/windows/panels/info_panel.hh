@@ -40,7 +40,7 @@ class InfoPanel : public Panel
     void set_visible_record_progress(bool visible);
 
     /*! \brief Set the value of the record progress bar */
-    void set_recordProgressBar_color(const QColor& color);
+    void set_recordProgressBar_color(const QColor& color, const QString& text);
 
   private:
     int height_ = 0;

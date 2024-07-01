@@ -3437,7 +3437,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </action>
   <action name="actionLightUI">
    <property name="text">
-    <string>LightUI</string>
+    <string>Mini panel</string>
    </property>
   </action>
  </widget>
@@ -5576,8 +5576,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <slot>open_light_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>59</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>

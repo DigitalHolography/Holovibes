@@ -82,7 +82,7 @@ class LightUI : public QMainWindow
     void set_visible_record_progress(bool visible);
 
     /*! \brief Set the value of the record progress bar */
-    void set_recordProgressBar_color(const QColor& color);
+    void set_recordProgressBar_color(const QColor& color, const QString& text);
 
     /**
      * @brief Sets the state of the ui depending on the pipeline state.
