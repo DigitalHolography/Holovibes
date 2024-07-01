@@ -284,7 +284,7 @@ void ExportPanel::start_record()
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25));
-    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25));
+    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25), "Recording");
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);

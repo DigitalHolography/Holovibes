@@ -118,43 +118,47 @@
       </item>
      </layout>
     </item>
-    <item alignment="Qt::AlignHCenter">
-     <widget class="QPushButton" name="startButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>100</width>
-        <height>35</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>100</width>
-        <height>35</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Start/Stop</string>
-      </property>
-      <property name="checkable">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
     <item>
-     <widget class="QProgressBar" name="recordProgressBar">
-      <property name="value">
-       <number>0</number>
-      </property>
-      <property name="format">
-       <string>Idle</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="startButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Start/Stop</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="recordProgressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="format">
+         <string>Idle</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -195,7 +199,7 @@
   </action>
   <action name="actionConfiguration_UI">
    <property name="text">
-    <string>Configuration UI</string>
+    <string>Configuration panel</string>
    </property>
   </action>
   <action name="actionQuit">
