@@ -123,14 +123,10 @@ void LightUI::actualise_record_progress(const int value, const int max)
 void LightUI::set_visible_record_progress(bool visible)
 {
     if (visible)
-    {
-        ui_->recordProgressBar->reset();
         ui_->recordProgressBar->show();
-    }
     else
-    {
-        ui_->recordProgressBar->hide();
-    }
+        ui_->recordProgressBar->reset();
+
 }
 
 void LightUI::set_recordProgressBar_color(const QColor& color)
