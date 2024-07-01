@@ -147,6 +147,12 @@ void LightUI::pipeline_active(bool active)
     ui_->ZSlider->setEnabled(active);
 }
 
+void LightUI::set_window_size_position(int width, int height, int x, int y)
+{
+    this->resize(width, height);
+    this->move(x, y);
+}
+
 void LightUI::activate_start_button(bool activate) { ui_->startButton->setEnabled(activate); }
 
 void LightUI::set_progress_bar_value(int value) { ui_->recordProgressBar->setValue(value); }

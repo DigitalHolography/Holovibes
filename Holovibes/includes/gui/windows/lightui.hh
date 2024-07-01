@@ -90,6 +90,11 @@ class LightUI : public QMainWindow
      */
     void pipeline_active(bool active);
 
+    /**
+     * @brief Sets the window size and position.
+     */
+    void set_window_size_position(int width, int height, int x, int y);
+
   public slots:
     /**
      * @brief Opens the file explorer to let the user choose an output file with extension replacement.
