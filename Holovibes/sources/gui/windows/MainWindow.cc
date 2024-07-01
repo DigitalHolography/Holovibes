@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget* parent)
                                            if (acquisition_finished_notification_received)
                                                return;
                                            acquisition_finished_notification_received = true;
-                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236));
+                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236), "Saving: %v/%m");
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
 {

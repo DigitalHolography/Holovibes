@@ -105,11 +105,12 @@ void InfoPanel::set_visible_record_progress(bool visible)
     light_ui_->set_visible_record_progress(visible);
 }
 
-void InfoPanel::set_recordProgressBar_color(const QColor& color)
+void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)
 {
     ui_->RecordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: " + color.name() +
                                           "; } "
                                           "QProgressBar { text-align: center; padding-top: 2px; }");
+    ui_->RecordProgressBar->setFormat(text);
 }
 
 } // namespace holovibes::gui
