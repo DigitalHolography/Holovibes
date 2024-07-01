@@ -1,5 +1,13 @@
 ## Changelog
 
+### 13.0.O
+
+- Record progres bar now always visible
+- Window now correctly resizable with start/stop button not changing in size
+- Changing panel label again
+- Mini panel UI layout changed
+- Record progress bar now change its label acording to its color
+
 ### 12.14.0
 
 - Contrast now on by default
