@@ -38,7 +38,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Propagation distance (mm)</string>
+         <string>Focus (mm)</string>
         </property>
        </widget>
       </item>
