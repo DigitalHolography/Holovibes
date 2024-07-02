@@ -64,14 +64,15 @@ struct ViewXYZ : public ViewWindow
     bool horizontal_flip = false;
     float rotation = 0;
     unsigned output_image_accumulation = 1;
+    bool enabled = false;
 
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation)
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation, enabled)
 
     bool operator==(const ViewXYZ& other) const
     {
         return (horizontal_flip == other.horizontal_flip && rotation == other.rotation &&
-                output_image_accumulation == other.output_image_accumulation &&
-                log_enabled == other.log_enabled && contrast == other.contrast);
+                output_image_accumulation == other.output_image_accumulation && log_enabled == other.log_enabled &&
+                contrast == other.contrast);
     }
 };
 
@@ -96,10 +97,7 @@ struct ViewPQ : public ViewAccu
 
     SERIALIZE_JSON_STRUCT(ViewPQ, width, start)
 
-    bool operator==(const ViewPQ& other) const
-    {
-        return (start == other.start && width == other.width);
-    }
+    bool operator==(const ViewPQ& other) const { return (start == other.start && width == other.width); }
 };
 
 /*! \class ViewXY
@@ -112,10 +110,7 @@ struct ViewXY : public ViewAccu
 
     SERIALIZE_JSON_STRUCT(ViewXY, width, start)
 
-    bool operator==(const ViewXY& other) const
-    {
-        return (start == other.start && width == other.width);
-    }
+    bool operator==(const ViewXY& other) const { return (start == other.start && width == other.width); }
 };
 
 /*! \class Windows
