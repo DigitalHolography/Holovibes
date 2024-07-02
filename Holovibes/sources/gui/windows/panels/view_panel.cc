@@ -125,7 +125,9 @@ void ViewPanel::on_notify()
         current_rotation.replace(current_rotation.size() - 3, max_digit_rotate, rotation_degree.c_str());
 
         auto current_flip = ui_->FlipPushButton->text();
-        current_flip.replace(current_flip.size() - 1, max_digit_flip, std::to_string(api::get_horizontal_flip()).c_str());
+        current_flip.replace(current_flip.size() - 1,
+                             max_digit_flip,
+                             std::to_string(api::get_horizontal_flip()).c_str());
 
         ui_->RotatePushButton->setText(current_rotation);
         ui_->FlipPushButton->setText(current_flip); //(current_rotation.toStdString() +
@@ -139,7 +141,8 @@ void ViewPanel::on_notify()
     // p accu
     ui_->PAccSpinBox->setValue(api::get_p_accu_level());
     ui_->PSpinBox->setValue(api::get_p_index());
-    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease && api::get_img_type() != ImgType::Composite);
+    ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease &&
+                                 api::get_img_type() != ImgType::Composite);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
@@ -200,7 +203,7 @@ void ViewPanel::load_gui(const json& j_us)
     bool h = json_get_or_default(j_us, isHidden(), "panels", "view hidden", isHidden());
     ui_->actionView->setChecked(!h);
     setHidden(h);
- 
+
     time_transformation_cuts_window_max_size =
         json_get_or_default(j_us, 512, "windows", "time transformation cuts window max size");
 }
@@ -230,6 +233,8 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
     if (checked)
     {
+        api::set_yz_enabled(true);
+        api::set_xz_enabled(true);
         const ushort nImg = api::get_time_transformation_size();
         uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
 
@@ -248,7 +253,11 @@ void ViewPanel::update_3d_cuts_view(bool checked)
     }
     // FIXME: if slice are closed, cancel time should be call.
     else
+    {
         cancel_time_transformation_cuts();
+        api::set_yz_enabled(false);
+        api::set_xz_enabled(false);
+    }
 }
 
 void ViewPanel::cancel_time_transformation_cuts()
@@ -273,7 +282,7 @@ void ViewPanel::set_fft_shift(const bool value)
 
     api::set_fft_shift_enabled(value);
 
-    //api::pipe_refresh();
+    // api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)
@@ -301,7 +310,7 @@ void ViewPanel::update_raw_view(bool checked)
 void ViewPanel::set_x_y()
 {
     api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
-    
+
     parent_->notify();
 }
 

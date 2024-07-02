@@ -223,6 +223,7 @@ inline uint get_xy_accumulation_level()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XY>().value.output_image_accumulation;
 }
+inline bool get_xy_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.enabled; }
 inline bool get_xy_log_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XY>().value.log_enabled;
@@ -331,6 +332,7 @@ inline void set_xy_contrast(float min, float max) noexcept
 
 // XZ
 inline ViewXYZ get_xz() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value; }
+inline bool get_xz_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.enabled; }
 inline bool get_xz_horizontal_flip()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.horizontal_flip;
@@ -371,6 +373,12 @@ inline bool get_xz_img_accu_enabled()
 inline void set_xz(ViewXYZ value) noexcept
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{value});
+}
+inline void set_xz_enabled(bool value) noexcept
+{
+    auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
+    xz.enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
 inline void set_xz_horizontal_flip(bool value) noexcept
@@ -450,6 +458,7 @@ inline void set_xz_contrast(float min, float max) noexcept
 }
 
 inline ViewXYZ get_yz() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value; }
+inline bool get_yz_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.enabled; }
 inline bool get_yz_horizontal_flip()
 {
     return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.horizontal_flip;
@@ -491,6 +500,12 @@ inline void set_yz(ViewXYZ value) noexcept
 {
     LOG_INFO("New YZ");
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{value});
+}
+inline void set_yz_enabled(bool value) noexcept
+{
+    auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
+    yz.enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
 inline void set_yz_horizontal_flip(bool value) noexcept

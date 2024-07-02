@@ -77,7 +77,8 @@ MainWindow::MainWindow(QWidget* parent)
                                            if (acquisition_finished_notification_received)
                                                return;
                                            acquisition_finished_notification_received = true;
-                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236), "Saving: %v/%m");
+                                           ui_->InfoPanel->set_recordProgressBar_color(QColor(48, 143, 236),
+                                                                                       "Saving: %v/%m");
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
 {
@@ -145,7 +146,6 @@ MainWindow::MainWindow(QWidget* parent)
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
-
         // Set values not set by notify
         ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     }
@@ -189,6 +189,10 @@ MainWindow::MainWindow(QWidget* parent)
     ui_->ImageRenderingPanel->set_convolution_mode(
         is_conv_enabled); // Add the convolution after the initialisation of the panel
                           // if the value is enabled in the compute settings.
+    if (api::get_yz_enabled() and api::get_xz_enabled())
+    {
+        ui_->ViewPanel->update_3d_cuts_view(true);
+    }
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
