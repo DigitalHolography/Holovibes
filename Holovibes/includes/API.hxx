@@ -808,12 +808,22 @@ inline void set_batch_file_path(std::string value)
 
 inline std::string get_record_file_path()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordFilePath>().value;
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordDirectoryPath>().value;
 }
 
 inline void set_record_file_path(std::string value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordFilePath{value});
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordDirectoryPath{value});
+}
+
+inline std::string get_record_file_name()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordFileName>().value;
+}
+
+inline void set_record_file_name(std::string value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordFileName{value});
 }
 
 inline std::optional<size_t> get_record_frame_count()

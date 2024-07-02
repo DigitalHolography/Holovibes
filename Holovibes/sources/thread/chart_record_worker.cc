@@ -12,7 +12,11 @@ namespace holovibes::worker
 void ChartRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
-    std::ofstream of(setting<settings::RecordFilePath>());
+    // append the filename with its folder path
+    std::string file_path = setting<settings::RecordDirectoryPath>();
+    file_path += setting<settings::RecordFileName>();
+
+    std::ofstream of(file_path);
 
     // Header displaying
     of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start

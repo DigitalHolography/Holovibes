@@ -7,6 +7,8 @@
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
+#include <chrono>
+#include <fstream>
 
 namespace holovibes::worker
 {
@@ -39,6 +41,16 @@ size_t FrameRecordWorker::compute_fps_average() const
     ret /= upper;
 
     return ret;
+}
+
+std::string get_current_date_time()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_");
+    return ss.str();
 }
 
 void FrameRecordWorker::run()
@@ -74,7 +86,9 @@ void FrameRecordWorker::run()
 
     try
     {
-        output_frame_file = io_files::OutputFrameFileFactory::create(setting<settings::RecordFilePath>(),
+        output_frame_file = io_files::OutputFrameFileFactory::create(setting<settings::RecordDirectoryPath>()
+                                                                     + get_current_date_time()
+                                                                     + setting<settings::RecordFileName>(),
                                                                      record_queue_.load()->get_fd(),
                                                                      nb_frames_to_record);
 

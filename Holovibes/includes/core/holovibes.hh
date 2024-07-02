@@ -40,7 +40,8 @@
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
-    holovibes::settings::RecordFilePath,                         \
+    holovibes::settings::RecordDirectoryPath,                    \
+    holovibes::settings::RecordFileName,                        \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordFrameSkip,                        \
@@ -378,7 +379,8 @@ class Holovibes
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
-                                             settings::RecordFilePath{std::string("")},
+                                             settings::RecordDirectoryPath{std::string("")},
+                                             settings::RecordFileName{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordFrameSkip{0},

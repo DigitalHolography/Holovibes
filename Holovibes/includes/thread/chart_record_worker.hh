@@ -11,7 +11,7 @@
 #include "settings/settings.hh"
 
 #define ONRESTART_SETTINGS               \
-  holovibes::settings::RecordFilePath,   \
+  holovibes::settings::RecordDirectoryPath,   \
   holovibes::settings::RecordFrameCount, \
   holovibes::settings::TimeTransformationSize
 
@@ -45,10 +45,10 @@ class ChartRecordWorker final : public Worker
     , onrestart_settings_(settings)
     , realtime_settings_(settings)
     {
-      std::string file_path = setting<settings::RecordFilePath>();
+      std::string file_path = setting<settings::RecordDirectoryPath>();
       file_path = get_record_filename(file_path);
       auto nb_frames_to_record = setting<settings::RecordFrameCount>();
-      onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
+      onrestart_settings_.update_setting(settings::RecordDirectoryPath{file_path});
       onrestart_settings_.update_setting(settings::RecordFrameCount{nb_frames_to_record});
     }
 

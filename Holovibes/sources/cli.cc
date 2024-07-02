@@ -259,7 +259,12 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
-    holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
+    // separate output file name from path
+    std::string output_path = opts.output_path.value();
+    std::string output_file_name = output_path.substr(output_path.find_last_of("/\\") + 1);
+    holovibes.update_setting(holovibes::settings::RecordFileName{output_file_name});
+    holovibes.update_setting(holovibes::settings::RecordDirectoryPath{output_path});
+
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
     

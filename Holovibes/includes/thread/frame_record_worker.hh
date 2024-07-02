@@ -14,11 +14,12 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define ONRESTART_SETTINGS               \
-  holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount, \
-  holovibes::settings::RecordMode,       \
-  holovibes::settings::RecordFrameSkip,  \
+#define ONRESTART_SETTINGS                  \
+  holovibes::settings::RecordDirectoryPath, \
+  holovibes::settings::RecordFileName,      \
+  holovibes::settings::RecordFrameCount,    \
+  holovibes::settings::RecordMode,          \
+  holovibes::settings::RecordFrameSkip,     \
   holovibes::settings::OutputBufferSize
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
@@ -64,9 +65,9 @@ class FrameRecordWorker final : public Worker
         , record_queue_(record_queue)
     {
         // Holovibes::instance().get_cuda_streams().recorder_stream
-        std::string file_path = setting<settings::RecordFilePath>();
+        std::string file_path = setting<settings::RecordDirectoryPath>();
         file_path = get_record_filename(file_path);
-        onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
+        onrestart_settings_.update_setting(settings::RecordDirectoryPath{file_path});
     }
 
     void run() override;
