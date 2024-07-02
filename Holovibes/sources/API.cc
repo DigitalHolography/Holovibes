@@ -965,6 +965,10 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
+    if (value == 0)
+    {
+        value = 0.000001;
+    } // to avoid kernel crash with 0 distance
     // Notify the change to the z_distance notifier
     auto& manager = NotifierManager::get_instance();
     auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
