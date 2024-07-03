@@ -154,6 +154,15 @@ QString ExportPanel::browse_record_output_file()
     return filepath;
 }
 
+void ExportPanel::set_output_file_name(std::string std_filepath)
+{
+    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    // Will pick the item combobox related to file_ext if it exists, else, nothing is done
+    ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
+
+    parent_->notify();
+}
+
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
 
 void ExportPanel::browse_batch_input()

@@ -178,8 +178,8 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoad_configuration_file"/>
-    <addaction name="actionSet_as_default_reader"/>
+    <addaction name="actionPreset1"/>
+    <addaction name="actionPreset2"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -212,14 +212,14 @@
     <string>Quit</string>
    </property>
   </action>
-  <action name="actionSet_as_default_reader">
+  <action name="actionPreset1">
    <property name="text">
-    <string>Set as default reader</string>
+    <string>Preset 1</string>
    </property>
   </action>
-  <action name="actionLoad_configuration_file">
+  <action name="actionPreset2">
    <property name="text">
-    <string>Load configuration file</string>
+     <string>Preset 2</string>
    </property>
   </action>
  </widget>

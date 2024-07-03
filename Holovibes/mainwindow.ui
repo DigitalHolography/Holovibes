@@ -462,7 +462,7 @@
            <item row="5" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="text">
-              <string>propag. dist. (m)</string>
+              <string>Focus (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
