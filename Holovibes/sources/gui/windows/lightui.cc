@@ -81,8 +81,8 @@ void LightUI::browse_record_output_file_ui()
     //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
     //! with the file path).
     auto file_path = export_panel_->browse_record_output_file();
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(filename).path());
-    ui_->OutputFileNameLineEdit->setText(QFileInfo(filename).fileName());
+    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
+    ui_->OutputFileNameLineEdit->setText(QFileInfo(file_path).fileName());
 }
 
 void LightUI::set_record_file_name(const QString& filename)
@@ -90,7 +90,7 @@ void LightUI::set_record_file_name(const QString& filename)
     // concatenate the path with the filename
     std::filesystem::path path(ui_->OutputFilePathLineEdit->text().toStdString());
     std::filesystem::path file(filename.toStdString());
-    export_panel_->set_output_file_name((path \ file).string());
+    export_panel_->set_output_file_name((path / file).string());
 }
 
 void LightUI::start_stop_recording(bool start)
