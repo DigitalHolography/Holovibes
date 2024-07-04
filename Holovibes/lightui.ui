@@ -44,6 +44,9 @@
       </item>
       <item>
        <widget class="QSlider" name="ZSlider">
+        <property name="styleSheet">
+         <string notr="true">border: 2px solid grey;</string>
+        </property>
         <property name="maximum">
          <number>1000</number>
         </property>
@@ -117,7 +120,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="OutputFileNameLineEdit"/>
+       <widget class="QLineEdit" name="OutputFileNameLineEdit">
+        <property name="placeholderText">
+         <string>Enter file name</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -219,7 +226,7 @@
   </action>
   <action name="actionPreset2">
    <property name="text">
-     <string>Preset 2</string>
+    <string>Preset 2</string>
    </property>
   </action>
  </widget>
