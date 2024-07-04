@@ -45,7 +45,7 @@
       <item>
        <widget class="QSlider" name="ZSlider">
         <property name="styleSheet">
-         <string notr="true">border: 2px solid grey;</string>
+         <string notr="true">border: 1px solid grey;</string>
         </property>
         <property name="maximum">
          <number>1000</number>
