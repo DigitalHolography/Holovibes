@@ -52,11 +52,12 @@ void LightUI::showEvent(QShowEvent* event)
     visible_ = true;
 }
 
-void LightUI::actualise_record_output_file_ui(const QString& filename)
+void LightUI::actualise_record_output_file_ui(const QString& file_path)
 {
-    // separate the name of the file from the path
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(filename).path());
-    ui_->OutputFileNameLineEdit->setText(QFileInfo(filename).fileName());
+    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
+    auto file_name = QFileInfo(file_path).fileName();
+    // remove the extension from the filename
+    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
 }
 
 void LightUI::actualise_z_distance(const double z_distance)
@@ -82,7 +83,9 @@ void LightUI::browse_record_output_file_ui()
     //! with the file path).
     auto file_path = export_panel_->browse_record_output_file();
     ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
-    ui_->OutputFileNameLineEdit->setText(QFileInfo(file_path).fileName());
+    auto file_name = QFileInfo(file_path).fileName();
+    // remove the extension from the filename
+    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
 }
 
 void LightUI::set_record_file_name(const QString& filename)
