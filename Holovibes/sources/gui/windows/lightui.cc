@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <cmath> // Pour std::round
 
 #include "lightui.hh"
 #include "MainWindow.hh"
@@ -64,8 +65,8 @@ void LightUI::actualise_z_distance(const double z_distance)
 {
     const QSignalBlocker blocker(ui_->ZSpinBox);
     const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZSpinBox->setValue(static_cast<int>(z_distance * 1000));
-    ui_->ZSlider->setValue(static_cast<int>(z_distance * 1000));
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
 void LightUI::z_value_changed_spinBox(int z_distance)
@@ -144,7 +145,6 @@ void LightUI::set_visible_record_progress(bool visible)
         ui_->recordProgressBar->reset();
         ui_->recordProgressBar->setFormat("Idle");
     }
-
 }
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
