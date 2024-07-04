@@ -1,6 +1,8 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief This file contains the API functions for the Holovibes application. These functions manage input files, 
+ * camera operations, computation settings, visualization modes, and more. The API functions are used to interact with
+ * the Holovibes application from the user interface.
  */
 
 #pragma once
@@ -168,15 +170,18 @@ void cancel_time_transformation_cuts(std::function<void()> callback);
 
 /*! \brief Checks preconditions to start recording
  *
- * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
- * \return true on success
- * \return false on failure
+ * \return success if all preconditions are met
  */
 bool start_record_preconditions();
 
-/*! \brief Launchs recording
+/*!
+ * \brief Initiates the recording process.
  *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ * This function starts the recording process based on the current recording mode.
+ * It executes the provided callback function once the recording is complete.
+ *
+ * \param callback A lambda function to execute at the end of the recording process.
+ *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
  */
 void start_record(std::function<void()> callback);
 
@@ -184,6 +189,7 @@ void set_record_device(const Device device);
 
 /*! \brief Stops recording
  *
+ * \note This functions calls the notification `record_stop` when this is done.
  */
 void stop_record();
 
@@ -409,9 +415,19 @@ void decrement_p();
  */
 void set_lambda(float value);
 
-/*! \brief Modifies z
+/*!
+ * \brief Sets the distance value for the z-coordinate.
  *
- * \param value the new value
+ * This function updates the internal setting for the z-coordinate distance 
+ * and sends a notification to the `z_distance` notifier. Additionally, 
+ * it refreshes the pipeline if the computation mode is not set to raw.
+ *
+ * \param value The new z-coordinate distance value.
+ *
+ * \note 
+ * - This function sends the notification `z_distance` with the new value when called.
+ * - If the computation mode is `Computation::Raw`, the function returns immediately 
+ *   without updating the setting or refreshing the pipeline.
  */
 void set_z_distance(float value);
 

@@ -154,6 +154,16 @@ Build environment:
   -i I                  Path used by cmake to store compiled objects and exe (Default: bin/<generator>/)
 ```
 
+### Doumentation
+
+You can access the documentation by running the following command:
+
+```sh
+$ ./dev.py doc
+```
+
+This requires doxygen to be installed on your system. It will then compile the documentation and open it in your default browser.
+
 ### Benchmarking
 
 #### Compile the build in Debug mode to access the option
