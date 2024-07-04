@@ -32,6 +32,7 @@ class ExportPanel : public Panel
     int get_record_frame_step();
 
     void set_light_ui(std::shared_ptr<LightUI> light_ui);
+    void set_output_file_name(std::string std_filepath);
 
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension

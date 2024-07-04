@@ -166,9 +166,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    ui_->InfoPanel->set_light_ui(light_ui_);
 
     load_gui();
 
@@ -183,6 +180,10 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
+
+    ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+    ui_->InfoPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 
@@ -425,6 +426,11 @@ void MainWindow::load_gui()
     auxiliary_window_max_size =
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
+    light_ui_->set_window_size_position(json_get_or_default(j_us, 400, "light ui window", "width"),
+                                       json_get_or_default(j_us, 115, "light ui window", "height"),
+                                       json_get_or_default(j_us, 560, "light ui window", "x"),
+                                       json_get_or_default(j_us, 290, "light ui window", "y"));
+
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
     int nb = json_get_or_default(j_us, 0, "record", "number of frames to record");
@@ -512,9 +518,13 @@ void MainWindow::save_gui()
 
     j_us["main window"]["width"] = size().width();
     j_us["main window"]["height"] = size().height();
-
     j_us["main window"]["x"] = pos().x();
     j_us["main window"]["y"] = pos().y();
+
+    j_us["light ui window"]["width"] = light_ui_->size().width();
+    j_us["light ui window"]["height"] = light_ui_->size().height();
+    j_us["light ui window"]["x"] = light_ui_->pos().x();
+    j_us["light ui window"]["y"] = light_ui_->pos().y();
 
     j_us["display"]["refresh rate"] = api::get_display_rate();
     j_us["file info"]["raw bit shift"] = api::get_raw_bitshift();

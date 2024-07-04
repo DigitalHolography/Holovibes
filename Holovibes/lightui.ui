@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>219</height>
+    <width>400</width>
+    <height>137</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -38,12 +38,15 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Propagation distance (mm)</string>
+         <string>Focus (mm)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QSlider" name="ZSlider">
+        <property name="styleSheet">
+         <string notr="true">border: 1px solid grey;</string>
+        </property>
         <property name="maximum">
          <number>1000</number>
         </property>
@@ -91,6 +94,13 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="QToolButton" name="OutputFileBrowseToolButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="holovibes::gui::Drag_drop_lineedit" name="OutputFilePathLineEdit">
         <property name="inputMask">
          <string/>
@@ -105,14 +115,14 @@
          <bool>true</bool>
         </property>
         <property name="placeholderText">
-         <string>Select output file</string>
+         <string>Select output directory</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="OutputFileBrowseToolButton">
-        <property name="text">
-         <string>...</string>
+       <widget class="QLineEdit" name="OutputFileNameLineEdit">
+        <property name="placeholderText">
+         <string>Enter file name</string>
         </property>
        </widget>
       </item>
@@ -167,7 +177,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>430</width>
+     <width>400</width>
      <height>22</height>
     </rect>
    </property>
@@ -175,6 +185,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionPreset1"/>
+    <addaction name="actionPreset2"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -205,6 +217,16 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionPreset1">
+   <property name="text">
+    <string>Preset 1</string>
+   </property>
+  </action>
+  <action name="actionPreset2">
+   <property name="text">
+    <string>Preset 2</string>
    </property>
   </action>
  </widget>

@@ -64,12 +64,12 @@ std::string get_record_filename(std::string filename)
     {
         if (i == 1)
         {
-            filename.insert(dot_index, "-1", 0, 2);
+            filename.insert(dot_index, "_1", 0, 2);
             ++i;
             continue;
         }
         unsigned digits_nb = std::log10(i - 1) + 1;
-        filename.replace(dot_index, digits_nb + 1, "-" + std::to_string(i));
+        filename.replace(dot_index, digits_nb + 1, "_" + std::to_string(i));
         ++i;
     }
 

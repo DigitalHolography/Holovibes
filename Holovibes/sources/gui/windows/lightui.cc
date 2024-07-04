@@ -28,6 +28,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     ui_->setupUi(this);
 
     connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
+    connect(ui_->OutputFileNameLineEdit, &QLineEdit::textChanged, this, &LightUI::set_record_file_name);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
     connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed_spinBox);
@@ -51,9 +52,12 @@ void LightUI::showEvent(QShowEvent* event)
     visible_ = true;
 }
 
-void LightUI::actualise_record_output_file_ui(const QString& filename)
+void LightUI::actualise_record_output_file_ui(const QString& file_path)
 {
-    ui_->OutputFilePathLineEdit->setText(filename);
+    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
+    auto file_name = QFileInfo(file_path).fileName();
+    // remove the extension from the filename
+    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
 }
 
 void LightUI::actualise_z_distance(const double z_distance)
@@ -77,8 +81,19 @@ void LightUI::browse_record_output_file_ui()
     //! not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
     //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
     //! with the file path).
-    LOG_INFO("Browsing record output file");
-    ui_->OutputFilePathLineEdit->setText(export_panel_->browse_record_output_file());
+    auto file_path = export_panel_->browse_record_output_file();
+    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
+    auto file_name = QFileInfo(file_path).fileName();
+    // remove the extension from the filename
+    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
+}
+
+void LightUI::set_record_file_name(const QString& filename)
+{
+    // concatenate the path with the filename
+    std::filesystem::path path(ui_->OutputFilePathLineEdit->text().toStdString());
+    std::filesystem::path file(filename.toStdString());
+    export_panel_->set_output_file_name((path / file).string());
 }
 
 void LightUI::start_stop_recording(bool start)
@@ -145,6 +160,12 @@ void LightUI::pipeline_active(bool active)
     ui_->startButton->setEnabled(active);
     ui_->ZSpinBox->setEnabled(active);
     ui_->ZSlider->setEnabled(active);
+}
+
+void LightUI::set_window_size_position(int width, int height, int x, int y)
+{
+    this->resize(width, height);
+    this->move(x, y);
 }
 
 void LightUI::activate_start_button(bool activate) { ui_->startButton->setEnabled(activate); }

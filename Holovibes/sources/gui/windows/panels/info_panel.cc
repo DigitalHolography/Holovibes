@@ -101,8 +101,8 @@ void InfoPanel::set_visible_record_progress(bool visible)
     {
         ui_->RecordProgressBar->hide();
     }
-
-    light_ui_->set_visible_record_progress(visible);
+    if (light_ui_)  // isn't set on initialization
+        light_ui_->set_visible_record_progress(visible);
 }
 
 void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)
