@@ -102,9 +102,15 @@ void ImportPanel::import_file(const QString& filename)
     {
         auto input_file = input_file_opt.value();
 
+        // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+        // record
+        auto input_buffer_size = api::get_input_buffer_size();
+        auto record_buffer_size = api::get_record_buffer_size();
+
         // Import Compute Settings there before init_pipe to
         // Allocate correctly buffer
-        try {
+        try
+        {
             input_file->import_compute_settings();
             input_file->import_info();
         }
@@ -116,6 +122,11 @@ void ImportPanel::import_file(const QString& filename)
             LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
             api::save_compute_settings(holovibes::settings::compute_settings_filepath);
         }
+
+        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big buffers used
+        // when the file was recorded
+        api::set_input_buffer_size(input_buffer_size);
+        api::set_record_buffer_size(record_buffer_size);
 
         parent_->notify();
 
@@ -159,7 +170,7 @@ void ImportPanel::import_start()
     if (!api::get_is_computation_stopped())
         import_stop();
 
-    //parent_->shift_screen();
+    // parent_->shift_screen();
 
     bool res_import_start = api::import_start();
 
@@ -205,7 +216,7 @@ void ImportPanel::update_input_file_start_index()
 {
     QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
 
-    api::set_input_file_start_index(start_spinbox->value() - 1); 
+    api::set_input_file_start_index(start_spinbox->value() - 1);
 
     start_spinbox->setValue(api::get_input_file_start_index() + 1);
 
@@ -217,8 +228,8 @@ void ImportPanel::update_input_file_start_index()
     }
 }
 
-void ImportPanel::update_input_file_end_index() 
-{ 
+void ImportPanel::update_input_file_end_index()
+{
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
     api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value());
