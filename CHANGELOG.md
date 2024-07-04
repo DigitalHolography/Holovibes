@@ -1,5 +1,25 @@
 ## Changelog
 
+### 13.1.0
+
+- nb_frame_record is now a user setting
+- Contrast now on by default
+- Changed "configurationUI" button location on lightUI upper settings
+- LightUI pipeline buttons now are only active when a pipeline is active (prevents crash when pressing start button with no pipeline active)
+- record progress bar now changes color both on info_panel and lightUI according to acquisition status
+- record progres bar now always visible
+- window now correctly resizable with start/stop button not changing in size
+- Changing panel label again
+- Mini panel UI layout changed
+- record progress bar now change its label acording to its color
+- 3d cuts are now compute settings and can be showed at the launch of the app
+- z distance can no longer crash kernels when at 0.
+- Fixed the spinbox bug in light ui.
+- renamed propagation distance to focus
+- changed duplicate filename nomenclature (from '-' to '_')
+- Compute settings gpu buffers aren't imported when loading a file to avoid surcharging the gpu
+- Flatfield correction off by default in cameras ini files
+
 ### 13.0.O
 
 - Record progres bar now always visible
