@@ -21,7 +21,7 @@ ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
     , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { 
         const QSignalBlocker blocker(ui_->ZDoubleSpinBox); // safely unlocks upon destruction
-        ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
+        ui_->ZDoubleSpinBox->setValue(value);
      }))
 {
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -384,12 +384,8 @@ void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
-    LOG_INFO("UI:Set z distance to {}", value);
 
     api::set_z_distance(static_cast<float>(value));
-    
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::increment_z()
@@ -397,10 +393,7 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    LOG_INFO("UI:Increment z distance to {}", api::get_z_distance());
     set_z_distance(api::get_z_distance() + z_step_);
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -409,7 +402,6 @@ void ImageRenderingPanel::decrement_z()
         return;
 
     set_z_distance(api::get_z_distance() - z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
