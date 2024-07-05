@@ -384,8 +384,12 @@ void ImageRenderingPanel::set_z_distance(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
+    LOG_INFO("UI:Set z distance to {}", value);
 
     api::set_z_distance(static_cast<float>(value));
+    
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::increment_z()
@@ -393,7 +397,9 @@ void ImageRenderingPanel::increment_z()
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    LOG_INFO("UI:Increment z distance to {}", api::get_z_distance());
     set_z_distance(api::get_z_distance() + z_step_);
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
