@@ -977,8 +977,6 @@ void set_z_distance(float value)
     if (get_compute_mode() == Computation::Raw)
         return;
 
-    LOG_INFO("Api:Set z distance to {}", value);
-
     holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
     pipe_refresh();
 }
