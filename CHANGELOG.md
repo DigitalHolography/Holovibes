@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.1.1
+
+- fix: In Configuration panel, focus spinbox fixed (navigating between values now works properly)
+
 ### 13.1.0
 
 - nb_frame_record is now a user setting
@@ -16,7 +20,7 @@
 - z distance can no longer crash kernels when at 0.
 - Fixed the spinbox bug in light ui.
 - renamed propagation distance to focus
-- changed duplicate filename nomenclature (from '-' to '_')
+- changed duplicate filename nomenclature (from '-' to '\_')
 - Compute settings gpu buffers aren't imported when loading a file to avoid surcharging the gpu
 - Flatfield correction off by default in cameras ini files
 
