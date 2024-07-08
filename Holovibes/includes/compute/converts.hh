@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Implmentation of the conversions between buffers.
+ * \brief Implementation of the conversions between buffers.
  */
 #pragma once
 
@@ -10,7 +10,7 @@
 
 #include "frame_desc.hh"
 #include "batch_input_queue.hh"
-#include "cuda_tools\cufft_handle.hh"
+#include "cuda_tools/cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
 
@@ -52,12 +52,25 @@ namespace holovibes::compute
 {
 /*! \class Converts
  *
- * \brief #TODO Add a description for this class
+ * \brief Manages buffer conversions for various data types and operations.
+ *
+ * This class encapsulates the functionalities needed to convert data between different buffer types,
+ * such as Complex to Float, Float to Unsigned Short, and various other conversions required in image
+ * and signal processing workflows.
  */
 class Converts
 {
   public:
-    /*! \brief Constructor */
+    /*! \brief Constructor to initialize the Converts class with required settings and environments.
+     *
+     * \param fn_compute_vect Function vector for compute operations.
+     * \param buffers Core buffer environment.
+     * \param time_transformation_env Time transformation environment.
+     * \param plan_unwrap_2d CUFFT handle for 2D unwrapping.
+     * \param input_fd Frame descriptor for input frames.
+     * \param stream CUDA stream for asynchronous operations.
+     * \param settings Initialization settings.
+     */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Converts(FunctionVector& fn_compute_vect,
              const CoreBuffersEnv& buffers,
@@ -78,16 +91,27 @@ class Converts
     {
     }
 
-    /*! \brief Insert functions relative to the convertion Complex => Float */
-    void insert_to_float(bool unwrap_2d_requested,
-                         float* buffers_gpu_postprocess_frame);
+    /*! \brief Inserts functions to handle the conversion from Complex to Float.
+     *
+     * \param unwrap_2d_requested Indicates if 2D unwrapping is requested.
+     * \param buffers_gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
+    void insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_postprocess_frame);
 
-    /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
+    /*! \brief Inserts functions to handle the conversion from Float to Unsigned Short. */
     void insert_to_ushort();
 
-    /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
+    /*! \brief Inserts functions to handle the conversion from Uint(8/16/32) to Complex frame by frame.
+     *
+     * \param input Batch input queue containing frames to be converted.
+     */
     void insert_complex_conversion(BatchInputQueue& input);
 
+    /*! \brief Updates a specific setting.
+     *
+     * \tparam T Type of the setting.
+     * \param setting The setting to update.
+     */
     template <typename T>
     inline void update_setting(T setting)
     {
@@ -99,36 +123,54 @@ class Converts
     }
 
   private:
-    /*! \brief Set pmin_ and pmax_ according to p accumulation. */
+    /*! \brief Sets pmin_ and pmax_ according to p accumulation. */
     void insert_compute_p_accu();
 
-    /*! \brief Insert the convertion Complex => Modulus */
+    /*! \brief Inserts functions to handle the conversion from Complex to Modulus.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
     void insert_to_modulus(float* gpu_postprocess_frame);
 
-    /*! \brief Insert the convertion Complex => Squared Modulus */
+    /*! \brief Inserts functions to handle the conversion from Complex to Squared Modulus.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
     void insert_to_squaredmodulus(float* gpu_postprocess_frame);
 
-    /*! \brief Insert the convertion Complex => Composite */
+    /*! \brief Inserts functions to handle the conversion from Complex to Composite.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
     void insert_to_composite(float* gpu_postprocess_frame);
 
-    /*! \brief Insert the convertion Complex => Argument */
+    /*! \brief Inserts functions to handle the conversion from Complex to Argument.
+     *
+     * \param unwrap_2d_requested Indicates if 2D unwrapping is requested.
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
     void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
-    /*! \brief Insert the convertion Complex => Phase increase */
-    void
-    insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame);
+    /*! \brief Inserts functions to handle the conversion from Complex to Phase Increase.
+     *
+     * \param unwrap_2d_requested Indicates if 2D unwrapping is requested.
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
+    void insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
-    /*! \brief Insert the convertion Float => Unsigned Short in XY window */
+    /*! \brief Inserts functions to handle the conversion from Float to Unsigned Short in XY window. */
     void insert_main_ushort();
 
-    /*! \brief Insert the convertion Float => Unsigned Short in slices. */
+    /*! \brief Inserts functions to handle the conversion from Float to Unsigned Short in slices. */
     void insert_slice_ushort();
 
-    /*! \brief Insert the convertion Float => Unsigned Short of Filter2D View. */
+    /*! \brief Inserts functions to handle the conversion from Float to Unsigned Short for Filter2D View. */
     void insert_filter2d_ushort();
 
-    /**
-     * @brief Helper function to get a settings value.
+    /*! \brief Retrieves a setting value.
+     *
+     * \tparam T Type of the setting.
+     * \return The value of the setting.
      */
     template <typename T>
     auto setting()
@@ -139,35 +181,47 @@ class Converts
         }
     }
 
-    /*! \brief p_index */
+    /*! \brief Minimum p index. */
     unsigned short pmin_;
-    /*! \brief Maximum value of p accumulation */
+
+    /*! \brief Maximum value of p accumulation. */
     unsigned short pmax_;
 
-    /*! \brief Vector function in which we insert the processing */
+    /*! \brief Vector of functions for compute operations. */
     FunctionVector& fn_compute_vect_;
 
-    /*! \brief Main buffers */
+    /*! \brief Core buffer environment. */
     const CoreBuffersEnv& buffers_;
-    /*! \brief Time transformation environment */
+
+    /*! \brief Time transformation environment. */
     const TimeTransformationEnv& time_transformation_env_;
-    /*! \brief Phase unwrapping 1D. Used for phase increase and Argument. */
+
+    /*! \brief Resources for 1D phase unwrapping, used for phase increase and argument conversions. */
     std::unique_ptr<UnwrappingResources> unwrap_res_;
-    /*! \brief Phase unwrapping 2D. Used for phase increase and Argument. */
+
+    /*! \brief Resources for 2D phase unwrapping, used for phase increase and argument conversions. */
     std::unique_ptr<UnwrappingResources_2d> unwrap_res_2d_;
-    /*! \brief Plan 2D. Used for unwrapping. */
+
+    /*! \brief CUFFT handle for 2D unwrapping. */
     cuda_tools::CufftHandle& plan_unwrap_2d_;
-    /*! \brief Describes the input frame size */
+
+    /*! \brief Descriptor for input frame size. */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform pipe computation */
+
+    /*! \brief CUDA stream for asynchronous operations. */
     const cudaStream_t& stream_;
 
+    /*! \brief Container for real-time settings. */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
 
 namespace holovibes
 {
+/*! \brief Checks if a setting exists in the Converts class.
+ *
+ * \tparam T Type of the setting.
+ */
 template <typename T>
 struct has_setting<T, compute::Converts> : is_any_of<T, ALL_SETTINGS>
 {

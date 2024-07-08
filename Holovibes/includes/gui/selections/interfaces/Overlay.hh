@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Interface for all overlays.
+ * \brief Interface for all overlays in the Holovibes GUI.
  */
 #pragma once
 
@@ -20,7 +20,7 @@ namespace holovibes::gui
 
 /*! \enum KindOfOverlay
  *
- * \brief #TODO Add a description for this enum
+ * \brief Enumerates the different types of overlays.
  */
 enum KindOfOverlay
 {
@@ -45,92 +45,118 @@ using Color = std::array<float, 3>;
 
 /*! \class Overlay
  *
- * \brief #TODO Add a description for this class
+ * \brief Base class for all overlays in the Holovibes GUI.
+ *
+ * This class provides the interface and common functionality for different types of overlays,
+ * including managing OpenGL resources, handling user input, and rendering.
  */
 class Overlay : protected QOpenGLFunctions
 {
   public:
+    /*! \brief Constructor
+     *
+     * \param overlay The kind of overlay.
+     * \param parent Pointer to the parent BasicOpenGLWindow.
+     */
     Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
+
+    /*! \brief Destructor */
     virtual ~Overlay();
 
-    /*! \brief Get the zone selected */
+    /*! \brief Gets the selected zone.
+     *
+     * \return The selected zone in frame descriptor coordinates.
+     */
     const units::RectFd& getZone() const;
 
-    /*! \brief Get the kind of overlay */
+    /*! \brief Gets the kind of overlay.
+     *
+     * \return The kind of overlay.
+     */
     const KindOfOverlay getKind() const;
 
-    /*! \brief Return if the overlay should be displayed */
+    /*! \brief Checks if the overlay should be displayed.
+     *
+     * \return True if the overlay should be displayed, false otherwise.
+     */
     const bool isDisplayed() const;
-    /*! \brief Return if the overlay have to be deleted */
+
+    /*! \brief Checks if the overlay is active and should not be deleted.
+     *
+     * \return True if the overlay is active, false otherwise.
+     */
     const bool isActive() const;
-    /*! \brief Disable this overlay */
+
+    /*! \brief Disables the overlay. */
     void disable();
-    /*! \brief Enable this overlay */
+
+    /*! \brief Enables the overlay. */
     void enable();
 
-    /*! \brief Called when the overlay is set as current */
+    /*! \brief Called when the overlay is set as current. */
     virtual void onSetCurrent();
 
-    /*! \brief Initialize shaders and Vao/Vbo of the overlay */
+    /*! \brief Initializes the shaders and VAO/VBO for the overlay. */
     void initProgram();
 
-    /*! \brief Call opengl function to draw the overlay */
+    /*! \brief Draws the overlay using OpenGL functions. */
     virtual void draw() = 0;
 
-    /*! \brief Called when the user press the mouse button */
+    /*! \brief Handles mouse press events.
+     *
+     * \param e Pointer to the QMouseEvent.
+     */
     virtual void press(QMouseEvent* e);
-    /*! \brief Called when the user press a key */
+
+    /*! \brief Handles key press events.
+     *
+     * \param e Pointer to the QKeyEvent.
+     */
     virtual void keyPress(QKeyEvent* e);
-    /*! \brief Called when the user moves the mouse */
+
+    /*! \brief Handles mouse move events.
+     *
+     * \param e Pointer to the QMouseEvent.
+     */
     virtual void move(QMouseEvent* e) = 0;
-    /*! \brief Called when the user release the mouse button */
+
+    /*! \brief Handles mouse release events.
+     *
+     * \param frameside The side of the frame where the release occurred.
+     */
     virtual void release(ushort frameside) = 0;
 
-    /*! \brief Prints informations about the overlay. Debug purpose. */
+    /*! \brief Prints information about the overlay for debugging purposes. */
     void print();
 
   protected:
-    /*! \brief Initialize Vao/Vbo */
+    /*! \brief Initializes the VAO/VBO. */
     virtual void init() = 0;
 
-    /*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
+    /*! \brief Converts the current zone into OpenGL coordinates and sets the vertex buffer. */
     virtual void setBuffer() = 0;
 
-    /*! \brief Converts QPoint to a point in the window */
+    /*! \brief Converts a QPoint to a point in the window.
+     *
+     * \param pos The QPoint to convert.
+     * \return The corresponding point in the window coordinates.
+     */
     units::PointWindow getMousePos(const QPoint& pos);
 
-    /*! \brief Zone selected by the users in pixel coordinates (window width, window height) */
-    units::RectFd zone_;
+    units::RectFd zone_; /*!< Selected zone in pixel coordinates (window width, window height). */
+    KindOfOverlay kOverlay_; /*!< Kind of overlay. */
 
-    /*! \brief Kind of overlay */
-    KindOfOverlay kOverlay_;
+    GLuint verticesIndex_, colorIndex_, elemIndex_; /*!< OpenGL buffer indices. */
+    QOpenGLVertexArrayObject Vao_; /*!< OpenGL Vertex Array Object. */
+    std::unique_ptr<QOpenGLShaderProgram> Program_; /*!< OpenGL shader program. */
+    unsigned short verticesShader_; /*!< Shader location for vertices. */
+    unsigned short colorShader_; /*!< Shader location for color. */
 
-    /*! \brief Indexes of the buffers in opengl */
-    GLuint verticesIndex_, colorIndex_, elemIndex_;
-    /*! \brief Specific Vao of the overlay */
-    QOpenGLVertexArrayObject Vao_;
-    /*! \brief The opengl shader program */
-    std::unique_ptr<QOpenGLShaderProgram> Program_;
-    /*! \brief Location of the vertices buffer in the shader/vertexattrib. Set to 2 */
-    unsigned short verticesShader_;
-    /*! \brief Location of the color buffer in the shader/vertexattrib. Set to 3 */
-    unsigned short colorShader_;
+    Color color_; /*!< Color of the overlay. Each component must be between 0 and 1. */
+    float alpha_; /*!< Transparency of the overlay, between 0 and 1. */
 
-    /*! \brief The color of the overlay. Each component must be between 0 and 1. */
-    Color color_;
-    /*! \brief Transparency of the overlay, between 0 and 1 */
-    float alpha_;
-
-    /*! \brief If the overlay is activated or not.
-     *
-     * Since we don't want the overlay to remove itself from the vector of
-     * overlays, We set this boolean, and remove it later by iterating through
-     * the vector.
-     */
-    bool active_;
-    /*! \brief If the overlay should be displayed or not */
-    bool display_;
-    /*! \brief Pointer to the parent to access Compute descriptor and Pipe */
-    BasicOpenGLWindow* parent_;
+    bool active_; /*!< Indicates if the overlay is active and should not be deleted. */
+    bool display_; /*!< Indicates if the overlay should be displayed. */
+    BasicOpenGLWindow* parent_; /*!< Pointer to the parent window. */
 };
 } // namespace holovibes::gui

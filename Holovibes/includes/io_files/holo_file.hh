@@ -1,16 +1,17 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Holovibes file format definition
  *
- * Holovibes file format
+ * This file defines the structure and classes required to handle Holovibes (.holo) file format,
+ * which is used to store image data and metadata.
  *
  * \verbatim
  * -----------------------------------------------------------------------
  * | File header (sizeof(HoloFile::Header)) | Image data | File metadata |
  * -----------------------------------------------------------------------
  * | HOLO Magic number (4 bytes)            | Raw        | Metadata as   |
- * | Version number (2 bytes)               | image      |               |
- * | Number of bits per pixel (2 bytes)     | data       | json format   |
+ * | Version number (2 bytes)               | image      | JSON format   |
+ * | Number of bits per pixel (2 bytes)     | data       |               |
  * | Image width (4 bytes)                  |            |               |
  * | Image height (4 bytes)                 |            | #img / p / z  |
  * | Number of images (4 bytes)             |            | contrast / ...|
@@ -19,34 +20,33 @@
  * -----------------------------------------------------------------------
  * \endverbatim
  *
- * Constant size header to open the files in ImageJ as raw with offset
+ * The header has a constant size, allowing the files to be opened in ImageJ as raw images with an offset.
  */
 
 #pragma once
 
 #include <sstream>
-
 #include <nlohmann/json.hpp>
 #include "compute_settings_struct.hh"
 using json = ::nlohmann::json;
 
-/*! \brief #TODO Add a description for this namespace */
+/*! \brief Namespace for Holovibes input/output file handling */
 namespace holovibes::io_files
 {
 /*! \class HoloFile
  *
- * \brief Base class of holo files. Used to store data
+ * \brief Base class for .holo files, used to store image data and metadata.
  */
 class HoloFile
 {
   public:
-    /*! \brief Getter on the total number of frames in the file */
+    /*! \brief Gets the total number of frames (images) in the file */
     size_t get_total_nb_frames() const { return holo_file_header_.img_nb; }
 
   protected:
-    /*! \brief Struct containing data related directly to the holo file
+    /*! \brief Struct containing the header data of a .holo file
      *
-     * Packed (aligned on 2 bytes) to be exactly 64 bytes
+     * This struct is packed to ensure it is exactly 64 bytes.
      */
 #pragma pack(2)
     struct HoloFileHeader
@@ -55,17 +55,17 @@ class HoloFile
         char magic_number[4];
         /*! \brief Version number, starts at 0 */
         uint16_t version;
-        /*! \brief Number of bits in 1 pixel */
+        /*! \brief Number of bits per pixel */
         uint16_t bits_per_pixel;
-        /*! \brief Width of 1 image in pixels */
+        /*! \brief Width of an image in pixels */
         uint32_t img_width;
-        /*! \brief Height of 1 image in pixels */
+        /*! \brief Height of an image in pixels */
         uint32_t img_height;
         /*! \brief Number of images in the file */
         uint32_t img_nb;
-        /*! \brief Total size of the data in bytes img_width * img_height * nb_img * (bits_per_pixel / 8) */
+        /*! \brief Total size of the image data in bytes: img_width * img_height * img_nb * (bits_per_pixel / 8) */
         uint64_t total_data_size;
-        /*! \brief Data endianness */
+        /*! \brief Data endianness indicator */
         uint8_t endianness;
         /*! \brief Padding to make the header 64 bytes long */
         char padding[35];
@@ -74,23 +74,22 @@ class HoloFile
     /*! \brief Default constructor */
     HoloFile() = default;
 
-    /*! \brief Abstract destructor to make class abstract */
-    virtual ~HoloFile(){};
+    /*! \brief Abstract destructor to make the class abstract */
+    virtual ~HoloFile() = default;
 
     /*! \brief Default copy constructor */
     HoloFile(const HoloFile&) = default;
 
-    /*! \brief Default copy operator */
+    /*! \brief Default copy assignment operator */
     HoloFile& operator=(const HoloFile&) = default;
 
-
-    /*! \brief Header of the holo file */
+    /*! \brief Header of the .holo file */
     HoloFileHeader holo_file_header_;
-    /*! \brief The json meta data present in the footer */
+    /*! \brief JSON metadata present in the file footer */
     json meta_data_;
-    /*! \brief The json meta data present in the footer */
+    /*! \brief Compute settings present in the file footer */
     ComputeSettings raw_footer_;
-    /*! \brief Current version of the holo file, update it when changing version */
+    /*! \brief Current version of the .holo file format */
     static constexpr uint16_t current_version_ = 5;
 };
 } // namespace holovibes::io_files

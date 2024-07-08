@@ -25,8 +25,7 @@
     settings::ConvolutionEnabled,                  \
     settings::DivideConvolutionEnabled
 
-
-#define ONRESTART_SETTINGS                          \
+#define ONRESTART_SETTINGS                         \
     holovibes::settings::RenormConstant
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
@@ -44,12 +43,22 @@ namespace holovibes::compute
 {
 /*! \class Postprocessing
  *
- * \brief #TODO Add a description for this class
+ * \brief Manages postprocessing features for complex buffers.
+ *
+ * This class handles various postprocessing operations on complex buffers, including convolution
+ * and renormalization, leveraging CUDA and cuFFT libraries for efficient computation.
  */
 class Postprocessing
 {
   public:
-    /*! \brief Constructor */
+    /*! \brief Constructor to initialize the Postprocessing class with required settings and environments.
+     *
+     * \param fn_compute_vect Function vector for compute operations.
+     * \param buffers Core buffer environment.
+     * \param input_fd Frame descriptor for input frames.
+     * \param stream CUDA stream for asynchronous operations.
+     * \param settings Initialization settings.
+     */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Postprocessing(FunctionVector& fn_compute_vect,
                    CoreBuffersEnv& buffers,
@@ -59,7 +68,7 @@ class Postprocessing
         : gpu_kernel_buffer_()
         , cuComplex_buffer_()
         , hsv_arr_()
-        , reduce_result_(1) // allocate an unique double
+        , reduce_result_(1) // allocate a unique double
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
         , fd_(input_fd)
@@ -70,41 +79,58 @@ class Postprocessing
     {
     }
 
-    /*! \brief Initialize convolution by allocating the corresponding buffer */
+    /*! \brief Initializes convolution by allocating the corresponding buffer. */
     void init();
 
-    /*! \brief Free the ressources for the postprocessing */
+    /*! \brief Frees the resources allocated for postprocessing. */
     void dispose();
 
-    /*! \brief Insert the Convolution function. TODO: Check if it works. */
-    void insert_convolution(float* gpu_postprocess_frame,
-                            float* gpu_convolution_buffer);
+    /*! \brief Inserts the convolution function into the function vector.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     * \param gpu_convolution_buffer GPU buffer for convolution data.
+     */
+    void insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer);
 
-    /*! \brief Insert the normalization function. */
+    /*! \brief Inserts the renormalization function into the function vector.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     */
     void insert_renormalize(float* gpu_postprocess_frame);
 
+    /*! \brief Updates a specific setting.
+     *
+     * \tparam T Type of the setting.
+     * \param setting The setting to update.
+     */
     template <typename T>
     inline void update_setting(T setting)
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[Postprocessing] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
-            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
+            spdlog::trace("[Postprocessing] [update_setting] {}", typeid(T).name());
             onrestart_settings_.update_setting(setting);
         }
     }
 
   private:
-    /*! \brief Used only when the image is composite convolution to do a convolution on each component */
-    void
-    convolution_composite(float* gpu_postprocess_frame, float* gpu_convolution_buffer, bool divide_convolution_enabled);
+    /*! \brief Performs convolution on composite data.
+     *
+     * \param gpu_postprocess_frame GPU buffer for post-processed frame data.
+     * \param gpu_convolution_buffer GPU buffer for convolution data.
+     * \param divide_convolution_enabled Indicates if divide convolution is enabled.
+     */
+    void convolution_composite(float* gpu_postprocess_frame, float* gpu_convolution_buffer, bool divide_convolution_enabled);
 
-    /**
-     * @brief Helper function to get a settings value.
+    /*! \brief Retrieves a setting value.
+     *
+     * \tparam T Type of the setting.
+     * \return The value of the setting.
      */
     template <typename T>
     auto setting()
@@ -120,35 +146,44 @@ class Postprocessing
         }
     }
 
+    /*! \brief GPU buffer for the convolution kernel. */
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
+    /*! \brief GPU buffer for complex data. */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
+    /*! \brief GPU buffer for HSV data. */
     cuda_tools::CudaUniquePtr<float> hsv_arr_;
 
-    /*! \brief Result of the reduce operation of the current frame used to renormalize the frames */
+    /*! \brief Result of the reduce operation used for renormalization. */
     cuda_tools::CudaUniquePtr<double> reduce_result_;
 
-    /*! \brief Vector function in which we insert the processing */
+    /*! \brief Vector of functions for compute operations. */
     FunctionVector& fn_compute_vect_;
 
-    /*! \brief Main buffers */
+    /*! \brief Core buffer environment. */
     CoreBuffersEnv& buffers_;
 
-    /*! \brief Describes the frame size */
+    /*! \brief Descriptor for input frame size. */
     const camera::FrameDescriptor& fd_;
 
-    /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
+    /*! \brief CUFFT handle for the convolution plan. */
     CufftHandle convolution_plan_;
 
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief CUDA stream for asynchronous operations. */
     const cudaStream_t& stream_;
 
+    /*! \brief Container for real-time settings. */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+    /*! \brief Container for settings applied on restart. */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
 
 namespace holovibes
 {
+/*! \brief Checks if a setting exists in the Postprocessing class.
+ *
+ * \tparam T Type of the setting.
+ */
 template <typename T>
 struct has_setting<T, compute::Postprocessing> : is_any_of<T, ALL_SETTINGS>
 {

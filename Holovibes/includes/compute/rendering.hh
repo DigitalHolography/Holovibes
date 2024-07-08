@@ -60,12 +60,26 @@ using uint = unsigned int;
 
 /*! \class Rendering
  *
- * \brief #TODO Add a description for this class
+ * \brief Manages rendering features and operations.
+ *
+ * This class handles various rendering operations, including FFT shifting, chart insertion, logarithmic
+ * transformations, and contrast adjustments, leveraging CUDA for efficient computation.
  */
 class Rendering
 {
   public:
-    /*! \brief Constructor */
+    /*! \brief Constructor to initialize the Rendering class with required settings and environments.
+     *
+     * \param fn_compute_vect Function vector for compute operations.
+     * \param buffers Core buffer environment.
+     * \param chart_env Chart environment for rendering charts.
+     * \param image_acc_env Image accumulation environment.
+     * \param time_transformation_env Time transformation environment.
+     * \param input_fd Frame descriptor for input frames.
+     * \param output_fd Frame descriptor for output frames.
+     * \param stream CUDA stream for asynchronous operations.
+     * \param settings Initialization settings.
+     */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Rendering(FunctionVector& fn_compute_vect,
               const CoreBuffersEnv& buffers,
@@ -90,20 +104,36 @@ class Rendering
         // Hold 2 float values (min and max)
         cudaXMallocHost(&percent_min_max_, 2 * sizeof(float));
     }
+
+    /*! \brief Destructor to free allocated resources. */
     ~Rendering();
 
-    /*! \brief insert the functions relative to the fft shift. */
+    /*! \brief Inserts functions related to FFT shift into the function vector. */
     void insert_fft_shift();
-    /*! \brief insert the functions relative to noise and signal chart. */
+
+    /*! \brief Inserts functions related to noise and signal charts into the function vector. */
     void insert_chart();
-    /*! \brief insert the functions relative to the log10. */
+
+    /*! \brief Inserts functions related to logarithmic transformations into the function vector. */
     void insert_log();
-    /*! \brief insert the functions relative to the contrast. */
+
+    /*! \brief Inserts functions related to contrast adjustments into the function vector.
+     *
+     * \param autocontrast_request Atomic flag indicating if autocontrast is requested.
+     * \param autocontrast_slice_xz_request Atomic flag indicating if autocontrast is requested for XZ slice.
+     * \param autocontrast_slice_yz_request Atomic flag indicating if autocontrast is requested for YZ slice.
+     * \param autocontrast_filter2d_request Atomic flag indicating if autocontrast is requested for 2D filter.
+     */
     void insert_contrast(std::atomic<bool>& autocontrast_request,
                          std::atomic<bool>& autocontrast_slice_xz_request,
                          std::atomic<bool>& autocontrast_slice_yz_request,
                          std::atomic<bool>& autocontrast_filter2d_request);
 
+    /*! \brief Updates a specific setting.
+     *
+     * \tparam T Type of the setting.
+     * \param setting The setting to update.
+     */
     template <typename T>
     inline void update_setting(T setting)
     {
@@ -121,27 +151,41 @@ class Rendering
     }
 
   private:
-    /*! \brief insert the log10 on the XY window */
+    /*! \brief Inserts the log10 transformation for the XY window. */
     void insert_main_log();
-    /*! \brief insert the log10 on the slices */
+
+    /*! \brief Inserts the log10 transformation for the slices. */
     void insert_slice_log();
-    /*! \brief insert the log10 on the Filter2D view */
+
+    /*! \brief Inserts the log10 transformation for the Filter2D view. */
     void insert_filter2d_view_log();
 
-    /*! \brief insert the autocontrast computation */
+    /*! \brief Inserts the autocontrast computation. */
     void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
                                      std::atomic<bool>& autocontrast_slice_xz_request,
                                      std::atomic<bool>& autocontrast_slice_yz_request,
                                      std::atomic<bool>& autocontrast_filter2d_request);
 
-    /*! \brief insert the constrast on a view */
+    /*! \brief Inserts the contrast application on a specific view.
+     *
+     * \param view The kind of window view for contrast application.
+     */
     void insert_apply_contrast(WindowKind view);
 
-    /*! \brief Calls autocontrast and set the correct contrast variables */
+    /*! \brief Calls autocontrast and sets the correct contrast variables.
+     *
+     * \param input Pointer to the input data.
+     * \param width Width of the input data.
+     * \param height Height of the input data.
+     * \param offset Offset for the input data.
+     * \param view The kind of window view for autocontrast.
+     */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
-    /**
-     * @brief Helper function to get a settings value.
+    /*! \brief Retrieves a setting value.
+     *
+     * \tparam T Type of the setting.
+     * \return The value of the setting.
      */
     template <typename T>
     auto setting()
@@ -157,32 +201,47 @@ class Rendering
         }
     }
 
-    /*! \brief Vector function in which we insert the processing */
+    /*! \brief Vector of functions for compute operations. */
     FunctionVector& fn_compute_vect_;
-    /*! \brief Main buffers */
+
+    /*! \brief Core buffer environment. */
     const CoreBuffersEnv& buffers_;
-    /*! \brief Chart variables */
+
+    /*! \brief Chart environment for rendering charts. */
     ChartEnv& chart_env_;
-    /*! \brief Time transformation environment */
+
+    /*! \brief Time transformation environment. */
     const TimeTransformationEnv& time_transformation_env_;
-    /*! \brief Image accumulation environment */
+
+    /*! \brief Image accumulation environment. */
     const ImageAccEnv& image_acc_env_;
-    /*! \brief Describes the input frame size */
+
+    /*! \brief Descriptor for input frame size. */
     const camera::FrameDescriptor& input_fd_;
-    /*! \brief Describes the output frame size */
+
+    /*! \brief Descriptor for output frame size. */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform  pipe computation */
+
+    /*! \brief CUDA stream for asynchronous operations. */
     const cudaStream_t& stream_;
 
+    /*! \brief Host memory for storing minimum and maximum percentage values. */
     float* percent_min_max_;
 
+    /*! \brief Container for real-time settings. */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    /*! \brief Container for settings applied on restart. */
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::compute
 
 namespace holovibes
 {
+/*! \brief Checks if a setting exists in the Rendering class.
+ *
+ * \tparam T Type of the setting.
+ */
 template <typename T>
 struct has_setting<T, compute::Rendering> : is_any_of<T, ALL_SETTINGS>
 {

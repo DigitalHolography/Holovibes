@@ -1,8 +1,6 @@
 /*! \file
  *
- * \brief Wrapper around the vector of overlay.
- *
- * Permitting to manipulate all overlays of a window at once.
+ * \brief Wrapper around a vector of overlays, allowing manipulation of all overlays of a window at once.
  */
 #pragma once
 
@@ -12,71 +10,126 @@ namespace holovibes::gui
 {
 /*! \class OverlayManager
  *
- * \brief #TODO Add a description for this class
+ * \brief Manages a collection of overlays for a window.
+ *
+ * This class provides functionality to create, manage, and interact with multiple overlays
+ * within a window. It supports creating overlays, enabling/disabling them, handling user
+ * input events, and drawing overlays.
  */
 class OverlayManager
 {
   public:
+    /*! \brief Constructor
+     *
+     * \param parent Pointer to the parent BasicOpenGLWindow.
+     */
     OverlayManager(BasicOpenGLWindow* parent);
+
+    /*! \brief Destructor */
     ~OverlayManager();
 
-    /*! \brief Create an overlay depending on the value passed to the template. */
+    /*! \brief Creates an overlay based on the specified kind.
+     *
+     * \tparam ko The kind of overlay to create.
+     */
     template <KindOfOverlay ko>
     void create_overlay();
-    /*! \brief Create the default overlay in the view. Zoom for Raw/Holo, Cross for Slices. */
+
+    /*! \brief Creates the default overlay in the view.
+     *
+     * Zoom for Raw/Holo, Cross for Slices.
+     */
     void create_default();
 
-    /*! \brief Disable all the overlay of kind ko */
+    /*! \brief Disables all overlays of the specified kind.
+     *
+     * \param ko The kind of overlay to disable.
+     * \return True if overlays were disabled, false otherwise.
+     */
     bool disable_all(KindOfOverlay ko);
-    /*! \brief Enable all the overlay of kind ko */
+
+    /*! \brief Enables all overlays of the specified kind.
+     *
+     * \param ko The kind of overlay to enable.
+     * \return True if overlays were enabled, false otherwise.
+     */
     bool enable_all(KindOfOverlay ko);
-    /*! \brief Disable all the overlays. If def is set, it will create a default overlay. */
+
+    /*! \brief Disables all overlays and optionally creates a default overlay.
+     *
+     * \param def If true, creates a default overlay.
+     */
     void reset(bool def = true);
 
-    /*! \brief Call the press function of the current overlay. */
+    /*! \brief Handles mouse press events for the current overlay.
+     *
+     * \param e Pointer to the QMouseEvent.
+     */
     void press(QMouseEvent* e);
-    /*! \brief Call the keyPress function of the current overlay. */
+
+    /*! \brief Handles key press events for the current overlay.
+     *
+     * \param e Pointer to the QKeyEvent.
+     */
     void keyPress(QKeyEvent* e);
-    /*! \brief Call the move function of the current overlay. */
+
+    /*! \brief Handles mouse move events for the current overlay.
+     *
+     * \param e Pointer to the QMouseEvent.
+     */
     void move(QMouseEvent* e);
-    /*! \brief Call the release function of the current overlay. */
+
+    /*! \brief Handles mouse release events for the current overlay.
+     *
+     * \param frameSide The frame side where the release occurred.
+     */
     void release(ushort frameSide);
 
-    /*! \brief Draw every overlay that should be displayed. */
+    /*! \brief Draws all the overlays that should be displayed. */
     void draw();
-    /*! \brief Get the zone of the current overlay. */
+
+    /*! \brief Gets the zone of the current overlay.
+     *
+     * \return The zone of the current overlay.
+     */
     units::RectWindow getZone() const;
-    /*! \brief Get the kind of the current overlay. */
+
+    /*! \brief Gets the kind of the current overlay.
+     *
+     * \return The kind of the current overlay.
+     */
     KindOfOverlay getKind() const;
 
 #ifdef _DEBUG
-    /*! \brief Prints every overlay in the vector. Debug purpose. */
+    /*! \brief Prints every overlay in the vector for debugging purposes. */
     void printVector();
 #endif
 
   private:
-    /*! \brief Push in the vector the newly created overlay, set the current overlay, and call its init function. */
+    /*! \brief Adds a newly created overlay to the vector, sets it as the current overlay, and initializes it.
+     *
+     * \param new_overlay The newly created overlay.
+     */
     void create_overlay(std::shared_ptr<Overlay> new_overlay);
 
-    /*! \brief Set the current overlay and notify observers to update gui. */
+    /*! \brief Sets the current overlay and notifies observers to update the GUI.
+     *
+     * \param new_overlay The new current overlay.
+     */
     void set_current(std::shared_ptr<Overlay> new_overlay);
-    /*! \brief Try to set the current overlay to the first active overlay of a given type. */
+
+    /*! \brief Attempts to set the current overlay to the first active overlay of the specified type.
+     *
+     * \param ko The kind of overlay to set as current.
+     * \return True if the current overlay was set, false otherwise.
+     */
     bool set_current(KindOfOverlay ko);
 
-    /*! \brief Deletes from the vector every disabled overlay. */
+    /*! \brief Deletes all disabled overlays from the vector. */
     void clean();
 
-    /*! \brief Containing every created overlay. */
-    std::vector<std::shared_ptr<Overlay>> overlays_;
-    /*! \brief Current overlay used by the user. */
-    std::shared_ptr<Overlay> current_overlay_;
-
-    /*! \brief Parent window
-     *
-     * When we delete BasicOpenGlWindow which contains an instance of this,
-     * we cannot have a pointer to it otherwise it will never be destroyed.
-     * We could use weak_ptr instead of raw pointer.
-     */
-    BasicOpenGLWindow* parent_;
+    std::vector<std::shared_ptr<Overlay>> overlays_; /*!< Collection of created overlays. */
+    std::shared_ptr<Overlay> current_overlay_; /*!< The current overlay in use. */
+    BasicOpenGLWindow* parent_; /*!< Pointer to the parent window. */
 };
 } // namespace holovibes::gui

@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Encapsulate a camera DLL ressource.
+ * \brief Encapsulates a camera DLL resource.
  */
 #pragma once
 
@@ -12,46 +12,53 @@
 #undef min
 #include "icamera.hh"
 
-/*! \brief #TODO Add a description for this namespace */
+/*! \brief Namespace for camera handling */
 namespace camera
 {
 /*! \class CameraDLL
  *
- * \brief Encapsulate a camera DLL ressource.
+ * \brief Encapsulates a camera DLL resource.
  *
- * Use a custom deleter class (functor) to automatically free the DLL
- * ressource when the ICamera object is destroyed.
+ * This class uses a custom deleter class (functor) to automatically free the DLL
+ * resource when the ICamera object is destroyed.
  */
 class CameraDLL
 {
   public:
-    /*! \brief Return an specialize instance of ICamera contained in dll file.
+    /*! \brief Returns a specialized instance of ICamera contained in a DLL file.
      *
-     * \param dll_filepath Path to the dll file.
-     * \return shared_ptr on ICamera who FreeLibrary on reset().
+     * \param dll_filepath Path to the DLL file.
+     * \return shared_ptr to ICamera which calls FreeLibrary on reset().
      */
     static std::shared_ptr<ICamera> load_camera(const std::string& dll_filepath);
 
   private:
     /*! \class DeleterDLL
      *
-     * \brief Custom deleter that will delete the camera and the DLL handle.
+     * \brief Custom deleter that deletes the camera instance and the DLL handle.
      */
     class DeleterDLL
     {
       public:
-        DeleterDLL(HINSTANCE dll_handle);
-        /*! \brief Free camera and dll_handle_
+        /*! \brief Constructor that accepts a DLL handle
          *
-         * It will be call when releasing shared_ptr return by load_camera.
+         * \param dll_handle Handle to the loaded DLL.
+         */
+        DeleterDLL(HINSTANCE dll_handle);
+
+        /*! \brief Frees the camera instance and the DLL handle
+         *
+         * This is called when the shared_ptr returned by load_camera is released.
+         *
+         * \param camera Pointer to the ICamera instance to be deleted.
          */
         void operator()(ICamera* camera);
 
       private:
-        HINSTANCE dll_handle_;
+        HINSTANCE dll_handle_; /*!< Handle to the DLL */
     };
 
-  private:
+    /*! \brief Typedef for the function pointer to initialize the camera */
     using FnInit = ICamera* (*)();
 };
 } // namespace camera

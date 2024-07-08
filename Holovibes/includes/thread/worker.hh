@@ -1,15 +1,20 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the abstract Worker class for managing tasks.
  */
 #pragma once
 
-/*! \brief #TODO Add a description for this namespace */
+#include <atomic>
+
+/*! \brief Namespace for worker-related classes in the Holovibes project */
 namespace holovibes::worker
 {
 /*! \class Worker
  *
- * \brief    Abstract class that represents a worker doing a task
+ * \brief Abstract class that represents a worker executing a task.
+ *
+ * This class provides the basic interface and functionality for a worker, including 
+ * methods to start and stop the worker's execution.
  */
 class Worker
 {
@@ -17,14 +22,20 @@ class Worker
     /*! \brief Default constructor */
     Worker() = default;
 
-    /*! \brief Stop the execution of the worker */
+    /*! \brief Virtual destructor to ensure proper cleanup in derived classes */
+    virtual ~Worker() = default;
+
+    /*! \brief Stops the execution of the worker */
     virtual void stop();
 
-    /*! \brief Core method of the worker, main method of its execution */
+    /*! \brief Core method of the worker, representing the main execution loop.
+     *
+     * This method must be implemented by derived classes.
+     */
     virtual void run() = 0;
 
   protected:
-    /*! \brief Whether the worker should stop its execution */
+    /*! \brief Indicates whether the worker should stop its execution */
     std::atomic<bool> stop_requested_{false};
 };
 } // namespace holovibes::worker
