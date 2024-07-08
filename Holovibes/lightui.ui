@@ -120,9 +120,23 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="filepathLabel">
+        <property name="text">
+         <string>/</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLineEdit" name="OutputFileNameLineEdit">
         <property name="placeholderText">
          <string>Enter file name</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="fileExtensionLabel">
+        <property name="text">
+         <string>.holo</string>
         </property>
        </widget>
       </item>
