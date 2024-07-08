@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>137</height>
+    <height>139</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -227,10 +227,16 @@
    <property name="text">
     <string>Configuration panel</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+M</string>
+   </property>
   </action>
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionPreset1">

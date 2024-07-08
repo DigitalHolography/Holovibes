@@ -3242,6 +3242,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Settings</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
   </action>
   <action name="actionStart">
    <property name="text">
@@ -3424,6 +3427,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Advanced</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+A</string>
+   </property>
   </action>
   <action name="actionOpenCV">
    <property name="text">
@@ -3434,10 +3440,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Reset settings and quit</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Q</string>
+   </property>
   </action>
   <action name="actionLightUI">
    <property name="text">
     <string>Mini panel</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+M</string>
    </property>
   </action>
  </widget>
