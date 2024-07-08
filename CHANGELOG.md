@@ -1,5 +1,20 @@
 ## Changelog
 
+### 13.1.2
+
+- Keybind shortcut added:
+LightUI:
+ - Alt+M: open ConfigUI
+ - Ctrl+Q: Quit
+ConfigUI:
+ - Alt+C: open camera config file
+ - Alt+A: open advanced settings
+ - Ctrl+Shift+Q: reset settings and Quit
+Both:
+ - Ctrl+R: Start/Stop recording
+ - Ctrl+S: Browse Export File
+- lightUI: minor ui change
+
 ### 13.1.1
 
 - fix: In Configuration panel, focus spinbox fixed (navigating between values now works properly)
