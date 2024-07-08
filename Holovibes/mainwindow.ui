@@ -2833,6 +2833,9 @@
                    <property name="text">
                     <string>...</string>
                    </property>
+                   <property name="shortcut">
+                    <string>Ctrl+S</string>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -2937,6 +2940,9 @@
                    <property name="text">
                     <string>Rec.</string>
                    </property>
+                   <property name="shortcut">
+                    <string>Ctrl+R</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -2946,6 +2952,9 @@
                    </property>
                    <property name="text">
                     <string>Stop</string>
+                   </property>
+                   <property name="shortcut">
+                    <string>Ctrl+R</string>
                    </property>
                   </widget>
                  </item>
