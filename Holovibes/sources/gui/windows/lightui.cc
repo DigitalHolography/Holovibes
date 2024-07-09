@@ -36,6 +36,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
 
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+    ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);
 }
 
 LightUI::~LightUI()
