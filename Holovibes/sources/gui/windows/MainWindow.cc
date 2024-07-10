@@ -200,6 +200,8 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
+    ;
+
     ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ImageRenderingPanel->set_light_ui(light_ui_);
     ui_->InfoPanel->set_light_ui(light_ui_);
@@ -209,6 +211,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui_->ImageRenderingPanel->set_convolution_mode(
         is_conv_enabled); // Add the convolution after the initialisation of the panel
                           // if the value is enabled in the compute settings.
+
     if (api::get_yz_enabled() and api::get_xz_enabled())
     {
         ui_->ViewPanel->update_3d_cuts_view(true);

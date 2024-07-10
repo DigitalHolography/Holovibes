@@ -24,7 +24,10 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
+    if (api::get_compute_mode() == Computation::Raw)
+        set_record_mode(QString::fromUtf8("Raw Image"));
+    else
+        api::set_record_mode(api::get_record_mode());
 }
 
 void ExportPanel::on_notify()
@@ -41,6 +44,9 @@ void ExportPanel::on_notify()
         if (ui_->RecordImageModeComboBox->findText("Chart") == -1)
             ui_->RecordImageModeComboBox->insertItem(2, "Chart");
     }
+
+    // select the record mode in the settings
+    ui_->RecordImageModeComboBox->setCurrentText(QString::fromStdString(api::get_record_mode_string()));
 
     if (ui_->TimeTransformationCutsCheckBox->isChecked())
     {
