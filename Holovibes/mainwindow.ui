@@ -2467,7 +2467,7 @@
                  <string>...</string>
                 </property>
                 <property name="shortcut">
-                 <string>Ctrl+I</string>
+                 <string>Ctrl+O</string>
                 </property>
                </widget>
               </item>
@@ -2609,7 +2609,7 @@
                  <string>Start</string>
                 </property>
                 <property name="shortcut">
-                 <string>Ctrl+O</string>
+                 <string>Ctrl+T</string>
                 </property>
                </widget>
               </item>

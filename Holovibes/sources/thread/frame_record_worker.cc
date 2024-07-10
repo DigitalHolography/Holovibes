@@ -50,7 +50,9 @@ std::string get_current_date()
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y%m%d_");
+    std::tm* timeinfo = std::localtime(&in_time_t);
+    int year = timeinfo->tm_year % 100;
+    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d_");
     return ss.str();
 }
 

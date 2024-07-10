@@ -82,8 +82,10 @@ void LightUI::browse_record_output_file_ui()
     //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
     //! with the file path).
     auto file_path = export_panel_->browse_record_output_file();
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
-    auto file_name = QFileInfo(file_path).fileName();
+    auto file_info = QFileInfo(file_path);
+    ui_->OutputFilePathLineEdit->setText(file_info.path());
+
+    auto file_name = file_info.fileName();
     // remove the extension from the filename
     ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
 }

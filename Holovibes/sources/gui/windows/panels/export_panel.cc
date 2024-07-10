@@ -77,6 +77,7 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+    light_ui_->actualise_record_output_file_ui(record_output_path.toStdString());
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
@@ -148,7 +149,6 @@ QString ExportPanel::browse_record_output_file()
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
-    light_ui_->actualise_record_output_file_ui(filepath);
     parent_->notify();
 
     return filepath;
