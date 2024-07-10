@@ -24,7 +24,7 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_compute_mode() == Computation::Raw || api::get_record_mode() == RecordMode::RAW)
         set_record_mode(QString::fromUtf8("Raw Image"));
     else
         api::set_record_mode(api::get_record_mode());
