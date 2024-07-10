@@ -169,6 +169,25 @@ MainWindow::MainWindow(QWidget* parent)
 
     load_gui();
 
+    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    {
+        ui_->actionSettings->setEnabled(true);
+        if (api::get_compute_mode() == Computation::Raw)
+        {
+            LOG_INFO("RAW");
+            api::set_compute_mode(Computation::Raw);
+            api::set_raw_mode(1);
+        }
+        else
+        {
+            LOG_INFO("HOLO");
+            api::set_compute_mode(Computation::Hologram);
+            api::set_holographic_mode(1);
+        }
+    }
+
+    notify();
+
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -427,9 +446,9 @@ void MainWindow::load_gui()
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
     light_ui_->set_window_size_position(json_get_or_default(j_us, 400, "light ui window", "width"),
-                                       json_get_or_default(j_us, 115, "light ui window", "height"),
-                                       json_get_or_default(j_us, 560, "light ui window", "x"),
-                                       json_get_or_default(j_us, 290, "light ui window", "y"));
+                                        json_get_or_default(j_us, 115, "light ui window", "height"),
+                                        json_get_or_default(j_us, 560, "light ui window", "x"),
+                                        json_get_or_default(j_us, 290, "light ui window", "y"));
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
@@ -467,31 +486,11 @@ void MainWindow::load_gui()
                             "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
-    int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
     bool is_camera = api::change_camera(camera);
-    // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
-    if (camera != CameraKind::NONE)
-    {
-        ui_->actionSettings->setEnabled(true);
-        if (compute_mode == 0)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
-    }
-
-    notify();
 }
 
 void MainWindow::save_gui()
@@ -538,8 +537,6 @@ void MainWindow::save_gui()
         j_us["record"]["number of frames to record"] = api::get_record_frame_count().value();
     else
         j_us["record"]["number of frames to record"] = 0;
-
-    j_us["image rendering"]["mode"] = (int)api::get_compute_mode();
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
