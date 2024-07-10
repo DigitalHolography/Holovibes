@@ -536,10 +536,6 @@ void MainWindow::save_gui()
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
-    // if (api::get_record_frame_count().has_value())
-    // j_us["record"]["number of frames to record"] = api::get_record_frame_count().value();
-    // else
-    // j_us["record"]["number of frames to record"] = 0;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
