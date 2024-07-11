@@ -56,6 +56,17 @@ std::string get_current_date()
     return ss.str();
 }
 
+std::string append_date_to_filepath(std::string filepath)
+{
+    //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
+    std::filesystem::path filePath(record_file_path);
+    std::string date = get_current_date();
+    std::string filename = filePath.filename().string();
+    std::string path = filePath.parent_path().string();
+    std::filesystem::path newFilePath = path + "/" + date + filename;
+    record_file_path = newFilePath.string();
+}
+
 void FrameRecordWorker::run()
 {
     onrestart_settings_.apply_updates();
@@ -89,15 +100,7 @@ void FrameRecordWorker::run()
 
     try
     {
-        //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
-        std::string record_file_path = setting<settings::RecordFilePath>();
-        std::filesystem::path filePath(record_file_path);
-        std::string date = get_current_date();
-        std::string filename = filePath.filename().string();
-        std::string path = filePath.parent_path().string();
-        std::filesystem::path newFilePath = path + "/" + date + filename;
-        record_file_path = newFilePath.string();
-
+        std::string record_file_path = append_date_to_filepath(setting<settings::RecordFilePath>());
 
         output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
