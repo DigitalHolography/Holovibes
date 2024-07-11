@@ -38,6 +38,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
 
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+    ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);
 }
 
 LightUI::~LightUI()
@@ -53,12 +54,11 @@ void LightUI::showEvent(QShowEvent* event)
     visible_ = true;
 }
 
-void LightUI::actualise_record_output_file_ui(const QString& file_path)
+void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_path)
 {
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
-    auto file_name = QFileInfo(file_path).fileName();
+    ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path.parent_path().string()));
     // remove the extension from the filename
-    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
+    ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
 
 void LightUI::actualise_z_distance(const double z_distance)
@@ -83,8 +83,10 @@ void LightUI::browse_record_output_file_ui()
     //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
     //! with the file path).
     auto file_path = export_panel_->browse_record_output_file();
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
-    auto file_name = QFileInfo(file_path).fileName();
+    auto file_info = QFileInfo(file_path);
+    ui_->OutputFilePathLineEdit->setText(file_info.path());
+
+    auto file_name = file_info.fileName();
     // remove the extension from the filename
     ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
 }

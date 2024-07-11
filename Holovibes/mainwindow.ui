@@ -2608,6 +2608,9 @@
                 <property name="text">
                  <string>Start</string>
                 </property>
+                <property name="shortcut">
+                 <string>Ctrl+T</string>
+                </property>
                </widget>
               </item>
               <item>
