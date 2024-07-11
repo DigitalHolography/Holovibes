@@ -1,5 +1,12 @@
 ## Changelog
 
+### 13.2.0
+
+- nb_frames_to_record & Record mode are now saved on quit
+- Presets implemented
+- When saving a file, it now automatically add the current date as a prefix (please have the clock of your computer correctly set)
+- When selecting an existing file for its name, it'll automatically trim the date and number prefix and suffix.
+
 ### 13.1.2
 
 - Keybind shortcut added:
