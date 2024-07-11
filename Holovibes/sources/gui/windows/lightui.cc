@@ -32,6 +32,8 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     connect(ui_->OutputFileNameLineEdit, &QLineEdit::textChanged, this, &LightUI::set_record_file_name);
     connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
     connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
+    connect(ui_->actionPresetOCT, &QAction::triggered, this, &LightUI::set_preset_OCT);
+    connect(ui_->actionPresetDoppler, &QAction::triggered, this, &LightUI::set_preset_Doppler);
     connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed_spinBox);
     connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
 
@@ -177,6 +179,20 @@ void LightUI::open_configuration_ui()
     main_window_->show();
     this->hide();
     visible_ = false;
+}
+
+void LightUI::set_preset_OCT()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "OCT.json";
+    api::load_compute_settings(dest.string());
+    LOG_INFO("Preset OCT");
+}
+
+void LightUI::set_preset_Doppler()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "DOPPLER.json";
+    api::load_compute_settings(dest.string());
+    LOG_INFO("Preset Doppler");
 }
 
 void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
