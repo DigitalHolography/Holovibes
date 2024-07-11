@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(HOLO_DIR "${CMAKE_SOURCE_DIR}/Holovibes")
 set(CAMERA_DIR "${CMAKE_SOURCE_DIR}/Camera")
+set(PRESET_DIR "${CMAKE_SOURCE_DIR}/Preset")
 
 # All packages used by the project.
 find_package(Boost COMPONENTS program_options REQUIRED)
