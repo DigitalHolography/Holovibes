@@ -846,6 +846,21 @@ inline RecordMode get_record_mode()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordMode>().value;
 }
 
+inline std::string get_record_mode_string()
+{
+    switch (get_record_mode())
+    {
+    case RecordMode::RAW:
+        return "Raw Image";
+    case RecordMode::HOLOGRAM:
+        return "Processed Image";
+    case RecordMode::CHART:
+        return "Chart";
+    default:
+        return "NONE";
+    }
+}
+
 inline void set_record_mode(RecordMode value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordMode{value});

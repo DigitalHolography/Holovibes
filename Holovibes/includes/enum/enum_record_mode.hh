@@ -4,6 +4,10 @@
  */
 #pragma once
 
+#include <map>
+#include <string>
+#include "all_struct.hh"
+
 namespace holovibes
 {
 /*! \enum RecordMode
@@ -19,4 +23,15 @@ enum class RecordMode
     HOLOGRAM,
     RAW,
 };
+
+// clang-format off
+SERIALIZE_JSON_ENUM(RecordMode, {
+    {RecordMode::NONE, "NONE"},
+    {RecordMode::CUTS_YZ, "CUTS_YZ"},
+    {RecordMode::RAW, "RAW"},
+    {RecordMode::HOLOGRAM, "HOLOGRAM"},
+    {RecordMode::CHART, "CHART"},
+    {RecordMode::CUTS_XZ, "CUTS_XZ"},
+})
+// clang-format on
 } // namespace holovibes
