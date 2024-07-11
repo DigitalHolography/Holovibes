@@ -1696,10 +1696,10 @@ void stop_chart_display()
  */
 std::string getNameFromFilename(const std::string& filename)
 {
-    std::regex filenamePattern{R"((\d{6}_)([a-zA-Z0-9]*)?(_\d+)*$)"};
+    std::regex filenamePattern{R"(^\d{6}_(.*?)_?\d*$)"};
     std::smatch matches;
     if (std::regex_search(filename, matches, filenamePattern))
-        return matches[2].str();
+        return matches[1].str();
     else
         return filename; // Returning the original filename if no match is found
 }

@@ -49,7 +49,7 @@ class LightUI : public QMainWindow
      * @brief Updates the UI with the output file name for recording.
      * @param filename The name of the output file.
      */
-    void actualise_record_output_file_ui(const QString& filename);
+    void actualise_record_output_file_ui(const std::filesystem::path file_path);
 
     /**
      * @brief Updates the UI with the Z distance.

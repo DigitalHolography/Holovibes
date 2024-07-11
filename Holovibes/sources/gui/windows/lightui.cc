@@ -52,12 +52,11 @@ void LightUI::showEvent(QShowEvent* event)
     visible_ = true;
 }
 
-void LightUI::actualise_record_output_file_ui(const QString& file_path)
+void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_path)
 {
-    ui_->OutputFilePathLineEdit->setText(QFileInfo(file_path).path());
-    auto file_name = QFileInfo(file_path).fileName();
+    ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path.parent_path().string()));
     // remove the extension from the filename
-    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
+    ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
 
 void LightUI::actualise_z_distance(const double z_distance)
