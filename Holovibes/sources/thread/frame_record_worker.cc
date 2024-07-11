@@ -56,7 +56,7 @@ std::string get_current_date()
     return ss.str();
 }
 
-std::string append_date_to_filepath(std::string filepath)
+std::string append_date_to_filepath(std::string record_file_path)
 {
     //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
     std::filesystem::path filePath(record_file_path);
@@ -64,7 +64,7 @@ std::string append_date_to_filepath(std::string filepath)
     std::string filename = filePath.filename().string();
     std::string path = filePath.parent_path().string();
     std::filesystem::path newFilePath = path + "/" + date + filename;
-    record_file_path = newFilePath.string();
+    return newFilePath.string();
 }
 
 void FrameRecordWorker::run()
