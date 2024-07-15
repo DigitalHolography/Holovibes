@@ -2,6 +2,11 @@
 
 ### 13.2.0
 
+- Presets fixed
+- Ini files for s710 and s711 updated
+
+### 13.2.0
+
 - nb_frames_to_record & Record mode are now saved on quit
 - Presets implemented
 - When saving a file, it now automatically add the current date as a prefix (please have the clock of your computer correctly set)
@@ -10,16 +15,16 @@
 ### 13.1.2
 
 - Keybind shortcut added:
-LightUI:
- - Alt+M: open ConfigUI
- - Ctrl+Q: Quit
-ConfigUI:
- - Alt+C: open camera config file
- - Alt+A: open advanced settings
- - Ctrl+Shift+Q: reset settings and Quit
-Both:
- - Ctrl+R: Start/Stop recording
- - Ctrl+S: Browse Export File
+  LightUI:
+- Alt+M: open ConfigUI
+- Ctrl+Q: Quit
+  ConfigUI:
+- Alt+C: open camera config file
+- Alt+A: open advanced settings
+- Ctrl+Shift+Q: reset settings and Quit
+  Both:
+- Ctrl+R: Start/Stop recording
+- Ctrl+S: Browse Export File
 - lightUI: minor ui change
 
 ### 13.1.1
