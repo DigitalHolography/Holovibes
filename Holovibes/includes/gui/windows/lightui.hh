@@ -99,8 +99,7 @@ class LightUI : public QMainWindow
     /**
      * @brief Sets preset for given usage.
      */
-    void set_preset_OCT();
-    void set_preset_Doppler();
+    void set_preset();
 
     /**
      * @brief Opens the file explorer to let the user choose an output file with extension replacement.

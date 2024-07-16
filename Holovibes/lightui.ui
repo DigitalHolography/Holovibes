@@ -205,8 +205,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionPresetOCT"/>
-    <addaction name="actionPresetDoppler"/>
+    <addaction name="actionPreset"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -245,14 +244,9 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionPresetOCT">
+  <action name="actionPreset">
    <property name="text">
-    <string>Preset OCT</string>
-   </property>
-  </action>
-  <action name="actionPresetDoppler">
-   <property name="text">
-    <string>Preset Doppler</string>
+    <string>Preset</string>
    </property>
   </action>
  </widget>
