@@ -148,7 +148,7 @@ QString ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return filepath;
+        return QString::fromStdString(api::get_record_file_path());
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();

@@ -185,7 +185,7 @@ void LightUI::set_preset()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
     main_window_->reload_ini(dest.string());
-    LOG_INFO("Preset OCT");
+    LOG_INFO("Preset loaded");
 }
 
 void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
