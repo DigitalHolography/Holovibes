@@ -148,7 +148,7 @@ QString ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return filepath;
+        return QString::fromStdString(api::get_record_file_path());
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
@@ -262,8 +262,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
         info = "Frame record finished";
 
-    ui_->InfoPanel->set_visible_record_progress(false);
-
     if (ui_->BatchGroupBox->isChecked())
         info = "Batch " + info;
 
@@ -274,8 +272,12 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
 
-    light_ui_->reset_start_button();
     api::record_finished();
+
+    // notify others panels (info panel & lightUI) that the record is finished
+    auto& manager = NotifierManager::get_instance();
+    auto notifier = manager.get_notifier<bool>("record_finished");
+    notifier->notify(true);
 }
 
 void ExportPanel::set_record_device(bool value)

@@ -79,7 +79,7 @@ class LightUI : public QMainWindow
     void on_record_stop(RecordMode record);
 
     void actualise_record_progress(const int value, const int max);
-    void set_visible_record_progress(bool visible);
+    void reset_record_progress_bar();
 
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
@@ -150,6 +150,7 @@ class LightUI : public QMainWindow
     Subscriber<double> z_distance_subscriber_;       ///< Subscriber for Z distance changes.
     Subscriber<RecordMode> record_start_subscriber_; ///< Subscriber for record start events.
     Subscriber<RecordMode> record_end_subscriber_;   ///< Subscriber for record end events.
+    Subscriber<bool> record_finished_subscriber_;    ///< Subscriber for record finished events.
 };
 
 } // namespace holovibes::gui

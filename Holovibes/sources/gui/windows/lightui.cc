@@ -25,6 +25,11 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
+    , record_finished_subscriber_("record_finished", [this](bool success)
+                                       {
+                                           reset_start_button();
+                                           reset_record_progress_bar();
+                                       })
 {
     ui_->setupUi(this);
 
@@ -137,15 +142,9 @@ void LightUI::actualise_record_progress(const int value, const int max)
     ui_->recordProgressBar->setValue(value);
 }
 
-void LightUI::set_visible_record_progress(bool visible)
+void LightUI::reset_record_progress_bar()
 {
-    if (visible)
-        ui_->recordProgressBar->show();
-    else
-    {
-        ui_->recordProgressBar->reset();
-        ui_->recordProgressBar->setFormat("Idle");
-    }
+    set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
 }
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
@@ -186,7 +185,7 @@ void LightUI::set_preset()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
     main_window_->reload_ini(dest.string());
-    LOG_INFO("Preset OCT");
+    LOG_INFO("Preset loaded");
 }
 
 void LightUI::closeEvent(QCloseEvent* event) { main_window_->close(); }
