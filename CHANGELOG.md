@@ -1,6 +1,13 @@
 ## Changelog
 
-### 13.2.0
+### 13.2.2
+
+- Presets fixed (again), removed auto contrast as it causes performance issue at the moment
+- Tutorial added for installation and contribution in TUTORIAL.md
+- LightUI: fixed "Idle" record progress bar state
+- Output file path on selection cancelation fixed
+
+### 13.2.1
 
 - Presets fixed
 - Ini files for s710 and s711 updated
