@@ -88,7 +88,7 @@
      }
     },
     "image_rendering": {
-     "batch_size": 16,
+     "batch_size": 32,
      "convolution": {
       "divide": false,
       "enabled": false,
@@ -105,7 +105,7 @@
       "type": "None"
      },
      "lambda": 8.520000278622319e-07,
-     "propagation_distance": 1.5,
+     "propagation_distance": 0.5,
      "space_transformation": "FFT1",
      "time_transformation": "PCA",
      "time_transformation_size": 32,
@@ -122,7 +122,7 @@
      "window": {
       "filter2d": {
        "contrast": {
-        "auto_refresh": true,
+        "auto_refresh": false,
         "enabled": true,
         "invert": false,
         "max": 65535.0,
@@ -132,7 +132,7 @@
       },
       "xy": {
        "contrast": {
-        "auto_refresh": true,
+        "auto_refresh": false,
         "enabled": true,
         "invert": false,
         "max": 35.90232849121094,
@@ -141,12 +141,12 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 8,
+       "output_image_accumulation": 30,
        "rotation": 0.0
       },
       "xz": {
        "contrast": {
-        "auto_refresh": true,
+        "auto_refresh": false,
         "enabled": true,
         "invert": false,
         "max": 65535.0,
@@ -155,12 +155,12 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 8,
+       "output_image_accumulation": 30,
        "rotation": 0.0
       },
       "yz": {
        "contrast": {
-        "auto_refresh": true,
+        "auto_refresh": false,
         "enabled": true,
         "invert": false,
         "max": 65535.0,
@@ -169,7 +169,7 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 8,
+       "output_image_accumulation": 30,
        "rotation": 0.0
       }
      },
