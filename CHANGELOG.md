@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.2.2 - ongoing
+
+- Preset button added to ConfigUI
+
 ### 13.2.2
 
 - Presets fixed (again), removed auto contrast as it causes performance issue at the moment
