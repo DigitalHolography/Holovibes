@@ -61,23 +61,33 @@ std::string get_current_date()
     std::stringstream ss;
     std::tm* timeinfo = std::localtime(&in_time_t);
     int year = timeinfo->tm_year % 100;
-    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d_");
+    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d");
     return ss.str();
 }
 
 std::string get_record_filename(std::string filename)
 {
     size_t dot_index = filename.find_last_of('.');
-    if (dot_index == filename.npos)
+    if (dot_index == std::string::npos)
         dot_index = filename.size();
 
-    // Make sure 2 files don't have the same name by adding -1 / -2 / -3 ... in
+    // Make sure 2 files don't have the same name by adding _1 / _2 / _3 ... in
     // the name
     unsigned i = 1;
-    // insert current date in the filename search, so it looks by date first
-    auto name_index = filename.find_last_of('\\');
+
+    // if filename contains '\\' replace it with '/'
+    std::replace(filename.begin(), filename.end(), '\\', '/');
+
+    auto name_index = filename.find_last_of('/');
+    if (name_index == std::string::npos)
+    {
+        // If no slash found, assume the last index before the dot is where to insert the date
+        name_index = filename.find_last_of('.') - 1;
+    }
+
     auto search = filename;
-    search.insert(name_index + 1, get_current_date().c_str());
+    search.insert(name_index + 1, get_current_date() + "_");
+
     while (std::filesystem::exists(search))
     {
         if (i == 1)
@@ -86,15 +96,14 @@ std::string get_record_filename(std::string filename)
             ++i;
             continue;
         }
-        unsigned digits_nb = std::log10(i - 1) + 1;
+        unsigned digits_nb = std::to_string(i - 1).length(); 
         search.replace(dot_index + 7, digits_nb + 1, "_" + std::to_string(i));
         ++i;
     }
     i--;
     if (i == 0)
         return filename;
-    else
-        return filename.insert(dot_index, "_" + std::to_string(i));
+    return filename.insert(dot_index, "_" + std::to_string(i));
 }
 
 QString create_absolute_qt_path(const std::string& relative_path)
