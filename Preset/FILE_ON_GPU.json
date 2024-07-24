@@ -1,10 +1,8 @@
 {
-     "buffer_size": {
-      "file": 1024,
-      "input": 32768,
-      "output": 1024,
-      "record": 32768,
-      "time_transformation_cuts": 512
-     }
+    "file": 1024,
+    "input": 32768,
+    "output": 1024,
+    "record": 32768,
+    "time_transformation_cuts": 512
     }
     

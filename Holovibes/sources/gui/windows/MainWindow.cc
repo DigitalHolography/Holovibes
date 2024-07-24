@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget* parent)
                                                                                        "Saving: %v/%m");
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
-    , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset(); })
+    , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
