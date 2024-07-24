@@ -16,7 +16,7 @@
       "high": 1,
       "low": 0
      },
-     "nb_frames_to_record": 0,
+     "nb_frames_to_record": 65536,
      "raw_bitshift": 0,
      "record_mode": "RAW",
      "renorm_constant": 5
