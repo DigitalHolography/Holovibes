@@ -1,6 +1,10 @@
 ## Changelog
 
-### 13.2.3 - draft
+### 13.2.3
+
+- Fix a bug causing the overwrite of the output file
+- Fix s710 and s711 camera .ini files
+- Presets now have a number of frame to record
 - Preset button added to ConfigUI
 - Modifying buffer sizes when loading a file in GPU
 
