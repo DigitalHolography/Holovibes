@@ -3156,12 +3156,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionExport"/>
      <addaction name="actionExport_as"/>
     </widget>
+    <addaction name="actionPreset"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
-    <addaction name="actionReset"/>
     <addaction name="separator"/>
     <addaction name="actionAdvanced"/>
     <addaction name="separator"/>
+    <addaction name="actionReset"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3462,6 +3463,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
    <property name="shortcut">
     <string>Alt+M</string>
+   </property>
+  </action>
+  <action name="actionPreset">
+   <property name="text">
+    <string>Preset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>
@@ -5609,6 +5618,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPreset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_preset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
@@ -5717,5 +5742,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
+  <slot>set_preset()</slot>
  </slots>
 </ui>
