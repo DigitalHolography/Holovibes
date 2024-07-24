@@ -1,8 +1,8 @@
 ## Changelog
 
-### 13.2.2 - ongoing
-
+### 13.2.3 - draft
 - Preset button added to ConfigUI
+- Modifying buffer sizes when loading a file in GPU
 
 ### 13.2.2
 

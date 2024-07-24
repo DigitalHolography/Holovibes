@@ -79,6 +79,8 @@ class MainWindow : public QMainWindow, public Observer
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
 
+    void set_preset();
+
   public slots:
     void on_notify();
     /*! \brief Give a function to execute to the main thread with a signal
@@ -205,5 +207,6 @@ class MainWindow : public QMainWindow, public Observer
     Subscriber<bool> acquisition_started_subscriber_;
     Subscriber<bool> acquisition_finished_subscriber_;
     bool acquisition_finished_notification_received;
+    Subscriber<bool> set_preset_subscriber_;
 };
 } // namespace holovibes::gui
