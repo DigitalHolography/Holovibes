@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.2.3 - draft
+
+- (ongoing) Modifying buffer sizes when loading a file in GPU
+
 ### 13.2.2
 
 - Presets fixed (again), removed auto contrast as it causes performance issue at the moment

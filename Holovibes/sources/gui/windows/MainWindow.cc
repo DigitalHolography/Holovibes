@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget* parent)
                                                                                        "Saving: %v/%m");
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
+    , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset(); })
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -494,6 +495,13 @@ void MainWindow::load_gui()
         (*it)->load_gui(j_us);
 
     bool is_camera = api::change_camera(camera);
+}
+
+void MainWindow::set_preset()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
+    reload_ini(dest.string());
+    LOG_INFO("Preset loaded");
 }
 
 void MainWindow::save_gui()
