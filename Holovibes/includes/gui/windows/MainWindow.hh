@@ -74,12 +74,12 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Start the import process */
     void start_import(QString filename);
 
+    void set_preset_file_on_gpu();
+
     Ui::MainWindow* get_ui();
 
     uint window_max_size = 768;
     uint auxiliary_window_max_size = 512;
-
-    void set_preset();
 
   public slots:
     void on_notify();

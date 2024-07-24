@@ -497,7 +497,7 @@ void MainWindow::load_gui()
     bool is_camera = api::change_camera(camera);
 }
 
-void MainWindow::set_preset()
+void MainWindow::set_preset_file_on_gpu()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
     api::import_buffer(dest.string());
