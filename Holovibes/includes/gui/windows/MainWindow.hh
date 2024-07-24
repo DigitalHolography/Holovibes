@@ -151,7 +151,15 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
+    /**
+     * @brief Open light ui panel and hide this one
+     */
     void open_light_ui();
+
+    /**
+     * @brief Sets preset for given usage.
+     */
+    void set_preset();
 
   signals:
     /*! \brief TODO: comment

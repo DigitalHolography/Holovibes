@@ -816,6 +816,13 @@ void MainWindow::open_light_ui()
     this->hide();
 }
 
+void MainWindow::set_preset()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
+    reload_ini(dest.string());
+    LOG_INFO("Preset loaded");
+}
+
 #pragma endregion
 
 /* ------------ */
