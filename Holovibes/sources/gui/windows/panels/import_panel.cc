@@ -179,6 +179,11 @@ void ImportPanel::import_start()
         auto notifier = manager.get_notifier<bool>("set_preset_file_gpu");
         notifier->notify(true);
     }
+    {
+        auto& manager = NotifierManager::get_instance();
+        auto notifier = manager.get_notifier<bool>("import_start");
+        notifier->notify(true);
+    }
 
     bool res_import_start = api::import_start();
 
