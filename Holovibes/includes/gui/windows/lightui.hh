@@ -124,16 +124,10 @@ class LightUI : public QMainWindow
     void start_stop_recording(bool start);
 
     /**
-     * @brief Slot for handling changes in Z value from a spin box.
+     * @brief Slot for handling changes in Z value from the ui.
      * @param z_distance The new Z distance value.
      */
-    void z_value_changed_spinBox(int z_distance);
-
-    /**
-     * @brief Slot for handling changes in Z value from a slider.
-     * @param z_distance The new Z distance value.
-     */
-    void z_value_changed_slider(int z_distance);
+    void z_value_changed(int z_distance);
 
   protected:
     /**
