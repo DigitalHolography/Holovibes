@@ -77,6 +77,8 @@ class FastUpdatesHolder
         map_.clear();
     }
 
+    bool empty() const noexcept { return map_.empty(); }
+
     /*! \brief Iterators */
 
     const_iterator begin() { return map_.begin(); }

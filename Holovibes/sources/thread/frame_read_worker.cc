@@ -5,9 +5,9 @@
 
 namespace holovibes::worker
 {
-FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue)
+FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue)
     : Worker()
-    , input_queue_(gpu_input_queue)
+    , input_queue_(input_queue)
     , current_fps_(0)
     , processed_frames_(0)
     , stream_(Holovibes::instance().get_cuda_streams().reader_stream)

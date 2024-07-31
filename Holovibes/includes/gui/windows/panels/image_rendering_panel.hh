@@ -6,6 +6,9 @@
 
 #include "panel.hh"
 #include "Filter2DWindow.hh"
+#include "lightui.hh"
+
+#include "notifier.hh"
 
 namespace holovibes::gui
 {
@@ -29,7 +32,9 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    //std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    void set_light_ui(std::shared_ptr<LightUI> light_ui);
+
+    // std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
@@ -67,7 +72,7 @@ class ImageRenderingPanel : public Panel
      * \param n The new filter2d n2 value
      */
     void set_filter2d_n2(int n);
-    
+
     /*! \brief Modifies input filter
      *
      * \param value The new filter to apply
@@ -100,6 +105,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of z
      */
+    //void update_z_distance(const double value);
     void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
@@ -111,13 +117,6 @@ class ImageRenderingPanel : public Panel
      * \param enable true: enable, false: disable
      */
     void set_convolution_mode(const bool enable);
-
-    /*!
-     * \brief Set the device (cpu or gpu) when using camera
-     * 
-     * \param value GPU or CPU
-     */
-    void set_device(const QString& value);
 
     /*! \brief Modifies convolution kernel
      *
@@ -147,9 +146,11 @@ class ImageRenderingPanel : public Panel
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
+    std::shared_ptr<LightUI> light_ui_;
+    Subscriber<double> z_distance_subscriber_;
 
   public:
-  //should be moved to double in the ui if we need more precision than 5 digits
+    // should be moved to double in the ui if we need more precision than 5 digits
     double z_step_ = 0.005f;
 };
 } // namespace holovibes::gui

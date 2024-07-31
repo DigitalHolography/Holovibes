@@ -23,7 +23,9 @@ std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
     init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_camera_device"));
 
     if (!init)
+    {
         throw std::runtime_error("unable to retrieve the 'new_camera_device' function");
+    }
 
     return std::shared_ptr<ICamera>(init(), DeleterDLL(dll_handle));
 }

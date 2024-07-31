@@ -17,6 +17,7 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "global_state_holder.hh"
+#include "enum_device.hh"
 
 using uint = unsigned int;
 
@@ -27,7 +28,8 @@ class Queue;
 
 /*! \class BatchInputQueue
  *
- * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be read and written simultaneously
+ * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be
+ * read and written simultaneously
  *
  * Conditons:
  *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
@@ -39,7 +41,10 @@ class Queue;
 class BatchInputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames, const uint batch_size, const camera::FrameDescriptor& fd, const bool gpu = true);
+    BatchInputQueue(const uint total_nb_frames,
+                    const uint batch_size,
+                    const camera::FrameDescriptor& fd,
+                    const Device device = Device::GPU);
 
     ~BatchInputQueue();
 
@@ -90,7 +95,8 @@ class BatchInputQueue final : public DisplayQueue
      */
     void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
 
-    // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice) override;
+    // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice)
+    // override;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
@@ -100,13 +106,17 @@ class BatchInputQueue final : public DisplayQueue
     void dequeue();
 
     /*!
-     * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue. Useful to keep using the pointer.
-     * 
-     * \param fd 
-     * \param size 
-     * \param gpu 
+     * \brief Rebuild the queue (change the fd or the device on which it is allocated), without creating a new queue.
+     * Useful to keep using the pointer.
+     *
+     * \param fd
+     * \param size
+     * \param gpu
      */
-    void rebuild(const camera::FrameDescriptor& fd, const unsigned int size, const unsigned int batch_size, const bool gpu);
+    void rebuild(const camera::FrameDescriptor& fd,
+                 const unsigned int size,
+                 const unsigned int batch_size,
+                 const Device device);
 
     /*! \brief Resize with a new batch size
      *
@@ -125,14 +135,16 @@ class BatchInputQueue final : public DisplayQueue
      */
     void stop_producer();
 
+    // void start_producer();
+
     void sync_current_batch() const;
 
     bool is_current_batch_full();
 
     inline void* get_last_image() const override
     {
-        if (gpu_)
-          sync_current_batch();
+        if (device_ == Device::GPU)
+            sync_current_batch();
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
@@ -143,7 +155,9 @@ class BatchInputQueue final : public DisplayQueue
 
     uint get_max_size() const { return max_size_; }
 
-    bool has_overridden() const { return has_overridden_; }
+    bool has_overwritten() const { return has_overwritten_; }
+
+    void reset_override();
 
     // HOLO: Can it be removed?
     const void* get_data() const { return data_; }
@@ -239,7 +253,7 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief End index is the index after the last batch */
     std::atomic<uint> end_index_{0};
     /*! \brief Number of batches. Batch size can only be changed by the consumer */
-    std::atomic<bool> has_overridden_{false};
+    std::atomic<bool> has_overwritten_{false};
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};
@@ -254,9 +268,8 @@ class BatchInputQueue final : public DisplayQueue
 
     /*!
      * \brief Whether the queue is on the GPU or not (and if data is a CudaUniquePtr or a GPUUniquePtr)
-     * 
+     *
      */
-    std::atomic<bool>& gpu_;
-
+    std::atomic<Device>& device_;
 };
 } // namespace holovibes

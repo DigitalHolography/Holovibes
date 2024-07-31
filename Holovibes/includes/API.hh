@@ -1,6 +1,8 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief This file contains the API functions for the Holovibes application. These functions manage input files,
+ * camera operations, computation settings, visualization modes, and more. The API functions are used to interact with
+ * the Holovibes application from the user interface.
  */
 
 #pragma once
@@ -86,13 +88,13 @@ unsigned get_accumulation_level();
  *
  * \return int
  */
-int get_gpu_input_queue_fd_width();
+int get_input_queue_fd_width();
 
 /*! \brief Gets the gpu input queue frame desciptor height object
  *
  * \return int
  */
-int get_gpu_input_queue_fd_height();
+int get_input_queue_fd_height();
 
 /*! \brief Get the boundary of frame descriptor
  *
@@ -105,7 +107,7 @@ float get_boundary();
  * \return true on success
  * \return false on failure
  */
-bool is_gpu_input_queue();
+bool is_input_queue();
 
 /*! \brief Enables the divide convolution mode
  *
@@ -134,9 +136,13 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
  *
  * \param value the file containing the filter's settings
  */
+void enable_filter();
 void enable_filter(const std::string& file);
 
 void disable_filter();
+
+/*! \brief Sets the image mode to Raw or Holographic*/
+void set_image_mode(Computation mode, uint window_max_size);
 
 /*! \brief Changes display mode to Raw */
 void set_raw_mode(uint window_max_size);
@@ -164,32 +170,26 @@ void cancel_time_transformation_cuts(std::function<void()> callback);
 
 /*! \brief Checks preconditions to start recording
  *
- * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
- * \param nb_frame_checked if number of frame is allowed FIXME: shouldn't be stored in the wild.
- * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
- * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
- * \return true on success
- * \return false on failure
+ * \return success if all preconditions are met
  */
-bool start_record_preconditions(const bool batch_enabled,
-                                const bool nb_frame_checked,
-                                std::optional<unsigned int> nb_frames_to_record,
-                                const std::string& batch_input_path);
+bool start_record_preconditions();
 
-/*! \brief Launchs recording
+/*!
+ * \brief Initiates the recording process.
  *
- * \param batch_enabled if batch recording is enabled FIXME: shouldn't be stored in the wild.
- * \param nb_frames_to_record number of frame to record FIXME: shouldn't be stored in the wild.
- * \param output_path where to locate the destination file FIXME: shouldn't be stored in the wild.
- * \param batch_input_path where is located the input batch file FIXME: shouldn't be stored in the wild.
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handdle callback
+ * This function starts the recording process based on the current recording mode.
+ * It executes the provided callback function once the recording is complete.
+ *
+ * \param callback A lambda function to execute at the end of the recording process.
+ *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
  */
 void start_record(std::function<void()> callback);
 
-void set_record_device(const bool gpu);
+void set_record_device(const Device device);
 
 /*! \brief Stops recording
  *
+ * \note This functions calls the notification `record_stop` when this is done.
  */
 void stop_record();
 
@@ -207,18 +207,33 @@ const std::string browse_record_output_file(std::string& std_filepath);
  */
 void set_record_mode(const std::string& text);
 
+/*! \brief Choose if the record will be done using the GPU or the CPU. If the GPU is selected, the input queue will be
+ * on the GPU, meaning that Hologramm image mode and record mode will be enabled. If the CPU is selected, the input
+ * queue will be on the CPU, meaning that only Raw image mode and record mode will be enabled. The record queue will
+ * always be on the CPU in CPU mode, but it can be either on GPU or CPU in GPU mode. In order for the user to vizualise
+ * the hologramm up until the record, the displacement of the input queue from the GPU to the CPU is done only when the
+ * record is requested ; see set_record_device() function.
+ */
+void set_record_on_gpu(bool value);
+
+bool get_record_on_gpu();
+
 /*!
  * \brief Set the record queue location, between gpu and cpu
- * 
+ *
  * \param gpu whether the record queue is on the gpu or the cpu
  */
-void set_record_queue_location(bool gpu);
+void set_record_queue_location(Device device);
 
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *
  * \param value the size of the buffer
  */
 void set_record_buffer_size(uint value);
+
+void write_ui_mode(bool lightUI);
+
+bool get_ui_mode();
 
 /*! \brief Closes all the currently displaying windows
  *
@@ -236,6 +251,19 @@ bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
+
+/*! \brief Enables the pipe refresh
+ *
+ * \param value true: enable, false: disable
+ */
+void enable_pipe_refresh();
+
+/*! \brief Disables the pipe refresh. Use with caution. Usefull for mainwindow notify, which triggers numerous pipe
+ * refresh.
+ *
+ */
+void disable_pipe_refresh();
+
 void create_holo_window(ushort window_size);
 void create_pipe();
 
@@ -387,9 +415,19 @@ void decrement_p();
  */
 void set_lambda(float value);
 
-/*! \brief Modifies z
+/*!
+ * \brief Sets the distance value for the z-coordinate.
  *
- * \param value the new value
+ * This function updates the internal setting for the z-coordinate distance
+ * and sends a notification to the `z_distance` notifier. Additionally,
+ * it refreshes the pipeline if the computation mode is not set to raw.
+ *
+ * \param value The new z-coordinate distance value.
+ *
+ * \note
+ * - This function sends the notification `z_distance` with the new value when called.
+ * - If the computation mode is `Computation::Raw`, the function returns immediately
+ *   without updating the setting or refreshing the pipeline.
  */
 void set_z_distance(float value);
 
@@ -515,8 +553,6 @@ void set_reticle_zone(const units::RectFd& rect);
  */
 unsigned int get_raw_bitshift();
 
-
-
 template <typename T>
 static T get_xyz_member(T xy_member, T xz_member, T yz_member)
 {
@@ -539,6 +575,14 @@ static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
         xz_member(value);
     else
         yz_member(value);
+}
+
+template <typename T, typename U>
+static void set_xyz_members(T xy_member, T xz_member, T yz_member, U value)
+{
+    xy_member(value);
+    xz_member(value);
+    yz_member(value);
 }
 
 /**
@@ -791,6 +835,13 @@ void update_time_stride(std::function<void()> callback, const uint time_stride);
  */
 void update_batch_size(std::function<void()> callback, const uint batch_size);
 
+/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
+ * time_stride were modified on the GUI, so no notify is needed.
+ *
+ * \param batch_size the new value
+ */
+void update_batch_size(const uint batch_size);
+
 /*! \brief Modifies view image type
  *
  * \param value The new image type
@@ -822,6 +873,12 @@ json compute_settings_to_json();
  */
 void load_compute_settings(const std::string& path);
 
+/*! \brief Change buffer siwe from .json file
+ *
+ * \param path the path where the .json file is
+ */
+void import_buffer(const std::string& path);
+
 /*! \brief Gets the documentation url
  *
  * \return const QUrl& url
@@ -846,6 +903,8 @@ const std::string get_credits();
  */
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
+
+bool getLightUIMode();
 
 /*! \brief Displays information
  *

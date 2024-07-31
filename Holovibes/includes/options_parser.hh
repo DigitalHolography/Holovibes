@@ -34,6 +34,9 @@ struct OptionsDescriptor
     bool verbose;
     bool gpu;
     std::optional<std::vector<unsigned int>> chart;
+#ifndef _DEBUG
+    bool benchmark;
+#endif
 };
 
 /*! \class OptionsParser

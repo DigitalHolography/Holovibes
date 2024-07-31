@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QSplashScreen>
 
+#include "API.hh"
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
@@ -83,8 +84,12 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
 
     // Create the window object that inherit from QMainWindow
     holovibes::gui::MainWindow window;
+
     LOG_TRACE(" ");
-    window.show();
+    if (holovibes::api::get_ui_mode())
+        window.light_ui_->show();
+    else
+        window.show();
     LOG_TRACE(" ");
     splash.finish(&window);
 
@@ -132,9 +137,30 @@ void copy_ini_files()
     }
 }
 
+void copy_preset_files()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__;
+    std::filesystem::path src = __PRESET_REFERENCE__;
+
+    if (std::filesystem::exists(dest))
+        return;
+
+    std::filesystem::create_directories(dest);
+
+    for (const auto& entry : std::filesystem::directory_iterator(src))
+    {
+        std::filesystem::path file = entry.path();
+        std::filesystem::path dest_file = dest / file.filename();
+        std::filesystem::copy(file, dest_file);
+    }
+}
+
 int main(int argc, char* argv[])
 {
-    holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
+    {
+        std::unique_lock lock(holovibes::Logger::map_mutex_);
+        holovibes::Logger::add_thread(std::this_thread::get_id(), ":main");
+    }
 
     LOG_INFO("Start Holovibes");
     LOG_TRACE("hello");
@@ -160,6 +186,7 @@ int main(int argc, char* argv[])
     try
     {
         copy_ini_files();
+        copy_preset_files();
 
         if (opts.input_path && opts.output_path)
         {

@@ -6,6 +6,7 @@
 
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
+#include "enum/enum_device.hh"
 #include "worker.hh"
 
 #pragma region Settings configuration
@@ -38,6 +39,10 @@ class InformationWorker final : public Worker
     , realtime_settings_(settings)
     {
     }
+
+#ifndef _DEBUG
+    void write_information(std::ofstream& csvFile);
+#endif
 
     void run() override;
 

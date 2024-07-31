@@ -24,6 +24,7 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_device.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -107,9 +108,11 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueOnGPU,                       \
-    holovibes::settings::RawViewQueueOnGPU,                      \
-    holovibes::settings::InputQueueOnGPU
+    holovibes::settings::RecordQueueLocation,                       \
+    holovibes::settings::RawViewQueueLocation,                      \
+    holovibes::settings::InputQueueLocation,                        \
+    holovibes::settings::BenchmarkMode,                             \
+    holovibes::settings::RecordOnGPU
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -196,7 +199,7 @@ class Holovibes
      * \{
      */
     /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_gpu_input_queue();
+    std::shared_ptr<BatchInputQueue> get_input_queue();
 
     /*! \brief Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
@@ -207,12 +210,11 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<Queue>> get_record_queue();
 
-
     /*! \name Getters/Setters
      * \{
      */
     std::shared_ptr<Pipe> get_compute_pipe();
-    std::shared_ptr<Pipe> get_compute_pipe_nothrow();
+    std::shared_ptr<Pipe> get_compute_pipe_no_throw();
 
     const CudaStreams& get_cuda_streams() const;
 
@@ -247,14 +249,14 @@ class Holovibes
 
     /*!
      * \brief Initializes the input queue with the same fd, when it already exist
-     * 
+     *
      * \param input_queue_size size of the input queue
      */
     void init_input_queue(const unsigned int input_queue_size);
-    
+
     /*!
      * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
-     * 
+     *
      */
     void init_record_queue();
 
@@ -275,7 +277,7 @@ class Holovibes
 
     /*! \brief Handle frame reading interruption
      *
-     * Stops both read_worker, resets the active camera and store the gpu_input_queue
+     * Stops both read_worker, resets the active camera and store the input_queue
      */
     void stop_frame_read();
 
@@ -350,7 +352,6 @@ class Holovibes
         }
     }
 
-    
     template <typename T>
     inline T get_setting()
     {
@@ -367,7 +368,6 @@ class Holovibes
             return realtime_settings_.get<T>().value;
         }
     }
-    
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
@@ -446,9 +446,11 @@ class Holovibes
                                              settings::RGB{CompositeRGB{}},
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
-                                             settings::RecordQueueOnGPU{false},
-                                             settings::RawViewQueueOnGPU{true},
-                                             settings::InputQueueOnGPU{true}))
+                                             settings::RecordQueueLocation{Device::CPU},
+                                             settings::RawViewQueueLocation{Device::GPU},
+                                             settings::InputQueueLocation{Device::GPU},
+                                             settings::BenchmarkMode{true},
+                                             settings::RecordOnGPU{true}))
     {
     }
 

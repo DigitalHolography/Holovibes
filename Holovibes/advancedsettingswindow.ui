@@ -588,7 +588,7 @@ threshold</string>
              <item row="7" column="0">
                 <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
                     <property name="text">
-                        <string>GPU record queue</string>
+                        <string>Record on GPU</string>
                     </property>
                     <property name="checkable">
                         <bool>true</bool>

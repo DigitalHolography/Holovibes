@@ -7,6 +7,8 @@
 #pragma once
 
 #include "all_struct.hh"
+#include "enum_record_mode.hh"
+#include <optional>
 
 namespace holovibes
 {
@@ -31,6 +33,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts)
     };
@@ -46,6 +49,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high)
     };
@@ -62,6 +66,7 @@ struct AdvancedSettings
 
         void Load();
         void Update();
+        void Assert() const;
 
         SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, frame_index_offset)
     };
@@ -71,11 +76,21 @@ struct AdvancedSettings
     ContrastThreshold contrast;
     unsigned renorm_constant = 5;
     unsigned int raw_bitshift = 0;
+    unsigned int nb_frames_to_record = 0;
+    RecordMode record_mode = RecordMode::RAW;
 
     void Update();
     void Load();
+    void Assert() const;
 
-    SERIALIZE_JSON_STRUCT(AdvancedSettings, buffer_size, filter2d_smooth, contrast, renorm_constant, raw_bitshift)
+    SERIALIZE_JSON_STRUCT(AdvancedSettings,
+                          buffer_size,
+                          filter2d_smooth,
+                          contrast,
+                          renorm_constant,
+                          raw_bitshift,
+                          nb_frames_to_record,
+                          record_mode)
 };
 
 } // namespace holovibes

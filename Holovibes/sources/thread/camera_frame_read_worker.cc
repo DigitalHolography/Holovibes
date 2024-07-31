@@ -57,7 +57,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
                                          const camera::FrameDescriptor& camera_fd)
 {
     cudaMemcpyKind copy_kind;
-    bool input_queue_on_gpu = api::get_input_queue_location();
+    bool input_queue_on_gpu = api::get_input_queue_location() == holovibes::Device::GPU;
     if (input_queue_on_gpu) // if the input queue is on gpu
         copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
     else // if it is on CPU

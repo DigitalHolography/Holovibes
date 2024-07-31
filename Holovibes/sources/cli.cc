@@ -104,6 +104,18 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
+    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+    
+    holovibes.update_setting(holovibes::settings::RecordMode{mode});
+
+    holovibes::api::set_frame_record_enabled(true);
+    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
+
+    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+#ifdef _DEBUG
+    holovibes::api::set_benchmark_mode(opts.benchmark);
+#endif
+
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
     
@@ -122,8 +134,17 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
         // the footer and then import info
-        input_frame_file->import_compute_settings();
-        input_frame_file->import_info();
+        try
+        {
+            input_frame_file->import_compute_settings();
+            input_frame_file->import_info();
+        }
+        catch (std::exception& e)
+        {
+            LOG_ERROR("{}", e.what());
+            LOG_ERROR("Error while loading compute settings, abort");
+            return 34;
+        }
         load = true;
     }
 
@@ -324,8 +345,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
-
-    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
     
     if (mode == holovibes::RecordMode::CHART)
         holovibes.start_chart_record();
@@ -358,6 +377,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
 int start_cli(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI");
+    holovibes.is_cli = true;
     if (int ret = set_parameters(holovibes, opts))
         return ret;
     LOG_INFO("Parameters set");

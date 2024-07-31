@@ -188,10 +188,13 @@ inline void set_display_rate(float value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::DisplayRate{value});
 }
-inline bool get_input_queue_location(){ return holovibes::Holovibes::instance().get_setting<settings::InputQueueOnGPU>().value;}
-inline void set_input_queue_location(bool value)
+inline holovibes::Device get_input_queue_location()
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueOnGPU{value});
+    return holovibes::Holovibes::instance().get_setting<settings::InputQueueLocation>().value;
+}
+inline void set_input_queue_location(holovibes::Device value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputQueueLocation{value});
 }
 
 inline ViewXY get_x(void) { return holovibes::Holovibes::instance().get_setting<settings::X>().value; }
@@ -220,6 +223,7 @@ inline uint get_xy_accumulation_level()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XY>().value.output_image_accumulation;
 }
+inline bool get_xy_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XY>().value.enabled; }
 inline bool get_xy_log_enabled()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XY>().value.log_enabled;
@@ -328,6 +332,7 @@ inline void set_xy_contrast(float min, float max) noexcept
 
 // XZ
 inline ViewXYZ get_xz() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value; }
+inline bool get_xz_enabled() { return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.enabled; }
 inline bool get_xz_horizontal_flip()
 {
     return holovibes::Holovibes::instance().get_setting<settings::XZ>().value.horizontal_flip;
@@ -368,6 +373,12 @@ inline bool get_xz_img_accu_enabled()
 inline void set_xz(ViewXYZ value) noexcept
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{value});
+}
+inline void set_xz_enabled(bool value) noexcept
+{
+    auto xz = Holovibes::instance().get_setting<settings::XZ>().value;
+    xz.enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
 inline void set_xz_horizontal_flip(bool value) noexcept
@@ -412,9 +423,9 @@ inline void set_xz_contrast_auto_refresh(bool value) noexcept
     holovibes::Holovibes::instance().update_setting(holovibes::settings::XZ{xz});
 }
 
-inline bool get_record_queue_location()
+inline holovibes::Device get_record_queue_location()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueOnGPU>().value;
+    return holovibes::Holovibes::instance().get_setting<settings::RecordQueueLocation>().value;
 }
 
 inline void set_xz_contrast_invert(bool value) noexcept
@@ -447,6 +458,7 @@ inline void set_xz_contrast(float min, float max) noexcept
 }
 
 inline ViewXYZ get_yz() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value; }
+inline bool get_yz_enabled() { return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.enabled; }
 inline bool get_yz_horizontal_flip()
 {
     return holovibes::Holovibes::instance().get_setting<settings::YZ>().value.horizontal_flip;
@@ -486,7 +498,14 @@ inline bool get_yz_img_accu_enabled()
 }
 inline void set_yz(ViewXYZ value) noexcept
 {
+    LOG_INFO("New YZ");
     holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{value});
+}
+inline void set_yz_enabled(bool value) noexcept
+{
+    auto yz = Holovibes::instance().get_setting<settings::YZ>().value;
+    yz.enabled = value;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::YZ{yz});
 }
 
 inline void set_yz_horizontal_flip(bool value) noexcept
@@ -695,16 +714,15 @@ inline bool get_raw_view_enabled()
     return holovibes::Holovibes::instance().get_setting<settings::RawViewEnabled>().value;
 }
 
-inline bool get_raw_view_queue_location()
+inline holovibes::Device get_raw_view_queue_location()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueOnGPU>().value;
+    return holovibes::Holovibes::instance().get_setting<settings::RawViewQueueLocation>().value;
 }
 
-inline void set_raw_view_queue_location(bool value)
+inline void set_raw_view_queue_location(holovibes::Device value)
 {
-    Holovibes::instance().update_setting(holovibes::settings::RawViewQueueOnGPU{value});
+    Holovibes::instance().update_setting(holovibes::settings::RawViewQueueLocation{value});
 }
-
 
 inline void set_raw_view_enabled(bool value)
 {
@@ -828,9 +846,46 @@ inline RecordMode get_record_mode()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordMode>().value;
 }
 
+inline std::string get_record_mode_string()
+{
+    switch (get_record_mode())
+    {
+    case RecordMode::RAW:
+        return "Raw Image";
+    case RecordMode::HOLOGRAM:
+        return "Processed Image";
+    case RecordMode::CHART:
+        return "Chart";
+    default:
+        return "NONE";
+    }
+}
+
 inline void set_record_mode(RecordMode value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordMode{value});
+}
+
+#ifndef _DEBUG
+inline void set_benchmark_mode(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::BenchmarkMode{value});
+}
+
+inline bool get_benchmark_mode()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
+}
+#endif
+
+inline void set_record_on_gpu(bool value)
+{
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordOnGPU{value});
+}
+
+inline bool get_record_on_gpu()
+{
+    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordOnGPU>().value;
 }
 
 inline size_t get_record_frame_skip()
@@ -921,13 +976,14 @@ inline uint get_q_accu_level()
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::Q>().value.width;
 }
 
-inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_gpu_input_queue()->get_fd(); };
+inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_input_queue()->get_fd(); };
 
 inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };
+inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::instance().get_compute_pipe_no_throw(); };
 
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
-inline std::shared_ptr<BatchInputQueue> get_gpu_input_queue() { return Holovibes::instance().get_gpu_input_queue(); };
+inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
 
 inline units::RectFd get_signal_zone()
 {
@@ -1205,10 +1261,7 @@ inline void set_weight_rgb(double r, double g, double b)
 
 // HSV
 
-inline void set_z_fft_shift(bool checked)
-{
-    Holovibes::instance().update_setting(settings::ZFFTShift{checked});
-}
+inline void set_z_fft_shift(bool checked) { Holovibes::instance().update_setting(settings::ZFFTShift{checked}); }
 
 inline void set_composite_p_h(int min, int max)
 {

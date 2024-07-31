@@ -1,3 +1,4 @@
+#include <climits> // for UINT_MAX
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
@@ -5,6 +6,8 @@
 #include "compute_settings_struct.hh"
 #include "API.hh"
 #include "all_struct.hh"
+
+#define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
 namespace holovibes
 {
@@ -19,8 +22,7 @@ void Windows::Update()
 
 void Reticle::Update()
 {
-    this->display_enabled =
-        holovibes::Holovibes::instance().get_setting<settings::ReticleDisplayEnabled>().value;
+    this->display_enabled = holovibes::Holovibes::instance().get_setting<settings::ReticleDisplayEnabled>().value;
     this->scale = holovibes::Holovibes::instance().get_setting<settings::ReticleScale>().value;
 }
 
@@ -65,7 +67,8 @@ void Rendering::Update()
     this->filter2d.Update();
     this->space_transformation = holovibes::Holovibes::instance().get_setting<settings::SpaceTransformation>().value;
     this->time_transformation = holovibes::Holovibes::instance().get_setting<settings::TimeTransformation>().value;
-    this->time_transformation_size = holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value;
+    this->time_transformation_size =
+        holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value;
     this->lambda = holovibes::Holovibes::instance().get_setting<settings::Lambda>().value;
     this->propagation_distance = holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value;
     this->convolution.Update();
@@ -78,7 +81,8 @@ void AdvancedSettings::BufferSizes::Update()
     this->input = holovibes::Holovibes::instance().get_setting<settings::InputBufferSize>().value;
     this->output = holovibes::Holovibes::instance().get_setting<settings::OutputBufferSize>().value;
     this->record = holovibes::Holovibes::instance().get_setting<settings::RecordBufferSize>().value;
-    this->time_transformation_cuts = holovibes::Holovibes::instance().get_setting<settings::TimeTransformationCutsOutputBufferSize>().value;
+    this->time_transformation_cuts =
+        holovibes::Holovibes::instance().get_setting<settings::TimeTransformationCutsOutputBufferSize>().value;
 }
 
 void AdvancedSettings::Filter2DSmooth::Update()
@@ -101,6 +105,11 @@ void AdvancedSettings::Update()
     this->contrast.Update();
     this->renorm_constant = holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
     this->raw_bitshift = holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value;
+    // FIXME: optional value might not be that greate of an idea
+    if (holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.has_value())
+        this->nb_frames_to_record =
+            holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.value();
+    this->record_mode = holovibes::Holovibes::instance().get_setting<settings::RecordMode>().value;
 }
 
 void Composite::Update()
@@ -125,7 +134,8 @@ void AdvancedSettings::BufferSizes::Load()
     Holovibes::instance().update_setting(settings::InputBufferSize{this->input});
     Holovibes::instance().update_setting(settings::OutputBufferSize{this->output});
     Holovibes::instance().update_setting(settings::RecordBufferSize{this->record});
-    Holovibes::instance().update_setting(settings::TimeTransformationCutsOutputBufferSize{this->time_transformation_cuts});
+    Holovibes::instance().update_setting(
+        settings::TimeTransformationCutsOutputBufferSize{this->time_transformation_cuts});
 }
 
 void AdvancedSettings::Filter2DSmooth::Load()
@@ -148,6 +158,9 @@ void AdvancedSettings::Load()
     this->contrast.Load();
     Holovibes::instance().update_setting(settings::RenormConstant{this->renorm_constant});
     Holovibes::instance().update_setting(settings::RawBitshift{this->raw_bitshift});
+    if (this->nb_frames_to_record != 0)
+        Holovibes::instance().update_setting(settings::RecordFrameCount{this->nb_frames_to_record});
+    Holovibes::instance().update_setting(settings::RecordMode{this->record_mode});
 }
 
 void Composite::Load()
@@ -160,9 +173,9 @@ void Composite::Load()
 
 void ComputeSettings::Load()
 {
+    this->advanced.Load();
     this->image_rendering.Load();
     this->color_composite_image.Load();
-    this->advanced.Load();
     this->view.Load();
 }
 
@@ -202,7 +215,8 @@ void Rendering::Convolution::Load()
 
 void Rendering::Filter::Load()
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{this->enabled && this->type != UID_FILTER_TYPE_DEFAULT});
+    holovibes::Holovibes::instance().update_setting(
+        holovibes::settings::FilterEnabled{this->enabled && this->type != UID_FILTER_TYPE_DEFAULT});
     UserInterfaceDescriptor::instance().filter_name = this->type;
 }
 
@@ -237,6 +251,123 @@ void ComputeSettings::Dump(const std::string& filename)
     auto path_path = std::filesystem::path(settings::patch_dirpath) / (filename + ".json");
     auto file_content = std::ofstream(path_path, std::ifstream::out);
     file_content << std::setw(1) << compute_json;
+}
+
+void Rendering::Convolution::Assert() const
+{
+    /* if (this->enabled && this->type.empty())
+        throw std::exception("Convolution type is empty");
+    if (this->divide && !this->enabled)
+        throw std::exception("Divide convolution is enabled but convolution is not"); */  // TODO: check if divide convolution can be enabled when convolution is disabled
+}
+
+void Rendering::Filter::Assert() const
+{
+    /* if (this->enabled && this->type.empty())
+        throw std::exception("Filter type is empty");
+    if (!this->enabled && !this->type.empty())
+        throw std::exception("Filter type is not empty but filter is disabled"); */  // TODO: check if filter type can be empty when filter is disabled
+}
+
+void Rendering::Filter2D::Assert() const
+{
+    if (this->inner_radius >= this->outer_radius)
+        throw std::exception("Inner radius is greater than outer radius");
+}
+
+void Rendering::Assert() const // TODO: check for a more appropriate upper bound, abose is probably a negative value
+                               // that was flipped to positive
+{
+    if (this->time_transformation_stride == 0 ||
+        this->time_transformation_stride > UPPER_BOUND(0.01)) // UPPER_BOUND(0.01) = ~429 000+
+        throw std::exception("Time transformation stride value is invalid");
+    if (this->batch_size == 0 || this->batch_size > UPPER_BOUND(0.01))
+        throw std::exception("Batch size is value is invalid");
+    if (this->time_transformation_size == 0 || this->time_transformation_size > UPPER_BOUND(0.01))
+        throw std::exception("Time transformation size is 0");
+    // TODO: does lamba and propagation distance have to be positive/have borbidden values ?
+    this->filter2d.Assert();
+    this->convolution.Assert();
+    this->input_filter.Assert();
+}
+
+void AdvancedSettings::BufferSizes::Assert() const
+{
+    if (this->file == 0 || this->file > UPPER_BOUND(0.01)) // TODO: check for a more appropriate upper bound
+        throw std::exception("File buffer size is invalid");
+    if (this->input == 0 || this->input > UPPER_BOUND(0.01))
+        throw std::exception("Input buffer size is invalid");
+    if (this->output == 0 || this->output > UPPER_BOUND(0.01))
+        throw std::exception("Output buffer size is invalid");
+    if (this->record == 0 || this->record > UPPER_BOUND(0.01))
+        throw std::exception("Record buffer size is invalid");
+    if (this->time_transformation_cuts == 0 || this->time_transformation_cuts > UPPER_BOUND(0.01))
+        throw std::exception("Time transformation cuts buffer size is invalid");
+}
+
+void AdvancedSettings::Filter2DSmooth::Assert() const
+{
+    if (this->low < 0 || this->low > 100) // TODO: check for a more appropriate upper bound
+        throw std::exception("Low filter 2d smooth value is invalid");
+    if (this->high < 0 || this->high > 100)
+        throw std::exception("High filter 2d smooth value is invalid");
+}
+
+void AdvancedSettings::ContrastThreshold::Assert() const
+{
+    if (this->lower < 0 || this->lower > 100)
+        throw std::exception("Lower contrast threshold value is invalid");
+    if (this->upper < 0 || this->upper > 100)
+        throw std::exception("Upper contrast threshold value is invalid");
+    /* if (this->frame_index_offset < 0)
+        throw std::exception("Frame index offset negative"); */  // TODO: check if frame index offset can be negative
+}
+
+void AdvancedSettings::Assert() const
+{
+    if (this->renorm_constant == 0)
+        throw std::exception("Renorm constant is 0");
+    if (this->raw_bitshift < 0)
+        throw std::exception("Raw bitshift is negative");
+
+    this->buffer_size.Assert();
+    this->filter2d_smooth.Assert();
+    this->contrast.Assert();
+}
+
+void Composite::Assert() const
+{
+    /*
+    if (this->mode == Computation::RGB && this->auto_weight)
+        throw std::exception("Auto weight is enabled but composite mode is RGB");
+    if (this->mode == Computation::HSV && this->auto_weight)
+        throw std::exception("Auto weight is enabled but composite mode is HSV");
+    */  // TODO: check if auto weight can be enabled when composite mode is RGB or HSV
+}
+
+void ComputeSettings::Assert() const
+{
+    this->image_rendering.Assert();
+    this->view.Assert();
+    this->color_composite_image.Assert();
+    this->advanced.Assert();
+}
+
+void Windows::Assert() const
+{
+    // TODO: check if xy, yz, xz and filter2d have to be positive/have forbidden values
+}
+
+void Reticle::Assert() const
+{
+    if (this->scale <= 0)
+        throw std::exception("Reticle scale is 0 or negative");
+}
+
+void Views::Assert() const
+{
+    this->window.Assert();
+    this->reticle.Assert();
 }
 
 } // namespace holovibes

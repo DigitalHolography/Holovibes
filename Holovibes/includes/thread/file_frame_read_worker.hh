@@ -59,14 +59,14 @@ class FileFrameReadWorker final : public FrameReadWorker
     /**
      * @brief Constructor.
      * @tparam InitSettings A tuple type that contains at least all the settings of the FileFrameReadWorker.
-     * @param gpu_input_queue The queue where the frames should be copied.
+     * @param input_queue The queue where the frames should be copied.
      * This is the input queue of the compute pipeline, it should be allocated on GPU memory.
      * @param settings A tuple that contains the initial value of all settings used by the FileFrameReadWorker.
      * It should contain at least all the settings used, but it can carry more.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& gpu_input_queue, InitSettings settings)
-        : FrameReadWorker(gpu_input_queue)
+    FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue, InitSettings settings)
+        : FrameReadWorker(input_queue)
         , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
@@ -148,14 +148,14 @@ class FileFrameReadWorker final : public FrameReadWorker
     /*! \brief Load all the frames of the file in the gpu
      *
      * Read all the frames in cpu and copy them in gpu.
-     * Then enqueue the frames one by one in the gpu_input_queue
+     * Then enqueue the frames one by one in the input_queue
      */
     void read_file_in_gpu();
 
     /*! \brief Load the frames of the file by batch into the gpu
      *
      * Read batch in cpu and copy it in gpu.
-     * Then enqueue the frames one by one in the gpu_input_queue
+     * Then enqueue the frames one by one in the input_queue
      */
     void read_file_batch();
 
@@ -166,9 +166,9 @@ class FileFrameReadWorker final : public FrameReadWorker
      */
     size_t read_copy_file(size_t frames_to_read);
 
-    /*! \brief Enqueue frames_read in the gpu_input_queue with a speed related to the given fps
+    /*! \brief Enqueue frames_read in the input_queue with a speed related to the given fps
      *
-     * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to gpu_input_queue
+     * \param nb_frames_to_enqueue The number of frames to enqueue from gpu_buffer to input_queue
      */
     void enqueue_loop(size_t nb_frames_to_enqueue);
 

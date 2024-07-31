@@ -154,6 +154,31 @@ Build environment:
   -i I                  Path used by cmake to store compiled objects and exe (Default: bin/<generator>/)
 ```
 
+### Doumentation
+
+You can access the documentation by running the following command:
+
+```sh
+$ ./dev.py doc
+```
+
+This requires doxygen to be installed on your system. It will then compile the documentation and open it in your default browser.
+
+### Benchmarking
+
+#### Compile the build in Debug mode to access the option
+```sh
+dev.py build Debug
+```
+Then you can do the following:
+```sh
+dev.py run --benchmark  # or -b
+```
+
+It'll see benchmarking csv files being generated in the `[appdata]/Holovibe/[version]/benchmark` folder (you make need to create the folder yourself if it doesn't exist)
+
+These can be visualised with the BenchmarkViewer jupyter notebook.
+
 ### Misc
 
 #### Add an element to Front with __QtCreator__

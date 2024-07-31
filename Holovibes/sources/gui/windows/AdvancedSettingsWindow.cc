@@ -45,7 +45,7 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
 void AdvancedSettingsWindow::set_ui_values()
 {
-    api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked());
+    api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
     
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
@@ -61,7 +61,7 @@ void AdvancedSettingsWindow::set_ui_values()
     api::set_renorm_constant(ui.RenormConstantSpinBox->value());
     api::set_cuts_contrast_p_offset(ui.CutsContrastSpinBox->value());
 
-    UserInterfaceDescriptor::instance().default_output_filename_ = ui.OutputNameLineEdit->text().toStdString();
+    UserInterfaceDescriptor::instance().output_filename_ = ui.OutputNameLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
@@ -114,10 +114,10 @@ void AdvancedSettingsWindow::set_current_values()
     ui.RenormConstantSpinBox->setValue(api::get_renorm_constant());
     ui.CutsContrastSpinBox->setValue(api::get_cuts_contrast_p_offset());
 
-    ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location());
-    ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location());
+    ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location() == Device::GPU);
+    ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location() == Device::GPU);
 
-    ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().default_output_filename_.c_str());
+    ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
     ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
     ui.BatchFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().batch_input_directory_.c_str());
@@ -129,8 +129,6 @@ void AdvancedSettingsWindow::set_current_values()
 
     if (specific_panel_ != nullptr)
         specific_panel_->set_current_values();
-
-    // ui.RecordQueueLocationCheckBox->setValue(true);
 }
 
 } // namespace holovibes::gui

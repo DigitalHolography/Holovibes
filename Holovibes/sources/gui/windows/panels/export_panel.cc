@@ -24,7 +24,10 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
+    if (api::get_compute_mode() == Computation::Raw || api::get_record_mode() == RecordMode::RAW)
+        set_record_mode(QString::fromUtf8("Raw Image"));
+    else
+        api::set_record_mode(api::get_record_mode());
 }
 
 void ExportPanel::on_notify()
@@ -41,6 +44,9 @@ void ExportPanel::on_notify()
         if (ui_->RecordImageModeComboBox->findText("Chart") == -1)
             ui_->RecordImageModeComboBox->insertItem(2, "Chart");
     }
+
+    // select the record mode in the settings
+    ui_->RecordImageModeComboBox->setCurrentText(QString::fromStdString(api::get_record_mode_string()));
 
     if (ui_->TimeTransformationCutsCheckBox->isChecked())
     {
@@ -74,11 +80,21 @@ void ExportPanel::on_notify()
 
     std::string record_output_path =
         (std::filesystem::path(UserInterfaceDescriptor::instance().record_output_directory_) /
-         UserInterfaceDescriptor::instance().default_output_filename_)
+         UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+    if (light_ui_ != nullptr)
+        light_ui_->actualise_record_output_file_ui(record_output_path);
 
-    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_queue_location() && !api::get_input_queue_location());
+    ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
+    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
+    if (api::get_record_frame_count().has_value())
+    {
+        // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
+        ui_->NumberOfFramesSpinBox->setValue(api::get_record_frame_count().value());
+        ui_->NumberOfFramesCheckBox->setChecked(true);
+        ui_->NumberOfFramesSpinBox->setEnabled(true);
+    }
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -89,7 +105,14 @@ void ExportPanel::set_record_frame_step(int step)
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
-void ExportPanel::browse_record_output_file()
+void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
+{
+    light_ui_ = light_ui;
+    light_ui_->actualise_record_output_file_ui(
+        std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
+}
+
+QString ExportPanel::browse_record_output_file()
 {
     QString filepath;
 
@@ -125,11 +148,22 @@ void ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return;
+        return QString::fromStdString(api::get_record_file_path());
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
+    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    // Will pick the item combobox related to file_ext if it exists, else, nothing is done
+    ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
+
+    parent_->notify();
+
+    return filepath;
+}
+
+void ExportPanel::set_output_file_name(std::string std_filepath)
+{
     const std::string file_ext = api::browse_record_output_file(std_filepath);
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
@@ -153,7 +187,6 @@ void ExportPanel::browse_batch_input()
     batch_input_line_edit->clear();
     batch_input_line_edit->insert(filename);
 }
-
 
 void ExportPanel::set_record_mode(const QString& value)
 {
@@ -229,8 +262,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
         info = "Frame record finished";
 
-    ui_->InfoPanel->set_visible_record_progress(false);
-
     if (ui_->BatchGroupBox->isChecked())
         info = "Batch " + info;
 
@@ -240,35 +271,26 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+
     api::record_finished();
+
+    // notify others panels (info panel & lightUI) that the record is finished
+    auto& manager = NotifierManager::get_instance();
+    auto notifier = manager.get_notifier<bool>("record_finished");
+    notifier->notify(true);
 }
 
 void ExportPanel::set_record_device(bool value)
 {
     LOG_DEBUG("Set record device");
     // Mind that we negate the boolean, since true means gpu for the queues
-    api::set_record_device(!value);
+    api::set_record_on_gpu(!value);
     parent_->notify();
 }
 
 void ExportPanel::start_record()
 {
-    bool batch_enabled = ui_->BatchGroupBox->isChecked();
-    bool nb_frame_checked = ui_->NumberOfFramesCheckBox->isChecked();
-    std::optional<unsigned int> nb_frames_to_record = std::nullopt;
-
-    if (nb_frame_checked)
-        nb_frames_to_record = ui_->NumberOfFramesSpinBox->value();
-
-    std::string output_path =
-        ui_->OutputFilePathLineEdit->text().toStdString() + ui_->RecordExtComboBox->currentText().toStdString();
-    std::string batch_input_path = ui_->BatchInputPathLineEdit->text().toStdString();
-
-    // Preconditions to start record
-    const bool preconditions =
-        api::start_record_preconditions(batch_enabled, nb_frame_checked, nb_frames_to_record, batch_input_path);
-
-    if (!preconditions)
+    if (!api::start_record_preconditions()) // Check if the record can be started
         return;
 
     // Start record
@@ -279,13 +301,29 @@ void ExportPanel::start_record()
     ui_->BatchSizeSpinBox->setEnabled(false);
     UserInterfaceDescriptor::instance().is_recording_ = true;
 
+    // set the record progress bar color to orange, the patient should not move
+    ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
+    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25), "Recording");
+
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), this]()
-    { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
+    auto callback = [record_mode = api::get_record_mode(),
+                     compute_mode = api::get_compute_mode(),
+                     gpu_record = api::get_record_on_gpu(),
+                     this]()
+    {
+        parent_->synchronize_thread(
+            [=]()
+            {
+                record_finished(record_mode);
+                // if the record was in cpu mode, open the previous compute mode at the end of the record
+                if (!gpu_record)
+                    ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
+            });
+    };
 
     api::start_record(callback);
 }
@@ -338,9 +376,7 @@ void ExportPanel::update_record_frame_count_enabled()
         api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
-void ExportPanel::update_record_frame_count() { 
-     
-}
+void ExportPanel::update_record_frame_count() {}
 
 void ExportPanel::update_record_file_path()
 {
@@ -380,7 +416,7 @@ void ExportPanel::update_record_mode()
 
 /**
  * @brief called when change output file extension
-*/
+ */
 void ExportPanel::update_record_file_extension(const QString& value)
 {
     std::string path = ui_->OutputFilePathLineEdit->text().toStdString();

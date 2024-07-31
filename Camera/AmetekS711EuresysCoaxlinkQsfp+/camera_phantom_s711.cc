@@ -8,10 +8,12 @@
 #include "camera_phantom_s711.hh"
 #include "camera_logger.hh"
 
+#include <stdio.h>
+
 namespace camera
 {
-CameraPhantom::CameraPhantom()
-    : Camera("ametek_s711_euresys_coaxlink_qsfp+.ini")
+CameraPhantom::CameraPhantom(bool gpu)
+    : Camera("ametek_s711_euresys_coaxlink_qsfp+.ini", gpu)
 {
     name_ = "Phantom S711";
     pixel_size_ = 20;
@@ -33,6 +35,8 @@ void CameraPhantom::init_camera()
     grabber_->setup(fullHeight_,
                     width_,
                     nb_grabbers_,
+                    stripeOffset_grabber_0_,
+                    stripeOffset_grabber_1_,
                     trigger_source_,
                     exposure_time_,
                     cycle_minimum_period_,
@@ -42,12 +46,13 @@ void CameraPhantom::init_camera()
                     balance_white_marker_,
                     trigger_mode_,
                     trigger_selector_,
+                    flat_field_correction_,
                     *gentl_);
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
-    fd_.width = grabber_->width_;
-    fd_.height = grabber_->height_;
+    fd_.width = width_;
+    fd_.height = fullHeight_;
     fd_.depth = grabber_->depth_;
     fd_.byteEndian = Endianness::LittleEndian;
 }
@@ -90,6 +95,10 @@ void CameraPhantom::load_ini_params()
     nb_grabbers_ = pt.get<unsigned int>("s711.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s711.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s711.Width", width_);
+
+    stripeOffset_grabber_0_ = pt.get<unsigned int>("s711.Offset0", stripeOffset_grabber_0_);
+    stripeOffset_grabber_1_ = pt.get<unsigned int>("s711.Offset1", stripeOffset_grabber_1_);
+
     trigger_source_ = pt.get<std::string>("s711.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s711.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s711.ExposureTime", exposure_time_);
@@ -100,6 +109,8 @@ void CameraPhantom::load_ini_params()
     trigger_mode_ = pt.get<std::string>("s711.TriggerMode", trigger_mode_);
     gain_ = pt.get<float>("s711.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
+    flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
+
 
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)

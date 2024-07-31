@@ -256,7 +256,7 @@ def build_ref(args: GoalArgs) -> int:
             os.remove(ref_error)
 
         print(name)
-        ref_time = generate_holo_from(input, ref, ref_error, cli_argument, config)
+        ref_time = generate_holo_from(path, input, ref, ref_error, cli_argument, config)
         write_time(ref_time, ref_time_path)
 
     return 0

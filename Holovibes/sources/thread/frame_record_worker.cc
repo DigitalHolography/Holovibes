@@ -7,6 +7,9 @@
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
+#include <chrono>
+#include <fstream>
+#include <filesystem>
 
 namespace holovibes::worker
 {
@@ -28,7 +31,6 @@ size_t FrameRecordWorker::compute_fps_average() const
     LOG_FUNC();
     spdlog::trace("fps_current_index_ = {}", fps_current_index_);
 
-
     if (fps_current_index_ == 0)
         return 0;
 
@@ -40,6 +42,29 @@ size_t FrameRecordWorker::compute_fps_average() const
     ret /= upper;
 
     return ret;
+}
+
+std::string get_current_date()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    std::tm* timeinfo = std::localtime(&in_time_t);
+    int year = timeinfo->tm_year % 100;
+    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d_");
+    return ss.str();
+}
+
+std::string append_date_to_filepath(std::string record_file_path)
+{
+    //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
+    std::filesystem::path filePath(record_file_path);
+    std::string date = get_current_date();
+    std::string filename = filePath.filename().string();
+    std::string path = filePath.parent_path().string();
+    std::filesystem::path newFilePath = path + "/" + date + filename;
+    return newFilePath.string();
 }
 
 void FrameRecordWorker::run()
@@ -55,7 +80,9 @@ void FrameRecordWorker::run()
     nb_frames_recorded = 0;
 
     if (setting<settings::RecordFrameCount>().has_value())
+    {
         nb_frames_to_record = setting<settings::RecordFrameCount>().value();
+    }
     else
         nb_frames_to_record = 0;
 
@@ -73,7 +100,9 @@ void FrameRecordWorker::run()
 
     try
     {
-        output_frame_file = io_files::OutputFrameFileFactory::create(setting<settings::RecordFilePath>(),
+        std::string record_file_path = append_date_to_filepath(setting<settings::RecordFilePath>());
+
+        output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
                                                                      nb_frames_to_record);
 
@@ -87,14 +116,30 @@ void FrameRecordWorker::run()
 
         size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
 
+        if (Holovibes::instance().get_input_queue()->has_overwritten())
+            Holovibes::instance().get_input_queue()->reset_override();
+
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
         {
-            if (record_queue_.load()->has_overridden() || Holovibes::instance().get_gpu_input_queue()->has_overridden())
+            if (record_queue_.load()->has_overwritten() || Holovibes::instance().get_input_queue()->has_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
-                    contiguous_frames = std::make_optional(nb_frames_recorded.load());
+                {
+
+                    contiguous_frames =
+                        std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
+
+                    if (record_queue_.load()->has_overwritten())
+                        LOG_WARN(
+                            "The record queue has been saturated ; the record will stop once all contiguous frames "
+                            "are written");
+
+                    if (Holovibes::instance().get_input_queue()->has_overwritten())
+                        LOG_WARN("The input queue has been saturated ; the record will stop once all contiguous frames "
+                                 "are written");
+                }
             }
 
             wait_for_frames();
@@ -102,7 +147,7 @@ void FrameRecordWorker::run()
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
             // and stop recording if needed.
-            if (stop_requested_)
+            if (stop_requested_ || (contiguous_frames.has_value() && nb_frames_recorded >= contiguous_frames.value()))
                 break;
 
             if (nb_frames_to_skip > 0)
@@ -112,9 +157,14 @@ void FrameRecordWorker::run()
                 continue;
             }
 
-            record_queue_.load()->dequeue(frame_buffer, stream_, api::get_record_queue_location() ? cudaMemcpyDeviceToHost : cudaMemcpyDeviceToHost);
+            record_queue_.load()->dequeue(frame_buffer,
+                                          stream_,
+                                          api::get_record_queue_location() == holovibes::Device::GPU
+                                              ? cudaMemcpyDeviceToHost
+                                              : cudaMemcpyHostToHost);
             output_frame_file->write_frame(frame_buffer, output_frame_size);
 
+            // FIXME: to check if it's still relevant
             // if (api::get_record_queue_location()) {
             //     record_queue_.load()->dequeue(frame_buffer, stream_, cudaMemcpyDeviceToHost);
             //     output_frame_file->write_frame(frame_buffer, output_frame_size);
@@ -123,7 +173,8 @@ void FrameRecordWorker::run()
             // {
             //     {
             //         MutexGuard mGuard(record_queue_.load()->get_guard());
-            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()), record_queue_.load()->get_size() * output_frame_size);
+            //         output_frame_file->write_frame(static_cast<char*>(record_queue_.load()->get_data()),
+            //         record_queue_.load()->get_size() * output_frame_size);
             //     }
             //     record_queue_.load()->dequeue(record_queue_.load()->get_size());
             // }
@@ -135,13 +186,13 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        //api::set_record_frame_skip(nb_frames_to_skip);
+        // api::set_record_frame_skip(nb_frames_to_skip);
 
-        //api::set_record_frame_skip(nb_frames_to_skip);
+        // api::set_record_frame_skip(nb_frames_to_skip);
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
-        if (contiguous_frames.has_value())
+        if (contiguous_frames.has_value() && contiguous_frames < nb_frames_recorded)
         {
             LOG_WARN("Record lost its contiguousity at frame {}.", contiguous_frames.value());
             LOG_WARN("To prevent this lost, you might need to increase Input AND/OR Record buffer size.");
@@ -186,6 +237,7 @@ void FrameRecordWorker::reset_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request_disable_frame_record();
+    record_queue_.load()->reset();
 
     /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();
     if (raw_view_queue)

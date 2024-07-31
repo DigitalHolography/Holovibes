@@ -14,6 +14,10 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
+    , record_finished_subscriber_("record_finished", [this](bool success)
+                                       {
+                                            set_visible_record_progress(false);
+                                       })
 {
 }
 
@@ -37,6 +41,7 @@ void InfoPanel::init()
                 case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
+                    light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;
@@ -54,13 +59,15 @@ void InfoPanel::load_gui(const json& j_us)
     setHidden(h);
 }
 
+void InfoPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
+
 void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 
 void InfoPanel::set_text(const char* text)
 {
     QTextEdit* text_edit = ui_->InfoTextEdit;
 
-    text_edit->setText(text);
+    text_edit->setHtml(text);
 
     // For some reason, the GUI needs multiple updates to return to its base layout
     if (resize_again_-- > 0)
@@ -99,4 +106,13 @@ void InfoPanel::set_visible_record_progress(bool visible)
         ui_->RecordProgressBar->hide();
     }
 }
+
+void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)
+{
+    ui_->RecordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: " + color.name() +
+                                          "; } "
+                                          "QProgressBar { text-align: center; padding-top: 2px; }");
+    ui_->RecordProgressBar->setFormat(text);
+}
+
 } // namespace holovibes::gui

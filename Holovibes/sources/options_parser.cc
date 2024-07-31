@@ -83,7 +83,15 @@ OptionsParser::OptionsParser()
         "chart,t",
         po::value<std::vector<unsigned int>>()->multitoken()->default_value(std::vector<unsigned int>(8, 0), "0 0 0 0 0 0 0 0"),
         "Chart to record with area coordinates (x11 y11 x21 y21 x12 y12 x22 y22) (first being for the signal and second for the noise)"
-    );
+    )
+#ifndef _DEBUG
+    (
+        "benchmark,b",
+        po::bool_switch()->default_value(false),
+        "Benchmark mode (default = false)"
+    )
+#endif
+    ;
     // clang-format on
 
     opts_desc_.add(general_opts_desc).add(run_opts_desc);
@@ -170,6 +178,9 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
+#ifndef _DEBUG
+        options_.benchmark = vm_["benchmark"].as<bool>();
+#endif
     }
     catch (std::exception& e)
     {

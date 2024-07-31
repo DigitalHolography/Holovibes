@@ -30,6 +30,7 @@ using ulong = unsigned long;
 #include "cufft.h"
 
 #include "logger.hh"
+#include "notifier.hh"
 
 #include <nlohmann/json.hpp>
 using json = ::nlohmann::json;

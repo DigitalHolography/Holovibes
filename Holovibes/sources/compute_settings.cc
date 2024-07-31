@@ -17,23 +17,6 @@
 namespace holovibes::api
 {
 
-void after_load_checks()
-{
-    auto tts = api::get_time_transformation_size();
-
-    if (api::get_filter2d_n1() >= api::get_filter2d_n2())
-        api::set_filter2d_n1(api::get_filter2d_n2() - 1);
-    if (tts < 1)
-        api::set_time_transformation_size(1);
-    // TODO: Check convolution type if it  exists (when it will be added to cd)
-    if (holovibes::api::get_p_index() >= tts)
-        api::set_p_index(tts - 1);
-    if (api::get_q().start >= tts)
-        api::set_q_index(tts - 1);
-    if (api::get_cuts_contrast_p_offset() > tts - 1)
-        api::set_cuts_contrast_p_offset(tts - 1);
-}
-
 void load_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
@@ -57,13 +40,44 @@ void load_compute_settings(const std::string& json_path)
         throw std::exception(e);
     }
 
-
+    compute_settings.Assert();
     compute_settings.Load();
     compute_settings.Dump("cli_load_compute_settings");
 
     LOG_INFO("Compute settings loaded from : {}", json_path);
+    pipe_refresh();
+}
 
-    after_load_checks();
+void import_buffer(const std::string& json_path)
+{
+
+    LOG_FUNC(json_path);
+    if (json_path.empty())
+    {
+        LOG_WARN("Configuration file not found.");
+        return;
+    }
+
+    std::ifstream ifs(json_path);
+    auto j_cs = json::parse(ifs);
+
+    auto advanced_settings = AdvancedSettings();
+
+    auto buffer_settings = AdvancedSettings::BufferSizes();
+    try
+    {
+        from_json(j_cs, buffer_settings);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("{} is an invalid buffer settings", json_path);
+        throw std::exception(e);
+    }
+
+    buffer_settings.Assert();
+    buffer_settings.Load();
+
+    LOG_INFO("Buffer settings loaded from : {}", json_path);
     pipe_refresh();
 }
 

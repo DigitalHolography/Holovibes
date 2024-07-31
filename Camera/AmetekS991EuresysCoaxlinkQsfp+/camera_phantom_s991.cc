@@ -33,9 +33,12 @@ void CameraPhantom::init_camera()
     grabber_->setup(fullHeight_,
                     width_,
                     nb_grabbers_,
+                    stripeOffset_grabber_0_,
+                    stripeOffset_grabber_1_,
                     trigger_source_,
                     exposure_time_,
                     cycle_minimum_period_,
+                    acquisition_frame_rate_,
                     pixel_format_,
                     gain_selector_,
                     gain_,
@@ -71,7 +74,8 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
     CapturedFramesDescriptor ret;
 
     // ret.on_gpu = false;
-    ret.on_gpu = gpu_;
+    // ret.on_gpu = gpu_;
+    ret.on_gpu = true;
     ret.region1 = buffer.getUserPointer();
     ret.count1 = delivered;
 
@@ -91,10 +95,15 @@ void CameraPhantom::load_ini_params()
     nb_grabbers_ = pt.get<unsigned int>("s991.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s991.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s991.Width", width_);
+
+    stripeOffset_grabber_0_ = pt.get<unsigned int>("s991.Offset0", stripeOffset_grabber_0_);
+    stripeOffset_grabber_1_ = pt.get<unsigned int>("s991.Offset1", stripeOffset_grabber_1_);
+
     trigger_source_ = pt.get<std::string>("s991.TriggerSource", trigger_source_);
     trigger_selector_ = pt.get<std::string>("s991.TriggerSelector", trigger_selector_);
     exposure_time_ = pt.get<float>("s991.ExposureTime", exposure_time_);
     cycle_minimum_period_ = pt.get<unsigned int>("s991.CycleMinimumPeriod", cycle_minimum_period_);
+    acquisition_frame_rate_ = pt.get<unsigned int>("s991.AcquisitionFrameRate", acquisition_frame_rate_);
     pixel_format_ = pt.get<std::string>("s991.PixelFormat", pixel_format_);
     
     gain_selector_ = pt.get<std::string>("s991.GainSelector", gain_selector_);

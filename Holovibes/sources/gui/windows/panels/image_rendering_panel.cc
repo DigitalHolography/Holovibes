@@ -19,6 +19,10 @@ namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
+    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { 
+        const QSignalBlocker blocker(ui_->ZDoubleSpinBox); // safely unlocks upon destruction
+        ui_->ZDoubleSpinBox->setValue(value);
+     }))
 {
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -35,6 +39,8 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
+void ImageRenderingPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
+
 void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
 
 void ImageRenderingPanel::on_notify()
@@ -42,7 +48,7 @@ void ImageRenderingPanel::on_notify()
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
-    ui_->ImageModeComboBox->setEnabled(api::get_input_queue_location());
+    ui_->ImageModeComboBox->setEnabled((api::get_input_queue_location() == holovibes::Device::GPU));
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
@@ -52,7 +58,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!is_raw && !UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -80,13 +86,22 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
-    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
+
     ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
 
     // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
     // Might need to find a better fix one day or another
-    try {ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());}
-    catch(const std::exception&) {}
+    try
+    {
+        ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
+    }
+    catch (const std::exception&)
+    {
+    }
+
+    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
+
+    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
 
     ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
@@ -96,12 +111,13 @@ void ImageRenderingPanel::on_notify()
     ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
     if (!api::get_filter_enabled())
     {
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(
+            ui_->InputFilterQuickSelectComboBox->findText(UID_FILTER_TYPE_DEFAULT));
     }
     else
     {
         ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
-        QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+            QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
     }
 
     // Convolution
@@ -154,34 +170,30 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
         api::change_window(static_cast<int>(WindowKind::XYview));
 
-        const bool res = api::set_holographic_mode(parent_->window_max_size);
+        api::set_holographic_mode(parent_->window_max_size);
 
-        if (res)
-        {
-            /* Filter2D */
-            camera::FrameDescriptor fd = api::get_fd();
-            ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
+        /* Filter2D */
+        camera::FrameDescriptor fd = api::get_fd();
+        ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
-            /* Record Frame Calculation. Only in file mode */
-            if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
-                ui_->NumberOfFramesSpinBox->setValue(
-                    ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                         (float)ui_->TimeStrideSpinBox->value()));
+        /* Record Frame Calculation. Only in file mode */
+        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+            ui_->NumberOfFramesSpinBox->setValue(
+                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                     (float)ui_->TimeStrideSpinBox->value()));
 
-            /* Batch size */
-            // The batch size is set with the value present in GUI.
-            update_batch_size();
+        /* Batch size */
+        // The batch size is set with the value present in GUI.
+        // update_batch_size();
 
-            /* Notify */
-            parent_->notify();
-        }
+        /* Notify */
+        parent_->notify();
     }
 }
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     uint batch_size = ui_->BatchSizeSpinBox->value();
@@ -205,9 +217,6 @@ void ImageRenderingPanel::update_time_stride()
 
     auto callback = [=]()
     {
-        api::set_time_stride(time_stride);
-        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
-
         // Only in file mode, if batch size change, the record frame number have to change
         // User need.
         if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
@@ -255,21 +264,22 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     LOG_FUNC();
 
-    UserInterfaceDescriptor::instance().filter_name = value.toStdString();
-    
-    api::enable_filter(UserInterfaceDescriptor::instance().filter_name);
-
-    parent_->notify();
+    if (value.toStdString() != UserInterfaceDescriptor::instance().filter_name)
+    {
+        api::enable_filter(value.toStdString());
+        parent_->notify();
+    }
 }
 
-void ImageRenderingPanel::refresh_input_filter(){
+void ImageRenderingPanel::refresh_input_filter()
+{
     LOG_FUNC();
 
     LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
     LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
 
     auto filename = UserInterfaceDescriptor::instance().filter_name;
-    
+
     if (filename == UID_FILTER_TYPE_DEFAULT)
     {
         LOG_INFO("--- || ---");
@@ -361,7 +371,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     api::set_time_transformation_size(callback);
 }
 
-//λ
+// λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
     if (api::get_compute_mode() == Computation::Raw)
@@ -384,7 +394,6 @@ void ImageRenderingPanel::increment_z()
         return;
 
     set_z_distance(api::get_z_distance() + z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
 
 void ImageRenderingPanel::decrement_z()
@@ -393,15 +402,7 @@ void ImageRenderingPanel::decrement_z()
         return;
 
     set_z_distance(api::get_z_distance() - z_step_);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
 }
-
-void ImageRenderingPanel::set_device(const QString& value)
-{
-    LOG_DEBUG(value.toStdString());
-    LOG_DEBUG("AAAH");
-}
-
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {

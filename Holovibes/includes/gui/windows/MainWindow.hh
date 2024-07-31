@@ -21,6 +21,8 @@
 #include "import_panel.hh"
 #include "export_panel.hh"
 
+#include "lightui.hh"
+
 // Suppress all warnings in this auto-generated file
 #pragma warning(push, 0)
 
@@ -71,6 +73,8 @@ class MainWindow : public QMainWindow, public Observer
 
     /*! \brief Start the import process */
     void start_import(QString filename);
+
+    void set_preset_file_on_gpu();
 
     Ui::MainWindow* get_ui();
 
@@ -147,6 +151,16 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
+    /**
+     * @brief Open light ui panel and hide this one
+     */
+    void open_light_ui();
+
+    /**
+     * @brief Sets preset for given usage.
+     */
+    void set_preset();
+
   signals:
     /*! \brief TODO: comment
      *
@@ -178,9 +192,21 @@ class MainWindow : public QMainWindow, public Observer
 
     Ui::MainWindow* ui_;
     std::vector<Panel*> panels_;
+    std::shared_ptr<LightUI> light_ui_;
 
     // Additional attributes
     Theme theme_ = Theme::Dark;
     bool save_cs = true;
+
+  private:
+    void enable_notify();
+    void disable_notify();
+
+    bool notify_enabled_ = true;
+
+    Subscriber<bool> acquisition_started_subscriber_;
+    Subscriber<bool> acquisition_finished_subscriber_;
+    bool acquisition_finished_notification_received;
+    Subscriber<bool> set_preset_subscriber_;
 };
 } // namespace holovibes::gui

@@ -31,9 +31,6 @@
     holovibes::settings::Y,                                      \
     holovibes::settings::P,                                      \
     holovibes::settings::Q,                                      \
-    holovibes::settings::XY,                                     \
-    holovibes::settings::XZ,                                     \
-    holovibes::settings::YZ,                                     \
     holovibes::settings::Filter2d,                               \
     holovibes::settings::CurrentWindow,                          \
     holovibes::settings::LensViewEnabled,                        \
@@ -58,6 +55,9 @@
     holovibes::settings::HSV
 
 #define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::XY,                                     \
+    holovibes::settings::XZ,                                     \
+    holovibes::settings::YZ,                                     \
     holovibes::settings::BatchSize
 
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
@@ -126,8 +126,8 @@ struct BatchEnv
      * Batch size frames are enqueued in the gpu_time_transformation_queue
      * This is done for perfomances reasons
      *
-     * The variable is incremented until it reachs batch_size in
-     *enqueue_multiple, then it is set back to 0
+     * The variable is incremented by batch_size until it reaches timestride in
+     * enqueue_multiple, then it is set back to 0
      */
     uint batch_index = 0;
 };
@@ -227,7 +227,6 @@ class ICompute
         , gpu_output_queue_(output)
         , record_queue_(record)
         , stream_(stream)
-        , past_time_(std::chrono::high_resolution_clock::now())
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
@@ -329,6 +328,8 @@ class ICompute
     // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
     void soft_request_refresh();
     void request_refresh();
+    void enable_refresh();
+    void disable_refresh();
     void request_output_resize(unsigned int new_output_size);
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
@@ -496,13 +497,6 @@ class ICompute
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Chrono counting time between two iteration
-     *
-     * Taking into account steps, since it is executing at the end of pipe.
-     */
-    /* FIXME: not used anywhere */
-    std::chrono::time_point<std::chrono::steady_clock> past_time_;
-
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};
 
@@ -513,6 +507,7 @@ class ICompute
     std::atomic<bool> autocontrast_slice_yz_requested_{false};
     std::atomic<bool> autocontrast_filter2d_requested_{false};
     std::atomic<bool> refresh_requested_{false};
+    std::atomic<bool> refresh_enabled_{true};
     std::atomic<bool> update_time_transformation_size_requested_{false};
     std::atomic<bool> stft_update_roi_requested_{false};
     std::atomic<bool> chart_display_requested_{false};
