@@ -19,10 +19,7 @@ namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
-    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { 
-        const QSignalBlocker blocker(ui_->ZDoubleSpinBox); // safely unlocks upon destruction
-        ui_->ZDoubleSpinBox->setValue(value);
-     }))
+    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { actualise_z_distance(value); }))
 {
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -378,6 +375,22 @@ void ImageRenderingPanel::set_lambda(const double value)
         return;
 
     api::set_lambda(static_cast<float>(value) * 1.0e-9f);
+}
+
+void ImageRenderingPanel::actualise_z_distance(const double z_distance)
+{
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    const QSignalBlocker blocker2(ui_->ZSlider);
+    ui_->ZDoubleSpinBox->setValue(z_distance);
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
+}
+
+void ImageRenderingPanel::set_z_distance_slider(int value)
+{ 
+    if (api::get_compute_mode() == Computation::Raw) 
+        return;
+
+    api::set_z_distance(static_cast<float>(value) / 1000.0f);
 }
 
 void ImageRenderingPanel::set_z_distance(const double value)

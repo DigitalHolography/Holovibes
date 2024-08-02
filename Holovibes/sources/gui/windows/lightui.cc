@@ -33,14 +33,6 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
 {
     ui_->setupUi(this);
 
-    connect(ui_->OutputFileBrowseToolButton, &QPushButton::clicked, this, &LightUI::browse_record_output_file_ui);
-    connect(ui_->OutputFileNameLineEdit, &QLineEdit::textChanged, this, &LightUI::set_record_file_name);
-    connect(ui_->startButton, &QPushButton::toggled, this, &LightUI::start_stop_recording);
-    connect(ui_->actionConfiguration_UI, &QAction::triggered, this, &LightUI::open_configuration_ui);
-    connect(ui_->actionPreset, &QAction::triggered, this, &LightUI::set_preset);
-    connect(ui_->ZSpinBox, &QSpinBox::valueChanged, this, &LightUI::z_value_changed_spinBox);
-    connect(ui_->ZSlider, &QSlider::valueChanged, this, &LightUI::z_value_changed_slider);
-
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     // ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);  #FIXME: This shortcut is not working, even though it works for MainWindow
 }
@@ -73,12 +65,10 @@ void LightUI::actualise_z_distance(const double z_distance)
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
-void LightUI::z_value_changed_spinBox(int z_distance)
+void LightUI::z_value_changed(int z_distance)
 {
-    api::set_z_distance(static_cast<double>(z_distance) / 1000.0f);
+    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
 }
-
-void LightUI::z_value_changed_slider(int z_distance) { api::set_z_distance(static_cast<double>(z_distance) / 1000.0f); }
 
 void LightUI::browse_record_output_file_ui()
 {
