@@ -1715,6 +1715,7 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
     // Setting values in UserInterfaceDescriptor instance in a more optimized manner
+    std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
     UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
     UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
 

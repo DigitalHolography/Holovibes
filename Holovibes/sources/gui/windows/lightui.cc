@@ -34,6 +34,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     ui_->setupUi(this);
 
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+    // ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);  #FIXME: This shortcut is not working, even though it works for MainWindow
 }
 
 LightUI::~LightUI()
@@ -75,15 +76,14 @@ void LightUI::browse_record_output_file_ui()
     //! not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
     //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
     //! with the file path).
-    auto file_path = export_panel_->browse_record_output_file();
-    auto file_info = QFileInfo(file_path);
-    ui_->OutputFilePathLineEdit->setText(file_info.path());
+    std::filesystem::path file_path(export_panel_->browse_record_output_file().toStdString());
+    std::string file_path_str = file_path.string();
+    std::replace(file_path_str.begin(), file_path_str.end(), '/', '\\');
+    ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path_str));
 
-    auto file_name = file_info.fileName();
     // remove the extension from the filename
-    ui_->OutputFileNameLineEdit->setText(file_name.left(file_name.lastIndexOf('.')));
+    ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
-
 void LightUI::set_record_file_name(const QString& filename)
 {
     // concatenate the path with the filename

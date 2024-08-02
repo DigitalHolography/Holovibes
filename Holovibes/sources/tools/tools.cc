@@ -75,10 +75,7 @@ std::string get_record_filename(std::string filename)
     // the name
     unsigned i = 1;
 
-    // if filename contains '\\' replace it with '/'
-    std::replace(filename.begin(), filename.end(), '\\', '/');
-
-    auto name_index = filename.find_last_of('/');
+    auto name_index = filename.find_last_of('\\');
     if (name_index == std::string::npos)
     {
         // If no slash found, assume the last index before the dot is where to insert the date
