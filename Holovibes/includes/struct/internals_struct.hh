@@ -40,7 +40,7 @@ struct Internals
      */
     struct Record
     {
-        float input_fps = 2000.0f;
+        float input_fps = 60.0f;
         unsigned record_start_frame = 0;
         unsigned record_end_frame = 0;
         bool frame_record_enabled = false;

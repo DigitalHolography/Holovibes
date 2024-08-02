@@ -371,7 +371,7 @@ class Holovibes
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{2000},
+        : realtime_settings_(std::make_tuple(settings::InputFPS{60},
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
                                              settings::LoopOnInputFile{true},
