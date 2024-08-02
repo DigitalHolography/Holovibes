@@ -15,7 +15,8 @@ namespace api = ::holovibes::api;
 namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
-    : Panel(parent)
+    : Panel(parent), import_start_subscriber_("import_start", [this](bool success)
+                                                { set_record_image_mode(); })
 {
 }
 
@@ -387,6 +388,12 @@ void ExportPanel::update_record_file_path()
 void ExportPanel::update_batch_file_path()
 {
     api::set_batch_file_path(ui_->BatchInputPathLineEdit->text().toStdString());
+}
+
+void ExportPanel::set_record_image_mode()
+{
+    ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
+    api::set_record_mode(RecordMode::HOLOGRAM);
 }
 
 void ExportPanel::update_record_mode()
