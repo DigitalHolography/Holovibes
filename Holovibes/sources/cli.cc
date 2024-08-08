@@ -251,12 +251,10 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (opts.record_raw)
     {
         record_nb_frames = opts.n_rec.value_or(input_nb_frames);
-        LOG_ERROR("ICI");
     }
     else
     {
         record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
-        LOG_ERROR("LA");
     }
 
     if (record_nb_frames <= 0)
