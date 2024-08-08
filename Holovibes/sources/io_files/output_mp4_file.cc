@@ -23,7 +23,11 @@ void OutputMp4File::write_header()
 
         bool is_color = fd_.depth == 3;
 
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_output_fps(), size, is_color);
+        // double output_fps = compute_output_fps(); // 24 is good enough, and otherwise finding the right value is a pain
+        // if (output_fps > 5000)  // 5000 is an arbitrary limit
+        //     output_fps = 5000;
+
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, 24, size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();
