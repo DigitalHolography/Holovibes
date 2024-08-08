@@ -266,7 +266,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
+    if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled() && !opts.record_raw)
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
