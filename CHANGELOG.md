@@ -1,5 +1,22 @@
 ## Changelog
 
+### 13.4.0
+
+- file path is now written with ' \ ' in the app
+- ConfigUI: added ZSlider
+- --fps option fixed
+- cli now works properly for new holovibe's version footer
+- mp4 file output is not hard set to 24 fps (avi isn't)
+- record_mode isn't a compute_setting anymore
+- default inputfps value is now 10000 (from 60)
+- Added powershell script that allow user to :
+  - select a folder with holo files
+  - select an optionnal compute setting file (by default, takes it from each of the file's footer)
+  - select an optionnal hololive exec (by default, takes it from the current folder)
+  - select a file extention for the output
+  It then output in the first choosen folder the cli output of each of the files inside.
+
+
 ### 13.2.3
 
 - Fix a bug causing the overwrite of the output file
