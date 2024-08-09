@@ -30,7 +30,7 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->actionImportExport->setChecked(!h);
     ui_->ImportExportFrame->setHidden(h);
 
-    ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
+    ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 10000, "import", "fps"));
     update_fps(); // Required as it is called `OnEditedFinished` only.
 
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));

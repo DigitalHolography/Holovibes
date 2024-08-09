@@ -127,7 +127,7 @@ void InputHoloFile::load_footer()
 
 void rec_fill_default_json(json& dst, json& src)
 {
-    for(auto dst_el = dst.begin(); dst_el != dst.end(); ++dst_el)
+    for (auto dst_el = dst.begin(); dst_el != dst.end(); ++dst_el)
     {
         if (src.contains(dst_el.key()))
         {
@@ -203,6 +203,7 @@ void InputHoloFile::import_info() const
     {
         // Pixel are considered square
         api::set_pixel_size(meta_data_["info"]["pixel_pitch"]["x"]);
+        api::set_input_fps(meta_data_["info"]["input_fps"]);
     }
     catch (std::exception&)
     {

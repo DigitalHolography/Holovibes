@@ -104,32 +104,39 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
-    
-    holovibes.update_setting(holovibes::settings::RecordMode{mode});
-
-    holovibes::api::set_frame_record_enabled(true);
-    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
-
-    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
 #ifdef _DEBUG
     holovibes::api::set_benchmark_mode(opts.benchmark);
 #endif
 
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
-    
-    holovibes::io_files::InputFrameFile* input_frame_file = holovibes::io_files::InputFrameFileFactory::open(input_path);
+
+    holovibes::io_files::InputFrameFile* input_frame_file =
+        holovibes::io_files::InputFrameFileFactory::open(input_path);
     if (!input_frame_file)
     {
         LOG_ERROR("Failed to open input file");
         return 33;
     }
 
-    
-
     bool load = false;
-    if (input_frame_file->get_has_footer())
+    
+    if (opts.compute_settings_path)
+    {
+        try
+        {
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+        }
+        catch (std::exception& e)
+        {
+            LOG_INFO(e.what());
+            LOG_INFO("Error while loading compute settings, abort");
+            return 34;
+        }
+        load = true;
+    }
+
+    else if (input_frame_file->get_has_footer())
     {
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
@@ -147,30 +154,25 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         load = true;
     }
-
-    if (opts.compute_settings_path)
-    {
-        try
-        {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
-        }
-        catch (std::exception& e)
-        {
-            LOG_INFO(e.what());
-            LOG_INFO("Error while loading compute settings, abort");
-            return 34;
-        }
-    }
-    else if (!load)
+    if (!load)
     {
         LOG_DEBUG("No compute settings file provided and no footer found in input file");
         return 35;
     }
 
+    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
+
+    holovibes.update_setting(holovibes::settings::RecordMode{mode});
+
+    holovibes::api::set_frame_record_enabled(true);
+    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
+
+    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 
     if (int ret = get_first_and_last_frame(opts, static_cast<uint>(input_frame_file->get_total_nb_frames())))
-        return ret;  // error 31, 32
+        return ret; // error 31, 32
 
     holovibes.init_input_queue(fd, holovibes::api::get_input_buffer_size());
 
@@ -210,8 +212,10 @@ static void main_loop(holovibes::Holovibes& holovibes)
     // Request auto contrast once if auto refresh is enabled
     bool requested_autocontrast = !holovibes::api::get_xy_contrast_auto_refresh();
 
-    while (holovibes::api::get_frame_record_enabled()) {
-        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD)) {
+    while (holovibes::api::get_frame_record_enabled())
+    {
+        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
+        {
             if (!progress)
                 progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
                     holovibes::ProgressType::FRAME_RECORD);
@@ -233,7 +237,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
         // Don't make the current thread loop too fast
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-   
+
     // Show 100% completion to avoid rounding errors
     progress_bar(1, 1, 40);
 }
@@ -244,9 +248,17 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Force some values
 
     // Value used in more than 1 thread
-    size_t input_nb_frames =
-        holovibes::api::get_input_file_end_index() - holovibes::api::get_input_file_start_index();
-    uint record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
+    size_t input_nb_frames = holovibes::api::get_input_file_end_index() - holovibes::api::get_input_file_start_index();
+    uint record_nb_frames;
+    if (opts.record_raw)
+    {
+        record_nb_frames = opts.n_rec.value_or(input_nb_frames);
+    }
+    else
+    {
+        record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
+    }
+
     if (record_nb_frames <= 0)
     {
         LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));
@@ -256,13 +268,13 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled())
+    if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled() && !opts.record_raw)
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
-    
+
     holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.

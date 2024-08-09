@@ -109,7 +109,6 @@ void AdvancedSettings::Update()
     if (holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.has_value())
         this->nb_frames_to_record =
             holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.value();
-    this->record_mode = holovibes::Holovibes::instance().get_setting<settings::RecordMode>().value;
 }
 
 void Composite::Update()
@@ -160,7 +159,6 @@ void AdvancedSettings::Load()
     Holovibes::instance().update_setting(settings::RawBitshift{this->raw_bitshift});
     if (this->nb_frames_to_record != 0)
         Holovibes::instance().update_setting(settings::RecordFrameCount{this->nb_frames_to_record});
-    Holovibes::instance().update_setting(settings::RecordMode{this->record_mode});
 }
 
 void Composite::Load()
