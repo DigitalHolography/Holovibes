@@ -3,6 +3,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 # Function to prompt the user to select a folder
 function Select-Folder([string]$description) {
+    Write-Host $description -ForegroundColor Green
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = $description
     $dialogResult = $folderBrowser.ShowDialog()
@@ -16,6 +17,7 @@ function Select-Folder([string]$description) {
 
 # Function to prompt the user to select a file
 function Select-File([string]$description, [string]$filter) {
+    Write-Host $description -ForegroundColor Green
     $fileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $fileDialog.Filter = $filter
     $fileDialog.Title = $description
