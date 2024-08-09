@@ -49,7 +49,7 @@ class LightUI : public QMainWindow
      * @brief Updates the UI with the output file name for recording.
      * @param filename The name of the output file.
      */
-    void actualise_record_output_file_ui(const QString& filename);
+    void actualise_record_output_file_ui(const std::filesystem::path file_path);
 
     /**
      * @brief Updates the UI with the Z distance.
@@ -79,7 +79,7 @@ class LightUI : public QMainWindow
     void on_record_stop(RecordMode record);
 
     void actualise_record_progress(const int value, const int max);
-    void set_visible_record_progress(bool visible);
+    void reset_record_progress_bar();
 
     /*! \brief Set the value of the record progress bar */
     void set_recordProgressBar_color(const QColor& color, const QString& text);
@@ -96,6 +96,11 @@ class LightUI : public QMainWindow
     void set_window_size_position(int width, int height, int x, int y);
 
   public slots:
+    /**
+     * @brief Sets preset for given usage.
+     */
+    void set_preset();
+
     /**
      * @brief Opens the file explorer to let the user choose an output file with extension replacement.
      */
@@ -119,16 +124,10 @@ class LightUI : public QMainWindow
     void start_stop_recording(bool start);
 
     /**
-     * @brief Slot for handling changes in Z value from a spin box.
+     * @brief Slot for handling changes in Z value from the ui.
      * @param z_distance The new Z distance value.
      */
-    void z_value_changed_spinBox(int z_distance);
-
-    /**
-     * @brief Slot for handling changes in Z value from a slider.
-     * @param z_distance The new Z distance value.
-     */
-    void z_value_changed_slider(int z_distance);
+    void z_value_changed(int z_distance);
 
   protected:
     /**
@@ -145,6 +144,7 @@ class LightUI : public QMainWindow
     Subscriber<double> z_distance_subscriber_;       ///< Subscriber for Z distance changes.
     Subscriber<RecordMode> record_start_subscriber_; ///< Subscriber for record start events.
     Subscriber<RecordMode> record_end_subscriber_;   ///< Subscriber for record end events.
+    Subscriber<bool> record_finished_subscriber_;    ///< Subscriber for record finished events.
 };
 
 } // namespace holovibes::gui

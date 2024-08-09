@@ -16,6 +16,7 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
+    , import_start_subscriber_("import_start", [this](bool success) { set_record_image_mode(); })
 {
 }
 
@@ -77,6 +78,8 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+    if (light_ui_ != nullptr)
+        light_ui_->actualise_record_output_file_ui(record_output_path);
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
@@ -100,7 +103,8 @@ int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
 {
     light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(ui_->OutputFilePathLineEdit->text());
+    light_ui_->actualise_record_output_file_ui(
+        std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
 QString ExportPanel::browse_record_output_file()
@@ -139,7 +143,7 @@ QString ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return filepath;
+        return QString::fromStdString(api::get_record_file_path());
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
@@ -148,7 +152,6 @@ QString ExportPanel::browse_record_output_file()
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
-    light_ui_->actualise_record_output_file_ui(filepath);
     parent_->notify();
 
     return filepath;
@@ -254,8 +257,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
         info = "Frame record finished";
 
-    ui_->InfoPanel->set_visible_record_progress(false);
-
     if (ui_->BatchGroupBox->isChecked())
         info = "Batch " + info;
 
@@ -266,8 +267,12 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
 
-    light_ui_->reset_start_button();
     api::record_finished();
+
+    // notify others panels (info panel & lightUI) that the record is finished
+    auto& manager = NotifierManager::get_instance();
+    auto notifier = manager.get_notifier<bool>("record_finished");
+    notifier->notify(true);
 }
 
 void ExportPanel::set_record_device(bool value)
@@ -377,6 +382,12 @@ void ExportPanel::update_record_file_path()
 void ExportPanel::update_batch_file_path()
 {
     api::set_batch_file_path(ui_->BatchInputPathLineEdit->text().toStdString());
+}
+
+void ExportPanel::set_record_image_mode()
+{
+    ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
+    api::set_record_mode(RecordMode::HOLOGRAM);
 }
 
 void ExportPanel::update_record_mode()

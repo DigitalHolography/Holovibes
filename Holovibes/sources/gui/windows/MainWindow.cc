@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget* parent)
                                                                                        "Saving: %v/%m");
                                            light_ui_->set_recordProgressBar_color(QColor(48, 143, 236), "Saving...");
                                        })
+    , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
 {
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
@@ -169,6 +170,25 @@ MainWindow::MainWindow(QWidget* parent)
 
     load_gui();
 
+    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    {
+        ui_->actionSettings->setEnabled(true);
+        if (api::get_compute_mode() == Computation::Raw)
+        {
+            LOG_INFO("RAW");
+            api::set_compute_mode(Computation::Raw);
+            api::set_raw_mode(1);
+        }
+        else
+        {
+            LOG_INFO("HOLO");
+            api::set_compute_mode(Computation::Hologram);
+            api::set_holographic_mode(1);
+        }
+    }
+
+    notify();
+
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -181,6 +201,8 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
+    ;
+
     ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ImageRenderingPanel->set_light_ui(light_ui_);
     ui_->InfoPanel->set_light_ui(light_ui_);
@@ -190,6 +212,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui_->ImageRenderingPanel->set_convolution_mode(
         is_conv_enabled); // Add the convolution after the initialisation of the panel
                           // if the value is enabled in the compute settings.
+
     if (api::get_yz_enabled() and api::get_xz_enabled())
     {
         ui_->ViewPanel->update_3d_cuts_view(true);
@@ -427,15 +450,15 @@ void MainWindow::load_gui()
         json_get_or_default(j_us, auxiliary_window_max_size, "windows", "auxiliary window max size");
 
     light_ui_->set_window_size_position(json_get_or_default(j_us, 400, "light ui window", "width"),
-                                       json_get_or_default(j_us, 115, "light ui window", "height"),
-                                       json_get_or_default(j_us, 560, "light ui window", "x"),
-                                       json_get_or_default(j_us, 290, "light ui window", "y"));
+                                        json_get_or_default(j_us, 115, "light ui window", "height"),
+                                        json_get_or_default(j_us, 560, "light ui window", "x"),
+                                        json_get_or_default(j_us, 290, "light ui window", "y"));
 
     api::set_display_rate(json_get_or_default(j_us, api::get_display_rate(), "display", "refresh rate"));
     api::set_raw_bitshift(json_get_or_default(j_us, api::get_raw_bitshift(), "file info", "raw bit shift"));
-    int nb = json_get_or_default(j_us, 0, "record", "number of frames to record");
-    if (nb > 0)
-        api::set_record_frame_count(nb);
+    // int nb = json_get_or_default(j_us, 0, "record", "number of frames to record");
+    // if (nb > 0)
+    // api::set_record_frame_count(nb);
 
     ui_->ExportPanel->set_record_frame_step(
         json_get_or_default(j_us, ui_->ExportPanel->get_record_frame_step(), "gui settings", "record frame step"));
@@ -467,31 +490,18 @@ void MainWindow::load_gui()
                             "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
-    int compute_mode = json_get_or_default(j_us, 0, "image rendering", "mode");
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
     bool is_camera = api::change_camera(camera);
-    // FIXME: This is a bit of a mess. It shouldn't be necessary, but is needed for 991, for unknown reasons
-    if (camera != CameraKind::NONE)
-    {
-        ui_->actionSettings->setEnabled(true);
-        if (compute_mode == 0)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
-    }
+}
 
-    notify();
+void MainWindow::set_preset_file_on_gpu()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
+    api::import_buffer(dest.string());
+    LOG_INFO("Preset loaded");
 }
 
 void MainWindow::save_gui()
@@ -534,12 +544,6 @@ void MainWindow::save_gui()
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
     j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
-    if (api::get_record_frame_count().has_value())
-        j_us["record"]["number of frames to record"] = api::get_record_frame_count().value();
-    else
-        j_us["record"]["number of frames to record"] = 0;
-
-    j_us["image rendering"]["mode"] = (int)api::get_compute_mode();
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -810,6 +814,13 @@ void MainWindow::open_light_ui()
 {
     light_ui_->show();
     this->hide();
+}
+
+void MainWindow::set_preset()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
+    reload_ini(dest.string());
+    LOG_INFO("Preset loaded");
 }
 
 #pragma endregion

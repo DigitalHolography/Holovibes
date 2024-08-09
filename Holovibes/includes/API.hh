@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief This file contains the API functions for the Holovibes application. These functions manage input files, 
+ * \brief This file contains the API functions for the Holovibes application. These functions manage input files,
  * camera operations, computation settings, visualization modes, and more. The API functions are used to interact with
  * the Holovibes application from the user interface.
  */
@@ -418,15 +418,15 @@ void set_lambda(float value);
 /*!
  * \brief Sets the distance value for the z-coordinate.
  *
- * This function updates the internal setting for the z-coordinate distance 
- * and sends a notification to the `z_distance` notifier. Additionally, 
+ * This function updates the internal setting for the z-coordinate distance
+ * and sends a notification to the `z_distance` notifier. Additionally,
  * it refreshes the pipeline if the computation mode is not set to raw.
  *
  * \param value The new z-coordinate distance value.
  *
- * \note 
+ * \note
  * - This function sends the notification `z_distance` with the new value when called.
- * - If the computation mode is `Computation::Raw`, the function returns immediately 
+ * - If the computation mode is `Computation::Raw`, the function returns immediately
  *   without updating the setting or refreshing the pipeline.
  */
 void set_z_distance(float value);
@@ -872,6 +872,12 @@ json compute_settings_to_json();
  * \param path the path where the .json file is
  */
 void load_compute_settings(const std::string& path);
+
+/*! \brief Change buffer siwe from .json file
+ *
+ * \param path the path where the .json file is
+ */
+void import_buffer(const std::string& path);
 
 /*! \brief Gets the documentation url
  *

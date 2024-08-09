@@ -33,8 +33,7 @@ class ImageRenderingPanel : public Panel
     void save_gui(json& j_us) override;
 
     void set_light_ui(std::shared_ptr<LightUI> light_ui);
-
-    // std::unique_ptr<Filter2DWindow> filter2d_window = nullptr;
+    void actualise_z_distance(const double z_distance);
 
   public slots:
     /*! \brief Set image mode either to raw or hologram mode
@@ -105,7 +104,8 @@ class ImageRenderingPanel : public Panel
      *
      * \param value The new value of z
      */
-    //void update_z_distance(const double value);
+
+    void set_z_distance_slider(int value);
     void set_z_distance(const double value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();

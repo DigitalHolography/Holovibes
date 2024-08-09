@@ -160,6 +160,13 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
+
+    # Copy Preset files to AppData
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/DOPPLER.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/DOPPLER.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/DOPPLER.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
+
 )
 
 # ---------------------------------------------------------------------

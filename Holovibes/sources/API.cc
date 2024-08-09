@@ -3,6 +3,8 @@
 #include "input_filter.hh"
 #include "notifier.hh"
 
+#include <regex>
+#include <string>
 #include <unordered_map>
 
 namespace holovibes::api
@@ -1686,6 +1688,22 @@ void stop_chart_display()
 
 #pragma region Record
 
+/**
+ * @brief Extract the name from the filename
+ * 
+ * @param filePath the file name
+ * @return std::string the name extracted from the filename
+ */
+std::string getNameFromFilename(const std::string& filename)
+{
+    std::regex filenamePattern{R"(^\d{6}_(.*?)_?\d*$)"};
+    std::smatch matches;
+    if (std::regex_search(filename, matches, filenamePattern))
+        return matches[1].str();
+    else
+        return filename; // Returning the original filename if no match is found
+}
+
 const std::string browse_record_output_file(std::string& std_filepath)
 {
     // Let std::filesystem handle path normalization and system compatibility
@@ -1694,9 +1712,10 @@ const std::string browse_record_output_file(std::string& std_filepath)
     // Using std::filesystem to derive parent path, extension, and stem directly
     std::string parentPath = normalizedPath.parent_path().string();
     std::string fileExt = normalizedPath.extension().string();
-    std::string fileNameWithoutExt = normalizedPath.stem().string();
+    std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
     // Setting values in UserInterfaceDescriptor instance in a more optimized manner
+    std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
     UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
     UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
 

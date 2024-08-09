@@ -14,6 +14,10 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
+    , record_finished_subscriber_("record_finished", [this](bool success)
+                                       {
+                                            set_visible_record_progress(false);
+                                       })
 {
 }
 
@@ -101,8 +105,6 @@ void InfoPanel::set_visible_record_progress(bool visible)
     {
         ui_->RecordProgressBar->hide();
     }
-    if (light_ui_)  // isn't set on initialization
-        light_ui_->set_visible_record_progress(visible);
 }
 
 void InfoPanel::set_recordProgressBar_color(const QColor& color, const QString& text)

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "lightui.hh"
+#include "notifier.hh"
 #include "panel.hh"
 
 namespace holovibes::gui
@@ -46,5 +47,6 @@ class InfoPanel : public Panel
     int height_ = 0;
     int resize_again_ = 0;
     std::shared_ptr<LightUI> light_ui_;
+    Subscriber<bool> record_finished_subscriber_;    ///< Subscriber for record finished events.
 };
 } // namespace holovibes::gui
