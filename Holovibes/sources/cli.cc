@@ -120,7 +120,23 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
 
     bool load = false;
-    if (input_frame_file->get_has_footer())
+    
+    if (opts.compute_settings_path)
+    {
+        try
+        {
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+        }
+        catch (std::exception& e)
+        {
+            LOG_INFO(e.what());
+            LOG_INFO("Error while loading compute settings, abort");
+            return 34;
+        }
+        load = true;
+    }
+
+    else if (input_frame_file->get_has_footer())
     {
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
@@ -138,21 +154,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         load = true;
     }
-
-    if (opts.compute_settings_path)
-    {
-        try
-        {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
-        }
-        catch (std::exception& e)
-        {
-            LOG_INFO(e.what());
-            LOG_INFO("Error while loading compute settings, abort");
-            return 34;
-        }
-    }
-    else if (!load)
+    if (!load)
     {
         LOG_DEBUG("No compute settings file provided and no footer found in input file");
         return 35;
