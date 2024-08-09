@@ -1,6 +1,6 @@
 ## Changelog
 
-### 13.4.0
+### 13.3.0
 
 - file path is now written with ' \ ' in the app
 - ConfigUI: added ZSlider
