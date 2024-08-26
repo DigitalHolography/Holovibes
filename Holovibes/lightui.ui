@@ -237,6 +237,9 @@
    <property name="text">
     <string>Preset</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
   </action>
  </widget>
  <customwidgets>

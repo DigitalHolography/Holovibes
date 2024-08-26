@@ -58,6 +58,7 @@ void InformationWorker::run()
 
     if (benchmark_mode)
     {
+        LOG_INFO("Benchmark mode active");
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
         if (!benchmark_file.is_open())
