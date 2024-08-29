@@ -110,7 +110,7 @@ class LightUI : public QMainWindow
      * @brief Sets the output filepath in the export manel with the name written
      * @param filename The name of the output file.
      */
-    void set_record_file_name(const QString& filename);
+    void set_record_file_name();
 
     /**
      * @brief Opens the configuration UI.

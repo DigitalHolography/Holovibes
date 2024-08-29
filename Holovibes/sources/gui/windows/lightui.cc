@@ -84,8 +84,9 @@ void LightUI::browse_record_output_file_ui()
     // remove the extension from the filename
     ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
-void LightUI::set_record_file_name(const QString& filename)
+void LightUI::set_record_file_name()
 {
+    QString filename = ui_->OutputFileNameLineEdit->text();
     // concatenate the path with the filename
     std::filesystem::path path(ui_->OutputFilePathLineEdit->text().toStdString());
     std::filesystem::path file(filename.toStdString());

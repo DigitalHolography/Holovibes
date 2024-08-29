@@ -285,9 +285,9 @@
   </connection>
   <connection>
    <sender>OutputFileNameLineEdit</sender>
-   <signal>textChanged(QString)</signal>
+   <signal>editingFinished()</signal>
    <receiver>LightUI</receiver>
-   <slot>set_record_file_name(QString)</slot>
+   <slot>set_record_file_name()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>280</x>
@@ -383,7 +383,7 @@
  <slots>
   <slot>start_stop_recording(bool)</slot>
   <slot>browse_record_output_file_ui()</slot>
-  <slot>set_record_file_name(QString)</slot>
+  <slot>set_record_file_name()</slot>
   <slot>open_configuration_ui()</slot>
   <slot>set_preset()</slot>
   <slot>z_value_changed(int)</slot>
