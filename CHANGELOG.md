@@ -1,5 +1,10 @@
 ## Changelog
 
+### 13.3.1
+
+- fixed and added more presets
+- fixed an issue when writing file name in light ui
+
 ### 13.3.0
 
 - file path is now written with ' \ ' in the app
@@ -14,8 +19,7 @@
   - select an optionnal compute setting file (by default, takes it from each of the file's footer)
   - select an optionnal hololive exec (by default, takes it from the current folder)
   - select a file extention for the output
-  It then output in the first choosen folder the cli output of each of the files inside.
-
+    It then output in the first choosen folder the cli output of each of the files inside.
 
 ### 13.2.3
 
