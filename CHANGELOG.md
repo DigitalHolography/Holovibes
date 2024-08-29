@@ -1,5 +1,10 @@
 ## Changelog
 
+### 13.3.2
+
+- fixed maximum capacty of queues
+- new camera dll
+
 ### 13.3.1
 
 - fixed and added more presets
