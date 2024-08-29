@@ -107,7 +107,7 @@
      "propagation_distance": 0.5,
      "space_transformation": "FFT1",
      "time_transformation": "PCA",
-     "time_transformation_size": 32,
+     "time_transformation_size": 16,
      "time_transformation_stride": 32
     },
     "view": {
@@ -140,7 +140,7 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 30,
+       "output_image_accumulation": 32,
        "rotation": 0.0
       },
       "xz": {
@@ -154,7 +154,7 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 30,
+       "output_image_accumulation": 32,
        "rotation": 0.0
       },
       "yz": {
@@ -168,7 +168,7 @@
        "enabled": false,
        "horizontal_flip": false,
        "log_enabled": false,
-       "output_image_accumulation": 30,
+       "output_image_accumulation": 32,
        "rotation": 0.0
       }
      },
@@ -182,7 +182,7 @@
      },
      "z": {
       "start": 0,
-      "width": 15
+      "width": 8
      },
      "z2": {
       "start": 0,
