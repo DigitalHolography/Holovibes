@@ -449,7 +449,7 @@ class Holovibes
                                              settings::RecordQueueLocation{Device::CPU},
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
-                                             settings::BenchmarkMode{true},
+                                             settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true}))
     {
     }

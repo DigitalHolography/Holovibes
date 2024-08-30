@@ -851,7 +851,6 @@ inline void set_record_mode(RecordMode value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordMode{value});
 }
 
-#ifndef _DEBUG
 inline void set_benchmark_mode(bool value)
 {
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BenchmarkMode{value});
@@ -861,7 +860,6 @@ inline bool get_benchmark_mode()
 {
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
 }
-#endif
 
 inline void set_record_on_gpu(bool value)
 {

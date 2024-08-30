@@ -180,6 +180,11 @@ int main(int argc, char* argv[])
         std::exit(0);
     }
 
+    if (opts.benchmark)
+    {
+        holovibes::api::set_benchmark_mode(true);
+    }
+
     holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
     int ret = 0;

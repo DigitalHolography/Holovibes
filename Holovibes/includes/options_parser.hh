@@ -33,9 +33,7 @@ struct OptionsDescriptor
     bool record_raw;
     bool verbose;
     bool gpu;
-#ifndef _DEBUG
     bool benchmark;
-#endif
 };
 
 /*! \class OptionsParser

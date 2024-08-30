@@ -35,15 +35,16 @@ If possible, install a pre-commit hook. Install pre-commit with 'pip install pre
 - Use a consistent commit messages convention (e.g. [Angular](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit))
 - Use the pull request feature so that other team members can review your work when you are done.
 
-### Benchmark protocol  (_DEBUG global value to be fixed)
+### Benchmark protocol
 
 - The benchmark protocol is a way to compare the performance of the different versions of the project.
 - It is important to run the benchmark before creating a new release.
 - Create a "benchmark" folder in the app version AppData folder.
-- Make a clean build in debug mode and run the exec with the -b (benchmark) option.
+- Make a clean build in debug mode and run the exec with the -b or --benchmark option.
 - Once the app is open, open the designated benchmark holo file/camera and do a given list of action (record, tweaking values, etc) for a given amount of time.
 - It should make a file in the benchmark folder with the information worker output once the application is closed.
 - The generated file can be better visualised using the BenchmarkViewer Jupiter Notebook.
+- *You are invited to improve the protocol, the benchmark informations gathering in the Information Worker and the BenchmarkViewer file.*
 
 ### Create a new release
 

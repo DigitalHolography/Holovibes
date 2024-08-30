@@ -104,10 +104,6 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
-#ifdef _DEBUG
-    holovibes::api::set_benchmark_mode(opts.benchmark);
-#endif
-
     std::string input_path = opts.input_path.value();
     holovibes::api::set_input_file_path(input_path);
 
