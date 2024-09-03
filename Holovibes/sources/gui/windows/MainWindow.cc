@@ -144,6 +144,25 @@ MainWindow::MainWindow(QWidget* parent)
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
+    std::filesystem::path preset_directory_path(get_exe_dir());
+    preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
+    if (std::filesystem::exists(preset_directory_path))
+    {
+        QList<QAction*> actions;
+        for (const auto& file : std::filesystem::directory_iterator(preset_directory_path))
+        {
+            QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
+            connect(action, &QAction::triggered, this, [=]{set_preset(file);});
+            actions.push_back(action);
+        }
+        if (actions.length() == 0)
+            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
+        else
+            ui_->menuSelect_preset->addActions(actions);
+    }
+    else
+            ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
+
     try
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
@@ -819,9 +838,19 @@ void MainWindow::open_light_ui()
 void MainWindow::set_preset()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
+    std::cout << dest.string() << std::endl;
     reload_ini(dest.string());
     LOG_INFO("Preset loaded");
 }
+
+void MainWindow::set_preset(std::filesystem::path file)
+{
+    std::filesystem::path dest =  __PRESET_FOLDER_PATH__ / file;
+    std::cout << dest.string() << std::endl;
+    reload_ini(dest.string());
+    LOG_INFO("Preset loaded with file " + file.string());
+}
+
 
 #pragma endregion
 
