@@ -734,6 +734,9 @@ void MainWindow::close_advanced_settings()
 {
     if (UserInterfaceDescriptor::instance().has_been_updated)
     {
+        // If the settings have been updated, they must be not considered updated after closing the window.
+        UserInterfaceDescriptor::instance().has_been_updated = false;
+        
         ImportType it = UserInterfaceDescriptor::instance().import_type_;
         ui_->ImportPanel->import_stop();
 
