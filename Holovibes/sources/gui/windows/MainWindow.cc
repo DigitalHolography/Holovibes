@@ -146,6 +146,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     std::filesystem::path preset_directory_path(get_exe_dir());
     preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
+    // Check before if there is a Preset directory near the executable before checking in AppData
     if (std::filesystem::exists(preset_directory_path) || std::filesystem::exists(__PRESET_FOLDER_PATH__))
     {
         if (!std::filesystem::exists(preset_directory_path))
@@ -839,6 +840,7 @@ void MainWindow::open_light_ui()
 
 void MainWindow::set_preset()
 {
+    // Check before if there is a Preset directory near the executable before checking in AppData
     std::filesystem::path preset_directory_path(get_exe_dir());
     preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset" / "preset.json";
     if (!std::filesystem::exists(preset_directory_path))
