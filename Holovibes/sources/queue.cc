@@ -37,38 +37,48 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
 {
     max_size_ = max_size;
 
+    std::
+
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
     size_t free_memory, total_memory;
     cudaMemGetInfo(&free_memory,&total_memory);
 
     size_t memory_to_allocate = fd.get_frame_size() * max_size_;
     bool is_size_modified = false;
+    std::string queue_string = "";
 
     if (memory_to_allocate >= free_memory)
     {
+
         switch (type)
         {
         case QueueType::INPUT_QUEUE:
             max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_input_buffer_size(max_size_);
             is_size_modified = true;
+            queue_string = "Input Buffer";
         case QueueType::OUTPUT_QUEUE:
             max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_output_buffer_size(max_size_);
             is_size_modified = true;
+            queue_string = "Output Buffer";
         case QueueType::RECORD_QUEUE:
             max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_record_buffer_size(max_size_);
             is_size_modified = true;
+            queue_string = "Record Buffer";
         case QueueType::UNDEFINED:
             break;
         default:
             break;
         }
+        
         if (is_size_modified)
         {
-            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
-            // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will be called again
+            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
+            // For the GUI, show the warning in a window.
+            holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " + queue_string + " and the new size is : " + std::to_string(max_size_));
+            // Return because when we set the buffer_size in the switch, the process is relaunched and the ctor will be called again
             return;
         }
     }
