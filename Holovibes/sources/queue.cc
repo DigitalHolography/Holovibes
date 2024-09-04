@@ -36,11 +36,48 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
     max_size_ = max_size;
+
+    // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
+    size_t free_memory, total_memory;
+    cudaMemGetInfo(&free_memory,&total_memory);
+
+    size_t memory_to_allocate = fd.get_frame_size() * max_size_;
+    bool is_size_modified = false;
+
+    if (memory_to_allocate >= free_memory)
+    {
+        switch (type)
+        {
+        case QueueType::INPUT_QUEUE:
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            api::set_input_buffer_size(max_size_);
+            is_size_modified = true;
+        case QueueType::OUTPUT_QUEUE:
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            api::set_output_buffer_size(max_size_);
+            is_size_modified = true;
+        case QueueType::RECORD_QUEUE:
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            api::set_record_buffer_size(max_size_);
+            is_size_modified = true;
+        case QueueType::UNDEFINED:
+            break;
+        default:
+            break;
+        }
+        if (is_size_modified)
+        {
+            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
+            // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will be called again
+            return;
+        }
+    }
+
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
 
-        throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
+        throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size_) + ")");
     }
 
     // // Needed if input is embedded into a bigger square
@@ -48,6 +85,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     //     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     // else
     //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
+
 
     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
