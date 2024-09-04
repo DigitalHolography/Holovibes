@@ -843,14 +843,12 @@ void MainWindow::set_preset()
     preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset" / "preset.json";
     if (!std::filesystem::exists(preset_directory_path))
         preset_directory_path = __PRESET_FOLDER_PATH__ / "preset.json";
-    std::cout << preset_directory_path.string() << std::endl;
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
 
 void MainWindow::set_preset(std::filesystem::path file)
 {
-    std::cout << file.string() << std::endl;
     reload_ini(file.string());
     LOG_INFO("Preset loaded with file " + file.string());
 }
