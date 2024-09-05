@@ -166,24 +166,18 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
         const uint prev_end_index = end_index_;
         end_index_ = (end_index_ + 1) % max_size_;
 
-        // The queue is full (in terms of batch)
-        if (size_ == max_size_)
-        {
-            has_overwritten_ = true;
-            start_index_ = (start_index_ + 1) % max_size_;
-        }
-        else
-        {
-            size_++;
-            curr_nb_frames_ += batch_size_;
-        }
-
+        size_++;
+        curr_nb_frames_ += batch_size_;
         // Unlock the current batch mutex
         batch_mutexes_[prev_end_index].unlock();
         // No batch are busy anymore
         // End of critical section between enqueue (producer) & resize
         // (consumer)
         m_producer_busy_.unlock();
+
+        // The queue is full (in terms of batch)
+        while (size_ == max_size_)
+            continue;
     }
 }
 
