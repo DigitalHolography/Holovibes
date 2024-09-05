@@ -78,8 +78,8 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
-    if (light_ui_ != nullptr)
-        light_ui_->actualise_record_output_file_ui(record_output_path);
+    
+    api::actualise_record_output_file_ui_light_ui(record_output_path);
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
@@ -100,10 +100,9 @@ void ExportPanel::set_record_frame_step(int step)
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
-void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
+void ExportPanel::init_light_ui()
 {
-    light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(
+    api::actualise_record_output_file_ui_light_ui(
         std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
@@ -298,7 +297,8 @@ void ExportPanel::start_record()
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
-    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25), "Recording");
+    
+    api::set_recordProgressBar_color_light_ui(QColor(209, 90, 25), "Recording"); // Notifier system
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);

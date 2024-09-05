@@ -41,7 +41,10 @@ void InfoPanel::init()
                 case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
-                    light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size));
+                    
+                    // Replaced by a notifier
+                    // light_ui_->actualise_record_progress(static_cast<int>(value), static_cast<int>(max_size)); 
+                    api::actualise_record_progress_light_ui(static_cast<int>(value), static_cast<int>(max_size));
                     break;
                 default:
                     return;
@@ -58,8 +61,6 @@ void InfoPanel::load_gui(const json& j_us)
     ui_->actionInfo->setChecked(!h);
     setHidden(h);
 }
-
-void InfoPanel::set_light_ui(std::shared_ptr<LightUI> light_ui) { light_ui_ = light_ui; }
 
 void InfoPanel::save_gui(json& j_us) { j_us["panels"]["info hidden"] = isHidden(); }
 

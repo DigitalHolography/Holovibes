@@ -203,9 +203,10 @@ MainWindow::MainWindow(QWidget* parent)
 
     ;
 
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    ui_->InfoPanel->set_light_ui(light_ui_);
+    // ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ExportPanel->init_light_ui();
+    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+    // ui_->InfoPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 

@@ -25,6 +25,9 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_p
     , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
+    , record_progress_subscriber_("record_progress", std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
+    , record_output_file_subscriber_("record_output_file", std::bind(&LightUI::actualise_record_output_file_ui, this, std::placeholders::_1))
+    , record_progress_bar_color_subscriber_("record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
     , record_finished_subscriber_("record_finished", [this](bool success)
                                        {
                                            reset_start_button();
@@ -117,6 +120,16 @@ void LightUI::on_record_stop(RecordMode record)
     ui_->startButton->setText("Start recording");
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
     LOG_INFO("Recording stopped");
+}
+
+void LightUI::on_record_progress(const RecordProgressData& data)
+{
+    actualise_record_progress(data.value, data.max);
+}
+
+void LightUI::on_record_progress_bar_color(const RecordBarColorData& data)
+{
+    set_recordProgressBar_color(data.color, data.text);
 }
 
 void LightUI::reset_start_button()

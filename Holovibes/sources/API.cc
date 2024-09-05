@@ -5,6 +5,7 @@
 
 #include <regex>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 
 namespace holovibes::api
@@ -2010,6 +2011,27 @@ void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSetti
 void start_information_display(const std::function<void()>& callback)
 {
     Holovibes::instance().start_information_display(callback);
+}
+
+void actualise_record_progress_light_ui(int value, int max_size)
+{
+    auto& manager = NotifierManager::get_instance();
+    auto recordProgressNotifier = manager.get_notifier<RecordProgressData>("record_progress");
+    recordProgressNotifier->notify(RecordProgressData{value, max_size});
+}
+
+void actualise_record_output_file_ui_light_ui(const std::filesystem::path file_path)
+{
+    auto& manager = NotifierManager::get_instance();
+    auto recordOutputFileNotifier = manager.get_notifier<std::filesystem::path>("record_output_file");
+    recordOutputFileNotifier->notify(file_path);
+}
+
+void set_recordProgressBar_color_light_ui(const QColor& color, const QString& text)
+{
+    auto& manager = NotifierManager::get_instance();
+    auto record_progress_bar_color_manager = manager.get_notifier<RecordBarColorData>("record_progress_bar_color");
+    record_progress_bar_color_manager->notify(RecordBarColorData{color, text});
 }
 
 #pragma endregion

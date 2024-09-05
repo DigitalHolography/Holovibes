@@ -31,7 +31,7 @@ class ExportPanel : public Panel
     void set_record_frame_step(int step);
     int get_record_frame_step();
 
-    void set_light_ui(std::shared_ptr<LightUI> light_ui);
+    void init_light_ui();
     void set_output_file_name(std::string std_filepath);
 
     void set_record_image_mode();
@@ -120,7 +120,6 @@ class ExportPanel : public Panel
 
   private:
     int record_frame_step_ = 512;
-    std::shared_ptr<LightUI> light_ui_;
     Subscriber<bool> import_start_subscriber_;
 };
 } // namespace holovibes::gui

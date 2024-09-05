@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <optional>
 
 #include "logger.hh"
@@ -920,6 +921,26 @@ void start_information_display(const std::function<void()>& callback = []() {});
  */
 void open_advanced_settings(QMainWindow* parent = nullptr,
                             ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
+
+/*! \brief Asks the API to update the record progress in the light ui
+ *
+ * \param value the value of the progress
+ * \param max_size the max size of the progress
+ */
+void actualise_record_progress_light_ui(int value, int max_size);
+
+/*! \brief Asks the API to change the record output file in the light ui
+ *
+ * \param file_path the new file path of the record output
+ */
+void actualise_record_output_file_ui_light_ui(const std::filesystem::path file_path);
+
+/*! \brief Asks the API to change the progress bar color in the light ui
+ *
+ * \param color the new color of the progress bar
+ * \param text the new text of the progress bar
+ */
+void set_recordProgressBar_color_light_ui(const QColor& color, const QString& text);
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 
