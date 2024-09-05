@@ -125,7 +125,7 @@
       <item>
        <widget class="QLabel" name="filepathLabel">
         <property name="text">
-         <string>/</string>
+         <string>\</string>
         </property>
        </widget>
       </item>
@@ -171,7 +171,7 @@
          <string>Start/Stop</string>
         </property>
         <property name="shortcut">
-         <string>Ctrl+R</string>
+         <string>Alt+R</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -205,8 +205,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionPreset1"/>
-    <addaction name="actionPreset2"/>
+    <addaction name="actionPreset"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -218,17 +217,6 @@
    <addaction name="menuOptions"/>
    <addaction name="menuView"/>
   </widget>
-  <action name="actionStart_Stop">
-   <property name="text">
-    <string>Start_Stop</string>
-   </property>
-   <property name="toolTip">
-    <string>Start/Stop the recording</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
   <action name="actionConfiguration_UI">
    <property name="text">
     <string>Configuration panel</string>
@@ -245,14 +233,12 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionPreset1">
+  <action name="actionPreset">
    <property name="text">
-    <string>Preset 1</string>
+    <string>Preset</string>
    </property>
-  </action>
-  <action name="actionPreset2">
-   <property name="text">
-    <string>Preset 2</string>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>
@@ -282,24 +268,124 @@
    </hints>
   </connection>
   <connection>
-   <sender>startButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>actionStart_Stop</receiver>
-   <slot>setChecked(bool)</slot>
+   <sender>OutputFileBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>LightUI</receiver>
+   <slot>browse_record_output_file_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>177</y>
+     <x>21</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OutputFileNameLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>LightUI</receiver>
+   <slot>set_record_file_name()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>280</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>startButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LightUI</receiver>
+   <slot>start_stop_recording(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConfiguration_UI</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>open_configuration_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPreset</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>set_preset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>LightUI</receiver>
+   <slot>z_value_changed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>358</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>LightUI</receiver>
+   <slot>z_value_changed(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>201</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>69</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
-  <slot>start_stop_recording()</slot>
+  <slot>start_stop_recording(bool)</slot>
+  <slot>browse_record_output_file_ui()</slot>
+  <slot>set_record_file_name()</slot>
+  <slot>open_configuration_ui()</slot>
+  <slot>set_preset()</slot>
   <slot>z_value_changed(int)</slot>
  </slots>
 </ui>

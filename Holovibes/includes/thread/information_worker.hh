@@ -40,9 +40,7 @@ class InformationWorker final : public Worker
     {
     }
 
-#ifndef _DEBUG
     void write_information(std::ofstream& csvFile);
-#endif
 
     void run() override;
 

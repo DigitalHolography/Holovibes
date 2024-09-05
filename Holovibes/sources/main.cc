@@ -137,6 +137,24 @@ void copy_ini_files()
     }
 }
 
+void copy_preset_files()
+{
+    std::filesystem::path dest = __PRESET_FOLDER_PATH__;
+    std::filesystem::path src = __PRESET_REFERENCE__;
+
+    if (std::filesystem::exists(dest))
+        return;
+
+    std::filesystem::create_directories(dest);
+
+    for (const auto& entry : std::filesystem::directory_iterator(src))
+    {
+        std::filesystem::path file = entry.path();
+        std::filesystem::path dest_file = dest / file.filename();
+        std::filesystem::copy(file, dest_file);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     {
@@ -162,12 +180,18 @@ int main(int argc, char* argv[])
         std::exit(0);
     }
 
+    if (opts.benchmark)
+    {
+        holovibes::api::set_benchmark_mode(true);
+    }
+
     holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
     int ret = 0;
     try
     {
         copy_ini_files();
+        copy_preset_files();
 
         if (opts.input_path && opts.output_path)
         {

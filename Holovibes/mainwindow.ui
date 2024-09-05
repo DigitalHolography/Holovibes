@@ -378,16 +378,6 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
-           <item row="4" column="0">
-            <widget class="QLabel" name="LambdaLabel">
-             <property name="text">
-              <string>λ (nm)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="TimeTransformationLabel">
              <property name="text">
@@ -398,26 +388,127 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>10000</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="text">
               <string># img</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>reconstruction distance of the hologram</string>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.005000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="ZLabel">
+             <property name="text">
+              <string>Focus (m)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="LambdaLabel">
+             <property name="text">
+              <string>λ (nm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="SpaceTransformationComboBox">
+             <property name="toolTip">
+              <string>select the rendering mode for Hologram</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1FFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2FFT</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="TimeTransformationComboBox">
+             <item>
+              <property name="text">
+               <string>STFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>PCA</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>SSA_STFT</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="QSlider" name="ZSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="SpaceTransformationLabel">
+             <property name="text">
+              <string>Space Transform</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -449,98 +540,27 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="SpaceTransformationLabel">
-             <property name="text">
-              <string>Space Transform</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="ZLabel">
-             <property name="text">
-              <string>Focus (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="TimeTransformationComboBox">
-             <item>
-              <property name="text">
-               <string>STFT</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>PCA</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>SSA_STFT</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>reconstruction distance of the hologram</string>
-             </property>
-             <property name="showGroupSeparator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
              <property name="minimum">
-              <double>-10000.000000000000000</double>
+              <number>1</number>
              </property>
              <property name="maximum">
-              <double>10000.000000000000000</double>
+              <number>10000</number>
              </property>
              <property name="singleStep">
-              <double>0.005000000000000</double>
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="SpaceTransformationComboBox">
-             <property name="toolTip">
-              <string>select the rendering mode for Hologram</string>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string/>
              </property>
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1FFT</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2FFT</string>
-              </property>
-             </item>
             </widget>
            </item>
           </layout>
@@ -2608,6 +2628,9 @@
                 <property name="text">
                  <string>Start</string>
                 </property>
+                <property name="shortcut">
+                 <string>Ctrl+T</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -3153,12 +3176,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionExport"/>
      <addaction name="actionExport_as"/>
     </widget>
+    <addaction name="actionPreset"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
-    <addaction name="actionReset"/>
     <addaction name="separator"/>
     <addaction name="actionAdvanced"/>
     <addaction name="separator"/>
+    <addaction name="actionReset"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
@@ -3459,6 +3483,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
    <property name="shortcut">
     <string>Alt+M</string>
+   </property>
+  </action>
+  <action name="actionPreset">
+   <property name="text">
+    <string>Preset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>
@@ -5606,12 +5638,45 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPreset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_preset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ZSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_z_distance_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_lambda(double)</slot>
   <slot>set_z_distance(double)</slot>
+  <slot>set_z_distance_slider(int)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
   <slot>set_auto_contrast()</slot>
@@ -5714,5 +5779,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
+  <slot>set_preset()</slot>
  </slots>
 </ui>

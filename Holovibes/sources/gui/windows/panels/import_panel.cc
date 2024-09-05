@@ -30,7 +30,7 @@ void ImportPanel::load_gui(const json& j_us)
     ui_->actionImportExport->setChecked(!h);
     ui_->ImportExportFrame->setHidden(h);
 
-    ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 60, "import", "fps"));
+    ui_->ImportInputFpsSpinBox->setValue(json_get_or_default(j_us, 10000, "import", "fps"));
     update_fps(); // Required as it is called `OnEditedFinished` only.
 
     ui_->LoadFileInGpuCheckBox->setChecked(json_get_or_default(j_us, false, "import", "from gpu"));
@@ -172,6 +172,19 @@ void ImportPanel::import_start()
 
     // parent_->shift_screen();
 
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    if (api::get_load_file_in_gpu())
+    {
+        auto& manager = NotifierManager::get_instance();
+        auto notifier = manager.get_notifier<bool>("set_preset_file_gpu");
+        notifier->notify(true);
+    }
+    {
+        auto& manager = NotifierManager::get_instance();
+        auto notifier = manager.get_notifier<bool>("import_start");
+        notifier->notify(true);
+    }
+
     bool res_import_start = api::import_start();
 
     if (res_import_start)
@@ -210,7 +223,9 @@ void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->
 
 void ImportPanel::update_import_file_path() { api::set_input_file_path(ui_->ImportPathLineEdit->text().toStdString()); }
 
-void ImportPanel::update_load_file_in_gpu() { api::set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked()); }
+void ImportPanel::update_load_file_in_gpu() {
+    api::set_load_file_in_gpu(ui_->LoadFileInGpuCheckBox->isChecked()); 
+}
 
 void ImportPanel::update_input_file_start_index()
 {

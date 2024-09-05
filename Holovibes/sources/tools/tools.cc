@@ -1,13 +1,15 @@
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
+#include <shlobj.h>
 #include <sstream>
 #include <Windows.h>
-#include <filesystem>
-#include <shlobj.h>
 
-#include "tools.hh"
 #include "logger.hh"
-#include "tools_conversion.cuh"
 #include "power_of_two.hh"
+#include "tools.hh"
+#include "tools_conversion.cuh"
 
 namespace holovibes
 {
@@ -51,29 +53,54 @@ std::string get_exe_dir()
     throw std::runtime_error("Failed to find executable dir");
 }
 
+std::string get_current_date()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    std::tm* timeinfo = std::localtime(&in_time_t);
+    int year = timeinfo->tm_year % 100;
+    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d");
+    return ss.str();
+}
+
 std::string get_record_filename(std::string filename)
 {
     size_t dot_index = filename.find_last_of('.');
-    if (dot_index == filename.npos)
+    if (dot_index == std::string::npos)
         dot_index = filename.size();
 
-    // Make sure 2 files don't have the same name by adding -1 / -2 / -3 ... in
+    // Make sure 2 files don't have the same name by adding _1 / _2 / _3 ... in
     // the name
     unsigned i = 1;
-    while (std::filesystem::exists(filename))
+
+    auto name_index = filename.find_last_of('\\');
+    if (name_index == std::string::npos)
+    {
+        // If no slash found, assume the last index before the dot is where to insert the date
+        name_index = filename.find_last_of('.') - 1;
+    }
+
+    auto search = filename;
+    search.insert(name_index + 1, get_current_date() + "_");
+
+    while (std::filesystem::exists(search))
     {
         if (i == 1)
         {
-            filename.insert(dot_index, "_1", 0, 2);
+            search.insert(dot_index + 7, "_1", 0, 2); // + 7 because of the date
             ++i;
             continue;
         }
-        unsigned digits_nb = std::log10(i - 1) + 1;
-        filename.replace(dot_index, digits_nb + 1, "_" + std::to_string(i));
+        unsigned digits_nb = std::to_string(i - 1).length(); 
+        search.replace(dot_index + 7, digits_nb + 1, "_" + std::to_string(i));
         ++i;
     }
-
-    return filename;
+    i--;
+    if (i == 0)
+        return filename;
+    return filename.insert(dot_index, "_" + std::to_string(i));
 }
 
 QString create_absolute_qt_path(const std::string& relative_path)

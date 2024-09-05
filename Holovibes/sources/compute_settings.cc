@@ -48,6 +48,39 @@ void load_compute_settings(const std::string& json_path)
     pipe_refresh();
 }
 
+void import_buffer(const std::string& json_path)
+{
+
+    LOG_FUNC(json_path);
+    if (json_path.empty())
+    {
+        LOG_WARN("Configuration file not found.");
+        return;
+    }
+
+    std::ifstream ifs(json_path);
+    auto j_cs = json::parse(ifs);
+
+    auto advanced_settings = AdvancedSettings();
+
+    auto buffer_settings = AdvancedSettings::BufferSizes();
+    try
+    {
+        from_json(j_cs, buffer_settings);
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("{} is an invalid buffer settings", json_path);
+        throw std::exception(e);
+    }
+
+    buffer_settings.Assert();
+    buffer_settings.Load();
+
+    LOG_INFO("Buffer settings loaded from : {}", json_path);
+    pipe_refresh();
+}
+
 // clang-format off
 
 json compute_settings_to_json()

@@ -371,7 +371,7 @@ class Holovibes
 
     /*! \brief Construct the holovibes object. */
     Holovibes()
-        : realtime_settings_(std::make_tuple(settings::InputFPS{60},
+        : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
                                              settings::LoopOnInputFile{true},
@@ -449,7 +449,7 @@ class Holovibes
                                              settings::RecordQueueLocation{Device::CPU},
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
-                                             settings::BenchmarkMode{true},
+                                             settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true}))
     {
     }

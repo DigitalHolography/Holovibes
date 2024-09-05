@@ -51,19 +51,18 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-#ifdef _DEBUG
     auto benchmark_mode = Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
     std::ofstream benchmark_file;
     bool info_found = false;
 
     if (benchmark_mode)
     {
+        LOG_INFO("Benchmark mode active");
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
         if (!benchmark_file.is_open())
             LOG_ERROR("Could not open benchmark file at " + benchmark_file_path + ", you may need to create the folder");
     }
-#endif
 
     while (!stop_requested_)
     {
@@ -105,7 +104,6 @@ void InformationWorker::run()
 
         display_gui_information();
 
-#ifdef _DEBUG
         if (benchmark_mode)
         {
             if (!info_found)
@@ -127,11 +125,9 @@ void InformationWorker::run()
             else
                 InformationWorker::write_information(benchmark_file);
         }
-#endif
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-#ifdef _DEBUG
     if (benchmark_mode)
     {
         benchmark_file.close();
@@ -139,7 +135,6 @@ void InformationWorker::run()
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".csv";
         std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
     }
-#endif
 }
 
 void InformationWorker::compute_fps(const long long waited_time)
@@ -452,7 +447,6 @@ void InformationWorker::display_gui_information()
         update_progress_function_(key, value->first.load(), value->second.load());
 }
 
-#ifdef _DEBUG
 void InformationWorker::write_information(std::ofstream& csvFile)
 {
     // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in GSH::fast_updates_map<QueueType> check if key present then write valuem if not write 0
@@ -489,6 +483,5 @@ void InformationWorker::write_information(std::ofstream& csvFile)
 
     csvFile << "\n";
 }
-#endif
 
 } // namespace holovibes::worker

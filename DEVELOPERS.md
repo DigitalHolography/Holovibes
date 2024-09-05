@@ -166,9 +166,9 @@ This requires doxygen to be installed on your system. It will then compile the d
 
 ### Benchmarking
 
-#### Compile the build in Debug mode to access the option
+#### Compile the build in Debug mode (it does by default) to access the option
 ```sh
-dev.py build Debug
+dev.py build
 ```
 Then you can do the following:
 ```sh

@@ -7,6 +7,9 @@
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
+#include <chrono>
+#include <fstream>
+#include <filesystem>
 
 namespace holovibes::worker
 {
@@ -39,6 +42,29 @@ size_t FrameRecordWorker::compute_fps_average() const
     ret /= upper;
 
     return ret;
+}
+
+std::string get_current_date()
+{
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    std::tm* timeinfo = std::localtime(&in_time_t);
+    int year = timeinfo->tm_year % 100;
+    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d_");
+    return ss.str();
+}
+
+std::string append_date_to_filepath(std::string record_file_path)
+{
+    //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
+    std::filesystem::path filePath(record_file_path);
+    std::string date = get_current_date();
+    std::string filename = filePath.filename().string();
+    std::string path = filePath.parent_path().string();
+    std::filesystem::path newFilePath = path + "/" + date + filename;
+    return newFilePath.string();
 }
 
 void FrameRecordWorker::run()
@@ -74,7 +100,9 @@ void FrameRecordWorker::run()
 
     try
     {
-        output_frame_file = io_files::OutputFrameFileFactory::create(setting<settings::RecordFilePath>(),
+        std::string record_file_path = append_date_to_filepath(setting<settings::RecordFilePath>());
+
+        output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
                                                                      nb_frames_to_record);
 

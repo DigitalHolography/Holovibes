@@ -1,18 +1,71 @@
 ## Changelog
 
+### 13.3.2
+
+- fixed maximum capacty of queues
+- new camera dll
+
+### 13.3.1
+
+- fixed and added more presets
+- fixed an issue when writing file name in light ui
+
+### 13.3.0
+
+- file path is now written with ' \ ' in the app
+- ConfigUI: added ZSlider
+- --fps option fixed
+- cli now works properly for new holovibe's version footer
+- mp4 file output is not hard set to 24 fps (avi isn't)
+- record_mode isn't a compute_setting anymore
+- default inputfps value is now 10000 (from 60)
+- Added powershell script that allow user to :
+  - select a folder with holo files
+  - select an optionnal compute setting file (by default, takes it from each of the file's footer)
+  - select an optionnal hololive exec (by default, takes it from the current folder)
+  - select a file extention for the output
+    It then output in the first choosen folder the cli output of each of the files inside.
+
+### 13.2.3
+
+- Fix a bug causing the overwrite of the output file
+- Fix s710 and s711 camera .ini files
+- Presets now have a number of frame to record
+- Preset button added to ConfigUI
+- Modifying buffer sizes when loading a file in GPU
+
+### 13.2.2
+
+- Presets fixed (again), removed auto contrast as it causes performance issue at the moment
+- Tutorial added for installation and contribution in TUTORIAL.md
+- LightUI: fixed "Idle" record progress bar state
+- Output file path on selection cancelation fixed
+
+### 13.2.1
+
+- Presets fixed
+- Ini files for s710 and s711 updated
+
+### 13.2.0
+
+- nb_frames_to_record & Record mode are now saved on quit
+- Presets implemented
+- When saving a file, it now automatically add the current date as a prefix (please have the clock of your computer correctly set)
+- When selecting an existing file for its name, it'll automatically trim the date and number prefix and suffix.
+
 ### 13.1.2
 
 - Keybind shortcut added:
-LightUI:
- - Alt+M: open ConfigUI
- - Ctrl+Q: Quit
-ConfigUI:
- - Alt+C: open camera config file
- - Alt+A: open advanced settings
- - Ctrl+Shift+Q: reset settings and Quit
-Both:
- - Ctrl+R: Start/Stop recording
- - Ctrl+S: Browse Export File
+  LightUI:
+- Alt+M: open ConfigUI
+- Ctrl+Q: Quit
+  ConfigUI:
+- Alt+C: open camera config file
+- Alt+A: open advanced settings
+- Ctrl+Shift+Q: reset settings and Quit
+  Both:
+- Ctrl+R: Start/Stop recording
+- Ctrl+S: Browse Export File
 - lightUI: minor ui change
 
 ### 13.1.1

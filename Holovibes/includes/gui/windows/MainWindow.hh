@@ -74,6 +74,8 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Start the import process */
     void start_import(QString filename);
 
+    void set_preset_file_on_gpu();
+
     Ui::MainWindow* get_ui();
 
     uint window_max_size = 768;
@@ -149,7 +151,15 @@ class MainWindow : public QMainWindow, public Observer
 
     void shift_screen();
 
+    /**
+     * @brief Open light ui panel and hide this one
+     */
     void open_light_ui();
+
+    /**
+     * @brief Sets preset for given usage.
+     */
+    void set_preset();
 
   signals:
     /*! \brief TODO: comment
@@ -197,5 +207,6 @@ class MainWindow : public QMainWindow, public Observer
     Subscriber<bool> acquisition_started_subscriber_;
     Subscriber<bool> acquisition_finished_subscriber_;
     bool acquisition_finished_notification_received;
+    Subscriber<bool> set_preset_subscriber_;
 };
 } // namespace holovibes::gui
