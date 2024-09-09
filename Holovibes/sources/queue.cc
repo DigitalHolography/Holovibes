@@ -37,8 +37,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
 {
     max_size_ = max_size;
 
-    std::
-
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
     size_t free_memory, total_memory;
     cudaMemGetInfo(&free_memory,&total_memory);
