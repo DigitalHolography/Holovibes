@@ -161,6 +161,7 @@ void ImportPanel::import_stop()
 
     parent_->synchronize_thread([&]() { ui_->FileReaderProgressBar->hide(); });
     parent_->notify();
+    api::set_record_mode(RecordMode::RAW);  // this is to avoid a crash when the record is stopped, not particulary good, need to be studied
 }
 
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
