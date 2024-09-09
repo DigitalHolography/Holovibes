@@ -31,9 +31,9 @@ void CameraAlvium::init_camera()
 {
     std::string name;
     VmbCPP::CameraPtrVector cameras;
-    VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-    VmbCPP::VmbInt64_t nPLS;     // Payload size value
-    FramePtrVector frames(15);   // Frame array FIXME
+    VmbCPP::FeaturePtr pFeature;       // Generic feature pointer
+    VmbInt64_t nPLS;                   // Payload size value
+    VmbCPP::FramePtrVector frames(15); // Frame array FIXME
 
     if (api_vmb_.Startup() == VmbErrorType::VmbErrorInternalFault ||
         api_vmb_.GetCameras(cameras) == VmbErrorType::VmbErrorInternalFault) // FIXME MAYBE add pathConfiguration
@@ -42,7 +42,7 @@ void CameraAlvium::init_camera()
     }
 
     // Trying to connect the first available Camera
-    for (CameraPtrVector::iterator iter = cameras.begin(); cameras.end() != iter; ++iter)
+    for (VmbCPP::CameraPtrVector::iterator iter = cameras.begin(); cameras.end() != iter; ++iter)
     {
         if (VmbErrorType::VmbErrorSuccess != (*iter)->GetName(name))
         {
@@ -58,11 +58,11 @@ void CameraAlvium::init_camera()
         // Query the necessary buffer size
         camera_ptr_->GetFeatureByName("VmbPayloadsizeGet", pFeature);
         pFeature->GetValue(nPLS);
-        for (FramePtrVector::iterator iter = frames.begin(); frames.end() != iter; ++iter)
+        for (VmbCPP::FramePtrVector::iterator iter = frames.begin(); frames.end() != iter; ++iter)
         {
-            (*iter).reset(new Frame(nPLS));
-            (*iter)->RegisterObserver(IFrameObserverPtr(new FrameObserver(camera)));
-            camera->AnnounceFrame(*iter);
+            (*iter).reset(new VmbCPP::Frame(nPLS));
+            /*(*iter)->RegisterObserver(VmbCPP::IFrameObserverPtr(new VmbCPP::FrameObserver(camera)));
+            camera->AnnounceFrame(*iter);*/
         }
 
         return;
