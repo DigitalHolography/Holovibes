@@ -1,0 +1,29 @@
+/* Make the icon rounded */
+#projectlogo img {
+  border-radius: 50px;
+}
+
+/* Fix issue where the navigation field is cut */
+#top {
+  overflow: visible;
+}
+
+#nav-tree {
+  padding-top: 20px;
+}
+
+/* Avoid horizontal bar taking full screen space */
+h2.groupheader {
+  box-shadow: none;
+  border-bottom: 1px solid var(--separator-color);
+}
+
+.contents hr {
+  box-shadow: none;
+  border-bottom: 0px solid var(--separator-color);    
+}
+
+/* Remove the line under the title */
+div.header {
+  border-bottom: 0px;
+}

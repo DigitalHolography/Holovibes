@@ -1,4 +1,4 @@
-# Table of Contents
+# Tutorial
 
 - [1. Introduction](#1-introduction)
 - [2. Setup and installation](#2-setup-and-installation)
@@ -23,11 +23,13 @@
    - [6.5 Updating the UI from the API](#65-updating-the-ui-from-the-api)
 - [7. Troubleshooting](#7-troubleshooting)
 - [8. Documentation](#8-documentation)
+   - [8.1 Generate documentation](#81-generate-documentation)
+   - [8.2 Write documentation](#82-write-documentation)
 - [9. Tests](#9-test)
    - [9.1 Add a test](#91-add-a-test)
    - [9.2 Build reference outputs](#92-build-reference-outputs)
    - [9.3 Run tests](#93-run-tests)
-- [10. Tools](#10-tools)
+- [10. Tools](TUTORIAL.md#10-tools)
    - [10.1 Dev.py](#101-devpy-tools)
    - [10.2 Holo file inspector](#102-holo-file-inspector)
    - [10.3 Benchmark viewer](#103-benchmark-viewer)
@@ -323,6 +325,8 @@ If you want to use a custom widget, you can change its class in the `.ui` file d
 
 # 8. Documentation
 
+## 8.1 Generate documentation
+
 Generate the documentation using Doxygen (you need to install it before):
 
 ```sh
@@ -330,6 +334,10 @@ $ ./dev.py doc
 ```
 
 This will compile the documentation and open it in your default browser.
+
+## 8.2 Write documentation
+
+Follow [these recommandation](docs/Doxygen/DOCUMENTING.md)
 
 # 9. Test
 
