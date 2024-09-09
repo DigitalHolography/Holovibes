@@ -1,5 +1,11 @@
 ## Changelog
 
+### 13.4.0
+
+- Drop down menu to select any preset in the preset directory
+- Prevents the allocation of buffer with a size greater than the available GPU memory
+- Updates the documentation and merge the tutorial
+
 ### 13.3.2
 
 - fixed maximum capacty of queues
