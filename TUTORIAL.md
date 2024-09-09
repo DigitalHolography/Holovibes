@@ -52,10 +52,6 @@ To develop for Holovibes, ensure you have the following software installed:
 - NSIS
 - Conan
 
->Bitflow frames grabber and euresys frames grabber SDKs must be installed on the computer when making a release executable or it will not contains the dll required to load the camera.
-> - [BitFlow SDK 6.6](http://www.bitflow.com/downloads/bfsdk66.zip)
-> - [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
-
 ## 2.2 Initial setup
 
 1. **Install GIT** from [here](https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe).
@@ -67,12 +63,17 @@ To develop for Holovibes, ensure you have the following software installed:
       - C++ AddressSanitizer
       - MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
       - MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
-3. **Install CUDA 12.2** from [here](https://developer.nvidia.com/cuda-12-2-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local).
+3. **Install CUDA 12.6** from [here](https://developer.download.nvidia.com/compute/cuda/12.6.1/local_installers/cuda_12.6.1_560.94_windows.exe)
+
 4. **Add Paths to PATH Environment Variables**:
    - `C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`
-   - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x64`
-   - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x86`
-   - `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.2\bin`
+   - **Depending on your VS version (commonly *Community*):**
+      - `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+      - `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x86`
+      **OR**
+      - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x64`
+      - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x86`
+   - `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin`
 5. **Reboot your PC**.
 6. **Install Python 3.8.10** from [here](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe). Ensure to tick `Add Python 3.8 to PATH`.
 7. **Install NSIS** from [here](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=).
@@ -80,6 +81,10 @@ To develop for Holovibes, ensure you have the following software installed:
    ```sh
    $ pip install conan && conan profile detect --force
    ```
+
+>Bitflow frames grabber and euresys frames grabber SDKs must be installed on the computer when making a release executable or it will not contains the dll required to load the camera.
+> - [BitFlow SDK 6.6](http://www.bitflow.com/downloads/bfsdk66.zip)
+> - [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 
 ## 2.3 Building the project
 
