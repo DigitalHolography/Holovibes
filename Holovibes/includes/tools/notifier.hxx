@@ -43,7 +43,18 @@ D Notifier<T, D>::notify(const T& data)
     {
         try
         {
-            return subscriber(data);
+            if (std::is_same<D, void>::value)
+                subscriber(data); // The notifier doesn't return anything.
+            else
+            {
+                // The notifier has a return value.
+                // In that neesh case reserved only to a few usages, it is assumed that
+                // there is only one subscriber for the notifier in question.
+
+                if (subscribers_.size() > 1)
+                    LOG_WARN("Multiple subscribers for non-void notifier: {}", subscribers_.size());
+                return subscriber(data);
+            }
         }
         catch (const std::exception& e)
         {

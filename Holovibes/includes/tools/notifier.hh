@@ -58,7 +58,10 @@ public:
      * @tparam T The type of data the notifier will handle.
      * @tparam D The return type of the notifier callback (defaults to void).
      * @param name A unique name for the notifier.
-     * @return D The return value of the notifier callback.
+     * @return D The return value of the notifier callback, if any.
+     * 
+     * @note In the case of a non-void return type, it is intended that only one subscriber is present.
+     * Indeed, in such case, only the return value of the first subscriber will be returned.
      */
     template <typename T, typename D = void>
     static D notify(const std::string& name, const T& data);
