@@ -5,6 +5,9 @@
 
 #include <Windows.h>
 #include <VmbCPP/VmbCPP.h>
+#include <VmbC/VmbCommonTypes.h>
+#include <vector>
+#include <queue>
 
 #include "camera.hh"
 
@@ -16,6 +19,17 @@ namespace camera
  */
 class CameraAlvium : public Camera
 {
+    class FrameObserver : public VmbCPP::IFrameObserver
+    {
+      public:
+        FrameObserver(VmbCPP::CameraPtr Camera_ptr, VmbInt64_t size_frame, CameraAlvium& CameraAlvium);
+        void FrameReceived(const VmbCPP::FramePtr pFrame);
+
+      private:
+        VmbInt64_t size_frame_;
+        CameraAlvium& camera_alvium_;
+    };
+
   public:
     CameraAlvium();
 
@@ -45,5 +59,7 @@ class CameraAlvium : public Camera
 
     VmbCPP::VmbSystem& api_vmb_;
     VmbCPP::CameraPtr camera_ptr_;
+    VmbCPP::FramePtrVector frames_; // Frame array FIXME but ok
+    std::queue<unsigned char*> waiting_queue_;
 };
 } // namespace camera
