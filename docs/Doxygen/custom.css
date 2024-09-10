@@ -8,8 +8,13 @@
   overflow: visible;
 }
 
-#nav-tree {
-  padding-top: 20px;
+#nav-tree-contents {
+  margin: 26px 0px 15px 0px;
+}
+
+/* Fix big space before and after the content */
+#doc-content {
+  padding: 0px;
 }
 
 /* Avoid horizontal bar taking full screen space */
