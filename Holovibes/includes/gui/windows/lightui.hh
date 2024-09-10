@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <tuple>
 
-#include "api_struct.hh"
+#include "notifier_struct.hh"
 #include "notifier.hh"
 #include "enum_record_mode.hh"
 
@@ -34,7 +34,7 @@ class LightUI : public QMainWindow
      * @param main_window Pointer to the MainWindow instance.
      * @param export_panel Pointer to the ExportPanel instance.
      */
-    explicit LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_panel);
+    explicit LightUI(QWidget* parent, MainWindow* main_window);
 
     /**
      * @brief Destructor for LightUI class.
@@ -153,7 +153,6 @@ class LightUI : public QMainWindow
   private:
     Ui::LightUI* ui_;                                                         ///< Pointer to the UI instance.
     MainWindow* main_window_;                                                 ///< Pointer to the MainWindow instance.
-    ExportPanel* export_panel_;                                               ///< Pointer to the ExportPanel instance.
     bool visible_;                                                            ///< Boolean to track the visibility state of the UI.
     Subscriber<double> z_distance_subscriber_;                                ///< Subscriber for Z distance changes.
     Subscriber<RecordMode> record_start_subscriber_;                          ///< Subscriber for record start events.

@@ -121,5 +121,8 @@ class ExportPanel : public Panel
   private:
     int record_frame_step_ = 512;
     Subscriber<bool> import_start_subscriber_;
+    Subscriber<bool> start_record_subscriber_;
+    Subscriber<std::string> set_output_file_path_subscriber_;
+    Subscriber<bool, std::string> browse_record_output_file_subscriber_;
 };
 } // namespace holovibes::gui

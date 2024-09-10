@@ -166,7 +166,7 @@ MainWindow::MainWindow(QWidget* parent)
         api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
 
     // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
+    light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
     load_gui();
 

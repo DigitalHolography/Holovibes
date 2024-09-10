@@ -17,7 +17,7 @@
 #include <iostream>
 
 // Forward declaration
-template <typename T>
+template <typename T, typename D>
 class Notifier;
 
 /**
@@ -43,11 +43,25 @@ public:
     /**
      * @brief Gets a notifier for a specific type and name.
      * @tparam T The type of data the notifier will handle.
+     * @tparam D The return type of the notifier callback (defaults to void).
      * @param name A unique name for the notifier.
      * @return A shared pointer to the notifier.
      */
-    template <typename T>
-    std::shared_ptr<Notifier<T>> get_notifier(const std::string& name);
+    template <typename T, typename D = void>
+    std::shared_ptr<Notifier<T, D>> get_notifier(const std::string& name);
+
+    /**
+     * @brief Generic function to compact a Notify call.
+     * Basically the same as getting the instance of NotifierManager,
+     * getting the notifier and calling notify.
+     * 
+     * @tparam T The type of data the notifier will handle.
+     * @tparam D The return type of the notifier callback (defaults to void).
+     * @param name A unique name for the notifier.
+     * @return D The return value of the notifier callback.
+     */
+    template <typename T, typename D = void>
+    static D notify(const std::string& name, const T& data);
 
 private:
     NotifierManager() = default;
@@ -62,11 +76,12 @@ private:
 /**
  * @brief Handles notification subscriptions and notifications.
  * @tparam T The type of data the notifier will handle.
+ * @tparam D The return type of the subscriber function (defaults to void).
  * 
  * @see NotifierManager
  * @see Subscriber
  */
-template <typename T>
+template <typename T, typename D = void>
 class Notifier
 {
 public:
@@ -84,14 +99,14 @@ public:
      * @brief Notifies all subscribers with the provided data.
      * @param data The data to notify subscribers with.
      */
-    void notify(const T& data);
+    D notify(const T& data);
 
     /**
      * @brief Subscribes a new subscriber.
      * @param subscriber The subscriber function to be called upon notification.
      * @return The subscription ID of the subscriber.
      */
-    SubscriptionId subscribe(const std::function<void(const T&)>& subscriber);
+    SubscriptionId subscribe(const std::function<D(const T&)>& subscriber);
 
     /**
      * @brief Unsubscribes a subscriber using its subscription ID.
@@ -100,7 +115,7 @@ public:
     void unsubscribe(SubscriptionId id);
 
 private:
-    std::unordered_map<SubscriptionId, std::function<void(const T&)>> subscribers_; ///< Stores subscribers
+    std::unordered_map<SubscriptionId, std::function<D(const T&)>> subscribers_; ///< Stores subscribers
     std::mutex mutex_; ///< Mutex for thread-safe access
     std::atomic<SubscriptionId> nextId_; ///< Atomic counter for subscription IDs
 };
@@ -108,8 +123,9 @@ private:
 /**
  * @brief Manages a subscription to a notifier.
  * @tparam T The type of data the notifier will handle.
+ * @tparam D The return type of the notifier callback (defaults to void).
  */
-template <typename T>
+template <typename T, typename D = void>
 class Subscriber
 {
 public:
@@ -128,9 +144,9 @@ public:
     ~Subscriber();
 
 private:
-    std::shared_ptr<Notifier<T>> notifier_; ///< The notifier this subscriber is subscribed to
-    typename Notifier<T>::SubscriptionId subscriptionId_; ///< The subscription ID of this subscriber
-    std::function<void(const T&)> callback_; ///< The callback function to be called upon notification
+    std::shared_ptr<Notifier<T, D>> notifier_; ///< The notifier this subscriber is subscribed to
+    typename Notifier<T, D>::SubscriptionId subscriptionId_; ///< The subscription ID of this subscriber
+    std::function<D(const T&)> callback_; ///< The callback function to be called upon notification
 };
 
 // Include the implementation file for template functions
