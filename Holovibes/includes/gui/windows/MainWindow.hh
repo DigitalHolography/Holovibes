@@ -111,6 +111,7 @@ class MainWindow : public QMainWindow, public Observer
     void camera_ametek_s991_coaxlink_qspf_plus();
     void camera_ametek_s711_coaxlink_qspf_plus();
     void camera_euresys_egrabber();
+    void camera_alvium();
 
     /*! \brief Opens the credit display */
     void credits();

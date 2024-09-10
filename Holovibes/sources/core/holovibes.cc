@@ -155,6 +155,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             {CameraKind::AmetekS711EuresysCoaxlinkQSFP, "AmetekS711EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::AmetekS991EuresysCoaxlinkQSFP, "AmetekS991EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::Ametek, "EuresyseGrabber.dll"},
+            {CameraKind::Alvium, "Alvium.dll"},
         };
         active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
     }

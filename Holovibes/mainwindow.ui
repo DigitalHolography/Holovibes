@@ -3196,6 +3196,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionNone"/>
      <addaction name="actionBitflowCyton"/>
      <addaction name="actionAdimec"/>
+     <addaction name="actionAlvium"/>
      <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
      <addaction name="actionXIQ"/>
@@ -3415,6 +3416,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
    </property>
+  </action>
+  <action name="actionAlvium">
+    <property name="text">
+    <string>Alvium-1800-u/2050</string>
+    </property>
   </action>
   <action name="actionPhantom_S710">
    <property name="text">
@@ -5303,6 +5309,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>actionAlvium</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_alvium()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionEGrabberStudio</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5692,6 +5714,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>camera_bitflow_cyton()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>camera_alvium()</slot>
   <slot>camera_euresys_egrabber()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_xib()</slot>

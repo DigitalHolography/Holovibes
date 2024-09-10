@@ -223,6 +223,7 @@ install(FILES
     $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
     $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
+    $<TARGET_FILE_DIR:Holovibes>/Alvium.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
