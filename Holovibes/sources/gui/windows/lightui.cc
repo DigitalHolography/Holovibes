@@ -74,10 +74,12 @@ void LightUI::z_value_changed(int z_distance)
 
 void LightUI::browse_record_output_file_ui()
 {
-    //! FIXME: This is a kind of hack that works with the current implementation of MainWindow. Ideally, lightui should
-    //! not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
-    //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
-    //! with the file path).
+    // FIXED: This is a kind of hack that works with the current implementation of MainWindow. Ideally, lightui should
+    // not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
+    // create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
+    // with the file path).
+    //? FIXED: The notifier system is now in use instead ; it also features (optional) return types.
+
     std::filesystem::path file_path{NotifierManager::notify<bool, std::string>("browse_record_output_file", true)};
     std::string file_path_str = file_path.string();
     std::replace(file_path_str.begin(), file_path_str.end(), '/', '\\');
