@@ -544,7 +544,7 @@ void MainWindow::save_gui()
     {
         j_us = json::parse(input_file);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
     }
 
