@@ -1,1 +1,0 @@
-// VmbCPP configuration file

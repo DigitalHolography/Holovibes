@@ -7,6 +7,7 @@ set(BITFLOW_SDK "C:/BitFlow SDK 6.6/")
 # idem
 set(EURESYS_SDK "C:/Program Files/Euresys/eGrabber")
 
+set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
 
 find_file(HAVE_BFType "BFType.h" PATHS "${BITFLOW_SDK}/Include")
 find_file(HAVE_BFErApi "BFErApi.h" PATHS "${BITFLOW_SDK}/Include")
@@ -16,6 +17,8 @@ find_file(HAVE_BiApi "BiApi.h" PATHS "${BITFLOW_SDK}/Include")
 
 find_file(HAVE_EGrabber "EGrabber.h" PATHS "${EURESYS_SDK}/include")
 find_file(HAVE_EGrabbers "EGrabbers.h" PATHS "${EURESYS_SDK}/include")
+
+find_file(HAVE_VIMBAX "VmbCPP.h" PATHS "${VIMBAX_SDK}/api/include/VmbCPP")
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     add_subdirectory(BitflowCyton)
@@ -38,9 +41,15 @@ else()
     message(WARNING "######################################################\nEuresys SDK not found, CameraPhantom will not be built\n######################################################")
 endif()
 
+if (HAVE_VIMBAX)
+    add_subdirectory(CameraAlvium)
+else()
+    message(WARNING "######################################################\nVimba X SDK not found, Camera Alvium will no be built\n######################################################")
+endif()
+
+
 add_subdirectory(CameraHamamatsu)
 add_subdirectory(CameraIds)
 add_subdirectory(CameraXib)
 add_subdirectory(CameraXiq)
 add_subdirectory(CameraOpenCV)
-add_subdirectory(CameraAlvium)

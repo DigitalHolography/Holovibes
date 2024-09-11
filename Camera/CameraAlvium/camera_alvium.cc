@@ -183,4 +183,6 @@ void CameraAlvium::shutdown_camera()
     api_vmb_.Shutdown();
 }
 
+ICamera* new_camera_device() { return new CameraAlvium(); }
+
 } // namespace camera

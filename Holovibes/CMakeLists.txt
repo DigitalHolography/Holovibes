@@ -133,9 +133,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbCPP.dll" $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbC.dll" $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
-    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbImageTransform.dll" $<TARGET_FILE_DIR:Holovibes>/VmbImageTransform.dll
     
 
     # Copy not all but some resources (python scripts, ...)
@@ -164,6 +161,8 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/alvium.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/alvium.ini
+
 
     # Copy Preset files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
@@ -225,12 +224,8 @@ install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
     $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-    $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
-    $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
-    $<TARGET_FILE_DIR:Holovibes>/VmbImageTransform.dll
     $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
-    $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublas64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cublasLt64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cudart64_12.dll
@@ -262,6 +257,16 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
+        DESTINATION .
+        COMPONENT application)
+endif()
+
+if (HAVE_VIMBAX)
+    install(FILES 
+        ${VIMBAX_SDK}/api/bin/VmbCPP.dll
+        ${VIMBAX_SDK}/api/bin/VmbC.dll
+        ${VIMBAX_SDK}/api/bin/VmbImageTransform.dll
+        $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         DESTINATION .
         COMPONENT application)
 endif()

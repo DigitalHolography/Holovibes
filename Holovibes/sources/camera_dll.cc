@@ -15,12 +15,6 @@ std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
 {
     LOG_FUNC(dll_filepath);
     HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
-    std::cout << dll_filepath.c_str() << std::endl;
-
-    char data[1024];
-
-    GetFullPathNameA(dll_filepath.c_str(), 1024, data, nullptr);
-    std::cout << data << std::endl;
 
     if (!dll_handle)
     {
