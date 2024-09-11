@@ -13,6 +13,7 @@ find_file(HAVE_BFErApi "BFErApi.h" PATHS "${BITFLOW_SDK}/Include")
 find_file(HAVE_BiDef "BiDef.h" PATHS "${BITFLOW_SDK}/Include")
 find_file(HAVE_BiApi "BiApi.h" PATHS "${BITFLOW_SDK}/Include")
 
+
 find_file(HAVE_EGrabber "EGrabber.h" PATHS "${EURESYS_SDK}/include")
 find_file(HAVE_EGrabbers "EGrabbers.h" PATHS "${EURESYS_SDK}/include")
 
@@ -36,7 +37,6 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
 else()
     message(WARNING "######################################################\nEuresys SDK not found, CameraPhantom will not be built\n######################################################")
 endif()
-
 
 add_subdirectory(CameraHamamatsu)
 add_subdirectory(CameraIds)

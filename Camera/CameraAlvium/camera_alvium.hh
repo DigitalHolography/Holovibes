@@ -61,5 +61,6 @@ class CameraAlvium : public Camera
     VmbCPP::CameraPtr camera_ptr_;
     VmbCPP::FramePtrVector frames_; // Frame array FIXME but ok
     std::queue<unsigned char*> waiting_queue_;
+    VmbFeaturePersistSettings_t settingsStruct_;
 };
 } // namespace camera

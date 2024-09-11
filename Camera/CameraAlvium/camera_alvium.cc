@@ -135,8 +135,21 @@ struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 
 void CameraAlvium::load_default_params()
 {
-    // FIXME
-    return;
+    VmbCPP::FeaturePtr pFeature; // Generic feature pointer
+
+    VmbInt64_t height;
+    camera_ptr_->GetFeatureByName("Height", pFeature);
+    pFeature->GetValue(height);
+    fd_.height = height;
+
+    VmbInt64_t width;
+    camera_ptr_->GetFeatureByName("Width", pFeature);
+    pFeature->GetValue(width);
+    fd_.width = width;
+
+    fd_.depth = 2; // FIXME 10-bit in theory, rounded to 2 bytes
+
+    fd_.byteEndian = Endianness::LittleEndian; // FIXME Not sure, test this
 }
 
 void CameraAlvium::load_ini_params()
@@ -148,6 +161,7 @@ void CameraAlvium::load_ini_params()
 void CameraAlvium::bind_params()
 {
     // FIXME
+
     return;
 };
 

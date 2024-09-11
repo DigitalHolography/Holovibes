@@ -133,6 +133,10 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbCPP.dll" $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbC.dll" $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
+    COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/VmbCPP/VmbImageTransform.dll" $<TARGET_FILE_DIR:Holovibes>/VmbImageTransform.dll
+    
 
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
@@ -221,6 +225,9 @@ install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraXib.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraXiq.dll
     $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
+    $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
+    $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
+    $<TARGET_FILE_DIR:Holovibes>/VmbImageTransform.dll
     $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
