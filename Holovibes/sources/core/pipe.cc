@@ -219,7 +219,7 @@ bool Pipe::make_requests()
 
         auto fd = input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd,
-                                            setting<settings::OutputBufferSize>(),
+                                            static_cast<unsigned int>(setting<settings::OutputBufferSize>()),
                                             QueueType::UNDEFINED,
                                             setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
@@ -231,7 +231,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("filter2d_view_requested");
 
         auto fd = gpu_output_queue_.get_fd();
-        gpu_filter2d_view_queue_.reset(new Queue(fd, setting<settings::OutputBufferSize>()));
+        gpu_filter2d_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
         api::set_filter2d_view_enabled(true);
         filter2d_view_requested_ = false;
     }

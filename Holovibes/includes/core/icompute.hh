@@ -270,7 +270,7 @@ class ICompute
                 static_cast<const size_t>(setting<settings::BatchSize>()) * input_queue_.get_fd().get_frame_res()))
             err++;
 
-        int output_buffer_size = input_queue_.get_fd().get_frame_res();
+        int output_buffer_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
         if (setting<settings::ImageType>() == ImgType::Composite)
             image::grey_to_rgb_size(output_buffer_size);
         if (!buffers_.gpu_output_frame.resize(output_buffer_size))

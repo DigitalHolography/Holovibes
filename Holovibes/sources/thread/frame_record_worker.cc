@@ -81,7 +81,7 @@ void FrameRecordWorker::run()
 
     if (setting<settings::RecordFrameCount>().has_value())
     {
-        nb_frames_to_record = setting<settings::RecordFrameCount>().value();
+        nb_frames_to_record = static_cast<unsigned int>(setting<settings::RecordFrameCount>().value());
     }
     else
         nb_frames_to_record = 0;
@@ -147,7 +147,7 @@ void FrameRecordWorker::run()
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
             // and stop recording if needed.
-            if (stop_requested_ || (contiguous_frames.has_value() && nb_frames_recorded >= contiguous_frames.value()))
+            if (stop_requested_ || (contiguous_frames.has_value() && std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value())))
                 break;
 
             if (nb_frames_to_skip > 0)
@@ -203,7 +203,7 @@ void FrameRecordWorker::run()
         }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        output_frame_file->export_compute_settings(compute_fps_average(), contiguous);
+        output_frame_file->export_compute_settings(static_cast<int>(compute_fps_average()), contiguous);
 
         output_frame_file->write_footer();
     }

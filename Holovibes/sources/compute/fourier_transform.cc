@@ -252,7 +252,7 @@ void FourierTransform::insert_pca()
             cuComplex* V = nullptr;
 
             // cov = H' * H
-            cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
+            cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
 
             // Find eigen values and eigen vectors of cov
             // pca_eigen_values will contain sorted eigen values
@@ -268,7 +268,7 @@ void FourierTransform::insert_pca()
             // gpu_p_acc_buffer = H * V
             matrix_multiply(H,
                             V,
-                            fd_.get_frame_res(),
+                            static_cast<int>(fd_.get_frame_res()),
                             time_transformation_size,
                             time_transformation_size,
                             time_transformation_env_.gpu_p_acc_buffer);
@@ -295,7 +295,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
             cuComplex* V = nullptr;
 
             // cov = H' * H
-            cov_matrix(H, fd_.get_frame_res(), time_transformation_size, cov);
+            cov_matrix(H, static_cast<int>(fd_.get_frame_res()), time_transformation_size, cov);
 
             // pca_eigen_values = sorted eigen values of cov
             // cov and V = eigen vectors of cov
@@ -331,7 +331,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
             // H = H * tmp
             matrix_multiply(H,
                             tmp_matrix,
-                            fd_.get_frame_res(),
+                            static_cast<int>(fd_.get_frame_res()),
                             time_transformation_size,
                             time_transformation_size,
                             time_transformation_env_.gpu_p_acc_buffer);

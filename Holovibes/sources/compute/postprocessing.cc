@@ -147,7 +147,7 @@ void Postprocessing::insert_renormalize(float* gpu_postprocess_frame)
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            uint frame_res = fd_.get_frame_res();
+            uint frame_res = static_cast<uint>(fd_.get_frame_res());
             if (setting<settings::ImageType>() == ImgType::Composite)
                 frame_res *= 3;
             gpu_normalize(gpu_postprocess_frame,

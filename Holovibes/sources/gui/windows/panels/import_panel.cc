@@ -233,12 +233,12 @@ void ImportPanel::update_input_file_start_index()
 
     api::set_input_file_start_index(start_spinbox->value() - 1);
 
-    start_spinbox->setValue(api::get_input_file_start_index() + 1);
+    start_spinbox->setValue(static_cast<int>(api::get_input_file_start_index()) + 1);
 
     if (api::get_input_file_start_index() + 1 > api::get_input_file_end_index())
     {
         QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-        end_spinbox->setValue(api::get_input_file_start_index());
+        end_spinbox->setValue(static_cast<int>(api::get_input_file_start_index()));
         update_input_file_end_index();
     }
 }
@@ -249,12 +249,12 @@ void ImportPanel::update_input_file_end_index()
 
     api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value());
 
-    end_spinbox->setValue(api::get_input_file_end_index());
+    end_spinbox->setValue(static_cast<int>(api::get_input_file_end_index()));
 
     if (api::get_input_file_start_index() > api::get_input_file_end_index())
     {
         QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-        start_spinbox->setValue(api::get_input_file_end_index());
+        start_spinbox->setValue(static_cast<int>(api::get_input_file_end_index()));
         update_input_file_start_index();
     }
 }

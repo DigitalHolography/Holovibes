@@ -158,11 +158,6 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.gpu = vm_["gpu"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();
     }
-    catch (std::exception& e)
-    {
-        LOG_INFO("Error when parsing options: {}", e.what());
-        std::exit(20);
-    }
     catch (const po::invalid_option_value& ex)
     {
         // Gérer le cas où une option reçoit une valeur invalide
@@ -175,7 +170,11 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         LOG_ERROR("Unknown option: {}", ex.what());
         std::exit(26); // Utiliser un code d'erreur spécifique
     }
-
+    catch (std::exception& e)
+    {
+        LOG_INFO("Error when parsing options: {}", e.what());
+        std::exit(20);
+    }
     return options_;
 }
 
