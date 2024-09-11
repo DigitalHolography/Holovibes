@@ -63,6 +63,15 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     LOG_INFO("Raw recording: {}", opts.record_raw);
     LOG_INFO("Skip accumulation frames: {}", !opts.noskip_acc);
     LOG_INFO("Load in GPU: {}", opts.gpu);
+    LOG_INFO("Number of fps of the record: ");
+    if (opts.record_fps)
+    {
+        LOG_INFO("{}", opts.record_fps.value());
+    }
+    else
+    {
+        LOG_INFO("full frame");
+    }
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -270,6 +279,10 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
+    if (opts.record_fps)
+    {
+        holovibes.update_setting(holovibes::settings::RecordFps{opts.record_fps.value()});
+    }
 
     holovibes.start_frame_record();
 

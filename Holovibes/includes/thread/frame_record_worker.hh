@@ -19,7 +19,8 @@
   holovibes::settings::RecordFrameCount, \
   holovibes::settings::RecordMode,       \
   holovibes::settings::RecordFrameSkip,  \
-  holovibes::settings::OutputBufferSize
+  holovibes::settings::OutputBufferSize, \
+  holovibes::settings::RecordFps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
 

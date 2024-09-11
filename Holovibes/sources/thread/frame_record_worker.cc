@@ -156,6 +156,7 @@ void FrameRecordWorker::run()
                 nb_frames_to_skip--;
                 continue;
             }
+            nb_frames_to_skip = setting<settings::RecordFps>();
 
             record_queue_.load()->dequeue(frame_buffer,
                                           stream_,

@@ -112,7 +112,8 @@
     holovibes::settings::RawViewQueueLocation,                      \
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU
+    holovibes::settings::RecordOnGPU,                               \
+    holovibes::settings::RecordFps
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -450,7 +451,8 @@ class Holovibes
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true}))
+                                             settings::RecordOnGPU{true},
+                                             settings::RecordFps{1}))
     {
     }
 

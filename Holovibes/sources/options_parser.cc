@@ -84,6 +84,11 @@ OptionsParser::OptionsParser()
         po::bool_switch()->default_value(false),
         "Benchmark mode (default = false)"
     )
+    (
+        "record_fps",
+        po::value<unsigned int>(),
+        "Record fps"
+    )
     ;
     // clang-format on
 
@@ -157,6 +162,17 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();
+        if (vm_.count("record_fps"))
+        {
+            int record_fps = boost::any_cast<uint>(vm_["record_fps"].value());
+            if (record_fps > 0)
+                options_.record_fps = record_fps; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("record_fps value should be positive");
+                exit(28);
+            }
+        }
     }
     catch (std::exception& e)
     {
