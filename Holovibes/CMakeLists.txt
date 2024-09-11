@@ -101,6 +101,7 @@ target_compile_options(Holovibes PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:
         --extended-lambda
         -Xcudafe --diag_suppress=field_without_dll_interface
+        -diag-suppress 27
     >
     $<$<COMPILE_LANGUAGE:CXX>:
         /W3
