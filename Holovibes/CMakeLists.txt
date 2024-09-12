@@ -213,6 +213,11 @@ install(FILES "${HOLO_DIR}/holovibes_logo.png"
     COMPONENT application
 )
 
+install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
+    DESTINATION .
+    COMPONENT process
+)
+
 
 install(FILES 
     $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
@@ -277,7 +282,8 @@ set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 set(CPACK_GENERATOR "NSIS")
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
-set(CPACK_COMPONENTS_ALL application)
+set(CPACK_COMPONENT_PROCESS_DISPLAY_NAME "Process Holo Files")
+set(CPACK_COMPONENTS_ALL application process)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
 set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
@@ -288,6 +294,10 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 # Add SetCompress off to NSIS script
 set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
     SetCompress off
+")
+
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+    CreateShortCut \\\"$DESKTOP\\\\Process Holo Files.lnk\\\" \\\"$INSTDIR\\\\ProcessHoloFiles.ps1\\\"
 ")
 
 include(CPack)
