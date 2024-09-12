@@ -119,8 +119,10 @@ void FrameRecordWorker::run()
         if (Holovibes::instance().get_input_queue()->has_overwritten())
             Holovibes::instance().get_input_queue()->reset_override();
 
+        size_t nb_frames_to_record = setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
+    
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
-               (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
+               (nb_frames_recorded < nb_frames_to_record && !stop_requested_))
         {
             if (record_queue_.load()->has_overwritten() || Holovibes::instance().get_input_queue()->has_overwritten())
             {
@@ -156,7 +158,7 @@ void FrameRecordWorker::run()
                 nb_frames_to_skip--;
                 continue;
             }
-            nb_frames_to_skip = setting<settings::RecordFps>();
+            nb_frames_to_skip = setting<settings::FrameSkip>();
 
             record_queue_.load()->dequeue(frame_buffer,
                                           stream_,
@@ -204,7 +206,7 @@ void FrameRecordWorker::run()
         }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        output_frame_file->export_compute_settings(compute_fps_average(), contiguous);
+        output_frame_file->export_compute_settings(compute_fps_average() / (setting<settings::FrameSkip>() + 1), contiguous);
 
         output_frame_file->write_footer();
     }

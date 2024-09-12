@@ -85,9 +85,9 @@ OptionsParser::OptionsParser()
         "Benchmark mode (default = false)"
     )
     (
-        "record_fps",
+        "frame_skip",
         po::value<unsigned int>(),
-        "Record fps"
+        "Frame to skip between each frame recorded"
     )
     ;
     // clang-format on
@@ -162,14 +162,14 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();
-        if (vm_.count("record_fps"))
+        if (vm_.count("frame_skip"))
         {
-            int record_fps = boost::any_cast<uint>(vm_["record_fps"].value());
-            if (record_fps > 0)
-                options_.record_fps = record_fps; // Implicit cast to uint
+            int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());
+            if (frame_skip > 0)
+                options_.frame_skip = frame_skip; // Implicit cast to uint
             else
             {
-                LOG_ERROR("record_fps value should be positive");
+                LOG_ERROR("frame_skip value should be positive");
                 exit(28);
             }
         }

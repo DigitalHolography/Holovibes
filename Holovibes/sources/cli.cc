@@ -63,14 +63,14 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     LOG_INFO("Raw recording: {}", opts.record_raw);
     LOG_INFO("Skip accumulation frames: {}", !opts.noskip_acc);
     LOG_INFO("Load in GPU: {}", opts.gpu);
-    LOG_INFO("Number of fps of the record: ");
-    if (opts.record_fps)
+    LOG_INFO("Number of frames to skip between each frame: ");
+    if (opts.frame_skip)
     {
-        LOG_INFO("{}", opts.record_fps.value());
+        LOG_INFO("{}", opts.frame_skip.value());
     }
     else
     {
-        LOG_INFO("full frame");
+        LOG_INFO("0");
     }
 }
 
@@ -226,7 +226,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
                     holovibes::ProgressType::FRAME_RECORD);
             else
             {
-                progress_bar(progress->first, progress->second, 40);
+                progress_bar(progress->first * (holovibes::api::get_nb_frame_skip() + 1), progress->second, 40);
 
                 // Very dirty hack
                 // Request auto contrast once we have accumualated enough images
@@ -279,9 +279,9 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
-    if (opts.record_fps)
+    if (opts.frame_skip)
     {
-        holovibes.update_setting(holovibes::settings::RecordFps{opts.record_fps.value()});
+        holovibes.update_setting(holovibes::settings::FrameSkip{opts.frame_skip.value()});
     }
 
     holovibes.start_frame_record();

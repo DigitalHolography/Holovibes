@@ -207,5 +207,5 @@ DECLARE_SETTING(ZFFTShift, bool)
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device)
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device)
 
-DECLARE_SETTING(RecordFps, uint)
+DECLARE_SETTING(FrameSkip, uint)
 } // namespace holovibes::settings

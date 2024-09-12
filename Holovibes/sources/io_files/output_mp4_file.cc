@@ -27,7 +27,12 @@ void OutputMp4File::write_header()
         // if (output_fps > 5000)  // 5000 is an arbitrary limit
         //     output_fps = 5000;
 
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, 24, size, is_color);
+        double compute_fps = compute_output_fps();
+        if (compute_fps > 24)
+        {
+            compute_fps = 24;
+        }
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_fps, size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();

@@ -113,7 +113,7 @@
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
     holovibes::settings::RecordOnGPU,                               \
-    holovibes::settings::RecordFps
+    holovibes::settings::FrameSkip
      
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -452,7 +452,7 @@ class Holovibes
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true},
-                                             settings::RecordFps{1}))
+                                             settings::FrameSkip{0}))
     {
     }
 
