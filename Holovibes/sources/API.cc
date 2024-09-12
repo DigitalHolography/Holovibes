@@ -2000,7 +2000,7 @@ void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSetti
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
 }
 
 #pragma endregion
