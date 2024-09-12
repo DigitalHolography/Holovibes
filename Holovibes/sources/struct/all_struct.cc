@@ -1,3 +1,12 @@
+/*!
+ * \file all_struct.cc
+ * \brief Contains the definition of `Update`, `Load`, `Dump` and `Assert` functions for all the structs.
+ * - `Update` function updates the struct with the values from the GSH.
+ * - `Load` function updates the GSH with the values from the struct.
+ * - `Dump` function writes the struct to a json file.
+ * - `Assert` function checks if the values of the struct are valid.
+ */
+
 #include <climits> // for UINT_MAX
 #include <iomanip>
 #include <filesystem>
@@ -9,41 +18,44 @@
 
 #define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
+#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
+#define UPDATE_SETTING(setting, value) holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
+
 namespace holovibes
 {
 
 void Windows::Update()
 {
-    this->xy = holovibes::Holovibes::instance().get_setting<settings::XY>().value;
-    this->yz = holovibes::Holovibes::instance().get_setting<settings::YZ>().value;
-    this->xz = holovibes::Holovibes::instance().get_setting<settings::XZ>().value;
-    this->filter2d = holovibes::Holovibes::instance().get_setting<settings::Filter2d>().value;
+    this->xy = GET_SETTING(XY);
+    this->yz = GET_SETTING(YZ);
+    this->xz = GET_SETTING(XZ);
+    this->filter2d = GET_SETTING(Filter2d);
 }
 
 void Reticle::Update()
 {
-    this->display_enabled = holovibes::Holovibes::instance().get_setting<settings::ReticleDisplayEnabled>().value;
-    this->scale = holovibes::Holovibes::instance().get_setting<settings::ReticleScale>().value;
+    this->display_enabled = GET_SETTING(ReticleDisplayEnabled);
+    this->scale = GET_SETTING(ReticleScale);
 }
 
 void Views::Update()
 {
-    this->image_type = holovibes::Holovibes::instance().get_setting<settings::ImageType>().value;
-    this->fft_shift = holovibes::Holovibes::instance().get_setting<settings::FftShiftEnabled>().value;
-    this->x = holovibes::Holovibes::instance().get_setting<settings::X>().value; // GSH::instance().get_x();
-    this->y = holovibes::Holovibes::instance().get_setting<settings::Y>().value;
-    this->z = holovibes::Holovibes::instance().get_setting<settings::P>().value;
-    this->z2 = holovibes::Holovibes::instance().get_setting<settings::Q>().value;
+    this->image_type = GET_SETTING(ImageType);
+    this->fft_shift = GET_SETTING(FftShiftEnabled);
+    this->x = GET_SETTING(X); // GSH::instance().get_x();
+    this->y = GET_SETTING(Y);
+    this->z = GET_SETTING(P);
+    this->z2 = GET_SETTING(Q);
     this->window.Update();
-    this->renorm = holovibes::Holovibes::instance().get_setting<settings::RenormEnabled>().value;
+    this->renorm = GET_SETTING(RenormEnabled);
     this->reticle.Update();
 }
 
 void Rendering::Convolution::Update()
 {
-    this->enabled = holovibes::Holovibes::instance().get_setting<settings::ConvolutionEnabled>().value;
+    this->enabled = GET_SETTING(ConvolutionEnabled);
     this->type = UserInterfaceDescriptor::instance().convo_name;
-    this->divide = holovibes::Holovibes::instance().get_setting<settings::DivideConvolutionEnabled>().value;
+    this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
 void Rendering::Filter::Update()
@@ -54,48 +66,48 @@ void Rendering::Filter::Update()
 
 void Rendering::Filter2D::Update()
 {
-    this->enabled = holovibes::Holovibes::instance().get_setting<settings::Filter2dEnabled>().value;
-    this->inner_radius = holovibes::Holovibes::instance().get_setting<settings::Filter2dN1>().value;
-    this->outer_radius = holovibes::Holovibes::instance().get_setting<settings::Filter2dN2>().value;
+    this->enabled = GET_SETTING(Filter2dEnabled);
+    this->inner_radius = GET_SETTING(Filter2dN1);
+    this->outer_radius = GET_SETTING(Filter2dN2);
 }
 
 void Rendering::Update()
 {
-    this->image_mode = holovibes::Holovibes::instance().get_setting<settings::ComputeMode>().value;
-    this->batch_size = holovibes::Holovibes::instance().get_setting<settings::BatchSize>().value;
-    this->time_transformation_stride = holovibes::Holovibes::instance().get_setting<settings::TimeStride>().value;
+    this->image_mode = GET_SETTING(ComputeMode);
+    this->batch_size = GET_SETTING(BatchSize);
+    this->time_transformation_stride = GET_SETTING(TimeStride);
     this->filter2d.Update();
-    this->space_transformation = holovibes::Holovibes::instance().get_setting<settings::SpaceTransformation>().value;
-    this->time_transformation = holovibes::Holovibes::instance().get_setting<settings::TimeTransformation>().value;
+    this->space_transformation = GET_SETTING(SpaceTransformation);
+    this->time_transformation = GET_SETTING(TimeTransformation);
     this->time_transformation_size =
-        holovibes::Holovibes::instance().get_setting<settings::TimeTransformationSize>().value;
-    this->lambda = holovibes::Holovibes::instance().get_setting<settings::Lambda>().value;
-    this->propagation_distance = holovibes::Holovibes::instance().get_setting<settings::ZDistance>().value;
+        GET_SETTING(TimeTransformationSize);
+    this->lambda = GET_SETTING(Lambda);
+    this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
     this->input_filter.Update();
 }
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->file = holovibes::Holovibes::instance().get_setting<settings::FileBufferSize>().value;
-    this->input = holovibes::Holovibes::instance().get_setting<settings::InputBufferSize>().value;
-    this->output = holovibes::Holovibes::instance().get_setting<settings::OutputBufferSize>().value;
-    this->record = holovibes::Holovibes::instance().get_setting<settings::RecordBufferSize>().value;
+    this->file = GET_SETTING(FileBufferSize);
+    this->input = GET_SETTING(InputBufferSize);
+    this->output = GET_SETTING(OutputBufferSize);
+    this->record = GET_SETTING(RecordBufferSize);
     this->time_transformation_cuts =
-        holovibes::Holovibes::instance().get_setting<settings::TimeTransformationCutsOutputBufferSize>().value;
+        GET_SETTING(TimeTransformationCutsOutputBufferSize);
 }
 
 void AdvancedSettings::Filter2DSmooth::Update()
 {
-    this->low = holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothLow>().value;
-    this->high = holovibes::Holovibes::instance().get_setting<settings::Filter2dSmoothHigh>().value;
+    this->low = GET_SETTING(Filter2dSmoothLow);
+    this->high = GET_SETTING(Filter2dSmoothHigh);
 }
 
 void AdvancedSettings::ContrastThreshold::Update()
 {
-    this->lower = holovibes::Holovibes::instance().get_setting<settings::ContrastLowerThreshold>().value;
-    this->upper = holovibes::Holovibes::instance().get_setting<settings::ContrastUpperThreshold>().value;
-    this->frame_index_offset = holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value;
+    this->lower = GET_SETTING(ContrastLowerThreshold);
+    this->upper = GET_SETTING(ContrastUpperThreshold);
+    this->frame_index_offset = GET_SETTING(CutsContrastPOffset);
 }
 
 void AdvancedSettings::Update()
@@ -103,20 +115,20 @@ void AdvancedSettings::Update()
     this->buffer_size.Update();
     this->filter2d_smooth.Update();
     this->contrast.Update();
-    this->renorm_constant = holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
-    this->raw_bitshift = holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value;
+    this->renorm_constant = GET_SETTING(RenormConstant);
+    this->raw_bitshift = GET_SETTING(RawBitshift);
     // FIXME: optional value might not be that greate of an idea
-    if (holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.has_value())
+    if (GET_SETTING(RecordFrameCount).has_value())
         this->nb_frames_to_record =
-            holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.value();
+            GET_SETTING(RecordFrameCount).value();
 }
 
 void Composite::Update()
 {
-    this->mode = holovibes::Holovibes::instance().get_setting<settings::CompositeKind>().value;
-    this->auto_weight = holovibes::Holovibes::instance().get_setting<settings::CompositeAutoWeights>().value;
-    this->rgb = holovibes::Holovibes::instance().get_setting<settings::RGB>().value;
-    this->hsv = holovibes::Holovibes::instance().get_setting<settings::HSV>().value;
+    this->mode = GET_SETTING(CompositeKind);
+    this->auto_weight = GET_SETTING(CompositeAutoWeights);
+    this->rgb = GET_SETTING(RGB);
+    this->hsv = GET_SETTING(HSV);
 }
 
 void ComputeSettings::Update()
@@ -129,25 +141,24 @@ void ComputeSettings::Update()
 
 void AdvancedSettings::BufferSizes::Load()
 {
-    Holovibes::instance().update_setting(settings::FileBufferSize{this->file});
-    Holovibes::instance().update_setting(settings::InputBufferSize{this->input});
-    Holovibes::instance().update_setting(settings::OutputBufferSize{this->output});
-    Holovibes::instance().update_setting(settings::RecordBufferSize{this->record});
-    Holovibes::instance().update_setting(
-        settings::TimeTransformationCutsOutputBufferSize{this->time_transformation_cuts});
+    UPDATE_SETTING(FileBufferSize, this->file);
+    UPDATE_SETTING(InputBufferSize, this->input);
+    UPDATE_SETTING(OutputBufferSize, this->output);
+    UPDATE_SETTING(RecordBufferSize, this->record);
+    UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, this->time_transformation_cuts);
 }
 
 void AdvancedSettings::Filter2DSmooth::Load()
 {
-    Holovibes::instance().update_setting(settings::Filter2dSmoothLow{this->low});
-    Holovibes::instance().update_setting(settings::Filter2dSmoothHigh{this->high});
+    UPDATE_SETTING(Filter2dSmoothLow, this->low);
+    UPDATE_SETTING(Filter2dSmoothHigh, this->high);
 }
 
 void AdvancedSettings::ContrastThreshold::Load()
 {
-    Holovibes::instance().update_setting(settings::ContrastLowerThreshold{this->lower});
-    Holovibes::instance().update_setting(settings::ContrastUpperThreshold{this->upper});
-    Holovibes::instance().update_setting(settings::CutsContrastPOffset{this->frame_index_offset});
+    UPDATE_SETTING(ContrastLowerThreshold, this->lower);
+    UPDATE_SETTING(ContrastUpperThreshold, this->upper);
+    UPDATE_SETTING(CutsContrastPOffset, this->frame_index_offset);
 }
 
 void AdvancedSettings::Load()
@@ -155,18 +166,18 @@ void AdvancedSettings::Load()
     this->buffer_size.Load();
     this->filter2d_smooth.Load();
     this->contrast.Load();
-    Holovibes::instance().update_setting(settings::RenormConstant{this->renorm_constant});
-    Holovibes::instance().update_setting(settings::RawBitshift{this->raw_bitshift});
+    UPDATE_SETTING(RenormConstant, this->renorm_constant);
+    UPDATE_SETTING(RawBitshift, this->raw_bitshift);
     if (this->nb_frames_to_record != 0)
-        Holovibes::instance().update_setting(settings::RecordFrameCount{this->nb_frames_to_record});
+        UPDATE_SETTING(RecordFrameCount, this->nb_frames_to_record);
 }
 
 void Composite::Load()
 {
-    Holovibes::instance().update_setting(settings::CompositeKind{this->mode});
-    Holovibes::instance().update_setting(settings::CompositeAutoWeights{this->auto_weight});
-    Holovibes::instance().update_setting(settings::RGB{this->rgb});
-    Holovibes::instance().update_setting(settings::HSV{this->hsv});
+    UPDATE_SETTING(CompositeKind, this->mode);
+    UPDATE_SETTING(CompositeAutoWeights, this->auto_weight);
+    UPDATE_SETTING(RGB, this->rgb);
+    UPDATE_SETTING(HSV, this->hsv);
 }
 
 void ComputeSettings::Load()
@@ -179,63 +190,62 @@ void ComputeSettings::Load()
 
 void Windows::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::XY{this->xy});
-    holovibes::Holovibes::instance().update_setting(settings::XZ{this->xz});
-    holovibes::Holovibes::instance().update_setting(settings::YZ{this->yz});
-    holovibes::Holovibes::instance().update_setting(settings::Filter2d{this->filter2d});
+    UPDATE_SETTING(XY, this->xy);
+    UPDATE_SETTING(XZ, this->xz);
+    UPDATE_SETTING(YZ, this->yz);
+    UPDATE_SETTING(Filter2d, this->filter2d);
 }
 
 void Reticle::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::ReticleDisplayEnabled{this->display_enabled});
-    holovibes::Holovibes::instance().update_setting(settings::ReticleScale{this->scale});
+    UPDATE_SETTING(ReticleDisplayEnabled, this->display_enabled);
+    UPDATE_SETTING(ReticleScale, this->scale);
 }
 
 void Views::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::ImageType{this->image_type});
-    holovibes::Holovibes::instance().update_setting(settings::FftShiftEnabled{this->fft_shift});
-    holovibes::Holovibes::instance().update_setting(settings::X{this->x});
-    holovibes::Holovibes::instance().update_setting(settings::Y{this->y});
-    holovibes::Holovibes::instance().update_setting(settings::P{this->z});
-    holovibes::Holovibes::instance().update_setting(settings::Q{this->z2});
+    UPDATE_SETTING(ImageType, this->image_type);
+    UPDATE_SETTING(FftShiftEnabled, this->fft_shift);
+    UPDATE_SETTING(X, this->x);
+    UPDATE_SETTING(Y, this->y);
+    UPDATE_SETTING(P, this->z);
+    UPDATE_SETTING(Q, this->z2);
     this->window.Load();
-    holovibes::Holovibes::instance().update_setting(settings::RenormEnabled{this->renorm});
+    UPDATE_SETTING(RenormEnabled, this->renorm);
     this->reticle.Load();
 }
 
 void Rendering::Convolution::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::ConvolutionEnabled{this->enabled});
+    UPDATE_SETTING(ConvolutionEnabled, this->enabled);
     UserInterfaceDescriptor::instance().convo_name = this->type;
-    holovibes::Holovibes::instance().update_setting(settings::DivideConvolutionEnabled{this->divide});
+    UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 
 void Rendering::Filter::Load()
 {
-    holovibes::Holovibes::instance().update_setting(
-        holovibes::settings::FilterEnabled{this->enabled && this->type != UID_FILTER_TYPE_DEFAULT});
+    UPDATE_SETTING(FilterEnabled, this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
     UserInterfaceDescriptor::instance().filter_name = this->type;
 }
 
 void Rendering::Filter2D::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::Filter2dEnabled{this->enabled});
-    holovibes::Holovibes::instance().update_setting(settings::Filter2dN1{this->inner_radius});
-    holovibes::Holovibes::instance().update_setting(settings::Filter2dN2{this->outer_radius});
+    UPDATE_SETTING(Filter2dEnabled, this->enabled);
+    UPDATE_SETTING(Filter2dN1, this->inner_radius);
+    UPDATE_SETTING(Filter2dN2, this->outer_radius);
 }
 
 void Rendering::Load()
 {
-    holovibes::Holovibes::instance().update_setting(settings::TimeStride{this->time_transformation_stride});
-    holovibes::Holovibes::instance().update_setting(settings::ComputeMode{this->image_mode});
+    UPDATE_SETTING(TimeStride, this->time_transformation_stride);
+    UPDATE_SETTING(ComputeMode, this->image_mode);
     api::set_batch_size(this->batch_size);
     this->filter2d.Load();
-    holovibes::Holovibes::instance().update_setting(settings::SpaceTransformation{this->space_transformation});
-    holovibes::Holovibes::instance().update_setting(settings::TimeTransformation{this->time_transformation});
-    holovibes::Holovibes::instance().update_setting(settings::TimeTransformationSize{this->time_transformation_size});
-    holovibes::Holovibes::instance().update_setting(settings::Lambda{this->lambda});
-    holovibes::Holovibes::instance().update_setting(settings::ZDistance{this->propagation_distance});
+    UPDATE_SETTING(SpaceTransformation, this->space_transformation);
+    UPDATE_SETTING(TimeTransformation, this->time_transformation);
+    UPDATE_SETTING(TimeTransformationSize, this->time_transformation_size);
+    UPDATE_SETTING(Lambda, this->lambda);
+    UPDATE_SETTING(ZDistance, this->propagation_distance);
     this->convolution.Load();
     this->input_filter.Load();
 }

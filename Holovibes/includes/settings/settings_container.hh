@@ -1,5 +1,3 @@
-#pragma once
-
 /**
  * @file settings_container.hh
  * 
@@ -33,6 +31,8 @@
  * has_setting_v<int, settings> // returns true
  * ```
  */
+
+#pragma once
 
 #include "utils/custom_type_traits.hh"
 #include <functional>
