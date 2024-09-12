@@ -2,6 +2,7 @@
 
 #define UID_CONVOLUTION_TYPE_DEFAULT "None"
 #define UID_FILTER_TYPE_DEFAULT "None"
+#define UID_PRESET_TYPE_DEFAULT "None"
 
 // without namespace
 #include "tools.hh"

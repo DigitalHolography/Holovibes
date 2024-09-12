@@ -3162,6 +3162,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuSelect_preset">
+     <property name="title">
+      <string>Select preset</string>
+     </property>
+    </widget>
     <widget class="QMenu" name="menuImport_from_ini">
      <property name="title">
       <string>Import compute settings</string>
@@ -3177,6 +3182,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionExport_as"/>
     </widget>
     <addaction name="actionPreset"/>
+    <addaction name="menuSelect_preset"/>
     <addaction name="menuImport_from_ini"/>
     <addaction name="menuExport_to_ini"/>
     <addaction name="separator"/>
@@ -3487,7 +3493,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </action>
   <action name="actionPreset">
    <property name="text">
-    <string>Preset</string>
+    <string>Default preset</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
