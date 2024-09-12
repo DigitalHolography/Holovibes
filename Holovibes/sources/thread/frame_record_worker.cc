@@ -192,7 +192,7 @@ void FrameRecordWorker::run()
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 
-        if (contiguous_frames.has_value() && contiguous_frames < nb_frames_recorded)
+        if (contiguous_frames.has_value() && std::cmp_less(contiguous_frames.value(), nb_frames_recorded.load()))
         {
             LOG_WARN("Record lost its contiguousity at frame {}.", contiguous_frames.value());
             LOG_WARN("To prevent this lost, you might need to increase Input AND/OR Record buffer size.");

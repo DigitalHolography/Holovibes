@@ -1797,7 +1797,7 @@ void set_record_mode(const std::string& text)
 bool start_record_preconditions()
 {
     bool batch_enabled = api::get_batch_enabled();
-    std::optional<unsigned int> nb_frames_to_record = api::get_record_frame_count();
+    std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
 
     auto batch_input_path = api::get_batch_file_path().value_or("");
