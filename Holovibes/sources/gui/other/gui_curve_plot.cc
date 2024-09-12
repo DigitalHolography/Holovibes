@@ -40,8 +40,8 @@ CurvePlot::CurvePlot(ConcurrentDeque<ChartPoint>& data_vect,
     //chart->axisX()->setReverse(true);
 
     // FIXME axisX is deprecated, axes returns a list of axes, we take the first horizontal, verify ?
-    chart->axes(Qt::Horizontal).at(0)->setRange(0, points_nb_);
-    chart->axes(Qt::Horizontal).at(0)->setReverse(true);
+    chart->axes(Qt::Horizontal).front()->setRange(0, points_nb_);
+    chart->axes(Qt::Horizontal).front()->setReverse(true);
     
     chart->setTitle(title);
 
@@ -101,7 +101,7 @@ void CurvePlot::resize_plot(const int size)
     //chart->axisX()->setMax(QVariant(points_nb_)); // warning C4996: 'QChart::axisX': was declared deprecated
 
     // FIXME axisX is deprecated, we take first horizontal axis, verify
-    chart->axes(Qt::Horizontal).at(0)->setMax(QVariant(points_nb_));
+    chart->axes(Qt::Horizontal).front()->setMax(QVariant(points_nb_));
 }
 
 void CurvePlot::resizeEvent(QResizeEvent* e)
@@ -153,7 +153,7 @@ void CurvePlot::auto_scale()
     //chart->axisY()->setRange(min - offset, max + offset);
 
     // FIXME axisY is deprecated, we take first vertical axis, verify
-    chart->axes(Qt::Vertical).at(0)->setRange(min - offset, max + offset);
+    chart->axes(Qt::Vertical).front()->setRange(min - offset, max + offset);
 }
 
 void CurvePlot::start() { timer_.start(TIMER_FREQ); }
