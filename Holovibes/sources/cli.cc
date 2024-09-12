@@ -72,6 +72,15 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     {
         LOG_INFO("0");
     }
+    LOG_INFO("Number of Mp4 fps: ");
+    if (opts.mp4_fps)
+    {
+        LOG_INFO("{}", opts.mp4_fps.value());
+    }
+    else
+    {
+        LOG_INFO("24");
+    }
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -283,7 +292,23 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     {
         holovibes.update_setting(holovibes::settings::FrameSkip{opts.frame_skip.value()});
     }
-
+    if (opts.mp4_fps)
+    {
+        holovibes.update_setting(holovibes::settings::Mp4Fps{opts.mp4_fps.value()});
+    }
+    if (opts.output_path.value().ends_with(".mp4"))
+    {
+        double input_fps = static_cast<double>(holovibes::api::get_input_fps());
+        double time_stride = static_cast<double>(holovibes::api::get_time_stride());
+        double frame_skip = static_cast<double>(holovibes::api::get_nb_frame_skip());
+        assert(time_stride != 0);
+        double output_fps = input_fps / time_stride;
+        if (frame_skip > 0)
+        {
+            output_fps = output_fps / (frame_skip + 1);
+        }
+        holovibes.update_setting(holovibes::settings::FrameSkip{static_cast<uint>(output_fps * (frame_skip+1))/holovibes::api::get_mp4_fps()});
+    }
     holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.

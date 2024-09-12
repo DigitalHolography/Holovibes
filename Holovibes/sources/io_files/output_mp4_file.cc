@@ -1,5 +1,7 @@
 #include "output_mp4_file.hh"
 #include "file_exception.hh"
+#include "holovibes.hh"
+
 
 namespace holovibes::io_files
 {
@@ -28,9 +30,9 @@ void OutputMp4File::write_header()
         //     output_fps = 5000;
 
         double compute_fps = compute_output_fps();
-        if (compute_fps > 24)
+        if (compute_fps > Holovibes::instance().template get_setting<settings::Mp4Fps>().value)
         {
-            compute_fps = 24;
+            compute_fps = Holovibes::instance().template get_setting<settings::Mp4Fps>().value;
         }
         video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_fps, size, is_color);
 

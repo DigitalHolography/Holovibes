@@ -89,6 +89,11 @@ OptionsParser::OptionsParser()
         po::value<unsigned int>(),
         "Frame to skip between each frame recorded"
     )
+    (
+        "mp4_fps",
+        po::value<unsigned int>(),
+        "MP4 fps value, default 24. Warning : it may crash for big values"
+    )
     ;
     // clang-format on
 
@@ -171,6 +176,17 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             {
                 LOG_ERROR("frame_skip value should be positive");
                 exit(28);
+            }
+        }
+        if (vm_.count("mp4_fps"))
+        {
+            int mp4_fps = boost::any_cast<uint>(vm_["mp4_fps"].value());
+            if (mp4_fps > 0)
+                options_.mp4_fps = mp4_fps; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("mp4_fps value should be positive");
+                exit(31);
             }
         }
     }

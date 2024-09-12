@@ -113,8 +113,9 @@
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
     holovibes::settings::RecordOnGPU,                               \
-    holovibes::settings::FrameSkip
-     
+    holovibes::settings::FrameSkip,                                 \
+    holovibes::settings::Mp4Fps
+
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -452,7 +453,8 @@ class Holovibes
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true},
-                                             settings::FrameSkip{0}))
+                                             settings::FrameSkip{0},
+                                             settings::Mp4Fps{24}))
     {
     }
 

@@ -208,4 +208,5 @@ DECLARE_SETTING(RecordQueueLocation, holovibes::Device)
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device)
 
 DECLARE_SETTING(FrameSkip, uint)
+DECLARE_SETTING(Mp4Fps, uint)
 } // namespace holovibes::settings
