@@ -54,7 +54,7 @@ void CameraAlvium::init_camera()
     std::string name;
     VmbCPP::CameraPtrVector cameras;
     VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-    VmbInt64_t nPLS;             // Payload size value (size of a frame)
+    VmbUint32_t nPLS;            // Payload size value (size of a frame)
     frames_ = VmbCPP::FramePtrVector(15);
 
     if (api_vmb_.Startup() != VmbErrorType::VmbErrorSuccess ||
@@ -81,8 +81,14 @@ void CameraAlvium::init_camera()
         }
 
         // Query the necessary buffer size
-        camera_ptr_->GetFeatureByName("VmbPayloadsizeGet", pFeature);
-        pFeature->GetValue(nPLS);
+        if (auto err =
+                camera_ptr_->GetPayloadSize(nPLS); // camera_ptr_->GetFeatureByName("VmbPayloadSizeGet", pFeature);
+            err != VmbErrorType::VmbErrorSuccess)
+        {
+            std::cout << err << std::endl;
+            throw CameraException(CameraException::NOT_CONNECTED);
+        }
+        // pFeature->GetValue(nPLS);
         for (VmbCPP::FramePtrVector::iterator iter = frames_.begin(); frames_.end() != iter; ++iter)
         {
             (*iter).reset(new VmbCPP::Frame(nPLS));
@@ -98,6 +104,22 @@ void CameraAlvium::init_camera()
             // Put frame into the frame queue
             camera_ptr_->QueueFrame(*iter);
         }
+
+        VmbCPP::FeaturePtr pFeature; // Generic feature pointer
+
+        VmbInt64_t height;
+        camera_ptr_->GetFeatureByName("Height", pFeature);
+        pFeature->GetValue(height);
+        fd_.height = height;
+
+        VmbInt64_t width;
+        camera_ptr_->GetFeatureByName("Width", pFeature);
+        pFeature->GetValue(width);
+        fd_.width = width;
+
+        fd_.depth = 2; // FIXME 10-bit in theory, rounded to 2 bytes
+
+        fd_.byteEndian = Endianness::LittleEndian; // FIXME Not sure, test this
 
         return;
     }
@@ -133,24 +155,7 @@ struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
     return camera::CapturedFramesDescriptor{buf};
 }
 
-void CameraAlvium::load_default_params()
-{
-    VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-
-    VmbInt64_t height;
-    camera_ptr_->GetFeatureByName("Height", pFeature);
-    pFeature->GetValue(height);
-    fd_.height = height;
-
-    VmbInt64_t width;
-    camera_ptr_->GetFeatureByName("Width", pFeature);
-    pFeature->GetValue(width);
-    fd_.width = width;
-
-    fd_.depth = 2; // FIXME 10-bit in theory, rounded to 2 bytes
-
-    fd_.byteEndian = Endianness::LittleEndian; // FIXME Not sure, test this
-}
+void CameraAlvium::load_default_params() {}
 
 void CameraAlvium::load_ini_params()
 {
