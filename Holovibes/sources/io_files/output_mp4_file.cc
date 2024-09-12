@@ -25,10 +25,7 @@ void OutputMp4File::write_header()
 
         bool is_color = fd_.depth == 3;
 
-        // double output_fps = compute_output_fps(); // 24 is good enough, and otherwise finding the right value is a pain
-        // if (output_fps > 5000)  // 5000 is an arbitrary limit
-        //     output_fps = 5000;
-
+        // Get the fps required but check if it does not exceed the fps given by the user
         double compute_fps = compute_output_fps();
         if (compute_fps > Holovibes::instance().template get_setting<settings::Mp4Fps>().value)
         {

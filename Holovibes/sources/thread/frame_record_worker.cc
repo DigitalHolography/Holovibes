@@ -119,6 +119,7 @@ void FrameRecordWorker::run()
         if (Holovibes::instance().get_input_queue()->has_overwritten())
             Holovibes::instance().get_input_queue()->reset_override();
 
+        // Get the real number of frames to record taking in account the frame skip
         size_t nb_frames_to_record = setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
     
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
@@ -206,6 +207,7 @@ void FrameRecordWorker::run()
         }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
+        // Change the fps according to the frame skip
         output_frame_file->export_compute_settings(compute_fps_average() / (setting<settings::FrameSkip>() + 1), contiguous);
 
         output_frame_file->write_footer();

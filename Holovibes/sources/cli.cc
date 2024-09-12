@@ -235,6 +235,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
                     holovibes::ProgressType::FRAME_RECORD);
             else
             {
+                // Change the speed of the progress bar according to the nb of frames skip
                 progress_bar(progress->first * (holovibes::api::get_nb_frame_skip() + 1), progress->second, 40);
 
                 // Very dirty hack
@@ -296,8 +297,10 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     {
         holovibes.update_setting(holovibes::settings::Mp4Fps{opts.mp4_fps.value()});
     }
+    // Change the fps according to the Mp4Fps value when having to convert in Mp4 format
     if (opts.output_path.value().ends_with(".mp4"))
     {
+        // Computing the fps before catching the images so that we can set the frame skip according to the fps wanted
         double input_fps = static_cast<double>(holovibes::api::get_input_fps());
         double time_stride = static_cast<double>(holovibes::api::get_time_stride());
         double frame_skip = static_cast<double>(holovibes::api::get_nb_frame_skip());

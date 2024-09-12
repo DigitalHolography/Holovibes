@@ -21,6 +21,7 @@ double OutputFrameFile::compute_output_fps()
 
     assert(time_stride != 0);
     double output_fps = input_fps / time_stride;
+    // Divide again by the frame_skip to set the right fps
     if (frame_skip > 0)
     {
         output_fps = output_fps / (frame_skip + 1);
