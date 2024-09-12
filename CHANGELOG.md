@@ -1,9 +1,13 @@
 ## Changelog
 
-### 13.4.0
+### 13.5.0
 
 - Drop down menu to select any preset in the preset directory
 - Prevents the allocation of buffer with a size greater than the available GPU memory
+- Refactorization of GUI
+
+### 13.4.0
+
 - Updates the documentation and merge the tutorial
 
 ### 13.3.2
