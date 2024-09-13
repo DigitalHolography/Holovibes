@@ -11,6 +11,9 @@
 
 #include "camera.hh"
 
+#define MAX_HEIGHT 512
+#define MAX_WIDTH 512
+
 namespace camera
 {
 /*! \class CameraIds
@@ -62,5 +65,8 @@ class CameraAlvium : public Camera
     VmbCPP::FramePtrVector frames_; // Frame array FIXME but ok
     std::queue<unsigned char*> waiting_queue_;
     VmbFeaturePersistSettings_t settingsStruct_;
+
+    int width_;
+    int height_;
 };
 } // namespace camera
