@@ -14,6 +14,7 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
+#include "tools.hh"
 
 #include "cli.hh"
 #include "global_state_holder.hh"
@@ -122,7 +123,7 @@ static void print_help(holovibes::OptionsParser parser)
 void copy_ini_files()
 {
     std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
-    std::filesystem::path src = __CAMERAS_CONFIG_REFERENCE__;
+    std::filesystem::path src = holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__;
 
     if (std::filesystem::exists(dest))
         return;
@@ -140,7 +141,7 @@ void copy_ini_files()
 void copy_preset_files()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__;
-    std::filesystem::path src = __PRESET_REFERENCE__;
+    std::filesystem::path src = holovibes::get_exe_dir() / __PRESET_REFERENCE__;
 
     if (std::filesystem::exists(dest))
         return;
