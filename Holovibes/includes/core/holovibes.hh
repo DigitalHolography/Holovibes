@@ -161,11 +161,7 @@ class Holovibes
     {
         CudaStreams()
         {
-            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
+            reload();
         }
 
         /*! \brief Used when the device is reset. Recreate the streams.
@@ -187,6 +183,7 @@ class Holovibes
             cudaSafeCall(cudaStreamDestroy(compute_stream));
             cudaSafeCall(cudaStreamDestroy(recorder_stream));
         }
+        
         cudaStream_t reader_stream;
         cudaStream_t compute_stream;
         cudaStream_t recorder_stream;

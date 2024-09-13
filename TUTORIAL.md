@@ -169,6 +169,11 @@ Adhere to the following coding standards to maintain code consistency:
 - Getters, Setters and inlinable functions must be written in `*.hh` files.
 - Use Doxygen for comments (ex: `/* ! \brief This is an example */`) and document your code.
 
+To clang format the entiere project:
+```sh
+find . \( -name "*.hh" -o -name "*.hxx" -o -name "*.cc" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.cu" \) -exec clang-format.exe -i {} \;
+```
+
 ## 4.2 Git
 
 - Branch `master` is only used for stable releases.

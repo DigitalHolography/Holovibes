@@ -10,7 +10,6 @@
 #include "queue.hh"
 #include "concurrent_deque.hh"
 
-#include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
 #include "update_exception.hh"
