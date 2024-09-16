@@ -103,7 +103,7 @@ void AdvancedSettingsWindow::set_current_values()
     ui.FileBSSpinBox->setValue(api::get_file_buffer_size());
     ui.InputBSSpinBox->setValue(api::get_input_buffer_size());
     ui.RecordBSSpinBox->setValue(api::get_record_buffer_size());
-    ui.OutputBSSpinBox->setValue(api::get_output_buffer_size());
+    ui.OutputBSSpinBox->setValue(static_cast<int>(api::get_output_buffer_size()));
     ui.Cuts3DBSSpinBox->setValue(api::get_time_transformation_cuts_output_buffer_size());
 
     ui.DisplayRateSpinBox->setValue(api::get_display_rate());

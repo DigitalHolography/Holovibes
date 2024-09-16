@@ -51,17 +51,17 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
         switch (type)
         {
         case QueueType::INPUT_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
             api::set_input_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Input Buffer";
         case QueueType::OUTPUT_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
             api::set_output_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Output Buffer";
         case QueueType::RECORD_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
             api::set_record_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Record Buffer";
@@ -398,7 +398,7 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (nb_elts == -1)
         nb_elts = size_;
 
-    CHECK(nb_elts <= size_, "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+    CHECK(std::cmp_less_equal(nb_elts, size_.load()), "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
 
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);

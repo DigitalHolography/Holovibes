@@ -77,10 +77,10 @@ void Rendering::Update()
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->file = holovibes::Holovibes::instance().get_setting<settings::FileBufferSize>().value;
-    this->input = holovibes::Holovibes::instance().get_setting<settings::InputBufferSize>().value;
-    this->output = holovibes::Holovibes::instance().get_setting<settings::OutputBufferSize>().value;
-    this->record = holovibes::Holovibes::instance().get_setting<settings::RecordBufferSize>().value;
+    this->file = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::FileBufferSize>().value);
+    this->input = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::InputBufferSize>().value);
+    this->output = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::OutputBufferSize>().value);
+    this->record = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RecordBufferSize>().value);
     this->time_transformation_cuts =
         holovibes::Holovibes::instance().get_setting<settings::TimeTransformationCutsOutputBufferSize>().value;
 }
@@ -95,7 +95,7 @@ void AdvancedSettings::ContrastThreshold::Update()
 {
     this->lower = holovibes::Holovibes::instance().get_setting<settings::ContrastLowerThreshold>().value;
     this->upper = holovibes::Holovibes::instance().get_setting<settings::ContrastUpperThreshold>().value;
-    this->frame_index_offset = holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value;
+    this->frame_index_offset = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value);
 }
 
 void AdvancedSettings::Update()
@@ -104,11 +104,11 @@ void AdvancedSettings::Update()
     this->filter2d_smooth.Update();
     this->contrast.Update();
     this->renorm_constant = holovibes::Holovibes::instance().get_setting<settings::RenormConstant>().value;
-    this->raw_bitshift = holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value;
+    this->raw_bitshift = static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value);
     // FIXME: optional value might not be that greate of an idea
     if (holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.has_value())
         this->nb_frames_to_record =
-            holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.value();
+            static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RecordFrameCount>().value.value());
 }
 
 void Composite::Update()
