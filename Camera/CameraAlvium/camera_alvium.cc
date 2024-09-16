@@ -74,10 +74,10 @@ void CameraAlvium::init_camera()
         }
 
         // Getting the necessary buffer size
-        // if (camera_ptr_->GetPayloadSize(nPLS) != VmbErrorType::VmbErrorSuccess)
-        // {
-        //     throw CameraException(CameraException::NOT_CONNECTED);
-        // }
+        if (camera_ptr_->GetPayloadSize(nPLS) != VmbErrorType::VmbErrorSuccess)
+        {
+            throw CameraException(CameraException::NOT_CONNECTED);
+        }
 
         bind_params();
 
@@ -91,7 +91,6 @@ void CameraAlvium::init_camera()
 void CameraAlvium::start_acquisition()
 {
     Logger::camera()->info("Start Acquisition");
-    // int nFrames = 100;
     int nBuffers = 1;
 
     camera_ptr_->StartContinuousImageAcquisition(nBuffers,
@@ -113,20 +112,19 @@ struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 
 void CameraAlvium::load_default_params()
 {
-    fd_.height = MAX_HEIGHT; // height;
-    fd_.width = MAX_WIDTH;   // width;
+    fd_.height = MAX_HEIGHT;
+    fd_.width = MAX_WIDTH;
     height_ = MAX_HEIGHT;
     width_ = MAX_WIDTH;
 
-    fd_.depth = 1; // FIXME 10-bit in theory, rounded to 2 bytes
+    fd_.depth = 1;
 
-    fd_.byteEndian = Endianness::LittleEndian; // FIXME Not sure, test this
+    fd_.byteEndian = Endianness::LittleEndian;
 }
 
 void CameraAlvium::load_ini_params()
 {
-    // FIXME
-
+    // TODO : Add more params, check with mickael
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     width_ = pt.get<unsigned short>("alvium.width", width_);
@@ -142,6 +140,8 @@ void CameraAlvium::bind_params()
 {
     VmbCPP::FeaturePtr fp; // Generic feature pointer
     if (
+        // TODO : Add more params, check with mickael
+
         // camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp) != OK || fp->SetValue(450'000'000) != OK ||
         // cam->GetFeatureByName("AcquisitionFrameRateEnable", fp) != OK ||  fp->SetValue("true") != OK  ||
         // cam->GetFeatureByName("AcquisitionFrameRate", fp) != OK       ||  fp->SetValue(10) != OK  ||
@@ -160,7 +160,6 @@ void CameraAlvium::bind_params()
         // camera_ptr_->GetFeatureByName("OffsetY", fp) != OK || fp->SetValue(Y0) != OK)
     )
     {
-        // auto val = fp->SetValue(height_) != VmbErrorType::VmbErrorSuccess;
         throw CameraException(CameraException::NOT_INITIALIZED);
     }
 };
