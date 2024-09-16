@@ -186,6 +186,8 @@ std::string gpu_load()
     result = nvmlInit();
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
+        nvmlShutdown();
         ss << "Could not load GPU usage";
         return ss.str();
     }
@@ -195,6 +197,7 @@ std::string gpu_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -204,6 +207,7 @@ std::string gpu_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -221,6 +225,7 @@ std::string gpu_load()
     ss << " %";
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return ss.str();
@@ -243,6 +248,7 @@ std::string gpu_load_as_number()
     result = nvmlDeviceGetHandleByIndex(0, &device);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
@@ -251,11 +257,13 @@ std::string gpu_load_as_number()
     result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return std::to_string(gpuLoad.gpu);
@@ -274,6 +282,8 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
+        nvmlShutdown();
         return ss.str();
     }
 
@@ -282,6 +292,7 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -291,6 +302,7 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -308,6 +320,7 @@ std::string gpu_memory_controller_load()
     ss << " %";
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return ss.str();
@@ -330,6 +343,7 @@ std::string gpu_memory_controller_load_as_number()
     result = nvmlDeviceGetHandleByIndex(0, &device);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
@@ -338,11 +352,13 @@ std::string gpu_memory_controller_load_as_number()
     result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return std::to_string(gpuLoad.memory);
@@ -435,6 +451,7 @@ void InformationWorker::display_gui_information()
     cudaMemGetInfo(&free, &total);
 
     to_display << gpu_memory() << "<br/>";
+    /* There is a memory leak on both gpu_load() and gpu_memory_controller_load(), probably linked to nvmlInit */
     to_display << gpu_load() << "<br/>";
     to_display << gpu_memory_controller_load() << "<br/>";
 
