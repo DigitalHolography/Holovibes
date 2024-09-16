@@ -2,7 +2,9 @@
 #define LIGHTUI_HH
 
 #include <QMainWindow>
+#include <tuple>
 
+#include "notifier_struct.hh"
 #include "notifier.hh"
 #include "enum_record_mode.hh"
 
@@ -32,7 +34,7 @@ class LightUI : public QMainWindow
      * @param main_window Pointer to the MainWindow instance.
      * @param export_panel Pointer to the ExportPanel instance.
      */
-    explicit LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_panel);
+    explicit LightUI(QWidget* parent, MainWindow* main_window);
 
     /**
      * @brief Destructor for LightUI class.
@@ -77,6 +79,18 @@ class LightUI : public QMainWindow
      * @param record The recording mode.
      */
     void on_record_stop(RecordMode record);
+
+    /**
+     * @brief Handles the updating of a recording ; used to update the progress bar.
+     * @param record Contains info about the progress bar : its value and its max value.
+     */
+    void on_record_progress(const RecordProgressData& data);
+
+    /**
+     * @brief Handles the changes to the progress bar color.
+     * @param data Contains the new color and text for the progress bar.
+     */
+    void on_record_progress_bar_color(const RecordBarColorData& data);
 
     void actualise_record_progress(const int value, const int max);
     void reset_record_progress_bar();
@@ -137,14 +151,16 @@ class LightUI : public QMainWindow
     void closeEvent(QCloseEvent* event) override;
 
   private:
-    Ui::LightUI* ui_;                                ///< Pointer to the UI instance.
-    MainWindow* main_window_;                        ///< Pointer to the MainWindow instance.
-    ExportPanel* export_panel_;                      ///< Pointer to the ExportPanel instance.
-    bool visible_;                                   ///< Boolean to track the visibility state of the UI.
-    Subscriber<double> z_distance_subscriber_;       ///< Subscriber for Z distance changes.
-    Subscriber<RecordMode> record_start_subscriber_; ///< Subscriber for record start events.
-    Subscriber<RecordMode> record_end_subscriber_;   ///< Subscriber for record end events.
-    Subscriber<bool> record_finished_subscriber_;    ///< Subscriber for record finished events.
+    Ui::LightUI* ui_;                                                         ///< Pointer to the UI instance.
+    MainWindow* main_window_;                                                 ///< Pointer to the MainWindow instance.
+    bool visible_;                                                            ///< Boolean to track the visibility state of the UI.
+    Subscriber<double> z_distance_subscriber_;                                ///< Subscriber for Z distance changes.
+    Subscriber<RecordMode> record_start_subscriber_;                          ///< Subscriber for record start events.
+    Subscriber<RecordMode> record_end_subscriber_;                            ///< Subscriber for record end events.
+    Subscriber<bool> record_finished_subscriber_;                             ///< Subscriber for record finished events.
+    Subscriber<RecordProgressData> record_progress_subscriber_;               ///< Subscriber for record progress events.
+    Subscriber<const std::filesystem::path> record_output_file_subscriber_;   ///< Subscriber for record output file path events.
+    Subscriber<RecordBarColorData> record_progress_bar_color_subscriber_;     ///< Subscriber for record progress bar color events.
 };
 
 } // namespace holovibes::gui

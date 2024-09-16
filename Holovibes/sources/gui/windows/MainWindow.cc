@@ -166,7 +166,7 @@ MainWindow::MainWindow(QWidget* parent)
         api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
 
     // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
+    light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
     load_gui();
 
@@ -203,9 +203,10 @@ MainWindow::MainWindow(QWidget* parent)
 
     ;
 
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    ui_->InfoPanel->set_light_ui(light_ui_);
+    // ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ExportPanel->init_light_ui();
+    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+    // ui_->InfoPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 
@@ -527,6 +528,11 @@ void MainWindow::load_gui()
 void MainWindow::set_preset_file_on_gpu()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
+    // Check if we are in DEBUG or RELEASE
+    if (!std::filesystem::exists(dest))
+    {
+        dest = std::filesystem::path(get_exe_dir()).parent_path().parent_path() / "Preset" / "FILE_ON_GPU.json";
+    }
     api::import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
@@ -544,7 +550,7 @@ void MainWindow::save_gui()
     {
         j_us = json::parse(input_file);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
     }
 
@@ -761,6 +767,9 @@ void MainWindow::close_advanced_settings()
 {
     if (UserInterfaceDescriptor::instance().has_been_updated)
     {
+        // If the settings have been updated, they must be not considered updated after closing the window.
+        UserInterfaceDescriptor::instance().has_been_updated = false;
+        
         ImportType it = UserInterfaceDescriptor::instance().import_type_;
         ui_->ImportPanel->import_stop();
 
