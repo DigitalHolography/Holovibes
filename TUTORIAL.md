@@ -1,147 +1,188 @@
+# Tutorial
 
-# TUTORIAL.md
+- [1. Introduction](#1-introduction)
+- [2. Setup and installation](#2-setup-and-installation)
+   - [2.1 Requirements](#21-requirements)
+   - [2.2 Initial setup](#22-initial-setup)
+   - [2.3 Building the project](#23-building-the-project)
+- [3. Project structure](#3-project-structure)
+   - [3.1 File structure](#31-file-structure)
+   - [3.2 Code interaction: UI and API](#32-code-interaction-ui-and-api)
+- [4. Coding Standards](#4-coding-standards)
+   - [4.1 Code format and style](#41-code-format-and-style)
+   - [4.2 Git](#42-git)
+- [5 Developing New Features](#5-developing-new-features)
+   - [5.1 Creating a New Feature Branch](#51-creating-a-new-feature-branch)
+   - [5.2 Creating Pull Requests](#52-creating-pull-requests)
+   - [5.3 Creating a Release](#53-creating-a-release)
+- [6. Advanced Topics](#6-advanced-topics)
+   - [6.1 Benchmarking](#61-benchmarking)
+   - [6.2 Logging](#62-logging)
+   - [6.3 Assertions](#63-assertions)
+   - [6.4 Adding elements to UI](#64-adding-elements-to-front-with-qtcreator)
+   - [6.5 Updating the UI from the API](#65-updating-the-ui-from-the-api)
+- [7. Troubleshooting](#7-troubleshooting)
+- [8. Documentation](#8-documentation)
+   - [8.1 Generate documentation](#81-generate-documentation)
+   - [8.2 Write documentation](#82-write-documentation)
+- [9. Tests](#9-test)
+   - [9.1 Add a test](#91-add-a-test)
+   - [9.2 Build reference outputs](#92-build-reference-outputs)
+   - [9.3 Run tests](#93-run-tests)
+- [10. Tools](TUTORIAL.md#10-tools)
+   - [10.1 Dev.py](#101-devpy-tools)
+   - [10.2 Holo file inspector](#102-holo-file-inspector)
+   - [10.3 Benchmark viewer](#103-benchmark-viewer)
 
-Welcome to the Holovibes developer's tutorial. This document aims to provide a comprehensive guide for developers tasked with implementing new features on Holovibes. This tutorial covers setting up the development environment, understanding the project structure, contributing code, and testing your implementations.
-
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Setup and Installation](#setup-and-installation)
-   - [Requirements](#requirements)
-   - [Initial Setup](#initial-setup)
-   - [Building the Project](#building-the-project)
-3. [Project Structure](#project-structure)
-4. [Coding Standards](#coding-standards)
-5. [Developing New Features](#developing-new-features)
-   - [Creating a New Feature Branch](#creating-a-new-feature-branch)
-   - [Implementing Features](#implementing-features)
-   - [Testing Your Code](#testing-your-code)
-   - [Creating Pull Requests](#creating-pull-requests)
-   - [Creating a Release](#creating-a-release)
-6. [Advanced Topics](#advanced-topics)
-   - [Benchmarking](#benchmarking)
-   - [Logging](#logging)
-   - [Miscellaneous](#miscellaneous)
-7. [Troubleshooting](#troubleshooting)
-8. [Documentation](#documentation)
-
-## Introduction
+# 1. Introduction
 
 Holovibes is designed for real-time computation of holograms from high-bitrate interferograms. It is developed using `C++/CUDA` and supports various cameras and file formats. This tutorial will guide you through the process of setting up your development environment, understanding the codebase, and contributing effectively to the project.
 
-## Setup and Installation
+# 2. Setup and installation
 
-### Requirements
+## 2.1 Requirements
 
 To develop for Holovibes, ensure you have the following software installed:
 
 - GIT
+- CMake
 - Visual Studio 2022 with C++ Desktop Development
 - CUDA 12.2
 - Python 3.8.10
 - NSIS
 - Conan
 
-### Initial Setup
+## 2.2 Initial setup
 
-Follow these steps to set up your development environment:
+1. **Install GIT** from [here](https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe).
+2. **Install Visual Studio 2022** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false).
+   - The minimum requirements in _Components_ (installable from Visual Studio installer) are the following:
+      - Desktop applications in C++
+   
+   - The minimum requirements in _Individual Components_ (installable from Visual Studio installer) are the following:
+      - C++ AddressSanitizer
+      - MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
+      - MSVC vXXX - VS XXXX C++ Spectre-mitigated Libs (Latest)
+3. **Install CUDA 12.6** from [here](https://developer.download.nvidia.com/compute/cuda/12.6.1/local_installers/cuda_12.6.1_560.94_windows.exe)
 
-1. **Install GIT**: Download and install GIT from [here](https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe).
-
-2. **Install Visual Studio 2022**: Download and install Visual Studio 2022 from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false).
-
-3. **Add Paths to Environment Variables**:
+4. **Add Paths to PATH Environment Variables**:
    - `C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`
-   - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x64`
-   - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x86`
-
-4. **Install CUDA 12.2**: Download and install CUDA 12.2 from [here](https://developer.nvidia.com/cuda-12-2-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11&target_type=exe_local).
-
-5. **Install Python 3.8.10**: Download and install Python from [here](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe). Ensure to tick `Add Python 3.8 to PATH`.
-
-6. **Install NSIS**: Download and install NSIS from [here](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=).
-
-7. **Install Conan**:
+   - **Depending on your VS version (commonly *Community*):**
+      - `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64`
+      - `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x86`
+      **OR**
+      - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x64`
+      - `C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.39.33519\bin\Hostx64\x86`
+   - `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin`
+5. **Reboot your PC**.
+6. **Install Python 3.8.10** from [here](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe). Ensure to tick `Add Python 3.8 to PATH`.
+7. **Install NSIS** from [here](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=).
+8. **Install Conan**:
    ```sh
-   pip install conan && conan profile detect --force
+   $ pip install conan && conan profile detect --force
    ```
 
-### Building the Project
+>Bitflow frames grabber and euresys frames grabber SDKs must be installed on the computer when making a release executable or it will not contains the dll required to load the camera.
+> - [BitFlow SDK 6.6](http://www.bitflow.com/downloads/bfsdk66.zip)
+> - [Euresys EGrabber for Coaxlink](https://euresys.com/en/Support/Download-area)
 
-To build Holovibes, follow these steps:
+## 2.3 Building the project
 
-1. **Install Dependencies**:
+All commands (except cpack) must be run at the root of the project:
+
+1. **Install Dependencies (once)**:
    ```sh
-   Holovibes>$ conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
+   $ conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
    ```
    OR
    ```sh
-   Holovibes>$ ./dev.py install
+   $ ./dev.py install
    ```
 
 2. **Configure the CMake Project**:
    ```sh
-   Holovibes>$ build\generators\conanbuild.bat && cmake --preset conan-release
+   $ build\generators\conanbuild.bat && cmake --preset conan-release
    ```
    OR
    ```sh
-   Holovibes>$ ./dev.py cmake
+   $ ./dev.py cmake
    ```
 
 3. **Build the Project**:
    ```sh
-   Holovibes>$ build\generators\conanbuild.bat && cmake --build --preset conan-release
+   $ build\generators\conanbuild.bat && cmake --build --preset conan-release
    ```
    OR
    ```sh
-   Holovibes>$ ./dev.py build
+   $ ./dev.py build
    ```
 
 4. **Run the Project**:
    ```sh
-   Holovibes>$ ./dev.py run
+   $ ./dev.py run
    ```
 
-5. **Create an Installer**:
+5. **Create an Installer (you must be in the build/bin folder)**:
    ```sh
-   Holovibes\build\bin>$ cpack
+   $ cpack
    ```
 
-## Project Structure
+# 3. Project Structure
 
-Understanding the project structure is crucial for effective development. Here is a high-level overview:
+## 3.1 File structure
 
-- **Holobives/sources/**: Contains the source code of the project.
-- **Holovibes/includes/**: Contains the header files.
-- **tests/**: Contains the test cases.
 - **build/**: Contains build-related files.
-- **docs/**: Contains documentation files.
+- **Camera/**: Contains interface for using cameras. And specific implementation and configs file for each camera.
+- **docs/**: Contains documentation files (doxygen, diagram).
+- **Holovibes/convolution_kernels**: txt files containing numbers for the different kernel (sobel, gaussian blur).
+- **Holovibes/includes/**: Contains header files.
+- **Holobives/sources/**: Contains source code of the project.
+- **Preset**: Contains different parameters preset for holovibes stored as `.json` files.
+- **tests/**: Contains test cases.
+- **CHANGELOG.md**: Keep track of all user related changes (UI, features) for each version.
 
-### Code Interaction: UI and API
+## 3.2 Code interaction: UI and API
 
-The interaction between the UI and the API in Holovibes follows a structured approach where the UI calls API functions and listens to a notifier using a subscriber pattern to synchronize changes between different UIs.
+The UI calls API functions and listens to a notifier using a subscriber/observer pattern to synchronize changes between different UIs.
 
 - **UI Calls API Functions**: The UI elements trigger actions and request data by calling corresponding API functions.
-- **Notifier and Subscriber**: The notifier mechanism is used to alert subscribers (UI components) about changes. This ensures that any update in the data or state is reflected across all UI components consistently. (Refer to [Updating the UI from the API](#updating-the-ui-from-the-api))
+- **Notifier and Subscriber**: The notifier mechanism is used to alert subscribers (UI components) about changes. This ensures that any update in the data or state is reflected across all UI components consistently. (Refer to [Updating the UI from the API](#63-updating-the-ui-from-the-api))
 
-## Coding Standards
+# 4. Coding standards
+
+## 4.1 Code format and style
+
+On Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
+
+If possible, install a pre-commit hook with `pip install pre-commit` and then use `pre-commit install` at the root of the project.
 
 Adhere to the following coding standards to maintain code consistency:
 
 - Use `.clang-format` for formatting.
+- No brackets in one line ifs
 - Follow the naming conventions:
-  - Classes, Structs, Unions, Enums: CamelCase
-  - Variables, Functions, Files: snake_case
-- Use Doxygen for comments.
+   - Classes, Structs, Unions and Enums must be named in **CamelCase**.
+   - Class Members, Variables, Namespaces, Functions and Files must be named in **snake_case**.
+   - Getters and setters must be named `get_${var}` and `set_${var}` respectivly.
+   - Class members' name must end with a `_` (ex: `frame_size_`).
 - Ensure all header files have the extension `.hh`, source files `.cc`, and templated classes `.hxx`.
+- Getters, Setters and inlinable functions must be written in `*.hh` files.
+- Use Doxygen for comments (ex: `/* ! \brief This is an example */`) and document your code.
 
-Refer to the [CONTRIBUTING.md](CONTRIBUTING.md) for detailed coding standards.
+## 4.2 Git
 
-## Developing New Features
+- Branch `master` is only used for stable releases.
+- Never push trash or generated files.
+- Always work on separate branches when developing a new feature or fixing a bug.
+- Use pull request when you want to merge your branch into dev.
+- Use `git pull --rebase` if possible to avoids useless merge commits.
+- Use the [React](https://github.com/ubilabs/react-geosuggest/blob/main/CONVENTIONS.md) commit convention.
 
-### Creating a New Feature Branch
+# 5. Developing New Features
 
-Always create a new feature branch from `dev` for any new feature or bug fix:
+## 5.1 Creating a New Feature Branch
+
+Always create a new branch from `dev` for any new feature or bug fix:
 
 ```sh
 git checkout -b feature/new-feature dev
@@ -151,38 +192,13 @@ or
 git switch -c feature/new-feature dev
 ```
 
-### Implementing Features
-
-1. **Add New Code**: Implement your feature in the appropriate files.
-2. **Follow Coding Standards**: Ensure your code adheres to the project's coding standards.
-3. **Update Documentation**: Update relevant documentation to reflect your changes.
-
-### Testing Your Code
-
-1. **Integration Tests**: Add integration tests in the `tests/data/` folder.
-2. **Build Reference Outputs**:
-
-   On a stable branch, you can build reference outputs for the tests. Don't run this command on a branch that is not stable as it might introduce errors to the reference outputs.
-
-   ```sh
-   Holovibes>$ ./dev.py build_ref [test_name]
-   ```
-3. **Run Tests**:
-   ```sh
-   $ python -m pytest -v
-   ```
-   OR
-   ```sh
-   $ ./dev.py build pytest
-   ```
-
-### Creating Pull Requests
+## 5.2 Creating Pull Requests
 
 1. **Add a changelog entry**:
    - Add a new entry in the `CHANGELOG.md` file.
    - Follow the format: `## [Unreleased]` -> `## [Version]`.
 2. **Commit Your Changes**:
-   Your commit message should follow the [react convention](https://github.com/ubilabs/react-geosuggest/blob/main/CONVENTIONS.md).
+   Your commit message must follow the [React convention](https://github.com/ubilabs/react-geosuggest/blob/main/CONVENTIONS.md).
    ```sh
    git add .
    git commit -m "feat(scope): add new feature"
@@ -193,39 +209,89 @@ git switch -c feature/new-feature dev
    ```
 4. **Create a Pull Request**: Go to the GitHub repository and create a pull request from your feature branch to `dev`.
 
-### Creating a release
+## 5.3 Creating a release
 
-1.  Merge all your feature branches on `dev`
+Before making a release make sure you have the cameras SDK.
+
+1.  Merge all your feature branches on `dev`.
 2.  Update `CHANGELOG.md`.
-3.  Make a clean build in release mode (`./dev.py clean build -b Release`).
-4.  Make sure everything works as intended and run test suite (`./dev.py pytest -b Release`). (`ctest` aren't working and are not to be used for now)
-5.  Make sure the git repository has no work in progress
-6.  Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
-    if you want to modify either X, Y, or Z of the version number X.Y.Z
-7.  add the updated CMakeLists.txt to git
-8.  do a `git push --follow-tags`
-9.  Merge master with `dev`
+3.  Apply the Benchmark protocol.
+4.  Make a clean build in release mode (`./dev.py clean build -b Release`).
+5.  Make sure everything works as intended and run test suite (`./dev.py pytest -b Release`). (`ctest` aren't working and are not to be used for now).
+6.  Make sure the git repository has no work in progress.
+7.  Run the release script with `./dev.py -b Release release {bump-type}` with `bump-type` being either `major`, `minor` or `patch`
+    if you want to modify either X, Y, or Z of the version number X.Y.Z.
+8.  add the updated CMakeLists.txt to git.
+9.  do a `git push --follow-tags`.
+10.  Merge master with `dev`.
 
-## Advanced Topics
+# 6. Advanced Topics
 
-### Logging
+## 6.1 Benchmarking
 
-Holovibes uses a custom logging system with five log levels: Trace, Debug, Infos, Warnings, and Errors. Use the following syntax for logging:
+It's a way to compare the performance of different versions of the project. It's important to run it before creating a new release.
+Create the `[appdata]/Holovibe/[version]/benchmark` folder (if it doesn't exist), benchmarking csv will be saved in this folder. Then do a clean compile in debug mode and run
+```sh
+dev.py run --benchmark
+```
 
+To compare two benchmark files use the [Benchmark viewer](#103-benchmark-viewer)
+
+*You are invited to improve the protocol, the benchmark informations gathering in the Information Worker and the BenchmarkViewer file.*
+
+## 6.2 Logging
+
+We have 5 levels of log:
+- Trace (`LOG_TRACE`)
+- Debug (`LOG_DEBUG`)
+- Infos (`LOG_INFO`)
+- Warnings (`LOG_WARN`)
+- Errors (`LOG_ERROR`)
+
+And 7 loggers that log on std::cerr and in a log file in appdata:
+- main
+- setup
+- cuda
+- information_worker
+- record_worker
+- compute_worker
+- frame_read_worker
+
+Usage:
 ```cpp
 LOG_ERROR(logger_name, formated_string [,args]);
 ```
 
-### Miscellaneous
+Format:
+```
+[${log_level}] [${timestamp}] [${Thread ID}] ${logger_name} >> ${message}
+```
 
-#### Adding Elements to Front with QtCreator
+## 6.3 Assertions
 
-1. Load the file `mainwindow.ui` in QtCreator. (or any other `.ui` file)
-2. Add the widget and change its name.
-3. Add a slot in `mainwindow.ui`.
-4. Add the prototype in `MainWindow.hh` in the public/private slot and implement the function in `MainWindow.cc`.
+Usage:
+```cpp
+CHECK(condition)
+CHECK(condition, formated_string [,args]); // Up to 14 varags
+```
 
-#### Updating the UI from the API
+Format:
+```
+[${log_level}] [${timestamp}] [${Thread ID}] ${logger_name} >> ${filename}:${line} ${message}
+```
+
+## 6.4 Adding Elements to Front with QtCreator
+
+- In _QtCreator_, load a `.ui` file
+- Add a widget and change its name in the right column.
+- Open as plain text the `.ui` file and add in the `<slots>` element at the end of the file a slot with the prototype of the function (ex: `<slot>functionName(args)</slot>`).
+- Add a new slot in _QtCreator_ cliking on the green '+' on the middle.
+- Fill the 4 columns with the name of your function in the last column.
+- Add the prototype in `MainWindow.hh` and implement it in `MainWindow.cc`.
+
+If you want to use a custom widget, you can change its class in the `.ui` file directly if it doesn't work in _QtCreator_.
+
+## 6.5 Updating the UI from the API
 
 1. Create a new notifier in the API.
    - Choose a name that reflects the information being sent.
@@ -251,15 +317,22 @@ LOG_ERROR(logger_name, formated_string [,args]);
    ```
    - Implement the function that will be called when the notifier is triggered.
 
-## Troubleshooting
+# 7. Troubleshooting
 
+- 2021-10-04: If you encounter the issue `clang_rt.asan_dbg_dynamic-x86_64.dll: cannot open shared object file: No such file or directory`. You have to find the file and put it in your PATH or copy it into the build directory for it to work
+- 2021-12-03: If `./dev.py` tells you that it cannot find conan or cmake. Please check if it's in your PATH.
+- 2021-12-05: If conan tells you that the `XXX/system` package needs to be installed. Please install the package `XXX` manually on your system
+- 2021-12-22: For some reason if you put a real function name like `OutputHoloFile::export_compute_settings()` in a log statement to be printed the program may segfault with an 0x5 SEH exception.
 - If the app crashes after launch, try removing the app settings from `C:\Users\[user]\AppData\Roaming\Holovibes\[version]\*`.
+- If the app crashes and tells you that camera configs where not found in the AppData, you can (or):
+   - Install the release matching your current version and launch it (it will setup the folder in AppData)
+   - Copy the `Camera/configs` folder and paste its content (except the bfml folder) into `%APPDATA%/Holovibes/[version]/cameras_config`
 
-Refer to [DEVELOPERS.md](DEVELOPERS.md) for detailed troubleshooting steps.
+# 8. Documentation
 
-## Documentation
+## 8.1 Generate documentation
 
-Generate the documentation using Doxygen:
+Generate the documentation using Doxygen (you need to install it before):
 
 ```sh
 $ ./dev.py doc
@@ -267,6 +340,73 @@ $ ./dev.py doc
 
 This will compile the documentation and open it in your default browser.
 
----
+## 8.2 Write documentation
 
-By following this tutorial, you should be able to set up your development environment, understand the project structure, adhere to coding standards, implement new features, test your code, and contribute effectively to the Holovibes project. Happy coding!
+Follow [these recommandation](docs/Doxygen/DOCUMENTING.md)
+
+# 9. Test
+
+The framework used is [PyTest](https://github.com/pytest-dev/pytest). Integration testing is done using the CLI mode of Holovibes.
+
+## 9.1 Add a test
+
+Create a folder with the name of your test in the `tests/data/` folder. Then put:
+- an optional `input.holo` (if you provide no input, the default one in the input folder will be chosen. You can provide different default inputs by making the name of the input match a part of your test name).
+- a `ref.holo` file as intended output.
+- an optional `holovibes.json` containing parameters.
+- an oprional `cli_argument.json` containing CLI arguments.
+
+## 9.2 Build Reference Outputs
+
+At the root of a stable branch run:
+```sh
+./dev.py build_ref [test_name]
+```
+If no `test_name` is given, all refs will be built. It will generate a `ref.holo` or a `error.txt` and a `ref_time.txt` for each test.
+**CAREFULL** : this command should only be runned in a stable branch and for newly-added tests for which the behavior has been verified and validated by hand, or when the software's output has improved, and **if you know for sure that it's stable**.
+
+## 9.3 Run tests
+
+Build the project in Release or Debug mode.
+If you want all tests run:
+```sh
+$ python -m pytest -v
+```
+OR
+```sh
+$ ./dev.py build pytest
+```
+
+If you want to run one or specific tests run:
+```sh
+./dev.py build pytest --specific-tests=names
+```
+Where `names` is a comma separated list of folders
+
+Both will generate a `last_generated_output.holo`, or an `output_error.txt`.
+
+# 10. Tools
+
+## 10.1 Dev.py tools
+
+The script works like a makefile using goals to run. There are:
+- conan: install the c++ packages needed by the project and put all the cmake files to find the packages in the build dir.
+- cmake: for cmake configure step and reconfigure step (will run conan if no build dir is found).
+- build: using the generator chosen during previous step (will run cmake if no build dir is found).
+- run: run the last generated executable.
+- ctest: run unit tests from GTest using ctest.
+- pytest: run integration tests using pytest.
+- build_ref: build the reference outputs for integration tests (run it only if the software's output improved, and **if you know for sure that it's stable**.)
+- clean: remove the buid folder and the generated outputs of the integration tests
+
+You can run `./dev.py --help` for more options.
+
+## 10.2 Holo file inspector
+
+Allow to view the header and extract/change parameters inside a `.holo` file. The tools can be downloaded at [each releases](https://github.com/DigitalHolography/Holovibes/releases).
+
+The format of these files can be found [here](docs/Holo%20file%20format.md).
+
+## 10.3 Benchmark viewer
+
+[Benchmark viewer](https://github.com/TitouanGragnic/benchmark-viewer)
