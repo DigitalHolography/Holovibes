@@ -10,8 +10,6 @@
 #include "all_struct.hh"
 #include "enum_img_type.hh"
 
-#define CONSTRUCTOR(name, arg_name)
-
 typedef unsigned int uint;
 
 namespace holovibes
@@ -28,7 +26,8 @@ struct ViewContrast
     float min = 1.f;
     float max = 65535.f;
 
-    SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewContrast, enabled, auto_refresh, invert, min, max);
 
     bool operator==(const ViewContrast& other) const
     {
@@ -47,7 +46,8 @@ struct ViewWindow
 
     ViewContrast contrast;
 
-    SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewWindow, log_enabled, contrast);
 
     bool operator==(const ViewWindow& other) const
     {
@@ -66,7 +66,8 @@ struct ViewXYZ : public ViewWindow
     unsigned output_image_accumulation = 1;
     bool enabled = false;
 
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation, enabled)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation, enabled);
 
     bool operator==(const ViewXYZ& other) const
     {
@@ -84,7 +85,8 @@ struct ViewAccu
 {
     int width = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewAccu, width)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewAccu, width);
 };
 
 /*! \class ViewPQ
@@ -95,7 +97,8 @@ struct ViewPQ : public ViewAccu
 {
     unsigned start = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewPQ, width, start)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewPQ, width, start);
 
     bool operator==(const ViewPQ& other) const { return (start == other.start && width == other.width); }
 };
@@ -108,7 +111,8 @@ struct ViewXY : public ViewAccu
 {
     unsigned start = 0;
 
-    SERIALIZE_JSON_STRUCT(ViewXY, width, start)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ViewXY, width, start);
 
     bool operator==(const ViewXY& other) const { return (start == other.start && width == other.width); }
 };
@@ -124,11 +128,15 @@ struct Windows
     ViewXYZ xz;
     ViewWindow filter2d;
 
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Windows, xy, yz, xz, filter2d);
 
-    void Update();
-    void Load();
-    void Assert() const;
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of Windows with the one in GSH, update variables of GSH
+     * with the one of Windows and assert that the Windows variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
 };
 
 /*! \class Reticle
@@ -140,11 +148,15 @@ struct Reticle
     bool display_enabled = false;
     float scale = 0.5f;
 
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Reticle, display_enabled, scale);
 
-    void Update();
-    void Load();
-    void Assert() const;
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of Reticle with the one in GSH, update variables of GSH
+     * with the one of Reticle and assert that the Reticle variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
 };
 
 /*! \class View
@@ -163,11 +175,15 @@ struct Views
     bool renorm = false;
     Reticle reticle;
 
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, x, y, z, z2, window, renorm, reticle);
 
-    void Update();
-    void Load();
-    void Assert() const;
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of Views with the one in GSH, update variables of GSH
+     * with the one of Views and assert that the Views variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
 };
 
 } // namespace holovibes

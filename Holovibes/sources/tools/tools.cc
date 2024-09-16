@@ -7,7 +7,6 @@
 #include <Windows.h>
 
 #include "logger.hh"
-#include "power_of_two.hh"
 #include "tools.hh"
 #include "tools_conversion.cuh"
 

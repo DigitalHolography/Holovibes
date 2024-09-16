@@ -46,11 +46,11 @@ To develop for Holovibes, ensure you have the following software installed:
 
 - GIT
 - CMake
-- Visual Studio 2022 with C++ Desktop Development
-- CUDA 12.2
+- Visual Studio 2022 with C++ Desktop Development 
+- CUDA 12.6
 - Python 3.8.10
 - NSIS
-- Conan
+- Conan 2.7.0
 
 ## 2.2 Initial setup
 
@@ -77,7 +77,7 @@ To develop for Holovibes, ensure you have the following software installed:
 5. **Reboot your PC**.
 6. **Install Python 3.8.10** from [here](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe). Ensure to tick `Add Python 3.8 to PATH`.
 7. **Install NSIS** from [here](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=).
-8. **Install Conan**:
+8. **Install Conan 2.7.0**:
    ```sh
    $ pip install conan && conan profile detect --force
    ```
@@ -168,6 +168,11 @@ Adhere to the following coding standards to maintain code consistency:
 - Ensure all header files have the extension `.hh`, source files `.cc`, and templated classes `.hxx`.
 - Getters, Setters and inlinable functions must be written in `*.hh` files.
 - Use Doxygen for comments (ex: `/* ! \brief This is an example */`) and document your code.
+
+To clang format the entiere project:
+```sh
+find . \( -name "*.hh" -o -name "*.hxx" -o -name "*.cc" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.cu" \) -exec clang-format.exe -i {} \;
+```
 
 ## 4.2 Git
 

@@ -63,6 +63,7 @@
 #define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
+#pragma endregion
 
 namespace holovibes
 {
@@ -80,20 +81,25 @@ struct CoreBuffersEnv
      * We fill it with the correct computed p frame converted to float.
      */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame = nullptr;
+
     /*! \brief Size in components (size in byte / sizeof(float)) of the gpu_postprocess_frame.
      *
      * Could be removed by changing gpu_postprocess_frame type to cuda_tools::Array.
      */
     unsigned int gpu_postprocess_frame_size = 0;
-    /*! \brief Float XZ buffer of 1 frame, filled with the correct computer p XZ frame. */
+
+    /*! \brief Float XZ buffer of 1 frame, filled with the correct computed p XZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_xz = nullptr;
+
     /*! \brief Float YZ buffer of 1 frame, filled with the correct computed p YZ frame. */
     cuda_tools::CudaUniquePtr<float> gpu_postprocess_frame_yz = nullptr;
 
     /*! \brief Unsigned Short output buffer of 1 frame, inserted after all postprocessing on float_buffer */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame = nullptr;
+
     /*! \brief Unsigned Short XZ output buffer of 1 frame, inserted after all postprocessing on float_buffer_cut_xz */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame_xz = nullptr;
+
     /*! \brief Unsigned Short YZ output buffer of 1 frame, inserted after all postprocessing on float_buffer_cut_yz */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_output_frame_yz = nullptr;
 
@@ -102,10 +108,13 @@ struct CoreBuffersEnv
 
     /*! \brief Complex filter2d frame used to store the output_frame */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_complex_filter2d_frame = nullptr;
+
     /*! \brief Float Filter2d frame used to store the gpu_complex_filter2d_frame */
     cuda_tools::CudaUniquePtr<float> gpu_float_filter2d_frame = nullptr;
+
     /*! \brief Filter2d frame used to store the gpu_float_filter2d_frame */
     cuda_tools::CudaUniquePtr<unsigned short> gpu_filter2d_frame = nullptr;
+
     /*! \brief Filter2d mask applied to gpu_spatial_transformation_buffer */
     cuda_tools::CudaUniquePtr<float> gpu_filter2d_mask = nullptr;
 
@@ -146,21 +155,25 @@ struct TimeTransformationEnv
      * the frame counter is equal to time_stride.
      */
     std::unique_ptr<Queue> gpu_time_transformation_queue = nullptr;
-    /*! \brief STFT buffer.  Contains the result of the STFT done on the STFT queue.
+
+    /*! \brief STFT buffer. Contains the result of the STFT done on the STFT queue.
      *
      * Contains time_transformation_size frames.
      */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
+
     /*! \brief STFT XZ Queue. Contains the ouput of the STFT on slice XZ.
      *
      * Enqueued with gpu_float_buffer or gpu_ushort_buffer.
      */
     std::unique_ptr<Queue> gpu_output_queue_xz = nullptr;
+
     /*! \brief STFT YZ Queue. Contains the ouput of the STFT on slice YZ.
      *
      * Enqueued with gpu_float_buffer or gpu_ushort_buffer.
      */
     std::unique_ptr<Queue> gpu_output_queue_yz = nullptr;
+
     /*! \brief Plan 1D used for the STFT. */
     cuda_tools::CufftHandle stft_plan;
 
@@ -196,16 +209,19 @@ struct ImageAccEnv
 {
     /*! \brief Frame to temporaly store the average on XY view */
     cuda_tools::CudaUniquePtr<float> gpu_float_average_xy_frame = nullptr;
+
     /*! \brief Queue accumulating the XY computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_xy_queue = nullptr;
 
     /*! \brief Frame to temporaly store the average on XZ view */
     cuda_tools::CudaUniquePtr<float> gpu_float_average_xz_frame = nullptr;
+
     /*! \brief Queue accumulating the XZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_xz_queue = nullptr;
 
     /*! \brief Frame to temporaly store the average on YZ axis */
     cuda_tools::CudaUniquePtr<float> gpu_float_average_yz_frame = nullptr;
+    
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
@@ -230,77 +246,41 @@ class ICompute
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
-        int err = 0;
+        camera::FrameDescriptor fd = input_queue_.get_fd();
 
-        plan_unwrap_2d_.plan(input_queue_.get_fd().width, input_queue_.get_fd().height, CUFFT_C2C);
+        plan_unwrap_2d_.plan(fd.width,fd.height, CUFFT_C2C);
 
-        const camera::FrameDescriptor& fd = input_queue_.get_fd();
-        long long int n[] = {fd.height, fd.width};
+        update_spatial_transformation_parameters();
 
-        // This plan has a useful significant memory cost, check XtplanMany comment
-        spatial_transformation_plan_.XtplanMany(2, // 2D
-                                                n, // Dimension of inner most & outer most dimension
-                                                n, // Storage dimension size
-                                                1, // Between two inputs (pixels) of same image distance is one
-                                                fd.get_frame_res(), // Distance between 2 same index pixels of 2 images
-                                                CUDA_C_32F,         // Input type
-                                                n,
-                                                1,
-                                                fd.get_frame_res(),             // Ouput layout same as input
-                                                CUDA_C_32F,                     // Output type
-                                                setting<settings::BatchSize>(), // Batch size
-                                                CUDA_C_32F);                    // Computation type
-
-        int inembed[1];
-        int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
-
-        inembed[0] = setting<settings::TimeTransformationSize>();
+        int inembed[1] = { static_cast<int>(setting<settings::TimeTransformationSize>()) };
+        int zone_size = static_cast<int>(fd.get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-        camera::FrameDescriptor new_fd = input_queue_.get_fd();
-        new_fd.depth = 8;
+        fd.depth = 8;
         // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
         time_transformation_env_.gpu_time_transformation_queue.reset(
-            new Queue(new_fd, setting<settings::TimeTransformationSize>()));
+            new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        // Static cast size_t to avoid overflow
-        if (!buffers_.gpu_spatial_transformation_buffer.resize(
-                static_cast<const size_t>(setting<settings::BatchSize>()) * input_queue_.get_fd().get_frame_res()))
-            err++;
+        int output_buffer_size = static_cast<int>(fd.get_frame_res());
+        if (setting<settings::ImageType>() == ImgType::Composite) {
+            // Grey to RGB
+            output_buffer_size *= 3;
+            buffers_.gpu_postprocess_frame_size *= 3;
+        }
 
-        int output_buffer_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
-        if (setting<settings::ImageType>() == ImgType::Composite)
-            image::grey_to_rgb_size(output_buffer_size);
-        if (!buffers_.gpu_output_frame.resize(output_buffer_size))
-            err++;
-        buffers_.gpu_postprocess_frame_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
+        buffers_.gpu_postprocess_frame_size = output_buffer_size;
 
-        if (setting<settings::ImageType>() == ImgType::Composite)
-            image::grey_to_rgb_size(buffers_.gpu_postprocess_frame_size);
-
-        if (!buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size))
-            err++;
-
-        // Init the gpu_p_frame with the size of input image
-        if (!time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size))
-            err++;
-
-        if (!buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
-            err++;
-
-        if (!buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
-            err++;
-
-        if (!buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size))
-            err++;
-
-        if (!buffers_.gpu_filter2d_mask.resize(output_buffer_size))
-            err++;
-
-        if (!buffers_.gpu_input_filter_mask.resize(output_buffer_size))
-            err++;
+        // Allocate the buffers
+        int err = !buffers_.gpu_output_frame.resize(output_buffer_size);
+        err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_filter2d_mask.resize(output_buffer_size);
+        err += !buffers_.gpu_input_filter_mask.resize(output_buffer_size);
 
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -325,8 +305,6 @@ class ICompute
     inline void icompute_pipe_refresh_apply_updates() {
         pipe_refresh_settings_.apply_updates();
     }
-    // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
-    void soft_request_refresh();
     void request_refresh();
     void enable_refresh();
     void disable_refresh();
@@ -423,36 +401,6 @@ class ICompute
     void dispose_cuts();
     /*! \} */
 
-    /*! \brief Updates the size of the GPU P acc buffer based on the time transformation size.
-     *  \param time_transformation_size The new size for time transformation.
-     */
-    void resize_gpu_p_acc_buffer(const unsigned short time_transformation_size);
-
-    /*! \brief Performs tasks specific to the current time transformation setting.
-     *  \param time_transformation_size The size for time transformation.
-     */
-    void perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size);
-
-    /*! \brief Updates the STFT configuration based on the time transformation size.
-     *  \param time_transformation_size The size for time transformation.
-     */
-    void update_stft(const unsigned short time_transformation_size);
-
-    /*! \brief Updates the PCA configuration based on the time transformation size.
-     *  \param time_transformation_size The size for time transformation.
-     */
-    void update_pca(const unsigned short time_transformation_size);
-
-    /*! \brief Resizes the GPU time transformation queue.
-     *  \param time_transformation_size The new size for time transformation.
-     */
-    void resize_gpu_time_transformation_queue(const unsigned short time_transformation_size);
-
-    /*! \brief Handles exceptions that occur during the update of time transformation size.
-     *  \param e The exception caught during the update process.
-     */
-    void handle_exception(const std::exception& e);
-
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
     virtual ~ICompute() {}
@@ -536,7 +484,6 @@ class ICompute
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
-
   private:
     /**
      * @brief Helper function to get a settings value.
@@ -544,15 +491,27 @@ class ICompute
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
+
+    /*! \brief Performs tasks specific to the current time transformation setting.
+     *  \param size The size for time transformation.
+     */
+    void perform_time_transformation_setting_specific_tasks(const unsigned short size);
+
+    /*! \brief Updates the STFT configuration based on the time transformation size.
+     *  \param size The size for time transformation.
+     */
+    void update_stft(const unsigned short size);
+
+    /*! \brief Updates the PCA configuration based on the time transformation size.
+     *  \param size The size for time transformation.
+     */
+    void update_pca(const unsigned short size);
 };
 } // namespace holovibes
 
