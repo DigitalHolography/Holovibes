@@ -89,10 +89,10 @@ void Rendering::Update()
 
 void AdvancedSettings::BufferSizes::Update()
 {
-    this->file = GET_SETTING(FileBufferSize);
-    this->input = GET_SETTING(InputBufferSize);
-    this->output = GET_SETTING(OutputBufferSize);
-    this->record = GET_SETTING(RecordBufferSize);
+    this->file = static_cast<unsigned int>(GET_SETTING(FileBufferSize));
+    this->input = static_cast<unsigned int>(GET_SETTING(InputBufferSize));
+    this->output = static_cast<unsigned int>(GET_SETTING(OutputBufferSize));
+    this->record = static_cast<unsigned int>(GET_SETTING(RecordBufferSize));
     this->time_transformation_cuts =
         GET_SETTING(TimeTransformationCutsOutputBufferSize);
 }
@@ -107,7 +107,7 @@ void AdvancedSettings::ContrastThreshold::Update()
 {
     this->lower = GET_SETTING(ContrastLowerThreshold);
     this->upper = GET_SETTING(ContrastUpperThreshold);
-    this->frame_index_offset = GET_SETTING(CutsContrastPOffset);
+    this->frame_index_offset = static_cast<unsigned int>(GET_SETTING(CutsContrastPOffset));
 }
 
 void AdvancedSettings::Update()
@@ -116,11 +116,11 @@ void AdvancedSettings::Update()
     this->filter2d_smooth.Update();
     this->contrast.Update();
     this->renorm_constant = GET_SETTING(RenormConstant);
-    this->raw_bitshift = GET_SETTING(RawBitshift);
+    this->raw_bitshift = static_cast<unsigned int>(GET_SETTING(RawBitshift));
     // FIXME: optional value might not be that greate of an idea
     if (GET_SETTING(RecordFrameCount).has_value())
         this->nb_frames_to_record =
-            GET_SETTING(RecordFrameCount).value();
+            static_cast<unsigned int>(GET_SETTING(RecordFrameCount).value());
 }
 
 void Composite::Update()

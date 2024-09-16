@@ -16,15 +16,17 @@
 
 namespace holovibes::gui
 {
-LightUI::LightUI(QWidget* parent, MainWindow* main_window, ExportPanel* export_panel)
+LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     : QMainWindow(parent)
     , ui_(new Ui::LightUI)
     , main_window_(main_window)
-    , export_panel_(export_panel)
     , visible_(false)
     , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
+    , record_progress_subscriber_("record_progress", std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
+    , record_output_file_subscriber_("record_output_file", std::bind(&LightUI::actualise_record_output_file_ui, this, std::placeholders::_1))
+    , record_progress_bar_color_subscriber_("record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
     , record_finished_subscriber_("record_finished", [this](bool success)
                                        {
                                            reset_start_button();
@@ -72,11 +74,13 @@ void LightUI::z_value_changed(int z_distance)
 
 void LightUI::browse_record_output_file_ui()
 {
-    //! FIXME: This is a kind of hack that works with the current implementation of MainWindow. Ideally, lightui should
-    //! not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
-    //! create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
-    //! with the file path).
-    std::filesystem::path file_path(export_panel_->browse_record_output_file().toStdString());
+    // FIXED: This is a kind of hack that works with the current implementation of MainWindow. Ideally, lightui should
+    // not know about the MainWindow and the ExportPanel. It should only know about the API. One way to fix it is to
+    // create a new browser in this class and then use notify to send the file path to the API (and synchronize the API
+    // with the file path).
+    //? FIXED: The notifier system is now in use instead ; it also features (optional) return types.
+
+    std::filesystem::path file_path{NotifierManager::notify<bool, std::string>("browse_record_output_file", true)};
     std::string file_path_str = file_path.string();
     std::replace(file_path_str.begin(), file_path_str.end(), '/', '\\');
     ui_->OutputFilePathLineEdit->setText(QString::fromStdString(file_path_str));
@@ -90,14 +94,15 @@ void LightUI::set_record_file_name()
     // concatenate the path with the filename
     std::filesystem::path path(ui_->OutputFilePathLineEdit->text().toStdString());
     std::filesystem::path file(filename.toStdString());
-    export_panel_->set_output_file_name((path / file).string());
+
+    NotifierManager::notify<std::string>("set_output_file_name", (path / file).string());
 }
 
 void LightUI::start_stop_recording(bool start)
 {
     if (start)
     {
-        export_panel_->start_record();
+        NotifierManager::notify<bool>("start_record_export_panel", true);
     }
     else
     {
@@ -114,9 +119,21 @@ void LightUI::on_record_start(RecordMode record)
 
 void LightUI::on_record_stop(RecordMode record)
 {
-    ui_->startButton->setText("Start recording");
-    ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
+    reset_start_button();
+
+    reset_record_progress_bar();
+
     LOG_INFO("Recording stopped");
+}
+
+void LightUI::on_record_progress(const RecordProgressData& data)
+{
+    actualise_record_progress(data.value, data.max);
+}
+
+void LightUI::on_record_progress_bar_color(const RecordBarColorData& data)
+{
+    set_recordProgressBar_color(data.color, data.text);
 }
 
 void LightUI::reset_start_button()
@@ -135,6 +152,7 @@ void LightUI::actualise_record_progress(const int value, const int max)
 void LightUI::reset_record_progress_bar()
 {
     set_recordProgressBar_color(QColor(10, 10, 10), "Idle");
+    actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 }
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)

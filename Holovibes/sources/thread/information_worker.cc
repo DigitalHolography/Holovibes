@@ -78,14 +78,14 @@ void InformationWorker::run()
 
             if (gpu_output_queue && input_queue)
             {
-                output_frame_res = gpu_output_queue->get_fd().get_frame_res();
-                input_frame_size = input_queue->get_fd().get_frame_size();
+                output_frame_res = static_cast<unsigned int>(gpu_output_queue->get_fd().get_frame_res());
+                input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
             }
 
             auto frame_record_queue = Holovibes::instance().get_record_queue().load();
             record_frame_size = 0;
             if (frame_record_queue)
-                record_frame_size = frame_record_queue->get_fd().get_frame_size();
+                record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
             // if (pipe != nullptr)
             // {
             //     std::unique_ptr<Queue>& frame_record_queue = pipe->get_frame_record_queue();
