@@ -41,6 +41,8 @@ set(INTERNAL_INCLUDES
     "${CAMERA_DIR}/include/"
 )
 
+set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
+
 # ---------------------------------------------------------------------
 # The executable
 # ---------------------------------------------------------------------
@@ -262,10 +264,18 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
 endif()
 
 if (HAVE_VIMBAX)
+    add_custom_command(TARGET Holovibes POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbCPP.dll" $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbC.dll" $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/GenApi_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/GenApi_MD_VC141_v3_2_AVT.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/GCBase_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/GCBase_MD_VC141_v3_2_AVT.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/XmlParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/XmlParser_MD_VC141_v3_2_AVT.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
+        COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
+    
+        )
     install(FILES 
-        ${VIMBAX_SDK}/api/bin/VmbCPP.dll
-        ${VIMBAX_SDK}/api/bin/VmbC.dll
-        ${VIMBAX_SDK}/api/bin/VmbImageTransform.dll
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         DESTINATION .
         COMPONENT application)

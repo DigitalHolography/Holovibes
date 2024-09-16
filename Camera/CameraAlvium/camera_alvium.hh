@@ -11,25 +11,34 @@
 
 #include "camera.hh"
 
-#define MAX_HEIGHT 512
-#define MAX_WIDTH 512
-
 namespace camera
 {
-/*! \class CameraIds
+/*! \class CameraAlvium
  *
  * \brief
+ *  Class for the camera Alvium
  */
 class CameraAlvium : public Camera
 {
+    /*!
+     *  \class FrameObserver
+     *
+     *  \brief FrameObserver is an observer who implement VmbCPP::IFrameObserver interface.
+     *  The observer is used to get the frame from the camera when they arrive and give them to
+     *  Holovibes when getFrame is called.
+     */
     class FrameObserver : public VmbCPP::IFrameObserver
     {
       public:
-        FrameObserver(VmbCPP::CameraPtr Camera_ptr, VmbInt64_t size_frame, CameraAlvium& CameraAlvium);
+        FrameObserver(VmbCPP::CameraPtr Camera_ptr, CameraAlvium& CameraAlvium);
+
+        /*!
+         * \brief Receive a frame and add it to the camera waiting_queue_.
+         */
         void FrameReceived(const VmbCPP::FramePtr pFrame);
 
       private:
-        VmbInt64_t size_frame_;
+        /*! \brief The camera object to get the waiting_queue. */
         CameraAlvium& camera_alvium_;
     };
 
@@ -60,13 +69,27 @@ class CameraAlvium : public Camera
     virtual void load_ini_params() override;
     virtual void bind_params() override;
 
+    /*! \brief The API to interact with the camera. */
     VmbCPP::VmbSystem& api_vmb_;
-    VmbCPP::CameraPtr camera_ptr_;
-    VmbCPP::FramePtrVector frames_; // Frame array FIXME but ok
-    std::queue<unsigned char*> waiting_queue_;
-    VmbFeaturePersistSettings_t settingsStruct_;
 
+    /*! \brief To store a pointer to the camera object. */
+    VmbCPP::CameraPtr camera_ptr_;
+
+    /*! \brief A temporary queue to store the frames when they are received by the observer and give them when getFrames
+     * is called
+     */
+    std::queue<unsigned char*> waiting_queue_;
+
+    /*! \brief The width of the frames taken by the camera. */
     int width_;
+
+    /*! \brief The height of the frames taken by the camera. */
     int height_;
+
+    /*! \brief The max width of a frame. */
+    static constexpr unsigned short MAX_WIDTH = 5496;
+
+    /*! \brief The max height of a frame. */
+    static constexpr unsigned short MAX_HEIGHT = 3672;
 };
 } // namespace camera

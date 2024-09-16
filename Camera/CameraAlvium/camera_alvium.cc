@@ -8,11 +8,8 @@
 #include <span>
 namespace camera
 {
-CameraAlvium::FrameObserver::FrameObserver(VmbCPP::CameraPtr camera_ptr,
-                                           VmbInt64_t size_frame,
-                                           CameraAlvium& camera_alvium)
+CameraAlvium::FrameObserver::FrameObserver(VmbCPP::CameraPtr camera_ptr, CameraAlvium& camera_alvium)
     : VmbCPP::IFrameObserver(camera_ptr)
-    , size_frame_(size_frame)
     , camera_alvium_(camera_alvium)
 {
 }
@@ -21,14 +18,10 @@ CameraAlvium::FrameObserver::FrameObserver(VmbCPP::CameraPtr camera_ptr,
 void CameraAlvium::FrameObserver::FrameReceived(const VmbCPP::FramePtr pFrame)
 {
     // Send notification to working thread
-    // Do not apply image processing within this callback (performance)
-
     unsigned char* buf;
     pFrame->GetImage(buf);
 
-    // Logger::camera()->info("Frame Received");
-    for (int i = 0; i < 1000; i++)
-        camera_alvium_.waiting_queue_.push(buf);
+    camera_alvium_.waiting_queue_.push(buf);
 
     // When the frame has been processed, requeue it
     m_pCamera->QueueFrame(pFrame);
@@ -56,12 +49,10 @@ void CameraAlvium::init_camera()
 {
     std::string name;
     VmbCPP::CameraPtrVector cameras;
-    VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-    VmbUint32_t nPLS;            // Payload size value (size of a frame)
-    frames_ = VmbCPP::FramePtrVector(21);
+    VmbUint32_t nPLS; // Payload size value (size of a frame)
 
     if (api_vmb_.Startup() != VmbErrorType::VmbErrorSuccess ||
-        api_vmb_.GetCameras(cameras) != VmbErrorType::VmbErrorSuccess) // FIXME MAYBE add pathConfiguration
+        api_vmb_.GetCameras(cameras) != VmbErrorType::VmbErrorSuccess)
     {
         throw CameraException(CameraException::NOT_CONNECTED);
     }
@@ -76,31 +67,21 @@ void CameraAlvium::init_camera()
 
         Logger::camera()->info("Connected to {}", name_);
 
-        // Open the camera, must be closed when finished
         camera_ptr_ = *iter;
         if (camera_ptr_->Open(VmbAccessModeFull) != VmbErrorType::VmbErrorSuccess)
         {
             throw CameraException(CameraException::NOT_CONNECTED);
         }
 
-        // Query the necessary buffer size
-        if (camera_ptr_->GetPayloadSize(nPLS) != VmbErrorType::VmbErrorSuccess)
-        {
-            throw CameraException(CameraException::NOT_CONNECTED);
-        }
+        // Getting the necessary buffer size
+        // if (camera_ptr_->GetPayloadSize(nPLS) != VmbErrorType::VmbErrorSuccess)
+        // {
+        //     throw CameraException(CameraException::NOT_CONNECTED);
+        // }
 
         bind_params();
 
         camera_ptr_->StartCapture();
-
-        // for (VmbCPP::FramePtrVector::iterator iter = frames_.begin(); frames_.end() != iter; ++iter)
-        // {
-        //     (*iter).reset(new VmbCPP::Frame(nPLS));
-        //     (*iter)->RegisterObserver(
-        //         VmbCPP::IFrameObserverPtr(new CameraAlvium::FrameObserver(camera_ptr_, nPLS, *this)));
-        //     camera_ptr_->AnnounceFrame(*iter);
-        //     camera_ptr_->QueueFrame(*iter);
-        // }
 
         return;
     }
@@ -114,28 +95,16 @@ void CameraAlvium::start_acquisition()
     int nBuffers = 1;
 
     camera_ptr_->StartContinuousImageAcquisition(nBuffers,
-                                                 VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, 0, *this)));
-
-    // Probably need to allocate a buffer like in Hamamatsu (host ?)
-    // VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-    // camera_ptr_->GetFeatureByName("AcquisitionStart", pFeature);
-    // pFeature->RunCommand();
+                                                 VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this)));
 }
 
-void CameraAlvium::stop_acquisition()
-{
-    // FIXME
-    VmbCPP::FeaturePtr pFeature; // Generic feature pointer
-    camera_ptr_->GetFeatureByName("AcquisitionStop", pFeature);
-    pFeature->RunCommand();
-}
+void CameraAlvium::stop_acquisition() {}
 
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 {
     if (waiting_queue_.empty())
         return {};
 
-    // Logger::camera()->info("Get franmes {}", waiting_queue_.size());
     unsigned char* buf = waiting_queue_.front();
     waiting_queue_.pop();
 
@@ -157,12 +126,21 @@ void CameraAlvium::load_default_params()
 void CameraAlvium::load_ini_params()
 {
     // FIXME
+
+    const boost::property_tree::ptree& pt = get_ini_pt();
+
+    width_ = pt.get<unsigned short>("alvium.width", width_);
+    height_ = pt.get<unsigned short>("alvium.height", height_);
+
+    fd_.width = width_;
+    fd_.height = height_;
+
     return;
 };
 
 void CameraAlvium::bind_params()
 {
-    VmbCPP::FeaturePtr fp;
+    VmbCPP::FeaturePtr fp; // Generic feature pointer
     if (
         // camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp) != OK || fp->SetValue(450'000'000) != OK ||
         // cam->GetFeatureByName("AcquisitionFrameRateEnable", fp) != OK ||  fp->SetValue("true") != OK  ||
@@ -192,11 +170,7 @@ void CameraAlvium::shutdown_camera()
     camera_ptr_->EndCapture();
     camera_ptr_->FlushQueue();
     camera_ptr_->RevokeAllFrames();
-    for (VmbCPP::FramePtrVector::iterator iter = frames_.begin(); frames_.end() != iter; ++iter)
-    {
-        // Unregister the frame observer/callback
-        (*iter)->UnregisterObserver();
-    }
+
     if (camera_ptr_->Close() != VmbErrorType::VmbErrorSuccess)
     {
         throw CameraException(CameraException::CANT_SHUTDOWN);

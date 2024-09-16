@@ -43,6 +43,7 @@ endif()
 
 if (HAVE_VIMBAX)
     add_subdirectory(CameraAlvium)
+    
 else()
     message(WARNING "######################################################\nVimba X SDK not found, Camera Alvium will no be built\n######################################################")
 endif()
