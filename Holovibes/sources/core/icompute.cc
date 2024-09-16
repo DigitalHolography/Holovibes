@@ -31,7 +31,7 @@ bool ICompute::update_time_transformation_size(const unsigned short time_transfo
     {
         resize_gpu_p_acc_buffer(time_transformation_size);
         perform_time_transformation_setting_specific_tasks(time_transformation_size);
-        resize_gpu_time_transformation_queue(time_transformation_size);
+        time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
     }
     catch (const std::exception& e)
     {
@@ -55,9 +55,7 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
     case TimeTransformation::SSA_STFT:
         update_stft(time_transformation_size);
         if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT)
-        {
             update_pca(time_transformation_size);
-        }
         break;
     case TimeTransformation::PCA:
         update_pca(time_transformation_size);
@@ -84,11 +82,6 @@ void ICompute::update_pca(const unsigned short time_transformation_size)
     time_transformation_env_.pca_cov.resize(size * size);
     time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
     time_transformation_env_.pca_dev_info.resize(1);
-}
-
-void ICompute::resize_gpu_time_transformation_queue(const unsigned short time_transformation_size)
-{
-    time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
 }
 
 void ICompute::handle_exception(const std::exception& e)
@@ -197,12 +190,6 @@ bool ICompute::get_cuts_delete_request() { return request_delete_time_transforma
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
-}
-
-void ICompute::soft_request_refresh()
-{
-    if (!refresh_requested_)
-        refresh_requested_ = true;
 }
 
 void ICompute::enable_refresh() { refresh_enabled_ = true; }

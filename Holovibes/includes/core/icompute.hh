@@ -341,8 +341,6 @@ class ICompute
     inline void icompute_pipe_refresh_apply_updates() {
         pipe_refresh_settings_.apply_updates();
     }
-    // #TODO Check if soft_request_refresh is even needed or if request_refresh is enough in MainWindow
-    void soft_request_refresh();
     void request_refresh();
     void enable_refresh();
     void disable_refresh();
@@ -459,11 +457,6 @@ class ICompute
      */
     void update_pca(const unsigned short time_transformation_size);
 
-    /*! \brief Resizes the GPU time transformation queue.
-     *  \param time_transformation_size The new size for time transformation.
-     */
-    void resize_gpu_time_transformation_queue(const unsigned short time_transformation_size);
-
     /*! \brief Handles exceptions that occur during the update of time transformation size.
      *  \param e The exception caught during the update process.
      */
@@ -560,14 +553,11 @@ class ICompute
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
 };
 } // namespace holovibes
