@@ -311,8 +311,11 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 # What that means is that it tries uninstalling the project from that directory and not its parent.
 # (in fact, the installing directory is not shared between installer and uninstaller.)
 # That's why we need to change the 'install directory' to the parent folder.
+#
+# Also, removes the Desktop shortcut of the .ps1 file.
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     StrCpy $INSTDIR \\\"$INSTDIR\\\\..\\\"
+    Delete \\\"$DESKTOP\\\\Process Holo Files.lnk\\\"
 ")
 
 include(CPack)

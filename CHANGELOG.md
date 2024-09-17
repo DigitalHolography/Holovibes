@@ -5,6 +5,7 @@
 - Drop down menu to select any preset in the preset directory
 - Prevents the allocation of buffer with a size greater than the available GPU memory
 - Refactorization of GUI
+- The ProcessHoloFiles.ps1 is now installed along Holovibes, in a separate directory
 
 ### 13.4.0
 
