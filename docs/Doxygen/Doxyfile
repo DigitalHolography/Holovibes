@@ -1863,6 +1863,7 @@ GENERATE_LATEX         = YES
 
 LATEX_OUTPUT           = latex
 
+
 # The LATEX_CMD_NAME tag can be used to specify the LaTeX command name to be
 # invoked.
 #

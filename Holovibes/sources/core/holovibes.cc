@@ -264,7 +264,7 @@ void Holovibes::init_pipe()
         if (api::get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
-    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, api::get_output_buffer_size(), QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, static_cast<unsigned int>(api::get_output_buffer_size()), QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
 

@@ -162,6 +162,11 @@ class MainWindow : public QMainWindow, public Observer
      */
     void set_preset();
 
+    /**
+     * @brief Sets preset given a preset file.
+     */
+    void set_preset(std::filesystem::path file);
+
   signals:
     /*! \brief TODO: comment
      *

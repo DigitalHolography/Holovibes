@@ -32,7 +32,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    void set_light_ui(std::shared_ptr<LightUI> light_ui);
     void actualise_z_distance(const double z_distance);
 
   public slots:
@@ -146,7 +145,6 @@ class ImageRenderingPanel : public Panel
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
-    std::shared_ptr<LightUI> light_ui_;
     Subscriber<double> z_distance_subscriber_;
 
   public:
