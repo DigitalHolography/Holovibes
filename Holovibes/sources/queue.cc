@@ -51,17 +51,17 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
         switch (type)
         {
         case QueueType::INPUT_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<unsigned int>((free_memory - 1) / fd.get_frame_size());
             api::set_input_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Input Buffer";
         case QueueType::OUTPUT_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<unsigned int>((free_memory - 1) / fd.get_frame_size());
             api::set_output_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Output Buffer";
         case QueueType::RECORD_QUEUE:
-            max_size_ = (free_memory - 1) / fd.get_frame_size();
+            max_size_ = static_cast<unsigned int>((free_memory - 1) / fd.get_frame_size());
             api::set_record_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Record Buffer";

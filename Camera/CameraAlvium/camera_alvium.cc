@@ -19,12 +19,18 @@ void CameraAlvium::FrameObserver::FrameReceived(const VmbCPP::FramePtr pFrame)
 {
     // Send notification to working thread
     unsigned char* buf;
-    pFrame->GetImage(buf);
+    if (pFrame->GetImage(buf) != VmbErrorType::VmbErrorSuccess)
+    {
+        throw CameraException(CameraException::CANT_GET_FRAME);
+    }
 
     camera_alvium_.waiting_queue_.push(buf);
 
     // When the frame has been processed, requeue it
-    m_pCamera->QueueFrame(pFrame);
+    if (m_pCamera->QueueFrame(pFrame) != VmbErrorType::VmbErrorSuccess)
+    {
+        throw CameraException(CameraException::CANT_GET_FRAME);
+    }
 }
 
 CameraAlvium::CameraAlvium()
@@ -49,7 +55,6 @@ void CameraAlvium::init_camera()
 {
     std::string name;
     VmbCPP::CameraPtrVector cameras;
-    VmbUint32_t nPLS; // Payload size value (size of a frame)
 
     if (api_vmb_.Startup() != VmbErrorType::VmbErrorSuccess ||
         api_vmb_.GetCameras(cameras) != VmbErrorType::VmbErrorSuccess)
@@ -60,7 +65,7 @@ void CameraAlvium::init_camera()
     // Trying to connect the first available Camera
     for (VmbCPP::CameraPtrVector::iterator iter = cameras.begin(); cameras.end() != iter; ++iter)
     {
-        if (VmbErrorType::VmbErrorSuccess != (*iter)->GetName(name))
+        if ((*iter)->GetName(name) != VmbErrorType::VmbErrorSuccess)
         {
             continue;
         }
@@ -73,15 +78,7 @@ void CameraAlvium::init_camera()
             throw CameraException(CameraException::NOT_CONNECTED);
         }
 
-        // Getting the necessary buffer size
-        if (camera_ptr_->GetPayloadSize(nPLS) != VmbErrorType::VmbErrorSuccess)
-        {
-            throw CameraException(CameraException::NOT_CONNECTED);
-        }
-
         bind_params();
-
-        camera_ptr_->StartCapture();
 
         return;
     }
@@ -93,14 +90,21 @@ void CameraAlvium::start_acquisition()
     Logger::camera()->info("Start Acquisition");
     unsigned int nBuffers = 1;
 
-    camera_ptr_->StartContinuousImageAcquisition(nBuffers,
-                                                 VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this)));
+    if (camera_ptr_->StartContinuousImageAcquisition(
+            nBuffers,
+            VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this))) != VmbErrorType::VmbErrorSuccess)
+    {
+        throw CameraException(CameraException::CANT_START_ACQUISITION);
+    }
 }
 
 void CameraAlvium::stop_acquisition()
 {
     Logger::camera()->info("Stop Acquisition");
-    camera_ptr_->StopContinuousImageAcquisition();
+    if (camera_ptr_->StopContinuousImageAcquisition() != VmbErrorType::VmbErrorSuccess)
+    {
+        throw CameraException(CameraException::CANT_STOP_ACQUISITION);
+    }
 }
 
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
@@ -170,11 +174,9 @@ void CameraAlvium::bind_params()
 
 void CameraAlvium::shutdown_camera()
 {
-    camera_ptr_->EndCapture();
-    camera_ptr_->FlushQueue();
-    camera_ptr_->RevokeAllFrames();
-
-    if (camera_ptr_->Close() != VmbErrorType::VmbErrorSuccess)
+    if (camera_ptr_->FlushQueue() != VmbErrorType::VmbErrorSuccess ||
+        camera_ptr_->RevokeAllFrames() != VmbErrorType::VmbErrorSuccess ||
+        camera_ptr_->Close() != VmbErrorType::VmbErrorSuccess)
     {
         throw CameraException(CameraException::CANT_SHUTDOWN);
     }
