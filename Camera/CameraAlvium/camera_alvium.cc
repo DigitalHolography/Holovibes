@@ -91,13 +91,17 @@ void CameraAlvium::init_camera()
 void CameraAlvium::start_acquisition()
 {
     Logger::camera()->info("Start Acquisition");
-    int nBuffers = 1;
+    unsigned int nBuffers = 1;
 
     camera_ptr_->StartContinuousImageAcquisition(nBuffers,
                                                  VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this)));
 }
 
-void CameraAlvium::stop_acquisition() {}
+void CameraAlvium::stop_acquisition()
+{
+    Logger::camera()->info("Stop Acquisition");
+    camera_ptr_->StopContinuousImageAcquisition();
+}
 
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 {

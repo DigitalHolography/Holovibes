@@ -39,7 +39,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
 
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
     size_t free_memory, total_memory;
-    cudaMemGetInfo(&free_memory,&total_memory);
+    cudaMemGetInfo(&free_memory, &total_memory);
 
     size_t memory_to_allocate = fd.get_frame_size() * max_size_;
     bool is_size_modified = false;
@@ -51,17 +51,17 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
         switch (type)
         {
         case QueueType::INPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_input_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Input Buffer";
         case QueueType::OUTPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_output_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Output Buffer";
         case QueueType::RECORD_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
+            max_size_ = (free_memory - 1) / fd.get_frame_size();
             api::set_record_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Record Buffer";
@@ -70,13 +70,16 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
         default:
             break;
         }
-        
+
         if (is_size_modified)
         {
-            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
+            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " +
+                     std::to_string(max_size_));
             // For the GUI, show the warning in a window.
-            holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " + queue_string + " and the new size is : " + std::to_string(max_size_));
-            // Return because when we set the buffer_size in the switch, the process is relaunched and the ctor will be called again
+            holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " +
+                                      queue_string + " and the new size is : " + std::to_string(max_size_));
+            // Return because when we set the buffer_size in the switch, the process is relaunched and the ctor will be
+            // called again
             return;
         }
     }
@@ -93,7 +96,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     //     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     // else
     //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
-
 
     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
@@ -398,7 +400,10 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (nb_elts == -1)
         nb_elts = size_;
 
-    CHECK(std::cmp_less_equal(nb_elts, size_.load()), "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+    CHECK(std::cmp_less_equal(nb_elts, size_.load()),
+          "Request to dequeue {} elts, but the queue has only {}",
+          (char)nb_elts,
+          (char)size_);
 
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
