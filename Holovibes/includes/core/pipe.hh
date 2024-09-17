@@ -186,7 +186,7 @@ class Pipe : public ICompute
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
-        update_time_transformation_size_requested_ = true;
+        set_requested(ICS::UpdateTimeTransformationSize, true);
 
         pre_init();
 
@@ -238,10 +238,10 @@ class Pipe : public ICompute
     void pre_init()
     {
         if (setting<settings::FilterEnabled>())
-            request_filter();
+            request(ICS::Filter);
 
         if (setting<settings::ConvolutionEnabled>())
-            request_convolution();
+            request(ICS::Convolution);
     }
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */

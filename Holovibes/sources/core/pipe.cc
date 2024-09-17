@@ -50,47 +50,46 @@ bool Pipe::make_requests()
     bool success_allocation = true;
 
     /* Free buffers */
-    if (disable_convolution_requested_)
+    if (is_requested(ICS::DisableConvolution))
     {
         LOG_DEBUG("disable_convolution_requested");
 
         postprocess_->dispose();
-        disable_convolution_requested_ = false;
+        clear_request(ICS::DisableConvolution);
     }
 
-    if (disable_filter_requested_)
+    if (is_requested(ICS::DisableFilter))
     {
         LOG_DEBUG("disable_filter_requested");
 
         postprocess_->dispose();
-        disable_filter_requested_ = false;
+        clear_request(ICS::DisableFilter);
     }
 
-    if (request_disable_lens_view_)
+    if (is_requested(ICS::DisableLensView))
     {
         LOG_DEBUG("request_disable_lens_view");
 
         fourier_transforms_->get_lens_queue().reset(nullptr);
-
-        request_disable_lens_view_ = false;
+        clear_request(ICS::DisableLensView);
     }
 
-    if (disable_raw_view_requested_)
+    if (is_requested(ICS::DisableRawView))
     {
         LOG_DEBUG("disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
         api::set_raw_view_enabled(false);
-        disable_raw_view_requested_ = false;
+        clear_request(ICS::DisableRawView);
     }
 
-    if (disable_filter2d_view_requested_)
+    if (is_requested(ICS::DisableFilter2DView))
     {
         LOG_DEBUG("disable_filter2D_view_requested");
 
         gpu_filter2d_view_queue_.reset(nullptr);
         api::set_filter2d_view_enabled(false);
-        disable_filter2d_view_requested_ = false;
+        clear_request(ICS::DisableFilter2DView);
     }
 
     if (is_requested(ICS::DeleteTimeTransformationCuts))
@@ -101,46 +100,46 @@ bool Pipe::make_requests()
         clear_request(ICS::DeleteTimeTransformationCuts);
     }
 
-    if (disable_chart_display_requested_)
+    if (is_requested(ICS::DisableChartDisplay))
     {
         LOG_DEBUG("disable_chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(nullptr);
         api::set_chart_display_enabled(false);
-        disable_chart_display_requested_ = false;
+        clear_request(ICS::DisableChartDisplay);
     }
 
-    if (disable_chart_record_requested_)
+    if (is_requested(ICS::DisableChartRecord))
     {
         LOG_DEBUG("disable_chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(nullptr);
         api::set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
-        disable_chart_record_requested_ = false;
+        clear_request(ICS::DisableChartRecord);
     }
 
-    if (disable_frame_record_requested_)
+    if (is_requested(ICS::DisableFrameRecord))
     {
         LOG_DEBUG("disable_frame_record_requested");
 
         record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         api::set_frame_record_enabled(false);
-        disable_frame_record_requested_ = false;
+        clear_request(ICS::DisableFrameRecord);
     }
 
     image_accumulation_->dispose(); // done only if requested
 
     /* Allocate buffer */
-    if (convolution_requested_)
+    if (is_requested(ICS::Convolution))
     {
         LOG_DEBUG("convolution_requested");
 
         postprocess_->init();
-        convolution_requested_ = false;
+        clear_request(ICS::Convolution);
     }
 
-    if (filter_requested_)
+    if (is_requested(ICS::Filter))
     {
         LOG_DEBUG("filter_requested");
 
@@ -149,19 +148,11 @@ bool Pipe::make_requests()
         api::enable_filter();
         auto filter = api::get_input_filter();
         fourier_transforms_->update_setting(settings::InputFilter{filter});
-        filter_requested_ = false;
-    }
-
-    if (output_resize_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG("output_resize_requested");
-
-        gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
-        output_resize_requested_ = std::nullopt;
+        clear_request(ICS::Filter);
     }
 
     // Updating number of images
-    if (update_time_transformation_size_requested_)
+    if (is_requested(ICS::UpdateTimeTransformationSize))
     {
         LOG_DEBUG("update_time_transformation_size_requested");
 
@@ -175,45 +166,46 @@ bool Pipe::make_requests()
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
         }
-        update_time_transformation_size_requested_ = false;
+
+        clear_request(ICS::UpdateTimeTransformationSize);
     }
 
-    if (request_update_time_stride_)
+    if (is_requested(ICS::UpdateTimeStride))
     {
         LOG_DEBUG("request_update_time_stride");
 
         batch_env_.batch_index = 0;
-        request_update_time_stride_ = false;
+        clear_request(ICS::UpdateTimeStride);
     }
 
-    if (request_update_batch_size_)
+    if (is_requested(ICS::UpdateBatchSize))
     {
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
         input_queue_.resize(setting<settings::BatchSize>());
-        request_update_batch_size_ = false;
+        clear_request(ICS::UpdateBatchSize);
     }
 
-    if (request_time_transformation_cuts_)
+    if (is_requested(ICS::TimeTransformationCuts))
     {
         LOG_DEBUG("request_time_transformation_cuts");
 
         init_cuts();
-        request_time_transformation_cuts_ = false;
+        clear_request(ICS::TimeTransformationCuts);
     }
 
     image_accumulation_->init(); // done only if requested
 
-    if (request_clear_img_accu)
+    if (is_requested(ICS::ClearImgAccu))
     {
         LOG_DEBUG("request_clear_img_accu");
 
         image_accumulation_->clear();
-        request_clear_img_accu = false;
+        clear_request(ICS::ClearImgAccu);
     }
 
-    if (raw_view_requested_)
+    if (is_requested(ICS::RawView))
     {
         LOG_DEBUG("raw_view_requested");
 
@@ -223,26 +215,26 @@ bool Pipe::make_requests()
                                             QueueType::UNDEFINED,
                                             setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
-        raw_view_requested_ = false;
+        clear_request(ICS::RawView);
     }
 
-    if (filter2d_view_requested_)
+    if (is_requested(ICS::Filter2DView))
     {
         LOG_DEBUG("filter2d_view_requested");
 
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
         api::set_filter2d_view_enabled(true);
-        filter2d_view_requested_ = false;
+        clear_request(ICS::Filter2DView);
     }
 
-    if (chart_display_requested_)
+    if (is_requested(ICS::ChartDisplay))
     {
         LOG_DEBUG("chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
         api::set_chart_display_enabled(true);
-        chart_display_requested_ = false;
+        clear_request(ICS::ChartDisplay);
     }
 
     if (chart_record_requested_.load() != std::nullopt)
@@ -255,11 +247,11 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
-    if (frame_record_requested_)
+    if (is_requested(ICS::FrameRecord))
     {
         LOG_DEBUG("Frame Record Request Processing");
         api::set_frame_record_enabled(true);
-        frame_record_requested_ = false;
+        clear_request(ICS::FrameRecord);
         LOG_DEBUG("Frame Record Request Processed");
     }
 
@@ -270,14 +262,14 @@ void Pipe::refresh()
 {
     pipe_refresh_apply_updates();
 
-    refresh_requested_ = false;
+    clear_request(ICS::Refresh);
 
     fn_compute_vect_.clear();
 
     // Aborting if allocation failed
     if (!make_requests())
     {
-        refresh_requested_ = false;
+        clear_request(ICS::Refresh);
         return;
     }
 
@@ -370,7 +362,7 @@ void Pipe::refresh()
     rendering_->insert_contrast(is_requested(ICS::Autocontrast),
                                 is_requested(ICS::AutocontrastSliceXZ),
                                 is_requested(ICS::AutocontrastSliceYZ),
-                                autocontrast_filter2d_requested_);
+                                is_requested(ICS::AutocontrastFilter2D));
 
     // converts_->insert_cuts_final();
 
@@ -650,20 +642,18 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (refresh_requested_ && refresh_enabled_)
+    if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
         refresh();
 
-    while (!termination_requested_)
+    while (!is_requested(ICS::Termination))
     {
         try
         {
             // Run the entire pipeline of calculation
             run_all();
 
-            if (refresh_requested_ && refresh_enabled_)
-            {
+            if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
                 refresh();
-            }
         }
         catch (CustomException& e)
         {

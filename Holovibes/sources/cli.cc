@@ -186,14 +186,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     if (holovibes::api::get_convolution_enabled())
     {
         holovibes::api::load_convolution_matrix(holovibes::UserInterfaceDescriptor::instance().convo_name);
-        pipe->request_convolution();
+        pipe->request(ICS::Convolution);
     }
 
     // TODO : Add filter
 
-    pipe->request_update_batch_size();
-    pipe->request_update_time_stride();
-    pipe->request_update_time_transformation_size();
+    pipe->request(ICS::UpdateBatchSize); 
+    pipe->request(ICS::UpdateTimeStride);
+    pipe->request(ICS::UpdateTimeTransformationSize);
 
     delete input_frame_file;
 
@@ -274,7 +274,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     holovibes.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.
-    while ((!holovibes.get_compute_pipe()->get_frame_record_requested()))
+    while ((!holovibes.get_compute_pipe()->is_requested(ICS::FrameRecord)))
         continue;
 
     // The pipe has to be refresh before lauching the next thread to prevent concurrency problems.

@@ -235,7 +235,6 @@ struct ImageAccEnv
  * Stores all the functions that will be used before doing any sort
  * of editing to the image (i.e. refresh functions or caller).
  */
-// #TODO Add \name tags between groups of methods and attributes to make the documentation clearer
 class ICompute
 {
   public:
@@ -305,33 +304,6 @@ class ICompute
 
     inline void icompute_pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
-    void request_refresh();
-    void enable_refresh();
-    void disable_refresh();
-    void request_output_resize(unsigned int new_output_size);
-    void request_autocontrast(WindowKind kind);
-    void request_update_time_transformation_size();
-    void request_unwrapping_1d(const bool value);
-    void request_display_chart();
-    void request_disable_display_chart();
-    void request_record_chart(unsigned int nb_chart_points_to_record);
-    void request_disable_record_chart();
-    void request_termination();
-    void request_update_batch_size();
-    void request_update_time_stride();
-    void request_disable_lens_view();
-    void request_raw_view();
-    void request_disable_raw_view();
-    void request_filter2d_view();
-    void request_disable_filter2d_view();
-    void request_frame_record();
-    void request_disable_frame_record();
-    void request_clear_img_acc();
-    void request_convolution();
-    void request_filter();
-    void request_disable_convolution();
-    void request_disable_filter();
-
     /*! \brief Execute one iteration of the ICompute.
      *
      * Checks the number of frames in input queue that must at least time_transformation_size.
@@ -344,20 +316,21 @@ class ICompute
      */
     virtual void exec() = 0;
 
-    void create_stft_slice_queue();
-    std::unique_ptr<Queue>& get_stft_slice_queue(int i);
-
+    /*! \brief enum class for the settings that can be requested: settings that change the pipeline. */
     enum class Setting
     {
         Unwrap2D = 0,
-        Autocontrast, // Never set to false
-        AutocontrastSliceXZ, // Same here
+
+        // These 4 autocontrast settings are set to false by & in renderer.cc
+        // it's not clean
+        Autocontrast,
+        AutocontrastSliceXZ,
         AutocontrastSliceYZ,
         AutocontrastFilter2D,
+
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
-        StftUpdateRoi,
         ChartDisplay,
         DisableChartDisplay,
         DisableChartRecord,
@@ -384,34 +357,46 @@ class ICompute
         Count // Used to create the array
     };
 
-    bool is_requested(Setting setting); // Return the value
-    void request(Setting setting); // Set to true and call request_refresh
-    void set_requested(Setting setting, bool value); // Set to value and do not call request_refresh
-    void clear_request(Setting setting); // Set to false
+    /*! \name Request Settings
+     * \{
+     */
+    /*! \brief Whether the setting is requested.
+     *  \tparam T The type of the setting.
+     *  \return The value of the setting.
+     */
+    std::atomic<bool>& is_requested(Setting setting);
 
-    std::array<std::atomic<bool>, static_cast<int>(Setting::Count)> settings_requests_{};
+    /*! \brief Request the setting (like request a filter2D in the pipeline) and call @ref
+     * holovibes::ICompute::request_refresh "request_refresh".
+     * \param setting The setting to be requested.
+     */
+    void request(Setting setting);
 
-    bool get_refresh_request() const { return refresh_requested_; }
-    bool get_update_time_transformation_size_request() const { return update_time_transformation_size_requested_; }
-    bool get_stft_update_roi_request() const { return stft_update_roi_requested_; }
-    bool get_termination_request() const { return termination_requested_; }
-    bool get_request_time_transformation_cuts() const { return request_time_transformation_cuts_; }
-    std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
-    bool get_raw_view_requested() const { return raw_view_requested_; }
-    bool get_disable_raw_view_requested() const { return disable_raw_view_requested_; }
-    bool get_disable_lens_view_requested() const { return request_disable_lens_view_; }
-    bool get_filter2d_view_requested() const { return filter2d_view_requested_; }
-    bool get_disable_filter2d_view_requested() const { return disable_filter2d_view_requested_; }
-    bool get_chart_display_requested() const { return chart_display_requested_; }
+    /*! \brief Set the setting to the value and but do not call @ref holovibes::ICompute::request_refresh
+     * "request_refresh".
+     * \param setting The setting to be set.
+     * \param value The value to be set.
+     */
+    void set_requested(Setting setting, bool value);
+
+    /*! \brief Clear the request of the setting.
+     * \param setting The setting to be cleared.
+     */
+    void clear_request(Setting setting);
+
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
-    bool get_disable_chart_display_requested() const { return disable_chart_display_requested_; }
-    bool get_disable_chart_record_requested() const { return disable_chart_record_requested_; }
-    bool get_frame_record_requested() const { return frame_record_requested_; }
-    bool get_disable_frame_record_requested() const { return disable_frame_record_requested_; }
-    bool get_convolution_requested() const { return convolution_requested_; }
-    bool get_disable_convolution_requested() const { return convolution_requested_; }
-    bool get_filter_requested() const { return filter_requested_; }
-    bool get_disable_filter_requested() const { return filter_requested_; }
+
+    void request_refresh();
+
+    void request_autocontrast(WindowKind kind);
+
+    void request_record_chart(unsigned int nb_chart_points_to_record);
+    /*! \} */
+
+    /*! \name Queue getters
+     * \{
+     */
+    std::unique_ptr<Queue>& get_stft_slice_queue(int i);
 
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
@@ -422,24 +407,38 @@ class ICompute
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
 
     virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
+    /*! \} */
 
   protected:
     virtual void refresh() = 0;
+
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
      */
     virtual void update_spatial_transformation_parameters();
+
     void init_cuts();
+
     void dispose_cuts();
     /*! \} */
 
+    /*! \name ICCompute operators
+     * \{
+     */
     ICompute& operator=(const ICompute&) = delete;
+
     ICompute(const ICompute&) = delete;
+
     virtual ~ICompute() {}
+    /*! \} */
 
   protected:
+    /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
+    unsigned int frame_count_{0};
+
+    /*! \name Queues */
     /*! \brief Reference on the input queue */
     BatchInputQueue& input_queue_;
 
@@ -449,6 +448,13 @@ class ICompute
     /*! \brief Reference on the record queue */
     Queue& record_queue_;
 
+    /*! \brief Queue storing raw frames used by raw view */
+    std::unique_ptr<Queue> gpu_raw_view_queue_{nullptr};
+
+    /*! \brief Queue storing filter2d frames */
+    std::unique_ptr<Queue> gpu_filter2d_view_queue_{nullptr};
+
+    /*! \name Compute environment */
     /*! \brief Main buffers. */
     CoreBuffersEnv buffers_;
 
@@ -464,12 +470,7 @@ class ICompute
     /*! \brief Image accumulation environment */
     ImageAccEnv image_acc_env_;
 
-    /*! \brief Queue storing raw frames used by raw view */
-    std::unique_ptr<Queue> gpu_raw_view_queue_{nullptr};
-
-    /*! \brief Queue storing filter2d frames */
-    std::unique_ptr<Queue> gpu_filter2d_view_queue_{nullptr};
-
+    /*! \name Cuda */
     /*! \brief Pland 2D. Used for spatial fft performed on the complex input frame. */
     cuda_tools::CufftHandle spatial_transformation_plan_;
 
@@ -479,38 +480,22 @@ class ICompute
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
-    unsigned int frame_count_{0};
-
-    std::atomic<bool> autocontrast_filter2d_requested_{false};
-    std::atomic<bool> refresh_requested_{false};
-    std::atomic<bool> refresh_enabled_{true};
-    std::atomic<bool> update_time_transformation_size_requested_{false};
-    std::atomic<bool> stft_update_roi_requested_{false};
-    std::atomic<bool> chart_display_requested_{false};
-    std::atomic<bool> disable_chart_display_requested_{false};
+    /*! \name Requested settings */
+    /*! \brief Requested chart record. */
     std::atomic<std::optional<unsigned int>> chart_record_requested_{std::nullopt};
-    std::atomic<bool> disable_chart_record_requested_{false};
-    std::atomic<std::optional<unsigned int>> output_resize_requested_{std::nullopt};
-    std::atomic<bool> raw_view_requested_{false};
-    std::atomic<bool> disable_raw_view_requested_{false};
-    std::atomic<bool> filter2d_view_requested_{false};
-    std::atomic<bool> disable_filter2d_view_requested_{false};
-    std::atomic<bool> termination_requested_{false};
-    std::atomic<bool> request_time_transformation_cuts_{false};
-    std::atomic<bool> request_update_batch_size_{false};
-    std::atomic<bool> request_update_time_stride_{false};
-    std::atomic<bool> request_disable_lens_view_{false};
-    std::atomic<bool> frame_record_requested_{false};
-    std::atomic<bool> disable_frame_record_requested_{false};
-    std::atomic<bool> request_clear_img_accu{false};
-    std::atomic<bool> convolution_requested_{false};
-    std::atomic<bool> disable_convolution_requested_{false};
-    std::atomic<bool> filter_requested_{false};
-    std::atomic<bool> disable_filter_requested_{false};
 
+    /*! \brief Array of atomic bools to store the requested settings. */
+    std::array<std::atomic<bool>, static_cast<int>(Setting::Count)> settings_requests_{};
+
+    /*! \name Settings containers
+     * \{
+     */
+    /*! \brief Container for the realtime settings. */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    /*! \brief Container for the pipe refresh settings. */
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+    /*! \} */
 
   private:
     /**

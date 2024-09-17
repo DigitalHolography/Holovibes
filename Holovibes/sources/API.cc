@@ -16,7 +16,7 @@ void disable_pipe_refresh()
 {
     try
     {
-        get_compute_pipe()->disable_refresh();
+        get_compute_pipe()->clear_request(ICS::RefreshEnabled);
     }
     catch (const std::runtime_error&)
     {
@@ -27,7 +27,7 @@ void enable_pipe_refresh()
 {
     try
     {
-        get_compute_pipe()->enable_refresh();
+        get_compute_pipe()->set_requested(ICS::RefreshEnabled, true);
     }
     catch (const std::runtime_error&)
     {
@@ -473,10 +473,8 @@ void update_batch_size(const uint batch_size)
     if (get_compute_mode() == Computation::Hologram)
     {
         if (time_stride_changed)
-        {
-            Holovibes::instance().get_compute_pipe()->request_update_time_stride();
-        }
-        Holovibes::instance().get_compute_pipe()->request_update_batch_size();
+            Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
+        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
     }
     else
         Holovibes::instance().get_input_queue()->resize(get_batch_size());
@@ -506,7 +504,7 @@ void update_time_stride(std::function<void()> callback, const uint time_stride)
 
     if (get_compute_mode() == Computation::Hologram)
     {
-        Holovibes::instance().get_compute_pipe()->request_update_time_stride();
+        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
         get_compute_pipe()->insert_fn_end_vect(callback);
     }
     else
@@ -517,7 +515,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
 {
     try
     {
-        get_compute_pipe()->create_stft_slice_queue();
+        get_compute_pipe()->request(ICS::TimeTransformationCuts);
         // set positions of new windows according to the position of the
         // main GL window
         QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
@@ -525,9 +523,9 @@ bool set_3d_cuts_view(uint time_transformation_size)
         QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
                        QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
 
-        while (get_compute_pipe()->get_update_time_transformation_size_request())
+        while (get_compute_pipe()->is_requested(ICS::UpdateTimeTransformationSize))
             continue;
-        while (get_compute_pipe()->get_request_time_transformation_cuts())
+        while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
             continue;
 
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
@@ -599,7 +597,7 @@ void toggle_renormalize(bool value)
     set_renorm_enabled(value);
 
     if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
-        get_compute_pipe()->request_clear_img_acc();
+        get_compute_pipe()->request(ICS::ClearImgAccu);
 
     pipe_refresh();
 }
@@ -623,8 +621,8 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     auto pipe = get_compute_pipe();
     if (checked)
     {
-        pipe->request_filter2d_view();
-        while (pipe->get_filter2d_view_requested())
+        pipe->request(ICS::Filter2DView);
+        while (pipe->is_requested(ICS::Filter2DView))
             continue;
 
         const camera::FrameDescriptor& fd = get_fd();
@@ -649,8 +647,8 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     else
     {
         UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-        pipe->request_disable_filter2d_view();
-        while (pipe->get_disable_filter2d_view_requested())
+        pipe->request(ICS::DisableFilter2DView);
+        while (pipe->is_requested(ICS::DisableFilter2DView))
             continue;
     }
 
@@ -710,8 +708,8 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     {
         UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
 
-        pipe->request_disable_lens_view();
-        while (pipe->get_disable_lens_view_requested())
+        pipe->request(ICS::DisableLensView);
+        while (pipe->is_requested(ICS::DisableLensView))
             continue;
 
         pipe_refresh();
@@ -727,8 +725,8 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
 
     if (checked)
     {
-        pipe->request_raw_view();
-        while (pipe->get_raw_view_requested())
+        pipe->request(ICS::RawView);
+        while (pipe->is_requested(ICS::RawView))
             continue;
 
         const ::camera::FrameDescriptor& fd = get_fd();
@@ -749,8 +747,8 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     {
         UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-        pipe->request_disable_raw_view();
-        while (pipe->get_disable_raw_view_requested())
+        pipe->request(ICS::DisableRawView);
+        while (pipe->is_requested(ICS::DisableRawView))
             continue;
     }
 
@@ -1476,9 +1474,9 @@ void enable_convolution(const std::string& filename)
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request_convolution();
+        pipe->request(ICS::Convolution);
         // Wait for the convolution to be enabled for notify
-        while (pipe->get_convolution_requested())
+        while (pipe->is_requested(ICS::Convolution))
             continue;
     }
     catch (const std::exception& e)
@@ -1495,8 +1493,8 @@ void disable_convolution()
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request_disable_convolution();
-        while (pipe->get_disable_convolution_requested())
+        pipe->request(ICS::DisableConvolution);
+        while (pipe->is_requested(ICS::DisableConvolution))
             continue;
     }
     catch (const std::exception& e)
@@ -1580,9 +1578,9 @@ void enable_filter()
     // try
     // {
     //     auto pipe = get_compute_pipe();
-    //     pipe->request_filter();
+    //     pipe->request(ICS::Filter);
     //     // Wait for the filter to be enabled for notify
-    //     while (pipe->get_filter_requested())
+    //     while (pipe->is_requested(ICS::Filter))
     //         continue;
     // }
     // catch (const std::exception& e)
@@ -1599,11 +1597,9 @@ void disable_filter()
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request_disable_filter();
-        while (pipe->get_disable_filter_requested())
-        {
+        pipe->request(ICS::DisableFilter);
+        while (pipe->is_requested(ICS::DisableFilter))
             continue;
-        }
     }
     catch (const std::exception& e)
     {
@@ -1653,10 +1649,10 @@ void active_signal_zone()
 void start_chart_display()
 {
     auto pipe = get_compute_pipe();
-    pipe->request_display_chart();
+    pipe->request(ICS::ChartDisplay);
 
     // Wait for the chart display to be enabled for notify
-    while (pipe->get_chart_display_requested())
+    while (pipe->is_requested(ICS::ChartDisplay))
         continue;
 
     UserInterfaceDescriptor::instance().plot_window_ =
@@ -1670,10 +1666,10 @@ void stop_chart_display()
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request_disable_display_chart();
+        pipe->request(ICS::DisableChartDisplay);
 
         // Wait for the chart display to be disabled for notify
-        while (pipe->get_disable_chart_display_requested())
+        while (pipe->is_requested(ICS::DisableChartDisplay))
             continue;
     }
     catch (const std::exception& e)
