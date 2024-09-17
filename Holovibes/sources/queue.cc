@@ -75,7 +75,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
         {
             LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
             // For the GUI, show the warning in a window.
-            holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " + queue_string + " and the new size is : " + std::to_string(max_size_));
+            // holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " + queue_string + " and the new size is : " + std::to_string(max_size_));
             // Return because when we set the buffer_size in the switch, the process is relaunched and the ctor will be called again
             return;
         }
