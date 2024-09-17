@@ -93,12 +93,12 @@ bool Pipe::make_requests()
         disable_filter2d_view_requested_ = false;
     }
 
-    if (request_delete_time_transformation_cuts_)
+    if (is_requested(ICS::DeleteTimeTransformationCuts))
     {
         LOG_DEBUG("request_delete_time_transformation_cuts");
 
         dispose_cuts();
-        request_delete_time_transformation_cuts_ = false;
+        clear_request(ICS::DeleteTimeTransformationCuts);
     }
 
     if (disable_chart_display_requested_)
@@ -347,7 +347,7 @@ void Pipe::refresh()
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
+    converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
 
     insert_filter2d_view();
 
@@ -367,9 +367,9 @@ void Pipe::refresh()
     rendering_->insert_log();
 
     insert_request_autocontrast();
-    rendering_->insert_contrast(autocontrast_requested_,
-                                autocontrast_slice_xz_requested_,
-                                autocontrast_slice_yz_requested_,
+    rendering_->insert_contrast(is_requested(ICS::Autocontrast),
+                                is_requested(ICS::AutocontrastSliceXZ),
+                                is_requested(ICS::AutocontrastSliceYZ),
                                 autocontrast_filter2d_requested_);
 
     // converts_->insert_cuts_final();

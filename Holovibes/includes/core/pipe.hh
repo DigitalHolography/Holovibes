@@ -261,9 +261,7 @@ class Pipe : public ICompute
         spdlog::trace("[Pipe] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
             realtime_settings_.update_setting(setting);
-        }
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

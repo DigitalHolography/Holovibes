@@ -527,7 +527,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
 
         while (get_compute_pipe()->get_update_time_transformation_size_request())
             continue;
-        while (get_compute_pipe()->get_cuts_request())
+        while (get_compute_pipe()->get_request_time_transformation_cuts())
             continue;
 
         UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
@@ -996,7 +996,7 @@ void set_time_transformation(const TimeTransformation value)
 
 void set_unwrapping_2d(const bool value)
 {
-    get_compute_pipe()->request_unwrapping_2d(value);
+    get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
 
     pipe_refresh();
 }

@@ -42,7 +42,7 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
         request_time_transformation_cuts_ = false;
-        request_delete_time_transformation_cuts_ = true;
+        request(ICS::DeleteTimeTransformationCuts);
         dispose_cuts();
         LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
 
@@ -165,22 +165,6 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-void ICompute::delete_stft_slice_queue()
-{
-    request_delete_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-void ICompute::create_stft_slice_queue()
-{
-    request_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-bool ICompute::get_cuts_request() { return request_time_transformation_cuts_; }
-
-bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
-
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
@@ -194,9 +178,44 @@ void ICompute::request_refresh() { refresh_requested_ = true; }
 
 void ICompute::request_termination() { termination_requested_ = true; }
 
+void ICompute::request_autocontrast(WindowKind kind)
+{
+    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
+        set_requested(Setting::AutoContrast, true);
+    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
+             setting<settings::CutsViewEnabled>())
+        set_requested(Setting::AutocontrastSliceXZ, true);
+    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
+             setting<settings::CutsViewEnabled>())
+        set_requested(Setting::AutocontrastSliceYZ, true);
+    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
+             setting<settings::Filter2dEnabled>())
+        autocontrast_filter2d_requested_ = true;
+}
+
 void ICompute::request_output_resize(unsigned int new_output_size)
 {
     output_resize_requested_ = new_output_size;
+    request_refresh();
+}
+
+// Start
+bool ICompute::is_requested(Setting setting) { return settings_requests_[static_cast<int>(setting)]; }
+
+void ICompute::request(Setting setting)
+{
+    settings_requests_[static_cast<int>(setting)] = true;
+    request_refresh();
+}
+
+void ICompute::set_requested(Setting setting, bool value) { settings_requests_[static_cast<int>(setting)] = value; }
+
+void ICompute::clear_request(Setting setting) { settings_requests_[static_cast<int>(setting)] = false; }
+
+// Start
+void ICompute::create_stft_slice_queue()
+{
+    request_time_transformation_cuts_ = true;
     request_refresh();
 }
 
@@ -236,29 +255,11 @@ void ICompute::request_disable_frame_record()
     request_refresh();
 }
 
-void ICompute::request_autocontrast(WindowKind kind)
-{
-    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
-        autocontrast_requested_ = true;
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
-        autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
-        autocontrast_slice_yz_requested_ = true;
-    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
-             setting<settings::Filter2dEnabled>())
-        autocontrast_filter2d_requested_ = true;
-}
-
 void ICompute::request_update_time_transformation_size()
 {
     update_time_transformation_size_requested_ = true;
     request_refresh();
 }
-
-void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
-
-void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
 
 void ICompute::request_display_chart()
 {

@@ -266,7 +266,7 @@ void ViewPanel::cancel_time_transformation_cuts()
         return;
 
     std::function<void()> callback = ([=]() {
-        Holovibes::instance().get_compute_pipe()->delete_stft_slice_queue();
+        Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
         parent_->notify();
     });
 

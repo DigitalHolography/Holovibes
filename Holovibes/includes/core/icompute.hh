@@ -22,6 +22,8 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
+#define ICS holovibes::ICompute::Setting
+
 #pragma region Settings configuration
 // clang-format off
 
@@ -54,7 +56,7 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV
 
-#define PIPEREFRESH_SETTINGS                         \
+#define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::XY,                                     \
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
@@ -221,7 +223,7 @@ struct ImageAccEnv
 
     /*! \brief Frame to temporaly store the average on YZ axis */
     cuda_tools::CudaUniquePtr<float> gpu_float_average_yz_frame = nullptr;
-    
+
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
@@ -246,14 +248,18 @@ class ICompute
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
     {
-        camera::FrameDescriptor fd = input_queue_.get_fd();
+        // Initialize the array of settings to false except for the refresh
+        for (auto& setting : settings_requests_)
+            setting.store(false, std::memory_order_relaxed);
+        settings_requests_[static_cast<int>(ICS::RefreshEnabled)] = true;
 
-        plan_unwrap_2d_.plan(fd.width,fd.height, CUFFT_C2C);
+        camera::FrameDescriptor fd = input_queue_.get_fd();
+        int inembed[1] = {static_cast<int>(setting<settings::TimeTransformationSize>())};
+        int zone_size = static_cast<int>(fd.get_frame_res());
+
+        plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
-
-        int inembed[1] = { static_cast<int>(setting<settings::TimeTransformationSize>()) };
-        int zone_size = static_cast<int>(fd.get_frame_res());
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -263,24 +269,24 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        int output_buffer_size = static_cast<int>(fd.get_frame_res());
-        if (setting<settings::ImageType>() == ImgType::Composite) {
+        if (setting<settings::ImageType>() == ImgType::Composite)
+        {
             // Grey to RGB
-            output_buffer_size *= 3;
+            zone_size *= 3;
             buffers_.gpu_postprocess_frame_size *= 3;
         }
 
-        buffers_.gpu_postprocess_frame_size = output_buffer_size;
+        buffers_.gpu_postprocess_frame_size = zone_size;
 
         // Allocate the buffers
-        int err = !buffers_.gpu_output_frame.resize(output_buffer_size);
+        int err = !buffers_.gpu_output_frame.resize(zone_size);
         err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_mask.resize(output_buffer_size);
-        err += !buffers_.gpu_input_filter_mask.resize(output_buffer_size);
+        err += !buffers_.gpu_filter2d_mask.resize(zone_size);
+        err += !buffers_.gpu_input_filter_mask.resize(zone_size);
 
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -291,20 +297,14 @@ class ICompute
     {
         spdlog::trace("[ICompute] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
-        }
-
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        else if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             pipe_refresh_settings_.update_setting(setting);
-        }
     }
 
-    inline void icompute_pipe_refresh_apply_updates() {
-        pipe_refresh_settings_.apply_updates();
-    }
+    inline void icompute_pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
+
     void request_refresh();
     void enable_refresh();
     void disable_refresh();
@@ -312,7 +312,6 @@ class ICompute
     void request_autocontrast(WindowKind kind);
     void request_update_time_transformation_size();
     void request_unwrapping_1d(const bool value);
-    void request_unwrapping_2d(const bool value);
     void request_display_chart();
     void request_disable_display_chart();
     void request_record_chart(unsigned int nb_chart_points_to_record);
@@ -346,22 +345,57 @@ class ICompute
     virtual void exec() = 0;
 
     void create_stft_slice_queue();
-    void delete_stft_slice_queue();
     std::unique_ptr<Queue>& get_stft_slice_queue(int i);
-    bool get_cuts_request();
-    bool get_cuts_delete_request();
 
-    bool get_unwrap_1d_request() const { return unwrap_1d_requested_; }
-    bool get_unwrap_2d_request() const { return unwrap_2d_requested_; }
-    bool get_autocontrast_request() const { return autocontrast_requested_; }
-    bool get_autocontrast_slice_xz_request() const { return autocontrast_slice_xz_requested_; }
-    bool get_autocontrast_slice_yz_request() const { return autocontrast_slice_yz_requested_; }
+    enum class Setting
+    {
+        Unwrap2D = 0,
+        Autocontrast, // Never set to false
+        AutocontrastSliceXZ, // Same here
+        AutocontrastSliceYZ,
+        AutocontrastFilter2D,
+        Refresh,
+        RefreshEnabled,
+        UpdateTimeTransformationSize,
+        StftUpdateRoi,
+        ChartDisplay,
+        DisableChartDisplay,
+        DisableChartRecord,
+        RawView,
+        DisableRawView,
+        Filter2DView,
+        DisableFilter2DView,
+        Termination,
+        TimeTransformationCuts,
+        DeleteTimeTransformationCuts,
+        UpdateBatchSize,
+        UpdateTimeStride,
+        DisableLensView,
+        FrameRecord,
+        DisableFrameRecord,
+        ClearImgAccu,
+        Convolution,
+        DisableConvolution,
+        Filter,
+        DisableFilter,
+
+        // Add other setting here
+
+        Count // Used to create the array
+    };
+
+    bool is_requested(Setting setting); // Return the value
+    void request(Setting setting); // Set to true and call request_refresh
+    void set_requested(Setting setting, bool value); // Set to value and do not call request_refresh
+    void clear_request(Setting setting); // Set to false
+
+    std::array<std::atomic<bool>, static_cast<int>(Setting::Count)> settings_requests_{};
+
     bool get_refresh_request() const { return refresh_requested_; }
     bool get_update_time_transformation_size_request() const { return update_time_transformation_size_requested_; }
     bool get_stft_update_roi_request() const { return stft_update_roi_requested_; }
     bool get_termination_request() const { return termination_requested_; }
     bool get_request_time_transformation_cuts() const { return request_time_transformation_cuts_; }
-    bool get_request_delete_time_transformation_cuts() const { return request_delete_time_transformation_cuts_; }
     std::optional<unsigned int> get_output_resize_request() const { return output_resize_requested_; }
     bool get_raw_view_requested() const { return raw_view_requested_; }
     bool get_disable_raw_view_requested() const { return disable_raw_view_requested_; }
@@ -448,11 +482,6 @@ class ICompute
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
     unsigned int frame_count_{0};
 
-    std::atomic<bool> unwrap_1d_requested_{false};
-    std::atomic<bool> unwrap_2d_requested_{false};
-    std::atomic<bool> autocontrast_requested_{false};
-    std::atomic<bool> autocontrast_slice_xz_requested_{false};
-    std::atomic<bool> autocontrast_slice_yz_requested_{false};
     std::atomic<bool> autocontrast_filter2d_requested_{false};
     std::atomic<bool> refresh_requested_{false};
     std::atomic<bool> refresh_enabled_{true};
@@ -469,7 +498,6 @@ class ICompute
     std::atomic<bool> disable_filter2d_view_requested_{false};
     std::atomic<bool> termination_requested_{false};
     std::atomic<bool> request_time_transformation_cuts_{false};
-    std::atomic<bool> request_delete_time_transformation_cuts_{false};
     std::atomic<bool> request_update_batch_size_{false};
     std::atomic<bool> request_update_time_stride_{false};
     std::atomic<bool> request_disable_lens_view_{false};
