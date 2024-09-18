@@ -86,7 +86,7 @@ $outputExtension = Select-OutputExtension
 Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
 
 # Get a list of all .holo files in the selected folder
-$holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo
+$holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
 
 # Display the list of .holo files with colorful output
 Write-Host "Listing .holo files in the selected folder:" -ForegroundColor Cyan
