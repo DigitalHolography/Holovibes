@@ -75,8 +75,12 @@ void Overlay::initProgram()
     parent_->makeCurrent();
     initializeOpenGLFunctions();
     Program_ = std::make_unique<QOpenGLShaderProgram>();
-    Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.overlay.glsl"));
-    Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.color.glsl"));
+    Program_->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        create_absolute_qt_path((__SHADER_FOLDER_PATH__ / "vertex.overlay.glsl").string()));
+    Program_->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        create_absolute_qt_path((__SHADER_FOLDER_PATH__ / "fragment.color.glsl").string()));
     Vao_.create();
     // if (!Program_->bind())
     //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());

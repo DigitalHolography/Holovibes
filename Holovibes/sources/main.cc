@@ -136,50 +136,6 @@ static void copy_files(const std::filesystem::path src, std::filesystem::path de
     }
 }
 
-// void copy_ini_files()
-// {
-//     std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
-//     std::filesystem::path src = holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__;
-
-//     if (std::filesystem::exists(dest))
-//         return;
-
-//     copy_files(src, dest);
-// }
-
-// void copy_preset_files()
-// {
-//     std::filesystem::path dest = __PRESET_FOLDER_PATH__;
-//     std::filesystem::path src = holovibes::get_exe_dir() / __PRESET_REFERENCE__;
-
-//     if (std::filesystem::exists(dest))
-//         return;
-
-//     copy_files(src, dest);
-// }
-
-// void copy_kernel_files()
-// {
-//     std::filesystem::path dest = __CONVOLUTION_KERNEL_FOLDER_PATH__;
-//     std::filesystem::path src = holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__;
-
-//     if (std::filesystem::exists(dest))
-//         return;
-
-//     copy_files(src, dest);
-// }
-
-// void copy_input_filter_files()
-// {
-//     std::filesystem::path dest = __INPUT_FILTER_FOLDER_PATH__;
-//     std::filesystem::path src = holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__;
-
-//     if (std::filesystem::exists(dest))
-//         return;
-
-//     copy_files(src, dest);
-// }
-
 int main(int argc, char* argv[])
 {
     {
@@ -215,15 +171,18 @@ int main(int argc, char* argv[])
     int ret = 0;
     try
     {
-        // copy_ini_files();
-        // copy_preset_files();
-        // copy_kernel_files();
-        // copy_input_filter_files();
-        copy_files(holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__, __CAMERAS_CONFIG_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __PRESET_REFERENCE__, __PRESET_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__, __CONVOLUTION_KERNEL_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__, __INPUT_FILTER_FOLDER_PATH__);
 
+        /*
+
+#ifdef NDEBUG
+
+        copy_files(__CAMERAS_CONFIG_REFERENCE__, __CAMERAS_CONFIG_FOLDER_PATH__);
+        copy_files(__PRESET_REFERENCE__, __PRESET_FOLDER_PATH__);
+        copy_files(__CONVOLUTION_KERNEL_REFERENCE__, __CONVOLUTION_KERNEL_FOLDER_PATH__);
+        copy_files(__INPUT_FILTER_REFERENCE__, __INPUT_FILTER_FOLDER_PATH__);
+
+#endif
+*/
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(false);

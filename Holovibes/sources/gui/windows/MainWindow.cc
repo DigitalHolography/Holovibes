@@ -271,28 +271,24 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
-    std::filesystem::path preset_directory_path(get_exe_dir());
-    preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
-    // Check before if there is a Preset directory near the executable before checking in AppData
-    if (std::filesystem::exists(preset_directory_path) || std::filesystem::exists(__PRESET_FOLDER_PATH__))
+    // if (std::filesystem::exists(preset_directory_path) || std::filesystem::exists(__PRESET_FOLDER_PATH__))
+    // // {
+    //     if (!std::filesystem::exists(preset_directory_path))
+    //         preset_directory_path = __PRESET_FOLDER_PATH__;
+    QList<QAction*> actions;
+    for (const auto& file : std::filesystem::directory_iterator(__PRESET_FOLDER_PATH__))
     {
-        if (!std::filesystem::exists(preset_directory_path))
-            preset_directory_path = __PRESET_FOLDER_PATH__;
-        QList<QAction*> actions;
-        for (const auto& file : std::filesystem::directory_iterator(preset_directory_path))
-        {
-            QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
-            connect(action, &QAction::triggered, this, [=]{set_preset(file);});
-            actions.push_back(action);
-        }
-        if (actions.length() == 0)
-            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
-        else
-            ui_->menuSelect_preset->addActions(actions);
+        QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
+        connect(action, &QAction::triggered, this, [=] { set_preset(file); });
+        actions.push_back(action);
     }
+    if (actions.length() == 0)
+        ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
     else
-            ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
-
+        ui_->menuSelect_preset->addActions(actions);
+    // }
+    // else
+    //         ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
 
     // Tabs
     if (api::get_is_computation_stopped())
@@ -861,7 +857,6 @@ void MainWindow::set_preset(std::filesystem::path file)
     reload_ini(file.string());
     LOG_INFO("Preset loaded with file " + file.string());
 }
-
 
 #pragma endregion
 
