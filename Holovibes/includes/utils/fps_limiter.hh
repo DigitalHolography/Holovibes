@@ -6,7 +6,7 @@
  * in order to control the number of "loop pass" per seconds.
  */
 
-#include <chrono>
+#include "chrono.hh"
 #include <cstddef>
 
 namespace holovibes
@@ -29,5 +29,7 @@ class FPSLimiter
      * @param target_fps The targeted fps.
      */
     void wait(size_t target_fps);
+    private:
+      Chrono chrono_;
 };
 } // namespace holovibes

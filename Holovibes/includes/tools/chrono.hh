@@ -29,6 +29,15 @@ class Chrono
     /*! \brief Stops the chronometer */
     void stop() { end_ = std::chrono::steady_clock::now(); }
 
+    void wait(double seconds)
+    {
+        auto duration = std::chrono::duration<double>(seconds);
+
+        while (std::chrono::steady_clock::now() - start_ < duration){}
+        
+        stop();
+    }
+
     /*! \brief Get the seconds object
      *
      * \return size_t seconds elapsed
