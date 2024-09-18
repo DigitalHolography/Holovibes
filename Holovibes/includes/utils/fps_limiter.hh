@@ -29,11 +29,5 @@ class FPSLimiter
      * @param target_fps The targeted fps.
      */
     void wait(size_t target_fps);
-
-  private:
-    /**
-     * @brief The last time the fps limiter was called.
-     */
-    std::chrono::time_point<std::chrono::steady_clock> last_time_called_;
 };
 } // namespace holovibes

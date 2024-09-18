@@ -31,16 +31,6 @@ const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_t
     {QueueType::RECORD_QUEUE, "Record Queue"},
 };
 
-std::string get_current_date_time()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%Hh%M-%S");
-    return ss.str();
-}
-
 void InformationWorker::run()
 {
     std::shared_ptr<ICompute> pipe;
@@ -132,7 +122,7 @@ void InformationWorker::run()
     {
         benchmark_file.close();
         // rename file
-        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".csv";
+        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + Chrono::get_current_date_time() + ".csv";
         std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
     }
 }

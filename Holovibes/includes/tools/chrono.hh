@@ -5,6 +5,8 @@
 #pragma once
 
 #include <chrono>
+#include <iomanip>
+#include <sstream>
 
 /*! \class Chrono
  *
@@ -69,6 +71,34 @@ class Chrono
         if (end_ <= start_)
             stop();
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end_ - start_).count();
+    }
+
+    /*!
+     * \brief Get the current, formatted date
+     */
+    static std::string get_current_date()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+        std::stringstream ss;
+        std::tm* timeinfo = std::localtime(&in_time_t);
+        int year = timeinfo->tm_year % 100;
+        ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d");
+        return ss.str();
+    }
+
+    /*!
+     * \brief Get the current, formatted date-time.
+     */
+    static std::string get_current_date_time()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%Hh%M-%S");
+        return ss.str();
     }
 
   private:
