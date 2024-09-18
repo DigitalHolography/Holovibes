@@ -15,6 +15,7 @@
 #include <spdlog/spdlog.h>
 #include <tuple>
 #include <type_traits>
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -59,7 +60,7 @@ class RealtimeSettingsContainer
     template <typename T>
     enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
-        spdlog::trace("[SettingsContainer] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(settings_) = setting;
     }
 
@@ -123,7 +124,7 @@ class DelayedSettingsContainer
     template <typename T>
     enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
-        spdlog::trace("[SettingsContainer] [update_setting] {}", typeid(T).name());
+      LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(buffer_) = setting;
     }
 
@@ -132,7 +133,7 @@ class DelayedSettingsContainer
      */
     void apply_updates()
     {
-        spdlog::trace("[SettingsContainer] [apply_updates]");
+      LOG_TRACE("[SettingsContainer] [apply_updates]");
         (apply_update<Settings>(), ...);
     }
 
@@ -158,7 +159,7 @@ class DelayedSettingsContainer
         if (std::get<S>(buffer_) == std::get<S>(settings_))
             return;
 
-        spdlog::trace("[SettingsContainer] [apply_update] {}", typeid(S).name());
+        LOG_TRACE("[SettingsContainer] [apply_update] {}", typeid(S).name());
         std::get<S>(settings_) = std::get<S>(buffer_);
     }
 

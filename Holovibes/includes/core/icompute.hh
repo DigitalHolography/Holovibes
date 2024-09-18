@@ -18,6 +18,7 @@
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
 #include "global_state_holder.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -309,7 +310,7 @@ class ICompute
     template <typename T>
     inline void update_setting_icompute(T setting)
     {
-        spdlog::trace("[ICompute] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[ICompute] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {

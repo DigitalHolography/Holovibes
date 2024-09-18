@@ -10,6 +10,7 @@
 #include "settings/settings.hh"
 #include <optional>
 #include <array>
+#include "logger.hh"
 
 #pragma region Settings configuration
 // clang-format off
@@ -80,7 +81,7 @@ class FrameRecordWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

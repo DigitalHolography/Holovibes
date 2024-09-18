@@ -8,6 +8,7 @@
 #include "settings/settings.hh"
 #include "enum/enum_device.hh"
 #include "worker.hh"
+#include "logger.hh"
 
 #pragma region Settings configuration
 // clang-format off
@@ -52,7 +53,7 @@ class InformationWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[InformationWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[InformationWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
