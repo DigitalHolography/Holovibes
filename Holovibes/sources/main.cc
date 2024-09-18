@@ -14,6 +14,7 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
+#include "tools.hh"
 
 #include "cli.hh"
 #include "global_state_holder.hh"
@@ -121,11 +122,9 @@ static void print_help(holovibes::OptionsParser parser)
     std::cout << parser.get_opts_desc();
 }
 
-void copy_ini_files()
+// Copy all files from src path to dest path (the directories will be created if not exist)
+static void copy_files(const std::filesystem::path src, std::filesystem::path dest)
 {
-    std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
-    std::filesystem::path src = __CAMERAS_CONFIG_REFERENCE__;
-
     if (std::filesystem::exists(dest))
         return;
 
@@ -139,23 +138,49 @@ void copy_ini_files()
     }
 }
 
-void copy_preset_files()
-{
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__;
-    std::filesystem::path src = __PRESET_REFERENCE__;
+// void copy_ini_files()
+// {
+//     std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
+//     std::filesystem::path src = holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__;
 
-    if (std::filesystem::exists(dest))
-        return;
+//     if (std::filesystem::exists(dest))
+//         return;
 
-    std::filesystem::create_directories(dest);
+//     copy_files(src, dest);
+// }
 
-    for (const auto& entry : std::filesystem::directory_iterator(src))
-    {
-        std::filesystem::path file = entry.path();
-        std::filesystem::path dest_file = dest / file.filename();
-        std::filesystem::copy(file, dest_file);
-    }
-}
+// void copy_preset_files()
+// {
+//     std::filesystem::path dest = __PRESET_FOLDER_PATH__;
+//     std::filesystem::path src = holovibes::get_exe_dir() / __PRESET_REFERENCE__;
+
+//     if (std::filesystem::exists(dest))
+//         return;
+
+//     copy_files(src, dest);
+// }
+
+// void copy_kernel_files()
+// {
+//     std::filesystem::path dest = __CONVOLUTION_KERNEL_FOLDER_PATH__;
+//     std::filesystem::path src = holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__;
+
+//     if (std::filesystem::exists(dest))
+//         return;
+
+//     copy_files(src, dest);
+// }
+
+// void copy_input_filter_files()
+// {
+//     std::filesystem::path dest = __INPUT_FILTER_FOLDER_PATH__;
+//     std::filesystem::path src = holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__;
+
+//     if (std::filesystem::exists(dest))
+//         return;
+
+//     copy_files(src, dest);
+// }
 
 int main(int argc, char* argv[])
 {
@@ -192,8 +217,14 @@ int main(int argc, char* argv[])
     int ret = 0;
     try
     {
-        copy_ini_files();
-        copy_preset_files();
+        // copy_ini_files();
+        // copy_preset_files();
+        // copy_kernel_files();
+        // copy_input_filter_files();
+        copy_files(holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__, __CAMERAS_CONFIG_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __PRESET_REFERENCE__, __PRESET_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__, __CONVOLUTION_KERNEL_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__, __INPUT_FILTER_FOLDER_PATH__);
 
         if (opts.input_path && opts.output_path)
         {
