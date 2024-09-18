@@ -1,5 +1,192 @@
 {
-    "HoloFolder":  "C:\\Users\\Karachayevsk\\Desktop\\DataHolovibesEPITA",
-    "ConfigFile":  "C:\\Users\\Karachayevsk\\Desktop\\Alexis\\Holovibes\\tests\\data\\1frame_32_64_1\\holovibes.json",
-    "ExePath":  "C:\\Users\\Karachayevsk\\Desktop\\Alexis\\Holovibes\\build\\bin\\Holovibes.exe"
+    "advanced": {
+        "contrast": {
+            "lower": 0.5,
+            "upper": 99.5,
+            "frame_index_offset": 2
+        },
+        "buffer_size": {
+            "file": 1024,
+            "input": 512,
+            "output": 1024,
+            "record": 1024,
+            "time_transformation_cuts": 512
+        },
+        "filter2d_smooth": {
+            "high": 1,
+            "low": 0
+        },
+        "raw_bitshift": 0,
+        "renorm_constant": 5,
+        "nb_frames_to_record": 0
+    },
+    "color_composite_image": {
+        "auto_weight": false,
+        "hsv": {
+            "h": {
+                "frame_index": {
+                    "activated": false,
+                    "max": 0,
+                    "min": 0
+                },
+                "slider_shift": {
+                    "max": 1.0,
+                    "min": 0.0
+                },
+                "slider_threshold": {
+                    "max": 1.0,
+                    "min": 0.0
+                },
+                "threshold": {
+                    "max": 99.80000305175781,
+                    "min": 0.0010000000474974513
+                }
+            },
+            "s": {
+                "frame_index": {
+                    "activated": false,
+                    "max": 0,
+                    "min": 0
+                },
+                "slider_threshold": {
+                    "max": 1.0,
+                    "min": 0.0
+                },
+                "threshold": {
+                    "max": 99.80000305175781,
+                    "min": 0.0010000000474974513
+                }
+            },
+            "v": {
+                "frame_index": {
+                    "activated": false,
+                    "max": 0,
+                    "min": 0
+                },
+                "slider_threshold": {
+                    "max": 1.0,
+                    "min": 0.0
+                },
+                "threshold": {
+                    "max": 99.80000305175781,
+                    "min": 0.0010000000474974513
+                }
+            }
+        },
+        "mode": "RGB",
+        "rgb": {
+            "frame_index": {
+                "max": 0,
+                "min": 0
+            },
+            "weight": {
+                "b": 0.0,
+                "g": 0.0,
+                "r": 0.0
+            }
+        }
+    },
+    "image_rendering": {
+        "batch_size": 1,
+        "convolution": {
+            "divide": false,
+            "enabled": false,
+            "type": "None"
+        },
+        "filter2d": {
+            "enabled": false,
+            "inner_radius": 0,
+            "outer_radius": 1
+        },
+        "image_mode": "HOLOGRAM",
+        "input_filter": {
+            "enabled": false,
+            "type": "None"
+        },
+        "lambda": 8.520000278622319e-07,
+        "propagation_distance": 1.5,
+        "space_transformation": "NONE",
+        "time_transformation": "NONE",
+        "time_transformation_size": 1,
+        "time_transformation_stride": 1
+    },
+    "view": {
+        "fft_shift": false,
+        "image_type": "MODULUS",
+        "renorm": true,
+        "reticle": {
+            "display_enabled": false,
+            "scale": 0.5
+        },
+        "window": {
+            "filter2d": {
+                "contrast": {
+                    "auto_refresh": true,
+                    "enabled": false,
+                    "invert": false,
+                    "max": 65535.0,
+                    "min": 1.0
+                },
+                "log_enabled": false
+            },
+            "xy": {
+                "contrast": {
+                    "auto_refresh": true,
+                    "enabled": false,
+                    "invert": false,
+                    "max": 65535.0,
+                    "min": 1.0
+                },
+                "horizontal_flip": false,
+                "log_enabled": false,
+                "output_image_accumulation": 1,
+                "rotation": 0.0,
+                "enabled": false
+            },
+            "xz": {
+                "contrast": {
+                    "auto_refresh": true,
+                    "enabled": false,
+                    "invert": false,
+                    "max": 65535.0,
+                    "min": 1.0
+                },
+                "horizontal_flip": false,
+                "log_enabled": false,
+                "output_image_accumulation": 1,
+                "rotation": 0.0,
+                "enabled": false
+            },
+            "yz": {
+                "contrast": {
+                    "auto_refresh": true,
+                    "enabled": false,
+                    "invert": false,
+                    "max": 65535.0,
+                    "min": 1.0
+                },
+                "horizontal_flip": false,
+                "log_enabled": false,
+                "output_image_accumulation": 1,
+                "rotation": 0.0,
+                "enabled": false
+            }
+        },
+        "x": {
+            "start": 0,
+            "width": 0
+        },
+        "y": {
+            "start": 0,
+            "width": 0
+        },
+        "z": {
+            "start": 0,
+            "width": 0
+        },
+        "z2": {
+            "start": 0,
+            "width": 0
+        }
+    }
 }

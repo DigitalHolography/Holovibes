@@ -129,22 +129,19 @@ if ($configFiles.Count -gt 0) {
 Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
 Read-Host "Press Enter to continue or Ctrl+C to exit"
 
-# Function to prompt the user to select the output file extension
+# Function to prompt the user to select an output extension
 function Select-OutputExtension {
-    Write-Host "Please select the desired output file extension:" -ForegroundColor Green
-    $extensions = @(".jpg", ".png", ".bmp")
-    $counter = 1
-    foreach ($ext in $extensions) {
-        Write-Host "$counter. $ext" -ForegroundColor Cyan
-        $counter++
+    $options = @(".holo", ".mp4", ".avi")
+    Write-Host "Select the output file extension:" -ForegroundColor Cyan
+    for ($i = 0; $i -lt $options.Length; $i++) {
+        Write-Host "$($i+1). $($options[$i])" -ForegroundColor Yellow
     }
-    $selection = Read-Host "Enter the number of your choice"
-
-    switch ($selection) {
-        1 { return ".jpg" }
-        2 { return ".png" }
-        3 { return ".bmp" }
-        default { Write-Host "Invalid selection, defaulting to .jpg" -ForegroundColor Yellow; return ".jpg" }
+    $selection = Read-Host "Enter the number corresponding to your choice (default is 3 for .avi)"
+    
+    if ([string]::IsNullOrEmpty($selection) -or $selection -lt 1 -or $selection -gt $options.Length) {
+        return ".avi"
+    } else {
+        return $options[$selection - 1]
     }
 }
 
