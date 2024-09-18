@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief Utility functions and types used by Holovibes.
+ */
+
 #pragma once
 
 #include <deque>

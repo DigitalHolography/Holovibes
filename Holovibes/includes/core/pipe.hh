@@ -189,31 +189,6 @@ class Pipe : public ICompute
         set_requested(ICS::UpdateTimeTransformationSize, true);
 
         pre_init();
-
-        // try
-        // {
-        //     refresh();
-        // }
-        // catch (const holovibes::CustomException& e)
-        // {
-        //     // If refresh() fails the compute descriptor settings will be
-        //     // changed to something that should make refresh() work
-        //     // (ex: lowering the GPU memory usage)
-        //     LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-        //     LOG_WARN("Exception: {}", e.what());
-        //     try
-        //     {
-        //         refresh();
-        //     }
-        //     catch (const holovibes::CustomException& e)
-        //     {
-        //         // If it still didn't work holovibes is probably going to freeze
-        //         // and the only thing you can do is restart it manually
-        //         LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-        //         LOG_ERROR("Exception: {}", e.what());
-        //         throw e;
-        //     }
-        // }
     }
 
     ~Pipe() override;
@@ -260,43 +235,32 @@ class Pipe : public ICompute
     {
         spdlog::trace("[Pipe] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             onrestart_settings_.update_setting(setting);
-        }
 
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             pipe_refresh_settings_.update_setting(setting);
-        }
 
-        if constexpr (has_setting<T, compute::ImageAccumulation>::value)
-        {
+        if constexpr (has_setting_v<T, compute::ImageAccumulation>)
             image_accumulation_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Rendering>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Rendering>)
             rendering_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::FourierTransform>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Converts>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Postprocessing>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, ICompute>::value)
-        {
+
+        if constexpr (has_setting_v<T, ICompute>)
             update_setting_icompute(setting);
-        }
     }
 
     inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
@@ -394,26 +358,23 @@ class Pipe : public ICompute
      */
     void keep_contiguous(int nb_elm_to_add) const;
 
+    template <typename SettingType>
+    cudaMemcpyKind get_memcpy_kind();
+
     /**
      * @brief Helper function to get a settings value.
      */
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
-        }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
-        }
 
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
-        }
     }
 };
 } // namespace holovibes
