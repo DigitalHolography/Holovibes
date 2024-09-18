@@ -274,7 +274,6 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
-    std::cout << ui_->menuSelect_preset->actions().length() << " aaaa" << std::endl;
 
     std::filesystem::path preset_directory_path(get_exe_dir());
     preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
