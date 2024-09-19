@@ -20,6 +20,7 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 #include "utils/custom_type_traits.hh"
+#include "logger.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
@@ -112,8 +113,10 @@
     holovibes::settings::RawViewQueueLocation,                      \
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU
-     
+    holovibes::settings::RecordOnGPU,                               \
+    holovibes::settings::FrameSkip,                                 \
+    holovibes::settings::Mp4Fps
+
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -331,7 +334,7 @@ class Holovibes
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[Holovibes] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[Holovibes] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
@@ -443,7 +446,9 @@ class Holovibes
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true}))
+                                             settings::RecordOnGPU{true},
+                                             settings::FrameSkip{0},
+                                             settings::Mp4Fps{24}))
     {
     }
 

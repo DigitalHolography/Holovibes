@@ -11,6 +11,7 @@
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "global_state_holder.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -88,12 +89,12 @@ class Postprocessing
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[PostProcessing] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
-            spdlog::trace("[PostProcessing] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[PostProcessing] [update_setting] {}", typeid(T).name());
             onrestart_settings_.update_setting(setting);
         }
     }

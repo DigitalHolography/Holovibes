@@ -18,6 +18,8 @@
 #include "cli.hh"
 #include "global_state_holder.hh"
 
+#include <spdlog/spdlog.h>
+
 static void check_cuda_graphic_card(bool gui)
 {
     std::string error_message;
@@ -212,6 +214,8 @@ int main(int argc, char* argv[])
         LOG_ERROR("Uncaught exception: {}", e.what());
         ret = 10;
     }
+
+    spdlog::shutdown();
 
     return ret;
 }
