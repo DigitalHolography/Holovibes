@@ -108,6 +108,12 @@ $configFiles = Get-ConfigFiles
 # Prompt the user to select the Holovibes executable (optional)
 $exePath = Select-File -description "Select the Holovibes executable (optional)" -filter "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*" -envVarName $exeFileEnvVar
 
+# Ask for the frame skip (optional)
+$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
+if (-not ($frameSkip -match '^\d+$')) {
+    $frameSkip = "0"
+}
+
 # Check if the user selected the executable, if not, use local or PATH version
 if (-not $exePath) {
     $localExePath = Join-Path -Path (Get-Location) -ChildPath "Holovibes.exe"

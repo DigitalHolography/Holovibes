@@ -31,7 +31,8 @@ struct Internals
         units::RectFd zoomed_zone;
         units::RectFd reticle_zone;
 
-        SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone)
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Zones, signal_zone, noise_zone, composite_zone, zoomed_zone, reticle_zone);
     };
 
     /*! \class Record
@@ -46,8 +47,9 @@ struct Internals
         bool frame_record_enabled = false;
         bool chart_record_enabled = false;
 
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
         SERIALIZE_JSON_STRUCT(
-            Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled)
+            Record, input_fps, record_start_frame, record_end_frame, frame_record_enabled, chart_record_enabled);
     };
 
     /*! \class Enabled
@@ -67,7 +69,8 @@ struct Internals
             bool raw = false;
             bool cuts = false;
 
-            SERIALIZE_JSON_STRUCT(ViewEnabled, lens, filter2d, raw, cuts)
+            /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+            SERIALIZE_JSON_STRUCT(ViewEnabled, lens, filter2d, raw, cuts);
         };
 
         bool filter2d = false;
@@ -75,7 +78,8 @@ struct Internals
         bool fft_shift = false;
         ViewEnabled views;
 
-        SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, views)
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, views);
     };
 
     /*! \class Misc
@@ -89,7 +93,8 @@ struct Internals
         bool is_computation_stopped = true;
         int raw_bitshift = 0;
 
-        SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_computation_stopped)
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Misc, pixel_size, unwrap_history_size, is_computation_stopped);
     };
 
     Zones zones;
@@ -100,7 +105,8 @@ struct Internals
     std::vector<float> convo_matrix;
     WindowKind current_window = WindowKind::XYview;
 
-    SERIALIZE_JSON_STRUCT(Internals, zones, record, enabled, misc, convo_matrix, current_window)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(Internals, zones, record, enabled, misc, convo_matrix, current_window);
 };
 
 } // namespace holovibes

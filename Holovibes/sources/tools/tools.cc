@@ -1,4 +1,3 @@
-#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -6,8 +5,8 @@
 #include <sstream>
 #include <Windows.h>
 
+#include "chrono.hh"
 #include "logger.hh"
-#include "power_of_two.hh"
 #include "tools.hh"
 #include "tools_conversion.cuh"
 
@@ -53,18 +52,6 @@ std::string get_exe_dir()
     throw std::runtime_error("Failed to find executable dir");
 }
 
-std::string get_current_date()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    std::tm* timeinfo = std::localtime(&in_time_t);
-    int year = timeinfo->tm_year % 100;
-    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d");
-    return ss.str();
-}
-
 std::string get_record_filename(std::string filename)
 {
     size_t dot_index = filename.find_last_of('.');
@@ -83,7 +70,7 @@ std::string get_record_filename(std::string filename)
     }
 
     auto search = filename;
-    search.insert(name_index + 1, get_current_date() + "_");
+    search.insert(name_index + 1, Chrono::get_current_date() + "_");
 
     while (std::filesystem::exists(search))
     {
@@ -93,7 +80,7 @@ std::string get_record_filename(std::string filename)
             ++i;
             continue;
         }
-        unsigned digits_nb = std::to_string(i - 1).length(); 
+        unsigned digits_nb = static_cast<unsigned int>(std::to_string(i - 1).length());
         search.replace(dot_index + 7, digits_nb + 1, "_" + std::to_string(i));
         ++i;
     }

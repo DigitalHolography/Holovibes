@@ -98,7 +98,7 @@ void ExportPanel::on_notify()
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
-        ui_->NumberOfFramesSpinBox->setValue(api::get_record_frame_count().value());
+        ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api::get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }

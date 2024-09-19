@@ -6,6 +6,7 @@
 
 #include "worker.hh"
 #include "tools.hh"
+#include "logger.hh"
 
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
@@ -63,7 +64,7 @@ class ChartRecordWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[ChartRecordWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[ChartRecordWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

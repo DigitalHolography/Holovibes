@@ -30,6 +30,7 @@
 #include "utils/custom_type_traits.hh"
 #include "utils/fps_limiter.hh"
 #include <optional>
+#include "logger.hh"
 
 // Fast forward declarations
 namespace holovibes
@@ -74,8 +75,8 @@ class FileFrameReadWorker final : public FrameReadWorker
         , onrestart_settings_(settings)
     {
         current_nb_frames_read_ = 0;
-        total_nb_frames_to_read_ = onrestart_settings_.get<settings::InputFileEndIndex>().value -
-                                   onrestart_settings_.get<settings::InputFileStartIndex>().value;
+        total_nb_frames_to_read_ = static_cast<uint>(onrestart_settings_.get<settings::InputFileEndIndex>().value -
+                                   onrestart_settings_.get<settings::InputFileStartIndex>().value);
     }
 
     void run() override;
@@ -89,7 +90,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {

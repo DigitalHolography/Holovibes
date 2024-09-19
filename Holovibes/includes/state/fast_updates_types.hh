@@ -3,6 +3,7 @@
 #include "enum_device.hh"
 
 /*!
+ * \file fast_updates_types.hh
  * \brief Documentation on how to add entry types to the FastUpdatesHolder class
  *
  * First decide for an Enum name (named TKey in the following) and an Value type (named TValue in the following)
