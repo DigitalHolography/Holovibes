@@ -94,6 +94,7 @@
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
+#pragma endregion
 
 namespace holovibes
 {

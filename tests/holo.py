@@ -9,7 +9,10 @@ from deepdiff import DeepDiff
 import numpy as np
 from PIL import Image
 
-from . import constant_name
+try:
+    import constant_name
+except:
+    from . import constant_name
 
 holo_header_version = 3
 holo_header_size = 64
