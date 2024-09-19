@@ -86,7 +86,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     // else
     //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
-
     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
     fd_.byteEndian = Endianness::LittleEndian;
@@ -390,7 +389,10 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (nb_elts == -1)
         nb_elts = size_;
 
-    CHECK(std::cmp_less_equal(nb_elts, size_.load()), "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+    CHECK(std::cmp_less_equal(nb_elts, size_.load()),
+          "Request to dequeue {} elts, but the queue has only {}",
+          (char)nb_elts,
+          (char)size_);
 
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);

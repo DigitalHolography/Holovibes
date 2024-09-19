@@ -17,8 +17,10 @@ std::shared_ptr<ICamera> CameraDLL::load_camera(const std::string& dll_filepath)
     HINSTANCE dll_handle = LoadLibraryA(dll_filepath.c_str());
 
     if (!dll_handle)
+    {
+        std::cout << GetLastError() << " " << dll_filepath.c_str() << std::endl;
         throw std::runtime_error("unable to load DLL camera");
-
+    }
     FnInit init = nullptr;
     init = reinterpret_cast<FnInit>(GetProcAddress(dll_handle, "new_camera_device"));
 
