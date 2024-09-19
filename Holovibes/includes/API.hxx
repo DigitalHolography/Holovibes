@@ -46,7 +46,7 @@ inline void set_img_type(ImgType type)
 
 inline uint get_input_buffer_size()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value;
+    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value);
 }
 inline void set_input_buffer_size(uint value)
 {
@@ -135,7 +135,7 @@ inline void set_contrast_upper_threshold(float value)
 
 inline uint get_cuts_contrast_p_offset()
 {
-    return holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value;
+         return static_cast<uint>(holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value);
 }
 inline void set_cuts_contrast_p_offset(uint value)
 {
@@ -777,7 +777,7 @@ inline void set_reticle_display_enabled(bool value)
 
 inline uint get_file_buffer_size()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value;
+    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::FileBufferSize>().value);
 }
 
 inline void set_file_buffer_size(uint value)
@@ -787,7 +787,7 @@ inline void set_file_buffer_size(uint value)
 
 inline uint get_record_buffer_size()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value;
+    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value);
 }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
@@ -893,7 +893,7 @@ inline void set_output_buffer_size(size_t value)
 
 inline uint get_input_fps()
 {
-    return holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFPS>().value;
+    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::InputFPS>().value);
 }
 
 inline void set_input_fps(uint value)
