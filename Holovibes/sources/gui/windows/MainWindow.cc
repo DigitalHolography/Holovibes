@@ -528,6 +528,11 @@ void MainWindow::load_gui()
 void MainWindow::set_preset_file_on_gpu()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
+    // Check if we are in DEBUG or RELEASE
+    if (!std::filesystem::exists(dest))
+    {
+        dest = std::filesystem::path(get_exe_dir()).parent_path().parent_path() / "Preset" / "FILE_ON_GPU.json";
+    }
     api::import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
@@ -545,7 +550,7 @@ void MainWindow::save_gui()
     {
         j_us = json::parse(input_file);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
     }
 

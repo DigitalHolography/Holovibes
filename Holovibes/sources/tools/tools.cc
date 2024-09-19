@@ -7,7 +7,6 @@
 #include <Windows.h>
 
 #include "logger.hh"
-#include "power_of_two.hh"
 #include "tools.hh"
 #include "tools_conversion.cuh"
 
@@ -93,7 +92,7 @@ std::string get_record_filename(std::string filename)
             ++i;
             continue;
         }
-        unsigned digits_nb = std::to_string(i - 1).length(); 
+        unsigned digits_nb = static_cast<unsigned int>(std::to_string(i - 1).length());
         search.replace(dot_index + 7, digits_nb + 1, "_" + std::to_string(i));
         ++i;
     }

@@ -159,11 +159,8 @@ struct Composite
     CompositeRGB rgb;
     CompositeHSV hsv;
 
-    void Load();
-    void Update();
-    void Assert() const;
-
     SERIALIZE_JSON_STRUCT(Composite, mode, auto_weight, rgb, hsv)
+    SETTING_RELATED_FUNCTIONS()
 };
 
 } // namespace holovibes

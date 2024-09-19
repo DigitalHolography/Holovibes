@@ -18,7 +18,7 @@ void disable_pipe_refresh()
     {
         get_compute_pipe()->disable_refresh();
     }
-    catch (const std::runtime_error& e)
+    catch (const std::runtime_error&)
     {
     }
 }
@@ -29,7 +29,7 @@ void enable_pipe_refresh()
     {
         get_compute_pipe()->enable_refresh();
     }
-    catch (const std::runtime_error& e)
+    catch (const std::runtime_error&)
     {
     }
 }
@@ -199,7 +199,7 @@ bool change_camera(CameraKind c)
         {
             Holovibes::instance().start_camera_frame_read(c);
         }
-        catch (const std::exception& e)
+        catch (const std::exception&)
         {
             LOG_INFO("Set camera to NONE");
 
@@ -934,7 +934,7 @@ void check_q_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
 
-    if (get_q_accu_level() > upper_bound)
+    if (std::cmp_greater(get_q_accu_level(), upper_bound))
         api::set_q_accu_level(upper_bound);
 
     upper_bound -= get_q_accu_level();
@@ -969,7 +969,7 @@ void set_z_distance(float value)
 {
     if (value == 0)
     {
-        value = 0.000001;
+        value = 0.000001f;
     } // to avoid kernel crash with 0 distance
     // Notify the change to the z_distance notifier
     auto& manager = NotifierManager::get_instance();
@@ -1246,7 +1246,7 @@ void set_raw_bitshift(unsigned int value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
 }
 
-unsigned int get_raw_bitshift() { return holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value; }
+unsigned int get_raw_bitshift() { return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value); }
 
 float get_contrast_min()
 {
@@ -1788,6 +1788,7 @@ void set_record_mode(const std::string& text)
         }
         catch (const std::exception& e)
         {
+            (void)e; // Suppress warning in case debug log is disabled
             LOG_DEBUG("Pipe not initialized: {}", e.what());
         }
     }
@@ -1796,7 +1797,7 @@ void set_record_mode(const std::string& text)
 bool start_record_preconditions()
 {
     bool batch_enabled = api::get_batch_enabled();
-    std::optional<unsigned int> nb_frames_to_record = api::get_record_frame_count();
+    std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
 
     auto batch_input_path = api::get_batch_file_path().value_or("");
