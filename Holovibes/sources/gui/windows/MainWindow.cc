@@ -118,8 +118,7 @@ MainWindow::MainWindow(QWidget* parent)
     // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
-    std::filesystem::path convo_matrix_path(get_exe_dir());
-    convo_matrix_path = convo_matrix_path / "convolution_kernels";
+    std::filesystem::path convo_matrix_path(get_exe_dir() / __CONVOLUTION_KERNEL_FOLDER_PATH__);
     if (std::filesystem::exists(convo_matrix_path))
     {
         QVector<QString> files;
@@ -132,8 +131,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Fill the input filter combo box with files from input_filters
     // directory
-    std::filesystem::path input_filters_path(get_exe_dir());
-    input_filters_path = input_filters_path / "input_filters";
+    std::filesystem::path input_filters_path(get_exe_dir() / __INPUT_FILTER_FOLDER_PATH__);
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
@@ -271,24 +269,23 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
-    // if (std::filesystem::exists(preset_directory_path) || std::filesystem::exists(__PRESET_FOLDER_PATH__))
-    // // {
-    //     if (!std::filesystem::exists(preset_directory_path))
-    //         preset_directory_path = __PRESET_FOLDER_PATH__;
-    QList<QAction*> actions;
-    for (const auto& file : std::filesystem::directory_iterator(__PRESET_FOLDER_PATH__))
-    {
-        QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
-        connect(action, &QAction::triggered, this, [=] { set_preset(file); });
-        actions.push_back(action);
-    }
-    if (actions.length() == 0)
-        ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
+    std::filesystem::path preset_dir(get_exe_dir() / __PRESET_FOLDER_PATH__);
+    if (!std::filesystem::exists(preset_dir))
+        ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
     else
-        ui_->menuSelect_preset->addActions(actions);
-    // }
-    // else
-    //         ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
+    {
+        QList<QAction*> actions;
+        for (const auto& file : std::filesystem::directory_iterator(get_exe_dir() / __PRESET_FOLDER_PATH__))
+        {
+            QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
+            connect(action, &QAction::triggered, this, [=] { set_preset(file); });
+            actions.push_back(action);
+        }
+        if (actions.length() == 0)
+            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
+        else
+            ui_->menuSelect_preset->addActions(actions);
+    }
 
     // Tabs
     if (api::get_is_computation_stopped())
@@ -842,11 +839,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    // Check before if there is a Preset directory near the executable before checking in AppData
-    std::filesystem::path preset_directory_path(get_exe_dir());
-    preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset" / "preset.json";
-    if (!std::filesystem::exists(preset_directory_path))
-        preset_directory_path = __PRESET_FOLDER_PATH__ / "preset.json";
+    std::filesystem::path preset_directory_path(get_exe_dir() / __PRESET_FOLDER_PATH__ / "preset.json");
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }

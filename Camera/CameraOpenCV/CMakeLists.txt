@@ -3,6 +3,7 @@ project (CameraOpenCV CXX)
 add_library("${PROJECT_NAME}" SHARED
     camera_opencv.cc
     internal_conversion.cc
+    ../Camera/camera_utils.cc
     ../Camera/camera_logger.cc
 )
 

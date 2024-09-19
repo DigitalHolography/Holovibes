@@ -2,6 +2,7 @@ project (BitflowCyton CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     bitflow_cyton.cc
+    ../Camera/camera_utils.cc
     ../Camera/camera_logger.cc
 )
 

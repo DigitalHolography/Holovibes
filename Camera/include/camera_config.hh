@@ -20,36 +20,34 @@ namespace holovibes::settings
 #define __INPUT_FILTER_FOLDER__ "input_filters"
 #define __SHADER_FOLDER__ "shaders"
 
-#define __GET_PATH__(PATH) (std::filesystem::absolute(std::filesystem::path(PATH)))
-/*
-#define __CAMERAS_CONFIG_REFERENCE__ (__GET_PATH__("build/bin/AppData/cameras_config"))
-#define __PRESET_REFERENCE__ (__GET_PATH__("build/bin/AppData/preset"))
-#define __CONVOLUTION_KERNEL_REFERENCE__ (__GET_PATH__("build/bin/convolution_kernels"))
-#define __INPUT_FILTER_REFERENCE__ (__GET_PATH__("build/bin/input_filters"))
-*/
-#ifdef NDEBUG
+#define __CAMERAS_CONFIG_REFERENCE__ (std::filesystem::path("AppData/cameras_config"))
+#define __PRESET_REFERENCE__ (std::filesystem::path("AppData/preset"))
+#define __CONVOLUTION_KERNEL_REFERENCE__ (std::filesystem::path("convolution_kernels"))
+#define __INPUT_FILTER_REFERENCE__ (std::filesystem::path("input_filters"))
+#define __SHADER_REFERENCE__ (std::filesystem::path("shaders"))
+
+// AppData location changes depending on Release or Debug mode
+#ifdef NDEBUG // Release mode (User AppData)
 
 #define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path(getenv("APPDATA")) / __APPNAME__)
 #define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__ / __HOLOVIBES_VERSION__)
 
-#define __CAMERAS_CONFIG_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
-#define __PRESET_FOLDER_PATH__ (__CONFIG_FOLDER__ / __PRESET_FOLDER__)
 #define __CONVOLUTION_KERNEL_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CONVOLUTION_KERNEL_FOLDER__)
 #define __INPUT_FILTER_FOLDER_PATH__ (__CONFIG_FOLDER__ / __INPUT_FILTER_FOLDER__)
 #define __SHADER_FOLDER_PATH__ (__CONFIG_FOLDER__ / __SHADER_FOLDER__)
 
-#else
+#else // Debug mode (Local AppData)
 
-#define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::absolute(std::filesystem::path("build/bin/AppData/")))
+#define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path("AppData/"))
 #define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__)
 
-#define __CAMERAS_CONFIG_FOLDER_PATH__ (__GET_PATH__("Camera/configs")) //(__CAMERAS_CONFIG_REFERENCE__)
-#define __PRESET_FOLDER_PATH__ (__GET_PATH__("preset"))                 //(__PRESET_REFERENCE__)
-#define __CONVOLUTION_KERNEL_FOLDER_PATH__                                                                             \
-    (__GET_PATH__("Holovibes/convolution_kernels"))                            //(__CONVOLUTION_KERNEL_REFERENCE__)
-#define __INPUT_FILTER_FOLDER_PATH__ (__GET_PATH__("Holovibes/input_filters")) //(__INPUT_FILTER_REFERENCE__)
-#define __SHADER_FOLDER_PATH__ (__GET_PATH__("Holovibes/shaders"))
+#define __CONVOLUTION_KERNEL_FOLDER_PATH__ (std::filesystem::path(__CONVOLUTION_KERNEL_FOLDER__))
+#define __INPUT_FILTER_FOLDER_PATH__ (std::filesystem::path(__INPUT_FILTER_FOLDER__))
+#define __SHADER_FOLDER_PATH__ (std::filesystem::path(__SHADER_FOLDER__))
 
 #endif
+
+#define __CAMERAS_CONFIG_FOLDER_PATH__ (__CONFIG_FOLDER__ / __CAMERAS_CONFIG_FOLDER__)
+#define __PRESET_FOLDER_PATH__ (__CONFIG_FOLDER__ / __PRESET_FOLDER__)
 
 } // namespace holovibes::settings

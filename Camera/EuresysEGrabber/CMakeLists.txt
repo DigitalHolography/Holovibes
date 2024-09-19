@@ -3,6 +3,7 @@ project (EuresysEGrabber CXX CUDA)
 add_library("${PROJECT_NAME}" SHARED
     euresys.cc
     ../Camera/camera_logger.cc
+    ../Camera/camera_utils.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE

@@ -1385,7 +1385,7 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
     try
     {
-        auto path_file = dir / "convolution_kernels" / file;
+        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
         std::string path = path_file.string();
 
         std::vector<float> matrix;
@@ -1533,7 +1533,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     auto& holo = Holovibes::instance();
     try
     {
-        auto path_file = dir / "input_filters" / file;
+        auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
         InputFilter(input_filter,
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
@@ -1690,7 +1690,7 @@ void stop_chart_display()
 
 /**
  * @brief Extract the name from the filename
- * 
+ *
  * @param filePath the file name
  * @return std::string the name extracted from the filename
  */

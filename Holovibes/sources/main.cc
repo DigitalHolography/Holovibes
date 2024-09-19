@@ -123,8 +123,8 @@ static void print_help(holovibes::OptionsParser parser)
 // Copy all files from src path to dest path (the directories will be created if not exist)
 static void copy_files(const std::filesystem::path src, std::filesystem::path dest)
 {
-    if (std::filesystem::exists(dest))
-        return;
+    // if (std::filesystem::exists(dest))
+    //     return;
 
     std::filesystem::create_directories(dest);
 
@@ -132,7 +132,8 @@ static void copy_files(const std::filesystem::path src, std::filesystem::path de
     {
         std::filesystem::path file = entry.path();
         std::filesystem::path dest_file = dest / file.filename();
-        std::filesystem::copy(file, dest_file);
+        if (!std::filesystem::exists(dest_file))
+            std::filesystem::copy(file, dest_file);
     }
 }
 
@@ -172,17 +173,26 @@ int main(int argc, char* argv[])
     try
     {
 
-        /*
-
 #ifdef NDEBUG
-
-        copy_files(__CAMERAS_CONFIG_REFERENCE__, __CAMERAS_CONFIG_FOLDER_PATH__);
-        copy_files(__PRESET_REFERENCE__, __PRESET_FOLDER_PATH__);
-        copy_files(__CONVOLUTION_KERNEL_REFERENCE__, __CONVOLUTION_KERNEL_FOLDER_PATH__);
-        copy_files(__INPUT_FILTER_REFERENCE__, __INPUT_FILTER_FOLDER_PATH__);
+        /*
+            If we are on release mode, at first boot copy the reference files from the local AppData to the real user
+            AppData/Roaming/Holovibes location.
+            We use get_exe_dir() completed with macros instead of absolute paths to avoid crashing during
+            debugging.
+            It may be cleaner to propagate files during instalation (for release mode) and during compilation
+            (for debug mode) but hard to do...
+        */
+        copy_files(holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__,
+                   holovibes::get_exe_dir() / __CAMERAS_CONFIG_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __PRESET_REFERENCE__, holovibes::get_exe_dir() / __PRESET_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__,
+                   holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__,
+                   holovibes::get_exe_dir() / __INPUT_FILTER_FOLDER_PATH__);
+        copy_files(holovibes::get_exe_dir() / __SHADER_REFERENCE__, holovibes::get_exe_dir() / __SHADER_FOLDER_PATH__);
 
 #endif
-*/
+
         if (opts.input_path && opts.output_path)
         {
             check_cuda_graphic_card(false);

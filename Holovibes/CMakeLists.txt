@@ -41,13 +41,6 @@ set(INTERNAL_INCLUDES
     "${CAMERA_DIR}/include/"
 )
 
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(APPDATA_DIR $<TARGET_FILE_DIR:Holovibes>/AppData)
-else()
-    set(APPDATA_DIR $ENV{APPDATA}/Holovibes/${PROJECT_VERSION})
-endif()
-
 # ---------------------------------------------------------------------
 # The executable
 # ---------------------------------------------------------------------
@@ -131,11 +124,9 @@ endif()
 # ---------------------------------------------------------------------
 add_custom_command(TARGET Holovibes POST_BUILD
     # Copy shaders and convolution kernels and json patch
-    
-    # COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
-    # COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/convolution_kernels/
-    # COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/input_filters/
-    
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/input_filters/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
 
     # Copy camera libs
@@ -157,30 +148,25 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND Qt6::windeployqt --dir $<TARGET_FILE_DIR:Holovibes>/windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
 
     # Copy camera config files to AppData
-
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/" ${APPDATA_DIR}/cameras_config/
-
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/adimec.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/adimec.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/bitflow.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bitflow.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/hamamatsu.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/hamamatsu.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ids.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ids.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s710_euresys_coaxlink_octo.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s710_euresys_coaxlink_octo.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s991_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s991_euresys_coaxlink_qsfp+.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s711_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s711_euresys_coaxlink_qsfp+.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
-    # COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/adimec.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/adimec.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/bitflow.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/bitflow.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/hamamatsu.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/hamamatsu.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ids.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ids.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/opencv.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/opencv.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s710_euresys_coaxlink_octo.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s710_euresys_coaxlink_octo.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s991_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s991_euresys_coaxlink_qsfp+.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/ametek_s711_euresys_coaxlink_qsfp+.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/ametek_s711_euresys_coaxlink_qsfp+.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xib.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xib.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/xiq.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/xiq.ini
+    COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/phantom.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/phantom.ini
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
 
     # Copy Preset files to AppData
-    # COMMAND ${CMAKE_COMMAND} -E copy_directory "${PRESET_DIR}" ${APPDATA_DIR}/preset/
-
-    # COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
-    # COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_28.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_28.json
-    # COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_40.json
-    # COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/preset.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
-    # COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_28.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_28.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_40.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/preset.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
 
 )
 
@@ -277,39 +263,10 @@ install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
     COMPONENT application
 )
 
-install(DIRECTORY ${PRESET_DIR}
-    DESTINATION ${APPDATA_DIR}
+install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
+    DESTINATION "AppData/"
     COMPONENT application
 )
-
-install(DIRECTORY ${HOLO_DIR}/shaders/
-    DESTINATION ${APPDATA_DIR}/shaders/
-    COMPONENT application
-)
-
-install(DIRECTORY ${HOLO_DIR}/convolution_kernels/
-    DESTINATION ${APPDATA_DIR}/convolution_kernels/
-    COMPONENT application
-)
-
-
-install(DIRECTORY ${HOLO_DIR}/input_filters/
-    DESTINATION ${APPDATA_DIR}/input_filters/
-    COMPONENT application
-)
-
-install(DIRECTORY ${CAMERA_DIR}/configs/
-    DESTINATION ${APPDATA_DIR}/cameras_config/
-    COMPONENT application
-)
-
-
-    # COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/" ${APPDATA_DIR}/cameras_config/
-
-    # install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
-#     DESTINATION "AppData/"
-#     COMPONENT application
-# )
 
 
 # ---------------------------------------------------------------------
