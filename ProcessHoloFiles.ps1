@@ -13,7 +13,8 @@ function Select-File([string]$description, [string]$filter, [string]$envVarName)
     if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
         Save-LastPath $envVarName (Get-DirectoryName $fileDialog.FileName)
         return $fileDialog.FileName
-    } else {
+    }
+    else {
         return $null
     }
 }
@@ -41,7 +42,8 @@ function Get-ConfigFiles {
                 }
             }
         } while ($addMore -eq 'Y' -or $addMore -eq 'y')
-    } else {
+    }
+    else {
         Write-Host "No configuration files selected." -ForegroundColor Yellow
     }
 
@@ -53,7 +55,8 @@ function Get-LastPath([string]$envVarName, [string]$defaultFolder) {
     $lastPath = [System.Environment]::GetEnvironmentVariable($envVarName, [System.EnvironmentVariableTarget]::User)
     if ($lastPath -and (Test-Path $lastPath)) {
         return $lastPath
-    } else {
+    }
+    else {
         return $defaultFolder
     }
 }
@@ -62,7 +65,8 @@ function Get-LastPath([string]$envVarName, [string]$defaultFolder) {
 function Save-LastPath([string]$envVarName, [string]$path) {
     if (![string]::IsNullOrEmpty($envVarName) -and (Test-Path $path)) {
         [System.Environment]::SetEnvironmentVariable($envVarName, $path, [System.EnvironmentVariableTarget]::User)
-    } else {
+    }
+    else {
         Write-Host "Invalid variable name or path: $envVarName, $path" -ForegroundColor Red
     }
 }
@@ -83,7 +87,8 @@ function Select-Folder([string]$description, [string]$envVarName) {
     if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
         Save-LastPath $envVarName $folderBrowser.SelectedPath
         return $folderBrowser.SelectedPath
-    } else {
+    }
+    else {
         return $null
     }
 }
@@ -119,7 +124,8 @@ if (-not $exePath) {
     $localExePath = Join-Path -Path (Get-Location) -ChildPath "Holovibes.exe"
     if (Test-Path $localExePath) {
         $exePath = $localExePath
-    } else {
+    }
+    else {
         $exePath = "Holovibes.exe"  # This assumes it's available in PATH
     }
 }
@@ -129,7 +135,8 @@ Write-Host "You have selected the folder: $holoFolderPath" -ForegroundColor Cyan
 if ($configFiles.Count -gt 0) {
     Write-Host "You have selected the following configuration files:" -ForegroundColor Cyan
     $configFiles | ForEach-Object { Write-Host " - $_" -ForegroundColor Cyan }
-} else {
+}
+else {
     Write-Host "No configuration files selected, continuing without them." -ForegroundColor Yellow
 }
 Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
@@ -146,7 +153,8 @@ function Select-OutputExtension {
     
     if ([string]::IsNullOrEmpty($selection) -or $selection -lt 1 -or $selection -gt $options.Length) {
         return ".avi"
-    } else {
+    }
+    else {
         return $options[$selection - 1]
     }
 }
@@ -178,20 +186,21 @@ foreach ($file in $holoFiles) {
             $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
             # Prepare arguments for Holovibes.exe
-            $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" -c `"$configFile`""
+            $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" -c `"$configFile`" --frame_skip `"$frameSkip"`
 
             # Run Holovibes.exe with the .holo file and the current configuration file
             Write-Host "Processing $($file.Name) with config $($configFile)..." -ForegroundColor Yellow
             Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
             Write-Host "Finished processing $($file.Name) with config $($configFile), output saved as $outputFileName" -ForegroundColor Green
         }
-    } else {
+    }
+    else {
         $inputFilePath = $file.FullName
         $outputFileName = "$($file.BaseName)_out$outputExtension"
         $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
         # Prepare arguments for Holovibes.exe without configuration file
-        $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
+        $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" --frame_skip `"$frameSkip"`
 
         # Run Holovibes.exe with the .holo file and no configuration file
         Write-Host "Processing $($file.Name) without configuration..." -ForegroundColor Yellow
