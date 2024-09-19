@@ -1,5 +1,11 @@
 ## Changelog
 
+###
+
+- Added support for DEBUG and RELEASE compile modes
+- Adjusted AppData handling for better separation and consistency between both DEBUG and RELEASE modes
+- Moved convolution kernel, shaders and input filter directories to AppData (choose between User AppData or local AppData depending on DEBUG or RELEASE)
+
 ### 13.4.0
 
 - Drop down menu to select any preset in the preset directory
