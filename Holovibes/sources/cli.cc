@@ -114,7 +114,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_ERROR("Failed to open input file");
         return 33;
     }
-
+    
     bool load = false;
     
     if (opts.compute_settings_path)
@@ -131,7 +131,6 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         }
         load = true;
     }
-
     else if (input_frame_file->get_has_footer())
     {
         LOG_DEBUG("loading pixel size");
