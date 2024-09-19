@@ -61,6 +61,9 @@ D Notifier<T, D>::notify(const T& data)
             LOG_ERROR("Exception caught in notifier: {}", e.what());
         }
     }
+    
+    if (!std::is_same<D, void>::value)
+        throw std::runtime_error("No subscriber for notifier with return value");
 }
 
 template <typename T, typename D>
