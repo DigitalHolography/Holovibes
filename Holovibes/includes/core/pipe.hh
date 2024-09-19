@@ -68,7 +68,9 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode
+    holovibes::settings::RecordMode,                             \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps                         
 
 
 #define ONRESTART_SETTINGS                         \

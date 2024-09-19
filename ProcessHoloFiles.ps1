@@ -61,6 +61,12 @@ $configFilePath = Select-File -description "Select the configuration file (optio
 # Prompt the user to select the Holovibes executable (optional)
 $exePath = Select-File -description "Select the Holovibes executable (optional)" -filter "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*"
 
+# Ask for the frame skip (optional)
+$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
+if (-not ($frameSkip -match '^\d+$')) {
+    $frameSkip = "0"
+}
+
 # Check if the user selected the executable, if not, use local or PATH version
 if (-not $exePath) {
     $localExePath = Join-Path -Path (Get-Location) -ChildPath "Holovibes.exe"
@@ -106,11 +112,11 @@ foreach ($file in $holoFiles) {
     $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
     # Prepare arguments for Holovibes.exe
-    $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
+    $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" --frame_skip $frameSkip"
     if ($configFilePath) {
         $args += " -c `"$configFilePath`""
     }
-
+    $args
     # Run Holovibes.exe with the .holo file, specifying the output file name and config (if provided)
     Write-Host "Processing $($file.Name)..." -ForegroundColor Yellow
     Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait

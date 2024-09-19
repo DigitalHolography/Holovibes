@@ -34,6 +34,8 @@ struct OptionsDescriptor
     bool verbose;
     bool gpu;
     bool benchmark;
+    std::optional<unsigned int> frame_skip;
+    std::optional<unsigned int> mp4_fps;
 };
 
 /*! \class OptionsParser
