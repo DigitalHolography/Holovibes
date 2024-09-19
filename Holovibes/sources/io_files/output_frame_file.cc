@@ -26,7 +26,6 @@ double OutputFrameFile::compute_output_fps()
     {
         output_fps = output_fps / (frame_skip + 1);
     }
-    std::cout << output_fps << std::endl;
     return output_fps;
 }
 } // namespace holovibes::io_files
