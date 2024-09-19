@@ -15,6 +15,7 @@
 #include "converts.hh"
 #include "postprocessing.hh"
 #include "function_vector.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -258,8 +259,8 @@ class Pipe : public ICompute
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[Pipe] [update_setting] {}", typeid(T).name());
-
+        LOG_TRACE("[Pipe] [update_setting] {}", typeid(T).name());
+    
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);

@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "unpack.cuh"
 #include "input_frame_file_factory.hh"
+#include "logger.hh"
 
 #include "holovibes.hh"
 #include "global_state_holder.hh"
@@ -34,7 +35,7 @@ void FileFrameReadWorker::read_file()
 
 void FileFrameReadWorker::run()
 {
-    spdlog::trace("[FileFrameReadWorker] [run]");
+    LOG_TRACE("[FileFrameReadWorker] [run]");
 
     onrestart_settings_.apply_updates();
     total_nb_frames_to_read_ = static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());

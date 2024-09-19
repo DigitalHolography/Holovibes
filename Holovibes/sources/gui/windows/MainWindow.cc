@@ -224,11 +224,13 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    ui_->menuSelect_preset->clear();
+
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
     api::camera_none_without_json();
-
+    
     delete ui_;
 }
 
@@ -272,6 +274,7 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
+
     std::filesystem::path preset_directory_path(get_exe_dir());
     preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
     // Check before if there is a Preset directory near the executable before checking in AppData
@@ -282,17 +285,17 @@ void MainWindow::on_notify()
         QList<QAction*> actions;
         for (const auto& file : std::filesystem::directory_iterator(preset_directory_path))
         {
-            QAction* action = new QAction(QString(file.path().filename().string().c_str()), nullptr);
+            QAction* action = new QAction(QString(file.path().filename().string().c_str()), ui_->menuSelect_preset);
             connect(action, &QAction::triggered, this, [=]{set_preset(file);});
             actions.push_back(action);
         }
         if (actions.length() == 0)
-            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), nullptr));
+            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), ui_->menuSelect_preset));
         else
             ui_->menuSelect_preset->addActions(actions);
     }
     else
-            ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
+            ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
 
 
     // Tabs

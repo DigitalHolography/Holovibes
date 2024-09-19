@@ -2,6 +2,7 @@
 #include "logger.hh"
 #include "input_filter.hh"
 #include "notifier.hh"
+#include "logger.hh"
 
 #include <regex>
 #include <string>
@@ -41,7 +42,7 @@ void pipe_refresh()
 
     try
     {
-        spdlog::trace("pipe_refresh");
+        LOG_TRACE("pipe_refresh");
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)

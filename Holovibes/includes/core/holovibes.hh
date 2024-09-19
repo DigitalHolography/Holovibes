@@ -20,6 +20,7 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 #include "utils/custom_type_traits.hh"
+#include "logger.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
@@ -331,7 +332,7 @@ class Holovibes
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[Holovibes] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[Holovibes] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);

@@ -28,8 +28,7 @@ void FrameRecordWorker::integrate_fps_average()
 
 size_t FrameRecordWorker::compute_fps_average() const
 {
-    LOG_FUNC();
-    spdlog::trace("fps_current_index_ = {}", fps_current_index_);
+    LOG_TRACE("fps_current_index_ = {}", fps_current_index_);
 
     if (fps_current_index_ == 0)
         return 0;
