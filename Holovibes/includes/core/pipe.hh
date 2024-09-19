@@ -19,82 +19,6 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
-#pragma region Settings configuration
-// clang-format off
-
-#define REALTIME_SETTINGS                          \
-    holovibes::settings::ImageType,                \
-    holovibes::settings::X,                        \
-    holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
-    holovibes::settings::Filter2d,                 \
-    holovibes::settings::CurrentWindow,            \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::ChartDisplayEnabled,      \
-    holovibes::settings::Filter2dEnabled,          \
-    holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::RawViewEnabled,           \
-    holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale,             \
-    holovibes::settings::ReticleDisplayEnabled,    \
-    holovibes::settings::Filter2dN1,               \
-    holovibes::settings::Filter2dN2,               \
-    holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::FrameRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize,   \
-    holovibes::settings::SpaceTransformation,      \
-    holovibes::settings::TimeTransformation,       \
-    holovibes::settings::Lambda,                   \
-    holovibes::settings::ZDistance,                \
-    holovibes::settings::ConvolutionEnabled,       \
-    holovibes::settings::ConvolutionMatrix,        \
-    holovibes::settings::DivideConvolutionEnabled, \
-    holovibes::settings::ComputeMode,              \
-    holovibes::settings::PixelSize,                \
-    holovibes::settings::UnwrapHistorySize,        \
-    holovibes::settings::SignalZone,               \
-    holovibes::settings::NoiseZone,                \
-    holovibes::settings::CompositeZone,            \
-    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
-    holovibes::settings::CompositeKind,                          \
-    holovibes::settings::CompositeAutoWeights,                   \
-    holovibes::settings::RGB,                                    \
-    holovibes::settings::HSV,                                    \
-    holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode
-
-
-#define ONRESTART_SETTINGS                         \
-    holovibes::settings::OutputBufferSize,         \
-    holovibes::settings::RecordBufferSize,         \
-    holovibes::settings::ContrastLowerThreshold,   \
-    holovibes::settings::ContrastUpperThreshold,   \
-    holovibes::settings::RenormConstant,           \
-    holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::RecordQueueLocation,         \
-    holovibes::settings::RawViewQueueLocation,        \
-    holovibes::settings::InputQueueLocation
-
-#define PIPEREFRESH_SETTINGS                       \
-    holovibes::settings::TimeStride,               \
-    holovibes::settings::BatchSize,                \
-    holovibes::settings::XY,                       \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter,              \
-    holovibes::settings::FilterEnabled
- 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
-
-// clang-format on
-#pragma endregion
-
 namespace holovibes
 {
 /*! \class Pipe
@@ -142,9 +66,6 @@ class Pipe : public ICompute
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , realtime_settings_(settings)
-        , onrestart_settings_(settings)
-        , pipe_refresh_settings_(settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&]() -> bool
@@ -222,14 +143,6 @@ class Pipe : public ICompute
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
 
-    /**
-     * @brief Contains all the settings of the worker that should be updated
-     * on restart.
-     */
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
-    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
-
     template <typename T>
     inline void update_setting(T setting)
     {
@@ -258,9 +171,6 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
-
-        if constexpr (has_setting_v<T, ICompute>)
-            update_setting_icompute(setting);
     }
 
     inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
@@ -272,7 +182,6 @@ class Pipe : public ICompute
     {
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
-        icompute_pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
     }
 
@@ -360,29 +269,13 @@ class Pipe : public ICompute
 
     template <typename SettingType>
     cudaMemcpyKind get_memcpy_kind();
-
-    /**
-     * @brief Helper function to get a settings value.
-     */
-    template <typename T>
-    auto setting()
-    {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            return realtime_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
-            return onrestart_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
-            return pipe_refresh_settings_.get<T>().value;
-    }
 };
 } // namespace holovibes
 
 namespace holovibes
 {
 template <typename T>
-struct has_setting<T, Pipe> : is_any_of<T, ALL_SETTINGS>
+struct has_setting<T, Pipe> : has_setting<T, ICompute>
 {
 };
 } // namespace holovibes

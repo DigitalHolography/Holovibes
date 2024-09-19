@@ -151,25 +151,6 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-std::unique_ptr<Queue>& ICompute::get_raw_view_queue() { return gpu_raw_view_queue_; }
-
-std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue() { return gpu_filter2d_view_queue_; }
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
-{
-    return chart_env_.chart_display_queue_;
-}
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
-{
-    return chart_env_.chart_record_queue_;
-}
-
-std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
-{
-    return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
-}
-
 void ICompute::request_autocontrast(WindowKind kind)
 {
     if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)

@@ -26,44 +26,78 @@
 #define ICS holovibes::ICompute::Setting
 
 #pragma region Settings configuration
-// clang-format off
 
-#define REALTIME_SETTINGS                                        \
-    holovibes::settings::ImageType,                              \
-    holovibes::settings::X,                                      \
-    holovibes::settings::Y,                                      \
-    holovibes::settings::P,                                      \
-    holovibes::settings::Q,                                      \
-    holovibes::settings::Filter2d,                               \
-    holovibes::settings::CurrentWindow,                          \
-    holovibes::settings::LensViewEnabled,                        \
-    holovibes::settings::ChartDisplayEnabled,                    \
-    holovibes::settings::Filter2dEnabled,                        \
-    holovibes::settings::Filter2dViewEnabled,                    \
-    holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RawViewEnabled,                         \
-    holovibes::settings::CutsViewEnabled,                        \
-    holovibes::settings::RenormEnabled,                          \
-    holovibes::settings::ReticleScale,                           \
-    holovibes::settings::Filter2dN1,                             \
-    holovibes::settings::Filter2dN2,                             \
-    holovibes::settings::Filter2dSmoothLow,                      \
-    holovibes::settings::Filter2dSmoothHigh,                     \
-    holovibes::settings::TimeTransformationSize,                 \
-    holovibes::settings::TimeTransformation,                     \
+// clang-format off
+#define REALTIME_SETTINGS                          \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::X,                        \
+    holovibes::settings::Y,                        \
+    holovibes::settings::P,                        \
+    holovibes::settings::Q,                        \
+    holovibes::settings::Filter2d,                 \
+    holovibes::settings::CurrentWindow,            \
+    holovibes::settings::LensViewEnabled,          \
+    holovibes::settings::ChartDisplayEnabled,      \
+    holovibes::settings::Filter2dEnabled,          \
+    holovibes::settings::Filter2dViewEnabled,      \
+    holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::RawViewEnabled,           \
+    holovibes::settings::CutsViewEnabled,          \
+    holovibes::settings::RenormEnabled,            \
+    holovibes::settings::ReticleScale,             \
+    holovibes::settings::ReticleDisplayEnabled,    \
+    holovibes::settings::Filter2dN1,               \
+    holovibes::settings::Filter2dN2,               \
+    holovibes::settings::Filter2dSmoothLow,        \
+    holovibes::settings::Filter2dSmoothHigh,       \
+    holovibes::settings::ChartRecordEnabled,       \
+    holovibes::settings::FrameRecordEnabled,       \
+    holovibes::settings::TimeTransformationSize,   \
+    holovibes::settings::SpaceTransformation,      \
+    holovibes::settings::TimeTransformation,       \
+    holovibes::settings::Lambda,                   \
+    holovibes::settings::ZDistance,                \
+    holovibes::settings::ConvolutionEnabled,       \
+    holovibes::settings::ConvolutionMatrix,        \
+    holovibes::settings::DivideConvolutionEnabled, \
+    holovibes::settings::ComputeMode,              \
+    holovibes::settings::PixelSize,                \
+    holovibes::settings::UnwrapHistorySize,        \
+    holovibes::settings::SignalZone,               \
+    holovibes::settings::NoiseZone,                \
+    holovibes::settings::CompositeZone,            \
     holovibes::settings::TimeTransformationCutsOutputBufferSize, \
     holovibes::settings::CompositeKind,                          \
     holovibes::settings::CompositeAutoWeights,                   \
     holovibes::settings::RGB,                                    \
-    holovibes::settings::HSV
+    holovibes::settings::HSV,                                    \
+    holovibes::settings::ZFFTShift,                              \
+    holovibes::settings::RecordFrameCount,                       \
+    holovibes::settings::RecordMode
 
-#define PIPEREFRESH_SETTINGS                                     \
-    holovibes::settings::XY,                                     \
-    holovibes::settings::XZ,                                     \
-    holovibes::settings::YZ,                                     \
-    holovibes::settings::BatchSize
 
-#define ALL_SETTINGS REALTIME_SETTINGS, PIPEREFRESH_SETTINGS
+#define ONRESTART_SETTINGS                         \
+    holovibes::settings::OutputBufferSize,         \
+    holovibes::settings::RecordBufferSize,         \
+    holovibes::settings::ContrastLowerThreshold,   \
+    holovibes::settings::ContrastUpperThreshold,   \
+    holovibes::settings::RenormConstant,           \
+    holovibes::settings::CutsContrastPOffset,      \
+    holovibes::settings::RecordQueueLocation,         \
+    holovibes::settings::RawViewQueueLocation,        \
+    holovibes::settings::InputQueueLocation
+
+#define PIPEREFRESH_SETTINGS                       \
+    holovibes::settings::TimeStride,               \
+    holovibes::settings::BatchSize,                \
+    holovibes::settings::XY,                       \
+    holovibes::settings::XZ,                       \
+    holovibes::settings::YZ,                       \
+    holovibes::settings::InputFilter,              \
+    holovibes::settings::FilterEnabled
+ 
+#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
+#define ALL_ICOMPUTE_SETTINGS ALL_SETTINGS
 
 // clang-format on
 #pragma endregion
@@ -88,6 +122,7 @@ class ICompute
         , stream_(stream)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
+        , onrestart_settings_(settings)
     {
         // Initialize the array of settings to false except for the refresh
         for (auto& setting : settings_requests_)
@@ -132,19 +167,6 @@ class ICompute
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
     }
-
-    template <typename T>
-    inline void update_setting_icompute(T setting)
-    {
-        spdlog::trace("[ICompute] [update_setting] {}", typeid(T).name());
-
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            realtime_settings_.update_setting(setting);
-        else if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
-            pipe_refresh_settings_.update_setting(setting);
-    }
-
-    inline void icompute_pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
     /*! \brief Execute one iteration of the ICompute.
      *
@@ -238,28 +260,31 @@ class ICompute
     /*! \name Queue getters
      * \{
      */
-    std::unique_ptr<Queue>& get_stft_slice_queue(int i);
+    std::unique_ptr<Queue>& get_stft_slice_queue(int slice)
+    {
+        return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
+    }
 
     virtual std::unique_ptr<Queue>& get_lens_queue() = 0;
 
-    virtual std::unique_ptr<Queue>& get_raw_view_queue();
+    std::unique_ptr<Queue>& get_raw_view_queue() { return gpu_raw_view_queue_; };
 
-    virtual std::unique_ptr<Queue>& get_filter2d_view_queue();
+    std::unique_ptr<Queue>& get_filter2d_view_queue() { return gpu_filter2d_view_queue_; };
 
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue();
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_display_queue() { return chart_env_.chart_display_queue_; };
 
-    virtual std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue();
+    std::unique_ptr<ConcurrentDeque<ChartPoint>>& get_chart_record_queue() { return chart_env_.chart_record_queue_; }
     /*! \} */
 
   protected:
     virtual void refresh() = 0;
 
-    virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
+    bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
      */
-    virtual void update_spatial_transformation_parameters();
+    void update_spatial_transformation_parameters();
 
     void init_cuts();
 
@@ -337,9 +362,14 @@ class ICompute
 
     /*! \brief Container for the pipe refresh settings. */
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
+
+    /**
+     * @brief Contains all the settings of the worker that should be updated
+     * on restart.
+     */
+    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
     /*! \} */
 
-  private:
     /**
      * @brief Helper function to get a settings value.
      */
@@ -349,9 +379,14 @@ class ICompute
         if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             return realtime_settings_.get<T>().value;
 
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
+            return onrestart_settings_.get<T>().value;
+
         if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             return pipe_refresh_settings_.get<T>().value;
     }
+
+  private:
 
     /*! \brief Performs tasks specific to the current time transformation setting.
      *  \param size The size for time transformation.
