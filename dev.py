@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import fnmatch
 import argparse
 import subprocess
 import webbrowser
@@ -223,6 +224,11 @@ def ctest(args: GoalArgs) -> int:
     return out
 
 
+def find_files(base, pattern):
+    '''Return list of files matching pattern in base folder.'''
+    return [n for n in fnmatch.filter(os.listdir(base), pattern) if
+        os.path.isfile(os.path.join(base, n))]
+
 @goal
 def build_ref(args: GoalArgs) -> int:
     from tests.test_holo_files import generate_holo_from, write_time
@@ -249,8 +255,8 @@ def build_ref(args: GoalArgs) -> int:
         if not os.path.isfile(config):
             config = None
 
-        if os.path.isfile(ref):
-            os.remove(ref)
+        for file in find_files(path, "[0-9]*_" + REF_FILENAME):
+            os.remove(os.path.join(path, file))
 
         if os.path.isfile(ref_error):
             os.remove(ref_error)
