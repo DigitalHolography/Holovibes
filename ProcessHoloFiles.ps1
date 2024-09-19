@@ -115,6 +115,7 @@ $exePath = Select-File -description "Select the Holovibes executable (optional)"
 
 # Ask for the frame skip (optional)
 $frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
+$frameSkip
 if (-not ($frameSkip -match '^\d+$')) {
     $frameSkip = "0"
 }
@@ -186,7 +187,7 @@ foreach ($file in $holoFiles) {
             $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
             # Prepare arguments for Holovibes.exe
-            $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" -c `"$configFile`" --frame_skip `"$frameSkip"`
+            $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" -c `"$configFile`" --frame_skip `"$frameSkip`""
 
             # Run Holovibes.exe with the .holo file and the current configuration file
             Write-Host "Processing $($file.Name) with config $($configFile)..." -ForegroundColor Yellow
@@ -200,7 +201,7 @@ foreach ($file in $holoFiles) {
         $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
         # Prepare arguments for Holovibes.exe without configuration file
-        $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" --frame_skip `"$frameSkip"`
+        $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" --frame_skip `"$frameSkip`""
 
         # Run Holovibes.exe with the .holo file and no configuration file
         Write-Host "Processing $($file.Name) without configuration..." -ForegroundColor Yellow
