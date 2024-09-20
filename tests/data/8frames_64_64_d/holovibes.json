@@ -17,7 +17,8 @@
             "low": 0
         },
         "renorm_constant": 5,
-        "raw_bitshift": 0
+        "raw_bitshift": 0,
+        "nb_frames_to_record": 0
     },
     "view": {
         "renorm": false,
@@ -47,7 +48,8 @@
                 "log_enabled": true,
                 "output_image_accumulation": 48,
                 "horizontal_flip": false,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             },
             "xz": {
                 "contrast": {
@@ -60,7 +62,8 @@
                 "log_enabled": false,
                 "output_image_accumulation": 0,
                 "horizontal_flip": false,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             },
             "yz": {
                 "contrast": {
@@ -73,7 +76,8 @@
                 "log_enabled": false,
                 "output_image_accumulation": 0,
                 "horizontal_flip": false,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             }
         },
         "x": {

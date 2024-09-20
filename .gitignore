@@ -55,13 +55,14 @@ latex
 html
 
 # Testing files
-last_generated_output.holo
-ref.holo 
+*last_generated_output.holo
+*ref.holo 
 ref_time.txt
 ref.png
 out.png
 diff.png
 output_error.txt
+error.txt
 test_logs/*
 
 # Jinja Generated files

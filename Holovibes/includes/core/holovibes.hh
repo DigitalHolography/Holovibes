@@ -162,11 +162,7 @@ class Holovibes
     {
         CudaStreams()
         {
-            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
+            reload();
         }
 
         /*! \brief Used when the device is reset. Recreate the streams.
@@ -188,6 +184,7 @@ class Holovibes
             cudaSafeCall(cudaStreamDestroy(compute_stream));
             cudaSafeCall(cudaStreamDestroy(recorder_stream));
         }
+        
         cudaStream_t reader_stream;
         cudaStream_t compute_stream;
         cudaStream_t recorder_stream;
@@ -337,37 +334,33 @@ class Holovibes
     {
         LOG_TRACE("[Holovibes] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
 
-        if constexpr (has_setting<T, worker::FileFrameReadWorker>::value)
+        if constexpr (has_setting_v<T, worker::FileFrameReadWorker>)
             file_read_worker_controller_.update_setting(setting);
 
-        if constexpr (has_setting<T, worker::FrameRecordWorker>::value)
+        if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
             frame_record_worker_controller_.update_setting(setting);
 
-        if (compute_pipe_.load() != nullptr)
-        {
-            if constexpr (has_setting<T, Pipe>::value)
+
+        if constexpr (has_setting_v<T, Pipe>)
+            if (compute_pipe_.load() != nullptr)
                 compute_pipe_.load()->update_setting(setting);
-        }
     }
 
     template <typename T>
     inline T get_setting()
     {
-        auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-        return std::get<T>(all_settings);
+        return realtime_settings_.get<T>();
     }
 
   private:
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_.settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_.settings_)>)
             return realtime_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Construct the holovibes object. */
