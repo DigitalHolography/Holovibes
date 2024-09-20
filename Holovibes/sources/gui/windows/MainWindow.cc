@@ -274,7 +274,7 @@ void MainWindow::on_notify()
     ui_->menuSelect_preset->clear();
     std::filesystem::path preset_dir(get_exe_dir() / __PRESET_FOLDER_PATH__);
     if (!std::filesystem::exists(preset_dir))
-        ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), nullptr));
+        ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
     else
     {
         QList<QAction*> actions;

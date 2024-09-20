@@ -124,16 +124,14 @@ static void print_help(holovibes::OptionsParser parser)
 // Copy all files from src path to dest path (the directories will be created if not exist)
 static void copy_files(const std::filesystem::path src, std::filesystem::path dest)
 {
-    if (std::filesystem::exists(dest))
-        return;
-
     std::filesystem::create_directories(dest);
 
     for (const auto& entry : std::filesystem::directory_iterator(src))
     {
         std::filesystem::path file = entry.path();
         std::filesystem::path dest_file = dest / file.filename();
-        std::filesystem::copy(file, dest_file);
+        if (!std::filesystem::exists(dest_file))
+            std::filesystem::copy(file, dest_file);
     }
 }
 
