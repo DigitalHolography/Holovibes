@@ -457,12 +457,6 @@ void Pipe::insert_filter2d_view()
     }
 }
 
-template <typename SettingType>
-cudaMemcpyKind Pipe::get_memcpy_kind()
-{
-    return setting<SettingType>() == Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost;
-}
-
 void Pipe::insert_raw_view()
 {
     if (!setting<settings::RawViewEnabled>())
@@ -480,8 +474,8 @@ void Pipe::insert_raw_view()
             if (setting<settings::InputQueueLocation>() == Device::GPU)
                 memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>();
             else
-                memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
-                                                                                       : cudaMemcpyHostToHost;
+                memcpy_kind =
+                    get_memcpy_kind<settings::RawViewQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyHostToHost);
 
             input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
         });
@@ -517,8 +511,8 @@ void Pipe::insert_raw_record()
                 if (setting<settings::InputQueueLocation>() == Device::GPU)
                     memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
                 else
-                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
-                                                                                          : cudaMemcpyDeviceToHost;
+                    memcpy_kind =
+                        get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
                 input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 

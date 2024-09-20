@@ -61,15 +61,15 @@ class Pipe : public ICompute
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the computations are processed.
+     * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
-        ConditionType batch_condition = [&]() -> bool
-        { return batch_env_.batch_index == setting<settings::TimeStride>(); };
+        ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
         fn_end_vect_ = FunctionVector(batch_condition);
@@ -80,6 +80,7 @@ class Pipe : public ICompute
                                                                            input.get_fd(),
                                                                            stream_,
                                                                            settings);
+
         fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                           buffers_,
                                                                           input.get_fd(),
@@ -87,6 +88,7 @@ class Pipe : public ICompute
                                                                           time_transformation_env_,
                                                                           stream_,
                                                                           settings);
+
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,
@@ -96,6 +98,7 @@ class Pipe : public ICompute
                                                           output.get_fd(),
                                                           stream_,
                                                           settings);
+
         converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                         buffers_,
                                                         time_transformation_env_,
@@ -109,16 +112,18 @@ class Pipe : public ICompute
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
 
-        pre_init();
+        // Pre init
+        if (setting<settings::FilterEnabled>())
+            request(ICS::Filter);
+
+        if (setting<settings::ConvolutionEnabled>())
+            request(ICS::Convolution);
     }
 
     ~Pipe() override;
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
-
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Execute one processing iteration.
      *
@@ -131,14 +136,8 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    void pre_init()
-    {
-        if (setting<settings::FilterEnabled>())
-            request(ICS::Filter);
-
-        if (setting<settings::ConvolutionEnabled>())
-            request(ICS::Convolution);
-    }
+    /*! \brief Runs a function after the current pipe iteration ends */
+    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
@@ -173,7 +172,14 @@ class Pipe : public ICompute
             postprocess_->update_setting(setting);
     }
 
-    inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
+  private:
+    /*! \brief Make requests at the beginning of the refresh.
+     *
+     * Make the allocation of buffers when it is requested.
+     *
+     * \return return false if an allocation failed.
+     */
+    bool make_requests();
 
     /**
      * @brief Apply the updates of the settings on pipe refresh,
@@ -185,15 +191,9 @@ class Pipe : public ICompute
         pipe_refresh_settings_.apply_updates();
     }
 
-  protected:
-    /*! \brief Make requests at the beginning of the refresh.
-     *
-     * Make the allocation of buffers when it is requested.
-     *
-     * \return return false if an allocation failed.
+    /*! \name Insert computation functions in the pipe
+     * \{
      */
-    bool make_requests();
-
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
@@ -225,6 +225,19 @@ class Pipe : public ICompute
 
     /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
+    /*! \}*/
+
+    /*! \brief Iterates and executes function of the pipe.
+     *
+     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
+     */
+    void run_all();
+
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
 
     /*! \brief Enqueue a frame in an output queue
      *
@@ -233,6 +246,19 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
+
+    /*! \brief Get the memcpy kind according to the setting type (usually a location setting).
+     *
+     * \param gpu Kind of memcpy for GPU
+     * \param cpu Kind of memcpy for CPU
+     * \return The kind of memcpy to use
+     */
+    template <typename SettingType>
+    inline cudaMemcpyKind get_memcpy_kind(cudaMemcpyKind gpu = cudaMemcpyDeviceToDevice,
+                                          cudaMemcpyKind cpu = cudaMemcpyDeviceToHost)
+    {
+        return setting<SettingType>() == Device::GPU ? gpu : cpu;
+    }
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
@@ -247,28 +273,17 @@ class Pipe : public ICompute
      */
     std::mutex fn_end_vect_mutex_;
 
+    /*! \name Compute objects
+     * \{
+     */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
+    /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
-    /*! \brief Iterates and executes function of the pipe.
-     *
-     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
-     */
-    void run_all();
-
-    /*! \brief Force contiguity on record queue when cli is active.
-     *
-     * \param nb_elm_to_add the number of elements that might be added in the record queue
-     */
-    void keep_contiguous(int nb_elm_to_add) const;
-
-    template <typename SettingType>
-    cudaMemcpyKind get_memcpy_kind();
 };
 } // namespace holovibes
 
