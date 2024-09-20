@@ -63,7 +63,6 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     else // if it is on CPU
         copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost;
 
-
     for (unsigned i = 0; i < captured_fd.count1; ++i)
     {
         auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();

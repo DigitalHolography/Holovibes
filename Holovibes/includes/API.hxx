@@ -1397,6 +1397,15 @@ inline void set_nb_frames_to_record(std::optional<size_t> nb_frames)
 {
     holovibes::Holovibes::instance().update_setting(settings::RecordFrameCount{nb_frames});
 }
+inline uint get_nb_frame_skip()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::FrameSkip>().value;
+}
+inline uint get_mp4_fps()
+{
+    return holovibes::Holovibes::instance().get_setting<settings::Mp4Fps>().value;
+}
+
 #pragma endregion
 
 } // namespace holovibes::api

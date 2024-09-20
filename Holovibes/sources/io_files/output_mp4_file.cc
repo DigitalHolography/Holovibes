@@ -1,5 +1,7 @@
 #include "output_mp4_file.hh"
 #include "file_exception.hh"
+#include "holovibes.hh"
+
 
 namespace holovibes::io_files
 {
@@ -23,11 +25,13 @@ void OutputMp4File::write_header()
 
         bool is_color = fd_.depth == 3;
 
-        // double output_fps = compute_output_fps(); // 24 is good enough, and otherwise finding the right value is a pain
-        // if (output_fps > 5000)  // 5000 is an arbitrary limit
-        //     output_fps = 5000;
-
-        video_writer_ = cv::VideoWriter(file_path_, fourcc, 24, size, is_color);
+        // Get the fps required but check if it does not exceed the fps given by the user
+        double compute_fps = compute_output_fps();
+        if (compute_fps > Holovibes::instance().template get_setting<settings::Mp4Fps>().value)
+        {
+            compute_fps = Holovibes::instance().template get_setting<settings::Mp4Fps>().value;
+        }
+        video_writer_ = cv::VideoWriter(file_path_, fourcc, compute_fps, size, is_color);
 
         if (!video_writer_.isOpened())
             throw cv::Exception();

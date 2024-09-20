@@ -2,6 +2,11 @@
 
 ### 13.5.0
 
+- Create option in CLI for frame skip and fps for mp4 records
+- Change the .ps1 to ask for frame skip (not for mp4 fps)
+
+### 13.4.0
+
 - Drop down menu to select any preset in the preset directory
 - Prevents the allocation of buffer with a size greater than the available GPU memory
 - Refactorization of GUI

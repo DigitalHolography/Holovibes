@@ -17,7 +17,8 @@
             "low": 0
         },
         "raw_bitshift": 0,
-        "renorm_constant": 5
+        "renorm_constant": 5,
+        "nb_frames_to_record": 0
     },
     "color_composite_image": {
         "auto_weight": false,
@@ -139,7 +140,8 @@
                 "horizontal_flip": false,
                 "log_enabled": false,
                 "output_image_accumulation": 1,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             },
             "xz": {
                 "contrast": {
@@ -152,7 +154,8 @@
                 "horizontal_flip": false,
                 "log_enabled": false,
                 "output_image_accumulation": 1,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             },
             "yz": {
                 "contrast": {
@@ -165,7 +168,8 @@
                 "horizontal_flip": false,
                 "log_enabled": false,
                 "output_image_accumulation": 1,
-                "rotation": 0.0
+                "rotation": 0.0,
+                "enabled": false
             }
         },
         "x": {

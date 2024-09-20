@@ -1,3 +1,4 @@
+#include "chrono.hh"
 #include "frame_record_worker.hh"
 #include "output_frame_file_factory.hh"
 #include "tools.hh"
@@ -7,7 +8,6 @@
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
-#include <chrono>
 #include <fstream>
 #include <filesystem>
 
@@ -28,8 +28,7 @@ void FrameRecordWorker::integrate_fps_average()
 
 size_t FrameRecordWorker::compute_fps_average() const
 {
-    LOG_FUNC();
-    spdlog::trace("fps_current_index_ = {}", fps_current_index_);
+    LOG_TRACE("fps_current_index_ = {}", fps_current_index_);
 
     if (fps_current_index_ == 0)
         return 0;
@@ -44,26 +43,14 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
-std::string get_current_date()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    std::tm* timeinfo = std::localtime(&in_time_t);
-    int year = timeinfo->tm_year % 100;
-    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d_");
-    return ss.str();
-}
-
 std::string append_date_to_filepath(std::string record_file_path)
 {
     //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
     std::filesystem::path filePath(record_file_path);
-    std::string date = get_current_date();
+    std::string date = Chrono::get_current_date();
     std::string filename = filePath.filename().string();
     std::string path = filePath.parent_path().string();
-    std::filesystem::path newFilePath = path + "/" + date + filename;
+    std::filesystem::path newFilePath = path + "/" + date + "_" + filename;
     return newFilePath.string();
 }
 
@@ -119,8 +106,11 @@ void FrameRecordWorker::run()
         if (Holovibes::instance().get_input_queue()->has_overwritten())
             Holovibes::instance().get_input_queue()->reset_override();
 
+        // Get the real number of frames to record taking in account the frame skip
+        size_t nb_frames_to_record = setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
+    
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
-               (nb_frames_recorded < setting<settings::RecordFrameCount>().value() && !stop_requested_))
+               (nb_frames_recorded < nb_frames_to_record && !stop_requested_))
         {
             if (record_queue_.load()->has_overwritten() || Holovibes::instance().get_input_queue()->has_overwritten())
             {
@@ -157,6 +147,7 @@ void FrameRecordWorker::run()
                 nb_frames_to_skip--;
                 continue;
             }
+            nb_frames_to_skip = setting<settings::FrameSkip>();
 
             record_queue_.load()->dequeue(frame_buffer,
                                           stream_,
@@ -204,7 +195,8 @@ void FrameRecordWorker::run()
         }
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
-        output_frame_file->export_compute_settings(static_cast<int>(compute_fps_average()), contiguous);
+        // Change the fps according to the frame skip
+        output_frame_file->export_compute_settings(static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)), contiguous);
 
         output_frame_file->write_footer();
     }

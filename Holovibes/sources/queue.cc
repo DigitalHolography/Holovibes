@@ -36,50 +36,42 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
     max_size_ = max_size;
-
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
-    size_t free_memory, total_memory;
-    cudaMemGetInfo(&free_memory,&total_memory);
-
-    size_t memory_to_allocate = fd.get_frame_size() * max_size_;
-    bool is_size_modified = false;
-    std::string queue_string = "";
-
-    if (memory_to_allocate >= free_memory)
+    if (!data_.resize(fd_.get_frame_size() * max_size_))
     {
-
-        switch (type)
+        bool is_size_modified = false;
+        while (!data_.resize(fd_.get_frame_size() * max_size_))
         {
-        case QueueType::INPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
-            api::set_input_buffer_size(max_size_);
-            is_size_modified = true;
-            queue_string = "Input Buffer";
-        case QueueType::OUTPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
-            api::set_output_buffer_size(max_size_);
-            is_size_modified = true;
-            queue_string = "Output Buffer";
-        case QueueType::RECORD_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd.get_frame_size());
-            api::set_record_buffer_size(max_size_);
-            is_size_modified = true;
-            queue_string = "Record Buffer";
-        case QueueType::UNDEFINED:
-            break;
-        default:
-            break;
+            max_size_--;
         }
-        
+        switch (type)
+            {
+            case QueueType::INPUT_QUEUE:
+                api::set_input_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::OUTPUT_QUEUE: 
+                api::set_output_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::RECORD_QUEUE:
+                api::set_record_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::UNDEFINED:
+                break;
+            default:
+                break;
+            }
         if (is_size_modified)
         {
             LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
-            // For the GUI, show the warning in a window.
-            holovibes::gui::show_warn("The buffer size has been reduced to avoid memory errors. The queue is: " + queue_string + " and the new size is : " + std::to_string(max_size_));
-            // Return because when we set the buffer_size in the switch, the process is relaunched and the ctor will be called again
+            // LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
+            // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will be called again
             return;
         }
     }
+        
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
@@ -93,7 +85,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     //     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
     // else
     //     std::memset(data_.get(), 0, fd_.get_frame_size() * max_size_);
-
 
     cudaXMemset(data_.get(), 0, fd_.get_frame_size() * max_size_);
 
@@ -398,7 +389,10 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (nb_elts == -1)
         nb_elts = size_;
 
-    CHECK(std::cmp_less_equal(nb_elts, size_.load()), "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+    CHECK(std::cmp_less_equal(nb_elts, size_.load()),
+          "Request to dequeue {} elts, but the queue has only {}",
+          (char)nb_elts,
+          (char)size_);
 
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);
