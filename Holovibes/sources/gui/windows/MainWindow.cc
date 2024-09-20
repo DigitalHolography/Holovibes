@@ -115,7 +115,6 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
     std::filesystem::path convo_matrix_path(get_exe_dir() / __CONVOLUTION_KERNEL_FOLDER_PATH__);
