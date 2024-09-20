@@ -1247,7 +1247,10 @@ void set_raw_bitshift(unsigned int value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
 }
 
-unsigned int get_raw_bitshift() { return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value); }
+unsigned int get_raw_bitshift()
+{
+    return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value);
+}
 
 float get_contrast_min()
 {
@@ -1691,7 +1694,7 @@ void stop_chart_display()
 
 /**
  * @brief Extract the name from the filename
- * 
+ *
  * @param filePath the file name
  * @return std::string the name extracted from the filename
  */
@@ -1733,6 +1736,10 @@ void set_record_buffer_size(uint value)
 
         if (Holovibes::instance().is_recording())
             stop_record();
+
+        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
+                                               api::get_input_buffer_size());
+        Holovibes::instance().start_compute();
         Holovibes::instance().init_record_queue();
     }
 }

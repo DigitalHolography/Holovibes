@@ -83,11 +83,13 @@ void Holovibes::init_record_queue()
     case RecordMode::HOLOGRAM:
     {
         LOG_DEBUG("RecordMode = Hologram");
+
         auto record_fd = gpu_output_queue_.load()->get_fd();
         record_fd.depth = record_fd.depth == 1 ? 2 : record_fd.depth;
-        if (!record_queue_.load()) {
+        if (!record_queue_.load())
+        {
             record_queue_ =
-                std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device); 
+                std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
         }
         else
             record_queue_.load()->rebuild(record_fd,
@@ -264,7 +266,9 @@ void Holovibes::init_pipe()
         if (api::get_img_type() == ImgType::Composite)
             output_fd.depth = 6;
     }
-    gpu_output_queue_.store(std::make_shared<Queue>(output_fd, static_cast<unsigned int>(api::get_output_buffer_size()), QueueType::OUTPUT_QUEUE));
+    gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
+                                                    static_cast<unsigned int>(api::get_output_buffer_size()),
+                                                    QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
 
