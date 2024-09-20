@@ -1737,9 +1737,6 @@ void set_record_buffer_size(uint value)
         if (Holovibes::instance().is_recording())
             stop_record();
 
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_input_buffer_size());
-        Holovibes::instance().start_compute();
         Holovibes::instance().init_record_queue();
     }
 }
