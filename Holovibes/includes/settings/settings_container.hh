@@ -139,7 +139,7 @@ class RealtimeSettingsContainer : public SettingsContainer<Settings...>
     template <typename T>
     enable_if_any_of<T, Settings...> inline update_setting(T setting)
     {
-        spdlog::trace("[SettingsContainer] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[SettingsContainer] [update_setting] {}", typeid(T).name());
         std::get<T>(this->settings_) = setting;
     }
 };

@@ -10,7 +10,7 @@
 #include "camera_config.hh"
 #include "holovibes_config.hh"
 
-#include <spdlog/spdlog.h>
+#include "logger.hh"
 
 namespace camera
 {
@@ -72,7 +72,7 @@ class Camera : public ICamera
             if (ini_file_is_open())
                 boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
             else
-                spdlog::warn("Unable to open INI file {}", ini_name_);
+                LOG_WARN("Unable to open INI file {}", ini_name_);
         }
     }
 
