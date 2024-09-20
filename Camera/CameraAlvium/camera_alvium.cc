@@ -9,7 +9,7 @@
 namespace camera
 {
 
-#define VMB_ERROR(cond) cond != VmbErrorType::VmbErrorSuccess
+#define VMB_ERROR(cond) (cond != VmbErrorType::VmbErrorSuccess)
 
 CameraAlvium::FrameObserver::FrameObserver(VmbCPP::CameraPtr camera_ptr, CameraAlvium& camera_alvium)
     : VmbCPP::IFrameObserver(camera_ptr)
