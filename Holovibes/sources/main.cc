@@ -14,10 +14,11 @@
 #include "frame_desc.hh"
 #include "holovibes_config.hh"
 #include "logger.hh"
-#include "tools.hh"
 
 #include "cli.hh"
 #include "global_state_holder.hh"
+
+#include <spdlog/spdlog.h>
 
 static void check_cuda_graphic_card(bool gui)
 {
@@ -123,8 +124,8 @@ static void print_help(holovibes::OptionsParser parser)
 // Copy all files from src path to dest path (the directories will be created if not exist)
 static void copy_files(const std::filesystem::path src, std::filesystem::path dest)
 {
-    // if (std::filesystem::exists(dest))
-    //     return;
+    if (std::filesystem::exists(dest))
+        return;
 
     std::filesystem::create_directories(dest);
 
@@ -132,8 +133,7 @@ static void copy_files(const std::filesystem::path src, std::filesystem::path de
     {
         std::filesystem::path file = entry.path();
         std::filesystem::path dest_file = dest / file.filename();
-        if (!std::filesystem::exists(dest_file))
-            std::filesystem::copy(file, dest_file);
+        std::filesystem::copy(file, dest_file);
     }
 }
 
@@ -212,6 +212,8 @@ int main(int argc, char* argv[])
         LOG_ERROR("Uncaught exception: {}", e.what());
         ret = 10;
     }
+
+    spdlog::shutdown();
 
     return ret;
 }

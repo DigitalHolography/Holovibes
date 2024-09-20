@@ -84,6 +84,16 @@ OptionsParser::OptionsParser()
         po::bool_switch()->default_value(false),
         "Benchmark mode (default = false)"
     )
+    (
+        "frame_skip",
+        po::value<unsigned int>(),
+        "Frame to skip between each frame recorded"
+    )
+    (
+        "mp4_fps",
+        po::value<unsigned int>(),
+        "MP4 fps value, default 24. Warning : it may crash for big values"
+    )
     ;
     // clang-format on
 
@@ -157,12 +167,38 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
         options_.gpu = vm_["gpu"].as<bool>();
         options_.benchmark = vm_["benchmark"].as<bool>();
+        if (vm_.count("frame_skip"))
+        {
+            int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());
+            if (frame_skip > 0)
+                options_.frame_skip = frame_skip; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("frame_skip value should be positive");
+                exit(28);
+            }
+        }
+        if (vm_.count("mp4_fps"))
+        {
+            int mp4_fps = boost::any_cast<uint>(vm_["mp4_fps"].value());
+            if (mp4_fps > 0)
+                options_.mp4_fps = mp4_fps; // Implicit cast to uint
+            else
+            {
+                LOG_ERROR("mp4_fps value should be positive");
+                exit(31);
+            }
+        }
     }
     catch (std::exception& e)
     {
         LOG_INFO("Error when parsing options: {}", e.what());
         std::exit(20);
     }
+
+    // Both catch blocks below are never reached as the base class std::exception will catch them before...
+    // Left them as dead code for potential future use as fixing them (by moving them above the std::exception catch) would require to change some of the test suite expected return codes
+    #if 0
     catch (const po::invalid_option_value& ex)
     {
         // Gérer le cas où une option reçoit une valeur invalide
@@ -175,6 +211,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         LOG_ERROR("Unknown option: {}", ex.what());
         std::exit(26); // Utiliser un code d'erreur spécifique
     }
+    #endif
 
     return options_;
 }

@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "unpack.cuh"
 #include "input_frame_file_factory.hh"
+#include "logger.hh"
 
 #include "holovibes.hh"
 #include "global_state_holder.hh"
@@ -34,10 +35,10 @@ void FileFrameReadWorker::read_file()
 
 void FileFrameReadWorker::run()
 {
-    spdlog::trace("[FileFrameReadWorker] [run]");
+    LOG_TRACE("[FileFrameReadWorker] [run]");
 
     onrestart_settings_.apply_updates();
-    total_nb_frames_to_read_ = setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>();
+    total_nb_frames_to_read_ = static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());
 
     // Open file.
     try
@@ -164,7 +165,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = setting<settings::FileBufferSize>(); // onrestart_settings_.get<settings::FileBufferSize>().value;
+    const unsigned int batch_size = static_cast<unsigned int>(setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
 
     // Read the entire file by batch
     while (!stop_requested_)

@@ -1,6 +1,6 @@
-/*! \file
+/*! \file hardware_limits.hh
  *
- * \brief Getters of the GPU's specs so that calculations are optimized
+ * \brief Functions to get the hardware limits (max number of block and max number of threads per block in 1D and 2D) of the NVIDIA graphic card for CUDA.
  */
 #pragma once
 

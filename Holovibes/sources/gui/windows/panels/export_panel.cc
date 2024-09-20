@@ -17,6 +17,11 @@ namespace holovibes::gui
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
     , import_start_subscriber_("import_start", [this](bool success) { set_record_image_mode(); })
+    , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
+    , set_output_file_path_subscriber_("set_output_file_name",
+                                       std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
+    , browse_record_output_file_subscriber_("browse_record_output_file",
+                                            [this](bool _unused) { return browse_record_output_file().toStdString(); })
 {
 }
 
@@ -26,6 +31,15 @@ void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
     set_record_mode(QString::fromUtf8("Raw Image"));
+}
+
+/*
+ * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
+ * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
+ */
+void actualise_record_output_file_ui(const std::filesystem::path file_path)
+{
+    NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
 }
 
 void ExportPanel::on_notify()
@@ -78,15 +92,15 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
-    if (light_ui_ != nullptr)
-        light_ui_->actualise_record_output_file_ui(record_output_path);
+
+    actualise_record_output_file_ui(record_output_path);
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
     ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
-        ui_->NumberOfFramesSpinBox->setValue(api::get_record_frame_count().value());
+        ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api::get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
@@ -100,11 +114,9 @@ void ExportPanel::set_record_frame_step(int step)
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
 
-void ExportPanel::set_light_ui(std::shared_ptr<LightUI> light_ui)
+void ExportPanel::init_light_ui()
 {
-    light_ui_ = light_ui;
-    light_ui_->actualise_record_output_file_ui(
-        std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
+    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
 QString ExportPanel::browse_record_output_file()
@@ -298,7 +310,8 @@ void ExportPanel::start_record()
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
-    light_ui_->set_recordProgressBar_color(QColor(209, 90, 25), "Recording");
+
+    NotifierManager::notify<RecordBarColorData>("record_progress_bar_color", {QColor(209, 90, 25), "Recording"});
 
     ui_->ExportRecPushButton->setEnabled(false);
     ui_->ExportStopPushButton->setEnabled(true);

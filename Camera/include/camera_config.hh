@@ -16,6 +16,7 @@ namespace holovibes::settings
 
 #define __CAMERAS_CONFIG_FOLDER__ "cameras_config"
 #define __PRESET_FOLDER__ "preset"
+
 #define __CONVOLUTION_KERNEL_FOLDER__ "convolution_kernels"
 #define __INPUT_FILTER_FOLDER__ "input_filters"
 #define __SHADER_FOLDER__ "shaders"
@@ -28,6 +29,7 @@ namespace holovibes::settings
 
 // AppData location changes depending on Release or Debug mode
 #ifdef NDEBUG // Release mode (User AppData)
+
 
 #define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path(getenv("APPDATA")) / __APPNAME__)
 #define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__ / __HOLOVIBES_VERSION__)

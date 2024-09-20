@@ -17,10 +17,15 @@ double OutputFrameFile::compute_output_fps()
     // TODO(julesguillou): Remove very bad, this class should not need to have access to holovibes singleton
     double input_fps = static_cast<double>(Holovibes::instance().template get_setting<settings::InputFPS>().value);
     double time_stride = static_cast<double>(Holovibes::instance().template get_setting<settings::TimeStride>().value);
+    double frame_skip = static_cast<double>(Holovibes::instance().template get_setting<settings::FrameSkip>().value);
 
     assert(time_stride != 0);
     double output_fps = input_fps / time_stride;
-
+    // Divide again by the frame_skip to set the right fps
+    if (frame_skip > 0)
+    {
+        output_fps = output_fps / (frame_skip + 1);
+    }
     return output_fps;
 }
 } // namespace holovibes::io_files

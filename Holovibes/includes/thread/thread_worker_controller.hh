@@ -5,6 +5,7 @@
 #pragma once
 
 #include "utils/custom_type_traits.hh"
+#include "logger.hh"
 
 namespace holovibes::worker
 {
@@ -88,7 +89,7 @@ class ThreadWorkerController
         if (!worker_)
             return;
 
-        spdlog::trace("[ThreadWorkerController] [update_setting] {}", typeid(S).name());
+        LOG_TRACE("[ThreadWorkerController] [update_setting] {}", typeid(S).name());
         worker_->update_setting(setting);
     }
 
