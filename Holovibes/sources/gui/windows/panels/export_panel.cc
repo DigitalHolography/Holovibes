@@ -421,7 +421,7 @@ void ExportPanel::update_record_mode()
         record_mode = RecordMode::CUTS_YZ;
     else
     {
-        spdlog::critical("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
+        LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
         exit(4);
     }
 
