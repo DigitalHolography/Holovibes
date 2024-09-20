@@ -8,6 +8,9 @@
 #include <span>
 namespace camera
 {
+
+#define VMB_ERROR(cond) (cond != VmbErrorType::VmbErrorSuccess)
+
 CameraAlvium::FrameObserver::FrameObserver(VmbCPP::CameraPtr camera_ptr, CameraAlvium& camera_alvium)
     : VmbCPP::IFrameObserver(camera_ptr)
     , camera_alvium_(camera_alvium)
@@ -19,18 +22,15 @@ void CameraAlvium::FrameObserver::FrameReceived(const VmbCPP::FramePtr pFrame)
 {
     // Send notification to working thread
     unsigned char* buf;
-    if (pFrame->GetImage(buf) != VmbErrorType::VmbErrorSuccess)
-    {
+
+    if (VMB_ERROR(pFrame->GetImage(buf)))
         throw CameraException(CameraException::CANT_GET_FRAME);
-    }
 
     camera_alvium_.waiting_queue_.push(buf);
 
     // When the frame has been processed, requeue it
-    if (m_pCamera->QueueFrame(pFrame) != VmbErrorType::VmbErrorSuccess)
-    {
+    if (VMB_ERROR(m_pCamera->QueueFrame(pFrame)))
         throw CameraException(CameraException::CANT_GET_FRAME);
-    }
 }
 
 CameraAlvium::CameraAlvium()
@@ -56,27 +56,20 @@ void CameraAlvium::init_camera()
     std::string name;
     VmbCPP::CameraPtrVector cameras;
 
-    if (api_vmb_.Startup() != VmbErrorType::VmbErrorSuccess ||
-        api_vmb_.GetCameras(cameras) != VmbErrorType::VmbErrorSuccess)
-    {
+    if (VMB_ERROR(api_vmb_.Startup()) || VMB_ERROR(api_vmb_.GetCameras(cameras)))
         throw CameraException(CameraException::NOT_CONNECTED);
-    }
 
     // Trying to connect the first available Camera
     for (VmbCPP::CameraPtrVector::iterator iter = cameras.begin(); cameras.end() != iter; ++iter)
     {
-        if ((*iter)->GetName(name) != VmbErrorType::VmbErrorSuccess)
-        {
+        if (VMB_ERROR((*iter)->GetName(name)))
             continue;
-        }
 
         Logger::camera()->info("Connected to {}", name_);
 
         camera_ptr_ = *iter;
-        if (camera_ptr_->Open(VmbAccessModeFull) != VmbErrorType::VmbErrorSuccess)
-        {
+        if (VMB_ERROR(camera_ptr_->Open(VmbAccessModeFull)))
             throw CameraException(CameraException::NOT_CONNECTED);
-        }
 
         bind_params();
 
@@ -88,23 +81,18 @@ void CameraAlvium::init_camera()
 void CameraAlvium::start_acquisition()
 {
     Logger::camera()->info("Start Acquisition");
-    unsigned int nBuffers = 1;
+    unsigned int n_buffers = 1; // Maybe need to be increase for processing
 
-    if (camera_ptr_->StartContinuousImageAcquisition(
-            nBuffers,
-            VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this))) != VmbErrorType::VmbErrorSuccess)
-    {
+    auto frame_obs_ptr = VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this));
+    if (VMB_ERROR(camera_ptr_->StartContinuousImageAcquisition(n_buffers, frame_obs_ptr)))
         throw CameraException(CameraException::CANT_START_ACQUISITION);
-    }
 }
 
 void CameraAlvium::stop_acquisition()
 {
     Logger::camera()->info("Stop Acquisition");
-    if (camera_ptr_->StopContinuousImageAcquisition() != VmbErrorType::VmbErrorSuccess)
-    {
+    if (VMB_ERROR(camera_ptr_->StopContinuousImageAcquisition()))
         throw CameraException(CameraException::CANT_STOP_ACQUISITION);
-    }
 }
 
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
@@ -147,39 +135,32 @@ void CameraAlvium::load_ini_params()
 void CameraAlvium::bind_params()
 {
     VmbCPP::FeaturePtr fp; // Generic feature pointer
-    if (
-        // TODO : Add more params, check with mickael
 
-        // camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp) != OK || fp->SetValue(450'000'000) != OK ||
-        // cam->GetFeatureByName("AcquisitionFrameRateEnable", fp) != OK ||  fp->SetValue("true") != OK  ||
-        // cam->GetFeatureByName("AcquisitionFrameRate", fp) != OK       ||  fp->SetValue(10) != OK  ||
-        // camera_ptr_->GetFeatureByName("ExposureAuto", fp) != OK || fp->SetValue("Off") != OK ||
-        // camera_ptr_->GetFeatureByName("ExposureTime", fp) != OK || fp->SetValue(EXP) != OK ||
-        // camera_ptr_->GetFeatureByName("GainAuto", fp) != OK || fp->SetValue("Off") != OK ||
-        // camera_ptr_->GetFeatureByName("SensorBitDepth", fp) != VmbErrorType::VmbErrorSuccess ||
-        // fp->SetValue("Bpp12") != VmbErrorType::VmbErrorSuccess ||
-        camera_ptr_->GetFeatureByName("PixelFormat", fp) != VmbErrorType::VmbErrorSuccess ||
-        fp->SetValue("Mono8") != VmbErrorType::VmbErrorSuccess ||
-        camera_ptr_->GetFeatureByName("Width", fp) != VmbErrorType::VmbErrorSuccess ||
-        fp->SetValue(width_) != VmbErrorType::VmbErrorSuccess ||
-        camera_ptr_->GetFeatureByName("Height", fp) != VmbErrorType::VmbErrorSuccess ||
-        fp->SetValue(height_) != VmbErrorType::VmbErrorSuccess
-        // camera_ptr_->GetFeatureByName("OffsetX", fp) != OK || fp->SetValue(X0) != OK ||
-        // camera_ptr_->GetFeatureByName("OffsetY", fp) != OK || fp->SetValue(Y0) != OK)
-    )
-    {
+    /* TODO : Add more params, check with mickael
+        \A -> \B => VMB_ERROR(camera_ptr_->GetFeatureByName(\A, fp)) || VMB_ERROR(fp->SetValue(\B))
+
+        "DeviceLinkThroughputLimit" -> 450'000'000
+        "AcquisitionFrameRateEnable" -> "true"
+        "AcquisitionFrameRate" -> 10
+        "ExposureAuto" -> "Off"
+        "ExposureTime" -> EXP (I dont know what it is need to check API Manuel)
+        "GainAuto" -> "Off"
+        "SensorBitDepth" -> "Bpp12"
+        "OffsetX" -> X0
+        "OffsetY" -> Y0
+    */
+
+    if (VMB_ERROR(camera_ptr_->GetFeatureByName("PixelFormat", fp)) || VMB_ERROR(fp->SetValue("Mono8")) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("Width", fp)) || VMB_ERROR(fp->SetValue(width_)) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)))
         throw CameraException(CameraException::NOT_INITIALIZED);
-    }
 };
 
 void CameraAlvium::shutdown_camera()
 {
-    if (camera_ptr_->FlushQueue() != VmbErrorType::VmbErrorSuccess ||
-        camera_ptr_->RevokeAllFrames() != VmbErrorType::VmbErrorSuccess ||
-        camera_ptr_->Close() != VmbErrorType::VmbErrorSuccess)
-    {
+    if (VMB_ERROR(camera_ptr_->FlushQueue()) || VMB_ERROR(camera_ptr_->RevokeAllFrames()) ||
+        VMB_ERROR(camera_ptr_->Close()))
         throw CameraException(CameraException::CANT_SHUTDOWN);
-    }
 
     api_vmb_.Shutdown();
 }
