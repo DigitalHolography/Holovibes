@@ -113,6 +113,15 @@ void CameraAlvium::load_default_params()
     height_ = MAX_HEIGHT;
     width_ = MAX_WIDTH;
 
+    device_link_throughput_limit_ = "500'000'000";
+    acquisition_frame_rate_enable_ = true;
+    acquisition_frame_rate_ = 20;
+    exposure_auto_ = "Off";
+    exposure_time_ = 47;
+    gain_auto_ = "Off";
+    offset_X_ = 0;
+    offset_Y_ = 0;
+
     fd_.depth = 1;
 
     fd_.byteEndian = Endianness::LittleEndian;
@@ -145,7 +154,6 @@ void CameraAlvium::bind_params()
         "ExposureAuto" -> "Off"
         "ExposureTime" -> EXP (I dont know what it is need to check API Manuel)
         "GainAuto" -> "Off"
-        "SensorBitDepth" -> "Bpp12"
         "OffsetX" -> X0
         "OffsetY" -> Y0
     */
@@ -153,6 +161,17 @@ void CameraAlvium::bind_params()
     if (VMB_ERROR(camera_ptr_->GetFeatureByName("PixelFormat", fp)) || VMB_ERROR(fp->SetValue("Mono8")) ||
         VMB_ERROR(camera_ptr_->GetFeatureByName("Width", fp)) || VMB_ERROR(fp->SetValue(width_)) ||
         VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)))
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp)) ||
+        // VMB_ERROR(fp->SetValue(device_link_throughput_limit_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRateEnable", fp)) ||
+        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_enable_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRate", fp)) ||
+        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureAuto", fp)) || VMB_ERROR(fp->SetValue(exposure_auto_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureTime", fp)) || VMB_ERROR(fp->SetValue(exposure_time_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("GainAuto", fp)) || VMB_ERROR(fp->SetValue(gain_auto_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetX", fp)) || VMB_ERROR(fp->SetValue(offset_X_)) ||
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetY", fp)) || VMB_ERROR(fp->SetValue(offset_Y_)))
         throw CameraException(CameraException::NOT_INITIALIZED);
 };
 

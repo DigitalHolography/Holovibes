@@ -86,6 +86,16 @@ class CameraAlvium : public Camera
     /*! \brief The height of the frames taken by the camera. */
     int height_;
 
+    /*! \brief Some params given by the ini file needed by the camera */
+    std::string device_link_throughput_limit_;
+    bool acquisition_frame_rate_enable_;
+    unsigned int acquisition_frame_rate_;
+    std::string exposure_auto_;
+    unsigned int exposure_time_;
+    std::string gain_auto_;
+    unsigned int offset_X_;
+    unsigned int offset_Y_;
+
     /*! \brief The max width of a frame. */
     static constexpr unsigned short MAX_WIDTH = 5496;
 
