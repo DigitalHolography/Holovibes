@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
-    std::filesystem::path convo_matrix_path(GET_EXE_DIR / __CONVOLUTION_KERNEL_FOLDER_PATH__);
+    std::filesystem::path convo_matrix_path(RELATIVE_PATH(__CONVOLUTION_KERNEL_FOLDER_PATH__));
     if (std::filesystem::exists(convo_matrix_path))
     {
         QVector<QString> files;
@@ -130,7 +130,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Fill the input filter combo box with files from input_filters
     // directory
-    std::filesystem::path input_filters_path(GET_EXE_DIR / __INPUT_FILTER_FOLDER_PATH__);
+    std::filesystem::path input_filters_path(RELATIVE_PATH(__INPUT_FILTER_FOLDER_PATH__));
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
@@ -271,13 +271,13 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
-    std::filesystem::path preset_dir(GET_EXE_DIR / __PRESET_FOLDER_PATH__);
+    std::filesystem::path preset_dir(RELATIVE_PATH(__PRESET_FOLDER_PATH__));
     if (!std::filesystem::exists(preset_dir))
         ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
     else
     {
         QList<QAction*> actions;
-        for (const auto& file : std::filesystem::directory_iterator(GET_EXE_DIR / __PRESET_FOLDER_PATH__))
+        for (const auto& file : std::filesystem::directory_iterator(RELATIVE_PATH(__PRESET_FOLDER_PATH__)))
         {
             QAction* action = new QAction(QString(file.path().filename().string().c_str()), ui_->menuSelect_preset);
             connect(action, &QAction::triggered, this, [=] { set_preset(file); });
@@ -523,10 +523,10 @@ void MainWindow::set_preset_file_on_gpu()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
     // Check if we are in DEBUG or RELEASE
-    if (!std::filesystem::exists(dest))
-    {
-        dest = std::filesystem::path(GET_EXE_DIR).parent_path().parent_path() / "Preset" / "FILE_ON_GPU.json";
-    }
+    // if (!std::filesystem::exists(dest))
+    // {
+    //     dest = std::filesystem::path(GET_EXE_DIR).parent_path().parent_path() / "Preset" / "FILE_ON_GPU.json";
+    // }
     api::import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
@@ -851,7 +851,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(GET_EXE_DIR / __PRESET_FOLDER_PATH__ / "preset.json");
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "preset.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }

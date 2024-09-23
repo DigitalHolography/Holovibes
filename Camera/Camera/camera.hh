@@ -58,7 +58,7 @@ class Camera : public ICamera
         , gpu_(gpu)
         , ini_pt_()
     {
-        ini_name_ = (GET_EXE_DIR / __CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
+        ini_name_ = (RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename)).string();
         ini_file_ = std::ifstream(ini_name_);
         if (ini_file_is_open())
             boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
