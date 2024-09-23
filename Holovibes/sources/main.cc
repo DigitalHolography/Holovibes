@@ -175,19 +175,16 @@ int main(int argc, char* argv[])
         /*
             If we are on release mode, at first boot copy the reference files from the local AppData to the real user
             AppData/Roaming/Holovibes location.
-            We use get_exe_dir() completed with macros instead of absolute paths to avoid crashing during
+            We use GET_EXE_DIR completed with macros instead of absolute paths to avoid crashing during
             debugging.
             It may be cleaner to propagate files during instalation (for release mode) and during compilation
             (for debug mode) but hard to do...
         */
-        copy_files(holovibes::get_exe_dir() / __CAMERAS_CONFIG_REFERENCE__,
-                   holovibes::get_exe_dir() / __CAMERAS_CONFIG_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __PRESET_REFERENCE__, holovibes::get_exe_dir() / __PRESET_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_REFERENCE__,
-                   holovibes::get_exe_dir() / __CONVOLUTION_KERNEL_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __INPUT_FILTER_REFERENCE__,
-                   holovibes::get_exe_dir() / __INPUT_FILTER_FOLDER_PATH__);
-        copy_files(holovibes::get_exe_dir() / __SHADER_REFERENCE__, holovibes::get_exe_dir() / __SHADER_FOLDER_PATH__);
+        copy_files(GET_EXE_DIR / __CAMERAS_CONFIG_REFERENCE__, GET_EXE_DIR / __CAMERAS_CONFIG_FOLDER_PATH__);
+        copy_files(GET_EXE_DIR / __PRESET_REFER ENCE__, GET_EXE_DIR / __PRESET_FOLDER_PATH__);
+        copy_files(GET_EXE_DIR / __CONVOLUTION_KERNEL_REFERENCE__, GET_EXE_DIR / __CONVOLUTION_KERNEL_FOLDER_PATH__);
+        copy_files(GET_EXE_DIR / __INPUT_FILTER_REFERENCE__, GET_EXE_DIR / __INPUT_FILTER_FOLDER_PATH__);
+        copy_files(GET_EXE_DIR / __SHADER_REFERENCE__, GET_EXE_DIR / __SHADER_FOLDER_PATH__);
 
 #endif
 

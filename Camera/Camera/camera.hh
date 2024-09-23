@@ -4,7 +4,6 @@
 #pragma once
 
 #include <boost/property_tree/ini_parser.hpp>
-#include <Windows.h>
 #include "icamera.hh"
 #include "frame_desc.hh"
 #include "camera_config.hh"
@@ -15,26 +14,6 @@
 
 namespace camera
 {
-
-/* FIXME: duplicated code from tools.hh, can't use it directly without duplicate */
-static std::string get_exe_dir()
-{
-#ifdef UNICODE
-    wchar_t path[MAX_PATH];
-#else
-    char path[MAX_PATH];
-#endif
-    HMODULE hmodule = GetModuleHandle(NULL);
-    if (hmodule != NULL)
-    {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
-        std::filesystem::path p(path);
-        return p.parent_path().string();
-    }
-
-    spdlog::error("Failed to find executable dir");
-    throw std::runtime_error("Failed to find executable dir");
-}
 
 /*! \brief Adding to the ICamera interface datas and INI file loading.
  *
@@ -79,7 +58,7 @@ class Camera : public ICamera
         , gpu_(gpu)
         , ini_pt_()
     {
-        ini_name_ = (get_exe_dir() / __CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
+        ini_name_ = (GET_EXE_DIR / __CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
         ini_file_ = std::ifstream(ini_name_);
         if (ini_file_is_open())
             boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);

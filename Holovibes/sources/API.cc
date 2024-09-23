@@ -1373,7 +1373,7 @@ float get_truncate_contrast_min(const int precision)
 
 #pragma region Convolution
 
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void load_convolution_matrix(std::optional<std::string> filename)
 {
