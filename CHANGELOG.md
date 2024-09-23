@@ -4,6 +4,7 @@
 
 - Create option in CLI for frame skip and fps for mp4 records
 - Change the .ps1 to ask for frame skip (not for mp4 fps)
+- Add support for Alvium Camera
 
 ### 13.4.0
 
