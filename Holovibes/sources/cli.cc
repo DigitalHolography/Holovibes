@@ -81,6 +81,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     {
         LOG_INFO("24");
     }
+    LOG_INFO("Moments record: {}", opts.moments_record);
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -169,18 +170,34 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
     if (!load)
     {
-        LOG_DEBUG("No compute settings file provided and no footer found in input file");
+        LOG_ERROR("No compute settings file provided and no footer found in input file");
         return 35;
     }
 
-    auto mode = opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM;
-
-    holovibes.update_setting(holovibes::settings::RecordMode{mode});
-
     holovibes::api::set_frame_record_enabled(true);
-    holovibes::api::set_compute_mode(opts.record_raw ? holovibes::Computation::Raw : holovibes::Computation::Hologram);
-
-    holovibes::api::set_record_mode(opts.record_raw ? holovibes::RecordMode::RAW : holovibes::RecordMode::HOLOGRAM);
+    if (opts.record_raw && opts.moments_record)
+    {
+        LOG_ERROR("Cannot record raw and moments at the same time");
+        return 36;
+    }
+    if (opts.record_raw)
+    {
+        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::RAW});
+        holovibes::api::set_compute_mode(holovibes::Computation::Raw);
+        holovibes::api::set_record_mode(holovibes::RecordMode::RAW);
+    }
+    else if (opts.moments_record)
+    {
+        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::MOMENTS});
+        holovibes::api::set_compute_mode(holovibes::Computation::Moments);
+        holovibes::api::set_record_mode(holovibes::RecordMode::MOMENTS);
+    }
+    else
+    {
+        holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::HOLOGRAM});
+        holovibes::api::set_compute_mode(holovibes::Computation::Hologram);
+        holovibes::api::set_record_mode(holovibes::RecordMode::HOLOGRAM);
+    }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
 

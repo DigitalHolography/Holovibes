@@ -16,7 +16,8 @@ namespace holovibes
 enum class Computation
 {
     Raw = 0, /*!< Interferogram recorded */
-    Hologram /*!<  Reconstruction of the object */
+    Hologram, /*!<  Reconstruction of the object */
+    Moments, /*!<  Moments of the object */
 };
 
 // clang-format off

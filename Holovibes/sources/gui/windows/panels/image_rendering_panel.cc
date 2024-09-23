@@ -184,6 +184,11 @@ void ImageRenderingPanel::set_image_mode(int mode)
         /* Notify */
         parent_->notify();
     }
+    else if (mode == static_cast<int>(Computation::Moments))
+    {
+        LOG_WARN("Moments computation is not implemented yet");
+        // Todo here for Moments
+    }
 }
 
 void ImageRenderingPanel::update_batch_size()
