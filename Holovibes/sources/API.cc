@@ -59,6 +59,14 @@ const std::string get_credits()
 
            "Developers:\n\n"
 
+           "Titouan Gragnic\n"
+           "Arthur Courselle\n"
+           "Gustave Herve\n"
+           "Alexis Pinson\n"
+           "Etienne Senigout\n"
+           "Bastien Gaulier\n"
+           "Simon Riou\n"
+
            "Chloé Magnier\n"
            "Noé Topeza\n"
            "Maxime Boy-Arnould\n"
