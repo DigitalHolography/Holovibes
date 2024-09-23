@@ -33,9 +33,9 @@
    - [10.1 Dev.py](#101-devpy-tools)
    - [10.2 Holo file inspector](#102-holo-file-inspector)
    - [10.3 Benchmark viewer](#103-benchmark-viewer)
-   - [10.4 Python scripts]
-      - [10.4.1 Convert holo]
-      - [10.4.2 Add missing compute settings]
+   - [10.4 Python scripts](TUTORIAL.md#10-tools)
+      - [10.4.1 Convert holo](TUTORIAL.md#convert_holopy)
+      - [10.4.2 Add missing compute settings](TUTORIAL.md#add_missing_compute_settingspy)
 
 # 1. Introduction
 
