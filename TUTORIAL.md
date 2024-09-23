@@ -33,6 +33,9 @@
    - [10.1 Dev.py](#101-devpy-tools)
    - [10.2 Holo file inspector](#102-holo-file-inspector)
    - [10.3 Benchmark viewer](#103-benchmark-viewer)
+   - [10.4 Python scripts](TUTORIAL.md#10-tools)
+      - [10.4.1 Convert holo](TUTORIAL.md#convert_holopy)
+      - [10.4.2 Add missing compute settings](TUTORIAL.md#add_missing_compute_settingspy)
 
 # 1. Introduction
 
@@ -46,11 +49,11 @@ To develop for Holovibes, ensure you have the following software installed:
 
 - GIT
 - CMake
-- Visual Studio 2022 with C++ Desktop Development
-- CUDA 12.2
+- Visual Studio 2022 with C++ Desktop Development 
+- CUDA 12.6
 - Python 3.8.10
 - NSIS
-- Conan
+- Conan 2.7.0
 
 ## 2.2 Initial setup
 
@@ -77,7 +80,7 @@ To develop for Holovibes, ensure you have the following software installed:
 5. **Reboot your PC**.
 6. **Install Python 3.8.10** from [here](https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe). Ensure to tick `Add Python 3.8 to PATH`.
 7. **Install NSIS** from [here](https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download?use_mirror=netcologne&download=).
-8. **Install Conan**:
+8. **Install Conan 2.7.0**:
    ```sh
    $ pip install conan && conan profile detect --force
    ```
@@ -168,6 +171,11 @@ Adhere to the following coding standards to maintain code consistency:
 - Ensure all header files have the extension `.hh`, source files `.cc`, and templated classes `.hxx`.
 - Getters, Setters and inlinable functions must be written in `*.hh` files.
 - Use Doxygen for comments (ex: `/* ! \brief This is an example */`) and document your code.
+
+To clang format the entiere project:
+```sh
+find . \( -name "*.hh" -o -name "*.hxx" -o -name "*.cc" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.cu" \) -exec clang-format.exe -i {} \;
+```
 
 ## 4.2 Git
 
@@ -410,3 +418,47 @@ The format of these files can be found [here](docs/Holo%20file%20format.md).
 ## 10.3 Benchmark viewer
 
 [Benchmark viewer](https://github.com/TitouanGragnic/benchmark-viewer)
+
+## 10.4 Holovibes Python scripts
+
+### Requirements
+
+*Note: It is recommended to move the `python/` folder from Holovibes installation directory (usually `C:/Program Files/Holovibes/X.X.X/`) to another place to avoid permissions issues.*
+
+1. Have [python3](https://www.python.org/downloads/) installed
+2. Install dependencies with `pip install -r requirements.txt`
+
+### convert_holo.py
+
+| From  | To    | Command                                         |
+|-------|-------|-------------------------------------------------|
+| .holo | .avi  | `python3 convert_holo.py input.holo output.avi` |
+| .holo | .mp4  | `python3 convert_holo.py input.holo output.mp4` |
+| .holo | .raw  | `python3 convert_holo.py input.holo output.raw` |
+| .raw  | .holo | `python3 convert_holo.py input.raw output.holo` |
+
+For .avi and .mp4 you can specify the output video FPS (by default 20) with `--fps 30`.
+
+*Note: when creating a .holo from a .raw the program will prompt the user mandatory parameters: width, height, bytes per pixel and number of frames.*
+
+### add_missing_compute_settings.py
+
+Used to add/remove compute_settings from .holo and .json when changes have been made in the code.
+
+The script must be run in the tests folder :
+```sh
+Holovibes/tests>$ ./add_missing_compute_settings.py [json_name] [holo_name]
+```
+json_name and holo_name are the .json and .holo that the script will modify. If you don't specify the names, it will modify all the **holovibes.json** and **ref.holo** recursively in the current folder and subfolders.
+
+In order to add and remove keys, modify the directory "new_key_values" in the file. Here is an example usage:
+```py
+directory_path = '.'  # Change this to the directory where your JSON files are located
+new_key_values = {
+    ("image_rendering", "input_filter"): {"enabled": False, "type": "None"}, # Adds a key
+    ("color_composite_image", "hsv", "slider_shift"): None, # Removes the key
+    ("color_composite_image", "hsv", "h", "slider_shift"): {"max": 1.0,"min": 0.0}, # Adds the key
+    ("color_composite_image", "hsv", "h", "frame_index", "activated"): False, # Adds the key
+    ("color_composite_image", "hsv", "h", "blur"): None, # Removes the key
+}
+```

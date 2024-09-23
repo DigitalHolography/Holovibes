@@ -2,6 +2,7 @@
 #include "logger.hh"
 #include "input_filter.hh"
 #include "notifier.hh"
+#include "logger.hh"
 
 #include <regex>
 #include <string>
@@ -41,7 +42,7 @@ void pipe_refresh()
 
     try
     {
-        spdlog::trace("pipe_refresh");
+        LOG_TRACE("pipe_refresh");
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -57,6 +58,14 @@ const std::string get_credits()
            "\n\n"
 
            "Developers:\n\n"
+
+           "Titouan Gragnic\n"
+           "Arthur Courselle\n"
+           "Gustave Herve\n"
+           "Alexis Pinson\n"
+           "Etienne Senigout\n"
+           "Bastien Gaulier\n"
+           "Simon Riou\n"
 
            "Chloé Magnier\n"
            "Noé Topeza\n"
@@ -1246,7 +1255,10 @@ void set_raw_bitshift(unsigned int value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
 }
 
-unsigned int get_raw_bitshift() { return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value); }
+unsigned int get_raw_bitshift()
+{
+    return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value);
+}
 
 float get_contrast_min()
 {
@@ -1369,7 +1381,7 @@ float get_truncate_contrast_min(const int precision)
 
 #pragma region Convolution
 
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void load_convolution_matrix(std::optional<std::string> filename)
 {
@@ -1385,7 +1397,7 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
     try
     {
-        auto path_file = dir / "convolution_kernels" / file;
+        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
         std::string path = path_file.string();
 
         std::vector<float> matrix;
@@ -1533,7 +1545,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     auto& holo = Holovibes::instance();
     try
     {
-        auto path_file = dir / "input_filters" / file;
+        auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
         InputFilter(input_filter,
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
@@ -1690,7 +1702,7 @@ void stop_chart_display()
 
 /**
  * @brief Extract the name from the filename
- * 
+ *
  * @param filePath the file name
  * @return std::string the name extracted from the filename
  */
@@ -1732,6 +1744,7 @@ void set_record_buffer_size(uint value)
 
         if (Holovibes::instance().is_recording())
             stop_record();
+
         Holovibes::instance().init_record_queue();
     }
 }

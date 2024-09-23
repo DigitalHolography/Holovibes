@@ -18,8 +18,10 @@ ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
     , import_start_subscriber_("import_start", [this](bool success) { set_record_image_mode(); })
     , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
-    , set_output_file_path_subscriber_("set_output_file_name", std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
-    , browse_record_output_file_subscriber_("browse_record_output_file", [this](bool _unused) { return browse_record_output_file().toStdString(); })
+    , set_output_file_path_subscriber_("set_output_file_name",
+                                       std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
+    , browse_record_output_file_subscriber_("browse_record_output_file",
+                                            [this](bool _unused) { return browse_record_output_file().toStdString(); })
 {
 }
 
@@ -90,7 +92,7 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
-    
+
     actualise_record_output_file_ui(record_output_path);
 
     ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
@@ -308,7 +310,7 @@ void ExportPanel::start_record()
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
-    
+
     NotifierManager::notify<RecordBarColorData>("record_progress_bar_color", {QColor(209, 90, 25), "Recording"});
 
     ui_->ExportRecPushButton->setEnabled(false);
@@ -419,7 +421,7 @@ void ExportPanel::update_record_mode()
         record_mode = RecordMode::CUTS_YZ;
     else
     {
-        spdlog::critical("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
+        LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
         exit(4);
     }
 

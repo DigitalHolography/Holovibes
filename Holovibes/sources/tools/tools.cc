@@ -1,4 +1,3 @@
-#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -6,8 +5,8 @@
 #include <sstream>
 #include <Windows.h>
 
+#include "chrono.hh"
 #include "logger.hh"
-#include "power_of_two.hh"
 #include "tools.hh"
 #include "tools_conversion.cuh"
 
@@ -34,37 +33,6 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
     }
 }
 
-std::string get_exe_dir()
-{
-#ifdef UNICODE
-    wchar_t path[MAX_PATH];
-#else
-    char path[MAX_PATH];
-#endif
-    HMODULE hmodule = GetModuleHandle(NULL);
-    if (hmodule != NULL)
-    {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
-        std::filesystem::path p(path);
-        return p.parent_path().string();
-    }
-
-    LOG_ERROR("Failed to find executable dir");
-    throw std::runtime_error("Failed to find executable dir");
-}
-
-std::string get_current_date()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    std::tm* timeinfo = std::localtime(&in_time_t);
-    int year = timeinfo->tm_year % 100;
-    ss << std::setw(2) << std::setfill('0') << year << std::put_time(timeinfo, "%m%d");
-    return ss.str();
-}
-
 std::string get_record_filename(std::string filename)
 {
     size_t dot_index = filename.find_last_of('.');
@@ -83,7 +51,7 @@ std::string get_record_filename(std::string filename)
     }
 
     auto search = filename;
-    search.insert(name_index + 1, get_current_date() + "_");
+    search.insert(name_index + 1, Chrono::get_current_date() + "_");
 
     while (std::filesystem::exists(search))
     {
@@ -105,14 +73,14 @@ std::string get_record_filename(std::string filename)
 
 QString create_absolute_qt_path(const std::string& relative_path)
 {
-    std::filesystem::path dir(get_exe_dir());
+    std::filesystem::path dir(GET_EXE_DIR);
     dir = dir / relative_path;
     return QString(dir.string().c_str());
 }
 
 std::string create_absolute_path(const std::string& relative_path)
 {
-    std::filesystem::path dir(get_exe_dir());
+    std::filesystem::path dir(GET_EXE_DIR);
     dir = dir / relative_path;
     return dir.string();
 }

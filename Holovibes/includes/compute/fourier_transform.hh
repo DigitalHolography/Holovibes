@@ -13,6 +13,7 @@
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "global_state_holder.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -115,12 +116,12 @@ class FourierTransform
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::trace("[FourierTransform] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
         if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            spdlog::trace("[FourierTransform] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[FourierTransform] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }

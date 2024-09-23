@@ -10,6 +10,7 @@
 #include "settings/settings.hh"
 #include <optional>
 #include <array>
+#include "logger.hh"
 
 #pragma region Settings configuration
 // clang-format off
@@ -19,7 +20,9 @@
   holovibes::settings::RecordFrameCount, \
   holovibes::settings::RecordMode,       \
   holovibes::settings::RecordFrameSkip,  \
-  holovibes::settings::OutputBufferSize
+  holovibes::settings::OutputBufferSize, \
+  holovibes::settings::FrameSkip,        \
+  holovibes::settings::Mp4Fps
 
 #define ALL_SETTINGS ONRESTART_SETTINGS
 
@@ -80,7 +83,7 @@ class FrameRecordWorker final : public Worker
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {

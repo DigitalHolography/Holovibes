@@ -10,7 +10,6 @@
 #include "queue.hh"
 #include "concurrent_deque.hh"
 
-#include "power_of_two.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
 #include "update_exception.hh"
@@ -26,42 +25,61 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-bool ICompute::update_time_transformation_size(const unsigned short time_transformation_size)
+bool ICompute::update_time_transformation_size(const unsigned short size)
 {
     try
     {
-        resize_gpu_p_acc_buffer(time_transformation_size);
-        perform_time_transformation_setting_specific_tasks(time_transformation_size);
-        resize_gpu_time_transformation_queue(time_transformation_size);
+        // Updates the size of the GPU P acc buffer.
+        auto frame_res = input_queue_.get_fd().get_frame_res();
+        time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
+
+        perform_time_transformation_setting_specific_tasks(size);
+
+        // Resize the time transformation queue
+        time_transformation_env_.gpu_time_transformation_queue->resize(size, stream_);
     }
     catch (const std::exception& e)
     {
-        handle_exception(e);
+        time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
+        request_time_transformation_cuts_ = false;
+        request_delete_time_transformation_cuts_ = true;
+        dispose_cuts();
+        LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
+
         return false;
     }
     return true;
 }
 
-void ICompute::resize_gpu_p_acc_buffer(const unsigned short time_transformation_size)
+void ICompute::update_stft(const unsigned short size)
 {
-    auto frame_res = input_queue_.get_fd().get_frame_res();
-    time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * time_transformation_size);
+    int inembed_stft[1] = {size};
+    int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
+    time_transformation_env_.stft_plan
+        .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
 }
 
-void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned short time_transformation_size)
+void ICompute::update_pca(const unsigned short size)
+{
+    size_t st_size = size;
+    time_transformation_env_.pca_cov.resize(st_size * st_size);
+    time_transformation_env_.pca_eigen_values.resize(size);
+    time_transformation_env_.pca_dev_info.resize(1);
+}
+
+void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned short size)
 {
     switch (setting<settings::TimeTransformation>())
     {
     case TimeTransformation::STFT:
+        update_stft(size);
+        break;
     case TimeTransformation::SSA_STFT:
-        update_stft(time_transformation_size);
-        if (setting<settings::TimeTransformation>() == TimeTransformation::SSA_STFT)
-        {
-            update_pca(time_transformation_size);
-        }
+        update_stft(size);
+        update_pca(size);
         break;
     case TimeTransformation::PCA:
-        update_pca(time_transformation_size);
+        update_pca(size);
         break;
     case TimeTransformation::NONE:
         break;
@@ -69,36 +87,6 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         LOG_ERROR("Unhandled Time transformation settings");
         break;
     }
-}
-
-void ICompute::update_stft(const unsigned short time_transformation_size)
-{
-    int inembed_stft[1] = {time_transformation_size};
-    int zone_size = static_cast<int>(input_queue_.get_fd().get_frame_res());
-    time_transformation_env_.stft_plan
-        .planMany(1, inembed_stft, inembed_stft, zone_size, 1, inembed_stft, zone_size, 1, CUFFT_C2C, zone_size);
-}
-
-void ICompute::update_pca(const unsigned short time_transformation_size)
-{
-    auto size = static_cast<const uint>(time_transformation_size);
-    time_transformation_env_.pca_cov.resize(size * size);
-    time_transformation_env_.pca_eigen_values.resize(time_transformation_size);
-    time_transformation_env_.pca_dev_info.resize(1);
-}
-
-void ICompute::resize_gpu_time_transformation_queue(const unsigned short time_transformation_size)
-{
-    time_transformation_env_.gpu_time_transformation_queue->resize(time_transformation_size, stream_);
-}
-
-void ICompute::handle_exception(const std::exception& e)
-{
-    time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
-    request_time_transformation_cuts_ = false;
-    request_delete_time_transformation_cuts_ = true;
-    dispose_cuts();
-    LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
 }
 
 void ICompute::update_spatial_transformation_parameters()
@@ -177,8 +165,6 @@ std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
     return chart_env_.chart_record_queue_;
 }
 
-// std::unique_ptr<Queue>& ICompute::get_frame_record_queue() { return frame_record_env_.frame_record_queue_; }
-
 void ICompute::delete_stft_slice_queue()
 {
     request_delete_time_transformation_cuts_ = true;
@@ -198,12 +184,6 @@ bool ICompute::get_cuts_delete_request() { return request_delete_time_transforma
 std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
 {
     return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
-}
-
-void ICompute::soft_request_refresh()
-{
-    if (!refresh_requested_)
-        refresh_requested_ = true;
 }
 
 void ICompute::enable_refresh() { refresh_enabled_ = true; }
@@ -259,9 +239,7 @@ void ICompute::request_disable_frame_record()
 void ICompute::request_autocontrast(WindowKind kind)
 {
     if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
-    {
         autocontrast_requested_ = true;
-    }
     else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
              setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;

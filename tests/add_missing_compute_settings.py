@@ -8,7 +8,10 @@ import holo
 def add_or_remove_key_value_pairs(data, new_key_values, holo=False):
     for keys, value in new_key_values.items():
         current = data
-        keys=list(keys)
+        if type(keys) is tuple:
+            keys=list(keys)
+        else:
+            keys=[keys]
         if holo:
             keys.insert(0, "compute_settings")
         for key in keys[:-1]:
@@ -37,11 +40,10 @@ def process_directory(directory_path, new_key_values, json_file_name='holovibes.
 # Example usage:
 directory_path = '.'  # Change this to the directory where your JSON files are located
 new_key_values = {
-    ("image_rendering", "input_filter"): {"enabled": False, "type": "None"}, 
-    ("color_composite_image", "hsv", "slider_shift"): None,
-    ("color_composite_image", "hsv", "h", "slider_shift"): {"max": 1.0,"min": 0.0},
-    ("color_composite_image", "hsv", "h", "frame_index", "activated"): False,
-    ("color_composite_image", "hsv", "h", "blur"): None,
+    ("advanced", "nb_frames_to_record"): 0,
+    ("view", "window", "xy", "enabled"): False,
+    ("view", "window", "xz", "enabled"): False,
+    ("view", "window", "yz", "enabled"): False,
 }
 
 holo_header_version = 3

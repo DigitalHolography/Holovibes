@@ -18,6 +18,8 @@
 #include "cli.hh"
 #include "global_state_holder.hh"
 
+#include <spdlog/spdlog.h>
+
 static void check_cuda_graphic_card(bool gui)
 {
     std::string error_message;
@@ -119,39 +121,17 @@ static void print_help(holovibes::OptionsParser parser)
     std::cout << parser.get_opts_desc();
 }
 
-void copy_ini_files()
+// Copy all files from src path to dest path (the directories will be created if not exist)
+static void copy_files(const std::filesystem::path src, std::filesystem::path dest)
 {
-    std::filesystem::path dest = __CAMERAS_CONFIG_FOLDER_PATH__;
-    std::filesystem::path src = __CAMERAS_CONFIG_REFERENCE__;
-
-    if (std::filesystem::exists(dest))
-        return;
-
     std::filesystem::create_directories(dest);
 
     for (const auto& entry : std::filesystem::directory_iterator(src))
     {
         std::filesystem::path file = entry.path();
         std::filesystem::path dest_file = dest / file.filename();
-        std::filesystem::copy(file, dest_file);
-    }
-}
-
-void copy_preset_files()
-{
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__;
-    std::filesystem::path src = __PRESET_REFERENCE__;
-
-    if (std::filesystem::exists(dest))
-        return;
-
-    std::filesystem::create_directories(dest);
-
-    for (const auto& entry : std::filesystem::directory_iterator(src))
-    {
-        std::filesystem::path file = entry.path();
-        std::filesystem::path dest_file = dest / file.filename();
-        std::filesystem::copy(file, dest_file);
+        if (!std::filesystem::exists(dest_file))
+            std::filesystem::copy(file, dest_file);
     }
 }
 
@@ -190,8 +170,23 @@ int main(int argc, char* argv[])
     int ret = 0;
     try
     {
-        copy_ini_files();
-        copy_preset_files();
+
+#ifdef NDEBUG
+        /*
+            If we are on release mode, at first boot copy the reference files from the local AppData to the real user
+            AppData/Roaming/Holovibes location.
+            We use GET_EXE_DIR completed with macros instead of absolute paths to avoid crashing during
+            debugging.
+            It may be cleaner to propagate files during instalation (for release mode) and during compilation
+            (for debug mode) but hard to do...
+        */
+        copy_files(RELATIVE_PATH(__CAMERAS_CONFIG_REFERENCE__), RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__));
+        copy_files(RELATIVE_PATH(__PRESET_REFERENCE__), RELATIVE_PATH(__PRESET_FOLDER_PATH__));
+        copy_files(RELATIVE_PATH(__CONVOLUTION_KERNEL_REFERENCE__), RELATIVE_PATH(__CONVOLUTION_KERNEL_FOLDER_PATH__));
+        copy_files(RELATIVE_PATH(__INPUT_FILTER_REFERENCE__), RELATIVE_PATH(__INPUT_FILTER_FOLDER_PATH__));
+        copy_files(RELATIVE_PATH(__SHADER_REFERENCE__), RELATIVE_PATH(__SHADER_FOLDER_PATH__));
+
+#endif
 
         if (opts.input_path && opts.output_path)
         {
@@ -212,6 +207,8 @@ int main(int argc, char* argv[])
         LOG_ERROR("Uncaught exception: {}", e.what());
         ret = 10;
     }
+
+    spdlog::shutdown();
 
     return ret;
 }
