@@ -14,12 +14,11 @@ namespace holovibes::settings
 {
 
 // Macro wrapper that can be used to craft a relative path from the executable path
-#ifdef UNICODE
-#define GET_EXE_DIR                                                                                                    \
+#define __GET_EXE_DIR__(type)                                                                                          \
     (                                                                                                                  \
         []                                                                                                             \
         {                                                                                                              \
-            wchar_t path[MAX_PATH];                                                                                    \
+            type path[MAX_PATH];                                                                                       \
             HMODULE hmodule = GetModuleHandle(NULL);                                                                   \
             if (hmodule != NULL)                                                                                       \
             {                                                                                                          \
@@ -30,21 +29,14 @@ namespace holovibes::settings
             throw std::runtime_error("Failed to find executable dir");                                                 \
         }())
 
+#ifdef UNICODE
+
+#define GET_EXE_DIR __GET_EXE_DIR__(wchar_t)
+
 #else
-#define GET_EXE_DIR                                                                                                    \
-    (                                                                                                                  \
-        []                                                                                                             \
-        {                                                                                                              \
-            char path[MAX_PATH];                                                                                       \
-            HMODULE hmodule = GetModuleHandle(NULL);                                                                   \
-            if (hmodule != NULL)                                                                                       \
-            {                                                                                                          \
-                GetModuleFileName(hmodule, path, (sizeof(path)));                                                      \
-                std::filesystem::path p(path);                                                                         \
-                return p.parent_path();                                                                                \
-            }                                                                                                          \
-            throw std::runtime_error("Failed to find executable dir");                                                 \
-        }())
+
+#define GET_EXE_DIR __GET_EXE_DIR__(char)
+
 #endif
 
 // Macro wrapper that can be used to craft a relative path from the executable path
