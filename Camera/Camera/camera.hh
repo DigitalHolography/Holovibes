@@ -9,12 +9,33 @@
 #include "frame_desc.hh"
 #include "camera_config.hh"
 #include "holovibes_config.hh"
-#include "camera_utils.hh"
 
 #include <spdlog/spdlog.h>
+#include "camera_logger.hh"
 
 namespace camera
 {
+
+/* FIXME: duplicated code from tools.hh, can't use it directly without duplicate */
+static std::string get_exe_dir()
+{
+#ifdef UNICODE
+    wchar_t path[MAX_PATH];
+#else
+    char path[MAX_PATH];
+#endif
+    HMODULE hmodule = GetModuleHandle(NULL);
+    if (hmodule != NULL)
+    {
+        GetModuleFileName(hmodule, path, (sizeof(path)));
+        std::filesystem::path p(path);
+        return p.parent_path().string();
+    }
+
+    spdlog::error("Failed to find executable dir");
+    throw std::runtime_error("Failed to find executable dir");
+}
+
 /*! \brief Adding to the ICamera interface datas and INI file loading.
  *
  * Although each camera is different, a group of functionalities specific
@@ -73,6 +94,7 @@ class Camera : public ICamera
             if (ini_file_is_open())
                 boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
             else
+                // FIXME: leak ?
                 spdlog::warn("Unable to open INI file {}", ini_name_);
         }
     }

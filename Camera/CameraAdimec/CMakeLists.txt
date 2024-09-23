@@ -2,7 +2,6 @@ project (CameraAdimec CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_adimec.cc
-    ../Camera/camera_utils.cc
     ../Camera/camera_logger.cc
 )
 

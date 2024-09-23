@@ -2,7 +2,6 @@ project (CameraXiq CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_xiq.cc
-    ../Camera/camera_utils.cc
     ../Camera/camera_logger.cc
 )
 

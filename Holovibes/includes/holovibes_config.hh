@@ -8,6 +8,8 @@
 #include <Windows.h>
 #include <filesystem>
 
+#include <spdlog/spdlog.h>
+
 // FIXME: get rid of this duplicate get_exe_dir, find a way to import the original one in tools.hh or move it to a
 // a place from which we can import it easily
 static std::string get_exe_dir()
@@ -25,8 +27,8 @@ static std::string get_exe_dir()
         return p.parent_path().string();
     }
 
-    // FIXME: add logging
-    // Logger::camera()->error("Failed to find executable dir");
+    // FIXME: leak ?
+    spdlog::error("Failed to find executable dir");
     throw std::runtime_error("Failed to find executable dir");
 }
 

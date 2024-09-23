@@ -2,7 +2,6 @@ project (CameraHamamatsu CXX)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_hamamatsu.cc
-    ../Camera/camera_utils.cc
     ../Camera/camera_logger.cc
 )
 
