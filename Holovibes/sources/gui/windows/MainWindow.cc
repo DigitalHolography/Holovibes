@@ -269,6 +269,9 @@ void MainWindow::on_notify()
 
     api::enable_pipe_refresh();
 
+    QSpinBox *fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
+    fps_number_sb->setValue(api::get_input_fps());
+
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
     std::filesystem::path preset_dir(RELATIVE_PATH(__PRESET_FOLDER_PATH__));
