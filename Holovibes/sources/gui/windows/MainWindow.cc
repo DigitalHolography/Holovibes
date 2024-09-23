@@ -115,11 +115,9 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
-    std::filesystem::path convo_matrix_path(get_exe_dir());
-    convo_matrix_path = convo_matrix_path / "convolution_kernels";
+    std::filesystem::path convo_matrix_path(RELATIVE_PATH(__CONVOLUTION_KERNEL_FOLDER_PATH__));
     if (std::filesystem::exists(convo_matrix_path))
     {
         QVector<QString> files;
@@ -132,8 +130,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Fill the input filter combo box with files from input_filters
     // directory
-    std::filesystem::path input_filters_path(get_exe_dir());
-    input_filters_path = input_filters_path / "input_filters";
+    std::filesystem::path input_filters_path(RELATIVE_PATH(__INPUT_FILTER_FOLDER_PATH__));
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
@@ -230,7 +227,7 @@ MainWindow::~MainWindow()
     api::close_critical_compute();
     api::stop_all_worker_controller();
     api::camera_none_without_json();
-    
+
     delete ui_;
 }
 
@@ -274,19 +271,16 @@ void MainWindow::on_notify()
 
     // Refresh the preset drop down menu
     ui_->menuSelect_preset->clear();
-
-    std::filesystem::path preset_directory_path(get_exe_dir());
-    preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset";
-    // Check before if there is a Preset directory near the executable before checking in AppData
-    if (std::filesystem::exists(preset_directory_path) || std::filesystem::exists(__PRESET_FOLDER_PATH__))
+    std::filesystem::path preset_dir(RELATIVE_PATH(__PRESET_FOLDER_PATH__));
+    if (!std::filesystem::exists(preset_dir))
+        ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
+    else
     {
-        if (!std::filesystem::exists(preset_directory_path))
-            preset_directory_path = __PRESET_FOLDER_PATH__;
         QList<QAction*> actions;
-        for (const auto& file : std::filesystem::directory_iterator(preset_directory_path))
+        for (const auto& file : std::filesystem::directory_iterator(RELATIVE_PATH(__PRESET_FOLDER_PATH__)))
         {
             QAction* action = new QAction(QString(file.path().filename().string().c_str()), ui_->menuSelect_preset);
-            connect(action, &QAction::triggered, this, [=]{set_preset(file);});
+            connect(action, &QAction::triggered, this, [=] { set_preset(file); });
             actions.push_back(action);
         }
         if (actions.length() == 0)
@@ -294,9 +288,6 @@ void MainWindow::on_notify()
         else
             ui_->menuSelect_preset->addActions(actions);
     }
-    else
-            ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
-
 
     // Tabs
     if (api::get_is_computation_stopped())
@@ -531,11 +522,6 @@ void MainWindow::load_gui()
 void MainWindow::set_preset_file_on_gpu()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "FILE_ON_GPU.json";
-    // Check if we are in DEBUG or RELEASE
-    if (!std::filesystem::exists(dest))
-    {
-        dest = std::filesystem::path(get_exe_dir()).parent_path().parent_path() / "Preset" / "FILE_ON_GPU.json";
-    }
     api::import_buffer(dest.string());
     LOG_INFO("Preset loaded");
 }
@@ -774,7 +760,7 @@ void MainWindow::close_advanced_settings()
     {
         // If the settings have been updated, they must be not considered updated after closing the window.
         UserInterfaceDescriptor::instance().has_been_updated = false;
-        
+
         ImportType it = UserInterfaceDescriptor::instance().import_type_;
         ui_->ImportPanel->import_stop();
 
@@ -860,11 +846,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    // Check before if there is a Preset directory near the executable before checking in AppData
-    std::filesystem::path preset_directory_path(get_exe_dir());
-    preset_directory_path = preset_directory_path.parent_path().parent_path() / "Preset" / "preset.json";
-    if (!std::filesystem::exists(preset_directory_path))
-        preset_directory_path = __PRESET_FOLDER_PATH__ / "preset.json";
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "preset.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
@@ -875,7 +857,6 @@ void MainWindow::set_preset(std::filesystem::path file)
     reload_ini(file.string());
     LOG_INFO("Preset loaded with file " + file.string());
 }
-
 
 #pragma endregion
 

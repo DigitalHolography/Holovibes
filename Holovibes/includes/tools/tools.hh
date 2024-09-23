@@ -86,8 +86,6 @@ namespace holovibes
 unsigned short upper_window_size(ushort width, ushort height);
 /*! \brief return width and height with the same ratio and the max of the two being window_size */
 void get_good_size(ushort& width, ushort& height, ushort window_size);
-/*! \brief Returns the directory of the currently used executable file */
-std::string get_exe_dir();
 /*! \brief Return the first not used filename available from the parameter filename as a base */
 std::string get_record_filename(std::string filename);
 /*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
