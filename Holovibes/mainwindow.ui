@@ -182,6 +182,11 @@
                <string>Processed</string>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Moments</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -2710,6 +2715,11 @@
                 <item>
                  <property name="text">
                   <string>Chart</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Moments</string>
                  </property>
                 </item>
                </widget>

@@ -94,6 +94,11 @@ OptionsParser::OptionsParser()
         po::value<unsigned int>(),
         "MP4 fps value, default 24. Warning : it may crash for big values"
     )
+    (
+        "moments_record",
+        po::bool_switch()->default_value(false),
+        "Record moments (default = false)"
+    )
     ;
     // clang-format on
 
@@ -170,7 +175,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());
-            if (frame_skip > 0)
+            if (frame_skip >= 0)
                 options_.frame_skip = frame_skip; // Implicit cast to uint
             else
             {
@@ -189,6 +194,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
                 exit(31);
             }
         }
+        options_.moments_record = vm_["moments_record"].as<bool>();
     }
     catch (std::exception& e)
     {

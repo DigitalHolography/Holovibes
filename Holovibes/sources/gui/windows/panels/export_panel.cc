@@ -203,6 +203,8 @@ void ExportPanel::set_record_mode(const QString& value)
     stop_record();
 
     const std::string text = value.toStdString();
+    LOG_WARN("Record mode chosen :" + text);
+    //TODO: configure for Moments
 
     api::set_record_mode(text);
 

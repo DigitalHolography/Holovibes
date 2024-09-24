@@ -22,6 +22,7 @@ enum class RecordMode
     CUTS_YZ,
     HOLOGRAM,
     RAW,
+    MOMENTS,
 };
 
 // clang-format off
