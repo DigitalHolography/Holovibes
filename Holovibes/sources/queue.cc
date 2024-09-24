@@ -37,41 +37,43 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
 {
     max_size_ = max_size;
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
-    if (!data_.resize(fd_.get_frame_size() * max_size_))
-    {
-        bool is_size_modified = false;
-        while (!data_.resize(fd_.get_frame_size() * max_size_))
-        {
-            max_size_--;
-        }
-        switch (type)
-            {
-            case QueueType::INPUT_QUEUE:
-                api::set_input_buffer_size(max_size_);
-                is_size_modified = true;
-                break;
-            case QueueType::OUTPUT_QUEUE: 
-                api::set_output_buffer_size(max_size_);
-                is_size_modified = true;
-                break;
-            case QueueType::RECORD_QUEUE:
-                api::set_record_buffer_size(max_size_);
-                is_size_modified = true;
-                break;
-            case QueueType::UNDEFINED:
-                break;
-            default:
-                break;
-            }
-        if (is_size_modified)
-        {
-            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
-            // LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
-            // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will be called again
-            return;
-        }
-    }
-        
+    // if (!data_.resize(fd_.get_frame_size() * max_size_))
+    // {
+    //     bool is_size_modified = false;
+    //     while (!data_.resize(fd_.get_frame_size() * max_size_))
+    //     {
+    //         max_size_--;
+    //     }
+    //     switch (type)
+    //     {
+    //     case QueueType::INPUT_QUEUE:
+    //         api::set_input_buffer_size(max_size_);
+    //         is_size_modified = true;
+    //         break;
+    //     case QueueType::OUTPUT_QUEUE:
+    //         api::set_output_buffer_size(max_size_);
+    //         is_size_modified = true;
+    //         break;
+    //     case QueueType::RECORD_QUEUE:
+    //         api::set_record_buffer_size(max_size_);
+    //         is_size_modified = true;
+    //         break;
+    //     case QueueType::UNDEFINED:
+    //         break;
+    //     default:
+    //         break;
+    //     }
+    //     if (is_size_modified)
+    //     {
+    //         LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " +
+    //                  std::to_string(max_size_));
+    //         // LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
+    //         // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will
+    //         be
+    //         // called again
+    //         return;
+    //     }
+    // }
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
@@ -92,6 +94,8 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
 }
 
 Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
+
+void Queue::manage_memory() {}
 
 void Queue::rebuild(const camera::FrameDescriptor& fd,
                     const unsigned int size,
