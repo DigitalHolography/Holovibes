@@ -1770,6 +1770,7 @@ void set_record_mode(const std::string& text)
     static const std::unordered_map<std::string, RecordMode> recordModeMap = {{"Chart", RecordMode::CHART},
                                                                               {"Processed Image", RecordMode::HOLOGRAM},
                                                                               {"Raw Image", RecordMode::RAW},
+                                                                              {"Moments", RecordMode::MOMENTS},
                                                                               {"3D Cuts XZ", RecordMode::CUTS_XZ},
                                                                               {"3D Cuts YZ", RecordMode::CUTS_YZ}};
 

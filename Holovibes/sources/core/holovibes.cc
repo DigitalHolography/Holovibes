@@ -80,6 +80,7 @@ void Holovibes::init_record_queue()
         LOG_DEBUG("Record queue allocated");
         break;
     }
+    case RecordMode::MOMENTS:
     case RecordMode::HOLOGRAM:
     {
         LOG_DEBUG("RecordMode = Hologram");
