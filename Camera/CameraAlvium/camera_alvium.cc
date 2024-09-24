@@ -129,11 +129,19 @@ void CameraAlvium::load_default_params()
 
 void CameraAlvium::load_ini_params()
 {
-    // TODO : Add more params, check with mickael
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     width_ = pt.get<unsigned short>("alvium.width", width_);
     height_ = pt.get<unsigned short>("alvium.height", height_);
+    device_link_throughput_limit_ =
+        pt.get<std::string>("alvium.DeviceLinkThroughputLimit", device_link_throughput_limit_);
+    acquisition_frame_rate_enable_ = pt.get<bool>("alvium.AcquisitionFrameRateEnable", acquisition_frame_rate_enable_);
+    acquisition_frame_rate_ = pt.get<unsigned int>("alvium.AcquisitionFrameRate", acquisition_frame_rate_);
+    exposure_auto_ = pt.get<std::string>("alvium.ExposureAuto", exposure_auto_);
+    exposure_time_ = pt.get<unsigned int>("alvium.ExposureTime", exposure_time_);
+    gain_auto_ = pt.get<std::string>("alvium.GainAuto", gain_auto_);
+    offset_X_ = pt.get<unsigned int>("alvium.OffsetX", offset_X_);
+    offset_Y_ = pt.get<unsigned int>("alvium.OffsetY", offset_Y_);
 
     fd_.width = width_;
     fd_.height = height_;
@@ -145,31 +153,23 @@ void CameraAlvium::bind_params()
 {
     VmbCPP::FeaturePtr fp; // Generic feature pointer
 
-    /* TODO : Add more params, check with mickael
+    /* To add more params :
         \A -> \B => VMB_ERROR(camera_ptr_->GetFeatureByName(\A, fp)) || VMB_ERROR(fp->SetValue(\B))
-
-        "DeviceLinkThroughputLimit" -> 450'000'000
-        "AcquisitionFrameRateEnable" -> "true"
-        "AcquisitionFrameRate" -> 10
-        "ExposureAuto" -> "Off"
-        "ExposureTime" -> EXP (I dont know what it is need to check API Manuel)
-        "GainAuto" -> "Off"
-        "OffsetX" -> X0
-        "OffsetY" -> Y0
     */
 
     if (VMB_ERROR(camera_ptr_->GetFeatureByName("PixelFormat", fp)) || VMB_ERROR(fp->SetValue("Mono8")) ||
         VMB_ERROR(camera_ptr_->GetFeatureByName("Width", fp)) || VMB_ERROR(fp->SetValue(width_)) ||
-        VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp)) ||
-        // VMB_ERROR(fp->SetValue(device_link_throughput_limit_)) ||
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRateEnable", fp)) ||
-        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_enable_)) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp)) ||
+        // VMB_ERROR(fp->SetValue(device_link_throughput_limit_.c_str())))
+        VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRateEnable", fp)) ||
+        VMB_ERROR(fp->SetValue(acquisition_frame_rate_enable_)))
         // VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRate", fp)) ||
-        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_)) ||
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureAuto", fp)) || VMB_ERROR(fp->SetValue(exposure_auto_)) ||
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureTime", fp)) || VMB_ERROR(fp->SetValue(exposure_time_)) ||
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("GainAuto", fp)) || VMB_ERROR(fp->SetValue(gain_auto_)) ||
+        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_)))
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureAuto", fp)) ||
+        // VMB_ERROR(fp->SetValue(exposure_auto_.c_str())))
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureTime", fp)) || VMB_ERROR(fp->SetValue(exposure_time_)))
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("GainAuto", fp)) || VMB_ERROR(fp->SetValue(gain_auto_.c_str())))
         // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetX", fp)) || VMB_ERROR(fp->SetValue(offset_X_)) ||
         // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetY", fp)) || VMB_ERROR(fp->SetValue(offset_Y_)))
         throw CameraException(CameraException::NOT_INITIALIZED);
