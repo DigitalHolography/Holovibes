@@ -286,7 +286,7 @@ class Queue final : public DisplayQueue, public HoloQueue
     /*! \return String containing the buffer size in MB */
     std::string calculate_size(void) const;
 
-    void manage_memory();
+    bool manage_memory();
 
     /*! \} */
 
