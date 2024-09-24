@@ -430,7 +430,30 @@ void hsv(const cuComplex* gpu_input,
     cudaXFree(tmp_hsv_arr);
 }
 
-// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly gradient overlay
+// First attempt might need to Rewrite/Delete/Modify
+void get_hsv(const cuComplex* gpu_input,
+             float* gpu_output,
+             const uint width,
+             const uint height,
+             const cudaStream_t stream,
+             const int time_transformation_size,
+             const holovibes::CompositeHSV& hsv_struct,
+             bool z_fft_shift)
+{
+    const uint frame_res = height * width;
+
+    // float* tmp_hsv_arr = nullptr;
+    // cudaSafeCall(cudaMalloc(&tmp_hsv_arr, frame_res * 3 * sizeof(float)));
+
+    // Replaced tmp_hsv_arr by gpu_output, Inshallah ca marche si ca fait la meme taille
+    compute_and_fill_hsv(gpu_input, gpu_output, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
+
+    // Do we need that ?? (if yes, need to replace tmp_hsv_arr to gpu_output)
+    // apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
+}
+
+// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly
+// gradient overlay
 /*
 __global__ void kernel_fill_hsv_xz_cut(const float* gpu_in_cut,
                                        float* gpu_hsv_cut,

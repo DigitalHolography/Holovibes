@@ -27,6 +27,10 @@ void Converts::insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_post
 
     switch (img_type)
     {
+    // First attempt might need to Rewrite/Delete/Modify
+    case ImgType::Moments:
+        insert_to_moments(buffers_gpu_postprocess_frame);
+        break;
     case ImgType::Composite:
         insert_to_composite(buffers_gpu_postprocess_frame);
         break;
@@ -121,6 +125,27 @@ void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
                                        pmax_,
                                        fd_.get_frame_res(),
                                        stream_);
+        });
+}
+
+// First attempt might need to Rewrite/Delete/Modify
+void Converts::insert_to_moments(float* gpu_postprocess_frame)
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            auto time_transformation_size = setting<settings::TimeTransformationSize>();
+
+            get_hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
+                    gpu_postprocess_frame,
+                    fd_.width,
+                    fd_.height,
+                    stream_,
+                    time_transformation_size,
+                    setting<settings::HSV>(),
+                    setting<settings::ZFFTShift>());
         });
 }
 

@@ -112,6 +112,10 @@ class Converts
     /*! \brief Insert the convertion Complex => Composite */
     void insert_to_composite(float* gpu_postprocess_frame);
 
+    // First attempt might need to Rewrite/Delete/Modify
+    /*! \brief Insert the convertion Complex => Composite */
+    void insert_to_moments(float* gpu_postprocess_frame);
+
     /*! \brief Insert the convertion Complex => Argument */
     void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
