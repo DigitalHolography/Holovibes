@@ -449,7 +449,7 @@ void get_hsv(const cuComplex* gpu_input,
     compute_and_fill_hsv(gpu_input, gpu_output, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
 
     // Do we need that ?? (if yes, need to replace tmp_hsv_arr to gpu_output)
-    // apply_operations_on_hsv(tmp_hsv_arr, height, width, hsv_struct, stream);
+    apply_operations_on_hsv(gpu_output, height, width, hsv_struct, stream);
 }
 
 // NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly
