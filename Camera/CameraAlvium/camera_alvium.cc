@@ -81,7 +81,7 @@ void CameraAlvium::init_camera()
 void CameraAlvium::start_acquisition()
 {
     Logger::camera()->info("Start Acquisition");
-    unsigned int n_buffers = 1; // Maybe need to be increase for processing
+    unsigned int n_buffers = 64; // Maybe need to be increase for processing
 
     auto frame_obs_ptr = VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this));
     if (VMB_ERROR(camera_ptr_->StartContinuousImageAcquisition(n_buffers, frame_obs_ptr)))
