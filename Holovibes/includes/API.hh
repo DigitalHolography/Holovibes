@@ -887,7 +887,7 @@ const QUrl get_documentation_url();
 
 /*! \brief Gets the credits
  *
- * \return const std::vector(std::string) credits in columns
+ * \return const std::vector<std::string> credits in columns
  */
 constexpr std::vector<std::string> get_credits();
 
