@@ -703,6 +703,7 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
+    // TODO Moments come here when select in the middle raw
     if (api::get_compute_mode() == Computation::Raw)
     {
         LOG_ERROR("Cannot set view image type in raw mode");

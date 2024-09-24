@@ -19,7 +19,8 @@ enum class ImgType
     SquaredModulus, /*!<  Modulus taken to its square value */
     Argument,       /*!<  Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
-    Composite       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
+    Composite,       /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
+    Moments,
 };
 
 // clang-format off
@@ -29,6 +30,7 @@ SERIALIZE_JSON_ENUM(ImgType, {
     {ImgType::Argument, "ARGUMENT"},
     {ImgType::PhaseIncrease, "PHASE_INCREASE"},
     {ImgType::Composite, "COMPOSITE"},
+    {ImgType::Moments, "MOMENTS"},
 })
 // clang-format on
 
