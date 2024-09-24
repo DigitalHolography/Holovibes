@@ -19,8 +19,8 @@ enum class ImgType
     SquaredModulus, /*!<  Modulus taken to its square value */
     Argument,       /*!<  Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
-    //First attempt might need to Rewrite/Delete/Modify
-    Composite,      /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
+    // First attempt might need to Rewrite/Delete/Modify
+    Composite, /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
 
     // First attempt might need to Rewrite/Delete/Modify:
     Moments /*!< */
