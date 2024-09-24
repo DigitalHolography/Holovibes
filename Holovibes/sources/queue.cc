@@ -1,6 +1,7 @@
 #include <cuda.h>
 #include <spdlog/spdlog.h>
 #include <windows.h>
+#include <cmath>
 
 #include "queue.hh"
 #include "tools_conversion.cuh"
@@ -42,24 +43,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     {
         return;
     }
-
-    // while (true)
-    // {
-    //     try
-    //     {
-    //         if (!data_.resize(fd_.get_frame_size() * max_size_))
-    //         {
-    //             max_size_--;
-    //             continue;
-    //         }
-    //         break;
-    //     }
-    //     catch (std::exception& e)
-    //     {
-    //         max_size_--;
-    //     }
-    // }
-    //  (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
 
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
@@ -103,20 +86,24 @@ bool Queue::manage_memory()
 
     if (memory_to_allocate >= free_memory)
     {
+        unsigned int new_size = 1 << static_cast<int>(std::log2(max_size_.load()));
+        if (new_size == max_size_)
+            new_size >> 1;
+        max_size_ = new_size;
         switch (type_)
         {
         case QueueType::INPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
+            // max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
             api::set_input_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Input Buffer";
         case QueueType::OUTPUT_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
+            // max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
             api::set_output_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Output Buffer";
         case QueueType::RECORD_QUEUE:
-            max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
+            // max_size_ = static_cast<uint>((free_memory - 1) / fd_.get_frame_size());
             api::set_record_buffer_size(max_size_);
             is_size_modified = true;
             queue_string = "Record Buffer";

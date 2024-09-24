@@ -5,12 +5,9 @@ namespace holovibes::gui
 {
 void show_error_and_exit(const std::string& error_msg, const int exit_value)
 {
-    if (!Holovibes::instance().is_cli)
-    {
-        QMessageBox messageBox;
-        messageBox.critical(nullptr, "Internal Error", error_msg.c_str());
-    }
-    LOG_ERROR("Internal error: "); // + error_msg.c_str());
+    QMessageBox messageBox;
+    messageBox.critical(nullptr, "Internal Error", error_msg.c_str());
+
     exit(exit_value);
 }
 
