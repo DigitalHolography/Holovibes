@@ -283,7 +283,7 @@ if (HAVE_VIMBAX)
         )
     install(FILES 
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
-        DESTINATION .
+        DESTINATION "${PROJECT_VERSION}"
         COMPONENT application)
 endif()
 
