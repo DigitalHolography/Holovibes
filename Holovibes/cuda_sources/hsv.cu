@@ -449,6 +449,9 @@ void get_hsv(const cuComplex* gpu_input,
     compute_and_fill_hsv(gpu_input, gpu_output, frame_res, hsv_struct, stream, time_transformation_size, z_fft_shift);
 
     // Do we need that ?? (if yes, need to replace tmp_hsv_arr to gpu_output)
+    // CRITICAL ERROR comes from here, It's a copy/paste from hsv(), where they use a CudaMalloc(ed) ptr,
+    // where I use a simple float* which might no be able to be copied to CUDA, implying the error  __copy:: D->D:
+    // failed
     apply_operations_on_hsv(gpu_output, height, width, hsv_struct, stream);
 }
 
