@@ -132,7 +132,7 @@ QString ExportPanel::browse_record_output_file()
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_record_mode() == RecordMode::RAW)
+    else if (api::get_record_mode() == RecordMode::RAW || api::get_record_mode() == RecordMode::MOMENTS)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -227,7 +227,7 @@ void ExportPanel::set_record_mode(const QString& value)
     }
     else
     {
-        if (api::get_record_mode() == RecordMode::RAW)
+        if (api::get_record_mode() == RecordMode::RAW || api::get_record_mode() == RecordMode::MOMENTS)
         {
             ui_->RecordExtComboBox->clear();
             ui_->RecordExtComboBox->insertItem(0, ".holo");
