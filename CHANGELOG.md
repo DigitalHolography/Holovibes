@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.5.1
+
+- Adjusted S711 ini configuration file
+
 ### 13.5.0
 
 - Create option in CLI for frame skip and fps for mp4 records
