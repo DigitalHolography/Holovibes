@@ -887,9 +887,9 @@ const QUrl get_documentation_url();
 
 /*! \brief Gets the credits
  *
- * \return const std::string credits
+ * \return const std::vector<std::string> credits in columns
  */
-const std::string get_credits();
+constexpr std::vector<std::string> get_credits();
 
 /*! \brief Update the slide value according to the bounds
  *

@@ -169,7 +169,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
     if (!load)
     {
-        LOG_DEBUG("No compute settings file provided and no footer found in input file");
+        LOG_ERROR("No compute settings file provided and no footer found in input file");
         return 35;
     }
 

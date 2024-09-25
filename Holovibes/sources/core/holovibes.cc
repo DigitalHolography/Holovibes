@@ -84,6 +84,12 @@ void Holovibes::init_record_queue()
     {
         LOG_DEBUG("RecordMode = Hologram");
 
+        if (gpu_output_queue_.load() == nullptr)
+        {
+            api::pipe_refresh();
+            return;
+        }
+
         auto record_fd = gpu_output_queue_.load()->get_fd();
         record_fd.depth = record_fd.depth == 1 ? 2 : record_fd.depth;
         if (!record_queue_.load())

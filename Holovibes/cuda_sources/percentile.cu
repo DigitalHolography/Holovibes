@@ -109,9 +109,9 @@ void compute_percentile_xy_view(const float* gpu_input,
 
         compute_percentile(thrust_gpu_input_copy, frame_res, h_percent, h_out_percent, size_percent, stream);
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-        spdlog::critical("{}", e.what());
+        LOG_CRITICAL("{}", e.what());
         LOG_WARN("[Thrust] Error while computing a percentile");
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }
@@ -149,9 +149,9 @@ void compute_percentile_yz_view(const float* gpu_input,
 
         compute_percentile(thrust_gpu_input_copy, frame_res, h_percent, h_out_percent, size_percent, stream);
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-        spdlog::critical("{}", e.what());
+        LOG_CRITICAL("{}", e.what());
         LOG_WARN("[Thrust] Error while computing a percentile");
         fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
     }

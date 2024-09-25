@@ -52,75 +52,6 @@ void pipe_refresh()
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
-const std::string get_credits()
-{
-    return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
-           "\n\n"
-
-           "Developers:\n\n"
-
-           "Chloé Magnier\n"
-           "Noé Topeza\n"
-           "Maxime Boy-Arnould\n"
-
-           "Oscar Morand\n"
-           "Paul Duhot\n"
-           "Thomas Xu\n"
-           "Jules Guillou\n"
-           "Samuel Goncalves\n"
-           "Edgar Delaporte\n"
-
-           "Adrien Langou\n"
-           "Julien Nicolle\n"
-           "Sacha Bellier\n"
-           "David Chemaly\n"
-           "Damien Didier\n"
-
-           "Philippe Bernet\n"
-           "Eliott Bouhana\n"
-           "Fabien Colmagro\n"
-           "Marius Dubosc\n"
-           "Guillaume Poisson\n"
-
-           "Anthony Strazzella\n"
-           "Ilan Guenet\n"
-           "Nicolas Blin\n"
-           "Quentin Kaci\n"
-           "Theo Lepage\n"
-
-           "Loïc Bellonnet-Mottet\n"
-           "Antoine Martin\n"
-           "François Te\n"
-
-           "Ellena Davoine\n"
-           "Clement Fang\n"
-           "Danae Marmai\n"
-           "Hugo Verjus\n"
-
-           "Eloi Charpentier\n"
-           "Julien Gautier\n"
-           "Florian Lapeyre\n"
-
-           "Thomas Jarrossay\n"
-           "Alexandre Bartz\n"
-
-           "Cyril Cetre\n"
-           "Clement Ledant\n"
-
-           "Eric Delanghe\n"
-           "Arnaud Gaillard\n"
-           "Geoffrey Le Gourrierec\n"
-
-           "Jeffrey Bencteux\n"
-           "Thomas Kostas\n"
-           "Pierre Pagnoux\n"
-
-           "Antoine Dillée\n"
-           "Romain Cancillière\n"
-
-           "Michael Atlan\n";
-}
-
 bool is_input_queue() { return get_input_queue() != nullptr; }
 
 static bool is_current_window_xyz_type()
@@ -1371,7 +1302,7 @@ float get_truncate_contrast_min(const int precision)
 
 #pragma region Convolution
 
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void load_convolution_matrix(std::optional<std::string> filename)
 {
@@ -1387,7 +1318,7 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
     try
     {
-        auto path_file = dir / "convolution_kernels" / file;
+        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
         std::string path = path_file.string();
 
         std::vector<float> matrix;
@@ -1535,7 +1466,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     auto& holo = Holovibes::instance();
     try
     {
-        auto path_file = dir / "input_filters" / file;
+        auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
         InputFilter(input_filter,
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
@@ -1733,9 +1664,6 @@ void set_record_buffer_size(uint value)
         if (Holovibes::instance().is_recording())
             stop_record();
 
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_input_buffer_size());
-        Holovibes::instance().start_compute();
         Holovibes::instance().init_record_queue();
     }
 }

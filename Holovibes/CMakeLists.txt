@@ -127,9 +127,9 @@ endif()
 # ---------------------------------------------------------------------
 add_custom_command(TARGET Holovibes POST_BUILD
     # Copy shaders and convolution kernels and json patch
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/convolution_kernels/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/input_filters/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
 
     # Copy camera libs
@@ -180,43 +180,48 @@ add_custom_command(TARGET Holovibes POST_BUILD
 # Install
 # ---------------------------------------------------------------------
 install(TARGETS Holovibes
-    RUNTIME DESTINATION .
+    RUNTIME DESTINATION "${PROJECT_VERSION}"
     COMPONENT application
 )
 
 install(DIRECTORY "${HOLO_DIR}/shaders/"
-    DESTINATION shaders
+    DESTINATION "${PROJECT_VERSION}\\\\shaders"
     COMPONENT application
 )
 
 install(DIRECTORY "${HOLO_DIR}/convolution_kernels/"
-    DESTINATION convolution_kernels
+    DESTINATION "${PROJECT_VERSION}\\\\convolution_kernels"
     COMPONENT application
 )
 
 install(DIRECTORY "${HOLO_DIR}/input_filters/"
-    DESTINATION input_filters
+    DESTINATION "${PROJECT_VERSION}\\\\input_filters"
     COMPONENT application
 )
 
 install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
-    DESTINATION json_patches_holofile
+    DESTINATION "${PROJECT_VERSION}\\\\json_patches_holofile"
     COMPONENT application
 )
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
-    DESTINATION resources
+    DESTINATION "${PROJECT_VERSION}\\\\resources"
     COMPONENT application
 )
 
 install(FILES "${HOLO_DIR}/Holovibes.ico"
-    DESTINATION .
+    DESTINATION "${PROJECT_VERSION}"
     COMPONENT application
 )
 
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
-    DESTINATION .
+    DESTINATION "${PROJECT_VERSION}"
     COMPONENT application
+)
+
+install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
+    DESTINATION "Process Holo Files"
+    COMPONENT process
 )
 
 
@@ -236,21 +241,21 @@ install(FILES
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
-    DESTINATION .
+    DESTINATION "${PROJECT_VERSION}"
     COMPONENT application
 )
 
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
-        DESTINATION .
+        DESTINATION "${PROJECT_VERSION}"
         COMPONENT application
     )
 endif()
 
 if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
-        DESTINATION .
+        DESTINATION "${PROJECT_VERSION}"
         COMPONENT application
     )
 endif()
@@ -260,7 +265,7 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
-        DESTINATION .
+        DESTINATION "${PROJECT_VERSION}"
         COMPONENT application)
 endif()
 
@@ -278,17 +283,17 @@ if (HAVE_VIMBAX)
         )
     install(FILES 
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
-        DESTINATION .
+        DESTINATION "${PROJECT_VERSION}"
         COMPONENT application)
 endif()
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
-    DESTINATION .
+    DESTINATION "${PROJECT_VERSION}"
     COMPONENT application
 )
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
-    DESTINATION "AppData/"
+    DESTINATION "${PROJECT_VERSION}\\\\AppData/"
     COMPONENT application
 )
 
@@ -296,12 +301,18 @@ install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
 # ---------------------------------------------------------------------
 # Packaging
 # ---------------------------------------------------------------------
-set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
+set(INSTALL_DIRECTORY "Holovibes")
+set(PFILES_INSTALL_DIRECTORY "Process Holo Files")
 
 set(CPACK_GENERATOR "NSIS")
-set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
-set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
-set(CPACK_COMPONENTS_ALL application)
+# set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+
+# Changing the uninstaller location to not be in 'Holovibes' but instead in 'Holovibes/$PROJECT_VERSION'.
+set(CPACK_NSIS_UNINSTALL_NAME "${PROJECT_VERSION}\\\\Uninstall")
+
+set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes") #Naming the components
+set(CPACK_COMPONENT_PROCESS_DISPLAY_NAME "Process Holo Files")
+set(CPACK_COMPONENTS_ALL application process)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
 set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
@@ -312,6 +323,22 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 # Add SetCompress off to NSIS script
 set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
     SetCompress off
+")
+
+# Creating the shortcut to the ProcessHoloFiles.ps1 script on the desktop.
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+    CreateShortCut \\\"$DESKTOP\\\\Process Holo Files.lnk\\\" \\\"$INSTDIR\\\\${PFILES_INSTALL_DIRECTORY}\\\\ProcessHoloFiles.ps1\\\"
+")
+
+# The uninstaller is in the Holovibes/$PROJECT_VERSION directory.
+# What that means is that it tries uninstalling the project from that directory and not its parent.
+# (in fact, the installing directory is not shared between installer and uninstaller.)
+# That's why we need to change the 'install directory' to the parent folder.
+#
+# Also, removes the Desktop shortcut of the .ps1 file.
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+    StrCpy $INSTDIR \\\"$INSTDIR\\\\..\\\"
+    Delete \\\"$DESKTOP\\\\Process Holo Files.lnk\\\"
 ")
 
 include(CPack)

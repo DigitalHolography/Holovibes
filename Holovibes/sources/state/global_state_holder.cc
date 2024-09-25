@@ -11,7 +11,7 @@
 
 namespace holovibes
 {
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 GSH& GSH::instance()
 {

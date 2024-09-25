@@ -5,6 +5,87 @@
 
 namespace holovibes::api
 {
+
+static std::vector<std::string> authors{"Titouan Gragnic",
+                                        "Arthur Courselle",
+                                        "Gustave Herve",
+                                        "Alexis Pinson",
+                                        "Etienne Senigout",
+                                        "Bastien Gaulier",
+                                        "Simon Riou",
+
+                                        "Chloé Magnier",
+                                        "Noé Topeza",
+                                        "Maxime Boy-Arnould",
+
+                                        "Oscar Morand",
+                                        "Paul Duhot",
+                                        "Thomas Xu",
+                                        "Jules Guillou",
+                                        "Samuel Goncalves",
+                                        "Edgar Delaporte",
+
+                                        "Adrien Langou",
+                                        "Julien Nicolle",
+                                        "Sacha Bellier",
+                                        "David Chemaly",
+                                        "Damien Didier",
+
+                                        "Philippe Bernet",
+                                        "Eliott Bouhana",
+                                        "Fabien Colmagro",
+                                        "Marius Dubosc",
+                                        "Guillaume Poisson",
+
+                                        "Anthony Strazzella",
+                                        "Ilan Guenet",
+                                        "Nicolas Blin",
+                                        "Quentin Kaci",
+                                        "Theo Lepage",
+
+                                        "Loïc Bellonnet-Mottet",
+                                        "Antoine Martin",
+                                        "François Te",
+
+                                        "Ellena Davoine",
+                                        "Clement Fang",
+                                        "Danae Marmai",
+                                        "Hugo Verjus",
+
+                                        "Eloi Charpentier",
+                                        "Julien Gautier",
+                                        "Florian Lapeyre",
+
+                                        "Thomas Jarrossay",
+                                        "Alexandre Bartz",
+
+                                        "Cyril Cetre",
+                                        "Clement Ledant",
+
+                                        "Eric Delanghe",
+                                        "Arnaud Gaillard",
+                                        "Geoffrey Le Gourrierec",
+
+                                        "Jeffrey Bencteux",
+                                        "Thomas Kostas",
+                                        "Pierre Pagnoux",
+
+                                        "Antoine Dillée",
+                                        "Romain Cancillière",
+
+                                        "Michael Atlan"};
+
+constexpr std::vector<std::string> get_credits()
+{
+    std::vector<std::string> res{"", "", ""};
+
+    size_t nb_columns = 3;
+    for (size_t i = 0; i < authors.size(); i++)
+        res[i % nb_columns] += authors[i] + "<br>";
+
+    return res;
+}
+
 inline Computation get_compute_mode()
 {
     return holovibes::Holovibes::instance().get_setting<holovibes::settings::ComputeMode>().value;
@@ -46,7 +127,8 @@ inline void set_img_type(ImgType type)
 
 inline uint get_input_buffer_size()
 {
-    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value);
+    return static_cast<uint>(
+        holovibes::Holovibes::instance().get_setting<holovibes::settings::InputBufferSize>().value);
 }
 inline void set_input_buffer_size(uint value)
 {
@@ -135,7 +217,7 @@ inline void set_contrast_upper_threshold(float value)
 
 inline uint get_cuts_contrast_p_offset()
 {
-         return static_cast<uint>(holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value);
+    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<settings::CutsContrastPOffset>().value);
 }
 inline void set_cuts_contrast_p_offset(uint value)
 {
@@ -787,7 +869,8 @@ inline void set_file_buffer_size(uint value)
 
 inline uint get_record_buffer_size()
 {
-    return static_cast<uint>(holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value);
+    return static_cast<uint>(
+        holovibes::Holovibes::instance().get_setting<holovibes::settings::RecordBufferSize>().value);
 }
 
 inline uint get_time_transformation_cuts_output_buffer_size()
@@ -1397,14 +1480,8 @@ inline void set_nb_frames_to_record(std::optional<size_t> nb_frames)
 {
     holovibes::Holovibes::instance().update_setting(settings::RecordFrameCount{nb_frames});
 }
-inline uint get_nb_frame_skip()
-{
-    return holovibes::Holovibes::instance().get_setting<settings::FrameSkip>().value;
-}
-inline uint get_mp4_fps()
-{
-    return holovibes::Holovibes::instance().get_setting<settings::Mp4Fps>().value;
-}
+inline uint get_nb_frame_skip() { return holovibes::Holovibes::instance().get_setting<settings::FrameSkip>().value; }
+inline uint get_mp4_fps() { return holovibes::Holovibes::instance().get_setting<settings::Mp4Fps>().value; }
 
 #pragma endregion
 
