@@ -188,63 +188,89 @@ void RawWindow::resizeGL(int w, int h)
 {
     if (ratio == 0.0f)
         return;
-    int tmp_width = old_width;
-    int tmp_height = old_height;
+        
+    // int tmp_width = old_width;
+    // int tmp_height = old_height;
+    
+    int new_width = std::max(w, 140);
+    int new_height = std::max(h, 140);
 
     auto point = this->position();
 
-    if ((api::get_compute_mode() == Computation::Hologram &&
-         api::get_space_transformation() == SpaceTransformation::NONE) ||
-        api::get_compute_mode() == Computation::Raw)
+    if (is_resize)
     {
-        if (w != old_width)
+        if (w != current_width) // Horizontal resize
         {
-            old_width = w;
-            old_height = w / ratio;
+            // Adapt height to new width using ratio
+            new_height = new_width / ratio;
         }
-        else if (h != old_height)
+        else if (h != current_height)   // Diagonal or Vertical resize
         {
-            old_width = h * ratio;
-            old_height = h;
+            // Adapt width to new height using ratio
+            new_width = new_height * ratio;
         }
     }
-    else
+    else    // Not a resize but a new window spawned
     {
-        if (is_resize)
-        {
-            if (w != old_width)
-            {
-                old_height = w;
-                old_width = w;
-            }
-            else if (h != old_height)
-            {
-                old_height = h;
-                old_width = h;
-            }
-        }
-        else
-        {
-            old_height = std::max(h, w);
-            old_width = old_height;
-        }
+        new_height = std::max(h, w);
+        new_width = new_height;
         is_resize = true;
+    }
 
-        if (old_height < 140 || old_width < 140)
-        {
-            old_height = tmp_height;
-            old_width = tmp_width;
-        }
-        is_resize = true;
-    }
+    // if ((api::get_compute_mode() == Computation::Hologram &&
+    //      api::get_space_transformation() == SpaceTransformation::NONE) ||
+    //     api::get_compute_mode() == Computation::Raw)
+    // {
+    //     if (w != old_width)
+    //     {
+    //         old_width = w;
+    //         old_height = w / ratio;
+    //     }
+    //     else if (h != old_height)
+    //     {
+    //         old_width = h * ratio;
+    //         old_height = h;
+    //     }
+    // }
+    // else
+    // {
+    //     if (is_resize)
+    //     {
+    //         if (w != old_width)
+    //         {
+    //             old_height = w;
+    //             old_width = w;
+    //         }
+    //         else if (h != old_height)
+    //         {
+    //             old_height = h;
+    //             old_width = h;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         old_height = std::max(h, w);
+    //         old_width = old_height;
+    //     }
+
+    //     if (old_height < 140 || old_width < 140)
+    //     {
+    //         old_height = tmp_height;
+    //         old_width = tmp_width;
+    //     }
+    //     is_resize = true;
+    // }
 
     QRect screen = QGuiApplication::primaryScreen()->geometry();
-    if (old_height > screen.height() || old_width > screen.width())
-    {
-        old_height = tmp_height;
-        old_width = tmp_width;
-    }
-    resize(old_width, old_height);
+
+    // // Prevent window from being too big
+    // if (old_height > screen.height() || old_width > screen.width())
+    // {
+    //     old_height = tmp_height;
+    //     old_width = tmp_width;
+    // }
+
+    resize(new_width, new_height);
     this->setPosition(point);
 }
 

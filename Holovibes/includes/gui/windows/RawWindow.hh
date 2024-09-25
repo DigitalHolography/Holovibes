@@ -31,8 +31,8 @@ class RawWindow : public BasicOpenGLWindow
   protected:
     int texDepth, texType;
 
-    int old_width = -1;
-    int old_height = -1;
+    int current_width = -1;
+    int current_height = -1;
     /*! \brief Width/height ratio of the Raw window */
     float ratio = 0.0f;
 
