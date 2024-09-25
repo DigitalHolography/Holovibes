@@ -355,6 +355,8 @@ class Pipe : public ICompute
 
     void insert_cuts_record();
 
+    void insert_moments_record();
+
     /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
 

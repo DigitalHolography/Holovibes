@@ -348,6 +348,8 @@ void Pipe::refresh()
     fourier_transforms_->insert_store_p_frame();
 
     converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
+    
+    insert_moments_record();
 
     insert_filter2d_view();
 
@@ -601,6 +603,32 @@ void Pipe::insert_hologram_record()
                                                          : cudaMemcpyDeviceToHost);
                 else
                     record_queue_.enqueue(buffers_.gpu_output_frame.get(),
+                                          stream_,
+                                          setting<settings::RecordQueueLocation>() == Device::GPU
+                                              ? cudaMemcpyDeviceToDevice
+                                              : cudaMemcpyDeviceToHost);
+            });
+    }
+}
+
+void Pipe::insert_moments_record()
+{
+    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
+    {
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+
+        fn_compute_vect_.conditional_push_back(
+            [&]()
+            {
+                if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
+                    record_queue_.enqueue_from_48bit(buffers_.gpu_postprocess_frame.get(),
+                                                     stream_,
+                                                     setting<settings::RecordQueueLocation>() == Device::GPU
+                                                         ? cudaMemcpyDeviceToDevice
+                                                         : cudaMemcpyDeviceToHost);
+                else
+                    record_queue_.enqueue(buffers_.gpu_postprocess_frame.get(),
                                           stream_,
                                           setting<settings::RecordQueueLocation>() == Device::GPU
                                               ? cudaMemcpyDeviceToDevice
