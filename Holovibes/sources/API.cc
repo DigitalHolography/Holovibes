@@ -277,7 +277,7 @@ void set_raw_mode(uint window_max_size)
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
     UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
     std::string fd_info =
-        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(static_cast<int>(fd.depth) * 8) + "bit";
+        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
 
     api::pipe_refresh();
 }
@@ -330,7 +330,7 @@ bool set_holographic_mode(ushort window_size)
         create_holo_window(window_size);
         /* Info Manager */
         std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(static_cast<int>(fd.depth) * 8) + "bit";
+            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
         /* Contrast */
         api::set_contrast_mode(true);
 

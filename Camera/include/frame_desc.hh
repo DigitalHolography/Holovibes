@@ -10,7 +10,7 @@ using Endianness = enum { LittleEndian = 0, BigEndian = 1 };
 /*! \brief This enum is used to clarify the 'depth' parameter of the following FrameDescriptor struct.
  *  Basically, it's the number of bytes (8 bits) of data that each pixel of a frame needs.
  */
-enum class PixelDepth
+enum PixelDepth
 {
     Bits8 = 1,
     Bits16 = 2,
@@ -31,7 +31,7 @@ struct FrameDescriptor
 {
     /*! \brief Obtain the total frame size in bytes. */
     size_t get_frame_size() const { 
-        size_t size = width * height * static_cast<int>(depth);
+        size_t size = width * height * depth;
         return size; 
     }
     /*! \brief Return the frame resolution (number of pixels). */

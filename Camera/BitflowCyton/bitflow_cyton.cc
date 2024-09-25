@@ -308,7 +308,7 @@ void CameraPhantomBitflow::bind_params()
 
     fd_.width = width;
     fd_.height = height * nb_boards;
-    fd_.depth = static_cast<PixelDepth>(depth);
+    fd_.depth = depth;
 }
 
 ICamera* new_camera_device() { return new CameraPhantomBitflow(); }

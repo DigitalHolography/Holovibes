@@ -37,7 +37,7 @@ void CameraIds::init_camera()
             is_AllocImageMem(cam_,
                              fd_.width,
                              fd_.height,
-                             static_cast<int>(fd_.depth) << 3, // depth * 8
+                             fd_.depth << 3, // depth * 8
                              &frame_,
                              &frame_mem_pid_);
         }

@@ -33,7 +33,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     : DisplayQueue(fd)
     , HoloQueue(type, device)
     , max_size_(std::get<1>(*fast_updates_entry_)) //(fast_updates_entry_->second)
-    , is_big_endian_(static_cast<int>(fd.depth) >= 2 && fd.byteEndian == Endianness::BigEndian)
+    , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
     max_size_ = max_size;
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.

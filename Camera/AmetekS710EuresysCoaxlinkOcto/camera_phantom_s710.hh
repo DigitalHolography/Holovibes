@@ -182,7 +182,7 @@ class EHoloGrabber
     {
         nb_buffers_ = nb_buffers;
         size_t grabber_count = grabbers_.length();
-        size_t frame_size = width_ * height_ * static_cast<int>(depth_);
+        size_t frame_size = width_ * height_ * depth_;
 
         // Allocate buffers in pinned memory
         // Learn more about pinned memory:

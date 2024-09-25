@@ -91,7 +91,7 @@ void Holovibes::init_record_queue()
         }
 
         auto record_fd = gpu_output_queue_.load()->get_fd();
-        if (static_cast<int>(record_fd.depth) == 1)
+        if (record_fd.depth == camera::PixelDepth::Bits8)
             record_fd.depth = camera::PixelDepth::Bits16;
         if (!record_queue_.load())
         {

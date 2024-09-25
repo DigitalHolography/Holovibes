@@ -124,7 +124,7 @@ void CameraHamamatsu::set_frame_acq_info()
     dcam_frame_acq_info_.size = sizeof(dcam_frame_acq_info_); // Line required by the API
     dcam_frame_acq_info_.iFrame = -1;                         // -1 to retrieve the latest captured image
     dcam_frame_acq_info_.buf = output_frame_.get();           // Pointer to host memory where the image will be copied
-    dcam_frame_acq_info_.rowbytes = fd_.width * static_cast<int>(fd_.depth);    // Row size in bytes
+    dcam_frame_acq_info_.rowbytes = fd_.width * fd_.depth;    // Row size in bytes
     dcam_frame_acq_info_.width = fd_.width;
     dcam_frame_acq_info_.height = fd_.height;
     dcam_frame_acq_info_.left = 0;
