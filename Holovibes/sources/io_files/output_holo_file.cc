@@ -19,7 +19,7 @@ OutputHoloFile::OutputHoloFile(const std::string& file_path, const camera::Frame
     holo_file_header_.magic_number[3] = 'O';
 
     holo_file_header_.version = current_version_;
-    holo_file_header_.bits_per_pixel = fd_.depth * 8;
+    holo_file_header_.bits_per_pixel = static_cast<int>(fd_.depth) * static_cast<int>(camera::PixelDepth::Bits64);
     holo_file_header_.img_width = fd_.width;
     holo_file_header_.img_height = fd_.height;
     holo_file_header_.img_nb = img_nb;

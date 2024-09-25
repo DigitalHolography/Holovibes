@@ -18,7 +18,7 @@ void CameraFrameReadWorker::run()
 
     // Update information container
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
-                               std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
+                               std::string(" - ") + std::to_string(static_cast<int>(camera_fd.depth) * 8) + std::string("bit");
 
     auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
     auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);

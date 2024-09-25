@@ -129,7 +129,7 @@ void FileFrameReadWorker::insert_fast_update_map_entries()
 {
     std::string input_descriptor_info = std::to_string(fd_.value().width) + std::string("x") +
                                         std::to_string(fd_.value().height) + std::string(" - ") +
-                                        std::to_string(fd_.value().depth * 8) + std::string("bit");
+                                        std::to_string(static_cast<int>(fd_.value().depth) * 8) + std::string("bit");
 
     auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
     auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);

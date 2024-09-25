@@ -113,7 +113,7 @@ void CameraAlvium::load_default_params()
     height_ = MAX_HEIGHT;
     width_ = MAX_WIDTH;
 
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
 
     fd_.byteEndian = Endianness::LittleEndian;
 }

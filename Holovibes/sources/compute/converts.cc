@@ -372,7 +372,7 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
             std::this_thread::sleep_for(std::chrono::milliseconds(0));
         }
         void* output = buffers_.gpu_spatial_transformation_buffer.get();
-        input_queue.dequeue(output, fd_.depth, convert_to_complex);
+        input_queue.dequeue(output, static_cast<unsigned int>(fd_.depth), convert_to_complex);
     };
 
     fn_compute_vect_.push_back(conversion_task);

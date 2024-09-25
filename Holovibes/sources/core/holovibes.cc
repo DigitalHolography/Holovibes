@@ -91,7 +91,8 @@ void Holovibes::init_record_queue()
         }
 
         auto record_fd = gpu_output_queue_.load()->get_fd();
-        record_fd.depth = record_fd.depth == 1 ? 2 : record_fd.depth;
+        if (static_cast<int>(record_fd.depth) == 1)
+            record_fd.depth = camera::PixelDepth::Bits16;
         if (!record_queue_.load())
         {
             record_queue_ =
@@ -110,7 +111,7 @@ void Holovibes::init_record_queue()
     {
         LOG_DEBUG("RecordMode = CUTS");
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
-        fd_xyz.depth = sizeof(ushort);
+        fd_xyz.depth = static_cast<camera::PixelDepth>(sizeof(ushort));
         if (record_mode == RecordMode::CUTS_XZ)
             fd_xyz.height = api::get_time_transformation_size();
         else
@@ -268,9 +269,9 @@ void Holovibes::init_pipe()
     camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
     if (api::get_compute_mode() == Computation::Hologram)
     {
-        output_fd.depth = 2;
+        output_fd.depth = camera::PixelDepth::Bits16;
         if (api::get_img_type() == ImgType::Composite)
-            output_fd.depth = 6;
+            output_fd.depth = camera::PixelDepth::Bits48;
     }
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
                                                     static_cast<unsigned int>(api::get_output_buffer_size()),

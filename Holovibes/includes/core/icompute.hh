@@ -17,6 +17,7 @@
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
+#include "frame_desc.hh"
 #include "global_state_holder.hh"
 #include "logger.hh"
 
@@ -259,8 +260,7 @@ class ICompute
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-        fd.depth = 8;
-        // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
+        fd.depth = camera::PixelDepth::Bits64;
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 

@@ -104,7 +104,7 @@ void CameraHamamatsu::retrieve_pixel_depth()
 {
     double bits_per_channel;
     dcamprop_getvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
-    fd_.depth = bits_per_channel / 8;
+    fd_.depth = static_cast<PixelDepth>(bits_per_channel / 8);
 }
 
 void CameraHamamatsu::allocate_host_frame_buffer()
@@ -124,7 +124,7 @@ void CameraHamamatsu::set_frame_acq_info()
     dcam_frame_acq_info_.size = sizeof(dcam_frame_acq_info_); // Line required by the API
     dcam_frame_acq_info_.iFrame = -1;                         // -1 to retrieve the latest captured image
     dcam_frame_acq_info_.buf = output_frame_.get();           // Pointer to host memory where the image will be copied
-    dcam_frame_acq_info_.rowbytes = fd_.width * fd_.depth;    // Row size in bytes
+    dcam_frame_acq_info_.rowbytes = fd_.width * static_cast<int>(fd_.depth);    // Row size in bytes
     dcam_frame_acq_info_.width = fd_.width;
     dcam_frame_acq_info_.height = fd_.height;
     dcam_frame_acq_info_.left = 0;
@@ -234,7 +234,7 @@ void CameraHamamatsu::load_default_params()
 {
     fd_.width = MAX_WIDTH;
     fd_.height = MAX_WIDTH;
-    fd_.depth = 2;
+    fd_.depth = PixelDepth::Bits16;
     fd_.byteEndian = Endianness::LittleEndian;
 
     pixel_size_ = 6.5f;

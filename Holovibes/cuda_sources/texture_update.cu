@@ -51,7 +51,7 @@ void textureUpdate(cudaSurfaceObject_t cuSurface,
     const uint fd_height_div_32 = std::ceil(static_cast<float>(fd.height) / threads.y);
     dim3 blocks(fd_width_div_32, fd_height_div_32);
 
-    if (fd.depth == 8)
+    if (fd.depth == camera::PixelDepth::Bits64)
     {
         updateComplexSlice<<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex*>(frame),
                                                            cuSurface,
