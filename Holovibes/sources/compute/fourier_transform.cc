@@ -23,13 +23,14 @@
 #include "svd.hh"
 #include "logger.hh"
 
+#include <thrust/device_vector.h>
+#include <thrust/fill.h>
+
 using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
-void FourierTransform::insert_fft(float* gpu_filter2d_mask,
-                                  const uint width,
-                                  const uint height)
+void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, const uint height)
 {
     LOG_FUNC();
     auto space_transformation = setting<settings::SpaceTransformation>();
@@ -195,20 +196,21 @@ void FourierTransform::insert_time_transform()
     auto time_transformation = setting<settings::TimeTransformation>();
     auto time_transformation_size = setting<settings::TimeTransformationSize>();
 
-    switch (time_transformation) {
-        case TimeTransformation::STFT:
-            insert_stft();
-            break;
-        case TimeTransformation::PCA:
-            insert_pca();
-            break;
-        case TimeTransformation::SSA_STFT:
-            insert_ssa_stft(setting<settings::Q>());
-            break;
-        case TimeTransformation::NONE:
-            // Just copy data to the next buffer
-            fn_compute_vect_.conditional_push_back(
-                [=]()
+    switch (time_transformation)
+    {
+    case TimeTransformation::STFT:
+        insert_stft();
+        break;
+    case TimeTransformation::PCA:
+        insert_pca();
+        break;
+    case TimeTransformation::SSA_STFT:
+        insert_ssa_stft(setting<settings::Q>());
+        break;
+    case TimeTransformation::NONE:
+        // Just copy data to the next buffer
+        fn_compute_vect_.conditional_push_back(
+            [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
                 auto& q = time_transformation_env_.gpu_time_transformation_queue;
@@ -216,10 +218,10 @@ void FourierTransform::insert_time_transform()
 
                 cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
             });
-            break;
-        default:
-            LOG_ERROR("Unknown time transformation");
-            break;
+        break;
+    default:
+        LOG_ERROR("Unknown time transformation");
+        break;
     }
 }
 
@@ -233,6 +235,62 @@ void FourierTransform::insert_stft()
             stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                  time_transformation_env_.gpu_p_acc_buffer,
                  time_transformation_env_.stft_plan);
+        });
+}
+
+void FourierTransform::insert_moments()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            //  first compute the FFT for the current frames, and organize it like that :
+            //  f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] / (n)   if n is even
+            //  f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] / (n) if n is odd
+            //  with n equal to the number of frames (time transformation_size)
+            stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+                 time_transformation_env_.gpu_p_acc_buffer,
+                 time_transformation_env_.stft_plan);
+
+            uint time_transformation_size = setting<settings::TimeTransformationSize>();
+
+            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the frequencies at
+            // order 0 (all equal to 1)
+            matrix_multiply(
+                reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+                time_transformation_env_.f0_buffer,
+                static_cast<int>(fd_.get_frame_res()),
+                sizeof(cuComplex),
+                time_transformation_size,
+                time_transformation_env_.moment0_buffer);
+
+            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the frequencies at
+            // order 1
+            matrix_multiply(
+                reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+                time_transformation_env_.gpu_p_acc_buffer,
+                static_cast<int>(fd_.get_frame_res()),
+                sizeof(cuComplex),
+                time_transformation_size,
+                time_transformation_env_.moment1_buffer);
+
+            // compute the vector of frequencies at order 2
+            hadamard_product<cuComplex>(time_transformation_env_.gpu_p_acc_buffer,
+                                        time_transformation_env_.gpu_p_acc_buffer,
+                                        time_transformation_env_.f2_buffer,
+                                        time_transformation_env_.gpu_p_acc_buffer.get_size(),
+                                        stream_);
+
+            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the frequencies at
+            // order 2
+            matrix_multiply(
+                reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
+                time_transformation_env_.f2_buffer,
+                static_cast<int>(fd_.get_frame_res()),
+                sizeof(cuComplex),
+                time_transformation_size,
+                time_transformation_env_.moment2_buffer);
         });
 }
 

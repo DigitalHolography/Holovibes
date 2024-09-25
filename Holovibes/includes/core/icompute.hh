@@ -163,6 +163,24 @@ struct TimeTransformationEnv
      */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_p_acc_buffer = nullptr;
 
+    /*! \brief Contains the moments, computed from the frequencies resulting from the stft and the initial batch of
+     * frames.
+     *
+     * The moment of order 0 is equal to the batch of frames multiplied by the vector f of frequencies at
+     * Contains time_transformation_size frames.
+     */
+    cuda_tools::CudaUniquePtr<cufftComplex> moment0_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> moment1_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> moment2_buffer = nullptr;
+
+    /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
+     * Used to compute the moment of order 0*/
+    cuda_tools::CudaUniquePtr<size_t> f0_buffer = nullptr;
+
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
+     * Used to compute the moment of order 2*/
+    cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
+
     /*! \brief STFT XZ Queue. Contains the ouput of the STFT on slice XZ.
      *
      * Enqueued with gpu_float_buffer or gpu_ushort_buffer.
@@ -222,7 +240,7 @@ struct ImageAccEnv
 
     /*! \brief Frame to temporaly store the average on YZ axis */
     cuda_tools::CudaUniquePtr<float> gpu_float_average_yz_frame = nullptr;
-    
+
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
@@ -249,11 +267,11 @@ class ICompute
     {
         camera::FrameDescriptor fd = input_queue_.get_fd();
 
-        plan_unwrap_2d_.plan(fd.width,fd.height, CUFFT_C2C);
+        plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
 
-        int inembed[1] = { static_cast<int>(setting<settings::TimeTransformationSize>()) };
+        int inembed[1] = {static_cast<int>(setting<settings::TimeTransformationSize>())};
         int zone_size = static_cast<int>(fd.get_frame_res());
 
         time_transformation_env_.stft_plan
@@ -265,7 +283,8 @@ class ICompute
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
         int output_buffer_size = static_cast<int>(fd.get_frame_res());
-        if (setting<settings::ImageType>() == ImgType::Composite) {
+        if (setting<settings::ImageType>() == ImgType::Composite)
+        {
             // Grey to RGB
             output_buffer_size *= 3;
             buffers_.gpu_postprocess_frame_size *= 3;
@@ -303,9 +322,7 @@ class ICompute
         }
     }
 
-    inline void icompute_pipe_refresh_apply_updates() {
-        pipe_refresh_settings_.apply_updates();
-    }
+    inline void icompute_pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
     void request_refresh();
     void enable_refresh();
     void disable_refresh();

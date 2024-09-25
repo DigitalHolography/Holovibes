@@ -1,5 +1,8 @@
 #include "svd.hh"
 #include "logger.hh"
+#include <thrust/transform.h>
+#include <thrust/functional.h>
+#include <thrust/execution_policy.h>
 
 namespace holovibes::compute
 {
@@ -89,5 +92,19 @@ void matrix_multiply(const cuComplex* A,
                                  &beta,
                                  C,
                                  A_height));
+}
+
+template <typename T>
+void hadamard_product(const T* A, const T* B, const T* output, size_t size, const cudaStream_t stream)
+{
+
+    auto policy = thrust::cuda::par.on(stream);
+    thrust::multiplies<T> op;
+    thrust::transform(policy,   // Execute on stream
+                      A,        // Input1 begin
+                      A + size, // Input1 end
+                      B,        // Input2 begin
+                      output,   // Output begin
+                      op);
 }
 } // namespace holovibes::compute

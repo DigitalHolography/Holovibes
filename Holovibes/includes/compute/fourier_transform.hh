@@ -93,9 +93,7 @@ class FourierTransform
     }
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
-    void insert_fft(float* gpu_filter2d_mask,
-                    const uint width,
-                    const uint height);
+    void insert_fft(float* gpu_filter2d_mask, const uint width, const uint height);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
     void insert_store_p_frame();
@@ -126,9 +124,7 @@ class FourierTransform
         }
     }
 
-    inline void pipe_refresh_apply_updates() {
-        pipe_refresh_settings_.apply_updates();
-    }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Enqueue the call to filter2d cuda function. */
@@ -148,6 +144,8 @@ class FourierTransform
 
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
+
+    void insert_moments();
 
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
      *

@@ -187,7 +187,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
     else if (mode == static_cast<int>(Computation::Moments))
     {
         LOG_WARN("Moments computation is not implemented yet");
-        // Todo here for Moments
+        // TODO here for Moments
     }
 }
 
@@ -389,8 +389,8 @@ void ImageRenderingPanel::actualise_z_distance(const double z_distance)
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
-{ 
-    if (api::get_compute_mode() == Computation::Raw) 
+{
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_z_distance(static_cast<float>(value) / 1000.0f);

@@ -33,6 +33,13 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         auto frame_res = input_queue_.get_fd().get_frame_res();
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
+        // Updates the buffer for the moments, which all depends on the time_transformation size.
+        time_transformation_env_.moment0_buffer.resize(frame_res * size);
+        time_transformation_env_.moment1_buffer.resize(frame_res * size);
+        time_transformation_env_.moment2_buffer.resize(frame_res * size);
+        time_transformation_env_.f0_buffer.resize(size_t * size);
+        time_transformation_env_.f2_buffer.resize(float* size);
+
         perform_time_transformation_setting_specific_tasks(size);
 
         // Resize the time transformation queue
@@ -243,7 +250,8 @@ void ICompute::request_autocontrast(WindowKind kind)
     else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
              setting<settings::CutsViewEnabled>())
         autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
+    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
+             setting<settings::CutsViewEnabled>())
         autocontrast_slice_yz_requested_ = true;
     else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              setting<settings::Filter2dEnabled>())
