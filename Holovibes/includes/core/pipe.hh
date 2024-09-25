@@ -15,6 +15,7 @@
 #include "converts.hh"
 #include "postprocessing.hh"
 #include "function_vector.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -67,7 +68,9 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode
+    holovibes::settings::RecordMode,                             \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps                         
 
 
 #define ONRESTART_SETTINGS                         \
@@ -93,6 +96,7 @@
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on
+#pragma endregion
 
 namespace holovibes
 {
@@ -257,8 +261,8 @@ class Pipe : public ICompute
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[Pipe] [update_setting] {}", typeid(T).name());
-
+        LOG_TRACE("[Pipe] [update_setting] {}", typeid(T).name());
+    
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);

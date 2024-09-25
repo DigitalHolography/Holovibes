@@ -5,6 +5,7 @@ import subprocess
 import time
 import difflib
 import pytest
+import fnmatch
 import json
 from typing import List, Tuple
 import logging
@@ -111,6 +112,10 @@ def diff_holo(a: Tuple[bytes, bytes, bytes], b: Tuple[bytes, bytes, bytes]) -> b
 
     return a != b
 
+def find_files(base, pattern):
+    '''Return list of files matching pattern in base folder.'''
+    return [n for n in fnmatch.filter(os.listdir(base), pattern) if
+        os.path.isfile(os.path.join(base, n))]
 
 def test_holo(folder: str):
 
@@ -138,26 +143,28 @@ def test_holo(folder: str):
 
     if os.path.isfile(ref_error):
         error_wanted = True
-    elif not os.path.isfile(ref):
+    elif find_files(path, "[0-9]*_" + REF_FILENAME) == []:
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
         config = None
         print("Default values might have changed")
 
-    if os.path.isfile(output):
-        os.remove(output)
+    for file in find_files(path, "[0-9]*_" + OUTPUT_FILENAME):
+        os.remove(os.path.join(path, file))
 
     if os.path.isfile(output_error):
         os.remove(output_error)
 
-    current_time = generate_holo_from(folder, input, output, output_error, cli_argument, config)
+    current_time = generate_holo_from(folder, input, output, output_error, cli_argument, config) 
 
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
     else:
-        assert os.path.isfile(output), f"Should have succeded but {OUTPUT_FILENAME} not found"
+        assert  find_files(path, "[0-9]*_" + OUTPUT_FILENAME) != [], f"Should have succeded but {OUTPUT_FILENAME} not found"
         assert not os.path.isfile(output_error), f"Should have succeded but {OUTPUT_ERROR_FILENAME} found"
+    
+    
 
     if DEEP_COMPARE:
         if error_wanted:
@@ -171,8 +178,8 @@ def test_holo(folder: str):
 
             assert output_error_code == ref_error_code, f"Return value is invalid: wanted {ref_error_code} but got {output_error_code}"
         else:
-            out = read_holo(output)
-            ref = read_holo(ref)
+            out = read_holo(os.path.join(path,find_files(path, "[0-9]*_" + OUTPUT_FILENAME)[0]))
+            ref = read_holo(os.path.join(path,find_files(path, "[0-9]*_" + REF_FILENAME)[0]))
             try:
                 ref_time = read_time(os.path.join(path, "ref_time.txt"))
                 logger.info(f"Current time: {current_time} Ref time: {ref_time}")

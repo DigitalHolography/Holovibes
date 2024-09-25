@@ -1,5 +1,18 @@
 ## Changelog
 
+### 13.5.0
+
+- Create option in CLI for frame skip and fps for mp4 records
+- Change the .ps1 to ask for frame skip (not for mp4 fps)
+- Begin support for Alvium Camera
+- Drop down menu to select any preset in the preset directory
+- The ProcessHoloFiles.ps1 is now installed along Holovibes, in a separate directory
+- Display the right input fps when it is indicated in the footer of the holo file
+
+### 13.4.0
+
+- Updates the documentation and merge the tutorial
+
 ### 13.3.2
 
 - fixed maximum capacty of queues

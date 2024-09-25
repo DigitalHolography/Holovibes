@@ -11,15 +11,12 @@
 
 namespace holovibes
 {
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 GSH& GSH::instance()
 {
-    static GSH* instance_ = nullptr;
-    if (instance_ == nullptr)
-        instance_ = new GSH();
-
-    return *instance_;
+    static GSH instance_;
+    return instance_;
 }
 
 /*! \class JsonSettings

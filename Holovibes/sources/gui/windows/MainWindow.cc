@@ -115,11 +115,9 @@ MainWindow::MainWindow(QWidget* parent)
     std::filesystem::create_directory(std::filesystem::path(__APPDATA_HOLOVIBES_FOLDER__));
     std::filesystem::create_directory(std::filesystem::path(__CONFIG_FOLDER__));
 
-    // TODO: move in AppData
     // Fill the quick kernel combo box with files from convolution_kernels
     // directory
-    std::filesystem::path convo_matrix_path(get_exe_dir());
-    convo_matrix_path = convo_matrix_path / "convolution_kernels";
+    std::filesystem::path convo_matrix_path(RELATIVE_PATH(__CONVOLUTION_KERNEL_FOLDER_PATH__));
     if (std::filesystem::exists(convo_matrix_path))
     {
         QVector<QString> files;
@@ -132,8 +130,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Fill the input filter combo box with files from input_filters
     // directory
-    std::filesystem::path input_filters_path(get_exe_dir());
-    input_filters_path = input_filters_path / "input_filters";
+    std::filesystem::path input_filters_path(RELATIVE_PATH(__INPUT_FILTER_FOLDER_PATH__));
     if (std::filesystem::exists(input_filters_path))
     {
         QVector<QString> files;
@@ -166,7 +163,7 @@ MainWindow::MainWindow(QWidget* parent)
         api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
 
     // light ui
-    light_ui_ = std::make_shared<LightUI>(nullptr, this, ui_->ExportPanel);
+    light_ui_ = std::make_shared<LightUI>(nullptr, this);
 
     load_gui();
 
@@ -203,9 +200,10 @@ MainWindow::MainWindow(QWidget* parent)
 
     ;
 
-    ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    ui_->InfoPanel->set_light_ui(light_ui_);
+    // ui_->ExportPanel->set_light_ui(light_ui_);
+    ui_->ExportPanel->init_light_ui();
+    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
+    // ui_->InfoPanel->set_light_ui(light_ui_);
 
     api::start_information_display();
 
@@ -223,6 +221,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    ui_->menuSelect_preset->clear();
+
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
@@ -268,6 +268,29 @@ void MainWindow::on_notify()
     enable_notify();
 
     api::enable_pipe_refresh();
+
+    QSpinBox* fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
+    fps_number_sb->setValue(api::get_input_fps());
+
+    // Refresh the preset drop down menu
+    ui_->menuSelect_preset->clear();
+    std::filesystem::path preset_dir(RELATIVE_PATH(__PRESET_FOLDER_PATH__));
+    if (!std::filesystem::exists(preset_dir))
+        ui_->menuSelect_preset->addAction(new QAction(QString("Presets directory not found"), ui_->menuSelect_preset));
+    else
+    {
+        QList<QAction*> actions;
+        for (const auto& file : std::filesystem::directory_iterator(RELATIVE_PATH(__PRESET_FOLDER_PATH__)))
+        {
+            QAction* action = new QAction(QString(file.path().filename().string().c_str()), ui_->menuSelect_preset);
+            connect(action, &QAction::triggered, this, [=] { set_preset(file); });
+            actions.push_back(action);
+        }
+        if (actions.length() == 0)
+            ui_->menuSelect_preset->addAction(new QAction(QString("No preset"), ui_->menuSelect_preset));
+        else
+            ui_->menuSelect_preset->addActions(actions);
+    }
 
     // Tabs
     if (api::get_is_computation_stopped())
@@ -351,11 +374,27 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    const std::string msg = api::get_credits();
+    // const std::string msg = api::get_credits();
+    const std::vector<std::string> columns = api::get_credits();
+
+    // Create HTML for 3 columns inside a table
+    QString columnarText = QString("Holovibes v" + QString::fromStdString(std::string(__HOLOVIBES_VERSION__)) +
+                                   "\n\nDevelopers:\n\n"
+                                   "<table width='100%%' cellspacing='20'>"
+                                   "<tr>"
+                                   "<td width='33%%' valign='top'>%1</td>"
+                                   "<td width='33%%' valign='top'>%2</td>"
+                                   "<td width='33%%' valign='top'>%3</td>"
+                                   "</tr>"
+                                   "</table>")
+                               .arg(QString::fromStdString(columns[0]))
+                               .arg(QString::fromStdString(columns[1]))
+                               .arg(QString::fromStdString(columns[2]));
 
     // Creation on the fly of the message box to display
     QMessageBox msg_box;
-    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setTextFormat(Qt::RichText); // Enable HTML formatting
+    msg_box.setText(columnarText);       // Set the HTML-formatted text
     msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
 }
@@ -372,6 +411,8 @@ void MainWindow::browse_export_ini()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.json)"));
     api::save_compute_settings(filename.toStdString());
+    // Reload to change drop down preset menu
+    notify();
 }
 
 void MainWindow::reload_ini(const std::string& filename)
@@ -517,7 +558,7 @@ void MainWindow::save_gui()
     {
         j_us = json::parse(input_file);
     }
-    catch (const std::exception& e)
+    catch (const std::exception&)
     {
     }
 
@@ -622,6 +663,8 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
+
+void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
 void MainWindow::configure_camera() { api::configure_camera(); }
 #pragma endregion
@@ -734,6 +777,9 @@ void MainWindow::close_advanced_settings()
 {
     if (UserInterfaceDescriptor::instance().has_been_updated)
     {
+        // If the settings have been updated, they must be not considered updated after closing the window.
+        UserInterfaceDescriptor::instance().has_been_updated = false;
+
         ImportType it = UserInterfaceDescriptor::instance().import_type_;
         ui_->ImportPanel->import_stop();
 
@@ -816,11 +862,19 @@ void MainWindow::open_light_ui()
     this->hide();
 }
 
+// Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
-    reload_ini(dest.string());
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "preset.json"));
+    reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
+}
+
+// Set preset from a file (called on notify)
+void MainWindow::set_preset(std::filesystem::path file)
+{
+    reload_ini(file.string());
+    LOG_INFO("Preset loaded with file " + file.string());
 }
 
 #pragma endregion

@@ -12,6 +12,7 @@
 #include "rect.hh"
 #include "shift_corners.cuh"
 #include "global_state_holder.hh"
+#include "logger.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -109,13 +110,13 @@ class Rendering
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::trace("[Rendering] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
         {
-            spdlog::trace("[Rendering] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[Rendering] [update_setting] {}", typeid(T).name());
             onrestart_settings_.update_setting(setting);
         }
     }

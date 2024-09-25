@@ -2,6 +2,7 @@
 #include "logger.hh"
 #include "input_filter.hh"
 #include "notifier.hh"
+#include "logger.hh"
 
 #include <regex>
 #include <string>
@@ -18,7 +19,7 @@ void disable_pipe_refresh()
     {
         get_compute_pipe()->disable_refresh();
     }
-    catch (const std::runtime_error& e)
+    catch (const std::runtime_error&)
     {
     }
 }
@@ -29,7 +30,7 @@ void enable_pipe_refresh()
     {
         get_compute_pipe()->enable_refresh();
     }
-    catch (const std::runtime_error& e)
+    catch (const std::runtime_error&)
     {
     }
 }
@@ -41,7 +42,7 @@ void pipe_refresh()
 
     try
     {
-        spdlog::trace("pipe_refresh");
+        LOG_TRACE("pipe_refresh");
         get_compute_pipe()->request_refresh();
     }
     catch (const std::runtime_error& e)
@@ -50,75 +51,6 @@ void pipe_refresh()
     }
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
-
-const std::string get_credits()
-{
-    return "Holovibes v" + std::string(__HOLOVIBES_VERSION__) +
-           "\n\n"
-
-           "Developers:\n\n"
-
-           "Chloé Magnier\n"
-           "Noé Topeza\n"
-           "Maxime Boy-Arnould\n"
-
-           "Oscar Morand\n"
-           "Paul Duhot\n"
-           "Thomas Xu\n"
-           "Jules Guillou\n"
-           "Samuel Goncalves\n"
-           "Edgar Delaporte\n"
-
-           "Adrien Langou\n"
-           "Julien Nicolle\n"
-           "Sacha Bellier\n"
-           "David Chemaly\n"
-           "Damien Didier\n"
-
-           "Philippe Bernet\n"
-           "Eliott Bouhana\n"
-           "Fabien Colmagro\n"
-           "Marius Dubosc\n"
-           "Guillaume Poisson\n"
-
-           "Anthony Strazzella\n"
-           "Ilan Guenet\n"
-           "Nicolas Blin\n"
-           "Quentin Kaci\n"
-           "Theo Lepage\n"
-
-           "Loïc Bellonnet-Mottet\n"
-           "Antoine Martin\n"
-           "François Te\n"
-
-           "Ellena Davoine\n"
-           "Clement Fang\n"
-           "Danae Marmai\n"
-           "Hugo Verjus\n"
-
-           "Eloi Charpentier\n"
-           "Julien Gautier\n"
-           "Florian Lapeyre\n"
-
-           "Thomas Jarrossay\n"
-           "Alexandre Bartz\n"
-
-           "Cyril Cetre\n"
-           "Clement Ledant\n"
-
-           "Eric Delanghe\n"
-           "Arnaud Gaillard\n"
-           "Geoffrey Le Gourrierec\n"
-
-           "Jeffrey Bencteux\n"
-           "Thomas Kostas\n"
-           "Pierre Pagnoux\n"
-
-           "Antoine Dillée\n"
-           "Romain Cancillière\n"
-
-           "Michael Atlan\n";
-}
 
 bool is_input_queue() { return get_input_queue() != nullptr; }
 
@@ -199,7 +131,7 @@ bool change_camera(CameraKind c)
         {
             Holovibes::instance().start_camera_frame_read(c);
         }
-        catch (const std::exception& e)
+        catch (const std::exception&)
         {
             LOG_INFO("Set camera to NONE");
 
@@ -934,7 +866,7 @@ void check_q_limits()
 {
     int upper_bound = get_time_transformation_size() - 1;
 
-    if (get_q_accu_level() > upper_bound)
+    if (std::cmp_greater(get_q_accu_level(), upper_bound))
         api::set_q_accu_level(upper_bound);
 
     upper_bound -= get_q_accu_level();
@@ -969,7 +901,7 @@ void set_z_distance(float value)
 {
     if (value == 0)
     {
-        value = 0.000001;
+        value = 0.000001f;
     } // to avoid kernel crash with 0 distance
     // Notify the change to the z_distance notifier
     auto& manager = NotifierManager::get_instance();
@@ -1246,7 +1178,10 @@ void set_raw_bitshift(unsigned int value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
 }
 
-unsigned int get_raw_bitshift() { return holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value; }
+unsigned int get_raw_bitshift()
+{
+    return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value);
+}
 
 float get_contrast_min()
 {
@@ -1369,7 +1304,7 @@ float get_truncate_contrast_min(const int precision)
 
 #pragma region Convolution
 
-static inline const std::filesystem::path dir(get_exe_dir());
+static inline const std::filesystem::path dir(GET_EXE_DIR);
 
 void load_convolution_matrix(std::optional<std::string> filename)
 {
@@ -1385,7 +1320,7 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
     try
     {
-        auto path_file = dir / "convolution_kernels" / file;
+        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
         std::string path = path_file.string();
 
         std::vector<float> matrix;
@@ -1533,7 +1468,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
     auto& holo = Holovibes::instance();
     try
     {
-        auto path_file = dir / "input_filters" / file;
+        auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
         InputFilter(input_filter,
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
@@ -1690,7 +1625,7 @@ void stop_chart_display()
 
 /**
  * @brief Extract the name from the filename
- * 
+ *
  * @param filePath the file name
  * @return std::string the name extracted from the filename
  */
@@ -1732,6 +1667,7 @@ void set_record_buffer_size(uint value)
 
         if (Holovibes::instance().is_recording())
             stop_record();
+
         Holovibes::instance().init_record_queue();
     }
 }
@@ -1788,6 +1724,7 @@ void set_record_mode(const std::string& text)
         }
         catch (const std::exception& e)
         {
+            (void)e; // Suppress warning in case debug log is disabled
             LOG_DEBUG("Pipe not initialized: {}", e.what());
         }
     }
@@ -1796,7 +1733,7 @@ void set_record_mode(const std::string& text)
 bool start_record_preconditions()
 {
     bool batch_enabled = api::get_batch_enabled();
-    std::optional<unsigned int> nb_frames_to_record = api::get_record_frame_count();
+    std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
 
     auto batch_input_path = api::get_batch_file_path().value_or("");
@@ -2000,7 +1937,7 @@ void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSetti
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent, specific_panel);
+        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
 }
 
 #pragma endregion

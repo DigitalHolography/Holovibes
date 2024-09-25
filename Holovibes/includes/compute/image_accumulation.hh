@@ -10,6 +10,7 @@
 #include "frame_desc.hh"
 #include "queue.hh"
 #include "rect.hh"
+#include "logger.hh"
 
 #include "global_state_holder.hh"
 
@@ -95,13 +96,13 @@ class ImageAccumulation
 
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            spdlog::trace("[ImageAccumulation] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[ImageAccumulation] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
 
         if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
         {
-            spdlog::trace("[ImageAccumulation] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[ImageAccumulation] [update_setting] {}", typeid(T).name());
             pipe_refresh_settings_.update_setting(setting);
         }
     }

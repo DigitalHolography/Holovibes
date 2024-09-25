@@ -31,16 +31,6 @@ const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_t
     {QueueType::RECORD_QUEUE, "Record Queue"},
 };
 
-std::string get_current_date_time()
-{
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%Hh%M-%S");
-    return ss.str();
-}
-
 void InformationWorker::run()
 {
     std::shared_ptr<ICompute> pipe;
@@ -78,14 +68,14 @@ void InformationWorker::run()
 
             if (gpu_output_queue && input_queue)
             {
-                output_frame_res = gpu_output_queue->get_fd().get_frame_res();
-                input_frame_size = input_queue->get_fd().get_frame_size();
+                output_frame_res = static_cast<unsigned int>(gpu_output_queue->get_fd().get_frame_res());
+                input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
             }
 
             auto frame_record_queue = Holovibes::instance().get_record_queue().load();
             record_frame_size = 0;
             if (frame_record_queue)
-                record_frame_size = frame_record_queue->get_fd().get_frame_size();
+                record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
             // if (pipe != nullptr)
             // {
             //     std::unique_ptr<Queue>& frame_record_queue = pipe->get_frame_record_queue();
@@ -132,7 +122,7 @@ void InformationWorker::run()
     {
         benchmark_file.close();
         // rename file
-        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + get_current_date_time() + ".csv";
+        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + Chrono::get_current_date_time() + ".csv";
         std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
     }
 }
@@ -186,6 +176,8 @@ std::string gpu_load()
     result = nvmlInit();
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
+        nvmlShutdown();
         ss << "Could not load GPU usage";
         return ss.str();
     }
@@ -195,6 +187,7 @@ std::string gpu_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -204,6 +197,7 @@ std::string gpu_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -221,6 +215,7 @@ std::string gpu_load()
     ss << " %";
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return ss.str();
@@ -243,6 +238,7 @@ std::string gpu_load_as_number()
     result = nvmlDeviceGetHandleByIndex(0, &device);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
@@ -251,11 +247,13 @@ std::string gpu_load_as_number()
     result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return std::to_string(gpuLoad.gpu);
@@ -274,6 +272,8 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
+        nvmlShutdown();
         return ss.str();
     }
 
@@ -282,6 +282,7 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -291,6 +292,7 @@ std::string gpu_memory_controller_load()
     if (result != NVML_SUCCESS)
     {
         ss << "Could not load GPU usage";
+        result = nvmlShutdown();
         nvmlShutdown();
         return ss.str();
     }
@@ -308,6 +310,7 @@ std::string gpu_memory_controller_load()
     ss << " %";
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return ss.str();
@@ -330,6 +333,7 @@ std::string gpu_memory_controller_load_as_number()
     result = nvmlDeviceGetHandleByIndex(0, &device);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
@@ -338,11 +342,13 @@ std::string gpu_memory_controller_load_as_number()
     result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
     if (result != NVML_SUCCESS)
     {
+        result = nvmlShutdown();
         nvmlShutdown();
         return "Could not load GPU usage";
     }
 
     // Shutdown NVML
+    result = nvmlShutdown();
     nvmlShutdown();
 
     return std::to_string(gpuLoad.memory);
@@ -435,6 +441,7 @@ void InformationWorker::display_gui_information()
     cudaMemGetInfo(&free, &total);
 
     to_display << gpu_memory() << "<br/>";
+    /* There is a memory leak on both gpu_load() and gpu_memory_controller_load(), probably linked to nvmlInit */
     to_display << gpu_load() << "<br/>";
     to_display << gpu_memory_controller_load() << "<br/>";
 

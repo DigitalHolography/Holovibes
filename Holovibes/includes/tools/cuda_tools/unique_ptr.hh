@@ -50,19 +50,22 @@ class CudaUniquePtr
     /*! \brief Allocates an array of size sizeof(T) * size */
     CudaUniquePtr(const size_t size) { resize(size); }
 
-    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null */
+    /*! \brief Allocates an array of size sizeof(T) * size, free the old pointer if not null 
+     * \param size The size of the array to allocate
+     * \return true if the allocation was successful, false otherwise
+     */
     bool resize(size_t size)
     {
-        T* tmp;
-        size *= sizeof(T);
         val_.reset(nullptr);     // Free itself first
-        cudaXMalloc(&tmp, size); // Allocate memory
+
+        T* tmp = nullptr;
+        cudaXMalloc(&tmp, size * sizeof(T)); // Allocate memory
         val_.reset(tmp);         // Update pointer
-        return tmp;
+        return tmp != nullptr;
     }
 
-    void reset(T* ptr) { return val_.reset(ptr); }
-    void reset() { return val_.reset(nullptr); }
+    void reset(T* ptr) { val_.reset(ptr); }
+    void reset() { val_.reset(nullptr); }
 
   protected:
     std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};

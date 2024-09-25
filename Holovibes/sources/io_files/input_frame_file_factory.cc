@@ -1,7 +1,7 @@
 #include "input_frame_file_factory.hh"
 #include "input_holo_file.hh"
 #include "input_cine_file.hh"
-#include "spdlog/spdlog.h"
+#include "logger.hh"
 
 namespace holovibes::io_files
 {
@@ -15,7 +15,7 @@ InputFrameFile* InputFrameFileFactory::open(const std::string& file_path)
 
     else
     {
-        spdlog::critical("file path : {} not valid", file_path);
+        LOG_CRITICAL("file path : {} not valid", file_path);
         throw FileException("Invalid file extension", false);
     }
 }

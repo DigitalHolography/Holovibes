@@ -254,7 +254,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 setting<settings::TimeTransformationSize>(),
-                                setting<settings::CutsContrastPOffset>(),
+                                static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::XZview);
             autocontrast_slice_xz_request = false;
         }
@@ -264,7 +264,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),
                                 fd_.height,
-                                setting<settings::CutsContrastPOffset>(),
+                                static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::YZview);
             autocontrast_slice_yz_request = false;
         }

@@ -30,7 +30,7 @@ void ChartRecordWorker::run()
        << "]" << std::endl;
 
     auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_record_chart(setting<settings::RecordFrameCount>().value());
+    pipe->request_record_chart(static_cast<unsigned int>(setting<settings::RecordFrameCount>().value()));
     while (pipe->get_chart_record_requested() != std::nullopt && !stop_requested_)
         continue;
 
@@ -41,7 +41,7 @@ void ChartRecordWorker::run()
     std::atomic<unsigned int>& i = entry->first;
     std::atomic<unsigned int>& nb_frames_to_record = entry->second;
     i = 0;
-    nb_frames_to_record = setting<settings::RecordFrameCount>().value();
+    nb_frames_to_record = static_cast<unsigned int>(setting<settings::RecordFrameCount>().value());
 
     for (; i < setting<settings::RecordFrameCount>().value(); ++i)
     {

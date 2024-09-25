@@ -4,16 +4,17 @@
 #pragma once
 
 #include <boost/property_tree/ini_parser.hpp>
-#include <Windows.h>
 #include "icamera.hh"
 #include "frame_desc.hh"
 #include "camera_config.hh"
 #include "holovibes_config.hh"
 
 #include <spdlog/spdlog.h>
+#include "camera_logger.hh"
 
 namespace camera
 {
+
 /*! \brief Adding to the ICamera interface datas and INI file loading.
  *
  * Although each camera is different, a group of functionalities specific
@@ -49,7 +50,7 @@ class Camera : public ICamera
      * Try to open the corresponding configuration file, if any, and parse it
      * with Boost to extract some useful data for further configuration.
      */
-    Camera(const std::string& ini_filename, const bool gpu=true)
+    Camera(const std::string& ini_filename, const bool gpu = true)
         : fd_()
         , name_("Unknown")
         , exposure_time_(0.0f)
@@ -57,12 +58,24 @@ class Camera : public ICamera
         , gpu_(gpu)
         , ini_pt_()
     {
-        ini_name_ = (__CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename).string();
+        ini_name_ = (RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / ini_filename)).string();
         ini_file_ = std::ifstream(ini_name_);
         if (ini_file_is_open())
             boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
         else
-            spdlog::warn("Unable to open INI file {}", ini_name_);
+        {
+
+            ini_name_ =
+                std::filesystem::absolute(std::filesystem::path("build/bin/AppData/cameras_config/" + ini_filename))
+                    .string(); // TODO make it cleaner
+            ini_file_ = std::ifstream(ini_name_);
+
+            if (ini_file_is_open())
+                boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
+            else
+                // FIXME: leak ?
+                spdlog::warn("Unable to open INI file {}", ini_name_);
+        }
     }
 
     bool ini_file_is_open() const { return ini_file_.is_open(); }
@@ -122,8 +135,9 @@ class Camera : public ICamera
     /*! \brief INI configuration file data stream */
     std::ifstream ini_file_;
 
-    /*! \brief Indicates whether the grabber must send the frames on the cpu or the gpu memory. 
-    Be aware that the frames are not directly sent to the gpu, but on mapped memory (see the init funciton in camera_pantom.hh)*/
+    /*! \brief Indicates whether the grabber must send the frames on the cpu or the gpu memory.
+    Be aware that the frames are not directly sent to the gpu, but on mapped memory (see the init funciton in
+    camera_pantom.hh)*/
     bool gpu_;
 
   private:

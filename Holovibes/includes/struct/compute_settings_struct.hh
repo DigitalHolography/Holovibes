@@ -25,15 +25,17 @@ struct ComputeSettings
     Composite color_composite_image;
     AdvancedSettings advanced;
 
-    /*! \brief Synchornize instance of ComputeSettings with GSH */
-    void Update();
-    /*! \brief Synchornize instance of GSH with ComputeSettings */
-    void Load();
     /*! \brief Debug function - Dump instance of ComputeSettings in json */
     void Dump(const std::string& filename);
-    /*! \brief Assert that the ComputeSettings are valid, if in cli: raise an error when non valid, else: use the default ones from the app. */
-    void Assert() const;
 
-    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, color_composite_image, advanced)
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(ComputeSettings, image_rendering, view, color_composite_image, advanced);
+
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of ComputeSettings with the one in GSH, update variables of GSH
+     * with the one of ComputeSettings and assert that the ComputeSettings variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
 };
 } // namespace holovibes

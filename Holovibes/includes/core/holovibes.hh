@@ -20,6 +20,7 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 #include "utils/custom_type_traits.hh"
+#include "logger.hh"
 
 // Enum
 #include "enum_camera_kind.hh"
@@ -112,8 +113,10 @@
     holovibes::settings::RawViewQueueLocation,                      \
     holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU
-     
+    holovibes::settings::RecordOnGPU,                               \
+    holovibes::settings::FrameSkip,                                 \
+    holovibes::settings::Mp4Fps
+
 #define ALL_SETTINGS REALTIME_SETTINGS
 
 // clang-format on
@@ -161,11 +164,7 @@ class Holovibes
     {
         CudaStreams()
         {
-            cudaSafeCall(cudaStreamCreateWithPriority(&reader_stream, cudaStreamDefault, CUDA_STREAM_READER_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&compute_stream, cudaStreamDefault, CUDA_STREAM_COMPUTE_PRIORITY));
-            cudaSafeCall(
-                cudaStreamCreateWithPriority(&recorder_stream, cudaStreamDefault, CUDA_STREAM_RECORDER_PRIORITY));
+            reload();
         }
 
         /*! \brief Used when the device is reset. Recreate the streams.
@@ -187,6 +186,7 @@ class Holovibes
             cudaSafeCall(cudaStreamDestroy(compute_stream));
             cudaSafeCall(cudaStreamDestroy(recorder_stream));
         }
+        
         cudaStream_t reader_stream;
         cudaStream_t compute_stream;
         cudaStream_t recorder_stream;
@@ -334,39 +334,35 @@ class Holovibes
     template <typename T>
     inline void update_setting(T setting)
     {
-        spdlog::trace("[Holovibes] [update_setting] {}", typeid(T).name());
+        LOG_TRACE("[Holovibes] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
 
-        if constexpr (has_setting<T, worker::FileFrameReadWorker>::value)
+        if constexpr (has_setting_v<T, worker::FileFrameReadWorker>)
             file_read_worker_controller_.update_setting(setting);
 
-        if constexpr (has_setting<T, worker::FrameRecordWorker>::value)
+        if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
             frame_record_worker_controller_.update_setting(setting);
 
-        if (compute_pipe_.load() != nullptr)
-        {
-            if constexpr (has_setting<T, Pipe>::value)
+
+        if constexpr (has_setting_v<T, Pipe>)
+            if (compute_pipe_.load() != nullptr)
                 compute_pipe_.load()->update_setting(setting);
-        }
     }
 
     template <typename T>
     inline T get_setting()
     {
-        auto all_settings = std::tuple_cat(realtime_settings_.settings_);
-        return std::get<T>(all_settings);
+        return realtime_settings_.get<T>();
     }
 
   private:
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(realtime_settings_.settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_.settings_)>)
             return realtime_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Construct the holovibes object. */
@@ -450,7 +446,9 @@ class Holovibes
                                              settings::RawViewQueueLocation{Device::GPU},
                                              settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true}))
+                                             settings::RecordOnGPU{true},
+                                             settings::FrameSkip{0},
+                                             settings::Mp4Fps{24}))
     {
     }
 

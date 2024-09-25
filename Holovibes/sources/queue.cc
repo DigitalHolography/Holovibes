@@ -36,11 +36,48 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
     max_size_ = max_size;
+    // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
+    if (!data_.resize(fd_.get_frame_size() * max_size_))
+    {
+        bool is_size_modified = false;
+        while (!data_.resize(fd_.get_frame_size() * max_size_))
+        {
+            max_size_--;
+        }
+        switch (type)
+            {
+            case QueueType::INPUT_QUEUE:
+                api::set_input_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::OUTPUT_QUEUE: 
+                api::set_output_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::RECORD_QUEUE:
+                api::set_record_buffer_size(max_size_);
+                is_size_modified = true;
+                break;
+            case QueueType::UNDEFINED:
+                break;
+            default:
+                break;
+            }
+        if (is_size_modified)
+        {
+            LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to " + std::to_string(max_size_));
+            // LOG_WARN("Queue: not enough memory to allocate queue. Queue size was reduced to {}", max_size_);
+            // Return because when we set the buffer_size in the switch, the process is relaaunch and the ctor will be called again
+            return;
+        }
+    }
+        
+
     if (max_size_ == 0 || !data_.resize(fd_.get_frame_size() * max_size_))
     {
         LOG_ERROR("Queue: could not allocate queue");
 
-        throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size) + ")");
+        throw std::logic_error(std::string("Could not allocate queue (max_size: ") + std::to_string(max_size_) + ")");
     }
 
     // // Needed if input is embedded into a bigger square
@@ -352,7 +389,10 @@ int Queue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_ki
     if (nb_elts == -1)
         nb_elts = size_;
 
-    CHECK(nb_elts <= size_, "Request to dequeue {} elts, but the queue has only {}", (char)nb_elts, (char)size_);
+    CHECK(std::cmp_less_equal(nb_elts, size_.load()),
+          "Request to dequeue {} elts, but the queue has only {}",
+          (char)nb_elts,
+          (char)size_);
 
     void* first_img = data_.get() + start_index_ * fd_.get_frame_size();
     cudaXMemcpyAsync(dest, first_img, nb_elts * fd_.get_frame_size(), cuda_kind, stream);

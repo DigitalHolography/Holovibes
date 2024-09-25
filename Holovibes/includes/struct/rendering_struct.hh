@@ -31,11 +31,15 @@ struct Rendering
         int inner_radius = 0;
         int outer_radius = 1;
 
-        void Update();
-        void Load();
-        void Assert() const;
-
-        SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius)
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius);
+                
+        /*!
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of Filter2D with the one in GSH, update variables of GSH
+         * with the one of Filter2D and assert that the Filter2D variables are valid
+         */
+        SETTING_RELATED_FUNCTIONS();
     };
 
     /*! \class Filter
@@ -47,11 +51,15 @@ struct Rendering
         std::string type;
         bool enabled = false;
 
-        void Update();
-        void Load();
-        void Assert() const;
-
-        SERIALIZE_JSON_STRUCT(Filter, type, enabled)
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Filter, type, enabled);
+        
+        /*!
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of Filter with the one in GSH, update variables of GSH
+         * with the one of Filter and assert that the Filter variables are valid
+         */
+        SETTING_RELATED_FUNCTIONS();
     };
 
     /*! \class Convolution
@@ -64,11 +72,15 @@ struct Rendering
         std::string type;
         bool divide = false;
 
-        void Update();
-        void Load();
-        void Assert() const;
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Convolution, enabled, type, divide);
 
-        SERIALIZE_JSON_STRUCT(Convolution, enabled, type, divide)
+        /*!
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of Convolution with the one in GSH, update variables of GSH
+         * with the one of Convolution and assert that the Convolution variables are valid
+         */
+        SETTING_RELATED_FUNCTIONS();
     };
 
     Computation image_mode = Computation::Raw;
@@ -83,10 +95,7 @@ struct Rendering
     Convolution convolution;
     Filter input_filter;
 
-    void Update();
-    void Load();
-    void Assert() const;
-
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Rendering,
                           input_filter,
                           image_mode,
@@ -98,7 +107,14 @@ struct Rendering
                           time_transformation_size,
                           lambda,
                           propagation_distance,
-                          convolution)
+                          convolution);
+    
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of Rendering with the one in GSH, update variables of GSH
+     * with the one of Rendering and assert that the Rendering variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
 };
 
 } // namespace holovibes
