@@ -269,7 +269,7 @@ void MainWindow::on_notify()
 
     api::enable_pipe_refresh();
 
-    QSpinBox *fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
+    QSpinBox* fps_number_sb = this->findChild<QSpinBox*>("ImportInputFpsSpinBox");
     fps_number_sb->setValue(api::get_input_fps());
 
     // Refresh the preset drop down menu
@@ -374,11 +374,27 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    const std::string msg = api::get_credits();
+    // const std::string msg = api::get_credits();
+    const std::vector<std::string> columns = api::get_credits();
+
+    // Create HTML for 3 columns inside a table
+    QString columnarText = QString("Holovibes v" + QString::fromStdString(std::string(__HOLOVIBES_VERSION__)) +
+                                   "\n\nDevelopers:\n\n"
+                                   "<table width='100%%' cellspacing='20'>"
+                                   "<tr>"
+                                   "<td width='33%%' valign='top'>%1</td>"
+                                   "<td width='33%%' valign='top'>%2</td>"
+                                   "<td width='33%%' valign='top'>%3</td>"
+                                   "</tr>"
+                                   "</table>")
+                               .arg(QString::fromStdString(columns[0]))
+                               .arg(QString::fromStdString(columns[1]))
+                               .arg(QString::fromStdString(columns[2]));
 
     // Creation on the fly of the message box to display
     QMessageBox msg_box;
-    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setTextFormat(Qt::RichText); // Enable HTML formatting
+    msg_box.setText(columnarText);       // Set the HTML-formatted text
     msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
 }

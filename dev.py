@@ -44,7 +44,7 @@ def goal(func, name: str = None):
 @goal
 def install(args: GoalArgs) -> int:
     build_mode = build_utils.get_build_mode(args.build_mode)
-    build_mode = "RelWithDebInfo" if build_mode == "Release" else "Debug"
+    build_mode = "Debug" if build_mode in ["d", "D", "Debug", "debug"] else "RelWithDebInfo"
     build_dir = build_utils.get_build_dir(args.build_dir)
 
     # if build dir exist, remove it
@@ -91,7 +91,7 @@ def conan_build_goal(args: GoalArgs, option: str) -> int:
             return 1
 
     build = "--build" if option == "--build" else ""
-    preset = "conan-debug" if args.build_mode == "Debug" else "conan-relwithdebinfo"
+    preset = "conan-debug" if args.build_mode in ["d", "D", "Debug", "debug"] else "conan-relwithdebinfo"
     cmd = [
         os.path.join(DEFAULT_BUILD_FOLDER if args.build_dir is None else args.build_dir, "generators", "conanbuild.bat"), "&&", "cmake", build, "--preset", preset
     ] + args.goal_args
@@ -372,7 +372,7 @@ def parse_args():
     build.add_argument(
         "-b",
         choices=RELEASE_OPT + DEBUG_OPT,
-        default=None,
+        default="Debug",
         help="Choose between Release mode and Debug mode (Default: Debug)",
     )
     # build.add_argument(
