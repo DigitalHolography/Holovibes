@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(Holovibes
-	VERSION 13.5.0
+	VERSION 13.5.1
 	DESCRIPTION "Holovibes"
 	LANGUAGES CXX CUDA
 )
