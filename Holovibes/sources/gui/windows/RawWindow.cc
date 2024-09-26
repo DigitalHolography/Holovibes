@@ -86,7 +86,7 @@ void RawWindow::initializeGL()
     glGenBuffers(1, &Pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
     size_t size;
-    if (fd_.depth == camera::PixelDepth::Bits64) // cuComplex displayed as a uint
+    if (fd_.depth == camera::PixelDepth::Complex) // cuComplex displayed as a uint
         size = fd_.get_frame_res() * sizeof(uint);
     else if (fd_.depth == camera::PixelDepth::Bits32) // Float are displayed as ushort
         size = fd_.get_frame_res() * sizeof(ushort);
@@ -102,7 +102,7 @@ void RawWindow::initializeGL()
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
     texDepth = (fd_.depth == camera::PixelDepth::Bits8) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-    texType = (fd_.depth == camera::PixelDepth::Bits64) ? GL_RG : GL_RED;
+    texType = (fd_.depth == camera::PixelDepth::Complex) ? GL_RG : GL_RED;
     if (fd_.depth == camera::PixelDepth::Bits48)
         texType = GL_RGB;
     glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, nullptr);
@@ -115,7 +115,7 @@ void RawWindow::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    if (fd_.depth == camera::PixelDepth::Bits64)
+    if (fd_.depth == camera::PixelDepth::Complex)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);

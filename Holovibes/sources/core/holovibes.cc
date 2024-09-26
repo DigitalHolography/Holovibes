@@ -111,7 +111,7 @@ void Holovibes::init_record_queue()
     {
         LOG_DEBUG("RecordMode = CUTS");
         camera::FrameDescriptor fd_xyz = gpu_output_queue_.load()->get_fd();
-        fd_xyz.depth = static_cast<camera::PixelDepth>(sizeof(ushort));
+        fd_xyz.depth = camera::PixelDepth::Bits16; // Size of ushort
         if (record_mode == RecordMode::CUTS_XZ)
             fd_xyz.height = api::get_time_transformation_size();
         else

@@ -13,13 +13,13 @@ using Endianness = enum { LittleEndian = 0, BigEndian = 1 };
 enum PixelDepth
 {
     Bits8 = 1,
-    Bits16 = 2,
+    Bits16 = 2, // Size of (u)short
     Bits24 = 3,
-    Bits32 = 4,
+    Bits32 = 4, // Size of float
     Bits48 = 6,
-    Bits64 = 8, // For complex values
+    Complex = 8, // For complex values and doubles
     Composite = 12, // Needed by ImgType::Composite as the depth is 3 * sizeof(float)
-    Bits0 = 0,
+    Bits0 = 0, // Error value, should not be utilized but is there for comparison purposes
 };
 
 /*! \brief This structure contains everything related to the format of the images captured by the current camera.
