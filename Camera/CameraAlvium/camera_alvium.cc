@@ -113,12 +113,12 @@ void CameraAlvium::load_default_params()
     height_ = MAX_HEIGHT;
     width_ = MAX_WIDTH;
 
-    device_link_throughput_limit_ = "500'000'000";
+    // device_link_throughput_limit_ = 500'000'000;
     acquisition_frame_rate_enable_ = true;
-    acquisition_frame_rate_ = 20;
-    exposure_auto_ = "Off";
-    exposure_time_ = 47;
-    gain_auto_ = "Off";
+    // acquisition_frame_rate_ = 20;
+    // exposure_auto_ = "Off";
+    // exposure_time_ = 47;
+    // gain_auto_ = "Off";
     offset_X_ = 0;
     offset_Y_ = 0;
 
@@ -133,13 +133,13 @@ void CameraAlvium::load_ini_params()
 
     width_ = pt.get<unsigned short>("alvium.width", width_);
     height_ = pt.get<unsigned short>("alvium.height", height_);
-    device_link_throughput_limit_ =
-        pt.get<std::string>("alvium.DeviceLinkThroughputLimit", device_link_throughput_limit_);
+    // device_link_throughput_limit_ = pt.get<size_t>("alvium.DeviceLinkThroughputLimit",
+    // device_link_throughput_limit_);
     acquisition_frame_rate_enable_ = pt.get<bool>("alvium.AcquisitionFrameRateEnable", acquisition_frame_rate_enable_);
-    acquisition_frame_rate_ = pt.get<unsigned int>("alvium.AcquisitionFrameRate", acquisition_frame_rate_);
-    exposure_auto_ = pt.get<std::string>("alvium.ExposureAuto", exposure_auto_);
-    exposure_time_ = pt.get<unsigned int>("alvium.ExposureTime", exposure_time_);
-    gain_auto_ = pt.get<std::string>("alvium.GainAuto", gain_auto_);
+    // acquisition_frame_rate_ = pt.get<unsigned int>("alvium.AcquisitionFrameRate", acquisition_frame_rate_);
+    // exposure_auto_ = pt.get<std::string>("alvium.ExposureAuto", exposure_auto_);
+    // exposure_time_ = pt.get<unsigned int>("alvium.ExposureTime", exposure_time_);
+    // gain_auto_ = pt.get<std::string>("alvium.GainAuto", gain_auto_);
     offset_X_ = pt.get<unsigned int>("alvium.OffsetX", offset_X_);
     offset_Y_ = pt.get<unsigned int>("alvium.OffsetY", offset_Y_);
 
@@ -160,25 +160,40 @@ void CameraAlvium::bind_params()
     if (VMB_ERROR(camera_ptr_->GetFeatureByName("PixelFormat", fp)) || VMB_ERROR(fp->SetValue("Mono8")) ||
         VMB_ERROR(camera_ptr_->GetFeatureByName("Width", fp)) || VMB_ERROR(fp->SetValue(width_)) ||
         VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)) ||
-        VMB_ERROR(camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp)) ||
-        // VMB_ERROR(fp->SetValue(device_link_throughput_limit_.c_str())))
         VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRateEnable", fp)) ||
-        VMB_ERROR(fp->SetValue(acquisition_frame_rate_enable_)))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRate", fp)) ||
-        // VMB_ERROR(fp->SetValue(acquisition_frame_rate_)))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureAuto", fp)) ||
-        // VMB_ERROR(fp->SetValue(exposure_auto_.c_str())))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureTime", fp)) || VMB_ERROR(fp->SetValue(exposure_time_)))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("GainAuto", fp)) || VMB_ERROR(fp->SetValue(gain_auto_.c_str())))
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetX", fp)) || VMB_ERROR(fp->SetValue(offset_X_)) ||
-        // VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetY", fp)) || VMB_ERROR(fp->SetValue(offset_Y_)))
+        VMB_ERROR(fp->SetValue(acquisition_frame_rate_enable_)) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetX", fp)) || VMB_ERROR(fp->SetValue(offset_X_)) ||
+        VMB_ERROR(camera_ptr_->GetFeatureByName("OffsetY", fp)) || VMB_ERROR(fp->SetValue(offset_Y_)))
+    {
+        Logger::camera()->info("Failed set some feature!");
+        camera_ptr_->Close();
+        api_vmb_.Shutdown();
         throw CameraException(CameraException::NOT_INITIALIZED);
+    }
+
+    /*
+        // VMB_ERROR(camera_ptr_->GetFeatureByName("DeviceLinkThroughputLimit", fp)) ||
+        // VMB_ERROR(fp->SetValue(device_link_throughput_limit_)) ||
+
+ VMB_ERROR(camera_ptr_->GetFeatureByName("AcquisitionFrameRate", fp)) ||
+        VMB_ERROR(fp->SetValue(acquisition_frame_rate_)))
+
+        VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureAuto", fp)) || VMB_ERROR(fp->SetValue(exposure_auto_.c_str())))
+
+        VMB_ERROR(camera_ptr_->GetFeatureByName("ExposureTime", fp)) || VMB_ERROR(fp->SetValue(exposure_time_)))
+
+        VMB_ERROR(camera_ptr_->GetFeatureByName("GainAuto", fp)) || VMB_ERROR(fp->SetValue(gain_auto_.c_str())))
+
+    */
 };
 
 void CameraAlvium::shutdown_camera()
 {
-    if (VMB_ERROR(camera_ptr_->FlushQueue()) || VMB_ERROR(camera_ptr_->RevokeAllFrames()) ||
-        VMB_ERROR(camera_ptr_->Close()))
+    bool queue_err = VMB_ERROR(camera_ptr_->FlushQueue());
+    bool frames_err = VMB_ERROR(camera_ptr_->RevokeAllFrames());
+    bool close_err = VMB_ERROR(camera_ptr_->Close());
+
+    if (queue_err || frames_err || close_err)
         throw CameraException(CameraException::CANT_SHUTDOWN);
 
     api_vmb_.Shutdown();
