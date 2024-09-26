@@ -70,14 +70,14 @@ class EHoloGrabber
 
         depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
-        for (unsigned i = 0; i < grabbers_.length(); ++i)
-            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+        // for (unsigned i = 0; i < grabbers_.length(); ++i)
+        //     grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
     virtual ~EHoloGrabber()
     {
-        for (size_t i = 0; i < grabbers_.length(); i++)
-            grabbers_[i]->reallocBuffers(0);
+        // for (size_t i = 0; i < grabbers_.length(); i++)
+        //     grabbers_[i]->reallocBuffers(0);
 
         cudaFreeHost(ptr_);
     }
@@ -108,7 +108,7 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
-        
+
         for (size_t ix = 0; ix < grabberCount; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
@@ -121,17 +121,18 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
+            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
 
-        grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0); 
-        grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
+        grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
+        if (nb_grabbers > 1)
+            grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
 
         grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
+        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode);         // camera in triggered mode
         grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
         grabbers_[0]->setString<RemoteModule>("TriggerSelector", trigger_selector); // source of trigger CXP
 
@@ -143,7 +144,7 @@ class EHoloGrabber
         if (triggerSource == "SWTRIGGER")
         {
             grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
-                                                  cycleMinimumPeriod);               // set the trigger rate to 250K Hz
+                                                   cycleMinimumPeriod);              // set the trigger rate to 250K Hz
             grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
             grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
         }
@@ -153,12 +154,11 @@ class EHoloGrabber
         // float Expvalue = 9000 / factor;
         grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
-    
+
         grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
 
         grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
-
 
         int framerate = 1e6 / cycleMinimumPeriod;
         // grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
@@ -267,8 +267,12 @@ class EHoloGrabber
 class CameraPhantom : public Camera
 {
   public:
-    CameraPhantom(bool gpu=true);
-    virtual ~CameraPhantom() {}
+    CameraPhantom(bool gpu = true);
+    virtual ~CameraPhantom()
+    {
+        for (size_t i = 0; i < nb_grabbers_; i++)
+            grabber_->grabbers_[i]->reallocBuffers(0);
+    }
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;

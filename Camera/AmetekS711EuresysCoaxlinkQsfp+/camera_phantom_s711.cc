@@ -67,7 +67,7 @@ CapturedFramesDescriptor CameraPhantom::get_frames()
 {
     ScopedBuffer buffer(*(grabber_->grabbers_[0]));
 
-    for (int i = 1; i < grabber_->grabbers_.length(); ++i)
+    for (int i = 1; i < nb_grabbers_; ++i)
         ScopedBuffer stiching(*(grabber_->grabbers_[i]));
 
     // process available images
@@ -104,20 +104,20 @@ void CameraPhantom::load_ini_params()
     exposure_time_ = pt.get<float>("s711.ExposureTime", exposure_time_);
     cycle_minimum_period_ = pt.get<unsigned int>("s711.CycleMinimumPeriod", cycle_minimum_period_);
     pixel_format_ = pt.get<std::string>("s711.PixelFormat", pixel_format_);
-    
+
     gain_selector_ = pt.get<std::string>("s711.GainSelector", gain_selector_);
     trigger_mode_ = pt.get<std::string>("s711.TriggerMode", trigger_mode_);
     gain_ = pt.get<float>("s711.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
     flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
 
-
-
-    if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
-    {
-        nb_grabbers_ = 2;
-        Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
-    }
+    // if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
+    // {
+    //     nb_grabbers_ = 2;
+    //     Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
+    // }
+    for (unsigned i = 0; i < nb_grabbers_; ++i)
+        grabber_->grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
 }
 
 void CameraPhantom::bind_params() { return; }
