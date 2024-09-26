@@ -4,12 +4,10 @@
  */
 #pragma once
 
-#include "pipeline_utils.hh"
+#include "aliases.hh"
 
 namespace holovibes
 {
-using ConditionType = std::function<bool()>;
-
 /*! \class FunctionVector
  *
  * \brief #TODO Add a description for this class

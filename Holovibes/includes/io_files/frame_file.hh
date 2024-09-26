@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Definition of the FrameFile class, the base class of other IO classes used by the Holovibes application.
  */
 #pragma once
 

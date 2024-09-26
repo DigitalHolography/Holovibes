@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Definition of the FileException class, a custom exception class for Holovibes file errors.
  */
 #pragma once
 
@@ -11,7 +11,7 @@ namespace holovibes::io_files
 {
 /*! \class FileException
  *
- * \brief #TODO Add a description for this class
+ * \brief Custom exception class for Holovibes file errors
  */
 class FileException : public std::exception
 {

@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Definition of the InputFrameFileFactory class.
  */
 #pragma once
 

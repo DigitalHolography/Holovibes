@@ -356,7 +356,7 @@ void ImageRenderingPanel::set_time_transformation_size()
     auto callback = [=]()
     {
         api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe()->request_update_time_transformation_size();
+        api::get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
         ui_->ViewPanel->set_p_accu();
         // This will not do anything until
         // SliceWindow::changeTexture() isn't coded.
