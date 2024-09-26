@@ -75,6 +75,7 @@ class FourierTransform
                      const camera::FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
                      TimeTransformationEnv& time_transformation_env,
+                     MomentsEnv& moments_env,
                      const cudaStream_t& stream,
                      InitSettings settings)
         : gpu_lens_(nullptr)
@@ -85,6 +86,7 @@ class FourierTransform
         , fd_(fd)
         , spatial_transformation_plan_(spatial_transformation_plan)
         , time_transformation_env_(time_transformation_env)
+        , moments_env_(moments_env)
         , stream_(stream)
         , realtime_settings_(settings)
         , pipe_refresh_settings_(settings)
@@ -146,24 +148,9 @@ class FourierTransform
     void insert_stft();
 
     /*!
-     * \brief Returns the Discrete Fourier Transform sample frequencies.
-     * The returned float array contains the frequency bin centers in cycles times unit of the sample spacing (with zero
-     * at the start).
-     * For instance, if the sample spacing is in seconds, then the frequency unit is cycles/second.
-     * In our case, we reason in terms of sampling rate (fps), which is the inverse of the sample spacing ; this doesn't
-     * affect the frequency unit.
+     * \brief Enqueue the computations of the moments, following a stft in the pipeline
      *
-     * For a given sampling rate (input_fps) Fs, and a window length n (time_transformation_size), the sample
-     * frequencies correspond to :
-     *
-     * f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
-     * f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
-     *
-     * The functions compute f0, f1 and f2, corresponding to f at order 0 (an array of size time_transformation_size)
-     * filled with 1, f at order 1, and f at order 2 (f^2)
      */
-    void ICompute::fft_freqs();
-
     void insert_moments();
 
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
@@ -217,6 +204,8 @@ class FourierTransform
     cuda_tools::CufftHandle& spatial_transformation_plan_;
     /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
+    /*! \brief Moments environment. */
+    MomentsEnv& moments_env;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

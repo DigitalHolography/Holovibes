@@ -25,24 +25,41 @@ namespace holovibes
 {
 using camera::FrameDescriptor;
 
-/*!
- * \brief Returns the Discrete Fourier Transform sample frequencies.
- * The returned float array contains the frequency bin centers in cycles times unit of the sample spacing (with zero
- * at the start).
- * For instance, if the sample spacing is in seconds, then the frequency unit is cycles/second.
- * In our case, we reason in terms of sampling rate (fps), which is the inverse of the sample spacing ; this doesn't
- * affect the frequency unit.
- *
- * For a given sampling rate (input_fps) Fs, and a window length n (time_transformation_size), the sample frequencies
- * correspond to :
- *
- * f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
- * f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
- *
- * The functions compute f0, f1 and f2, corresponding to f at order 0 (an array of size time_transformation_size) filled
- * with 1, f at order 1, and f at order 2 (f^2)
- */
-void ICompute::fft_freqs() {}
+void ICompute::fft_freqs()
+{
+    uint time_transformation_size = setting<settings::TimeTransformationSize>();
+    uint input_fps = setting<settings::InputFPS>();
+
+    // initialize f0 (f0 = [1, ..., 1])
+    for (auto i = 0; i < time_transformation_size; i++)
+        moments_env.f0_buffer[i] = 1;
+
+    // initialize f1
+    // f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    if (time_transformation_size % 2 == 0)
+    {
+        for (auto i = 0; i < time_transformation_size / 2; i++)
+            moments_env.f1_buffer.get()[i] = i * (float)(input_fps) / time_transformation_size;
+
+        for (auto i = time_transformation_size / 2; i < time_transformation_size; i++)
+            moments_env.f1_buffer.get()[i] =
+                -(time_transformation_size - i) * (float)(input_fps) / time_transformation_size;
+    }
+    // f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+    else
+    {
+        for (auto i = 0; i < (time_transformation_size + 1) / 2; i++)
+            moments_env.f1_buffer.get()[i] = i * (float)(input_fps) / time_transformation_size;
+
+        for (auto i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
+            moments_env.f1_buffer.get()[i] =
+                (i - time_transformation_size) * (float)(input_fps) / time_transformation_size;
+    }
+
+    // initialize f2 (f2 = f1^2)
+    for (auto i = 0; i < time_transformation_size; i++)
+        moments_env.f2_buffer.get()[i] = moments_env.f1_buffer.get()[i] * moments_env.f1_buffer.get()[i];
+}
 
 bool ICompute::update_time_transformation_size(const unsigned short size)
 {
@@ -53,12 +70,12 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
         // Updates the buffer for the moments, which all depends on the time_transformation size.
-        time_transformation_env_.moment0_buffer.resize(frame_res * size);
-        time_transformation_env_.moment1_buffer.resize(frame_res * size);
-        time_transformation_env_.moment2_buffer.resize(frame_res * size);
-        time_transformation_env_.f0_buffer.resize(size_t * size);
-        time_transformation_env_.f1_buffer.resize(float* size);
-        time_transformation_env_.f2_buffer.resize(float* size);
+        moments_env.moment0_buffer.resize(frame_res * size);
+        moments_env.moment1_buffer.resize(frame_res * size);
+        moments_env.moment2_buffer.resize(frame_res * size);
+        moments_env.f0_buffer.resize(sizeof(size_t) * size);
+        moments_env.f1_buffer.resize(sizeof(float) * size);
+        moments_env.f2_buffer.resize(sizeof(float) * size);
 
         perform_time_transformation_setting_specific_tasks(size);
 
