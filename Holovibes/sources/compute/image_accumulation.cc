@@ -67,7 +67,7 @@ void ImageAccumulation::init()
     if (setting<settings::XY>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
-        new_fd.depth = static_cast<camera::PixelDepth>(setting<settings::ImageType>() == ImgType::Composite ? 3 * sizeof(float) : sizeof(float));
+        new_fd.depth = static_cast<camera::PixelDepth>(setting<settings::ImageType>() == ImgType::Composite ? camera::PixelDepth::Composite : camera::PixelDepth::Bits32); // 3 floats or 1 float
         allocate_accumulation_queue(image_acc_env_.gpu_accumulation_xy_queue,
                                     image_acc_env_.gpu_float_average_xy_frame,
                                     setting<settings::XY>().output_image_accumulation,
