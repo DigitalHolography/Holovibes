@@ -111,8 +111,8 @@ void CameraOpenCV::init_camera()
      *
      */
 
-    fd_.depth = ((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 0xf);
-    if (fd_.depth == 0)
+    fd_.depth = static_cast<PixelDepth>((0x8442211 >> ((format & CV_MAT_DEPTH_MASK) * 4)) & 0xf);
+    if (fd_.depth == camera::PixelDepth::Bits0)
     {
         Logger::camera()->error("camera depth is unknown");
         throw CameraException(CameraException::NOT_INITIALIZED);

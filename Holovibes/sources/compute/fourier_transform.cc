@@ -162,7 +162,7 @@ std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
     if (!gpu_lens_queue_)
     {
         auto fd = fd_;
-        fd.depth = 8;
+        fd.depth = camera::PixelDepth::Complex;
         gpu_lens_queue_ = std::make_unique<Queue>(fd, 16);
     }
     return gpu_lens_queue_;

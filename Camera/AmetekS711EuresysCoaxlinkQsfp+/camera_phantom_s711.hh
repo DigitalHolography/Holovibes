@@ -68,7 +68,7 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-        depth_ = gentl.imageGetBytesPerPixel(pixel_format);
+        depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
             grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
@@ -244,7 +244,7 @@ class EHoloGrabber
     unsigned int height_;
 
     /*! \brief The depth of the acquired frames. */
-    unsigned int depth_;
+    PixelDepth depth_;
 
     /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber grabbers.  */
     EGrabbers<EHoloSubGrabber> grabbers_;

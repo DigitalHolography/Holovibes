@@ -140,8 +140,7 @@ class ICompute
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
 
-        fd.depth = 8;
-        // FIXME-CAMERA : WTF depth 8 ==> maybe a magic value for complex mode
+        fd.depth = camera::PixelDepth::Complex;
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 

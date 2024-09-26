@@ -119,7 +119,7 @@ void ICompute::init_cuts()
 {
     camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
-    fd_xz.depth = sizeof(ushort);
+    fd_xz.depth = camera::PixelDepth::Bits16; // Size of ushort
     auto fd_yz = fd_xz;
     fd_xz.height = setting<settings::TimeTransformationSize>();
     fd_yz.width = setting<settings::TimeTransformationSize>();

@@ -24,7 +24,7 @@ CameraAdimec::CameraAdimec()
     fd_.height = 1440;
     // Technically the camera is 11-bits, but each pixel value is encoded on 16
     // bits.
-    fd_.depth = 2;
+    fd_.depth = PixelDepth::Bits16;
     fd_.byteEndian = Endianness::LittleEndian;
     pixel_size_ = 12;
 

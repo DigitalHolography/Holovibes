@@ -531,7 +531,7 @@ void Pipe::insert_hologram_record()
         fn_compute_vect_.conditional_push_back(
             [this]()
             {
-                if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
+                if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
                     record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
                                                      stream_,
                                                      get_memcpy_kind<settings::RecordQueueLocation>());
