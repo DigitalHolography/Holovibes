@@ -246,11 +246,11 @@ void FourierTransform::insert_moments()
         [=]()
         {
             //  first compute the FFT for the current frames, and organize it like that :
-            //  f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] / (n)   if n is even
-            //  f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] / (n) if n is odd
+            //  f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] fs/(n)   if n is even
+            //  f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] fs/(n) if n is odd
             //  with n equal to the number of frames (time transformation_size)
             stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                 time_transformation_env_.gpu_p_acc_buffer,
+                 time_transformation_env_.buffers_gpu_postprocess_frame,
                  time_transformation_env_.stft_plan);
 
             uint time_transformation_size = setting<settings::TimeTransformationSize>();
@@ -269,17 +269,17 @@ void FourierTransform::insert_moments()
             // order 1
             matrix_multiply(
                 reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                time_transformation_env_.gpu_p_acc_buffer,
+                time_transformation_env_.buffers_gpu_postprocess_frame,
                 static_cast<int>(fd_.get_frame_res()),
                 sizeof(cuComplex),
                 time_transformation_size,
                 time_transformation_env_.moment1_buffer);
 
             // compute the vector of frequencies at order 2
-            hadamard_product<cuComplex>(time_transformation_env_.gpu_p_acc_buffer,
-                                        time_transformation_env_.gpu_p_acc_buffer,
+            hadamard_product<cuComplex>(time_transformation_env_.buffers_gpu_postprocess_frame,
+                                        time_transformation_env_.buffers_gpu_postprocess_frame,
                                         time_transformation_env_.f2_buffer,
-                                        time_transformation_env_.gpu_p_acc_buffer.get_size(),
+                                        time_transformation_env_.buffers_gpu_postprocess_frame.get_size(),
                                         stream_);
 
             // compute the moment of order 2, corresponding to the sequence of frames multiplied by the frequencies at

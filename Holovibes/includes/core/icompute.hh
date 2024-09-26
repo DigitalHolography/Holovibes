@@ -27,6 +27,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::InputFPS,                               \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \

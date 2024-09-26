@@ -145,6 +145,25 @@ class FourierTransform
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
 
+    /*!
+     * \brief Returns the Discrete Fourier Transform sample frequencies.
+     * The returned float array contains the frequency bin centers in cycles times unit of the sample spacing (with zero
+     * at the start).
+     * For instance, if the sample spacing is in seconds, then the frequency unit is cycles/second.
+     * In our case, we reason in terms of sampling rate (fps), which is the inverse of the sample spacing ; this doesn't
+     * affect the frequency unit.
+     *
+     * For a given sampling rate (input_fps) Fs, and a window length n (time_transformation_size), the sample
+     * frequencies correspond to :
+     *
+     * f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+     * f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+     *
+     * The functions compute f0, f1 and f2, corresponding to f at order 0 (an array of size time_transformation_size)
+     * filled with 1, f at order 1, and f at order 2 (f^2)
+     */
+    void ICompute::fft_freqs();
+
     void insert_moments();
 
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
