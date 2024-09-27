@@ -109,7 +109,7 @@ if (-not $holoFolderPath) {
 # Get the list of configuration files from the user (only if the first one was selected)
 $configFiles = Get-ConfigFiles
 
-$exePath1 = "../Holovibes.exe"
+$exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
 
 # Check if ../Holovibes.exe exists
