@@ -11,8 +11,8 @@
 
 using camera::FrameDescriptor;
 using namespace holovibes;
-using cuda_tools::CufftHandle;
 using cuda_tools::CudaUniquePtr;
+using cuda_tools::CufftHandle;
 
 __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
 {
@@ -107,4 +107,13 @@ __global__ void kernel_translation(float* input, float* output, uint width, uint
         const int old_y = (new_y - shift_y + height) % height;
         output[index] = input[old_y * width + old_x];
     }
+}
+
+__global__ void printArray(float* d_in, int num)
+{
+    for (int i = 0; i < num; i++)
+    {
+        printf("%f\t", d_in[i]);
+    }
+    printf("\n");
 }

@@ -28,37 +28,54 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    uint input_fps = setting<settings::InputFPS>();
+    size_t input_fps = setting<settings::InputFPS>();
 
     // initialize f0 (f0 = [1, ..., 1])
-    for (auto i = 0; i < time_transformation_size; i++)
-        moments_env_.f0_buffer[i] = 1;
+    cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size);
+
+    // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
+    std::unique_ptr<float[]> f1(new float[time_transformation_size]);
+    std::unique_ptr<float[]> f2(new float[time_transformation_size]);
 
     // initialize f1
-    // f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+    // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
     if (time_transformation_size % 2 == 0)
     {
         for (auto i = 0; i < time_transformation_size / 2; i++)
-            moments_env_.f1_buffer.get()[i] = i * (float)(input_fps) / time_transformation_size;
+            f1[i] = i * (float)(input_fps) / time_transformation_size;
 
         for (auto i = time_transformation_size / 2; i < time_transformation_size; i++)
-            moments_env_.f1_buffer.get()[i] =
-                -(time_transformation_size - i) * (float)(input_fps) / time_transformation_size;
+            f1[i] = -(time_transformation_size - i) * (float)(input_fps) / time_transformation_size;
     }
-    // f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+    // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
     else
     {
         for (auto i = 0; i < (time_transformation_size + 1) / 2; i++)
-            moments_env_.f1_buffer.get()[i] = i * (float)(input_fps) / time_transformation_size;
+            f1[i] = i * (float)(input_fps) / time_transformation_size;
 
         for (auto i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
-            moments_env_.f1_buffer.get()[i] =
-                (i - time_transformation_size) * (float)(input_fps) / time_transformation_size;
+            f1[i] = (i - time_transformation_size) * (float)(input_fps) / time_transformation_size;
     }
+    cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f2 (f2 = f1^2)
     for (auto i = 0; i < time_transformation_size; i++)
-        moments_env_.f2_buffer.get()[i] = moments_env_.f1_buffer.get()[i] * moments_env_.f1_buffer.get()[i];
+        f2[i] = f1[i] * f1[i];
+
+    cudaXMemcpy(moments_env_.f2_buffer, f2.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
+
+    printArray(moments_env_.f0_buffer.get(), time_transformation_size);
+    printArray(moments_env_.f1_buffer.get(), time_transformation_size);
+    printArray(moments_env_.f2_buffer.get(), time_transformation_size);
+}
+
+void ICompute::init_moments()
+{
+    auto frame_res = input_queue_.get_fd().get_frame_res();
+
+    moments_env_.moment0_buffer.resize(frame_res);
+    moments_env_.moment1_buffer.resize(frame_res);
+    moments_env_.moment2_buffer.resize(frame_res);
 }
 
 bool ICompute::update_time_transformation_size(const unsigned short size)
@@ -69,13 +86,11 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         auto frame_res = input_queue_.get_fd().get_frame_res();
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
-        // Updates the buffer for the moments, which all depends on the time_transformation size.
-        moments_env_.moment0_buffer.resize(frame_res * size);
-        moments_env_.moment1_buffer.resize(frame_res * size);
-        moments_env_.moment2_buffer.resize(frame_res * size);
-        moments_env_.f0_buffer.resize(sizeof(size_t) * size);
-        moments_env_.f1_buffer.resize(sizeof(float) * size);
-        moments_env_.f2_buffer.resize(sizeof(float) * size);
+        // Updates the buffers for the moments, which depends on time_transformation_size
+        moments_env_.f0_buffer.resize(size);
+        moments_env_.f1_buffer.resize(size);
+        moments_env_.f2_buffer.resize(size);
+        fft_freqs();
 
         perform_time_transformation_setting_specific_tasks(size);
 

@@ -127,6 +127,23 @@ void Holovibes::init_record_queue()
         LOG_DEBUG("Record queue allocated");
         break;
     }
+    case RecordMode::MOMENTS:
+    {
+        LOG_DEBUG("RecordMode = Moments");
+        camera::FrameDescriptor record_fd = input_queue_.load()->get_fd();
+        record_fd.depth = sizeof(float);
+
+        if (!record_queue_.load())
+            record_queue_ =
+                std::make_shared<Queue>(record_fd, api::get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        else
+            record_queue_.load()->rebuild(record_fd,
+                                          api::get_record_buffer_size(),
+                                          get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
     default:
     {
         LOG_DEBUG("RecordMode = None");

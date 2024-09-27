@@ -261,6 +261,9 @@ bool Pipe::make_requests()
         api::set_frame_record_enabled(true);
         frame_record_requested_ = false;
         LOG_DEBUG("Frame Record Request Processed");
+
+        if (api::get_record_mode() == RecordMode::MOMENTS)
+            init_moments();
     }
 
     return success_allocation;
@@ -597,18 +600,24 @@ void Pipe::insert_moments_record()
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
-                record_queue_.enqueue(moments_env_.moment0_buffer.get(),
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue(moments_env_.moment1_buffer.get(),
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue(moments_env_.moment2_buffer.get(),
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue_multiple(moments_env_.moment0_buffer.get(),
+                                               setting<settings::TimeTransformationSize>(),
+                                               stream_,
+                                               setting<settings::RecordQueueLocation>() == Device::GPU
+                                                   ? cudaMemcpyDeviceToDevice
+                                                   : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue_multiple(moments_env_.moment1_buffer.get(),
+                                               setting<settings::TimeTransformationSize>(),
+                                               stream_,
+                                               setting<settings::RecordQueueLocation>() == Device::GPU
+                                                   ? cudaMemcpyDeviceToDevice
+                                                   : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue_multiple(moments_env_.moment2_buffer.get(),
+                                               setting<settings::TimeTransformationSize>(),
+                                               stream_,
+                                               setting<settings::RecordQueueLocation>() == Device::GPU
+                                                   ? cudaMemcpyDeviceToDevice
+                                                   : cudaMemcpyDeviceToHost);
             });
     }
 }

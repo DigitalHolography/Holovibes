@@ -1771,7 +1771,8 @@ void set_record_mode(const std::string& text)
                                                                               {"Processed Image", RecordMode::HOLOGRAM},
                                                                               {"Raw Image", RecordMode::RAW},
                                                                               {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ}};
+                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
+                                                                              {"Moments", RecordMode::MOMENTS}};
 
     auto it = recordModeMap.find(text);
     if (it == recordModeMap.end())

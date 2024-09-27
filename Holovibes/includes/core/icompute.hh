@@ -162,11 +162,11 @@ struct MomentsEnv
 
     /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
      * Used to compute the moment of order 0*/
-    cuda_tools::CudaUniquePtr<size_t> f0_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> f0_buffer = nullptr;
 
-    /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
-     * Used to compute the moment of order 0*/
-    cuda_tools::CudaUniquePtr<size_t> f1_buffer = nullptr;
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 1.
+     * Used to compute the moment of order 1*/
+    cuda_tools::CudaUniquePtr<float> f1_buffer = nullptr;
 
     /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
      * Used to compute the moment of order 2*/
@@ -443,6 +443,8 @@ class ICompute
      * The function modifies the buffers f0_buffer, f1_buffer and f2_buffer in ICompute
      */
     void fft_freqs();
+
+    void init_moments();
 
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
