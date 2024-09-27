@@ -75,7 +75,7 @@ class EHoloGrabber
         {
             try
             {
-                grabbers_[ix]->setString<RemoteModule>("Banks", "Banks_AB");
+                grabbers_[ix]->getString<RemoteModule>("Banks");
             }
             catch (...)
             {
@@ -118,7 +118,11 @@ class EHoloGrabber
     {
         width_ = width;
         height_ = fullHeight;
-        available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+
+        if (available_grabbers_.size() > 1)
+            available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+        else
+            available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_A");
 
         size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
         size_t grabberCount = nb_grabbers_;
