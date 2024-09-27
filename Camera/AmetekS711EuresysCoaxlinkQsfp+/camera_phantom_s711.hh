@@ -10,6 +10,7 @@
 #include "camera_logger.hh"
 
 #include <stdio.h>
+#include <iostream>
 
 namespace camera
 {
@@ -79,13 +80,14 @@ class EHoloGrabber
             }
             catch (...)
             {
+                // TODO Alexis / Gustave: catch real exception type
                 continue;
             }
             available_grabbers_.push_back(grabbers_[ix]);
         }
 
         if (available_grabbers_.size() < nb_grabbers_)
-            throw CameraException::CANT_SET_CONFIG;
+            throw CameraException(CameraException::CANT_SET_CONFIG, "not enough frame grabber connected to camera");
 
         // for (unsigned i = 0; i < grabbers_.length(); ++i)
         //     grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
@@ -93,8 +95,8 @@ class EHoloGrabber
 
     virtual ~EHoloGrabber()
     {
-        // for (size_t i = 0; i < grabbers_.length(); i++)
-        //     grabbers_[i]->reallocBuffers(0);
+        for (size_t i = 0; i < nb_grabbers_; i++)
+            available_grabbers_[i]->reallocBuffers(0);
 
         cudaFreeHost(ptr_);
     }

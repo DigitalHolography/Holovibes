@@ -31,6 +31,13 @@ class CameraException : public std::exception
     {
     }
 
+    /*! \brief Copy constructor. */
+    CameraException(const camera_error code, const char* msg)
+        : code_(code)
+        , msg_(msg)
+    {
+    }
+
     /*! \brief Equal operator overloading
      *
      * Although we may need the copy constructor in order to pass to a function
@@ -44,6 +51,9 @@ class CameraException : public std::exception
     /*! \brief Return a string corresponding to the enum value. */
     virtual const char* what() const override
     {
+        if (msg_ != nullptr)
+            return msg_;
+
         switch (code_)
         {
         case NOT_CONNECTED:
@@ -71,5 +81,7 @@ class CameraException : public std::exception
   private:
     /*! \brief Return code of the camera (enum). */
     const camera_error code_;
+
+    const char* msg_;
 };
 } // namespace camera
