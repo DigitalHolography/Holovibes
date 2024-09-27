@@ -110,7 +110,7 @@ void CameraAlvium::load_default_params()
 {
     fd_.height = MAX_HEIGHT;
     fd_.width = MAX_WIDTH;
-    fd_.depth =  PixelDepth::Bits8;
+    fd_.depth = PixelDepth::Bits8;
     fd_.byteEndian = Endianness::LittleEndian;
 
     height_ = MAX_HEIGHT;
@@ -132,7 +132,7 @@ void CameraAlvium::load_default_params()
     contrast_dark_limit_ = 0;
     contrast_enable_ = false;
     contrast_shape_ = 1;
-    black_level = 0;
+    black_level_ = 0;
     binning_horizontal_ = 1;
     binning_horizontal_mode_ = "Sum";
     binning_vertical_ = 1;
@@ -166,7 +166,7 @@ void CameraAlvium::load_ini_params()
     contrast_dark_limit_ = pt.get<VmbInt64_t>("alvium.ContrastDarkLimit", contrast_dark_limit_);
     contrast_enable_ = pt.get<bool>("alvium.ContrastEnable", contrast_enable_);
     contrast_shape_ = pt.get<VmbInt64_t>("alvium.ContrastShape", contrast_shape_);
-    black_level = pt.get<double>("alvium.BlackLevel", black_level);
+    black_level_ = pt.get<double>("alvium.BlackLevel", black_level_);
     binning_horizontal_ = pt.get<VmbInt64_t>("alvium.BinningHorizontal", binning_horizontal_);
     binning_horizontal_mode_ = pt.get<std::string>("alvium.BinningHorizontalMode", binning_horizontal_mode_);
     binning_vertical_ = pt.get<VmbInt64_t>("alvium.BinningVertical", binning_vertical_);
@@ -193,7 +193,7 @@ void CameraAlvium::bind_params()
         VMB_IS_SET_OK("CorrectionSelector", correction_selector_.c_str()) ||
         VMB_IS_SET_OK("ContrastBrightLimit", contrast_bright_limit_) ||
         VMB_IS_SET_OK("ContrastDarkLimit", contrast_dark_limit_) || VMB_IS_SET_OK("ContrastEnable", contrast_enable_) ||
-        VMB_IS_SET_OK("ContrastShape", contrast_shape_) || VMB_IS_SET_OK("BlackLevel", black_level) ||
+        VMB_IS_SET_OK("ContrastShape", contrast_shape_) || VMB_IS_SET_OK("BlackLevel", black_level_) ||
         VMB_IS_SET_OK("BinningHorizontal", binning_horizontal_) ||
         VMB_IS_SET_OK("BinningHorizontalMode", binning_horizontal_mode_.c_str()) ||
         VMB_IS_SET_OK("BinningVertical", binning_vertical_) ||

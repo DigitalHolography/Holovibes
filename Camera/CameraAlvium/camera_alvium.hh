@@ -104,7 +104,7 @@ class CameraAlvium : public Camera
     VmbInt64_t contrast_dark_limit_;
     bool contrast_enable_;
     VmbInt64_t contrast_shape_;
-    double black_level;
+    double black_level_;
     VmbInt64_t binning_horizontal_;
     std::string binning_horizontal_mode_;
     VmbInt64_t binning_vertical_;
