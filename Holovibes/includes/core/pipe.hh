@@ -20,84 +20,6 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
-#pragma region Settings configuration
-// clang-format off
-
-#define REALTIME_SETTINGS                          \
-    holovibes::settings::ImageType,                \
-    holovibes::settings::X,                        \
-    holovibes::settings::Y,                        \
-    holovibes::settings::P,                        \
-    holovibes::settings::Q,                        \
-    holovibes::settings::Filter2d,                 \
-    holovibes::settings::CurrentWindow,            \
-    holovibes::settings::LensViewEnabled,          \
-    holovibes::settings::ChartDisplayEnabled,      \
-    holovibes::settings::Filter2dEnabled,          \
-    holovibes::settings::Filter2dViewEnabled,      \
-    holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::RawViewEnabled,           \
-    holovibes::settings::CutsViewEnabled,          \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ReticleScale,             \
-    holovibes::settings::ReticleDisplayEnabled,    \
-    holovibes::settings::Filter2dN1,               \
-    holovibes::settings::Filter2dN2,               \
-    holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::Filter2dSmoothHigh,       \
-    holovibes::settings::ChartRecordEnabled,       \
-    holovibes::settings::FrameRecordEnabled,       \
-    holovibes::settings::TimeTransformationSize,   \
-    holovibes::settings::SpaceTransformation,      \
-    holovibes::settings::TimeTransformation,       \
-    holovibes::settings::Lambda,                   \
-    holovibes::settings::ZDistance,                \
-    holovibes::settings::ConvolutionEnabled,       \
-    holovibes::settings::ConvolutionMatrix,        \
-    holovibes::settings::DivideConvolutionEnabled, \
-    holovibes::settings::ComputeMode,              \
-    holovibes::settings::PixelSize,                \
-    holovibes::settings::UnwrapHistorySize,        \
-    holovibes::settings::SignalZone,               \
-    holovibes::settings::NoiseZone,                \
-    holovibes::settings::CompositeZone,            \
-    holovibes::settings::TimeTransformationCutsOutputBufferSize, \
-    holovibes::settings::CompositeKind,                          \
-    holovibes::settings::CompositeAutoWeights,                   \
-    holovibes::settings::RGB,                                    \
-    holovibes::settings::HSV,                                    \
-    holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode,                             \
-    holovibes::settings::FrameSkip,                              \
-    holovibes::settings::Mp4Fps                         
-
-
-#define ONRESTART_SETTINGS                         \
-    holovibes::settings::OutputBufferSize,         \
-    holovibes::settings::RecordBufferSize,         \
-    holovibes::settings::ContrastLowerThreshold,   \
-    holovibes::settings::ContrastUpperThreshold,   \
-    holovibes::settings::RenormConstant,           \
-    holovibes::settings::CutsContrastPOffset,      \
-    holovibes::settings::RecordQueueLocation,         \
-    holovibes::settings::RawViewQueueLocation,        \
-    holovibes::settings::InputQueueLocation
-
-#define PIPEREFRESH_SETTINGS                       \
-    holovibes::settings::TimeStride,               \
-    holovibes::settings::BatchSize,                \
-    holovibes::settings::XY,                       \
-    holovibes::settings::XZ,                       \
-    holovibes::settings::YZ,                       \
-    holovibes::settings::InputFilter,              \
-    holovibes::settings::FilterEnabled
- 
-#define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
-
-// clang-format on
-#pragma endregion
-
 namespace holovibes
 {
 /*! \class Pipe
@@ -140,18 +62,15 @@ class Pipe : public ICompute
      *
      * \param input Input queue containing acquired frames.
      * \param output Output queue where computed frames will be stored.
-     * \param stream The compute stream on which all the computations are processed
+     * \param stream The compute stream on which all the computations are processed.
+     * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , realtime_settings_(settings)
-        , onrestart_settings_(settings)
-        , pipe_refresh_settings_(settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
-        ConditionType batch_condition = [&]() -> bool
-        { return batch_env_.batch_index == setting<settings::TimeStride>(); };
+        ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
         fn_end_vect_ = FunctionVector(batch_condition);
@@ -162,6 +81,7 @@ class Pipe : public ICompute
                                                                            input.get_fd(),
                                                                            stream_,
                                                                            settings);
+
         fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_compute_vect_,
                                                                           buffers_,
                                                                           input.get_fd(),
@@ -169,6 +89,7 @@ class Pipe : public ICompute
                                                                           time_transformation_env_,
                                                                           stream_,
                                                                           settings);
+
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,
@@ -178,6 +99,7 @@ class Pipe : public ICompute
                                                           output.get_fd(),
                                                           stream_,
                                                           settings);
+
         converts_ = std::make_unique<compute::Converts>(fn_compute_vect_,
                                                         buffers_,
                                                         time_transformation_env_,
@@ -189,43 +111,20 @@ class Pipe : public ICompute
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         *processed_output_fps_ = 0;
-        update_time_transformation_size_requested_ = true;
+        set_requested(ICS::UpdateTimeTransformationSize, true);
 
-        pre_init();
+        // Pre init
+        if (setting<settings::FilterEnabled>())
+            request(ICS::Filter);
 
-        // try
-        // {
-        //     refresh();
-        // }
-        // catch (const holovibes::CustomException& e)
-        // {
-        //     // If refresh() fails the compute descriptor settings will be
-        //     // changed to something that should make refresh() work
-        //     // (ex: lowering the GPU memory usage)
-        //     LOG_WARN("Pipe refresh failed, trying one more time with updated compute descriptor");
-        //     LOG_WARN("Exception: {}", e.what());
-        //     try
-        //     {
-        //         refresh();
-        //     }
-        //     catch (const holovibes::CustomException& e)
-        //     {
-        //         // If it still didn't work holovibes is probably going to freeze
-        //         // and the only thing you can do is restart it manually
-        //         LOG_ERROR("Pipe could not be initialized, You might want to restart holovibes");
-        //         LOG_ERROR("Exception: {}", e.what());
-        //         throw e;
-        //     }
-        // }
+        if (setting<settings::ConvolutionEnabled>())
+            request(ICS::Convolution);
     }
 
     ~Pipe() override;
 
     /*! \brief Get the lens queue to display it. */
     std::unique_ptr<Queue>& get_lens_queue() override;
-
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Execute one processing iteration.
      *
@@ -238,86 +137,43 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    void pre_init()
-    {
-        if (setting<settings::FilterEnabled>())
-            request_filter();
-
-        if (setting<settings::ConvolutionEnabled>())
-            request_convolution();
-    }
+    /*! \brief Runs a function after the current pipe iteration ends */
+    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
-
-    /**
-     * @brief Contains all the settings of the worker that should be updated
-     * on restart.
-     */
-    RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
-    DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
 
     template <typename T>
     inline void update_setting(T setting)
     {
         LOG_TRACE("[Pipe] [update_setting] {}", typeid(T).name());
-    
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
+
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
             realtime_settings_.update_setting(setting);
-        }
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             onrestart_settings_.update_setting(setting);
-        }
 
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
             pipe_refresh_settings_.update_setting(setting);
-        }
 
-        if constexpr (has_setting<T, compute::ImageAccumulation>::value)
-        {
+        if constexpr (has_setting_v<T, compute::ImageAccumulation>)
             image_accumulation_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Rendering>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Rendering>)
             rendering_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::FourierTransform>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Converts>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, compute::Postprocessing>::value)
-        {
+
+        if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
-        }
-        if constexpr (has_setting<T, ICompute>::value)
-        {
-            update_setting_icompute(setting);
-        }
     }
 
-    inline void on_restart_apply_settings() { onrestart_settings_.apply_updates(); }
-
-    /**
-     * @brief Apply the updates of the settings on pipe refresh,
-     */
-    inline void pipe_refresh_apply_updates()
-    {
-        fourier_transforms_->pipe_refresh_apply_updates();
-        image_accumulation_->pipe_refresh_apply_updates();
-        icompute_pipe_refresh_apply_updates();
-        pipe_refresh_settings_.apply_updates();
-    }
-
-  protected:
+  private:
     /*! \brief Make requests at the beginning of the refresh.
      *
      * Make the allocation of buffers when it is requested.
@@ -326,6 +182,19 @@ class Pipe : public ICompute
      */
     bool make_requests();
 
+    /**
+     * @brief Apply the updates of the settings on pipe refresh,
+     */
+    inline void pipe_refresh_apply_updates()
+    {
+        fourier_transforms_->pipe_refresh_apply_updates();
+        image_accumulation_->pipe_refresh_apply_updates();
+        pipe_refresh_settings_.apply_updates();
+    }
+
+    /*! \name Insert computation functions in the pipe
+     * \{
+     */
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
@@ -357,6 +226,19 @@ class Pipe : public ICompute
 
     /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
+    /*! \}*/
+
+    /*! \brief Iterates and executes function of the pipe.
+     *
+     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
+     */
+    void run_all();
+
+    /*! \brief Force contiguity on record queue when cli is active.
+     *
+     * \param nb_elm_to_add the number of elements that might be added in the record queue
+     */
+    void keep_contiguous(int nb_elm_to_add) const;
 
     /*! \brief Enqueue a frame in an output queue
      *
@@ -365,6 +247,19 @@ class Pipe : public ICompute
      * \param error Error message when an error occurs
      */
     void safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error);
+
+    /*! \brief Get the memcpy kind according to the setting type (usually a location setting).
+     *
+     * \param gpu Kind of memcpy for GPU
+     * \param cpu Kind of memcpy for CPU
+     * \return The kind of memcpy to use
+     */
+    template <typename SettingType>
+    inline cudaMemcpyKind get_memcpy_kind(cudaMemcpyKind gpu = cudaMemcpyDeviceToDevice,
+                                          cudaMemcpyKind cpu = cudaMemcpyDeviceToHost)
+    {
+        return setting<SettingType>() == Device::GPU ? gpu : cpu;
+    }
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
@@ -379,54 +274,24 @@ class Pipe : public ICompute
      */
     std::mutex fn_end_vect_mutex_;
 
+    /*! \name Compute objects
+     * \{
+     */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
+    /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
-
-    /*! \brief Iterates and executes function of the pipe.
-     *
-     * It will first iterate over fn_compute_vect_, then over function_end_pipe_.
-     */
-    void run_all();
-
-    /*! \brief Force contiguity on record queue when cli is active.
-     *
-     * \param nb_elm_to_add the number of elements that might be added in the record queue
-     */
-    void keep_contiguous(int nb_elm_to_add) const;
-
-    /**
-     * @brief Helper function to get a settings value.
-     */
-    template <typename T>
-    auto setting()
-    {
-        if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
-            return realtime_settings_.get<T>().value;
-        }
-
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
-            return onrestart_settings_.get<T>().value;
-        }
-
-        if constexpr (has_setting<T, decltype(pipe_refresh_settings_)>::value)
-        {
-            return pipe_refresh_settings_.get<T>().value;
-        }
-    }
 };
 } // namespace holovibes
 
 namespace holovibes
 {
 template <typename T>
-struct has_setting<T, Pipe> : is_any_of<T, ALL_SETTINGS>
+struct has_setting<T, Pipe> : has_setting<T, ICompute>
 {
 };
 } // namespace holovibes

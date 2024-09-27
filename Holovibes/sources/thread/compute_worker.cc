@@ -25,7 +25,7 @@ void ComputeWorker::stop()
 {
     Worker::stop();
 
-    pipe_.load()->request_termination();
+    pipe_.load()->set_requested(ICS::Termination, true);
 }
 
 void ComputeWorker::run()

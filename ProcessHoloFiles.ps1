@@ -95,7 +95,6 @@ function Select-Folder([string]$description, [string]$envVarName) {
 
 # Names of the environment variables to store paths
 $holoFolderEnvVar = "LAST_HOLO_FOLDER"
-$exeFileEnvVar = "LAST_EXE_FILE"
 $configFileEnvVar = "LAST_CONFIG_PATH"
 
 # Prompt the user to select the folder containing .holo files
@@ -110,9 +109,15 @@ if (-not $holoFolderPath) {
 # Get the list of configuration files from the user (only if the first one was selected)
 $configFiles = Get-ConfigFiles
 
-# Prompt the user to select the Holovibes executable (optional)
-$exePath = Select-File -description "Select the Holovibes executable (optional)" -filter "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*" -envVarName $exeFileEnvVar
+$exePath1 = "Holovibes.exe"
+$exePath2 = "build/bin/Holovibes.exe"
 
+# Check if ../Holovibes.exe exists
+if (Test-Path $exePath1) {
+    $exePath = $exePath1
+} else {
+    $exePath = $exePath2
+}
 # Ask for the frame skip (optional)
 $frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
 $frameSkip
