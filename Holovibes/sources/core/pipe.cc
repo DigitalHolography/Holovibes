@@ -349,6 +349,10 @@ void Pipe::refresh()
 
     converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
 
+    fourier_transforms_->insert_moments();
+
+    insert_moments_record();
+
     insert_filter2d_view();
 
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
@@ -579,6 +583,32 @@ void Pipe::insert_raw_record()
                 input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
                 inserted += setting<settings::BatchSize>();
+            });
+    }
+}
+
+void Pipe::insert_moments_record()
+{
+    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
+    {
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+
+        fn_compute_vect_.conditional_push_back(
+            [&]()
+            {
+                record_queue_.enqueue(moments_env_.moment0_buffer.get(),
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue(moments_env_.moment1_buffer.get(),
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue(moments_env_.moment2_buffer.get(),
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
             });
     }
 }

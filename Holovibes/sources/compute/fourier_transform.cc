@@ -242,38 +242,41 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            uint time_transformation_size = setting<settings::TimeTransformationSize>();
+    if (setting<settings::RecordMode>() == RecordMode::MOMENTS || setting<settings::ImageType>() == ImgType::Moments)
+    {
+        fn_compute_vect_.conditional_push_back(
+            [=]()
+            {
+                uint time_transformation_size = setting<settings::TimeTransformationSize>();
 
-            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the frequencies at
-            // order 0 (all equal to 1)
-            matrix_multiply<float>(buffers_.gpu_postprocess_frame,
-                                   moments_env.f0_buffer,
-                                   fd_.get_frame_res() * sizeof(float),
-                                   sizeof(float),
-                                   time_transformation_size,
-                                   moments_env.moment0_buffer);
+                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the frequencies
+                // at order 0 (all equal to 1)
+                matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
+                                       reinterpret_cast<float*>(moments_env_.f0_buffer.get()),
+                                       fd_.get_frame_res() * sizeof(float),
+                                       sizeof(float),
+                                       time_transformation_size,
+                                       moments_env_.moment0_buffer);
 
-            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the frequencies at
-            // order 1
-            matrix_multiply<float>(buffers_.gpu_postprocess_frame,
-                                   moments_env.f1_buffer,
-                                   fd_.get_frame_res() * sizeof(float),
-                                   sizeof(float),
-                                   time_transformation_size,
-                                   moments_env.moment1_buffer);
+                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the frequencies
+                // at order 1
+                matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
+                                       reinterpret_cast<float*>(moments_env_.f1_buffer.get()),
+                                       fd_.get_frame_res() * sizeof(float),
+                                       sizeof(float),
+                                       time_transformation_size,
+                                       moments_env_.moment1_buffer);
 
-            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the frequencies at
-            // order 2
-            matrix_multiply<float>(buffers_.gpu_postprocess_frame,
-                                   moments_env.f2_buffer,
-                                   fd_.get_frame_res() * sizeof(float),
-                                   sizeof(float),
-                                   time_transformation_size,
-                                   moments_env.moment2_buffer);
-        });
+                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the frequencies
+                // at order 2
+                matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
+                                       reinterpret_cast<float*>(moments_env_.f2_buffer.get()),
+                                       fd_.get_frame_res() * sizeof(float),
+                                       sizeof(float),
+                                       time_transformation_size,
+                                       moments_env_.moment2_buffer);
+            });
+    }
 }
 
 void FourierTransform::insert_pca()

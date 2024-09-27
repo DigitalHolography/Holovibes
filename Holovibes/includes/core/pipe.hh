@@ -167,6 +167,7 @@ class Pipe : public ICompute
                                                                           input.get_fd(),
                                                                           spatial_transformation_plan_,
                                                                           time_transformation_env_,
+                                                                          moments_env_,
                                                                           stream_,
                                                                           settings);
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
@@ -262,7 +263,7 @@ class Pipe : public ICompute
     inline void update_setting(T setting)
     {
         LOG_TRACE("[Pipe] [update_setting] {}", typeid(T).name());
-    
+
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
             realtime_settings_.update_setting(setting);
@@ -352,6 +353,8 @@ class Pipe : public ICompute
     void insert_raw_record();
 
     void insert_hologram_record();
+
+    void insert_moments_record();
 
     void insert_cuts_record();
 

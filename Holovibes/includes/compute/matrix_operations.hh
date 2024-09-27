@@ -10,6 +10,12 @@
 
 namespace holovibes::compute
 {
+constexpr cuComplex alpha_complex{1, 0};
+constexpr cuComplex beta_complex{0, 0};
+
+constexpr float alpha = 1.0f;
+constexpr float beta = 0.0f;
+
 /*! \brief Compute the covariance matrix of a given matrix
  *
  *  \param matrix input matrix
@@ -87,14 +93,6 @@ void matrix_multiply(const T* A,
                      cublasOperation_t op_A = CUBLAS_OP_N,
                      cublasOperation_t op_B = CUBLAS_OP_N);
 
-/*! \brief
- *
- *  \param A first input matrix / vector
- *  \param B second input matrix / vector
- *  \param output output matrix / vector
- *  \param size size of A
- *  \param stream CUDA stream
- */
-template <typename T>
-void hadamard_product(const T* A, const T* B, const T* output, size_t size, const cudaStream_t stream)
 } // namespace holovibes::compute
+
+#include "matrix_operations.hxx"

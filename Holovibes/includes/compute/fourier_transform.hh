@@ -22,6 +22,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
+    holovibes::settings::RecordMode,               \
     holovibes::settings::ImageType,                \
     holovibes::settings::X,                        \
     holovibes::settings::Y,                        \
@@ -57,6 +58,7 @@ class Queue;
 struct BatchEnv;
 struct TimeTransformationEnv;
 struct CoreBuffersEnv;
+struct MomentsEnv;
 } // namespace holovibes
 
 namespace holovibes::compute
@@ -106,6 +108,12 @@ class FourierTransform
     /*! \brief enqueue functions relative to temporal fourier transforms. */
     void insert_time_transform();
 
+    /*!
+     * \brief Enqueue the computations of the moments, after the stft
+     *
+     */
+    void insert_moments();
+
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
                                               float* gpu_postprocess_frame_xz,
@@ -146,12 +154,6 @@ class FourierTransform
 
     /*! \brief Enqueue stft time filtering. */
     void insert_stft();
-
-    /*!
-     * \brief Enqueue the computations of the moments, following a stft in the pipeline
-     *
-     */
-    void insert_moments();
 
     /*! \brief Enqueue functions relative to filtering using diagonalization and eigen values.
      *
@@ -205,7 +207,7 @@ class FourierTransform
     /*! \brief Time transformation environment. */
     TimeTransformationEnv& time_transformation_env_;
     /*! \brief Moments environment. */
-    MomentsEnv& moments_env;
+    MomentsEnv& moments_env_;
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 

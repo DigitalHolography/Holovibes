@@ -156,9 +156,9 @@ struct MomentsEnv
      * The moment of order 0 is equal to the batch of frames multiplied by the vector f of frequencies at
      * Contains time_transformation_size frames.
      */
-    cuda_tools::CudaUniquePtr<cufftComplex> moment0_buffer = nullptr;
-    cuda_tools::CudaUniquePtr<cufftComplex> moment1_buffer = nullptr;
-    cuda_tools::CudaUniquePtr<cufftComplex> moment2_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment0_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment1_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment2_buffer = nullptr;
 
     /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
      * Used to compute the moment of order 0*/
@@ -171,7 +171,7 @@ struct MomentsEnv
     /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
      * Used to compute the moment of order 2*/
     cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
-}
+};
 
 /*! \struct TimeTransformationEnv
  *
@@ -478,7 +478,7 @@ class ICompute
     TimeTransformationEnv time_transformation_env_;
 
     /*! \brief Moments environment. */
-    MomentsEnv moments_env;
+    MomentsEnv moments_env_;
 
     /*! \brief Chart environment. */
     ChartEnv chart_env_;
