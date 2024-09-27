@@ -1,5 +1,9 @@
 ## Changelog
 
+### XX.X.X
+
+- Changed default preset to 'doppler_8b_384_28'
+
 ### 13.5.1
 
 - Adjusted S711 ini configuration file
