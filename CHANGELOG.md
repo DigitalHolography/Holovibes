@@ -3,6 +3,7 @@
 ### XX.X.X
 
 - Changed default preset to 'doppler_8b_384_28'
+- Default display rate is now 24
 
 ### 13.5.1
 
