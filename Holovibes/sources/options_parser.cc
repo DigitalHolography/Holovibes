@@ -170,7 +170,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());
-            if (frame_skip > 0)
+            if (frame_skip >= 0)
                 options_.frame_skip = frame_skip; // Implicit cast to uint
             else
             {
