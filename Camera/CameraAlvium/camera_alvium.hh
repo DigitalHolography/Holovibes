@@ -87,14 +87,29 @@ class CameraAlvium : public Camera
     int height_;
 
     /*! \brief Some params given by the ini file needed by the camera */
-    unsigned int offset_X_;
-    unsigned int offset_Y_;
-    bool acquisition_frame_rate_enable_;
-    int device_link_throughput_limit_;
-    size_t acquisition_frame_rate_;
+
+    std::string pixel_format_;
+    bool reverse_x_;
+    bool reverse_y_;
+    double gamma_;
+    double gain_;
+    double lens_shading_value_;
+    std::string intensity_auto_precedence_;
+    std::string exposure_active_mode_;
     std::string exposure_auto_;
-    size_t exposure_time_;
-    std::string gain_auto_;
+    double exposure_time_;
+    std::string correction_mode_;
+    std::string correction_selector_;
+    VmbInt64_t contrast_bright_limit_;
+    VmbInt64_t contrast_dark_limit_;
+    bool contrast_enable_;
+    VmbInt64_t contrast_shape_;
+    double black_level;
+    VmbInt64_t binning_horizontal_;
+    std::string binning_horizontal_mode_;
+    VmbInt64_t binning_vertical_;
+    std::string binning_vertical_mode_;
+    double adaptive_noise_suppression_factor_;
 
     /*! \brief The max width of a frame. */
     static constexpr unsigned short MAX_WIDTH = 5496;
