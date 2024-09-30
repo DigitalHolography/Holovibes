@@ -18,6 +18,13 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
+    - name: Cache Conan dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.conan
+        key: ${{ runner.os }}-conan-${{ hashFiles('conanfile.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-conan-
     - name: Install Dependencies
       run: |
         pip install conan
