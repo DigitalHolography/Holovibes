@@ -1,0 +1,43 @@
+name: CodeQL
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: '56 5 * * 1'
+  workflow_call:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: windows-latest  # Utilisation de Windows au lieu d'Ubuntu
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - cpp
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      # Build step: modification pour Windows, adaptez si nécessaire
+      - name: Build project
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 16 2019" -A x64
+          msbuild.exe MyProject.sln /p:Configuration=Release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
