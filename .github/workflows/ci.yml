@@ -21,6 +21,7 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install conan
+        conan profile detect
         conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
     - name: Building the projet
       run: |
