@@ -97,8 +97,6 @@ class EHoloGrabber
                                     available_grabbers_.size());
             throw CameraException(CameraException::CANT_SET_CONFIG);
         }
-        // for (unsigned i = 0; i < grabbers_.length(); ++i)
-        //     grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
     virtual ~EHoloGrabber()
@@ -152,7 +150,6 @@ class EHoloGrabber
             available_grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             available_grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             available_grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            // available_grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
             available_grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             available_grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
@@ -168,11 +165,6 @@ class EHoloGrabber
                                                         control_mode); // tell grabber 0 to send trigger
         available_grabbers_[0]->setString<RemoteModule>("TriggerSelector", trigger_selector); // source of trigger CXP
 
-        /* 100 fps -> 10000us */
-        // float factor = fps / 100;
-        // float cycleMinimumPeriod = 10000 / factor;
-        // float cycleMinimumPeriod = 1e6 / fps;
-        // std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
         if (triggerSource == "SWTRIGGER")
         {
             available_grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
@@ -182,9 +174,6 @@ class EHoloGrabber
             available_grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
         }
 
-        /* 100 fps -> 9000us */
-        // float factor = fps / 100;
-        // float Expvalue = 9000 / factor;
         available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         available_grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
 
@@ -194,7 +183,6 @@ class EHoloGrabber
         available_grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
 
         int framerate = 1e6 / cycleMinimumPeriod;
-        // available_grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
     }
 
     void init(unsigned int nb_buffers)
@@ -266,7 +254,9 @@ class EHoloGrabber
 
     void stop()
     {
-        for (size_t i = 0; i < nb_grabbers_; i++)
+        size_t grabber_count = nb_grabbers_;
+
+        for (size_t i = 0; i < grabber_count; i++)
             available_grabbers_[i]->stop();
     }
 
@@ -309,11 +299,7 @@ class CameraPhantom : public Camera
 {
   public:
     CameraPhantom(bool gpu = true);
-    virtual ~CameraPhantom()
-    {
-        for (size_t i = 0; i < nb_grabbers_; i++)
-            grabber_->available_grabbers_[i]->reallocBuffers(0);
-    }
+    virtual ~CameraPhantom() {}
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;

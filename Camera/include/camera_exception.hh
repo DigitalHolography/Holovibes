@@ -71,7 +71,5 @@ class CameraException : public std::exception
   private:
     /*! \brief Return code of the camera (enum). */
     const camera_error code_;
-
-    const char* msg_;
 };
 } // namespace camera
