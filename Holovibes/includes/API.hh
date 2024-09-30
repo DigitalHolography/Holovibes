@@ -23,6 +23,9 @@
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
 
+#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
+#define UPDATE_SETTING(setting, value) holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
+
 namespace holovibes::api
 {
 /*! \brief Gets an Input file from a given filename

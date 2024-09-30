@@ -519,10 +519,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
 
 #pragma region Computation
 
-void change_window(const int index)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::CurrentWindow{static_cast<WindowKind>(index)});
-}
+void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<WindowKind>(index)); }
 
 void toggle_renormalize(bool value)
 {
@@ -589,15 +586,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
 
-void set_chart_display_enabled(bool value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::ChartDisplayEnabled{value});
-}
+void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
-void set_filter2d_view_enabled(bool value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::Filter2dViewEnabled{value});
-}
+void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
@@ -689,9 +680,9 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
 
 void set_x_accu_level(uint x_value)
 {
-    auto x = Holovibes::instance().get_setting<settings::X>().value;
+    auto x = GET_SETTING(X);
     x.width = x_value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x});
+    UPDATE_SETTING(X, x);
     pipe_refresh();
 }
 
@@ -701,18 +692,18 @@ void set_x_cuts(uint value)
     const auto& fd = holo.get_input_queue()->get_fd();
     if (value < fd.width)
     {
-        auto x = Holovibes::instance().get_setting<settings::X>().value;
+        auto x = GET_SETTING(X);
         x.start = value;
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x});
+        UPDATE_SETTING(X, x);
         pipe_refresh();
     }
 }
 
 void set_y_accu_level(uint y_value)
 {
-    auto y = Holovibes::instance().get_setting<settings::Y>().value;
+    auto y = GET_SETTING(Y);
     y.width = y_value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y});
+    UPDATE_SETTING(Y, y);
     pipe_refresh();
 }
 
@@ -722,9 +713,9 @@ void set_y_cuts(uint value)
     const auto& fd = holo.get_input_queue()->get_fd();
     if (value < fd.height)
     {
-        auto y = Holovibes::instance().get_setting<settings::Y>().value;
+        auto y = GET_SETTING(Y);
         y.start = value;
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y});
+        UPDATE_SETTING(Y, y);
         pipe_refresh();
     }
 }
@@ -733,42 +724,42 @@ void set_x_y(uint x, uint y)
 {
     if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    auto x_ = Holovibes::instance().get_setting<settings::X>().value;
+    auto x_ = GET_SETTING(X);
     if (x < Holovibes::instance().get_input_queue()->get_fd().width)
     {
         x_.start = x;
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::X{x_});
+        UPDATE_SETTING(X, x_);
     }
 
-    auto y_ = Holovibes::instance().get_setting<settings::Y>().value;
+    auto y_ = GET_SETTING(Y);
     if (y < Holovibes::instance().get_input_queue()->get_fd().width)
     {
         y_.start = y;
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::Y{y_});
+        UPDATE_SETTING(Y, y_);
     }
     pipe_refresh();
 }
 
 void set_q_index(uint value)
 {
-    auto q = Holovibes::instance().get_setting<settings::Q>().value;
+    auto q = GET_SETTING(Q);
     q.start = value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::Q{q});
+    UPDATE_SETTING(Q, q);
     pipe_refresh();
 }
 
 void set_q_accu_level(uint value)
 {
-    auto q = Holovibes::instance().get_setting<settings::Q>().value;
+    auto q = GET_SETTING(Q);
     q.width = value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::Q{q});
+    UPDATE_SETTING(Q, q);
     pipe_refresh();
 }
 void set_p_index(uint value)
 {
-    auto p = Holovibes::instance().get_setting<settings::P>().value;
+    auto p = GET_SETTING(P);
     p.start = value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::P{p});
+    UPDATE_SETTING(P, p);
     pipe_refresh();
 }
 
@@ -776,18 +767,18 @@ void set_p_accu_level(uint p_value)
 {
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-    auto p = Holovibes::instance().get_setting<settings::P>().value;
+    auto p = GET_SETTING(P);
     p.width = p_value;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::P{p});
+    UPDATE_SETTING(P, p);
     pipe_refresh();
 }
 
 void set_composite_intervals(int composite_p_red, int composite_p_blue)
 {
-    holovibes::CompositeRGB rgb = Holovibes::instance().get_setting<settings::RGB>().value;
+    holovibes::CompositeRGB rgb = GET_SETTING(RGB);
     rgb.frame_index.min = composite_p_red;
     rgb.frame_index.max = composite_p_blue;
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RGB{rgb});
+    UPDATE_SETTING(RGB, rgb);
     pipe_refresh();
 }
 
@@ -891,7 +882,7 @@ bool slide_update_threshold(
 
 void set_lambda(float value)
 {
-    holovibes::Holovibes::instance().update_setting(settings::Lambda{value});
+    UPDATE_SETTING(Lambda, value);
     pipe_refresh();
 }
 
@@ -909,18 +900,15 @@ void set_z_distance(float value)
     if (get_compute_mode() == Computation::Raw)
         return;
 
-    holovibes::Holovibes::instance().update_setting(settings::ZDistance{value});
+    UPDATE_SETTING(ZDistance, value);
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::SpaceTransformation{value});
-}
+void set_space_transformation(const SpaceTransformation value) { UPDATE_SETTING(SpaceTransformation, value); }
 
 void set_time_transformation(const TimeTransformation value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeTransformation{value});
+    UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
 }
 
@@ -931,10 +919,7 @@ void set_unwrapping_2d(const bool value)
     pipe_refresh();
 }
 
-WindowKind get_current_window_type()
-{
-    return holovibes::Holovibes::instance().get_setting<settings::CurrentWindow>().value;
-}
+WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
 
 ViewWindow get_current_window()
 {
@@ -1171,15 +1156,9 @@ void set_log_scale(const bool value)
     pipe_refresh();
 }
 
-void set_raw_bitshift(unsigned int value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::RawBitshift{value});
-}
+void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
 
-unsigned int get_raw_bitshift()
-{
-    return static_cast<unsigned int>(holovibes::Holovibes::instance().get_setting<settings::RawBitshift>().value);
-}
+unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
 
 float get_contrast_min()
 {
@@ -1451,15 +1430,9 @@ void set_divide_convolution(const bool value)
 
 #pragma region Filter
 
-std::vector<float> get_input_filter()
-{
-    return holovibes::Holovibes::instance().get_setting<settings::InputFilter>().value;
-}
+std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
 
-void set_input_filter(std::vector<float> value)
-{
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFilter{value});
-}
+void set_input_filter(std::vector<float> value) { UPDATE_SETTING(InputFilter, value); }
 
 void load_input_filter(std::vector<float> input_filter, const std::string& file)
 {
@@ -1490,7 +1463,7 @@ void enable_filter()
     auto filename = UserInterfaceDescriptor::instance().filter_name;
     auto file = filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename);
 
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{true});
+    UPDATE_SETTING(FilterEnabled, true);
     set_input_filter({});
 
     if (get_compute_pipe_no_throw() != nullptr)
@@ -1509,26 +1482,12 @@ void enable_filter()
 
         pipe_refresh();
     }
-
-    // try
-    // {
-    //     auto pipe = get_compute_pipe();
-    //     pipe->request(ICS::Filter);
-    //     // Wait for the filter to be enabled for notify
-    //     while (pipe->is_requested(ICS::Filter))
-    //         continue;
-    // }
-    // catch (const std::exception& e)
-    // {
-    //     disable_filter();
-    //     LOG_ERROR("Catch {}", e.what());
-    // }
 }
 
 void disable_filter()
 {
     set_input_filter({});
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::FilterEnabled{false});
+    UPDATE_SETTING(FilterEnabled, false);
     try
     {
         auto pipe = get_compute_pipe();
@@ -1658,8 +1617,7 @@ void set_record_buffer_size(uint value)
     // since this function is always triggered when we save the advanced settings, even if the location was not modified
     if (get_record_buffer_size() != value)
     {
-
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordBufferSize{value});
+        UPDATE_SETTING(RecordBufferSize, value);
 
         if (Holovibes::instance().is_recording())
             stop_record();
@@ -1674,9 +1632,11 @@ void set_record_queue_location(Device device)
     // modified
     if (get_record_queue_location() != device)
     {
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::RecordQueueLocation{device});
+        UPDATE_SETTING(RecordQueueLocation, device);
+
         if (Holovibes::instance().is_recording())
             stop_record();
+
         Holovibes::instance().init_record_queue();
     }
 }
@@ -1712,9 +1672,8 @@ void set_record_mode(const std::string& text)
         {
             auto pipe = get_compute_pipe();
             if (Holovibes::instance().is_recording())
-            {
                 stop_record();
-            }
+
             Holovibes::instance().init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
@@ -1764,9 +1723,8 @@ void set_record_device(const Device device)
     if (get_raw_view_queue_location() != device)
         set_raw_view_queue_location(device);
 
-    if (get_record_queue_location() != device &&
-        (device ==
-         Device::CPU)) // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
+    // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
+    if (get_record_queue_location() != device && device == Device::CPU)
         set_record_queue_location(device);
 
     if (get_input_queue_location() != device)
@@ -1798,16 +1756,12 @@ void start_record(std::function<void()> callback)
     if (!start_record_preconditions()) // Check if the record can be started
         return;
 
-    RecordMode record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
+    RecordMode record_mode = GET_SETTING(RecordMode);
 
     if (record_mode == RecordMode::CHART)
-    {
         Holovibes::instance().start_chart_record(callback);
-    }
     else
-    {
         Holovibes::instance().start_frame_record(callback);
-    }
 
     // Notify the changes
     auto& manager = NotifierManager::get_instance();
@@ -1821,7 +1775,7 @@ void stop_record()
 {
     LOG_FUNC();
 
-    auto record_mode = Holovibes::instance().get_setting<settings::RecordMode>().value;
+    auto record_mode = GET_SETTING(RecordMode);
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
@@ -1876,11 +1830,10 @@ bool import_start()
 
     try
     {
-
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
         // TODO remove
-        Holovibes::instance().update_setting(settings::LoopOnInputFile{true});
+        UPDATE_SETTING(LoopOnInputFile, true);
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
@@ -1915,13 +1868,13 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 void set_input_file_start_index(size_t value)
 {
     if (value >= get_input_file_end_index())
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value + 1});
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileStartIndex{value});
+        UPDATE_SETTING(InputFileEndIndex, value + 1);
+    UPDATE_SETTING(InputFileStartIndex, value);
 }
 
 void set_input_file_end_index(size_t value)
 {
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::InputFileEndIndex{value});
+    UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
         set_input_file_start_index(value - 1);
 }

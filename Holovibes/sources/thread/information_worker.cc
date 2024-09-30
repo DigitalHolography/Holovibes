@@ -1,4 +1,5 @@
 #include <fstream>
+#include "api.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
@@ -41,7 +42,7 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-    auto benchmark_mode = Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
+    auto benchmark_mode = GET_SETTING(BenchmarkMode);
     std::ofstream benchmark_file;
     bool info_found = false;
 
