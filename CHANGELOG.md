@@ -1,7 +1,8 @@
 ## Changelog
 
-### XX.X.X
+### 13.6.0
 
+- Support for Alvium Camera
 - Changed default preset to 'doppler_8b_384_28'
 - Default display rate is now 24
 
