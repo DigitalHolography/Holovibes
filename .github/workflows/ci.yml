@@ -5,6 +5,8 @@ name: CMake on multiple platforms
 on:
   pull_request_target:
     branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "master", "dev" ]
   release:
     types: [published]
 
