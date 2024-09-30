@@ -157,7 +157,7 @@ The UI calls API functions and listens to a notifier using a subscriber/observer
 
 On Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
 
-If possible, install a pre-commit hook with `pip install pre-commit` and then use `pre-commit install` at the root of the project.
+Install a pre-commit hook with `pip install pre-commit` and then use `pre-commit install` at the root of the project.
 
 Adhere to the following coding standards to maintain code consistency:
 
