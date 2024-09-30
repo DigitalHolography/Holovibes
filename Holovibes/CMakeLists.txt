@@ -178,33 +178,27 @@ add_custom_command(TARGET Holovibes POST_BUILD
 # Install
 # ---------------------------------------------------------------------
 install(TARGETS Holovibes
-    RUNTIME DESTINATION "${PROJECT_VERSION}"
-    COMPONENT application
+    RUNTIME DESTINATION .
 )
 
 install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
-    DESTINATION "${PROJECT_VERSION}\\\\json_patches_holofile"
-    COMPONENT application
+    DESTINATION json_patches_holofile
 )
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
-    DESTINATION "${PROJECT_VERSION}\\\\resources"
-    COMPONENT application
+    DESTINATION resources
 )
 
 install(FILES "${HOLO_DIR}/Holovibes.ico"
-    DESTINATION "${PROJECT_VERSION}"
-    COMPONENT application
+    DESTINATION .
 )
 
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
-    DESTINATION "${PROJECT_VERSION}"
-    COMPONENT application
+    DESTINATION .
 )
 
 install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
-    DESTINATION "Process Holo Files"
-    COMPONENT process
+    DESTINATION scripts
 )
 
 install(FILES
@@ -223,21 +217,18 @@ install(FILES
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusolver64_11.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
-    DESTINATION "${PROJECT_VERSION}"
-    COMPONENT application
+    DESTINATION .
 )
 
 if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
-        DESTINATION "${PROJECT_VERSION}"
-        COMPONENT application
+        DESTINATION .
     )
 endif()
 
 if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
-        DESTINATION "${PROJECT_VERSION}"
-        COMPONENT application
+        DESTINATION .
     )
 endif()
 
@@ -246,8 +237,8 @@ if(HAVE_EGrabber AND HAVE_EGrabbers)
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
-        DESTINATION "${PROJECT_VERSION}"
-        COMPONENT application)
+        DESTINATION .
+    )
 endif()
 
 if(HAVE_VIMBAX)
@@ -263,36 +254,27 @@ if(HAVE_VIMBAX)
     )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
-        DESTINATION "${PROJECT_VERSION}"
-        COMPONENT application)
+        DESTINATION .
+    )
 endif()
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
-    DESTINATION "${PROJECT_VERSION}"
-    COMPONENT application
+    DESTINATION .
 )
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
-    DESTINATION "${PROJECT_VERSION}\\\\AppData/"
-    COMPONENT application
+    DESTINATION AppData
 )
 
 # ---------------------------------------------------------------------
 # Packaging
 # ---------------------------------------------------------------------
-set(INSTALL_DIRECTORY "Holovibes")
-set(PFILES_INSTALL_DIRECTORY "Process Holo Files")
+set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 
 set(CPACK_GENERATOR "NSIS")
 
-# set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 
-# Changing the uninstaller location to not be in 'Holovibes' but instead in 'Holovibes/$PROJECT_VERSION'.
-set(CPACK_NSIS_UNINSTALL_NAME "${PROJECT_VERSION}\\\\Uninstall")
-
-set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes") # Naming the components
-set(CPACK_COMPONENT_PROCESS_DISPLAY_NAME "Process Holo Files")
-set(CPACK_COMPONENTS_ALL application process)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
 set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
@@ -305,20 +287,21 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
     SetCompress off
 ")
 
-# Creating the shortcut to the ProcessHoloFiles.ps1 script on the desktop.
+# Set the names of both shortcuts this installer creates: one for Holovibes and one for the .ps1
+# These variable names are arbitrary and don't mean anything, they could have been named like 'a' or 'res'
+set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
+set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\ProcessHoloFiles.lnk")
+
+# Creating the shortcut to Holovibes on the desktop.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-    CreateShortCut \\\"$DESKTOP\\\\Process Holo Files.lnk\\\" \\\"$INSTDIR\\\\${PFILES_INSTALL_DIRECTORY}\\\\ProcessHoloFiles.ps1\\\"
+    CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
+    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0 
 ")
 
-# The uninstaller is in the Holovibes/$PROJECT_VERSION directory.
-# What that means is that it tries uninstalling the project from that directory and not its parent.
-# (in fact, the installing directory is not shared between installer and uninstaller.)
-# That's why we need to change the 'install directory' to the parent folder.
-#
-# Also, removes the Desktop shortcut of the .ps1 file.
+# Removes the Desktop shortcut of Holovibes.
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-    StrCpy $INSTDIR \\\"$INSTDIR\\\\..\\\"
-    Delete \\\"$DESKTOP\\\\Process Holo Files.lnk\\\"
+    Delete \\\"${SHORTCUT_NAME}\\\"
+    Delete \\\"${PSONE_SHORTCUT_NAME}\\\"
 ")
 
 include(CPack)

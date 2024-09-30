@@ -407,7 +407,7 @@ class Holovibes
                                              settings::Filter2dSmoothHigh{1},
                                              settings::FrameRecordEnabled{false},
                                              settings::ChartRecordEnabled{false},
-                                             settings::DisplayRate{30},
+                                             settings::DisplayRate{24},
                                              settings::InputBufferSize{512},
                                              settings::RecordBufferSize{1024},
                                              settings::ContrastLowerThreshold{0.5f},

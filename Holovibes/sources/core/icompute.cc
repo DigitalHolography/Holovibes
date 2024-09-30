@@ -41,8 +41,8 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
     catch (const std::exception& e)
     {
         time_transformation_env_.gpu_time_transformation_queue.reset(nullptr);
-        request_time_transformation_cuts_ = false;
-        request_delete_time_transformation_cuts_ = true;
+        clear_request(ICS::TimeTransformationCuts);
+        set_requested(ICS::DeleteTimeTransformationCuts, true);
         dispose_cuts();
         LOG_ERROR("error in update_time_transformation_size(time_transformation_size) message: {}", e.what());
 
@@ -119,7 +119,7 @@ void ICompute::init_cuts()
 {
     camera::FrameDescriptor fd_xz = gpu_output_queue_.get_fd();
 
-    fd_xz.depth = sizeof(ushort);
+    fd_xz.depth = camera::PixelDepth::Bits16; // Size of ushort
     auto fd_yz = fd_xz;
     fd_xz.height = setting<settings::TimeTransformationSize>();
     fd_yz.width = setting<settings::TimeTransformationSize>();
@@ -151,125 +151,19 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-std::unique_ptr<Queue>& ICompute::get_raw_view_queue() { return gpu_raw_view_queue_; }
-
-std::unique_ptr<Queue>& ICompute::get_filter2d_view_queue() { return gpu_filter2d_view_queue_; }
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_display_queue()
-{
-    return chart_env_.chart_display_queue_;
-}
-
-std::unique_ptr<ConcurrentDeque<ChartPoint>>& ICompute::get_chart_record_queue()
-{
-    return chart_env_.chart_record_queue_;
-}
-
-void ICompute::delete_stft_slice_queue()
-{
-    request_delete_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-void ICompute::create_stft_slice_queue()
-{
-    request_time_transformation_cuts_ = true;
-    request_refresh();
-}
-
-bool ICompute::get_cuts_request() { return request_time_transformation_cuts_; }
-
-bool ICompute::get_cuts_delete_request() { return request_delete_time_transformation_cuts_; }
-
-std::unique_ptr<Queue>& ICompute::get_stft_slice_queue(int slice)
-{
-    return slice ? time_transformation_env_.gpu_output_queue_yz : time_transformation_env_.gpu_output_queue_xz;
-}
-
-void ICompute::enable_refresh() { refresh_enabled_ = true; }
-
-void ICompute::disable_refresh() { refresh_enabled_ = false; }
-
-void ICompute::request_refresh() { refresh_requested_ = true; }
-
-void ICompute::request_termination() { termination_requested_ = true; }
-
-void ICompute::request_output_resize(unsigned int new_output_size)
-{
-    output_resize_requested_ = new_output_size;
-    request_refresh();
-}
-
-void ICompute::request_disable_raw_view()
-{
-    disable_raw_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_raw_view()
-{
-    raw_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_filter2d_view()
-{
-    disable_filter2d_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_filter2d_view()
-{
-    filter2d_view_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_frame_record()
-{
-    frame_record_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_frame_record()
-{
-    disable_frame_record_requested_ = true;
-    request_refresh();
-}
-
 void ICompute::request_autocontrast(WindowKind kind)
 {
     if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
-        autocontrast_requested_ = true;
+        set_requested(ICS::Autocontrast, true);
     else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
              setting<settings::CutsViewEnabled>())
-        autocontrast_slice_xz_requested_ = true;
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled && setting<settings::CutsViewEnabled>())
-        autocontrast_slice_yz_requested_ = true;
+        set_requested(ICS::AutocontrastSliceXZ, true);
+    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
+             setting<settings::CutsViewEnabled>())
+        set_requested(ICS::AutocontrastSliceYZ, true);
     else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
              setting<settings::Filter2dEnabled>())
-        autocontrast_filter2d_requested_ = true;
-}
-
-void ICompute::request_update_time_transformation_size()
-{
-    update_time_transformation_size_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_unwrapping_1d(const bool value) { unwrap_1d_requested_ = value; }
-
-void ICompute::request_unwrapping_2d(const bool value) { unwrap_2d_requested_ = value; }
-
-void ICompute::request_display_chart()
-{
-    chart_display_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_display_chart()
-{
-    disable_chart_display_requested_ = true;
-    request_refresh();
+        set_requested(ICS::AutocontrastFilter2D, true);
 }
 
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
@@ -278,57 +172,18 @@ void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
     request_refresh();
 }
 
-void ICompute::request_disable_record_chart()
+void ICompute::request_refresh() { set_requested(ICS::Refresh, true); }
+
+// Start
+std::atomic<bool>& ICompute::is_requested(Setting setting) { return settings_requests_[static_cast<int>(setting)]; }
+
+void ICompute::request(Setting setting)
 {
-    disable_chart_record_requested_ = true;
+    settings_requests_[static_cast<int>(setting)] = true;
     request_refresh();
 }
 
-void ICompute::request_update_batch_size()
-{
-    request_update_batch_size_ = true;
-    request_refresh();
-}
+void ICompute::set_requested(Setting setting, bool value) { settings_requests_[static_cast<int>(setting)] = value; }
 
-void ICompute::request_update_time_stride()
-{
-    request_update_time_stride_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_lens_view()
-{
-    request_disable_lens_view_ = true;
-    request_refresh();
-}
-
-void ICompute::request_clear_img_acc()
-{
-    request_clear_img_accu = true;
-    request_refresh();
-}
-
-void ICompute::request_convolution()
-{
-    convolution_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_filter()
-{
-    filter_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_convolution()
-{
-    disable_convolution_requested_ = true;
-    request_refresh();
-}
-
-void ICompute::request_disable_filter()
-{
-    disable_filter_requested_ = true;
-    request_refresh();
-}
+void ICompute::clear_request(Setting setting) { settings_requests_[static_cast<int>(setting)] = false; }
 } // namespace holovibes

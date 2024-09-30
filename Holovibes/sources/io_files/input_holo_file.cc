@@ -77,7 +77,7 @@ void InputHoloFile::load_fd()
     LOG_FUNC();
     fd_.width = holo_file_header_.img_width;
     fd_.height = holo_file_header_.img_height;
-    fd_.depth = holo_file_header_.bits_per_pixel / 8;
+    fd_.depth = static_cast<camera::PixelDepth>(holo_file_header_.bits_per_pixel / 8);
     fd_.byteEndian = holo_file_header_.endianness ? camera::Endianness::BigEndian : camera::Endianness::LittleEndian;
     LOG_TRACE("Exiting InputHoloFile::load_fd");
 }

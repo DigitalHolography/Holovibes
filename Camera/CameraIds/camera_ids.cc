@@ -79,7 +79,7 @@ void CameraIds::load_default_params()
 {
     fd_.width = 2048;
     fd_.height = 2048;
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
     pixel_size_ = 5.5f;
     fd_.byteEndian = Endianness::LittleEndian;
 
@@ -211,13 +211,13 @@ int CameraIds::get_binning_mode(const std::string ui)
 
 int CameraIds::get_color_mode(const std::string ui)
 {
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
     if (ui == "RAW8")
         return IS_CM_SENSOR_RAW8;
     if (ui == "MONO8")
         return IS_CM_MONO8;
 
-    fd_.depth = 2;
+    fd_.depth = PixelDepth::Bits16;
     if (ui == "RAW10")
         return IS_CM_SENSOR_RAW10;
     if (ui == "RAW12")
@@ -231,7 +231,7 @@ int CameraIds::get_color_mode(const std::string ui)
     if (ui == "MONO16")
         return IS_CM_MONO16;
 
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
     return IS_CM_SENSOR_RAW8;
 }
 

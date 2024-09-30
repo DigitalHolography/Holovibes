@@ -23,7 +23,7 @@ void OutputMp4File::write_header()
 
         cv::Size size = cv::Size(fd_.width, fd_.height);
 
-        bool is_color = fd_.depth == 3;
+        bool is_color = fd_.depth == camera::PixelDepth::Bits24;
 
         // Get the fps required but check if it does not exceed the fps given by the user
         double compute_fps = compute_output_fps();
@@ -47,7 +47,7 @@ size_t OutputMp4File::write_frame(const char* frame, size_t frame_size)
     try
     {
         cv::Mat mat_frame;
-        bool is_color = fd_.depth == 3;
+        bool is_color = fd_.depth == camera::PixelDepth::Bits24;
 
         if (is_color)
         {
@@ -55,7 +55,7 @@ size_t OutputMp4File::write_frame(const char* frame, size_t frame_size)
             cv::cvtColor(mat_frame, mat_frame, cv::COLOR_BGR2RGB);
         }
 
-        // else fd_.depth == 2
+        // else fd_.depth == camera::PixelDepth::Bits16
         else
         {
             // OpenCV does not handle 16 bits video in our case

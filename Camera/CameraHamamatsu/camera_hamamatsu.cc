@@ -104,7 +104,7 @@ void CameraHamamatsu::retrieve_pixel_depth()
 {
     double bits_per_channel;
     dcamprop_getvalue(hdcam_, DCAM_IDPROP_BITSPERCHANNEL, &bits_per_channel);
-    fd_.depth = bits_per_channel / 8;
+    fd_.depth = static_cast<PixelDepth>(bits_per_channel / 8);
 }
 
 void CameraHamamatsu::allocate_host_frame_buffer()
@@ -234,7 +234,7 @@ void CameraHamamatsu::load_default_params()
 {
     fd_.width = MAX_WIDTH;
     fd_.height = MAX_WIDTH;
-    fd_.depth = 2;
+    fd_.depth = PixelDepth::Bits16;
     fd_.byteEndian = Endianness::LittleEndian;
 
     pixel_size_ = 6.5f;

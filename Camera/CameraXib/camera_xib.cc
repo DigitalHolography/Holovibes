@@ -73,7 +73,7 @@ void CameraXib::load_default_params()
     fd_.width = real_width_;
     fd_.height = real_height_;
     pixel_size_ = 5.5f;
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
     fd_.byteEndian = Endianness::BigEndian;
 
     /* Custom parameters. */
@@ -254,7 +254,7 @@ void CameraXib::bind_params()
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
-        fd_.depth = 2;
+        fd_.depth = PixelDepth::Bits16;
 
     name_ = std::string(name);
 }
