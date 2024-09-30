@@ -1,0 +1,32 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: CMake on multiple platforms
+
+on:
+  pull_request_target:
+    branches: [ "master", "dev" ]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code 
+    - uses: actions/checkout@v4
+
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 'latest'
+    - name: Install Dependencies
+      run: |
+        pip install conan
+        conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
+    - name: Building the projet
+      run: |
+        ./dev.py clean build -b Release
+    - name: Run Tests
+      run: |
+        ./dev.py pytest -b Release
