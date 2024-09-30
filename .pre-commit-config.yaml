@@ -10,5 +10,8 @@ repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.3.0
   hooks:
+  - id: check-yaml
   - id: trailing-whitespace
+    exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
+  - id: end-of-file-fixer
     exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
