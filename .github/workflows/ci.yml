@@ -5,8 +5,6 @@ name: CMake on multiple platforms
 on:
   pull_request_target:
     branches: [ "master", "dev" ]
-  pull_request:
-    branches: [ "master", "dev" ]
   release:
     types: [published]
 
@@ -17,18 +15,3 @@ jobs:
     - name: Checkout code 
     - uses: actions/checkout@v4
 
-    
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 'latest'
-    - name: Install Dependencies
-      run: |
-        pip install conan
-        conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
-    - name: Building the projet
-      run: |
-        ./dev.py clean build -b Release
-    - name: Run Tests
-      run: |
-        ./dev.py pytest -b Release
