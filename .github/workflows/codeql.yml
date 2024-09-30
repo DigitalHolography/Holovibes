@@ -12,7 +12,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: windows-latest  # Utilisation de Windows au lieu d'Ubuntu
+    runs-on: windows-latest  # Utilisation de Windows
     strategy:
       fail-fast: false
       matrix:
@@ -27,11 +27,19 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
-      # Build step: modification pour Windows, adaptez si nécessaire
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1  # Installer MSBuild
+
+      - name: Install Visual Studio Build Tools
+        run: |
+          choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
+        shell: pwsh  # Utiliser PowerShell pour les commandes sous Windows
+
+      # Étape de build pour Windows, modifiez en fonction de votre projet
       - name: Build project
         run: |
           mkdir output_build
