@@ -34,10 +34,11 @@ jobs:
       # Build step: modification pour Windows, adaptez si nécessaire
       - name: Build project
         run: |
-          mkdir build
-          cd build
+          mkdir output_build
+          cd output_build
           cmake .. -G "Visual Studio 16 2019" -A x64
           msbuild.exe MyProject.sln /p:Configuration=Release
+        shell: pwsh
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v3
