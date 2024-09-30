@@ -27,26 +27,15 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v3  # Utilisation de CodeQL v2
         with:
           languages: ${{ matrix.language }}
-
-      - name: Set up MSBuild
-        uses: microsoft/setup-msbuild@v1  # Installer MSBuild
-
-      - name: Install Visual Studio Build Tools
+          
+      # Étape pour lancer le script Python
+      - name: Build project using Python script
         run: |
-          choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
-        shell: pwsh  # Utiliser PowerShell pour les commandes sous Windows
-
-      # Étape de build pour Windows, modifiez en fonction de votre projet
-      - name: Build project
-        run: |
-          mkdir output_build
-          cd output_build
-          cmake .. -G "Visual Studio 16 2019" -A x64
-          msbuild.exe MyProject.sln /p:Configuration=Release
+          python ./dev.py build
         shell: pwsh
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v3  # Utilisation de CodeQL v2
