@@ -101,20 +101,20 @@ set_target_properties(Holovibes PROPERTIES
 
 target_compile_options(Holovibes PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:
-        --extended-lambda
-        -Xcudafe --diag_suppress=field_without_dll_interface
-        -diag-suppress 27
+    --extended-lambda
+    -Xcudafe --diag_suppress=field_without_dll_interface
+    -diag-suppress 27
     >
     $<$<COMPILE_LANGUAGE:CXX>:
-        /W3
-        /wd4005
-        /wd4003
+    /W3
+    /wd4005
+    /wd4003
     >
 )
 
 target_compile_definitions(Holovibes PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:.
-        _CRT_SECURE_NO_WARNINGS
+    _CRT_SECURE_NO_WARNINGS
     >
 )
 
@@ -126,6 +126,7 @@ endif()
 # Post build: Copy necessary files to output dir
 # ---------------------------------------------------------------------
 add_custom_command(TARGET Holovibes POST_BUILD
+
     # Copy shaders and convolution kernels and json patch
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
@@ -136,7 +137,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-
 
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
@@ -166,14 +166,12 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CAMERA_DIR}/configs/bfml/" $<TARGET_FILE_DIR:Holovibes>/AppData/bfml/
     COMMAND ${CMAKE_COMMAND} -E copy "${CAMERA_DIR}/configs/alvium.ini" $<TARGET_FILE_DIR:Holovibes>/AppData/cameras_config/alvium.ini
 
-
     # Copy Preset files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_28.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_28.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_40.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/preset.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
-
 )
 
 # ---------------------------------------------------------------------
@@ -181,18 +179,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
 # ---------------------------------------------------------------------
 install(TARGETS Holovibes
     RUNTIME DESTINATION .
-)
-
-install(DIRECTORY "${HOLO_DIR}/shaders/"
-    DESTINATION shaders
-)
-
-install(DIRECTORY "${HOLO_DIR}/convolution_kernels/"
-    DESTINATION convolution_kernels
-)
-
-install(DIRECTORY "${HOLO_DIR}/input_filters/"
-    DESTINATION input_filters
 )
 
 install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
@@ -215,7 +201,6 @@ install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
     DESTINATION scripts
 )
 
-
 install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
@@ -235,14 +220,13 @@ install(FILES
     DESTINATION .
 )
 
-
-if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
+if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
         DESTINATION .
     )
 endif()
 
-if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
+if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
         DESTINATION .
     )
@@ -257,7 +241,7 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
     )
 endif()
 
-if (HAVE_VIMBAX)
+if(HAVE_VIMBAX)
     add_custom_command(TARGET Holovibes POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbCPP.dll" $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/VmbC.dll" $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
@@ -267,7 +251,7 @@ if (HAVE_VIMBAX)
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
-
+        
         )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
@@ -283,13 +267,13 @@ install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
     DESTINATION AppData
 )
 
-
 # ---------------------------------------------------------------------
 # Packaging
 # ---------------------------------------------------------------------
 set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 
 set(CPACK_GENERATOR "NSIS")
+
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
