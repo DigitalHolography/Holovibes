@@ -150,23 +150,19 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
 
                 if (setting<settings::CompositeAutoWeights>())
                 {
-                    const uchar pixel_depth = 3;
                     const int factor = 10;
-                    float* averages = new float[pixel_depth];
+                    float* averages = new float[3];
                     postcolor_normalize(gpu_postprocess_frame,
                                         fd_.height,
                                         fd_.width,
                                         setting<settings::CompositeZone>(),
-                                        pixel_depth,
                                         averages,
                                         stream_);
-                    if (pixel_depth >= 3)
-                    {
-                        double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                        api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                            (static_cast<double>(averages[1]) / max) * factor,
-                                            (static_cast<double>(averages[2]) / max) * factor);
-                    }
+
+                    double max = std::max(std::max(averages[0], averages[1]), averages[2]);
+                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                        (static_cast<double>(averages[1]) / max) * factor,
+                                        (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
             else
@@ -359,14 +355,19 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
     LOG_FUNC(fd_.depth);
 
     // Conversion function from input queue to input buffer
-    auto convert_to_complex =
-        [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
+    auto convert_to_complex = [](const void* const src,
+                                 void* const dest,
+                                 uint batch_size,
+                                 size_t frame_res,
+                                 camera::PixelDepth depth,
+                                 cudaStream_t stream)
     { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
 
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, convert_to_complex]()
     {
-        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the next batch. We wait 0 ms to avoid blocking the thread.
+        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
+        // next batch. We wait 0 ms to avoid blocking the thread.
         while (input_queue.size_ == 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));

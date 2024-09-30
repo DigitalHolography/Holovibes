@@ -89,7 +89,6 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
  * @param fd_height The height of the buffer
  * @param fd_width The width of the buffer
  * @param selection The selected zone
- * @param pixel_depth The depth of the pixel (usually 3)
  * @param averages The rgb averages to fill, used in UI
  * @param stream The used cuda stream
  */
@@ -97,7 +96,6 @@ void postcolor_normalize(float* output,
                          const uint fd_height,
                          const uint fd_width,
                          holovibes::units::RectFd selection,
-                         const uchar pixel_depth,
                          float* averages,
                          const cudaStream_t stream)
 {
