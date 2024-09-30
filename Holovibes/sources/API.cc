@@ -889,13 +889,10 @@ void set_lambda(float value)
 void set_z_distance(float value)
 {
     if (value == 0)
-    {
         value = 0.000001f;
-    } // to avoid kernel crash with 0 distance
+    // to avoid kernel crash with 0 distance
     // Notify the change to the z_distance notifier
-    auto& manager = NotifierManager::get_instance();
-    auto zDistanceNotifier = manager.get_notifier<double>("z_distance");
-    zDistanceNotifier->notify(value);
+    NotifierManager::notify<double>("z_distance", value);
 
     if (get_compute_mode() == Computation::Raw)
         return;
@@ -1739,9 +1736,12 @@ void set_record_device(const Device device)
         }
         else if (it == ImportType::File)
             import_stop();
+
         set_input_queue_location(device);
+
         if (device == Device::CPU)
             set_compute_mode(Computation::Raw);
+            
         if (it == ImportType::Camera)
             change_camera(c);
         else
@@ -1764,11 +1764,8 @@ void start_record(std::function<void()> callback)
         Holovibes::instance().start_frame_record(callback);
 
     // Notify the changes
-    auto& manager = NotifierManager::get_instance();
-    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_start");
-    stopComputeNotifier->notify(record_mode); // notifying lightUI
-    auto recordStartedNotifer = manager.get_notifier<bool>("acquisition_started");
-    recordStartedNotifer->notify(true); // notifying MainWindow
+    NotifierManager::notify<RecordMode>("record_start", record_mode); // notifying lightUI
+    NotifierManager::notify<bool>("acquisition_started", true);       // notifying MainWindow
 }
 
 void stop_record()
@@ -1786,9 +1783,7 @@ void stop_record()
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
 
     // Notify the changes
-    auto& manager = NotifierManager::get_instance();
-    auto stopComputeNotifier = manager.get_notifier<RecordMode>("record_stop");
-    stopComputeNotifier->notify(record_mode);
+    NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
 void record_finished()
@@ -1854,13 +1849,8 @@ bool import_start()
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     if (!filename.empty())
-    {
-
-        // Will throw if the file format (extension) cannot be handled
-        auto input_file = io_files::InputFrameFileFactory::open(filename);
-
-        return input_file;
-    }
+        // Throw if the file format cannot be handled
+        return io_files::InputFrameFileFactory::open(filename);
 
     return std::nullopt;
 }
