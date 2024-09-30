@@ -72,23 +72,31 @@ class EHoloGrabber
 
         depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
+        // The below loop will check which grabbers are available to use, i.e the ones which are connected to a camera
+        // We don't use Euresys::EGrabberDiscovery because it doesn't allow us to detect when a frame grabber is
+        // connected to something or not
         for (size_t ix = 0; ix < grabbers_.length(); ++ix)
         {
             try
             {
+                // Try to query the remote device (the camera)
                 grabbers_[ix]->getString<RemoteModule>("Banks");
             }
-            catch (...)
+            catch (const Euresys::gentl_error& e)
             {
-                // TODO Alexis / Gustave: catch real exception type
                 continue;
             }
             available_grabbers_.push_back(grabbers_[ix]);
         }
 
+        // Check if we have enough available frame grabbers
         if (available_grabbers_.size() < nb_grabbers_)
-            throw CameraException(CameraException::CANT_SET_CONFIG, "not enough frame grabber connected to camera");
-
+        {
+            Logger::camera()->error("Not enough frame grabbers connected to the camera, expected: {} but got: {}.",
+                                    nb_grabbers_,
+                                    available_grabbers_.size());
+            throw CameraException(CameraException::CANT_SET_CONFIG);
+        }
         // for (unsigned i = 0; i < grabbers_.length(); ++i)
         //     grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
