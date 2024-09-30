@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.6.0
+
+- Support for Alvium Camera
+
 ### 13.5.1
 
 - Adjusted S711 ini configuration file
