@@ -33,8 +33,10 @@ class Chrono
     {
         auto duration = std::chrono::duration<double>(seconds);
 
-        while (std::chrono::steady_clock::now() - start_ < duration){}
-        
+        while (std::chrono::steady_clock::now() - start_ < duration)
+        {
+        }
+
         stop();
     }
 

@@ -2,7 +2,6 @@
 #include "file_exception.hh"
 #include "holovibes.hh"
 
-
 namespace holovibes::io_files
 {
 OutputMp4File::OutputMp4File(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb)

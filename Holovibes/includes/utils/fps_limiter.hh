@@ -29,7 +29,8 @@ class FPSLimiter
      * @param target_fps The targeted fps.
      */
     void wait(size_t target_fps);
-    private:
-      Chrono chrono_;
+
+  private:
+    Chrono chrono_;
 };
 } // namespace holovibes

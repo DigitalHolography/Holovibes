@@ -61,7 +61,7 @@ D Notifier<T, D>::notify(const T& data)
             LOG_ERROR("Exception caught in notifier: {}", e.what());
         }
     }
-    
+
     if (!std::is_same<D, void>::value)
         throw std::runtime_error("No subscriber for notifier with return value");
 }
@@ -88,11 +88,7 @@ Subscriber<T, D>::Subscriber(const std::string& name, Func&& callback)
     : notifier_(NotifierManager::get_instance().get_notifier<T, D>(name))
     , callback_(std::forward<Func>(callback))
 {
-    subscriptionId_ = notifier_->subscribe(
-        [this](const T& value)
-        {
-            return this->callback_(value);
-        });
+    subscriptionId_ = notifier_->subscribe([this](const T& value) { return this->callback_(value); });
 }
 
 template <typename T, typename D>

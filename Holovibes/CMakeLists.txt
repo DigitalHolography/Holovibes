@@ -232,7 +232,7 @@ if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     )
 endif()
 
-if(HAVE_EGrabber AND HAVE_EGrabbers)
+if (HAVE_EGrabber AND HAVE_EGrabbers)
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
@@ -251,7 +251,8 @@ if(HAVE_VIMBAX)
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
-    )
+        
+        )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         DESTINATION .
@@ -295,7 +296,7 @@ set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\ProcessHoloFiles.lnk")
 # Creating the shortcut to Holovibes on the desktop.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
-    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0 
+    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0
 ")
 
 # Removes the Desktop shortcut of Holovibes.

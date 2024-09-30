@@ -107,9 +107,7 @@ class ImageAccumulation
         }
     }
 
-    inline void pipe_refresh_apply_updates() {
-          pipe_refresh_settings_.apply_updates();
-      }
+    inline void pipe_refresh_apply_updates() { pipe_refresh_settings_.apply_updates(); }
 
   private:
     /*! \brief Compute average on one view */
@@ -170,7 +168,6 @@ class ImageAccumulation
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<PIPEREFRESH_SETTINGS> pipe_refresh_settings_;
-
 };
 } // namespace holovibes::compute
 

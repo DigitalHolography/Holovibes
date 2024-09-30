@@ -27,9 +27,7 @@ using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
-void FourierTransform::insert_fft(float* gpu_filter2d_mask,
-                                  const uint width,
-                                  const uint height)
+void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, const uint height)
 {
     LOG_FUNC();
     auto space_transformation = setting<settings::SpaceTransformation>();
@@ -195,20 +193,21 @@ void FourierTransform::insert_time_transform()
     auto time_transformation = setting<settings::TimeTransformation>();
     auto time_transformation_size = setting<settings::TimeTransformationSize>();
 
-    switch (time_transformation) {
-        case TimeTransformation::STFT:
-            insert_stft();
-            break;
-        case TimeTransformation::PCA:
-            insert_pca();
-            break;
-        case TimeTransformation::SSA_STFT:
-            insert_ssa_stft(setting<settings::Q>());
-            break;
-        case TimeTransformation::NONE:
-            // Just copy data to the next buffer
-            fn_compute_vect_.conditional_push_back(
-                [=]()
+    switch (time_transformation)
+    {
+    case TimeTransformation::STFT:
+        insert_stft();
+        break;
+    case TimeTransformation::PCA:
+        insert_pca();
+        break;
+    case TimeTransformation::SSA_STFT:
+        insert_ssa_stft(setting<settings::Q>());
+        break;
+    case TimeTransformation::NONE:
+        // Just copy data to the next buffer
+        fn_compute_vect_.conditional_push_back(
+            [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
                 auto& q = time_transformation_env_.gpu_time_transformation_queue;
@@ -216,10 +215,10 @@ void FourierTransform::insert_time_transform()
 
                 cudaXMemcpyAsync(buf, q->get_data(), size, cudaMemcpyDeviceToDevice, stream_);
             });
-            break;
-        default:
-            LOG_ERROR("Unknown time transformation");
-            break;
+        break;
+    default:
+        LOG_ERROR("Unknown time transformation");
+        break;
     }
 }
 

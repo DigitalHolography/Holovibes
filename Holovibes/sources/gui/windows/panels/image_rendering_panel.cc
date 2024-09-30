@@ -384,8 +384,8 @@ void ImageRenderingPanel::actualise_z_distance(const double z_distance)
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
-{ 
-    if (api::get_compute_mode() == Computation::Raw) 
+{
+    if (api::get_compute_mode() == Computation::Raw)
         return;
 
     api::set_z_distance(static_cast<float>(value) / 1000.0f);

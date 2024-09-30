@@ -36,8 +36,8 @@ class InformationWorker final : public Worker
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     InformationWorker(InitSettings settings)
-    : Worker()
-    , realtime_settings_(settings)
+        : Worker()
+        , realtime_settings_(settings)
     {
     }
 
@@ -62,7 +62,6 @@ class InformationWorker final : public Worker
     }
 
   private:
-    
     /**
      * @brief Helper function to get a settings value.
      */
@@ -129,11 +128,12 @@ class InformationWorker final : public Worker
      * on restart.
      */
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
-    //DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+    // DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 } // namespace holovibes::worker
 
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, worker::InformationWorker> : is_any_of<T, ALL_SETTINGS>
 {

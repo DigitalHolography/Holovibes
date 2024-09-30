@@ -2,7 +2,7 @@
 
 in vec2 texCoord;
 uniform sampler2D tex;
-uniform int bitshift; 
+uniform int bitshift;
 
 out vec4 outColor;
 
