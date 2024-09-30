@@ -9,51 +9,51 @@ namespace holovibes
 void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
 {
     FILE* f = fopen(path, "rb");
-    if(f == NULL)
+    if (f == NULL)
     {
         LOG_ERROR("InputFilter::read_bmp: IO error could not find file");
         exit(0);
     }
     // Clear data if already holds information
     cache_image.clear();
-	bmp_identificator identificator;
+    bmp_identificator identificator;
     int e = static_cast<int>(fread(identificator.identificator, sizeof(identificator), 1, f));
-    if(e < 0)
+    if (e < 0)
     {
         LOG_ERROR("InputFilter::read_bmp: IO error file too short (identificator)");
         exit(0);
     }
 
-	// Check to make sure that the first two bytes of the file are the "BM"
-	// identifier that identifies a bitmap image.
-	if (identificator.identificator[0] != 'B' || identificator.identificator[1] != 'M')
-	{
-		LOG_ERROR("{} is not in proper BMP format.\n", path);
+    // Check to make sure that the first two bytes of the file are the "BM"
+    // identifier that identifies a bitmap image.
+    if (identificator.identificator[0] != 'B' || identificator.identificator[1] != 'M')
+    {
+        LOG_ERROR("{} is not in proper BMP format.\n", path);
         exit(0);
-	}
+    }
 
     bmp_header header;
     e = static_cast<int>(fread((char*)(&header), sizeof(header), 1, f));
-    if(e < 0)
+    if (e < 0)
     {
         LOG_ERROR("InputFilter::read_bmp: IO error file too short (header)");
         exit(0);
     }
 
-	bmp_device_independant_info di_info;
+    bmp_device_independant_info di_info;
     e = static_cast<int>(fread((char*)(&di_info), sizeof(di_info), 1, f));
-    if(e < 0)
+    if (e < 0)
     {
         LOG_ERROR("InputFilter::read_bmp: IO error file too short (di_info)");
         exit(0);
     }
 
-	// Check for this here and so that we know later whether we need to insert
-	// each row at the bottom or top of the image.
-	if (di_info.height < 0)
-	{
-		di_info.height = -di_info.height;
-	}
+    // Check for this here and so that we know later whether we need to insert
+    // each row at the bottom or top of the image.
+    if (di_info.height < 0)
+    {
+        di_info.height = -di_info.height;
+    }
 
     // Extract image height and width from header
     this->width = di_info.width;
@@ -62,19 +62,24 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
     // Reallocate the vector with the new size
     cache_image.resize(width * height);
 
-	// Only support for 24-bit images
-	if (di_info.bits_per_pixel != 24)
-	{
-        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} uses {}bits per pixel (bit depth). Bitmap only supports 24bit.)", path, std::to_string(di_info.bits_per_pixel));
+    // Only support for 24-bit images
+    if (di_info.bits_per_pixel != 24)
+    {
+        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} uses {}bits per pixel (bit depth). Bitmap only "
+                  "supports 24bit.)",
+                  path,
+                  std::to_string(di_info.bits_per_pixel));
         exit(0);
-	}
+    }
 
-	// No support for compressed images
-	if (di_info.compression != 0)
-	{
-        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} is compressed. Bitmap only supports uncompressed images.)", path);
+    // No support for compressed images
+    if (di_info.compression != 0)
+    {
+        LOG_ERROR("InputFilter::read_bmp: IO error invalid file ({} is compressed. Bitmap only supports uncompressed "
+                  "images.)",
+                  path);
         exit(0);
-	}
+    }
 
     // Skip to bytecode
     e = fseek(f, header.bmp_offset, 0);
@@ -83,21 +88,21 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
     unsigned char* pixel = new unsigned char[3];
     float color;
 
-	// Read the pixels for each row and column of Pixels in the image.
-	for (int row = 0; std::cmp_less(row, height); row++)
-	{
+    // Read the pixels for each row and column of Pixels in the image.
+    for (int row = 0; std::cmp_less(row, height); row++)
+    {
         for (int col = 0; std::cmp_less(col, width); col++)
-		{
+        {
             int index = row * width + col;
 
             // Read 3 bytes (b, g and r)
             e = static_cast<int>(fread(pixel, sizeof(unsigned char), 3, f));
-            if(e < 0)
+            if (e < 0)
             {
                 LOG_ERROR("InputFilter::read_bmp: IO error file too short (pixels)");
                 exit(0);
             }
-        
+
             // Convert to shade of grey with magic numbers (channel-dependant luminance perception)
             color = pixel[0] * 0.0722f + pixel[1] * 0.7152f + pixel[2] * 0.2126f;
             // Flatten in [0,1]
@@ -106,7 +111,7 @@ void InputFilter::read_bmp(std::vector<float> cache_image, const char* path)
             cache_image.at(index) = color;
         }
         // Rows are padded so that they're always a multiple of 4
-		// bytes. This line skips the padding at the end of each row.
+        // bytes. This line skips the padding at the end of each row.
         e = fseek(f, width % 4, std::ios::cur);
     }
     api::set_input_filter(cache_image);

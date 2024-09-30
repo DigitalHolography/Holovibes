@@ -73,8 +73,8 @@ class EHoloGrabber
         height_ = grabbers_[0]->getHeight() * grabbers_.length();
         depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
-        //for (unsigned i = 0; i < grabbers_.length(); ++i)
-        //    grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+        // for (unsigned i = 0; i < grabbers_.length(); ++i)
+        //     grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
     }
 
     virtual ~EHoloGrabber()
@@ -85,7 +85,8 @@ class EHoloGrabber
         cudaFreeHost(ptr_);
     }
 
-    void setup() {
+    void setup()
+    {
         grabbers_.root[0][1].reposition(0);
         grabbers_.root[0][1].reposition(1);
 

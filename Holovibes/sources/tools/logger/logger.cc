@@ -20,10 +20,7 @@ std::shared_ptr<spdlog::logger> Logger::logger()
     return logger_;
 }
 
-void Logger::flush()
-{
-    logger_->flush();
-}
+void Logger::flush() { logger_->flush(); }
 
 // #define LOGGER_PATTERN_OVERRIDE "[%l] [%H:%M:%S.%e] [thread %t] %^%n >> %v%$"
 

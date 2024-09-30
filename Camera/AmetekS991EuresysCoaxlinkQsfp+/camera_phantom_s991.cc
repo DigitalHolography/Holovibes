@@ -105,12 +105,11 @@ void CameraPhantom::load_ini_params()
     cycle_minimum_period_ = pt.get<unsigned int>("s991.CycleMinimumPeriod", cycle_minimum_period_);
     acquisition_frame_rate_ = pt.get<unsigned int>("s991.AcquisitionFrameRate", acquisition_frame_rate_);
     pixel_format_ = pt.get<std::string>("s991.PixelFormat", pixel_format_);
-    
+
     gain_selector_ = pt.get<std::string>("s991.GainSelector", gain_selector_);
     trigger_mode_ = pt.get<std::string>("s991.TriggerMode", trigger_mode_);
     gain_ = pt.get<float>("s991.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s991.BalanceWhiteMarker", balance_white_marker_);
-
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
     {

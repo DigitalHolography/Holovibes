@@ -96,7 +96,7 @@
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
     holovibes::settings::FilterEnabled
- 
+
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
 // clang-format on

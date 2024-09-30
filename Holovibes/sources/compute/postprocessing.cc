@@ -101,8 +101,7 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
     from_distinct_components_to_interweaved_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
 }
 
-void Postprocessing::insert_convolution(float* gpu_postprocess_frame,
-                                        float* gpu_convolution_buffer)
+void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer)
 {
     LOG_FUNC();
 

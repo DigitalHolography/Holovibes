@@ -9,7 +9,8 @@ namespace holovibes
 {
 FPSLimiter::FPSLimiter()
     : chrono_()
-{}
+{
+}
 
 void FPSLimiter::wait(size_t target_fps)
 {

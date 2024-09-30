@@ -15,7 +15,7 @@ namespace holovibes
 enum class Device
 {
     GPU = 0, /*!< Buffer of the queue allocated on the GPU */
-    CPU /*!< Buffer of the queue allocated on the CPU */
+    CPU      /*!< Buffer of the queue allocated on the CPU */
 };
 
 // clang-format off

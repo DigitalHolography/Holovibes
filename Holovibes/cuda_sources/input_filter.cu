@@ -24,10 +24,10 @@ void apply_filter(float* gpu_filter2d_mask,
     // Element wise multiplies the two masks
     auto policy = thrust::cuda::par.on(stream);
     thrust::multiplies<float> op;
-    thrust::transform(policy,                           // Execute on stream
-                      gpu_filter2d_mask,                // Input1 begin
-                      gpu_filter2d_mask + frame_res,    // Input1 end
-                      gpu_input_filter_mask,            // Input2 begin
-                      gpu_filter2d_mask,                // Output begin
-                      op);                              // Operation: multiplies
+    thrust::transform(policy,                        // Execute on stream
+                      gpu_filter2d_mask,             // Input1 begin
+                      gpu_filter2d_mask + frame_res, // Input1 end
+                      gpu_input_filter_mask,         // Input2 begin
+                      gpu_filter2d_mask,             // Output begin
+                      op);                           // Operation: multiplies
 }

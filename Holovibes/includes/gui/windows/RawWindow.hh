@@ -54,4 +54,4 @@ class RawWindow : public BasicOpenGLWindow
 
     void closeEvent(QCloseEvent* event) override;
 };
-} // namespace holovibes
+} // namespace holovibes::gui

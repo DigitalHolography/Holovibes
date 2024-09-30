@@ -8,7 +8,8 @@
 #include "composite_struct.hh"
 typedef unsigned int uint;
 
-enum HSV {
+enum HSV
+{
     H = 0,
     S = 1,
     V = 2

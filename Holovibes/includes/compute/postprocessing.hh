@@ -78,8 +78,7 @@ class Postprocessing
     void dispose();
 
     /*! \brief Insert the Convolution function. TODO: Check if it works. */
-    void insert_convolution(float* gpu_postprocess_frame,
-                            float* gpu_convolution_buffer);
+    void insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer);
 
     /*! \brief Insert the normalization function. */
     void insert_renormalize(float* gpu_postprocess_frame);

@@ -56,7 +56,7 @@ html
 
 # Testing files
 *last_generated_output.holo
-*ref.holo 
+*ref.holo
 ref_time.txt
 ref.png
 out.png

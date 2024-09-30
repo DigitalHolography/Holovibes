@@ -275,5 +275,4 @@ void CrossOverlay::setBuffer()
     Program_->release();
 }
 
-
 } // namespace holovibes::gui

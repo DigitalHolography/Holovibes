@@ -76,7 +76,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     {
         current_nb_frames_read_ = 0;
         total_nb_frames_to_read_ = static_cast<uint>(onrestart_settings_.get<settings::InputFileEndIndex>().value -
-                                   onrestart_settings_.get<settings::InputFileStartIndex>().value);
+                                                     onrestart_settings_.get<settings::InputFileStartIndex>().value);
     }
 
     void run() override;
@@ -241,12 +241,12 @@ class FileFrameReadWorker final : public FrameReadWorker
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
 };
 
-
 } // namespace holovibes::worker
 
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, worker::FileFrameReadWorker> : is_any_of<T, ALL_SETTINGS>
 {
 };
-}
+} // namespace holovibes

@@ -162,10 +162,7 @@ class Holovibes
 {
     struct CudaStreams
     {
-        CudaStreams()
-        {
-            reload();
-        }
+        CudaStreams() { reload(); }
 
         /*! \brief Used when the device is reset. Recreate the streams.
          *
@@ -186,7 +183,7 @@ class Holovibes
             cudaSafeCall(cudaStreamDestroy(compute_stream));
             cudaSafeCall(cudaStreamDestroy(recorder_stream));
         }
-        
+
         cudaStream_t reader_stream;
         cudaStream_t compute_stream;
         cudaStream_t recorder_stream;
@@ -272,8 +269,7 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *
@@ -344,7 +340,6 @@ class Holovibes
 
         if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
             frame_record_worker_controller_.update_setting(setting);
-
 
         if constexpr (has_setting_v<T, Pipe>)
             if (compute_pipe_.load() != nullptr)

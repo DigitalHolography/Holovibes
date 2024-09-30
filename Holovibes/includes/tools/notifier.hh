@@ -22,20 +22,21 @@ class Notifier;
 
 /**
  * @brief Manages instances of Notifier objects.
- * 
+ *
  * @note This class is a singleton and should be accessed using the get_instance() method.
- * 
+ *
  * @see get_instance()
  * @see Notifier
  */
 class NotifierManager
 {
-public:
+  public:
     /**
      * @brief Gets the singleton instance of NotifierManager.
      * @return The singleton instance of NotifierManager.
      */
-    static NotifierManager& get_instance() {
+    static NotifierManager& get_instance()
+    {
         static NotifierManager instance;
         return instance;
     }
@@ -54,45 +55,45 @@ public:
      * @brief Generic function to compact a Notify call.
      * Basically the same as getting the instance of NotifierManager,
      * getting the notifier and calling notify.
-     * 
+     *
      * @tparam T The type of data the notifier will handle.
      * @tparam D The return type of the notifier callback (defaults to void).
      * @param name A unique name for the notifier.
      * @return D The return value of the notifier callback, if any.
-     * 
+     *
      * @note In the case of a non-void return type, it is intended that only one subscriber is present.
      * Indeed, in such case, only the return value of the first subscriber will be returned.
      */
     template <typename T, typename D = void>
     static D notify(const std::string& name, const T& data);
 
-private:
+  private:
     NotifierManager() = default;
     ~NotifierManager() = default;
     NotifierManager(const NotifierManager&) = delete;
     NotifierManager& operator=(const NotifierManager&) = delete;
 
     std::unordered_map<std::string, std::shared_ptr<void>> notifiers_; ///< Stores the notifiers
-    std::mutex mutex_; ///< Mutex for thread-safe access
+    std::mutex mutex_;                                                 ///< Mutex for thread-safe access
 };
 
 /**
  * @brief Handles notification subscriptions and notifications.
  * @tparam T The type of data the notifier will handle.
  * @tparam D The return type of the subscriber function (defaults to void).
- * 
+ *
  * @see NotifierManager
  * @see Subscriber
  */
 template <typename T, typename D = void>
 class Notifier
 {
-public:
+  public:
     using SubscriptionId = std::size_t; ///< Type alias for subscription ID
 
     /**
      * @brief Constructs a new Notifier object.
-     * 
+     *
      * @note This constructor is private. Use the NotifierManager to get a notifier.
      * @see NotifierManager::get_notifier()
      */
@@ -117,9 +118,9 @@ public:
      */
     void unsubscribe(SubscriptionId id);
 
-private:
+  private:
     std::unordered_map<SubscriptionId, std::function<D(const T&)>> subscribers_; ///< Stores subscribers
-    std::mutex mutex_; ///< Mutex for thread-safe access
+    std::mutex mutex_;                                                           ///< Mutex for thread-safe access
     std::atomic<SubscriptionId> nextId_; ///< Atomic counter for subscription IDs
 };
 
@@ -131,7 +132,7 @@ private:
 template <typename T, typename D = void>
 class Subscriber
 {
-public:
+  public:
     /**
      * @brief Constructs a new Subscriber object and subscribes to the notifier.
      * @tparam Func The type of the callback function.
@@ -146,10 +147,10 @@ public:
      */
     ~Subscriber();
 
-private:
-    std::shared_ptr<Notifier<T, D>> notifier_; ///< The notifier this subscriber is subscribed to
+  private:
+    std::shared_ptr<Notifier<T, D>> notifier_;               ///< The notifier this subscriber is subscribed to
     typename Notifier<T, D>::SubscriptionId subscriptionId_; ///< The subscription ID of this subscriber
-    std::function<D(const T&)> callback_; ///< The callback function to be called upon notification
+    std::function<D(const T&)> callback_;                    ///< The callback function to be called upon notification
 };
 
 // Include the implementation file for template functions

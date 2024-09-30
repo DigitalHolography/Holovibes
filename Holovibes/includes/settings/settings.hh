@@ -1,6 +1,7 @@
 /*!
  * \file settings.hh
- * \brief This file contains the definition of all settings of Holovibes. Each settings is defined by a struct holding a single variable `value`.
+ * \brief This file contains the definition of all settings of Holovibes. Each settings is defined by a struct holding a
+ * single variable `value`.
  */
 
 #pragma once
@@ -84,7 +85,6 @@ DECLARE_SETTING(BatchEnabled, bool);
 /*! \brief The setting that specifies the path of the batch script to execute. */
 DECLARE_SETTING(BatchFilePath, std::string);
 
-
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
 DECLARE_SETTING(ImageType, ImgType);
@@ -128,7 +128,6 @@ DECLARE_SETTING(InputFileStartIndex, size_t);
 
 /*! \brief Index of the last frame to read from the input file (included). */
 DECLARE_SETTING(InputFileEndIndex, size_t);
-
 
 /*! \name Export Cache */
 /*! \brief Is holovibes currently recording */
@@ -194,7 +193,6 @@ DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
-
 
 DECLARE_SETTING(FrameSkip, uint)
 DECLARE_SETTING(Mp4Fps, uint)

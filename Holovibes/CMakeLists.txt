@@ -71,7 +71,7 @@ qt_add_resources(Holovibes "HolovibesRessources"
     holovibes_logo.png
 )
 
-target_link_libraries(Holovibes PRIVATE 
+target_link_libraries(Holovibes PRIVATE
     spdlog::spdlog_header_only
     Boost::program_options
     Qt6::OpenGL
@@ -88,8 +88,8 @@ target_link_libraries(Holovibes PRIVATE
     nvml
 )
 
-target_include_directories(Holovibes PRIVATE 
-    ${EXTERNAL_INCLUDES} 
+target_include_directories(Holovibes PRIVATE
+    ${EXTERNAL_INCLUDES}
     ${INTERNAL_INCLUDES}
     ${CUDA_EXTERNAL_INCLUDES}
 )
@@ -136,7 +136,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
-    
+
 
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
@@ -216,7 +216,7 @@ install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
 )
 
 
-install(FILES 
+install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraOpenCV.dll
@@ -249,7 +249,7 @@ if (HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
 endif()
 
 if (HAVE_EGrabber AND HAVE_EGrabbers)
-    install(FILES 
+    install(FILES
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
@@ -267,9 +267,9 @@ if (HAVE_VIMBAX)
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
-    
+
         )
-    install(FILES 
+    install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         DESTINATION .
     )
@@ -312,7 +312,7 @@ set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\ProcessHoloFiles.lnk")
 # Creating the shortcut to Holovibes on the desktop.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
-    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0 
+    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0
 ")
 
 # Removes the Desktop shortcut of Holovibes.

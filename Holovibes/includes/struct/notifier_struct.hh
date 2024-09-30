@@ -11,23 +11,23 @@
 
 namespace holovibes
 {
-    /*
-     * \brief Structure used to transmit data regarding the progress of
-     * a recording.
-     */
-    struct RecordProgressData
-    {
-        int value;
-        int max;
-    };
+/*
+ * \brief Structure used to transmit data regarding the progress of
+ * a recording.
+ */
+struct RecordProgressData
+{
+    int value;
+    int max;
+};
 
-    /*
-     * \brief Structure used to transmit data regarding the progress bar
-     *  of the light UI.
-     */
-    struct RecordBarColorData
-    {
-        QColor color;
-        QString text;
-    };
-}
+/*
+ * \brief Structure used to transmit data regarding the progress bar
+ *  of the light UI.
+ */
+struct RecordBarColorData
+{
+    QColor color;
+    QString text;
+};
+} // namespace holovibes

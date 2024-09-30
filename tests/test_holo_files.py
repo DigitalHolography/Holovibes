@@ -81,7 +81,7 @@ def generate_holo_from(folder: str, input: str, output: str, output_error: str, 
     if sub.returncode != 0:
         with open(output_error, "w") as f_out:
             f_out.write(f"{sub.returncode}\n{sub.stderr.decode('utf-8')}")
-    
+
     with open(os.path.join("test_logs", "all_errcode.txt"), "a") as f_all:
         f_all.write(f"=== {folder} ===\nReturn: {sub.returncode}\n{sub.stderr.decode('utf-8')}\n")
 
@@ -156,15 +156,15 @@ def test_holo(folder: str):
     if os.path.isfile(output_error):
         os.remove(output_error)
 
-    current_time = generate_holo_from(folder, input, output, output_error, cli_argument, config) 
+    current_time = generate_holo_from(folder, input, output, output_error, cli_argument, config)
 
     if error_wanted:
         assert os.path.isfile(output_error), f"Should have failed but {OUTPUT_ERROR_FILENAME} not found"
     else:
         assert  find_files(path, "[0-9]*_" + OUTPUT_FILENAME) != [], f"Should have succeded but {OUTPUT_FILENAME} not found"
         assert not os.path.isfile(output_error), f"Should have succeded but {OUTPUT_ERROR_FILENAME} found"
-    
-    
+
+
 
     if DEEP_COMPARE:
         if error_wanted:
@@ -185,7 +185,7 @@ def test_holo(folder: str):
                 logger.info(f"Current time: {current_time} Ref time: {ref_time}")
             except:
                 pass
-            
+
             current_tol, errors = ref.assertHolo(out, path)
             if current_tol != 0.0:
                logger.info(f"Total diff: {current_tol}")
@@ -193,8 +193,8 @@ def test_holo(folder: str):
             if len(errors) > 0:
                logger.error(f"Errors: {errors}")
                assert False, f"Errors: {errors}"
-            
-                
+
+
 
     elif not error_wanted: # LAZY_COMPARE
         out = read_holo_lazy(output)

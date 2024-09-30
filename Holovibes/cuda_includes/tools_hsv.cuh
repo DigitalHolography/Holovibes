@@ -9,7 +9,8 @@
 
 typedef unsigned int uint;
 
-void threshold_top_bottom(float* output, const float tmin, const float tmax, const uint frame_res, const cudaStream_t stream);
+void threshold_top_bottom(
+    float* output, const float tmin, const float tmax, const uint frame_res, const cudaStream_t stream);
 
 void apply_percentile_and_threshold(float* gpu_arr,
                                     uint frame_res,

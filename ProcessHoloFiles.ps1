@@ -156,7 +156,7 @@ function Select-OutputExtension {
         Write-Host "$($i+1). $($options[$i])" -ForegroundColor Yellow
     }
     $selection = Read-Host "Enter the number corresponding to your choice (default is 3 for .avi)"
-    
+
     if ([string]::IsNullOrEmpty($selection) -or $selection -lt 1 -or $selection -gt $options.Length) {
         return ".avi"
     }

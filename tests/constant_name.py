@@ -20,7 +20,7 @@ CONTRAST_MAX_PERCENT_DIFF = 0.05
 
 
 def find_tests(specific_tests=None) -> List[str]:
-    all_tests = [name for name in os.listdir(TESTS_DATA) 
+    all_tests = [name for name in os.listdir(TESTS_DATA)
                  if os.path.isdir(os.path.join(TESTS_DATA, name)) and name != "inputs"]
     if specific_tests:
         filtered_tests = [name for name in all_tests if name in specific_tests]
