@@ -85,7 +85,6 @@ class EHoloGrabber
             {
                 continue;
             }
-            grabbers_[ix]->setInteger<StreamModule>("BufferPartCount", buffer_part_count_);
             available_grabbers_.push_back(grabbers_[ix]);
         }
 
@@ -158,7 +157,6 @@ class EHoloGrabber
         if (nb_grabbers > 1)
             available_grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
 
-
         available_grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
 
@@ -178,7 +176,6 @@ class EHoloGrabber
 
         available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         available_grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
-
 
         available_grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         available_grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
