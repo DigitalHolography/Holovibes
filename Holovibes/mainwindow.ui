@@ -3213,7 +3213,25 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
      <addaction name="actionEGrabberStudio"/>
     </widget>
+    <widget class="QMenu" name="menu_Settings">
+     <property name="title">
+      <string>All Settings</string>
+     </property>
+     <addaction name="actionBitflowCytonSettings"/>
+     <addaction name="actionAdimecSettings"/>
+     <addaction name="actionAlviumSettings"/>
+     <addaction name="actionHamamatsuSettings"/>
+     <addaction name="actionIDSSettings"/>
+     <addaction name="actionXIQSettings"/>
+     <addaction name="actionXIBSettings"/>
+     <addaction name="actionOpenCVSettings"/>
+     <addaction name="actionPhantom_S710Settings"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
+     <addaction name="actionEGrabberStudioSettings"/>
+    </widget>
     <addaction name="menu_Model"/>
+    <addaction name="menu_Settings"/>
     <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -3447,6 +3465,66 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Euresys eGrabber</string>
    </property>
+  </action>
+  <action name="actionBitflowCytonSettings">
+    <property name="text">
+     <string>Bitflow Cyton frame grabber</string>
+    </property>
+  </action>
+  <action name="actionAdimecSettings">
+    <property name="text">
+     <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
+    </property>
+  </action>
+  <action name="actionAlviumSettings">
+    <property name="text">
+     <string>Alvium-1800-u/2050</string>
+    </property>
+  </action>
+  <action name="actionHamamatsuSettings">
+    <property name="text">
+     <string>Hamamatsu C11440</string>
+    </property>
+  </action>
+  <action name="actionIDSSettings">
+    <property name="text">
+     <string>IDS CMOSIS CMV 4000</string>
+    </property>
+  </action>
+  <action name="actionXIQSettings">
+    <property name="text">
+     <string>XIMEA xiQ MQ042 m/RG CM</string>
+    </property>
+  </action>
+  <action name="actionXIBSettings">
+    <property name="text">
+     <string>XIMEA xiB-64</string>
+    </property>
+  </action>
+  <action name="actionOpenCVSettings">
+    <property name="text">
+     <string>OpenCV Camera</string>
+    </property>
+  </action>
+  <action name="actionPhantom_S710Settings">
+    <property name="text">
+     <string>Ametek S710 Euresys Coaxlink Octo</string>
+    </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+Settings">
+    <property name="text">
+     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+    </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
+    <property name="text">
+     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+    </property>
+  </action>
+  <action name="actionEGrabberStudioSettings">
+    <property name="text">
+     <string>Euresys eGrabber</string>
+    </property>
   </action>
   <action name="actionReload_ini">
    <property name="text">
@@ -5347,6 +5425,198 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>actionBitflowCytonSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_bitflow_cyton_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdimecSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_adimec_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlviumSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_alvium_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHamamatsuSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIDSSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ids_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIBSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xib_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpenCVSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_opencv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPhantom_S710Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_phantom_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+Settings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEGrabberStudioSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_euresys_egrabber_settings()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5732,6 +6002,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>credits()</slot>
   <slot>documentation()</slot>
   <slot>configure_camera()</slot>
+  <slot>camera_adimec_settings()</slot>
+  <slot>camera_ids_settings()</slot>
+  <slot>camera_phantom_settings()</slot>
+  <slot>camera_bitflow_cyton_settings()</slot>
+  <slot>camera_hamamatsu_settings()</slot>
+  <slot>camera_xiq_settings()</slot>
+  <slot>camera_xib_settings()</slot>
+  <slot>camera_opencv_settings()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus_settings()</slot>
+  <slot>camera_euresys_egrabber_settings()</slot>
+  <slot>camera_alvium_settings()</slot>
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
