@@ -5,6 +5,7 @@
 - Support for Alvium Camera
 - Changed default preset to 'doppler_8b_384_28'
 - Default display rate is now 24
+- Added an executable desktop shortcut for ProcessHoloFiles.ps1
 
 ### 13.5.1
 
