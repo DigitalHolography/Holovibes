@@ -36,11 +36,10 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
     try
     {
-        auto j_fi =
-            json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
-                 {"input_fps", input_fps},
-                 {"contiguous", contiguous},
-                 {"holovibes_version", __HOLOVIBES_VERSION__}};
+        auto j_fi = json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
+                         {"input_fps", input_fps},
+                         {"contiguous", contiguous},
+                         {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);
@@ -59,7 +58,6 @@ void OutputHoloFile::write_header()
     if (std::fwrite(&holo_file_header_, 1, sizeof(HoloFileHeader), file_) != sizeof(HoloFileHeader))
         throw FileException("Unable to write output holo file header");
 }
-
 
 size_t OutputHoloFile::write_frame(const char* frame, size_t frame_size)
 {

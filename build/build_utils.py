@@ -50,7 +50,7 @@ def get_conan_venv_start_cmd(build_dir: str, generator: str=None):
     venv_path = os.path.join(os.getcwd(),
                             get_build_dir(build_dir, get_generator(generator)),
                             "activate_run.bat")
-    
+
     return ['cmd.exe', '/c', 'call', venv_path, '&&']
 
 

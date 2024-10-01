@@ -75,14 +75,13 @@ class HoloFile
     HoloFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~HoloFile(){};
+    virtual ~HoloFile() {};
 
     /*! \brief Default copy constructor */
     HoloFile(const HoloFile&) = default;
 
     /*! \brief Default copy operator */
     HoloFile& operator=(const HoloFile&) = default;
-
 
     /*! \brief Header of the holo file */
     HoloFileHeader holo_file_header_;

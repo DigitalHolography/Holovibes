@@ -45,7 +45,6 @@ class CrossOverlay : public Overlay
     void move(QMouseEvent* e) override;
     void release(ushort frameSide) override;
 
-
   protected:
     void setBuffer() override;
 
@@ -66,6 +65,5 @@ class CrossOverlay : public Overlay
 
     /*! \brief Horizontal area. zone_ corresponds to the vertical area */
     units::RectFd horizontal_zone_;
-
 };
 } // namespace holovibes::gui

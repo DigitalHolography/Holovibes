@@ -17,7 +17,7 @@ class Mp4File
     Mp4File() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~Mp4File(){};
+    virtual ~Mp4File() {};
 
     /*! \brief Default copy constructor */
     Mp4File(const Mp4File&) = default;

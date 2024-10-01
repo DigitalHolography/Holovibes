@@ -157,8 +157,10 @@ class EHoloGrabber
         if (nb_grabbers > 1)
             available_grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
 
+
         available_grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
+
         available_grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
         available_grabbers_[0]->setString<DeviceModule>("CameraControlMethod",
                                                         control_mode); // tell grabber 0 to send trigger
@@ -175,6 +177,7 @@ class EHoloGrabber
 
         available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         available_grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
+
 
         available_grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         available_grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);

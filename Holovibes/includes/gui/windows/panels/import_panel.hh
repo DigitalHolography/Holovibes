@@ -69,7 +69,7 @@ class ImportPanel : public Panel
      * @brief Handles the update of the input file start index in the UI.
      */
     void update_input_file_start_index();
-    
+
     /**
      * @brief Handles the update of the input file end index in the UI.
      */

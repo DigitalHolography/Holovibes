@@ -23,7 +23,7 @@ def pytest_configure(config):
     log_dir = 'test_logs'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    
+
     # Clear existing logs if they exist to start fresh for each test session
     with open(os.path.join(log_dir, 'all_stdout.txt'), 'w') as f_out, \
          open(os.path.join(log_dir, 'all_stderr.txt'), 'w') as f_err, \
@@ -36,7 +36,7 @@ def pytest_generate_tests(metafunc):
     if 'folder' in metafunc.fixturenames:
         # Assuming the setup from previous steps to parse "--specific-tests"
         specific_tests = getattr(metafunc.config, 'specific_tests', [])
-        
+
         # Apply the filtered find_tests results to the test function
         metafunc.parametrize("folder", find_tests(specific_tests))
 

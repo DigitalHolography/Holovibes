@@ -113,6 +113,7 @@ void CameraPhantom::load_ini_params()
     gain_ = pt.get<float>("s711.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
     flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
+
 }
 
 void CameraPhantom::bind_params() { return; }

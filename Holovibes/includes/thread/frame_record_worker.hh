@@ -41,7 +41,7 @@ class Holovibes;
 
 namespace holovibes
 {
-  std::string get_record_filename(std::string filename);
+std::string get_record_filename(std::string filename);
 } // namespace holovibes
 
 namespace holovibes::worker
@@ -143,9 +143,10 @@ class FrameRecordWorker final : public Worker
 };
 } // namespace holovibes::worker
 
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, worker::FrameRecordWorker> : is_any_of<T, ALL_SETTINGS>
 {
 };
-}
+} // namespace holovibes

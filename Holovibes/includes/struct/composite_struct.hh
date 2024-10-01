@@ -91,10 +91,7 @@ struct Threshold
     SERIALIZE_JSON_STRUCT(Threshold, min, max)
 };
 
-inline bool operator==(const Threshold& lhs, const Threshold& rhs)
-{
-    return lhs.min == rhs.min && lhs.max == rhs.max;
-}
+inline bool operator==(const Threshold& lhs, const Threshold& rhs) { return lhs.min == rhs.min && lhs.max == rhs.max; }
 
 /*! \class CompositeChannel
  *
@@ -111,7 +108,8 @@ struct CompositeChannel
 
 inline bool operator==(const CompositeChannel& lhs, const CompositeChannel& rhs)
 {
-    return lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold && lhs.threshold == rhs.threshold;
+    return lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold &&
+           lhs.threshold == rhs.threshold;
 }
 
 /*! \class CompositeH
@@ -127,7 +125,8 @@ struct CompositeH : public CompositeChannel
 
 inline bool operator==(const CompositeH& lhs, const CompositeH& rhs)
 {
-    return lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold && lhs.threshold == rhs.threshold;
+    return lhs.frame_index == rhs.frame_index && lhs.slider_threshold == rhs.slider_threshold &&
+           lhs.threshold == rhs.threshold;
 }
 
 /*! \class CompositeHSV

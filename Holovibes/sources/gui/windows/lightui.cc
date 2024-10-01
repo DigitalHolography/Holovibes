@@ -24,19 +24,24 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
-    , record_progress_subscriber_("record_progress", std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
-    , record_output_file_subscriber_("record_output_file", std::bind(&LightUI::actualise_record_output_file_ui, this, std::placeholders::_1))
-    , record_progress_bar_color_subscriber_("record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
-    , record_finished_subscriber_("record_finished", [this](bool success)
-                                       {
-                                           reset_start_button();
-                                           reset_record_progress_bar();
-                                       })
+    , record_progress_subscriber_("record_progress",
+                                  std::bind(&LightUI::on_record_progress, this, std::placeholders::_1))
+    , record_output_file_subscriber_("record_output_file",
+                                     std::bind(&LightUI::actualise_record_output_file_ui, this, std::placeholders::_1))
+    , record_progress_bar_color_subscriber_(
+          "record_progress_bar_color", std::bind(&LightUI::on_record_progress_bar_color, this, std::placeholders::_1))
+    , record_finished_subscriber_("record_finished",
+                                  [this](bool success)
+                                  {
+                                      reset_start_button();
+                                      reset_record_progress_bar();
+                                  })
 {
     ui_->setupUi(this);
 
     ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
-    // ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);  #FIXME: This shortcut is not working, even though it works for MainWindow
+    // ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);  #FIXME: This shortcut is not working, even though it works
+    // for MainWindow
 }
 
 LightUI::~LightUI()
@@ -67,10 +72,7 @@ void LightUI::actualise_z_distance(const double z_distance)
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
-void LightUI::z_value_changed(int z_distance)
-{
-    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
-}
+void LightUI::z_value_changed(int z_distance) { api::set_z_distance(static_cast<float>(z_distance) / 1000.0f); }
 
 void LightUI::browse_record_output_file_ui()
 {
@@ -126,10 +128,7 @@ void LightUI::on_record_stop(RecordMode record)
     LOG_INFO("Recording stopped");
 }
 
-void LightUI::on_record_progress(const RecordProgressData& data)
-{
-    actualise_record_progress(data.value, data.max);
-}
+void LightUI::on_record_progress(const RecordProgressData& data) { actualise_record_progress(data.value, data.max); }
 
 void LightUI::on_record_progress_bar_color(const RecordBarColorData& data)
 {
