@@ -25,6 +25,7 @@ CameraPhantom::CameraPhantom(bool gpu)
     }
 
     gentl_ = std::make_unique<Euresys::EGenTL>();
+
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_);
 
     init_camera();
@@ -50,6 +51,9 @@ void CameraPhantom::init_camera()
                     *gentl_);
     grabber_->init(nb_buffers_);
 
+    for (unsigned i = 0; i < nb_grabbers_; ++i)
+        grabber_->available_grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+
     // Set frame descriptor according to grabber settings
     fd_.width = width_;
     fd_.height = fullHeight_;
@@ -65,10 +69,10 @@ void CameraPhantom::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantom::get_frames()
 {
-    ScopedBuffer buffer(*(grabber_->grabbers_[0]));
+    ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
 
-    for (int i = 1; i < grabber_->grabbers_.length(); ++i)
-        ScopedBuffer stiching(*(grabber_->grabbers_[i]));
+    for (int i = 1; i < nb_grabbers_; ++i)
+        ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
 
     // process available images
     size_t delivered = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
@@ -111,11 +115,6 @@ void CameraPhantom::load_ini_params()
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
     flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
 
-    if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
-    {
-        nb_grabbers_ = 2;
-        Logger::camera()->warn("Invalid number of grabbers fallback to default value 4.");
-    }
 }
 
 void CameraPhantom::bind_params() { return; }
