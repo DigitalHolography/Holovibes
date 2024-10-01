@@ -28,6 +28,7 @@ CameraPhantom::CameraPhantom(bool gpu)
 
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
 
+
     init_camera();
 }
 
@@ -69,10 +70,10 @@ void CameraPhantom::shutdown_camera() { return; }
 
 CapturedFramesDescriptor CameraPhantom::get_frames()
 {
-    ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
+    ScopedBuffer buffer(*(grabber_->grabbers_[0]));
 
-    for (int i = 1; i < nb_grabbers_; ++i)
-        ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
+    for (int i = 1; i < grabber_->grabbers_.length(); ++i)
+        ScopedBuffer stiching(*(grabber_->grabbers_[i]));
 
     // process available images
     size_t delivered = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
@@ -114,6 +115,7 @@ void CameraPhantom::load_ini_params()
     gain_ = pt.get<float>("s711.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s711.BalanceWhiteMarker", balance_white_marker_);
     flat_field_correction_ = pt.get<std::string>("s711.FlatFieldCorrection", flat_field_correction_);
+
 }
 
 void CameraPhantom::bind_params() { return; }
