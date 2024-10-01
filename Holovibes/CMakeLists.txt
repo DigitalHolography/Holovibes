@@ -289,9 +289,12 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 ")
 
 # Set the names of both shortcuts this installer creates: one for Holovibes and one for the .ps1
-# These variable names are arbitrary and don't mean anything, they could have been named like 'a' or 'res'
+# These variable names are arbitrary and don't mean anything.
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
-set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\ProcessHoloFiles.lnk")
+set(PSONE_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
+# Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
+# But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
+# ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}
 
 # Creating the shortcut to Holovibes on the desktop.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
