@@ -38,6 +38,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install setuptools
+          pip install pycopy-pkgutil
           pip install -r requirements.txt
 
       - name: Initialize CodeQL
