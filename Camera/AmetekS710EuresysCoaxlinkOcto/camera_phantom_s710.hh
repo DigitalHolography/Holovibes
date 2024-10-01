@@ -59,9 +59,9 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
 class EHoloGrabber
 {
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format)
+    EHoloGrabber(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format)
         : grabbers_(gentl)
-        , buffer_part_count_(nb_images_per_buffer)
+        , buffer_part_count_(buffer_part_count)
     {
         // Fetch the first grabber info to determine the width, height and depth
         // of the full image.
