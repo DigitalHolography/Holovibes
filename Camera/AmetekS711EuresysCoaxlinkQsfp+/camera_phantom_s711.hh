@@ -61,7 +61,7 @@ class EHoloGrabber
   public:
     EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format)
         : grabbers_(gentl)
-        , nb_images_per_buffer_(nb_images_per_buffer)
+        , buffer_part_count_(nb_images_per_buffer)
     {
         // Fetch the first grabber info to determine the width, height and depth
         // of the full image.
@@ -71,7 +71,7 @@ class EHoloGrabber
         depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
-            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", nb_images_per_buffer_);
+            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", buffer_part_count_);
     }
 
     virtual ~EHoloGrabber()
@@ -176,7 +176,7 @@ class EHoloGrabber
         uint8_t* device_ptr;
 
         cudaError_t alloc_res =
-            cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+            cudaHostAlloc(&ptr_, frame_size * buffer_part_count_ * nb_buffers_, cudaHostAllocMapped);
         cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
 
         if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
@@ -207,12 +207,12 @@ class EHoloGrabber
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
 
-            size_t offset = i * frame_size * nb_images_per_buffer_;
+            size_t offset = i * frame_size * buffer_part_count_;
 
             for (size_t ix = 0; ix < grabber_count; ix++)
             {
                 grabbers_[ix]->announceAndQueue(
-                    UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
+                    UserMemory(ptr_ + offset, frame_size * buffer_part_count_, device_ptr + offset));
             }
         }
         std::cout << std::endl;
@@ -256,7 +256,7 @@ class EHoloGrabber
 
     /*! \brief The number of images stored in each buffers.
      */
-    unsigned int nb_images_per_buffer_;
+    unsigned int buffer_part_count_;
 
     /*! \brief A pointer the cuda memory allocated for the buffers.
      */
@@ -284,7 +284,7 @@ class CameraPhantom : public Camera
     std::unique_ptr<EHoloGrabber> grabber_;
 
     unsigned int nb_buffers_;
-    unsigned int nb_images_per_buffer_;
+    unsigned int buffer_part_count_;
     unsigned int nb_grabbers_;
     unsigned int fullHeight_;
     unsigned int width_;
