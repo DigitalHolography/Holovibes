@@ -67,7 +67,8 @@ struct ViewXYZ : public ViewWindow
     bool enabled = false;
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation, enabled);
+    SERIALIZE_JSON_STRUCT(
+        ViewXYZ, log_enabled, contrast, horizontal_flip, rotation, output_image_accumulation, enabled);
 
     bool operator==(const ViewXYZ& other) const
     {

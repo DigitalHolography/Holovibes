@@ -58,10 +58,10 @@ struct Internals
      */
     struct Enabled
     {
-    /*! \class ViewEnabled
-     *
-     * \brief Class that represents ViewEnabled
-     */
+        /*! \class ViewEnabled
+         *
+         * \brief Class that represents ViewEnabled
+         */
         struct ViewEnabled
         {
             bool lens = false;

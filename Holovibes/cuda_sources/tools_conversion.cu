@@ -341,7 +341,7 @@ void float_to_ushort(
 
 void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream)
 {
-    const auto lambda = [] __device__(const float in) -> ushort {return in * max_ushort_value; };
+    const auto lambda = [] __device__(const float in) -> ushort { return in * max_ushort_value; };
     map_generic(input, output, size, lambda, stream);
 }
 

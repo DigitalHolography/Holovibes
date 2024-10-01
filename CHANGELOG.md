@@ -1,5 +1,14 @@
 ## Changelog
 
+### 13.6.0
+
+- Support for Alvium Camera
+- Changed default preset to 'doppler_8b_384_27'
+- Rename preset 'doppler_8b_384_28' to 'doppler_8b_384_27'
+- Default display rate is now 24
+- Added an executable desktop shortcut for ProcessHoloFiles.ps1
+- Rename ini config variable 'NbImageBuffer' to 'BufferCountPart' for camera phantom_s710 / phantom_s711 / phantom_s991
+
 ### 13.5.1
 
 - Adjusted S711 ini configuration file

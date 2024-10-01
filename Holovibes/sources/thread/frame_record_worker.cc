@@ -78,7 +78,7 @@ void FrameRecordWorker::run()
     std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_frame_record();
+    pipe->request(ICS::FrameRecord);
     // Queue& record_queue = *pipe->get_frame_record_queue();
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
@@ -107,8 +107,9 @@ void FrameRecordWorker::run()
             Holovibes::instance().get_input_queue()->reset_override();
 
         // Get the real number of frames to record taking in account the frame skip
-        size_t nb_frames_to_record = setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
-    
+        size_t nb_frames_to_record =
+            setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
+
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record && !stop_requested_))
         {
@@ -137,7 +138,8 @@ void FrameRecordWorker::run()
             // While wait_for_frames() is running, a stop might be requested and the queue reset.
             // To avoid problems with dequeuing while it's empty, we check right after wait_for_frame
             // and stop recording if needed.
-            if (stop_requested_ || (contiguous_frames.has_value() && std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value())))
+            if (stop_requested_ || (contiguous_frames.has_value() &&
+                                    std::cmp_greater_equal(nb_frames_recorded.load(), contiguous_frames.value())))
                 break;
 
             if (nb_frames_to_skip > 0)
@@ -195,7 +197,9 @@ void FrameRecordWorker::run()
 
         auto contiguous = contiguous_frames.value_or(nb_frames_recorded);
         // Change the fps according to the frame skip
-        output_frame_file->export_compute_settings(static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)), contiguous);
+        output_frame_file->export_compute_settings(
+            static_cast<int>(compute_fps_average() / (setting<settings::FrameSkip>() + 1)),
+            contiguous);
 
         output_frame_file->write_footer();
     }
@@ -228,7 +232,7 @@ void FrameRecordWorker::wait_for_frames()
 void FrameRecordWorker::reset_record_queue()
 {
     auto pipe = Holovibes::instance().get_compute_pipe();
-    pipe->request_disable_frame_record();
+    pipe->request(ICS::DisableFrameRecord);
     record_queue_.load()->reset();
 
     /*std::unique_ptr<Queue>& raw_view_queue = pipe->get_raw_view_queue();

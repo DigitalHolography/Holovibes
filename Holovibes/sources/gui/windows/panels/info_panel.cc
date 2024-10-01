@@ -14,10 +14,7 @@ namespace holovibes::gui
 {
 InfoPanel::InfoPanel(QWidget* parent)
     : Panel(parent)
-    , record_finished_subscriber_("record_finished", [this](bool success)
-                                       {
-                                            set_visible_record_progress(false);
-                                       })
+    , record_finished_subscriber_("record_finished", [this](bool success) { set_visible_record_progress(false); })
 {
 }
 
@@ -41,8 +38,10 @@ void InfoPanel::init()
                 case ProgressType::FRAME_RECORD:
                     ui_->RecordProgressBar->setMaximum(static_cast<int>(max_size));
                     ui_->RecordProgressBar->setValue(static_cast<int>(value));
-                    
-                    NotifierManager::notify<RecordProgressData>("record_progress", RecordProgressData{static_cast<int>(value), static_cast<int>(max_size)});
+
+                    NotifierManager::notify<RecordProgressData>(
+                        "record_progress",
+                        RecordProgressData{static_cast<int>(value), static_cast<int>(max_size)});
                     break;
                 default:
                     return;

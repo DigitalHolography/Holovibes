@@ -16,7 +16,7 @@ QSpinBoxLayout::QSpinBoxLayout(QMainWindow* parent, const std::string& name)
     this->addWidget(label_);
 }
 
-QSpinBoxLayout::~QSpinBoxLayout(){};
+QSpinBoxLayout::~QSpinBoxLayout() {};
 
 void QSpinBoxLayout::set_label(const std::string& name) { label_->setText(QString::fromUtf8(name.c_str())); }
 

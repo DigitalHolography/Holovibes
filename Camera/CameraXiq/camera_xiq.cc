@@ -69,7 +69,7 @@ void CameraXiq::load_default_params()
     fd_.width = 2048;
     fd_.height = 2048;
     pixel_size_ = 5.5f;
-    fd_.depth = 1;
+    fd_.depth = PixelDepth::Bits8;
     fd_.byteEndian = Endianness::LittleEndian;
 
     /* Custom parameters. */
@@ -182,7 +182,7 @@ void CameraXiq::bind_params()
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
-        fd_.depth = 2;
+        fd_.depth = PixelDepth::Bits16;
 
     name_ = std::string(name);
 }

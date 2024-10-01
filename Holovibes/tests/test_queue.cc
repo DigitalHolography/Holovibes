@@ -49,8 +49,7 @@ TEST(QueueTest, SimpleInstantiatingTest)
 TEST(ZeroQueueInstantiation, ZeroQueue)
 {
     camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
-    ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::QueueType::UNDEFINED),
-                 std::logic_error);
+    ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::QueueType::UNDEFINED), std::logic_error);
 }
 
 TEST(QueueEmpty, QueueIsFullTest)
