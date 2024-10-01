@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.X.X
+
+- Added the possibility to change .ini files before loading cameras
+
 ### 13.6.0
 
 - Support for Alvium Camera
