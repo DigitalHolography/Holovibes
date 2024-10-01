@@ -28,6 +28,8 @@ SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::FFT2, "FFT2"},
     {SpaceTransformation::FFT1, "1FFT"}, // Compat
     {SpaceTransformation::FFT2, "2FFT"}, // Compat
+    {SpaceTransformation::FFT1, "Fresnel"}, // Compat
+    {SpaceTransformation::FFT2, "AngularSP"}, // Compat
     {SpaceTransformation::NONE, "None"}, // Compat
 })
 // clang-format on
