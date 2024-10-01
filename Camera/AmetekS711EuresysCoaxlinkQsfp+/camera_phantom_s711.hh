@@ -100,8 +100,8 @@ class EHoloGrabber
 
     virtual ~EHoloGrabber()
     {
-        for (size_t i = 0; i < grabbers_.length(); i++)
-            grabbers_[i]->reallocBuffers(0);
+        for (size_t i = 0; i < nb_grabbers_; i++)
+            available_grabbers_[i]->reallocBuffers(0);
 
         cudaFreeHost(ptr_);
     }
@@ -125,58 +125,56 @@ class EHoloGrabber
     {
         width_ = width;
         height_ = fullHeight;
-        grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+
+        if (available_grabbers_.size() > 1)
+            available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
+        else
+            available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_A");
 
         size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
-        size_t grabberCount = grabbers_.length();
+        size_t grabberCount = nb_grabbers_;
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;
         size_t stripePitch = stripeHeight * grabberCount;
 
         for (size_t ix = 0; ix < grabberCount; ++ix)
         {
-            grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
-            grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
-            grabbers_[ix]->setString<RemoteModule>("PixelFormat", pixelFormat);
+            available_grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
+            available_grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
+            available_grabbers_[ix]->setString<RemoteModule>("PixelFormat", pixelFormat);
 
-            grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_2YM");
-            grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("LineWidth", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
-            grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
-            grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
-            grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
-            grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
+            available_grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_2YM");
+            available_grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
+            available_grabbers_[ix]->setInteger<StreamModule>("LineWidth", pitch);
+            available_grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
+            available_grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
+            available_grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
+            available_grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
+            available_grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
 
-        grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
-        grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
+        available_grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
+        if (nb_grabbers > 1)
+            available_grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
 
         available_grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
         std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode);         // camera in triggered mode
-        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
-        grabbers_[0]->setString<RemoteModule>("TriggerSelector", trigger_selector); // source of trigger CXP
+        available_grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
+        available_grabbers_[0]->setString<DeviceModule>("CameraControlMethod",
+                                                        control_mode); // tell grabber 0 to send trigger
+        available_grabbers_[0]->setString<RemoteModule>("TriggerSelector", trigger_selector); // source of trigger CXP
 
-        /* 100 fps -> 10000us */
-        // float factor = fps / 100;
-        // float cycleMinimumPeriod = 10000 / factor;
-        // float cycleMinimumPeriod = 1e6 / fps;
-        // std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
         if (triggerSource == "SWTRIGGER")
         {
-            grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
-                                                   cycleMinimumPeriod);              // set the trigger rate to 250K Hz
-            grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
-            grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
+            available_grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
+                                                             cycleMinimumPeriod); // set the trigger rate to 250K Hz
+            available_grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap",
+                                                            "True"); // camera needs 2 trigger to start
+            available_grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
         }
 
-        /* 100 fps -> 9000us */
-        // float factor = fps / 100;
-        // float Expvalue = 9000 / factor;
-        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
-        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
+        available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
+        available_grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
 
         available_grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         available_grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
@@ -184,13 +182,12 @@ class EHoloGrabber
         available_grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
 
         int framerate = 1e6 / cycleMinimumPeriod;
-        // grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", framerate);
     }
 
     void init(unsigned int nb_buffers)
     {
         nb_buffers_ = nb_buffers;
-        size_t grabber_count = grabbers_.length();
+        size_t grabber_count = nb_grabbers_;
         size_t frame_size = width_ * height_ * depth_;
 
         // Allocate buffers in pinned memory
@@ -235,7 +232,7 @@ class EHoloGrabber
 
             for (size_t ix = 0; ix < grabber_count; ix++)
             {
-                grabbers_[ix]->announceAndQueue(
+                available_grabbers_[ix]->announceAndQueue(
                     UserMemory(ptr_ + offset, frame_size * buffer_part_count_, device_ptr + offset));
             }
         }
@@ -244,20 +241,21 @@ class EHoloGrabber
 
     void start()
     {
-        size_t grabber_count = grabbers_.length();
+        size_t grabber_count = nb_grabbers_;
 
         // Start each sub grabber in reverse order
         for (size_t i = 0; i < grabber_count; i++)
         {
-            grabbers_[grabber_count - 1 - i]->enableEvent<NewBufferData>();
-            grabbers_[grabber_count - 1 - i]->start();
+            available_grabbers_[grabber_count - 1 - i]->enableEvent<NewBufferData>();
+            available_grabbers_[grabber_count - 1 - i]->start();
         }
     }
 
     void stop()
     {
-        for (size_t i = 0; i < grabbers_.length(); i++)
-            grabbers_[i]->stop();
+        size_t grabber_count = nb_grabbers_;
+        for (size_t i = 0; i < grabber_count; i++)
+            available_grabbers_[i]->stop();
     }
 
     /*! \brief The width of the acquired frames. */
