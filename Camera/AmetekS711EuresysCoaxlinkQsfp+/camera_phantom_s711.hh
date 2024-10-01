@@ -10,7 +10,6 @@
 #include "camera_logger.hh"
 
 #include <stdio.h>
-#include <iostream>
 
 namespace camera
 {
