@@ -5540,7 +5540,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>actionOpenCVSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>camera_opencv()</slot>
+   <slot>camera_opencv_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
