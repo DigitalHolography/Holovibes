@@ -54,6 +54,7 @@ jobs:
 
       - name: Build project using Python script
         run: |
+          conan profile detect --force
           python ./dev.py build
         shell: pwsh
 
