@@ -86,11 +86,6 @@ constexpr std::vector<std::string> get_credits()
     return res;
 }
 
-#define SET_SETTING(type, path, value)                                                                                 \
-    auto setting_##type = GET_SETTING(type);                                                                           \
-    setting_##type.path = value;                                                                                       \
-    UPDATE_SETTING(type, setting_##type);
-
 inline Computation get_compute_mode() { return GET_SETTING(ComputeMode); }
 inline void set_compute_mode(Computation mode) { UPDATE_SETTING(ComputeMode, mode); }
 

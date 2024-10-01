@@ -405,11 +405,11 @@ void update_batch_size(const uint batch_size)
     if (get_compute_mode() == Computation::Hologram)
     {
         if (time_stride_changed)
-            Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
+            api::get_compute_pipe()->request(ICS::UpdateTimeStride);
+        api::get_compute_pipe()->request(ICS::UpdateBatchSize);
     }
     else
-        Holovibes::instance().get_input_queue()->resize(get_batch_size());
+        api::get_input_queue()->resize(get_batch_size());
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
@@ -680,42 +680,30 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
 
 void set_x_accu_level(uint x_value)
 {
-    auto x = GET_SETTING(X);
-    x.width = x_value;
-    UPDATE_SETTING(X, x);
+    SET_SETTING(X, width, x_value);
     pipe_refresh();
 }
 
 void set_x_cuts(uint value)
 {
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_input_queue()->get_fd();
-    if (value < fd.width)
+    if (value < get_fd().width)
     {
-        auto x = GET_SETTING(X);
-        x.start = value;
-        UPDATE_SETTING(X, x);
+        SET_SETTING(X, start, value);
         pipe_refresh();
     }
 }
 
 void set_y_accu_level(uint y_value)
 {
-    auto y = GET_SETTING(Y);
-    y.width = y_value;
-    UPDATE_SETTING(Y, y);
+    SET_SETTING(Y, width, y_value);
     pipe_refresh();
 }
 
 void set_y_cuts(uint value)
 {
-    auto& holo = Holovibes::instance();
-    const auto& fd = holo.get_input_queue()->get_fd();
-    if (value < fd.height)
+    if (value < get_fd().height)
     {
-        auto y = GET_SETTING(Y);
-        y.start = value;
-        UPDATE_SETTING(Y, y);
+        SET_SETTING(Y, start, value);
         pipe_refresh();
     }
 }
@@ -724,42 +712,30 @@ void set_x_y(uint x, uint y)
 {
     if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
-    auto x_ = GET_SETTING(X);
-    if (x < Holovibes::instance().get_input_queue()->get_fd().width)
-    {
-        x_.start = x;
-        UPDATE_SETTING(X, x_);
-    }
 
-    auto y_ = GET_SETTING(Y);
-    if (y < Holovibes::instance().get_input_queue()->get_fd().width)
-    {
-        y_.start = y;
-        UPDATE_SETTING(Y, y_);
-    }
+    if (x < get_fd().width)
+        SET_SETTING(X, start, x);
+
+    if (y < get_fd().width)
+        SET_SETTING(Y, start, y);
+
     pipe_refresh();
 }
 
 void set_q_index(uint value)
 {
-    auto q = GET_SETTING(Q);
-    q.start = value;
-    UPDATE_SETTING(Q, q);
+    SET_SETTING(Q, start, value);
     pipe_refresh();
 }
 
 void set_q_accu_level(uint value)
 {
-    auto q = GET_SETTING(Q);
-    q.width = value;
-    UPDATE_SETTING(Q, q);
+    SET_SETTING(Q, width, value);
     pipe_refresh();
 }
 void set_p_index(uint value)
 {
-    auto p = GET_SETTING(P);
-    p.start = value;
-    UPDATE_SETTING(P, p);
+    SET_SETTING(P, start, value);
     pipe_refresh();
 }
 
@@ -767,9 +743,7 @@ void set_p_accu_level(uint p_value)
 {
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
-    auto p = GET_SETTING(P);
-    p.width = p_value;
-    UPDATE_SETTING(P, p);
+    SET_SETTING(P, width, p_value);
     pipe_refresh();
 }
 
@@ -1741,7 +1715,7 @@ void set_record_device(const Device device)
 
         if (device == Device::CPU)
             set_compute_mode(Computation::Raw);
-            
+
         if (it == ImportType::Camera)
             change_camera(c);
         else

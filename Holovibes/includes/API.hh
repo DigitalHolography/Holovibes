@@ -24,7 +24,14 @@
 using json = ::nlohmann::json;
 
 #define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
-#define UPDATE_SETTING(setting, value) holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
+#define UPDATE_SETTING(setting, value)                                                                                 \
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
+#define SET_SETTING(type, path, value)                                                                                 \
+    {                                                                                                                  \
+        auto setting_##type = GET_SETTING(type);                                                                       \
+        setting_##type.path = value;                                                                                   \
+        UPDATE_SETTING(type, setting_##type);                                                                          \
+    }
 
 namespace holovibes::api
 {

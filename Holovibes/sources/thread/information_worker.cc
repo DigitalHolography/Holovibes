@@ -52,7 +52,8 @@ void InformationWorker::run()
         std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_NOW.csv";
         benchmark_file.open(benchmark_file_path);
         if (!benchmark_file.is_open())
-            LOG_ERROR("Could not open benchmark file at " + benchmark_file_path + ", you may need to create the folder");
+            LOG_ERROR("Could not open benchmark file at " + benchmark_file_path +
+                      ", you may need to create the folder");
     }
 
     while (!stop_requested_)
@@ -64,8 +65,9 @@ void InformationWorker::run()
         {
             compute_fps(waited_time);
 
-            std::shared_ptr<Queue> gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> input_queue = Holovibes::instance().get_input_queue();
+            std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
+            std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
+            std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
 
             if (gpu_output_queue && input_queue)
             {
@@ -73,7 +75,6 @@ void InformationWorker::run()
                 input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
             }
 
-            auto frame_record_queue = Holovibes::instance().get_record_queue().load();
             record_frame_size = 0;
             if (frame_record_queue)
                 record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
@@ -100,16 +101,20 @@ void InformationWorker::run()
             if (!info_found)
             {
                 if (!GSH::fast_updates_map<IndicationType>.empty())
-                {    
+                {
                     // metadata
                     benchmark_file << "Version: 0";
                     for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
                         benchmark_file << "," << indication_type_to_string_.at(key) << ": " << *value;
-                    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)  //! FIXME causes a crash on start when camera pre-selected
-                        benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
+                    for (auto const& [key, value] :
+                         GSH::fast_updates_map<QueueType>) //! FIXME causes a crash on start when camera pre-selected
+                        benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
+                                       << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
                     benchmark_file << "\n";
                     // 11 headers
-                    benchmark_file << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output Throughput,GPU memory free,GPU memory total,GPU load,GPU memory load, z_boundary\n";
+                    benchmark_file
+                        << "Input Queue,Output Queue,Record Queue,Input FPS,Output FPS,Input Throughput,Output "
+                           "Throughput,GPU memory free,GPU memory total,GPU load,GPU memory load, z_boundary\n";
                     info_found = true;
                 }
             }
@@ -123,7 +128,8 @@ void InformationWorker::run()
     {
         benchmark_file.close();
         // rename file
-        std::string benchmark_file_path = settings::benchmark_dirpath + "/benchmark_" + Chrono::get_current_date_time() + ".csv";
+        std::string benchmark_file_path =
+            settings::benchmark_dirpath + "/benchmark_" + Chrono::get_current_date_time() + ".csv";
         std::rename((settings::benchmark_dirpath + "/benchmark_NOW.csv").c_str(), benchmark_file_path.c_str());
     }
 }
@@ -400,7 +406,8 @@ void InformationWorker::display_gui_information()
         else
             to_display << "red";
 
-        to_display << ">" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ") << queue_type_to_string_.at(key) << ":<br/>  ";
+        to_display << ">" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
+                   << queue_type_to_string_.at(key) << ":<br/>  ";
         to_display << currentLoad << "/" << maxLoad << "</font>" << "<br/>";
     }
 
@@ -457,13 +464,14 @@ void InformationWorker::display_gui_information()
 
 void InformationWorker::write_information(std::ofstream& csvFile)
 {
-    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in GSH::fast_updates_map<QueueType> check if key present then write valuem if not write 0
+    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in GSH::fast_updates_map<QueueType> check if key present
+    // then write valuem if not write 0
     uint8_t i = 3;
     for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
     {
         if (key == QueueType::UNDEFINED)
             continue;
-        
+
         csvFile << std::get<0>(*value).load() << ",";
         i--;
     }
