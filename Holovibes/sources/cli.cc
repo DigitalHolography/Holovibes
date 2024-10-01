@@ -132,9 +132,9 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         LOG_ERROR("Failed to open input file");
         return 33;
     }
-    
+
     bool load = false;
-    
+
     if (opts.compute_settings_path)
     {
         try
@@ -208,7 +208,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
 
     // TODO : Add filter
 
-    pipe->request(ICS::UpdateBatchSize); 
+    pipe->request(ICS::UpdateBatchSize);
     pipe->request(ICS::UpdateTimeStride);
     pipe->request(ICS::UpdateTimeTransformationSize);
 
@@ -309,7 +309,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
         {
             output_fps = output_fps / (frame_skip + 1);
         }
-        holovibes.update_setting(holovibes::settings::FrameSkip{static_cast<uint>(output_fps * (frame_skip+1))/holovibes::api::get_mp4_fps()});
+        holovibes.update_setting(holovibes::settings::FrameSkip{static_cast<uint>(output_fps * (frame_skip + 1)) /
+                                                                holovibes::api::get_mp4_fps()});
     }
     holovibes.start_frame_record();
 

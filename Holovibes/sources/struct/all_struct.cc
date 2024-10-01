@@ -76,8 +76,7 @@ void Rendering::Update()
     this->filter2d.Update();
     this->space_transformation = GET_SETTING(SpaceTransformation);
     this->time_transformation = GET_SETTING(TimeTransformation);
-    this->time_transformation_size =
-        GET_SETTING(TimeTransformationSize);
+    this->time_transformation_size = GET_SETTING(TimeTransformationSize);
     this->lambda = GET_SETTING(Lambda);
     this->propagation_distance = GET_SETTING(ZDistance);
     this->convolution.Update();
@@ -90,8 +89,7 @@ void AdvancedSettings::BufferSizes::Update()
     this->input = static_cast<unsigned int>(GET_SETTING(InputBufferSize));
     this->output = static_cast<unsigned int>(GET_SETTING(OutputBufferSize));
     this->record = static_cast<unsigned int>(GET_SETTING(RecordBufferSize));
-    this->time_transformation_cuts =
-        GET_SETTING(TimeTransformationCutsOutputBufferSize);
+    this->time_transformation_cuts = GET_SETTING(TimeTransformationCutsOutputBufferSize);
 }
 
 void AdvancedSettings::Filter2DSmooth::Update()
@@ -116,8 +114,7 @@ void AdvancedSettings::Update()
     this->raw_bitshift = static_cast<unsigned int>(GET_SETTING(RawBitshift));
     // FIXME: optional value might not be that greate of an idea
     if (GET_SETTING(RecordFrameCount).has_value())
-        this->nb_frames_to_record =
-            static_cast<unsigned int>(GET_SETTING(RecordFrameCount).value());
+        this->nb_frames_to_record = static_cast<unsigned int>(GET_SETTING(RecordFrameCount).value());
 }
 
 void Composite::Update()

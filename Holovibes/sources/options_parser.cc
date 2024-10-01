@@ -170,7 +170,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());
-            if (frame_skip > 0)
+            if (frame_skip >= 0)
                 options_.frame_skip = frame_skip; // Implicit cast to uint
             else
             {
@@ -196,9 +196,10 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         std::exit(20);
     }
 
-    // Both catch blocks below are never reached as the base class std::exception will catch them before...
-    // Left them as dead code for potential future use as fixing them (by moving them above the std::exception catch) would require to change some of the test suite expected return codes
-    #if 0
+// Both catch blocks below are never reached as the base class std::exception will catch them before...
+// Left them as dead code for potential future use as fixing them (by moving them above the std::exception catch) would
+// require to change some of the test suite expected return codes
+#if 0
     catch (const po::invalid_option_value& ex)
     {
         // Gérer le cas où une option reçoit une valeur invalide
@@ -211,7 +212,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         LOG_ERROR("Unknown option: {}", ex.what());
         std::exit(26); // Utiliser un code d'erreur spécifique
     }
-    #endif
+#endif
 
     return options_;
 }

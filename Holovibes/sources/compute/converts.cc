@@ -204,7 +204,8 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
                 unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back(
-                [=]() {
+                [=]()
+                {
                     unwrap_2d(gpu_postprocess_frame,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
@@ -278,7 +279,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
         }
         else
             fn_compute_vect_.conditional_push_back(
-                [=]() {
+                [=]()
+                {
                     rescale_float(unwrap_res_->gpu_angle_current_, gpu_postprocess_frame, fd_.get_frame_res(), stream_);
                 });
     }

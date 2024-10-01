@@ -17,7 +17,7 @@ QIntSpinBoxLayout::QIntSpinBoxLayout(QMainWindow* parent, const std::string& nam
     addWidget(spin_box_, Qt::AlignRight);
 }
 
-QIntSpinBoxLayout::~QIntSpinBoxLayout(){};
+QIntSpinBoxLayout::~QIntSpinBoxLayout() {};
 
 #pragma region SETTERS
 

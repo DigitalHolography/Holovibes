@@ -33,7 +33,7 @@ struct Rendering
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
         SERIALIZE_JSON_STRUCT(Filter2D, enabled, inner_radius, outer_radius);
-                
+
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
          * synchronize variables of Filter2D with the one in GSH, update variables of GSH
@@ -53,7 +53,7 @@ struct Rendering
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
         SERIALIZE_JSON_STRUCT(Filter, type, enabled);
-        
+
         /*!
          * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
          * synchronize variables of Filter with the one in GSH, update variables of GSH
@@ -108,7 +108,7 @@ struct Rendering
                           lambda,
                           propagation_distance,
                           convolution);
-    
+
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
      * synchronize variables of Rendering with the one in GSH, update variables of GSH

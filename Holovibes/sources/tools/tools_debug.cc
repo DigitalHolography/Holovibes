@@ -9,7 +9,7 @@
 
 namespace holovibes
 {
-template<typename T>
+template <typename T>
 void device_print(T* d_data, size_t offset, size_t nb_elts)
 {
     // Allocate host memory
@@ -38,7 +38,7 @@ void device_print(T* d_data, size_t offset, size_t nb_elts)
 }
 
 // Specialization for cuComplex to handle its unique printing logic
-template<>
+template <>
 void device_print<cuComplex>(cuComplex* d_data, size_t offset, size_t nb_elts)
 {
     cuComplex* h_data = (cuComplex*)malloc(sizeof(cuComplex) * nb_elts);

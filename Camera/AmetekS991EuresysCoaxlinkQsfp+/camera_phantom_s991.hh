@@ -57,7 +57,7 @@ class EHoloSubGrabber : public EGrabberCallbackOnDemand
 class EHoloGrabber
 {
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format, bool gpu=true)
+    EHoloGrabber(EGenTL& gentl, unsigned int nb_images_per_buffer, std::string& pixel_format, bool gpu = true)
         : grabbers_(gentl)
         , nb_images_per_buffer_(nb_images_per_buffer)
         , gpu_(gpu)
@@ -67,7 +67,6 @@ class EHoloGrabber
         // According to the requirements described above, we assume that the
         // full height is two times the height of the first grabber.
 
-       
         depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
 
         for (unsigned i = 0; i < grabbers_.length(); ++i)
@@ -110,7 +109,7 @@ class EHoloGrabber
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 4;
         size_t stripePitch = stripeHeight * grabberCount;
-        
+
         for (size_t ix = 0; ix < grabberCount; ++ix)
         {
             grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
@@ -123,11 +122,11 @@ class EHoloGrabber
             grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
             grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
             grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 0);
-            //grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
+            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 4 * ix);
             grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
             grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
         }
-        
+
         grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
         grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
         // grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode); // camera in triggered mode
@@ -144,10 +143,9 @@ class EHoloGrabber
         if (triggerSource == "SWTRIGGER")
         {
             grabbers_[0]->setInteger<DeviceModule>("CycleMinimumPeriod",
-                                                  cycleMinimumPeriod);               // set the trigger rate to 250K Hz
+                                                   cycleMinimumPeriod); // set the trigger rate to 250K Hz
 
-            grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate",
-                                                  acquisitionFrameRate);  
+            grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", acquisitionFrameRate);
 
             grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
             grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
@@ -158,7 +156,7 @@ class EHoloGrabber
         // float Expvalue = 9000 / factor;
         grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
         grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
-    
+
         grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
         grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
     }
@@ -177,16 +175,14 @@ class EHoloGrabber
         cudaError_t alloc_res;
         cudaError_t device_ptr_res;
         gpu_ = true; // FIXME
-        if (gpu_) 
+        if (gpu_)
         {
-            alloc_res =
-                cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+            alloc_res = cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
             device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
         }
         else
         {
-            alloc_res =
-                cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
+            alloc_res = cudaHostAlloc(&ptr_, frame_size * nb_images_per_buffer_ * nb_buffers_, cudaHostAllocMapped);
         }
 
         if (alloc_res != cudaSuccess || (gpu_ && device_ptr_res != cudaSuccess))
@@ -201,26 +197,30 @@ class EHoloGrabber
 
             std::cout << "[";
             int pos = barWidth * prog;
-            for (int i = 0; i < barWidth; ++i) {
-                if (i < pos) std::cout << "=";
-                else if (i == pos) std::cout << ">";
-                else std::cout << " ";
+            for (int i = 0; i < barWidth; ++i)
+            {
+                if (i < pos)
+                    std::cout << "=";
+                else if (i == pos)
+                    std::cout << ">";
+                else
+                    std::cout << " ";
             }
             std::cout << "] " << int(prog * 100.0) << " %\r";
             std::cout.flush();
-            
+
             // The EGrabber API can handle directly buffers alocated in pinned
             // memory as we just have to use cudaHostAlloc and give each grabber
             // the host pointer and the associated pointer in device memory.
 
             size_t offset = i * frame_size * nb_images_per_buffer_;
-            for (size_t ix = 0; ix < grabber_count; ix++) {
+            for (size_t ix = 0; ix < grabber_count; ix++)
+            {
                 if (gpu_)
                     grabbers_[ix]->announceAndQueue(
                         UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_, device_ptr + offset));
-                else	
-                    grabbers_[ix]->announceAndQueue(
-                        UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_));
+                else
+                    grabbers_[ix]->announceAndQueue(UserMemory(ptr_ + offset, frame_size * nb_images_per_buffer_));
             }
         }
         std::cout << std::endl;
@@ -271,7 +271,6 @@ class EHoloGrabber
     uint8_t* ptr_;
 
     bool gpu_ = true;
-
 };
 
 class CameraPhantom : public Camera

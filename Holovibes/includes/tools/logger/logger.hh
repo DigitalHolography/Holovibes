@@ -64,16 +64,19 @@ constexpr const char* get_file_name(const char* path)
 #define INTERNAL_LOGGER_GET_FUNC_FMT(...) FOR_EACH(INTERNAL_LOGGER_GET_FUNC_FMT_, __VA_ARGS__)
 
 // Custom formatter for std::thread::id
-namespace fmt {
-    template <>
-    struct formatter<std::thread::id> : formatter<std::string> {
-        auto format(std::thread::id id, format_context& ctx) -> decltype(ctx.out()) {
-            std::stringstream ss;
-            ss << id;
-            return formatter<std::string>::format(ss.str(), ctx);
-        }
-    };
-}
+namespace fmt
+{
+template <>
+struct formatter<std::thread::id> : formatter<std::string>
+{
+    auto format(std::thread::id id, format_context& ctx) -> decltype(ctx.out())
+    {
+        std::stringstream ss;
+        ss << id;
+        return formatter<std::string>::format(ss.str(), ctx);
+    }
+};
+} // namespace fmt
 
 namespace holovibes
 {

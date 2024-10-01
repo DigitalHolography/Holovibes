@@ -224,13 +224,10 @@ void CameraPhantomBitflow::shutdown_camera()
 // nb_frames 5
 // pas besoin de region 2
 
-
 // tour circular buffer // nb buffer 10
 // captured 5
 // old_captured 8
 // nb_frames
-
-
 
 CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
 {
@@ -242,7 +239,8 @@ CapturedFramesDescriptor CameraPhantomBitflow::get_frames()
     {
         nb_frames = 0xffffffff - old_captured + captured;
     }
-    if (nb_frames >= nb_buffers || nb_frames == 0) // si pas de frame on renvoit rien OU plus de frame que de buffer on give up
+    if (nb_frames >= nb_buffers ||
+        nb_frames == 0) // si pas de frame on renvoit rien OU plus de frame que de buffer on give up
     {
         old_captured = captured;
         return CapturedFramesDescriptor(nullptr, 0);

@@ -11,20 +11,17 @@
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
 
-#define ONRESTART_SETTINGS               \
-  holovibes::settings::RecordFilePath,   \
-  holovibes::settings::RecordFrameCount, \
-  holovibes::settings::TimeTransformationSize
+#define ONRESTART_SETTINGS                                                                                             \
+    holovibes::settings::RecordFilePath, holovibes::settings::RecordFrameCount,                                        \
+        holovibes::settings::TimeTransformationSize
 
-#define REALTIME_SETTINGS                 \
-  holovibes::settings::P,                 \
-  holovibes::settings::ZDistance
+#define REALTIME_SETTINGS holovibes::settings::P, holovibes::settings::ZDistance
 
 #define ALL_SETTINGS ONRESTART_SETTINGS, REALTIME_SETTINGS
 
 namespace holovibes
 {
-  std::string get_record_filename(std::string filename);
+std::string get_record_filename(std::string filename);
 } // namespace holovibes
 
 namespace holovibes::worker
@@ -42,15 +39,15 @@ class ChartRecordWorker final : public Worker
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     ChartRecordWorker(InitSettings settings)
-    : Worker()
-    , onrestart_settings_(settings)
-    , realtime_settings_(settings)
+        : Worker()
+        , onrestart_settings_(settings)
+        , realtime_settings_(settings)
     {
-      std::string file_path = setting<settings::RecordFilePath>();
-      file_path = get_record_filename(file_path);
-      auto nb_frames_to_record = setting<settings::RecordFrameCount>();
-      onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
-      onrestart_settings_.update_setting(settings::RecordFrameCount{nb_frames_to_record});
+        std::string file_path = setting<settings::RecordFilePath>();
+        file_path = get_record_filename(file_path);
+        auto nb_frames_to_record = setting<settings::RecordFrameCount>();
+        onrestart_settings_.update_setting(settings::RecordFilePath{file_path});
+        onrestart_settings_.update_setting(settings::RecordFrameCount{nb_frames_to_record});
     }
 
     void run() override;
@@ -103,9 +100,10 @@ class ChartRecordWorker final : public Worker
 };
 } // namespace holovibes::worker
 
-namespace holovibes {
+namespace holovibes
+{
 template <typename T>
 struct has_setting<T, worker::ChartRecordWorker> : is_any_of<T, ALL_SETTINGS>
 {
 };
-}
+} // namespace holovibes

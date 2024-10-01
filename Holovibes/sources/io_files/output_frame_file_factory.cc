@@ -17,7 +17,8 @@ OutputFrameFileFactory::create(const std::string& file_path, const camera::Frame
     else if (file_path.ends_with(".mp4"))
         return new OutputMp4File(file_path, fd, img_nb);
 
-    else {
+    else
+    {
         std::string msg = "Invalid file extension: " + file_path + ". Supported extensions are: .holo, .avi, .mp4";
         throw FileException(msg, false);
     }

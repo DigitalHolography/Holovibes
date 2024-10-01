@@ -30,7 +30,6 @@ namespace holovibes::settings
 // AppData location changes depending on Release or Debug mode
 #ifdef NDEBUG // Release mode (User AppData)
 
-
 #define __APPDATA_HOLOVIBES_FOLDER__ (std::filesystem::path(getenv("APPDATA")) / __APPNAME__)
 #define __CONFIG_FOLDER__ (__APPDATA_HOLOVIBES_FOLDER__ / __HOLOVIBES_VERSION__)
 

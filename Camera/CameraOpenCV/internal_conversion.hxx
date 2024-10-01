@@ -24,7 +24,7 @@ void Parallel_BGR_to_gray<T>::operator()(const cv::Range& range) const
         for (int col = 0; col < m_src_bgr_.cols; col++)
         {
             gray_ptr[col] = bgr_ptr[3 * col + 0] * coeffs_[0] + bgr_ptr[3 * col + 1] * coeffs_[1] +
-                           bgr_ptr[3 * col + 2] * coeffs_[2];
+                            bgr_ptr[3 * col + 2] * coeffs_[2];
         }
     }
 }
