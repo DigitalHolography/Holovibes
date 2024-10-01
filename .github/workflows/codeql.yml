@@ -12,7 +12,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: windows-latest  # Utilisation de Windows
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -26,16 +26,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3  # Utilisation de CodeQL v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          
-      # Étape pour lancer le script Python
+
       - name: Build project using Python script
         run: |
           python ./dev.py build
         shell: pwsh
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3  # Utilisation de CodeQL v2
+        uses: github/codeql-action/analyze@v3
