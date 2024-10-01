@@ -81,7 +81,7 @@ class EHoloGrabber
                 // Try to query the remote device (the camera)
                 grabbers_[ix]->getString<RemoteModule>("Banks");
             }
-            catch (const Euresys::gentl_error& e)
+            catch (const Euresys::gentl_error&)
             {
                 continue;
             }
@@ -271,6 +271,8 @@ class EHoloGrabber
     /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber grabbers.  */
     EGrabbers<EHoloSubGrabber> grabbers_;
 
+    /*! \brief The list of detected grabbers that are connected to a camera and are truly available for use. Built from
+     * grabbers_ above. */
     std::vector<Euresys::EGrabberRef<EHoloSubGrabber>> available_grabbers_;
 
     /*!
