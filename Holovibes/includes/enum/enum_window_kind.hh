@@ -14,10 +14,10 @@ namespace holovibes
  */
 enum class WindowKind
 {
-    XYview, /*!< Main view */
-    XZview,     /*!< view slice */
-    YZview,     /*!< YZ view slice */
-    Filter2D,   /*!< Filter2D view */
+    XYview,   /*!< Main view */
+    XZview,   /*!< view slice */
+    YZview,   /*!< YZ view slice */
+    Filter2D, /*!< Filter2D view */
 };
 
 // clang-format off

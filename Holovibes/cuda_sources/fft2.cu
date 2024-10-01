@@ -72,9 +72,6 @@ void fft_2(cuComplex* input,
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_INVERSE));
 
-    kernel_complex_divide<<<blocks, threads, 0, stream>>>(input,
-                                                          frame_res,
-                                                          static_cast<float>(frame_res),
-                                                          batch_size);
+    kernel_complex_divide<<<blocks, threads, 0, stream>>>(input, frame_res, static_cast<float>(frame_res), batch_size);
     cudaCheckError();
 }

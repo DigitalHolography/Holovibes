@@ -12,7 +12,6 @@ std::shared_ptr<spdlog::logger> Logger::camera()
     return camera_;
 }
 
-
 #ifdef LOGGER_PATTERN_OVERRIDE
 #undef LOGGER_PATTERN
 #define LOGGER_PATTERN LOGGER_PATTERN_OVERRIDE

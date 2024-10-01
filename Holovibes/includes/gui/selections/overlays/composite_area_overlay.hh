@@ -19,4 +19,4 @@ class CompositeAreaOverlay : public RectOverlay
 
     void release(ushort frameSide) override;
 };
-} // namespace holovibes
+} // namespace holovibes::gui

@@ -34,10 +34,10 @@ struct AdvancedSettings
         SERIALIZE_JSON_STRUCT(BufferSizes, input, file, record, output, time_transformation_cuts);
 
         /*!
-        * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
-        * synchronize variables of BufferSizes with the one in GSH, update variables of GSH
-        * with the one of BufferSizes and assert that the BufferSizes variables are valid
-        */
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of BufferSizes with the one in GSH, update variables of GSH
+         * with the one of BufferSizes and assert that the BufferSizes variables are valid
+         */
         SETTING_RELATED_FUNCTIONS();
     };
 
@@ -54,10 +54,10 @@ struct AdvancedSettings
         SERIALIZE_JSON_STRUCT(Filter2DSmooth, low, high);
 
         /*!
-        * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
-        * synchronize variables of Filter2DSmooth with the one in GSH, update variables of GSH
-        * with the one of Filter2DSmooth and assert that the Filter2DSmooth variables are valid
-        */
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of Filter2DSmooth with the one in GSH, update variables of GSH
+         * with the one of Filter2DSmooth and assert that the Filter2DSmooth variables are valid
+         */
         SETTING_RELATED_FUNCTIONS();
     };
 
@@ -75,10 +75,10 @@ struct AdvancedSettings
         SERIALIZE_JSON_STRUCT(ContrastThreshold, lower, upper, frame_index_offset);
 
         /*!
-        * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
-        * synchronize variables of ContrastThreshold with the one in GSH, update variables of GSH
-        * with the one of ContrastThreshold and assert that the ContrastThreshold variables are valid
-        */
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of ContrastThreshold with the one in GSH, update variables of GSH
+         * with the one of ContrastThreshold and assert that the ContrastThreshold variables are valid
+         */
         SETTING_RELATED_FUNCTIONS();
     };
 

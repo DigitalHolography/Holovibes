@@ -109,7 +109,7 @@ class HoloFile:
 
             ##image = Image.fromarray(byte_image)
             image = byte_image
-            
+
             data.add_frame(image)
 
         footer_bytes = io.read(
@@ -146,7 +146,7 @@ class HoloFile:
         io.close()
 
     def assert_footer(ref, chal: "HoloFile"):
-        errors = []  
+        errors = []
         ddiff = DeepDiff(ref.footer, chal.footer,
                             ignore_order=True,
                             significant_digits=5,
@@ -170,8 +170,8 @@ class HoloFile:
         return errors
 
     def assertHolo(ref, chal: "HoloFile", basepath: str):
-        errors = []  
-        
+        errors = []
+
         for attr in ('width', 'height', 'bytes_per_pixel', 'nb_images'):
             if getattr(ref, attr) != getattr(chal, attr):
                 errors.append(f"{attr} differ: {getattr(ref, attr)} != {getattr(chal, attr)}")
@@ -197,7 +197,7 @@ class HoloFile:
         total_diff /= images_processed
 
         return total_diff, errors
-        
+
 class HoloLazyReader(HoloLazyIO):
     def __init__(self, path: str):
         self.path = path

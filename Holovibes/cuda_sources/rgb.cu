@@ -9,7 +9,6 @@
 
 #include "logger.hh"
 
-
 /**
  * @brief Apply the colors on the image cube
  * @param input input complex buffer

@@ -25,7 +25,7 @@ class FrameReadWorker : public Worker
      */
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& input_queue);
 
-    virtual ~FrameReadWorker(){};
+    virtual ~FrameReadWorker() {};
 
   protected:
     void compute_fps();
@@ -41,7 +41,7 @@ class FrameReadWorker : public Worker
 
     Chrono chrono_;
 
-    float current_display_rate = 30.0f;
+    float current_display_rate = 24.0f;
     float time_to_wait = 33.0f;
 
     const cudaStream_t stream_;

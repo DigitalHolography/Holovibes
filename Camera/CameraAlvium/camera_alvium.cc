@@ -81,7 +81,7 @@ void CameraAlvium::init_camera()
 void CameraAlvium::start_acquisition()
 {
     Logger::camera()->info("Start Acquisition");
-    unsigned int n_buffers = 1; // Maybe need to be increase for processing
+    unsigned int n_buffers = 64; // Maybe need to be increase for processing
 
     auto frame_obs_ptr = VmbCPP::IFrameObserverPtr(new FrameObserver(camera_ptr_, *this));
     if (VMB_ERROR(camera_ptr_->StartContinuousImageAcquisition(n_buffers, frame_obs_ptr)))
@@ -97,8 +97,8 @@ void CameraAlvium::stop_acquisition()
 
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 {
-    if (waiting_queue_.empty())
-        return {};
+    while (waiting_queue_.empty())
+        ;
 
     unsigned char* buf = waiting_queue_.front();
     waiting_queue_.pop();
@@ -110,17 +110,38 @@ void CameraAlvium::load_default_params()
 {
     fd_.height = MAX_HEIGHT;
     fd_.width = MAX_WIDTH;
+    fd_.depth = PixelDepth::Bits8;
+    fd_.byteEndian = Endianness::LittleEndian;
+
     height_ = MAX_HEIGHT;
     width_ = MAX_WIDTH;
 
-    fd_.depth = PixelDepth::Bits8;
-
-    fd_.byteEndian = Endianness::LittleEndian;
+    pixel_format_ = "Mono8";
+    reverse_x_ = false;
+    reverse_y_ = false;
+    gamma_ = 1;
+    gain_ = 0;
+    lens_shading_value_ = 1;
+    intensity_auto_precedence_ = "MinimizeNoise";
+    exposure_active_mode_ = "FlashWindow";
+    exposure_auto_ = "Off";
+    exposure_time_ = 5007.18;
+    correction_mode_ = "Off";
+    correction_selector_ = "FixedPatternNoiseCorrection";
+    contrast_bright_limit_ = 255;
+    contrast_dark_limit_ = 0;
+    contrast_enable_ = false;
+    contrast_shape_ = 1;
+    black_level_ = 0;
+    binning_horizontal_ = 1;
+    binning_horizontal_mode_ = "Sum";
+    binning_vertical_ = 1;
+    binning_vertical_mode_ = "Sum";
+    adaptive_noise_suppression_factor_ = 1;
 }
 
 void CameraAlvium::load_ini_params()
 {
-    // TODO : Add more params, check with mickael
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     width_ = pt.get<unsigned short>("alvium.width", width_);
@@ -129,37 +150,70 @@ void CameraAlvium::load_ini_params()
     fd_.width = width_;
     fd_.height = height_;
 
-    return;
+    pixel_format_ = pt.get<std::string>("alvium.PixelFormat", pixel_format_);
+    reverse_x_ = pt.get<bool>("alvium.ReverseX", reverse_x_);
+    reverse_y_ = pt.get<bool>("alvium.ReverseY", reverse_y_);
+    gamma_ = pt.get<double>("alvium.Gamma", gamma_);
+    gain_ = pt.get<double>("alvium.Gain", gain_);
+    lens_shading_value_ = pt.get<double>("alvium.LensShadingValue", lens_shading_value_);
+    intensity_auto_precedence_ = pt.get<std::string>("alvium.IntensityAutoPrecedence", intensity_auto_precedence_);
+    exposure_active_mode_ = pt.get<std::string>("alvium.ExposureActiveMode", exposure_active_mode_);
+    exposure_auto_ = pt.get<std::string>("alvium.ExposureAuto", exposure_auto_);
+    exposure_time_ = pt.get<double>("alvium.ExposureTime", exposure_time_);
+    correction_mode_ = pt.get<std::string>("alvium.CorrectionMode", correction_mode_);
+    correction_selector_ = pt.get<std::string>("alvium.CorrectionSelector", correction_selector_);
+    contrast_bright_limit_ = pt.get<VmbInt64_t>("alvium.ContrastBrightLimit", contrast_bright_limit_);
+    contrast_dark_limit_ = pt.get<VmbInt64_t>("alvium.ContrastDarkLimit", contrast_dark_limit_);
+    contrast_enable_ = pt.get<bool>("alvium.ContrastEnable", contrast_enable_);
+    contrast_shape_ = pt.get<VmbInt64_t>("alvium.ContrastShape", contrast_shape_);
+    black_level_ = pt.get<double>("alvium.BlackLevel", black_level_);
+    binning_horizontal_ = pt.get<VmbInt64_t>("alvium.BinningHorizontal", binning_horizontal_);
+    binning_horizontal_mode_ = pt.get<std::string>("alvium.BinningHorizontalMode", binning_horizontal_mode_);
+    binning_vertical_ = pt.get<VmbInt64_t>("alvium.BinningVertical", binning_vertical_);
+    binning_vertical_mode_ = pt.get<std::string>("alvium.BinningVerticalMode", binning_vertical_mode_);
+    adaptive_noise_suppression_factor_ =
+        pt.get<double>("alvium.AdaptiveNoiseSuppressionFactor", adaptive_noise_suppression_factor_);
 };
+
+#define VMB_IS_SET_OK(name, value) VMB_ERROR(camera_ptr_->GetFeatureByName(name, fp)) || VMB_ERROR(fp->SetValue(value))
 
 void CameraAlvium::bind_params()
 {
-    VmbCPP::FeaturePtr fp; // Generic feature pointer
 
-    /* TODO : Add more params, check with mickael
-        \A -> \B => VMB_ERROR(camera_ptr_->GetFeatureByName(\A, fp)) || VMB_ERROR(fp->SetValue(\B))
+    VmbCPP::FeaturePtr fp; // Generic feature pointer use inside VMB_IS_SET_OK macro
 
-        "DeviceLinkThroughputLimit" -> 450'000'000
-        "AcquisitionFrameRateEnable" -> "true"
-        "AcquisitionFrameRate" -> 10
-        "ExposureAuto" -> "Off"
-        "ExposureTime" -> EXP (I dont know what it is need to check API Manuel)
-        "GainAuto" -> "Off"
-        "SensorBitDepth" -> "Bpp12"
-        "OffsetX" -> X0
-        "OffsetY" -> Y0
-    */
-
-    if (VMB_ERROR(camera_ptr_->GetFeatureByName("PixelFormat", fp)) || VMB_ERROR(fp->SetValue("Mono8")) ||
-        VMB_ERROR(camera_ptr_->GetFeatureByName("Width", fp)) || VMB_ERROR(fp->SetValue(width_)) ||
-        VMB_ERROR(camera_ptr_->GetFeatureByName("Height", fp)) || VMB_ERROR(fp->SetValue(height_)))
+    if (VMB_IS_SET_OK("Width", width_) || VMB_IS_SET_OK("Height", height_) || VMB_IS_SET_OK("PixelFormat", "Mono8") ||
+        VMB_IS_SET_OK("ReverseX", reverse_x_) || VMB_IS_SET_OK("ReverseY", reverse_y_) ||
+        VMB_IS_SET_OK("Gamma", gamma_) || VMB_IS_SET_OK("Gain", gain_) ||
+        VMB_IS_SET_OK("LensShadingValue", lens_shading_value_) ||
+        VMB_IS_SET_OK("IntensityAutoPrecedence", intensity_auto_precedence_.c_str()) ||
+        VMB_IS_SET_OK("ExposureActiveMode", exposure_active_mode_.c_str()) ||
+        VMB_IS_SET_OK("ExposureAuto", exposure_auto_.c_str()) || VMB_IS_SET_OK("ExposureTime", exposure_time_) ||
+        VMB_IS_SET_OK("CorrectionMode", correction_mode_.c_str()) ||
+        VMB_IS_SET_OK("CorrectionSelector", correction_selector_.c_str()) ||
+        VMB_IS_SET_OK("ContrastBrightLimit", contrast_bright_limit_) ||
+        VMB_IS_SET_OK("ContrastDarkLimit", contrast_dark_limit_) || VMB_IS_SET_OK("ContrastEnable", contrast_enable_) ||
+        VMB_IS_SET_OK("ContrastShape", contrast_shape_) || VMB_IS_SET_OK("BlackLevel", black_level_) ||
+        VMB_IS_SET_OK("BinningHorizontal", binning_horizontal_) ||
+        VMB_IS_SET_OK("BinningHorizontalMode", binning_horizontal_mode_.c_str()) ||
+        VMB_IS_SET_OK("BinningVertical", binning_vertical_) ||
+        VMB_IS_SET_OK("BinningVerticalMode", binning_vertical_mode_.c_str()) ||
+        VMB_IS_SET_OK("AdaptiveNoiseSuppressionFactor", adaptive_noise_suppression_factor_))
+    {
+        Logger::camera()->info("Failed set some feature!");
+        camera_ptr_->Close();
+        api_vmb_.Shutdown();
         throw CameraException(CameraException::NOT_INITIALIZED);
+    }
 };
 
 void CameraAlvium::shutdown_camera()
 {
-    if (VMB_ERROR(camera_ptr_->FlushQueue()) || VMB_ERROR(camera_ptr_->RevokeAllFrames()) ||
-        VMB_ERROR(camera_ptr_->Close()))
+    bool queue_err = VMB_ERROR(camera_ptr_->FlushQueue());
+    bool frames_err = VMB_ERROR(camera_ptr_->RevokeAllFrames());
+    bool close_err = VMB_ERROR(camera_ptr_->Close());
+
+    if (queue_err || frames_err || close_err)
         throw CameraException(CameraException::CANT_SHUTDOWN);
 
     api_vmb_.Shutdown();

@@ -12,7 +12,7 @@ namespace holovibes::io_files
 /*! \class InputCineFile
  *
  * \brief Class that represents an cine file
- * 
+ *
  * FIXME: this class could and should be improved.
  * It handles the cine files like the previous versions of Holovibes,
  * but it does not handle all the specificities of the cine files (see link in

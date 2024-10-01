@@ -41,7 +41,7 @@
     holovibes::settings::ContrastLowerThreshold,   \
     holovibes::settings::ContrastUpperThreshold,   \
     holovibes::settings::CutsContrastPOffset
-    
+
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS
 
 // clang-format on
