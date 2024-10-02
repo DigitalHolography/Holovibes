@@ -254,8 +254,8 @@ void FourierTransform::insert_moments()
                 // frequencies at order 0 (all equal to 1)
                 matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
                                        moments_env_.f0_buffer.get(),
-                                       fd_.get_frame_res() * sizeof(float),
-                                       sizeof(float),
+                                       fd_.get_frame_res(),
+                                       1,
                                        time_transformation_size,
                                        moments_env_.moment0_buffer);
 
@@ -263,8 +263,8 @@ void FourierTransform::insert_moments()
                 // frequencies at order 1
                 matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
                                        moments_env_.f1_buffer.get(),
-                                       fd_.get_frame_res() * sizeof(float),
-                                       sizeof(float),
+                                       fd_.get_frame_res(),
+                                       1,
                                        time_transformation_size,
                                        moments_env_.moment1_buffer);
 
@@ -272,8 +272,8 @@ void FourierTransform::insert_moments()
                 // frequencies at order 2
                 matrix_multiply<float>(buffers_.gpu_postprocess_frame.get(),
                                        moments_env_.f2_buffer.get(),
-                                       fd_.get_frame_res() * sizeof(float),
-                                       sizeof(float),
+                                       fd_.get_frame_res(),
+                                       1,
                                        time_transformation_size,
                                        moments_env_.moment2_buffer);
             });

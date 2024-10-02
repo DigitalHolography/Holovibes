@@ -1,4 +1,3 @@
-
 /*! \file
  *
  * \brief Enum for the different type of displaying images
@@ -30,7 +29,6 @@ SERIALIZE_JSON_ENUM(ImgType, {
     {ImgType::Argument, "ARGUMENT"},
     {ImgType::PhaseIncrease, "PHASE_INCREASE"},
     {ImgType::Composite, "COMPOSITE"},
-    {ImgType::Moments, "MOMENTS"},
 })
 // clang-format on
 

@@ -353,7 +353,6 @@ void Pipe::refresh()
     converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
 
     fourier_transforms_->insert_moments();
-
     insert_moments_record();
 
     insert_filter2d_view();
@@ -369,6 +368,7 @@ void Pipe::refresh()
                                                        *buffers_.gpu_postprocess_frame_yz);
     };
     insert();
+
     rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
