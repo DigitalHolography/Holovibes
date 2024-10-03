@@ -5,7 +5,10 @@
 
 namespace camera
 {
-EHoloGrabberInt::EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format)
+EHoloGrabberInt::EHoloGrabberInt(EGenTL& gentl,
+                                 unsigned int buffer_part_count,
+                                 std::string& pixel_format,
+                                 unsigned int nb_grabbers)
     : grabbers_(gentl)
     , buffer_part_count_(buffer_part_count)
     , nb_grabbers_(nb_grabbers)

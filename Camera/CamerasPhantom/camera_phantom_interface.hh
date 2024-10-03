@@ -40,7 +40,7 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
 class EHoloGrabberInt
 {
   protected:
-    EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format);
+    EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format, unsigned int nb_grabbers);
 
   public:
     virtual ~EHoloGrabberInt();
@@ -48,6 +48,7 @@ class EHoloGrabberInt
     // magic nunmber for number max of frame grabber supported (can be less for some implementation)
 #define NB_MAX_GRABBER 4
 
+    // TODO: find a better handling of the below struct
     struct SetupParam
     {
         unsigned int full_height;
@@ -66,6 +67,7 @@ class EHoloGrabberInt
         float gain;
         std::string& balance_white_marker;
         std::optional<std::string> flat_field_correction;
+        std::string fan_ctrl;
     };
 
     virtual void setup(const SetupParam& param);
@@ -156,6 +158,7 @@ class CameraPhantomInt : public Camera
     float gain_;
     std::string balance_white_marker_;
     std::string flat_field_correction_;
+    std::string fan_ctrl_;
 };
 
 } // namespace camera
