@@ -4,10 +4,6 @@
 #include <EGrabbers.h>
 
 #include "camera.hh"
-// #include "camera_exception.hh"
-
-// #include "spdlog/spdlog.h"
-// #include "camera_logger.hh"
 
 namespace camera
 {
@@ -24,7 +20,7 @@ namespace camera
 
 using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
 
-/*! \class EHoloGrabber
+/*! \class EHoloGrabber // TODO REDO
  *
  *\brief Class to handle the different EHoloSubGrabber used to acquire images
  * from the Phantom S710 with a Coaxlink Octo frame grabber.
@@ -40,208 +36,42 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
  * The documentation of the Euresys eGrabber Programmer Guide can be found at
  * https://documentation.euresys.com/Products/COAXLINK/COAXLINK_14_0/en-us/Content/00_Home/PDF_Guides.htm.
  */
-class EHoloGrabber
+class EHoloGrabberInt
 {
+    EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format);
+
   public:
-    EHoloGrabber(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format);
+    virtual ~EHoloGrabberInt();
 
-    /*
-        : grabbers_(gentl)
-        , buffer_part_count_(buffer_part_count)
+    // magic nunmber for number max of frame grabber supported (can be less for some implementation)
+#define NB_MAX_GRABBER 4
+
+    struct SetupParam
     {
-        // Fetch the first grabber info to determine the width, height and depth
-        // of the full image.
-        // According to the requirements described above, we assume that the
-        // full height is two times the height of the first grabber.
+        unsigned int full_height;
+        unsigned int width;
+        unsigned int nb_grabbers;
+        size_t stripe_height;
+        std::string& stripe_arrangement;
+        std::string& trigger_source;
+        unsigned int block_height;
+        unsigned int[NB_MAX_GRABBER] offsets;
+        std::optionnal<std::string> trigger_mode;
+        std::optionnal<std::string> trigger_selector;
+        unsigned int cycle_minimum_period;
+        float exposure_time;
+        std::string& gain_selector;
+        float gain;
+        std::string& balance_white_marker;
+    };
 
-        depth_ = static_cast<PixelDepth>(gentl.imageGetBytesPerPixel(pixel_format));
-        for (unsigned i = 0; i < grabbers_.length(); ++i)
-            grabbers_[i]->setInteger<StreamModule>("BufferPartCount", buffer_part_count_);
-    }*/
-
-    virtual ~EHoloGrabber();
-    /*
-    {
-        for (size_t i = 0; i < grabbers_.length(); i++)
-            grabbers_[i]->reallocBuffers(0);
-
-        cudaFreeHost(ptr_);
-    }*/
-
-    void setup(unsigned int fullHeight,
-               unsigned int width,
-               unsigned int nb_grabbers,
-               unsigned int offset0,
-               unsigned int offset1,
-               unsigned int offset2,
-               unsigned int offset3,
-               std::string& triggerSource,
-               float exposureTime,
-               std::string& cycleMinimumPeriod,
-               std::string& pixelFormat,
-               std::string& trigger_mode,
-               std::string& fan_ctrl,
-               float gain,
-               std::string& balance_white_marker,
-               std::string& gain_selector,
-               std::string& flat_field_correction,
-               EGenTL& gentl);
-#if 0
-    {
-        width_ = width;
-        height_ = fullHeight;
-
-        // dynamic detection of the number of banks available.
-        if (nb_grabbers == 0)
-            nb_grabbers = grabbers_.length();
-
-        if (nb_grabbers == 2)
-        {
-            grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
-        }
-        else if (nb_grabbers == 4)
-        {
-            grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
-        }
-
-        size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
-        size_t grabberCount = grabbers_.length();
-        size_t height = fullHeight / grabberCount;
-        size_t stripeHeight = 8;
-        size_t stripePitch = stripeHeight * grabberCount;
-
-        for (size_t ix = 0; ix < grabberCount; ++ix)
-        {
-            grabbers_[ix]->setInteger<RemoteModule>("Width", static_cast<int64_t>(width));
-            grabbers_[ix]->setInteger<RemoteModule>("Height", static_cast<int64_t>(height));
-            grabbers_[ix]->setString<RemoteModule>("PixelFormat", pixelFormat);
-
-            grabbers_[ix]->setString<StreamModule>("StripeArrangement", "Geometry_1X_2YM");
-            grabbers_[ix]->setInteger<StreamModule>("LinePitch", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("LineWidth", pitch);
-            grabbers_[ix]->setInteger<StreamModule>("StripeHeight", stripeHeight);
-            grabbers_[ix]->setInteger<StreamModule>("StripePitch", stripePitch);
-            grabbers_[ix]->setInteger<StreamModule>("BlockHeight", 8);
-            grabbers_[ix]->setString<StreamModule>("StatisticsSamplingSelector", "LastSecond");
-            grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
-            // grabbers_[ix]->setInteger<StreamModule>("StripeOffset", 8 * ix);
-        }
-
-        grabbers_[0]->setInteger<StreamModule>("StripeOffset", offset0);
-        grabbers_[1]->setInteger<StreamModule>("StripeOffset", offset1);
-        if (nb_grabbers == 4)
-        {
-            grabbers_[2]->setInteger<StreamModule>("StripeOffset", offset2);
-            grabbers_[3]->setInteger<StreamModule>("StripeOffset", offset3);
-        }
-
-        grabbers_[0]->setString<RemoteModule>("TriggerMode", trigger_mode);    // camera in triggered mode
-        grabbers_[0]->setString<RemoteModule>("TriggerSource", triggerSource); // source of trigger CXP
-        std::string control_mode = triggerSource == "SWTRIGGER" ? "RC" : "EXTERNAL";
-        grabbers_[0]->setString<DeviceModule>("CameraControlMethod", control_mode); // tell grabber 0 to send trigger
-
-        /* 100 fps -> 10000us */
-        // float factor = fps / 100;
-        // float cycleMinimumPeriod = 10000 / factor;
-        // float cycleMinimumPeriod = 1e6 / fps;
-        // std::string CycleMinimumPeriod = std::to_string(cycleMinimumPeriod);
-        if (triggerSource == "SWTRIGGER")
-        {
-            grabbers_[0]->setString<DeviceModule>("CycleMinimumPeriod",
-                                                  cycleMinimumPeriod);               // set the trigger rate to 250K Hz
-            grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap", "True"); // camera needs 2 trigger to start
-            grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
-            grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
-        }
-
-        /* 100 fps -> 9000us */
-        // float factor = fps / 100;
-        // float Expvalue = 9000 / factor;
-        grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
-        grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
-
-        grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
-        grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
-        grabbers_[0]->setString<RemoteModule>("FanCtrl", fan_ctrl);
-        grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
-}
-
-#endif
+    virtual void setup(const SetupParam& param);
 
     void init(unsigned int nb_buffers);
-    /*
-    {
-        nb_buffers_ = nb_buffers;
-        size_t grabber_count = grabbers_.length();
-        size_t frame_size = width_ * height_ * depth_;
-
-        // Allocate buffers in pinned memory
-        // Learn more about pinned memory:
-        // https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/.
-
-        uint8_t* device_ptr;
-
-        cudaError_t alloc_res =
-            cudaHostAlloc(&ptr_, frame_size * buffer_part_count_ * nb_buffers_, cudaHostAllocMapped);
-        cudaError_t device_ptr_res = cudaHostGetDevicePointer(&device_ptr, ptr_, 0);
-        if (alloc_res != cudaSuccess || device_ptr_res != cudaSuccess)
-            Logger::camera()->error("Could not allocate buffers.");
-
-        float prog = 0.0;
-        for (size_t i = 0; i < nb_buffers; ++i)
-        {
-            // progress bar of the allocation of the ram buffers on the cpu.
-            prog = (float)i / (nb_buffers - 1);
-            int barWidth = 100;
-
-            std::cout << "[";
-            int pos = barWidth * prog;
-            for (int i = 0; i < barWidth; ++i)
-            {
-                if (i < pos)
-                    std::cout << "=";
-                else if (i == pos)
-                    std::cout << ">";
-                else
-                    std::cout << " ";
-            }
-            std::cout << "] " << int(prog * 100.0) << " %\r";
-            std::cout.flush();
-
-            // The EGrabber API can handle directly buffers alocated in pinned
-            // memory as we just have to use cudaHostAlloc and give each grabber
-            // the host pointer and the associated pointer in device memory.
-
-            size_t offset = i * frame_size * buffer_part_count_;
-
-            for (size_t ix = 0; ix < grabber_count; ix++)
-            {
-                grabbers_[ix]->announceAndQueue(
-                    UserMemory(ptr_ + offset, frame_size * buffer_part_count_, device_ptr + offset));
-            }
-        }
-        std::cout << std::endl;
-    }*/
 
     void start();
-    /*
-    {
-        size_t grabber_count = grabbers_.length();
-
-        // Start each sub grabber in reverse order
-        for (size_t i = 0; i < grabber_count; i++)
-        {
-            grabbers_[grabber_count - 1 - i]->enableEvent<NewBufferData>();
-            grabbers_[grabber_count - 1 - i]->start();
-        }
-    }*/
 
     void stop();
-    /*
-    {
-        for (size_t i = 0; i < grabbers_.length(); i++)
-            grabbers_[i]->stop();
-    }*/
 
     /*! \brief The width of the acquired frames. */
     unsigned int width_;
@@ -259,10 +89,7 @@ class EHoloGrabber
      * grabbers_ above. */
     std::vector<Euresys::EGrabberRef<EHoloSubGrabber>> available_grabbers_;
 
-    /*!
-     * \brief Number of requested grabbers
-     *
-     */
+    /*! \brief Number of requested grabbers */
     unsigned int nb_grabbers_;
 
   private:
@@ -278,6 +105,50 @@ class EHoloGrabber
     /*! \brief A pointer the cuda memory allocated for the buffers.
      */
     uint8_t* ptr_;
+};
+
+class CameraPhantomInt : public Camera
+{
+  protected:
+    CameraPhantomInt(const std::string& name, const std::string& ini_prefix);
+
+  public:
+    virtual ~CameraPhantomInt() {}
+
+    virtual void init_camera() override;
+    virtual void start_acquisition() override;
+    virtual void stop_acquisition() override;
+    virtual void shutdown_camera() override;
+    virtual CapturedFramesDescriptor get_frames() override;
+
+  private:
+    virtual void load_ini_params() override;
+    virtual void load_default_params() override;
+    virtual void bind_params() override;
+
+    std::unique_ptr<EGenTL> gentl_;
+    std::unique_ptr<EHoloGrabber> grabber_;
+
+    std::string ini_prefix_;
+
+    unsigned int nb_buffers_;
+    unsigned int buffer_part_count_;
+    unsigned int nb_grabbers_;
+    unsigned int fullHeight_;
+    unsigned int width_;
+
+    unsigned int stripe_offsets_[NB_MAX_GRABBER];
+
+    std::string trigger_source_;
+    std::string trigger_selector_;
+    float exposure_time_;
+    unsigned int cycle_minimum_period_;
+    std::string pixel_format_;
+
+    std::string gain_selector_;
+    std::string trigger_mode_;
+    float gain_;
+    std::string balance_white_marker_;
 };
 
 } // namespace camera

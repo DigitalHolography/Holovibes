@@ -1,8 +1,11 @@
 #include "camera_phantom_interface.hh"
+#include "camera_logger.hh"
+#include "spdlog/spdlog.h"
+#include "camera_exception.hh"
 
 namespace camera
 {
-EHoloGrabber::EHoloGrabber(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format)
+EHoloGrabberInt::EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format)
     : grabbers_(gentl)
     , buffer_part_count_(buffer_part_count)
     , nb_grabbers_(nb_grabbers)
@@ -30,51 +33,17 @@ EHoloGrabber::EHoloGrabber(EGenTL& gentl, unsigned int buffer_part_count, std::s
         }
         available_grabbers_.push_back(grabbers_[ix]);
     }
-
-    //  set Error Error
-    /*
-        // Check if we have enough available frame grabbers
-        if (available_grabbers_.size() < nb_grabbers_)
-        {
-            Logger::camera()->error("Not enough frame grabbers  connected to the camera, expected: {} but got: {}.",
-                                    nb_grabbers_,
-                                    available_grabbers_.size());
-            throw CameraException(CameraException::CANT_SET_CONFIG);
-        } // TODO Dont forget this !!!!!!!!
-    */
 }
 
-EHoloGrabber::~EHoloGrabber()
+EHoloGrabberInt::~EHoloGrabberInt()
 {
     for (size_t i = 0; i < nb_grabbers_; i++)
         available_grabbers_[i]->reallocBuffers(0);
 
     cudaFreeHost(ptr_);
 }
-// magic nunmber for number max of frame grabber supported (can be less for some implementation)
-#define NB_MAX_GRABBER 4
 
-struct SetupParam
-{
-    unsigned int full_height;
-    unsigned int width;
-    unsigned int nb_grabbers;
-    size_t stripe_height;
-    std::string& stripe_arrangement;
-    std::string& triggerSource;
-    unsigned int block_height;
-    unsigned int[NB_MAX_GRABBER] offsets;
-    std::optionnal<std::string> trigger_mode;
-    std::optionnal<std::string> trigger_selector;
-    std::optionnal<unsigned int> AcquisitionFrameRate;
-    unsigned int cycleMinimumPeriod;
-    float exposureTime;
-    std::string& gain_selector;
-    float gain;
-    std::string& balance_white_marker;
-}
-
-void EHoloGrabber::setup(const SetupParam& param)
+void EHoloGrabberInt::setup(const SetupParam& param)
 {
     width_ = param.width;
     height_ = param.fullHeight;
@@ -99,10 +68,10 @@ void EHoloGrabber::setup(const SetupParam& param)
         available_grabbers_[ix]->setString<StreamModule>("LUTConfiguration", "M_10x8");
     }
 
-    for (size_t i = 0; i < param.nb_grabbers; i++)
+    for (size_t i = 0; i < param.nb_grabbers; ++i)
         available_grabbers_[i]->setInteger<StreamModule>("StripeOffset", param.offsets[i]);
 
-    available_grabbers_[0]->setString<RemoteModule>("TriggerSource", param.triggerSource); // source of trigger CXP
+    available_grabbers_[0]->setString<RemoteModule>("TriggerSource", param.trigger_source); // source of trigger CXP
     if (param.trigger_mode)
         available_grabbers_[0]->setString<RemoteModule>("TriggerMode",
                                                         param.trigger_mode.value()); // camera in triggered mode
@@ -122,11 +91,8 @@ void EHoloGrabber::setup(const SetupParam& param)
         available_grabbers_[0]->setString<DeviceModule>("ExposureReadoutOverlap",
                                                         "True"); // camera needs 2 trigger to start
         available_grabbers_[0]->setString<DeviceModule>("ErrorSelector", "All");
-        if (param.acquisition_frame_rate)
-            available_grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate",
-                                                             param.acquisitionFrameRate.value());
     }
-    available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposureTime);
+    available_grabbers_[0]->setFloat<RemoteModule>("ExposureTime", exposure_time);
     available_grabbers_[0]->setString<RemoteModule>("BalanceWhiteMarker", balance_white_marker);
 
     available_grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
@@ -136,7 +102,7 @@ void EHoloGrabber::setup(const SetupParam& param)
         available_grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", param.flat_field_correction.value());
 }
 
-void EHoloGrabber::init(unsigned int nb_buffers)
+void EHoloGrabberInt::init(unsigned int nb_buffers)
 {
     nb_buffers_ = nb_buffers;
     size_t frame_size = width_ * height_ * depth_;
@@ -179,7 +145,7 @@ void EHoloGrabber::init(unsigned int nb_buffers)
 
         size_t offset = i * frame_size * buffer_part_count_;
 
-        for (size_t ix = 0; ix < nb_grabbers_; ix++)
+        for (size_t ix = 0; ix < nb_grabbers_; ++ix)
         {
             available_grabbers_[ix]->announceAndQueue(
                 UserMemory(ptr_ + offset, frame_size * buffer_part_count_, device_ptr + offset));
@@ -188,20 +154,142 @@ void EHoloGrabber::init(unsigned int nb_buffers)
     std::cout << std::endl;
 }
 
-void EHoloGrabber::start()
+void EHoloGrabberInt::start()
 {
     // Start each sub grabber in reverse order
-    for (size_t i = 0; i < nb_grabbers_; i++)
+    for (size_t i = 0; i < nb_grabbers_; ++i)
     {
         available_grabbers_[nb_grabbers_ - 1 - i]->enableEvent<NewBufferData>();
         available_grabbers_[nb_grabbers_ - 1 - i]->start();
     }
 }
 
-void EHoloGrabber::stop()
+void EHoloGrabberInt::stop()
 {
     for (size_t i = 0; i < nb_grabbers_; i++)
         available_grabbers_[i]->stop();
 }
+
+CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::string& ini_prefix)
+    : Camera(ini_name)
+    , ini_prefix_(ini_prefix)
+{
+    name_ = "Phantom S991";
+    pixel_size_ = 20;
+
+    if (ini_file_is_open())
+    {
+        load_ini_params();
+        ini_file_.close();
+    }
+
+    gentl_ = std::make_unique<Euresys::EGenTL>();
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
+
+    init_camera();
+}
+
+void CameraPhantomInt::init_camera()
+{
+    EHoloGrabberInt::SetupParam param = {
+        .full_height = full_height_,
+        .width = width_,
+        .nb_grabbers = nb_grabbers_,
+        .stripe_height = 8,
+        .stripe_arrangement = "Geometry_1X_1YM",
+        .trigger_source = trigger_source_,
+        .block_height = 8,
+        .offsets = stripe_offsets_,
+        .trigger_mode = trigger_mode_,
+        .trigger_selector = trigger_selector_,
+        .cycle_minimum_period = cycle_minimum_period_,
+        .exposure_time = exposure_time_,
+        .gain_selector = gain_selector_,
+        .gain = gain_,
+        .balance_white_marker = balance_white_marker_,
+    };
+
+    grabber_->setup(fullHeight_,
+                    width_,
+                    nb_grabbers_,
+                    stripeOffset_grabber_0_,
+                    stripeOffset_grabber_1_,
+                    trigger_source_,
+                    exposure_time_,
+                    cycle_minimum_period_,
+                    acquisition_frame_rate_,
+                    pixel_format_,
+                    gain_selector_,
+                    gain_,
+                    balance_white_marker_,
+                    trigger_mode_,
+                    trigger_selector_,
+                    *gentl_);
+    grabber_->init(nb_buffers_);
+
+    // Set frame descriptor according to grabber settings
+    fd_.width = grabber_->width_;
+    fd_.height = grabber_->height_;
+    fd_.depth = grabber_->depth_;
+    fd_.byteEndian = Endianness::LittleEndian;
+}
+
+void CameraPhantomInt::start_acquisition() { grabber_->start(); }
+
+void CameraPhantomInt::stop_acquisition() { grabber_->stop(); }
+
+void CameraPhantomInt::shutdown_camera() { return; }
+
+CapturedFramesDescriptor CameraPhantomInt::get_frames()
+{
+    ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
+
+    for (int i = 1; i < nb_grabbers_; ++i)
+        ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
+
+    // process available images
+    size_t delivered = buffer.getInfo<size_t>(ge::BUFFER_INFO_CUSTOM_NUM_DELIVERED_PARTS);
+
+    CapturedFramesDescriptor ret;
+
+    ret.on_gpu = true;
+    ret.region1 = buffer.getUserPointer();
+    ret.count1 = delivered;
+
+    ret.region2 = nullptr;
+    ret.count2 = 0;
+
+    return ret;
+}
+
+void CameraPhantomInt::load_default_params() {}
+
+void CameraPhantomInt::load_ini_params()
+{
+    const boost::property_tree::ptree& pt = get_ini_pt();
+    std::string& prefix = ini_prefix_ + ".";
+
+    nb_buffers_ = pt.get<unsigned int>(prefix + "NbBuffers", nb_buffers_);
+    buffer_part_count_ = pt.get<unsigned int>(prefix + "BufferPartCount", buffer_part_count_);
+    nb_grabbers_ = pt.get<unsigned int>(prefix + "NbGrabbers", nb_grabbers_);
+    fullHeight_ = pt.get<unsigned int>(prefix + "FullHeight", fullHeight_);
+    width_ = pt.get<unsigned int>(prefix + "Width", width_);
+
+    for (size_t i = 0; i < NB_MAX_GRABBER; ++i)
+        stripe_offsets_[i] = pt.get<unsigned int>(prefix + "Offset" + std::to_string(i), stripe_offsets_[i]);
+
+    trigger_source_ = pt.get<std::string>(prefix + "TriggerSource", trigger_source_);
+    trigger_selector_ = pt.get<std::string>(prefix + "TriggerSelector", trigger_selector_);
+    exposure_time_ = pt.get<float>(prefix + "ExposureTime", exposure_time_);
+    cycle_minimum_period_ = pt.get<unsigned int>(prefix + "CycleMinimumPeriod", cycle_minimum_period_);
+    pixel_format_ = pt.get<std::string>(prefix + "PixelFormat", pixel_format_);
+
+    gain_selector_ = pt.get<std::string>(prefix + "GainSelector", gain_selector_);
+    trigger_mode_ = pt.get<std::string>(prefix + "TriggerMode", trigger_mode_);
+    gain_ = pt.get<float>(prefix + "Gain", gain_);
+    balance_white_marker_ = pt.get<std::string>(prefix + "BalanceWhiteMarker", balance_white_marker_);
+}
+
+void CameraPhantomInt::bind_params() { return; }
 
 } // namespace camera
