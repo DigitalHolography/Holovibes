@@ -189,7 +189,6 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     else if (opts.moments_record)
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::MOMENTS});
-        holovibes::api::set_compute_mode(holovibes::Computation::Moments);
         holovibes::api::set_record_mode(holovibes::RecordMode::MOMENTS);
     }
     else

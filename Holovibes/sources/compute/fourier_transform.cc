@@ -242,42 +242,45 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
-    if (setting<settings::RecordMode>() == RecordMode::MOMENTS || setting<settings::ImageType>() == ImgType::Moments)
-    {
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                LOG_INFO("moments");
-                uint time_transformation_size = setting<settings::TimeTransformationSize>();
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            LOG_INFO("moments");
+            uint time_transformation_size = setting<settings::TimeTransformationSize>();
 
-                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 0 (all equal to 1)
-                tensor_multiply_vector(moments_env_.moment0_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f0_buffer,
-                                       fd_.get_frame_res(),
-                                       time_transformation_size,
-                                       stream_);
+            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 0 (all equal to 1)
+            auto mem0 =
+                type == ImgType::Moments_0 ? buffers_.gpu_postprocess_frame.get() : moments_env_.moment0_buffer.get();
+            tensor_multiply_vector(mem0,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f0_buffer,
+                                   fd_.get_frame_res(),
+                                   time_transformation_size,
+                                   stream_);
 
-                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 1
-                tensor_multiply_vector(moments_env_.moment1_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f1_buffer,
-                                       fd_.get_frame_res(),
-                                       time_transformation_size,
-                                       stream_);
+            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 1
+            auto mem1 =
+                type == ImgType::Moments_1 ? buffers_.gpu_postprocess_frame.get() : moments_env_.moment1_buffer.get();
+            tensor_multiply_vector(mem1,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f1_buffer,
+                                   fd_.get_frame_res(),
+                                   time_transformation_size,
+                                   stream_);
 
-                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 2
-                tensor_multiply_vector(moments_env_.moment2_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f2_buffer,
-                                       fd_.get_frame_res(),
-                                       time_transformation_size,
-                                       stream_);
-            });
-    }
+            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 2
+            auto mem2 =
+                type == ImgType::Moments_2 ? buffers_.gpu_postprocess_frame.get() : moments_env_.moment2_buffer.get();
+            tensor_multiply_vector(mem2,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f2_buffer,
+                                   fd_.get_frame_res(),
+                                   time_transformation_size,
+                                   stream_);
+        });
 }
 
 void FourierTransform::insert_pca()
