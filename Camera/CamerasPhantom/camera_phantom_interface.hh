@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <EGrabber.h>
 #include <EGrabbers.h>
 
@@ -38,6 +39,7 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
  */
 class EHoloGrabberInt
 {
+  protected:
     EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format);
 
   public:
@@ -52,17 +54,18 @@ class EHoloGrabberInt
         unsigned int width;
         unsigned int nb_grabbers;
         size_t stripe_height;
-        std::string& stripe_arrangement;
+        std::string stripe_arrangement;
         std::string& trigger_source;
         unsigned int block_height;
-        unsigned int[NB_MAX_GRABBER] offsets;
-        std::optionnal<std::string> trigger_mode;
-        std::optionnal<std::string> trigger_selector;
+        unsigned int offsets[NB_MAX_GRABBER];
+        std::optional<std::string> trigger_mode;
+        std::optional<std::string> trigger_selector;
         unsigned int cycle_minimum_period;
         float exposure_time;
         std::string& gain_selector;
         float gain;
         std::string& balance_white_marker;
+        std::optional<std::string> flat_field_correction;
     };
 
     virtual void setup(const SetupParam& param);
@@ -123,15 +126,17 @@ class CameraPhantomInt : public Camera
 
   protected:
     virtual void init_camera_();
+
     virtual void load_ini_params() override;
     virtual void load_default_params() override;
     virtual void bind_params() override;
 
-    std::unique_ptr<EGenTL> gentl_;
+    std::unique_ptr<Euresys::EGenTL> gentl_;
     std::unique_ptr<EHoloGrabber> grabber_;
 
     std::string ini_prefix_;
 
+    // TODO: maybe replace all these with an instance of SetupParam struct to simplify settings handling
     unsigned int nb_buffers_;
     unsigned int buffer_part_count_;
     unsigned int nb_grabbers_;
@@ -150,6 +155,7 @@ class CameraPhantomInt : public Camera
     std::string trigger_mode_;
     float gain_;
     std::string balance_white_marker_;
+    std::string flat_field_correction_;
 };
 
 } // namespace camera

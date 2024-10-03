@@ -1,5 +1,10 @@
 #include "camera_phantom_s991.hh"
 
+#include <EGrabber.h>
+#include <EGrabbers.h>
+
+#include "camera_exception.hh"
+
 namespace camera
 {
 EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
@@ -50,6 +55,7 @@ void CameraPhantom::init_camera()
         .gain_selector = gain_selector_,
         .gain = gain_,
         .balance_white_marker = balance_white_marker_,
+        .flat_field_correction = std::nullopt,
     };
     init_camera_(param);
 }

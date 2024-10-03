@@ -40,6 +40,7 @@ class CameraPhantom : public CameraPhantomInt
             .gain_selector = gain_selector_,
             .gain = gain_,
             .balance_white_marker = balance_white_marker_,
+            .flat_field_correction = flat_field_correction_,
         };
         init_camera_(param);
     }
