@@ -352,6 +352,8 @@ void Pipe::refresh()
 
     converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
 
+    converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
+
     fourier_transforms_->insert_moments();
 
     insert_moments_record();
@@ -595,25 +597,22 @@ void Pipe::insert_moments_record()
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
     {
         // if (Holovibes::instance().is_cli)
-        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+        fn_compute_vect_.push_back([&]() { keep_contiguous(3); });
 
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
-                record_queue_.enqueue_multiple(moments_env_.moment0_buffer.get(),
-                                               setting<settings::TimeTransformationSize>(),
+                record_queue_.enqueue(moments_env_.moment0_buffer,
                                                stream_,
                                                setting<settings::RecordQueueLocation>() == Device::GPU
                                                    ? cudaMemcpyDeviceToDevice
                                                    : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue_multiple(moments_env_.moment1_buffer.get(),
-                                               setting<settings::TimeTransformationSize>(),
+                record_queue_.enqueue(moments_env_.moment1_buffer,
                                                stream_,
                                                setting<settings::RecordQueueLocation>() == Device::GPU
                                                    ? cudaMemcpyDeviceToDevice
                                                    : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue_multiple(moments_env_.moment2_buffer.get(),
-                                               setting<settings::TimeTransformationSize>(),
+                record_queue_.enqueue(moments_env_.moment2_buffer,
                                                stream_,
                                                setting<settings::RecordQueueLocation>() == Device::GPU
                                                    ? cudaMemcpyDeviceToDevice

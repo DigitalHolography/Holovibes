@@ -90,6 +90,8 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         moments_env_.f0_buffer.resize(size);
         moments_env_.f1_buffer.resize(size);
         moments_env_.f2_buffer.resize(size);
+        init_moments();
+        moments_env_.stft_res_buffer.resize(frame_res * size);
         fft_freqs();
 
         perform_time_transformation_setting_specific_tasks(size);

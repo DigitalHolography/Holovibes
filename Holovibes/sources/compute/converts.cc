@@ -108,6 +108,21 @@ void Converts::insert_to_modulus(float* gpu_postprocess_frame)
         });
 }
 
+void Converts::insert_to_modulus_moments(float* output)
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            complex_to_modulus_moments(output,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd_.get_frame_res(),
+                                       setting<settings::TimeTransformationSize>(),
+                                       stream_);
+        });
+}
+
 void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
@@ -366,7 +381,8 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, convert_to_complex]()
     {
-        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the next batch. We wait 0 ms to avoid blocking the thread.
+        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
+        // next batch. We wait 0 ms to avoid blocking the thread.
         while (input_queue.size_ == 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));

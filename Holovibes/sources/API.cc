@@ -1908,7 +1908,7 @@ void stop_record()
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
-             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
+             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ || record_mode == RecordMode::MOMENTS)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
