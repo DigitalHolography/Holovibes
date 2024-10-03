@@ -220,7 +220,7 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
     return QSize(final_width, final_height);
 }
 
-void write_ui_mode(bool lightUI)
+void set_light_ui_mode(bool lightUI)
 {
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);
@@ -231,7 +231,7 @@ void write_ui_mode(bool lightUI)
     output_file << j_us.dump(1);
 }
 
-bool get_ui_mode()
+bool is_light_ui_mode()
 {
     auto path = holovibes::settings::user_settings_filepath;
     std::ifstream input_file(path);

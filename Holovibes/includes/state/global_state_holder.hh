@@ -71,18 +71,9 @@ class GSH
     };
     static void convert_json(json& data, GSH::ComputeSettingsVersion from);
 
-    void set_notify_callback(std::function<void()> func) { notify_callback_ = func; }
-
-    void notify() { notify_callback_(); }
-
   private:
     GSH() noexcept {}
 
-    std::shared_ptr<holovibes::ViewWindow> get_window(WindowKind kind);
-
-    std::function<void()> notify_callback_ = []() {};
-
-    mutable std::mutex mutex_;
 };
 
 } // namespace holovibes
