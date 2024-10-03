@@ -103,6 +103,7 @@ class EHoloGrabber
         width_ = width;
         height_ = fullHeight;
 
+        // keep this
         // dynamic detection of the number of banks available.
         if (nb_grabbers == 0)
             nb_grabbers = grabbers_.length();
@@ -114,7 +115,7 @@ class EHoloGrabber
         else if (nb_grabbers == 4)
         {
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
-        }
+        } // else Error
 
         size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
         size_t grabberCount = grabbers_.length();
@@ -174,7 +175,7 @@ class EHoloGrabber
 
         grabbers_[0]->setString<RemoteModule>("GainSelector", gain_selector);
         grabbers_[0]->setFloat<RemoteModule>("Gain", gain);
-        grabbers_[0]->setString<RemoteModule>("FanCtrl", fan_ctrl);
+        grabbers_[0]->setString<RemoteModule>("FanCtrl", fan_ctrl); // TODO DO TO DO
         grabbers_[0]->setString<RemoteModule>("FlatFieldCorrection", flat_field_correction);
     }
 
