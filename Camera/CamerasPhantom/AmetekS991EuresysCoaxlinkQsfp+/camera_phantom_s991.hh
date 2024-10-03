@@ -16,9 +16,7 @@ class EHoloGrabber : public EHoloGrabberInt
 class CameraPhantom : public CameraPhantomInt
 {
   public:
-    CameraPhantom()
-        : CameraPhantomInt("ametek_s991_euresys_coaxlink_qsfp+.ini", "s991")
-    {
-    }
+    CameraPhantom();
+    void init_camera();
 }
 } // namespace camera

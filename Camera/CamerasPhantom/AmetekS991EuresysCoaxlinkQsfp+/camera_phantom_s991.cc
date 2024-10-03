@@ -26,6 +26,34 @@ void EHoloGrabber::setup(const SetupParam& param, unsigned int acquisition_frame
         available_grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", acquisition_frame_rate);
 }
 
+CameraPhantom::CameraPhantom()
+    : CameraPhantomInt("ametek_s991_euresys_coaxlink_qsfp+.ini", "s991")
+    , : name_("Phantom S991")
+{
+}
+
+void CameraPhantom::init_camera()
+{
+    EHoloGrabberInt::SetupParam param = {
+        .full_height = full_height_,
+        .width = width_,
+        .nb_grabbers = nb_grabbers_,
+        .stripe_height = 4,
+        .stripe_arrangement = "Geometry_1X_1Y",
+        .trigger_source = trigger_source_,
+        .block_height = 0,
+        .offsets = stripe_offsets_,
+        .trigger_mode = trigger_mode_,
+        .trigger_selector = trigger_selector_,
+        .cycle_minimum_period = cycle_minimum_period_,
+        .exposure_time = exposure_time_,
+        .gain_selector = gain_selector_,
+        .gain = gain_,
+        .balance_white_marker = balance_white_marker_,
+    };
+    init_camera_(param);
+}
+
 ICamera* new_camera_device() = { return new CameraPhantom() };
 } // namespace camera
 

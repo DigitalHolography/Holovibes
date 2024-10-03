@@ -115,13 +115,14 @@ class CameraPhantomInt : public Camera
   public:
     virtual ~CameraPhantomInt() {}
 
-    virtual void init_camera() override;
+    virtual void init_camera() = 0;
     virtual void start_acquisition() override;
     virtual void stop_acquisition() override;
     virtual void shutdown_camera() override;
     virtual CapturedFramesDescriptor get_frames() override;
 
-  private:
+  protected:
+    virtual void init_camera_();
     virtual void load_ini_params() override;
     virtual void load_default_params() override;
     virtual void bind_params() override;

@@ -174,7 +174,6 @@ CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::strin
     : Camera(ini_name)
     , ini_prefix_(ini_prefix)
 {
-    name_ = "Phantom S991";
     pixel_size_ = 20;
 
     if (ini_file_is_open())
@@ -189,42 +188,9 @@ CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::strin
     init_camera();
 }
 
-void CameraPhantomInt::init_camera()
+void CameraPhantomInt::init_camera_(EHoloGrabberInt::SetupParam& param)
 {
-    EHoloGrabberInt::SetupParam param = {
-        .full_height = full_height_,
-        .width = width_,
-        .nb_grabbers = nb_grabbers_,
-        .stripe_height = 8,
-        .stripe_arrangement = "Geometry_1X_1YM",
-        .trigger_source = trigger_source_,
-        .block_height = 8,
-        .offsets = stripe_offsets_,
-        .trigger_mode = trigger_mode_,
-        .trigger_selector = trigger_selector_,
-        .cycle_minimum_period = cycle_minimum_period_,
-        .exposure_time = exposure_time_,
-        .gain_selector = gain_selector_,
-        .gain = gain_,
-        .balance_white_marker = balance_white_marker_,
-    };
-
-    grabber_->setup(fullHeight_,
-                    width_,
-                    nb_grabbers_,
-                    stripeOffset_grabber_0_,
-                    stripeOffset_grabber_1_,
-                    trigger_source_,
-                    exposure_time_,
-                    cycle_minimum_period_,
-                    acquisition_frame_rate_,
-                    pixel_format_,
-                    gain_selector_,
-                    gain_,
-                    balance_white_marker_,
-                    trigger_mode_,
-                    trigger_selector_,
-                    *gentl_);
+    grabber_->setup(param);
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
