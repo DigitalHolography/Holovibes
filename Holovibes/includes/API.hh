@@ -821,6 +821,13 @@ void toggle_renormalize(bool value);
  */
 bool set_3d_cuts_view(uint time_transformation_size);
 
+/*! \brief Modifies frame packet size from ui value
+ *
+ * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
+ * \param frame_packet the new value
+ */
+void update_frame_packet(std::function<void()> callback, const uint frame_packet);
+
 /*! \brief Modifies time transformation stride size from ui value
  *
  * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback

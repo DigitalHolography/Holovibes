@@ -82,6 +82,7 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
+    holovibes::settings::FramePacket,                            \
     holovibes::settings::BatchSize,                              \
     holovibes::settings::TimeStride,                             \
     holovibes::settings::TimeTransformationSize,                 \
@@ -410,6 +411,7 @@ class Holovibes
                                              settings::ContrastUpperThreshold{99.5f},
                                              settings::RenormConstant{5},
                                              settings::CutsContrastPOffset{2},
+                                             settings::FramePacket{1},
                                              settings::BatchSize{1},
                                              settings::TimeStride{1},
                                              settings::TimeTransformationSize{1},

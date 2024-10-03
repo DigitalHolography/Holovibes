@@ -192,6 +192,25 @@
             <number>1</number>
            </property>
            <item row="0" column="1">
+            <widget class="QSpinBox" name="FramePacketSpinBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
             <widget class="QSpinBox" name="BatchSizeSpinBox">
              <property name="minimumSize">
               <size>
@@ -211,6 +230,19 @@
             </widget>
            </item>
            <item row="0" column="0">
+            <widget class="QLabel" name="FramePacketLabel">
+             <property name="text">
+              <string>Frame Packet</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
              <property name="text">
               <string>Batch Size</string>
@@ -223,7 +255,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="TimeStrideLabel">
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
@@ -236,7 +268,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QSpinBox" name="TimeStrideSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -3843,6 +3875,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>FramePacketSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_frame_packet()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>BatchSizeSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImageRenderingPanel</receiver>
@@ -5756,6 +5804,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>browse_import_ini()</slot>
   <slot>write_compute_settings()</slot>
   <slot>browse_export_ini()</slot>
+  <slot>update_frame_packet()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_stride()</slot>
   <slot>rotateTexture()</slot>

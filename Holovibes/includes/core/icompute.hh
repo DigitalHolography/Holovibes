@@ -204,6 +204,7 @@ class ICompute
         Termination,
         TimeTransformationCuts,
         DeleteTimeTransformationCuts,
+        UpdateFramePacket,
         UpdateBatchSize,
         UpdateTimeStride,
         DisableLensView,

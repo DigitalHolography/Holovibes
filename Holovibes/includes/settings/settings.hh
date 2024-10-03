@@ -150,6 +150,7 @@ DECLARE_SETTING(RecordOnGPU, bool);
 DECLARE_SETTING(BenchmarkMode, bool);
 
 /*! \name ComputeCache */
+DECLARE_SETTING(FramePacket, uint);
 DECLARE_SETTING(BatchSize, uint);
 DECLARE_SETTING(TimeStride, uint);
 DECLARE_SETTING(TimeTransformationSize, uint);

@@ -41,6 +41,7 @@
     holovibes::settings::SpaceTransformation
 
 #define PIPEREFRESH_SETTINGS                         \
+    holovibes::settings::FramePacket,               \
     holovibes::settings::BatchSize,                  \
     holovibes::settings::XZ,                       \
     holovibes::settings::YZ,                       \

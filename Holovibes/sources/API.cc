@@ -395,6 +395,32 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 
 #pragma region Batch
 
+void update_frame_packet(std::function<void()> notify_callback, const uint frame_packet)
+{
+    if (frame_packet == get_frame_packet())
+        return;
+
+    bool batch_size_changed = set_frame_packet(frame_packet);
+
+    // TODO
+    // if (get_compute_mode() == Computation::Hologram)
+    // {
+    //     if (time_stride_changed)
+    //         Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
+    //     Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
+    // }
+    // else
+    //     Holovibes::instance().get_input_queue()->resize(get_batch_size());
+    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
+    {
+        pipe->insert_fn_end_vect(notify_callback);
+    }
+    else
+    {
+        notify_callback();
+    }
+}
+
 void update_batch_size(const uint batch_size)
 {
     if (batch_size == get_batch_size())

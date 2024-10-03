@@ -155,8 +155,18 @@ inline bool set_batch_size(uint value)
     bool request_time_stride_update = false;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
 
+    // TODO : Remove these 2 lines
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
+
+    uint frame_packet = holovibes::Holovibes::instance().get_setting<settings::FramePacket>().value;
+
+    if (frame_packet > value)
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{frame_packet});
+    // Go to lower multiple
+    if (value % frame_packet != 0)
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value - value % frame_packet});
+
     uint time_stride = get_time_stride();
     if (time_stride < value)
     {
@@ -171,6 +181,31 @@ inline bool set_batch_size(uint value)
     }
 
     return request_time_stride_update;
+}
+
+inline uint get_frame_packet() { return holovibes::Holovibes::instance().get_setting<settings::FramePacket>().value; }
+inline bool set_frame_packet(uint value)
+{
+    bool request_batch_size_update = false;
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::FramePacket{value});
+
+    if (value > get_input_buffer_size())
+        value = get_input_buffer_size();
+    uint batch_size = get_batch_size();
+    if (batch_size < value)
+    {
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
+        batch_size = value;
+        request_batch_size_update = true;
+    }
+    // Go to lower multiple
+    if (batch_size % value != 0)
+    {
+        // handle time stride update
+        set_batch_size(batch_size - batch_size % value);
+    }
+
+    return request_batch_size_update;
 }
 
 inline uint get_time_transformation_size()

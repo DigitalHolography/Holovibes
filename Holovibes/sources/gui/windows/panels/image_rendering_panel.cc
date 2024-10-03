@@ -52,10 +52,13 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-
+    ui_->BatchSizeSpinBox->setSingleStep(api::get_frame_packet());
+    ui_->BatchSizeSpinBox->setMinimum(api::get_frame_packet());
+    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
     ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
 
-    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
+    ui_->FramePacketSpinBox->setValue(api::get_frame_packet());
+    ui_->FramePacketSpinBox->setMaximum(api::get_input_buffer_size());
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
@@ -177,13 +180,22 @@ void ImageRenderingPanel::set_image_mode(int mode)
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeStrideSpinBox->value()));
 
-        /* Batch size */
-        // The batch size is set with the value present in GUI.
-        // update_batch_size();
-
         /* Notify */
         parent_->notify();
     }
+}
+
+void ImageRenderingPanel::update_frame_packet()
+{
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    uint frame_packet = ui_->FramePacketSpinBox->value();
+
+    // Need a notify because batch size might change due to change on frame packet
+    auto notify_callback = [=]() { parent_->notify(); };
+
+    api::update_frame_packet(notify_callback, frame_packet);
 }
 
 void ImageRenderingPanel::update_batch_size()

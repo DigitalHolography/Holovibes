@@ -45,8 +45,12 @@ class ImageRenderingPanel : public Panel
      */
     void set_image_mode(int mode);
 
+    /*! \brief Modifies the frame packet size from ui value */
+    void update_frame_packet();
+
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
+
     /*! \brief Modifies time transformation stride size from ui value */
     void update_time_stride();
 
