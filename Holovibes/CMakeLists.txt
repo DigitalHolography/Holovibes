@@ -168,7 +168,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy Preset files to AppData
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/OCT.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/OCT.json
-    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_27.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_28.json
+    COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_384_27.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_384_27.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/doppler_8b_512_40.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/doppler_8b_512_40.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/preset.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/preset.json
     COMMAND ${CMAKE_COMMAND} -E copy "${PRESET_DIR}/FILE_ON_GPU.json" $<TARGET_FILE_DIR:Holovibes>/AppData/preset/FILE_ON_GPU.json
