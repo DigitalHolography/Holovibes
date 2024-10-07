@@ -266,9 +266,9 @@ void set_record_queue_location(Device device);
  */
 void set_record_buffer_size(uint value);
 
-void write_ui_mode(bool lightUI);
+void set_light_ui_mode(bool value);
 
-bool get_ui_mode();
+bool is_light_ui_mode();
 
 /*! \brief Closes all the currently displaying windows
  *
