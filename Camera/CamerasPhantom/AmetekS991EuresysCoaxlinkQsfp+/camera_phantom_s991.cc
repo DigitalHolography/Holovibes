@@ -15,7 +15,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
 {
     if (available_grabbers_.size() < nb_grabbers_)
     { // TODO tkt
-        Logger::camera()->error("Not enough frame grabbers  connected to the camera, expected: {} but got: {}.",
+        Logger::camera()->error("Not enough frame grabbers connected to the camera, expected: {} but got: {}.",
                                 nb_grabbers_,
                                 available_grabbers_.size());
         throw CameraException(CameraException::CANT_SET_CONFIG);
