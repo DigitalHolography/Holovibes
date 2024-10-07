@@ -17,19 +17,21 @@ namespace holovibes
 enum class SpaceTransformation
 {
     NONE = 0, /*!< Nothing Applied */
-    FFT1,     /*!< Fresnel Transform */
-    FFT2      /*!< Angular spectrum propagation */
+    FRESNELTR,     /*!< Fresnel Transform */
+    ANGULARSP      /*!< Angular spectrum propagation */
 };
 
 // clang-format off
 SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FFT1, "FFT1"},
-    {SpaceTransformation::FFT2, "FFT2"},
-    {SpaceTransformation::FFT1, "1FFT"}, // Compat
-    {SpaceTransformation::FFT2, "2FFT"}, // Compat
-    {SpaceTransformation::FFT1, "Fresnel"}, // Compat
-    {SpaceTransformation::FFT2, "AngularSP"}, // Compat
+    {SpaceTransformation::FRESNELTR, "FFT1"}, // Compat
+    {SpaceTransformation::ANGULARSP, "FFT2"}, // Compat
+    {SpaceTransformation::FRESNELTR, "1FFT"}, // Compat
+    {SpaceTransformation::ANGULARSP, "2FFT"}, // Compat
+    {SpaceTransformation::FRESNELTR, "FRESNELTR"},
+    {SpaceTransformation::ANGULARSP, "ANGULARSP"},
+    {SpaceTransformation::FRESNELTR, "FresnelTR"}, // Compat
+    {SpaceTransformation::ANGULARSP, "AngularSP"}, // Compat
     {SpaceTransformation::NONE, "None"}, // Compat
 })
 // clang-format on

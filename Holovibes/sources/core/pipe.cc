@@ -8,8 +8,6 @@
 #include "notifier.hh"
 
 #include "filter2D.cuh"
-#include "fft1.cuh"
-#include "fft2.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
 #include "composite.cuh"
