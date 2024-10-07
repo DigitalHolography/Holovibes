@@ -9,7 +9,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                            unsigned int nb_grabbers)
     : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers)
 {
-    size_t available_grabbers_count = available_grabbers.size();
+    size_t available_grabbers_count = available_grabbers_.size();
 
     // nb_grabbers = 0 means autodetect between 2 or 4
     if (nb_grabbers_ == 0 && available_grabbers_count >= 2)
@@ -20,7 +20,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     {
         Logger::camera()->error("Incompatible number of frame grabbers requested for camera S710, please check the ",
                                 "NbGrabbers parameter of the S710 ini file");
-        throw CameraException(CameraException::CANT_SET_CONFIG)
+        throw CameraException(CameraException::CANT_SET_CONFIG);
     }
 
     // Not enough frame grabbers compared to requested number
@@ -29,7 +29,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
         // If possible recover to the 2 grabbers setup (with a warning)
         if (available_grabbers_count == 2)
         {
-            Logger::camera()->warning(
+            Logger::camera()->warn(
                 "Not enough frame grabbers connected to the camera, switched to 2 frame grabbers setup. Please "
                 "check your setup and the NbGrabbers parameter in S710 ini config file");
             return;
@@ -41,23 +41,23 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     }
 }
 
-void EHoloGrabber::setup(const SetupParam& param)
+void EHoloGrabber::setup(const SetupParam& param, Euresys::EGenTL& gentl)
 {
-    if (nb_grabbers == 2)
-        available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
-    else if (nb_grabbers == 4)
-        available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
+    if (nb_grabbers_ == 2)
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
+    else if (nb_grabbers_ == 4)
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_ABCD");
 
-    EHoloGrabberInt::setup(param);
-    if (param.triggerSource == "SWTRIGGER")
-        available_grabbers_[0]->setString<RemoteModule>("TimeStamp", "TSOff");
-    available_grabbers_[0]->setString<RemoteModule>("FanCtrl", );
+    EHoloGrabberInt::setup(param, gentl);
+    if (param.trigger_source == "SWTRIGGER")
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("TimeStamp", "TSOff");
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", param.fan_ctrl);
 }
 
 CameraPhantom::CameraPhantom()
     : CameraPhantomInt("ametek_s710_euresys_coaxlink_octo.ini", "s710")
-    , : name_("Phantom S710")
 {
+    name_ = "Phantom S710";
 }
 
 void CameraPhantom::init_camera()
@@ -66,6 +66,7 @@ void CameraPhantom::init_camera()
         .full_height = full_height_,
         .width = width_,
         .nb_grabbers = nb_grabbers_,
+        .pixel_format = pixel_format_,
         .stripe_height = 8,
         .stripe_arrangement = "Geometry_1X_2YM",
         .trigger_source = trigger_source_,
@@ -84,7 +85,5 @@ void CameraPhantom::init_camera()
     init_camera_(param);
 }
 
-ICamera* new_camera_device() = { return new CameraPhantom() };
-} // namespace camera
-
+ICamera* new_camera_device() { return new CameraPhantom(); }
 } // namespace camera

@@ -117,7 +117,7 @@ class EHoloGrabberInt
             grabbers_[0]->setString<RemoteModule>("Banks", "Banks_ABCD");
         } // else Error
 
-        size_t pitch = width * gentl.imageGetBytesPerPixel(pixelFormat);
+        size_t pitch = width * gentl_.imageGetBytesPerPixel(pixelFormat);
         size_t grabberCount = grabbers_.length();
         size_t height = fullHeight / grabberCount;
         size_t stripeHeight = 8;

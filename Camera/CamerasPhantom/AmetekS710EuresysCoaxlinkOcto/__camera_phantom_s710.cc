@@ -96,7 +96,7 @@ void CameraPhantom::load_ini_params()
     nb_buffers_ = pt.get<unsigned int>("s710.NbBuffers", nb_buffers_);
     buffer_part_count_ = pt.get<unsigned int>("s710.BufferPartCount", buffer_part_count_);
     nb_grabbers_ = pt.get<unsigned int>("s710.NbGrabbers", nb_grabbers_);
-    fullHeight_ = pt.get<unsigned int>("s710.FullHeight", fullHeight_);
+    full_height_ = pt.get<unsigned int>("s710.FullHeight", full_height_);
     width_ = pt.get<unsigned int>("s710.Width", width_);
 
     stripeOffset_grabber_0_ = pt.get<unsigned int>("s710.Offset0", stripeOffset_grabber_0_);

@@ -39,10 +39,12 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
  */
 class EHoloGrabberInt
 {
-  protected:
-    EHoloGrabberInt(EGenTL& gentl, unsigned int buffer_part_count, std::string& pixel_format, unsigned int nb_grabbers);
-
   public:
+    EHoloGrabberInt(Euresys::EGenTL& gentl,
+                    unsigned int buffer_part_count,
+                    std::string& pixel_format,
+                    unsigned int nb_grabbers);
+
     virtual ~EHoloGrabberInt();
 
     // magic nunmber for number max of frame grabber supported (can be less for some implementation)
@@ -54,11 +56,12 @@ class EHoloGrabberInt
         unsigned int full_height;
         unsigned int width;
         unsigned int nb_grabbers;
+        std::string pixel_format;
         size_t stripe_height;
         std::string stripe_arrangement;
         std::string& trigger_source;
         unsigned int block_height;
-        unsigned int offsets[NB_MAX_GRABBER];
+        unsigned int (&offsets)[NB_MAX_GRABBER];
         std::optional<std::string> trigger_mode;
         std::optional<std::string> trigger_selector;
         unsigned int cycle_minimum_period;
@@ -66,11 +69,12 @@ class EHoloGrabberInt
         std::string& gain_selector;
         float gain;
         std::string& balance_white_marker;
-        std::optional<std::string> flat_field_correction;
+        std::string flat_field_correction;
         std::string fan_ctrl;
+        unsigned int acquisition_frame_rate;
     };
 
-    virtual void setup(const SetupParam& param);
+    virtual void setup(const SetupParam& param, Euresys::EGenTL& gentl);
 
     void init(unsigned int nb_buffers);
 
@@ -88,7 +92,7 @@ class EHoloGrabberInt
     PixelDepth depth_;
 
     /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber grabbers.  */
-    EGrabbers<EHoloSubGrabber> grabbers_;
+    Euresys::EGrabbers<EHoloSubGrabber> grabbers_;
 
     /*! \brief The list of detected grabbers that are connected to a camera and are truly available for use. Built from
      * grabbers_ above. */
@@ -127,14 +131,14 @@ class CameraPhantomInt : public Camera
     virtual CapturedFramesDescriptor get_frames() override;
 
   protected:
-    virtual void init_camera_();
+    virtual void init_camera_(EHoloGrabberInt::SetupParam& param);
 
     virtual void load_ini_params() override;
     virtual void load_default_params() override;
     virtual void bind_params() override;
 
     std::unique_ptr<Euresys::EGenTL> gentl_;
-    std::unique_ptr<EHoloGrabber> grabber_;
+    std::unique_ptr<EHoloGrabberInt> grabber_;
 
     std::string ini_prefix_;
 
@@ -142,7 +146,7 @@ class CameraPhantomInt : public Camera
     unsigned int nb_buffers_;
     unsigned int buffer_part_count_;
     unsigned int nb_grabbers_;
-    unsigned int fullHeight_;
+    unsigned int full_height_;
     unsigned int width_;
 
     unsigned int stripe_offsets_[NB_MAX_GRABBER];
@@ -159,6 +163,7 @@ class CameraPhantomInt : public Camera
     std::string balance_white_marker_;
     std::string flat_field_correction_;
     std::string fan_ctrl_;
+    unsigned int acquisition_frame_rate_;
 };
 
 } // namespace camera

@@ -22,19 +22,19 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     }
 }
 
-void EHoloGrabber::setup(const SetupParam& param, unsigned int acquisition_frame_rate)
+void EHoloGrabber::setup(const SetupParam& param, Euresys::EGenTL& gentl)
 {
-    available_grabbers_[0]->setString<RemoteModule>("Banks", "Banks_AB");
-    EHoloGrabberInt::setup(param);
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
+    EHoloGrabberInt::setup(param, gentl);
 
-    if (triggerSource == "SWTRIGGER")
-        available_grabbers_[0]->setInteger<RemoteModule>("AcquisitionFrameRate", acquisition_frame_rate);
+    if (param.trigger_source == "SWTRIGGER")
+        available_grabbers_[0]->setInteger<Euresys::RemoteModule>("AcquisitionFrameRate", param.acquisition_frame_rate);
 }
 
 CameraPhantom::CameraPhantom()
     : CameraPhantomInt("ametek_s991_euresys_coaxlink_qsfp+.ini", "s991")
-    , : name_("Phantom S991")
 {
+    name_ = "Phantom S991";
 }
 
 void CameraPhantom::init_camera()
@@ -43,6 +43,7 @@ void CameraPhantom::init_camera()
         .full_height = full_height_,
         .width = width_,
         .nb_grabbers = nb_grabbers_,
+        .pixel_format = pixel_format_,
         .stripe_height = 4,
         .stripe_arrangement = "Geometry_1X_1Y",
         .trigger_source = trigger_source_,
@@ -55,12 +56,9 @@ void CameraPhantom::init_camera()
         .gain_selector = gain_selector_,
         .gain = gain_,
         .balance_white_marker = balance_white_marker_,
-        .flat_field_correction = std::nullopt,
     };
     init_camera_(param);
 }
 
-ICamera* new_camera_device() = { return new CameraPhantom() };
-} // namespace camera
-
+ICamera* new_camera_device() { return new CameraPhantom(); }
 } // namespace camera
