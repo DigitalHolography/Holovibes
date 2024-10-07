@@ -24,7 +24,7 @@ CameraPhantom::CameraPhantom(bool gpu)
         ini_file_.close();
     }
     gentl_ = std::make_unique<Euresys::EGenTL>();
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_, pixel_format_);
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_);
 
     init_camera();
 }
@@ -94,7 +94,7 @@ void CameraPhantom::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
     nb_buffers_ = pt.get<unsigned int>("s710.NbBuffers", nb_buffers_);
-    nb_images_per_buffer_ = pt.get<unsigned int>("s710.NbImagesPerBuffer", nb_images_per_buffer_);
+    buffer_part_count_ = pt.get<unsigned int>("s710.BufferPartCount", buffer_part_count_);
     nb_grabbers_ = pt.get<unsigned int>("s710.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s710.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s710.Width", width_);
