@@ -3231,8 +3231,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionEGrabberStudioSettings"/>
     </widget>
     <addaction name="menu_Model"/>
-    <addaction name="menu_Settings"/>
     <addaction name="actionSettings"/>
+    <addaction name="menu_Settings"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
