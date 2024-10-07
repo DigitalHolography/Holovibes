@@ -1,5 +1,9 @@
 ## Changelog
 
+### 13.X.X
+
+- Renamed space transforms more accordingly: fft1 to Fresnel transform and fft2 to Angular spectrum
+
 ### 13.7.0
 
 - Support for Alvium Camera
