@@ -1,6 +1,6 @@
 ## Changelog
 
-### 13.6.0
+### 13.7.0
 
 - Support for Alvium Camera
 - Changed default preset to 'doppler_8b_384_27'

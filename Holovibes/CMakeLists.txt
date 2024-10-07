@@ -179,26 +179,32 @@ add_custom_command(TARGET Holovibes POST_BUILD
 # ---------------------------------------------------------------------
 install(TARGETS Holovibes
     RUNTIME DESTINATION .
+    COMPONENT application
 )
 
 install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
     DESTINATION json_patches_holofile
+    COMPONENT application
 )
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
     DESTINATION resources
+    COMPONENT application
 )
 
 install(FILES "${HOLO_DIR}/Holovibes.ico"
     DESTINATION .
+    COMPONENT application
 )
 
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
     DESTINATION .
+    COMPONENT application
 )
 
 install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
     DESTINATION scripts
+    COMPONENT application
 )
 
 install(FILES
@@ -218,17 +224,20 @@ install(FILES
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/cusparse64_12.dll
     ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvJitLink_120_0.dll
     DESTINATION .
+    COMPONENT application
 )
 
 if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi AND HAVE_BFErApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/BitflowCyton.dll
         DESTINATION .
+        COMPONENT application
     )
 endif()
 
 if(HAVE_BFType AND HAVE_BiDef AND HAVE_BiApi)
     install(FILES $<TARGET_FILE_DIR:Holovibes>/CameraAdimec.dll
         DESTINATION .
+        COMPONENT application
     )
 endif()
 
@@ -238,6 +247,7 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
         DESTINATION .
+        COMPONENT application
     )
 endif()
 
@@ -256,15 +266,18 @@ if(HAVE_VIMBAX)
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
         DESTINATION .
+        COMPONENT application
     )
 endif()
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/windeployqt/
     DESTINATION .
+    COMPONENT application
 )
 
 install(DIRECTORY $<TARGET_FILE_DIR:Holovibes>/AppData/
     DESTINATION AppData
+    COMPONENT application
 )
 
 # ---------------------------------------------------------------------
@@ -275,6 +288,8 @@ set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 set(CPACK_GENERATOR "NSIS")
 
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
+set(CPACK_COMPONENTS_ALL application)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
