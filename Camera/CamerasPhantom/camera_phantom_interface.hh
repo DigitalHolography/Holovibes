@@ -39,12 +39,13 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
  */
 class EHoloGrabberInt
 {
-  public:
+  protected:
     EHoloGrabberInt(Euresys::EGenTL& gentl,
                     unsigned int buffer_part_count,
                     std::string& pixel_format,
                     unsigned int nb_grabbers);
 
+  public:
     virtual ~EHoloGrabberInt();
 
     // magic nunmber for number max of frame grabber supported (can be less for some implementation)
@@ -115,7 +116,6 @@ class EHoloGrabberInt
      */
     uint8_t* ptr_;
 };
-
 class CameraPhantomInt : public Camera
 {
   protected:
@@ -124,6 +124,9 @@ class CameraPhantomInt : public Camera
   public:
     virtual ~CameraPhantomInt() {}
 
+    // std::unique_ptr<EHoloGrabberInt> call_make_holo_grabber();
+
+    // virtual std::unique_ptr<EHoloGrabberInt> make_holo_grabber() = 0;
     virtual void init_camera() = 0;
     virtual void start_acquisition() override;
     virtual void stop_acquisition() override;

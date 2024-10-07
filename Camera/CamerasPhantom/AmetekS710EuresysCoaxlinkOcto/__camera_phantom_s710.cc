@@ -29,6 +29,11 @@ CameraPhantom::CameraPhantom(bool gpu)
     init_camera();
 }
 
+std::unique_ptr<EHoloGrabberInt> CameraPhantom::make_holo_grabber(CameraPhantomInt& cam)
+{
+    return std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
+}
+
 void CameraPhantom::init_camera()
 {
 

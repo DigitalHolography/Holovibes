@@ -32,6 +32,9 @@ CameraPhantom::CameraPhantom()
     : CameraPhantomInt("ametek_s711_euresys_coaxlink_qsfp+.ini", "s711")
 {
     name_ = "Phantom S711";
+
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
+    init_camera();
 }
 
 void CameraPhantom::init_camera()
