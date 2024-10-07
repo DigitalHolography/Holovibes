@@ -32,5 +32,6 @@ class FPSLimiter
 
   private:
     Chrono chrono_;
+    Chrono between_;
 };
 } // namespace holovibes
