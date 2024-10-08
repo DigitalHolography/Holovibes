@@ -23,9 +23,6 @@
 #include "matrix_operations.hh"
 #include "logger.hh"
 
-#include <thrust/device_vector.h>
-#include <thrust/fill.h>
-
 using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
