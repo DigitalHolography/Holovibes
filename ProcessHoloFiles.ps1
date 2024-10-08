@@ -118,8 +118,8 @@ if (Test-Path $exePath1) {
 } else {
     $exePath = $exePath2
 }
-# Set the frame skip to 32
-$frameSkip = 32
+# Set the frame skip to 16
+$frameSkip = 16
 #$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
 #if (-not ($frameSkip -match '^\d+$')) {
 #    $frameSkip = "0"
@@ -179,6 +179,18 @@ foreach ($file in $holoFiles) {
     $counter++
 }
 
+# Get the total number of operations
+$total = 0
+if ($configFiles.Count -gt 0)
+{
+    $total = $configFiles.Count * ($counter - 1)
+}
+else {
+    $total = ($counter - 1)
+}
+$counter = 1
+$number_pb = 0
+
 # Confirm action with the user before processing files
 Read-Host "Press Enter to start processing files or Ctrl+C to exit"
 
@@ -197,7 +209,7 @@ function Execute-Holovibes {
     {
         $args += " --mp4_fps 24"
     } else {
-        $args += " --frame_skip `"$frameSkip`""
+        $args += " --frame_skip $frameSkip"
     }
 
     if ($configFile) {
@@ -207,8 +219,16 @@ function Execute-Holovibes {
         Write-Host "Processing $(Split-Path -Leaf $inputFilePath) without configuration..." -ForegroundColor Yellow
     }
     $args
-    Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
-    Write-Host "Finished processing $(Split-Path -Leaf $inputFilePath), output saved as $(Split-Path -Leaf $outputFilePath)" -ForegroundColor Green
+    Write-Host "Processing holo files ($counter/$total)" -ForegroundColor Cyan
+    $process = (Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -PassThru -Wait)
+    if ($process.ExitCode -ne 0)
+    {
+        Write-Host "Program exited with bad exit code" -ForegroundColor Red
+        $script:number_pb += 1
+    }
+    else {
+        Write-Host "Finished processing $(Split-Path -Leaf $inputFilePath), output saved as $(Split-Path -Leaf $outputFilePath)" -ForegroundColor Green
+    }
 }
 
 # Execute Holovibes.exe for each .holo file and each configuration file (or no config file)
@@ -220,11 +240,17 @@ foreach ($file in $holoFiles) {
     if ($configFiles.Count -gt 0) {
         foreach ($configFile in $configFiles) {
             Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -configFile $configFile
+            $counter += 1
         }
     } else {
         Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip
+        $counter += 1
     }
 }
 
 # Final message after all files have been processed
-Write-Host "All .holo files have been processed." -ForegroundColor Cyan
+Write-Host "All $total .holo files have been processed." -ForegroundColor Cyan
+if ($number_pb -gt 0)
+{
+    Write-Host "$number_pb returned an error." -ForegroundColor Red
+}
