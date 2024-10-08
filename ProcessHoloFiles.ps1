@@ -252,6 +252,10 @@ function Execute-Holovibes {
 foreach ($file in $holoFiles) {
     $inputFilePath = $file.FullName
     $outputFileName = "$($file.BaseName)_out$outputExtension"
+    if ($moments -eq 1)
+    {
+        $outputFileName = "$($file.BaseName)_moments$outputExtension"
+    }
     $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
     if ($configFiles.Count -gt 0) {
