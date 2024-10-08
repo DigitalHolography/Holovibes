@@ -132,7 +132,7 @@ void Holovibes::init_record_queue()
     {
         LOG_DEBUG("RecordMode = Moments");
         camera::FrameDescriptor record_fd = input_queue_.load()->get_fd();
-        record_fd.depth = sizeof(float);
+        record_fd.depth = camera::PixelDepth::Bits32;
 
         if (!record_queue_.load())
             record_queue_ =
