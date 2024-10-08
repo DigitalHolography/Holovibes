@@ -1,6 +1,12 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
+$moments=0
+if ($args[0] -eq "-m")
+{
+    $moments=1
+}
+
 # Function to prompt the user to select a file, starting at the last used folder
 function Select-File([string]$description, [string]$filter, [string]$envVarName) {
     Write-Host $description -ForegroundColor Green
@@ -111,6 +117,7 @@ $configFiles = Get-ConfigFiles
 
 $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
+$exePath = ""
 
 # Check if ../Holovibes.exe exists
 if (Test-Path $exePath1) {
@@ -164,9 +171,13 @@ function Select-OutputExtension {
     }
 }
 
-# Prompt the user to select the output file extension
-$outputExtension = Select-OutputExtension
-Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+$outputExtension = ".holo"
+if ($moments -eq 0)
+{
+    # Prompt the user to select the output file extension
+    $script:outputExtension = Select-OutputExtension
+    Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+}
 
 # Get a list of all .holo files in the selected folder
 $holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
@@ -205,11 +216,17 @@ function Execute-Holovibes {
 
     $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
 
-    if ($outputExtension -eq ".mp4")
+    if ($moments -eq 1)
     {
-        $args += " --mp4_fps 24"
-    } else {
-        $args += " --frame_skip $frameSkip"
+        $args += " --moments_record"
+    }
+    else {
+        if ($outputExtension -eq ".mp4")
+        {
+            $args += " --mp4_fps 24"
+        } else {
+            $args += " --frame_skip $frameSkip"
+        }
     }
 
     if ($configFile) {
