@@ -5,6 +5,7 @@
 #include <EGrabbers.h>
 
 #include "camera.hh"
+#include "camera_param.hh"
 
 namespace camera
 {
@@ -52,30 +53,30 @@ class EHoloGrabberInt
 #define NB_MAX_GRABBER 4
 
     // TODO: find a better handling of the below struct
-    struct SetupParam
-    {
-        unsigned int full_height;
-        unsigned int width;
-        unsigned int nb_grabbers;
-        std::string pixel_format;
-        size_t stripe_height;
-        std::string stripe_arrangement;
-        std::string& trigger_source;
-        unsigned int block_height;
-        unsigned int (&offsets)[NB_MAX_GRABBER];
-        std::optional<std::string> trigger_mode;
-        std::optional<std::string> trigger_selector;
-        unsigned int cycle_minimum_period;
-        float exposure_time;
-        std::string& gain_selector;
-        float gain;
-        std::string& balance_white_marker;
-        std::string flat_field_correction;
-        std::string fan_ctrl;
-        unsigned int acquisition_frame_rate;
-    };
+    // struct SetupParam
+    // {
+    //     unsigned int full_height;
+    //     unsigned int width;
+    //     unsigned int nb_grabbers;
+    //     std::string pixel_format;
+    //     size_t stripe_height;
+    //     std::string stripe_arrangement;
+    //     std::string& trigger_source;
+    //     unsigned int block_height;
+    //     unsigned int (&offsets)[NB_MAX_GRABBER];
+    //     std::optional<std::string> trigger_mode;
+    //     std::optional<std::string> trigger_selector;
+    //     unsigned int cycle_minimum_period;
+    //     float exposure_time;
+    //     std::string& gain_selector;
+    //     float gain;
+    //     std::string& balance_white_marker;
+    //     std::string flat_field_correction;
+    //     std::string fan_ctrl;
+    //     unsigned int acquisition_frame_rate;
+    // };
 
-    virtual void setup(const SetupParam& param, Euresys::EGenTL& gentl);
+    virtual void setup(const CameraParamMap& params, Euresys::EGenTL& gentl);
 
     void init(unsigned int nb_buffers);
 
@@ -131,8 +132,6 @@ class CameraPhantomInt : public Camera
     virtual CapturedFramesDescriptor get_frames() override;
 
   protected:
-    virtual void init_camera_(EHoloGrabberInt::SetupParam& param);
-
     virtual void load_ini_params() override;
     virtual void load_default_params() override;
     virtual void bind_params() override;
@@ -142,28 +141,13 @@ class CameraPhantomInt : public Camera
 
     std::string ini_prefix_;
 
+    CameraParamMap params_;
+
     // TODO: maybe replace all these with an instance of SetupParam struct to simplify settings handling
     unsigned int nb_buffers_;
-    unsigned int buffer_part_count_;
     unsigned int nb_grabbers_;
     unsigned int full_height_;
     unsigned int width_;
-
-    unsigned int stripe_offsets_[NB_MAX_GRABBER];
-
-    std::string trigger_source_;
-    std::string trigger_selector_;
-    float exposure_time_;
-    unsigned int cycle_minimum_period_;
-    std::string pixel_format_;
-
-    std::string gain_selector_;
-    std::string trigger_mode_;
-    float gain_;
-    std::string balance_white_marker_;
-    std::string flat_field_correction_;
-    std::string fan_ctrl_;
-    unsigned int acquisition_frame_rate_;
 };
 
 } // namespace camera

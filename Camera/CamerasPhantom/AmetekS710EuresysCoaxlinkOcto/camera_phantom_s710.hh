@@ -13,7 +13,7 @@ class EHoloGrabber : public EHoloGrabberInt
                  std::string& pixel_format,
                  unsigned int& nb_grabbers);
 
-    void setup(const SetupParam& param, Euresys::EGenTL& gentl) override;
+    void setup(const CameraParamMap& param, Euresys::EGenTL& gentl) override;
 };
 
 class CameraPhantom : public CameraPhantomInt
@@ -21,5 +21,8 @@ class CameraPhantom : public CameraPhantomInt
   public:
     CameraPhantom();
     virtual void init_camera() override;
+
+  protected:
+    virtual void load_default_params() override;
 };
 } // namespace camera

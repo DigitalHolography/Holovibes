@@ -42,52 +42,63 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     nb_grabbers_ = nb_grabbers;
 }
 
-void EHoloGrabber::setup(const SetupParam& param, Euresys::EGenTL& gentl)
+void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 {
     if (nb_grabbers_ == 2)
         available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
     else if (nb_grabbers_ == 4)
         available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_ABCD");
 
-    EHoloGrabberInt::setup(param, gentl);
-    if (param.trigger_source == "SWTRIGGER")
+    EHoloGrabberInt::setup(params, gentl);
+
+    auto trigger_source_opt = params.get<std::string>("TriggerSource");
+    if (!trigger_source_opt)
+        Logger::camera()->error("Missing TriggerSource parameter");
+    else if (trigger_source_opt.value() == "SWTRIGGER")
         available_grabbers_[0]->setString<Euresys::RemoteModule>("TimeStamp", "TSOff");
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", param.fan_ctrl);
+
+    if (auto opt = params.get<std::string>("FanCtrl"); opt)
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", opt.value());
+    else
+        Logger::camera()->error("Missing FanCtrl parameter");
 }
 
 CameraPhantom::CameraPhantom()
     : CameraPhantomInt("ametek_s710_euresys_coaxlink_octo.ini", "s710")
 {
     name_ = "Phantom S710";
+}
 
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
-    init_camera();
+void CameraPhantom::load_default_params()
+{
+    CameraPhantomInt::load_default_params();
+    params_.set<std::string>("FanCtrl", "");
+    params_.set<unsigned int>("StripeHeight", 8, false);
+    params_.set<unsigned int>("BlockHeight", 8, false);
+    params_.set<std::string>("StripeArrangement", "Geometry_1X_2YM", false);
 }
 
 void CameraPhantom::init_camera()
 {
-    EHoloGrabberInt::SetupParam param = {
-        .full_height = full_height_,
-        .width = width_,
-        .nb_grabbers = nb_grabbers_,
-        .pixel_format = pixel_format_,
-        .stripe_height = 8,
-        .stripe_arrangement = "Geometry_1X_2YM",
-        .trigger_source = trigger_source_,
-        .block_height = 8,
-        .offsets = stripe_offsets_,
-        .trigger_mode = trigger_mode_,
-        .trigger_selector = std::nullopt,
-        .cycle_minimum_period = cycle_minimum_period_,
-        .exposure_time = exposure_time_,
-        .gain_selector = gain_selector_,
-        .gain = gain_,
-        .balance_white_marker = balance_white_marker_,
-        .flat_field_correction = flat_field_correction_,
-        .fan_ctrl = fan_ctrl_,
-    };
-    init_camera_(param);
+    load_default_params();
+
+    if (ini_file_is_open())
+    {
+        load_ini_params();
+        ini_file_.close();
+    }
+
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_,
+                                              params_.at<unsigned int>("BufferPartCount"),
+                                              params_.at<std::string>("PixelFormat"),
+                                              nb_grabbers_);
+    CameraPhantomInt::init_camera();
 }
 
-ICamera* new_camera_device() { return new CameraPhantom(); }
+ICamera* new_camera_device()
+{
+    auto* res = new CameraPhantom();
+    res->init_camera();
+    return res;
+}
 } // namespace camera

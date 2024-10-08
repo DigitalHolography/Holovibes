@@ -56,64 +56,67 @@ EHoloGrabberInt::~EHoloGrabberInt()
     cudaFreeHost(ptr_);
 }
 
-void EHoloGrabberInt::setup(const SetupParam& param, Euresys::EGenTL& gentl)
+void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 {
-    width_ = param.width;
-    height_ = param.full_height;
+    width_ = params.at<unsigned int>("Width");
+    height_ = params.at<unsigned int>("FullHeight");
+    unsigned int nb_grabbers = params.at<unsigned int>("NbGrabbers");
 
-    size_t pitch = param.width * gentl.imageGetBytesPerPixel(param.pixel_format);
-    size_t height = param.full_height / param.nb_grabbers;
-    size_t stripe_pitch = param.stripe_height * param.nb_grabbers;
+    size_t pitch = width_ * gentl.imageGetBytesPerPixel(params.at<std::string>("PixelFormat"));
+    size_t height = height_ / nb_grabbers;
 
-    for (size_t ix = 0; ix < param.nb_grabbers; ++ix)
+    size_t stripe_pitch = params.at<unsigned int>("StripeHeight") * nb_grabbers;
+
+    for (size_t ix = 0; ix < nb_grabbers; ++ix)
     {
-        available_grabbers_[ix]->setInteger<Euresys::RemoteModule>("Width", static_cast<int64_t>(param.width));
+        available_grabbers_[ix]->setInteger<Euresys::RemoteModule>("Width", static_cast<int64_t>(width_));
         available_grabbers_[ix]->setInteger<Euresys::RemoteModule>("Height", static_cast<int64_t>(height));
-        available_grabbers_[ix]->setString<Euresys::RemoteModule>("PixelFormat", param.pixel_format);
+        available_grabbers_[ix]->setString<Euresys::RemoteModule>("PixelFormat", params.at<std::string>("PixelFormat"));
 
-        available_grabbers_[ix]->setString<Euresys::StreamModule>("StripeArrangement", param.stripe_arrangement);
+        available_grabbers_[ix]->setString<Euresys::StreamModule>("StripeArrangement",
+                                                                  params.at<std::string>("StripeArrangement"));
         available_grabbers_[ix]->setInteger<Euresys::StreamModule>("LinePitch", pitch);
         available_grabbers_[ix]->setInteger<Euresys::StreamModule>("LineWidth", pitch);
-        available_grabbers_[ix]->setInteger<Euresys::StreamModule>("StripeHeight", param.stripe_height);
+        available_grabbers_[ix]->setInteger<Euresys::StreamModule>("StripeHeight",
+                                                                   params.at<unsigned int>("StripeHeight"));
         available_grabbers_[ix]->setInteger<Euresys::StreamModule>("StripePitch", stripe_pitch);
-        available_grabbers_[ix]->setInteger<Euresys::StreamModule>("BlockHeight", param.block_height);
+        available_grabbers_[ix]->setInteger<Euresys::StreamModule>("BlockHeight",
+                                                                   params.at<unsigned int>("BlockHeight"));
         available_grabbers_[ix]->setString<Euresys::StreamModule>("StatisticsSamplingSelector", "LastSecond");
         available_grabbers_[ix]->setString<Euresys::StreamModule>("LUTConfiguration", "M_10x8");
     }
 
-    for (size_t i = 0; i < param.nb_grabbers; ++i)
-        available_grabbers_[i]->setInteger<Euresys::StreamModule>("StripeOffset", param.offsets[i]);
+    for (size_t i = 0; i < nb_grabbers; ++i)
+        available_grabbers_[i]->setInteger<Euresys::StreamModule>("StripeOffset",
+                                                                  params.at<std::vector<unsigned int>>("Offset")[i]);
 
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerSource",
-                                                             param.trigger_source); // source of trigger CXP
-    if (param.trigger_mode)
-        available_grabbers_[0]->setString<Euresys::RemoteModule>(
-            "TriggerMode",
-            param.trigger_mode.value()); // camera in triggered mode
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerSource", params.at<std::string>("TriggerSource"));
 
-    std::string control_mode = param.trigger_source == "SWTRIGGER" ? "RC" : "EXTERNAL";
-    available_grabbers_[0]->setString<Euresys::DeviceModule>("CameraControlMethod",
-                                                             control_mode); // tell grabber 0 to send trigger
+    if (params.has("TriggerMode"))
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerMode", params.at<std::string>("TriggerMode"));
 
-    if (param.trigger_selector)
-        available_grabbers_[0]->setString<Euresys::RemoteModule>(
-            "TriggerSelector",
-            param.trigger_selector.value()); // source of trigger CXP
+    std::string control_mode = params.at<std::string>("TriggerSource") == "SWTRIGGER" ? "RC" : "EXTERNAL";
+    available_grabbers_[0]->setString<Euresys::DeviceModule>("CameraControlMethod", control_mode);
 
-    if (param.trigger_source == "SWTRIGGER")
+    if (params.has("TriggerSelector"))
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerSelector",
+                                                                 params.at<std::string>("TriggerSelector"));
+
+    if (params.at<std::string>("TriggerSource") == "SWTRIGGER")
     {
-        available_grabbers_[0]->setInteger<Euresys::DeviceModule>(
-            "CycleMinimumPeriod",
-            param.cycle_minimum_period); // set the trigger rate to 250K Hz
+        available_grabbers_[0]->setInteger<Euresys::DeviceModule>("CycleMinimumPeriod",
+                                                                  params.at<unsigned int>("CycleMinimumPeriod"));
         available_grabbers_[0]->setString<Euresys::DeviceModule>("ExposureReadoutOverlap",
-                                                                 "True"); // camera needs 2 trigger to start
-        available_grabbers_[0]->setString<Euresys::DeviceModule>("ErrorSelector", "All");
+                                                                 params.at<std::string>("ExposureReadoutOverlap"));
+        available_grabbers_[0]->setString<Euresys::DeviceModule>("ErrorSelector",
+                                                                 params.at<std::string>("ErrorSelector"));
     }
-    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("ExposureTime", param.exposure_time);
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("BalanceWhiteMarker", param.balance_white_marker);
+    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("ExposureTime", params.at<unsigned int>("ExposureTime"));
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("BalanceWhiteMarker",
+                                                             params.at<std::string>("BalanceWhiteMarker"));
 
-    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("Gain", param.gain);
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("GainSelector", param.gain_selector);
+    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("Gain", params.at<float>("Gain"));
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("GainSelector", params.at<std::string>("GainSelector"));
 }
 
 void EHoloGrabberInt::init(unsigned int nb_buffers)
@@ -187,22 +190,22 @@ void EHoloGrabberInt::stop()
 CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::string& ini_prefix)
     : Camera(ini_name)
     , ini_prefix_(ini_prefix)
+    , params_{ini_prefix}
 {
 
     pixel_size_ = 20;
-
-    if (ini_file_is_open())
-    {
-        load_ini_params();
-        ini_file_.close();
-    }
-
     gentl_ = std::make_unique<Euresys::EGenTL>();
+
+    // if (ini_file_is_open())
+    // {
+    //     load_ini_params();
+    //     ini_file_.close();
+    // }
 }
 
-void CameraPhantomInt::init_camera_(EHoloGrabberInt::SetupParam& param)
+void CameraPhantomInt::init_camera()
 {
-    grabber_->setup(param, *gentl_);
+    grabber_->setup(params_, *gentl_);
     grabber_->init(nb_buffers_);
 
     // Set frame descriptor according to grabber settings
@@ -240,34 +243,32 @@ CapturedFramesDescriptor CameraPhantomInt::get_frames()
     return ret;
 }
 
-void CameraPhantomInt::load_default_params() {}
+void CameraPhantomInt::load_default_params()
+{
+    params_.set<unsigned int>("NbBuffers", 0);
+    params_.set<unsigned int>("BufferPartCount", 0);
+    params_.set<unsigned int>("NbGrabbers", 0);
+    params_.set<unsigned int>("FullHeight", 0);
+    params_.set<unsigned int>("Width", 0);
+    params_.set<std::vector<unsigned int>>("Offset", std::vector<unsigned int>{0, 0, 0, 0});
+    params_.set<unsigned int>("CycleMinimumPeriod", 0);
+    params_.set<float>("Gain", 0);
+    params_.set<float>("ExposureTime", 0);
+
+    params_.set<std::string>("TriggerSource", "");
+    params_.set<std::string>("TriggerSelector", "");
+    params_.set<std::string>("PixelFormat", "");
+    params_.set<std::string>("GainSelector", "");
+    params_.set<std::string>("TriggerMode", "");
+    params_.set<std::string>("BalanceWhiteMarker", "");
+}
 
 void CameraPhantomInt::load_ini_params()
 {
-    const boost::property_tree::ptree& pt = get_ini_pt();
-    std::string prefix = ini_prefix_ + ".";
+    params_.set_from_ini(get_ini_pt());
 
-    nb_buffers_ = pt.get<unsigned int>(prefix + "NbBuffers", nb_buffers_);
-    buffer_part_count_ = pt.get<unsigned int>(prefix + "BufferPartCount", buffer_part_count_);
-    nb_grabbers_ = pt.get<unsigned int>(prefix + "NbGrabbers", nb_grabbers_);
-    full_height_ = pt.get<unsigned int>(prefix + "FullHeight", full_height_);
-    width_ = pt.get<unsigned int>(prefix + "Width", width_);
-
-    for (size_t i = 0; i < NB_MAX_GRABBER; ++i)
-        stripe_offsets_[i] = pt.get<unsigned int>(prefix + "Offset" + std::to_string(i), stripe_offsets_[i]);
-
-    trigger_source_ = pt.get<std::string>(prefix + "TriggerSource", trigger_source_);
-    trigger_selector_ = pt.get<std::string>(prefix + "TriggerSelector", trigger_selector_);
-    exposure_time_ = pt.get<float>(prefix + "ExposureTime", exposure_time_);
-    cycle_minimum_period_ = pt.get<unsigned int>(prefix + "CycleMinimumPeriod", cycle_minimum_period_);
-    pixel_format_ = pt.get<std::string>(prefix + "PixelFormat", pixel_format_);
-
-    gain_selector_ = pt.get<std::string>(prefix + "GainSelector", gain_selector_);
-    trigger_mode_ = pt.get<std::string>(prefix + "TriggerMode", trigger_mode_);
-    gain_ = pt.get<float>(prefix + "Gain", gain_);
-    balance_white_marker_ = pt.get<std::string>(prefix + "BalanceWhiteMarker", balance_white_marker_);
-    fan_ctrl_ = pt.get<std::string>(prefix + "FanCtrl", fan_ctrl_);
-    acquisition_frame_rate_ = pt.get<unsigned int>(prefix + "AcquisitionFrameRate", acquisition_frame_rate_);
+    // acquisition_frame_rate_ = pt.get<unsigned int>(prefix + "AcquisitionFrameRate", acquisition_frame_rate_); TODO
+    // 991
 }
 
 void CameraPhantomInt::bind_params() { return; }

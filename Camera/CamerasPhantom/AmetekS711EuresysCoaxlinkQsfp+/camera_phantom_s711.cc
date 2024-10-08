@@ -18,48 +18,57 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     }
 }
 
-void EHoloGrabber::setup(const SetupParam& param, Euresys::EGenTL& gentl)
+void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 {
-    if (available_grabbers_.size() > 1)
+    if (nb_grabbers_ > 1)
         available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
     else
         available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_A");
-    EHoloGrabberInt::setup(param, gentl);
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("FlatFieldCorrection", param.flat_field_correction);
+
+    EHoloGrabberInt::setup(params, gentl);
+
+    if (auto opt = params.get<std::string>("FlatFieldCorrection"); opt)
+        available_grabbers_[0]->setString<Euresys::RemoteModule>("FlatFieldCorrection", opt.value());
+    else
+        Logger::camera()->error("Missing FlatFieldCorrection parameter");
 }
 
 CameraPhantom::CameraPhantom()
     : CameraPhantomInt("ametek_s711_euresys_coaxlink_qsfp+.ini", "s711")
 {
     name_ = "Phantom S711";
+}
 
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
-    init_camera();
+void CameraPhantom::load_default_params()
+{
+    CameraPhantomInt::load_default_params();
+    params_.set<unsigned int>("StripeHeight", 8, false);
+    params_.set<unsigned int>("BlockHeight", 8, false);
+    params_.set<std::string>("StripeArrangement", "Geometry_1X_1YM", false);
 }
 
 void CameraPhantom::init_camera()
 {
-    EHoloGrabberInt::SetupParam param = {
-        .full_height = full_height_,
-        .width = width_,
-        .nb_grabbers = nb_grabbers_,
-        .pixel_format = pixel_format_,
-        .stripe_height = 8,
-        .stripe_arrangement = "Geometry_1X_1YM",
-        .trigger_source = trigger_source_,
-        .block_height = 8,
-        .offsets = stripe_offsets_,
-        .trigger_mode = trigger_mode_,
-        .trigger_selector = trigger_selector_,
-        .cycle_minimum_period = cycle_minimum_period_,
-        .exposure_time = exposure_time_,
-        .gain_selector = gain_selector_,
-        .gain = gain_,
-        .balance_white_marker = balance_white_marker_,
-    };
-    init_camera_(param);
+    load_default_params();
+
+    if (ini_file_is_open())
+    {
+        load_ini_params();
+        ini_file_.close();
+    }
+
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_,
+                                              params_.at<unsigned int>("BufferPartCount"),
+                                              params_.at<std::string>("PixelFormat"),
+                                              nb_grabbers_);
+    CameraPhantomInt::init_camera();
 }
 
-ICamera* new_camera_device() { return new CameraPhantom(); }
+ICamera* new_camera_device()
+{
+    auto* res = new CameraPhantom();
+    res->init_camera();
+    return res;
+}
 
 } // namespace camera

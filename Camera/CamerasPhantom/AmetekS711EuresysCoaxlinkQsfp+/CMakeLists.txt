@@ -4,6 +4,7 @@ add_library("${PROJECT_NAME}" SHARED
     camera_phantom_s711.cc
     ../../Camera/camera_logger.cc
     ../camera_phantom_interface.cc
+    ../camera_param.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
