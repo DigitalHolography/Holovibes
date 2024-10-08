@@ -13,12 +13,6 @@ namespace holovibes
 {
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
-GSH& GSH::instance()
-{
-    static GSH instance_;
-    return instance_;
-}
-
 /*! \class JsonSettings
  *
  * \brief Struct that help with Json convertion

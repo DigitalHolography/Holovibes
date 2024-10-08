@@ -10,17 +10,9 @@
 #include <mutex>
 
 #include "fast_updates_holder.hh"
-#include "entities.hh"
-#include "view_struct.hh"
-#include "rendering_struct.hh"
-#include "composite_struct.hh"
-#include "internals_struct.hh"
-#include "advanced_struct.hh"
 
 namespace holovibes
 {
-
-using entities::Span;
 
 /*! \class GSH
  *
@@ -49,14 +41,9 @@ using entities::Span;
  */
 class GSH
 {
-    static GSH* instance_;
-
   public:
     GSH(GSH& other) = delete;
     void operator=(const GSH&) = delete;
-
-    // static inline GSH& instance() { return *instance_; }
-    static GSH& instance();
 
     // inline prevents MSVC from brain-dying, dunno why
     template <class T>
