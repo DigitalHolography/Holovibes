@@ -178,6 +178,7 @@ inline bool set_batch_size(uint value)
     if (time_stride % value != 0)
     {
         set_time_stride(time_stride - time_stride % value);
+        holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value});
     }
 
     return request_time_stride_update;
@@ -192,9 +193,11 @@ inline bool set_frame_packet(uint value)
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
     uint batch_size = get_batch_size();
+    bool time_stride_changed = false;
     if (batch_size < value)
     {
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
+        // holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
+        time_stride_changed = set_batch_size(value);
         batch_size = value;
         request_batch_size_update = true;
     }
@@ -202,7 +205,12 @@ inline bool set_frame_packet(uint value)
     if (batch_size % value != 0)
     {
         // handle time stride update
-        set_batch_size(batch_size - batch_size % value);
+        time_stride_changed = time_stride_changed || set_batch_size(batch_size - batch_size % value);
+    }
+    if (get_compute_mode() == Computation::Hologram &&
+        time_stride_changed) // TODO: Mabe need to fix with the moments adding
+    {
+        holovibes::Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
     }
 
     return request_batch_size_update;

@@ -152,7 +152,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        // input_queue_.resize(setting<settings::BatchSize>());
+
         clear_request(ICS::UpdateBatchSize);
     }
 
@@ -374,7 +374,7 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [this]()
         {
-            batch_env_.batch_index += setting<settings::BatchSize>(); // previos was batch iundex
+            batch_env_.batch_index += setting<settings::BatchSize>();
             CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
                   "batch_index = {}",
                   batch_env_.batch_index);

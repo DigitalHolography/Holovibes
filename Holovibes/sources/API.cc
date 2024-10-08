@@ -402,7 +402,10 @@ void update_frame_packet(std::function<void()> notify_callback, const uint frame
     if (get_compute_mode() == Computation::Hologram) // TODO: Mabe need to fix with the moments adding
     {
         if (batch_size_changed)
+        {
             Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
+            Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
+        }
         Holovibes::instance().get_compute_pipe()->request(ICS::UpdateFramePacket);
     }
     else
