@@ -1,4 +1,5 @@
 #include <fstream>
+#include "api.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
@@ -41,7 +42,7 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-    auto benchmark_mode = Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
+    auto benchmark_mode = GET_SETTING(BenchmarkMode);
     std::ofstream benchmark_file;
     bool info_found = false;
 
@@ -64,8 +65,9 @@ void InformationWorker::run()
         {
             compute_fps(waited_time);
 
-            std::shared_ptr<Queue> gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> input_queue = Holovibes::instance().get_input_queue();
+            std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
+            std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
+            std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
 
             if (gpu_output_queue && input_queue)
             {
@@ -73,7 +75,6 @@ void InformationWorker::run()
                 input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
             }
 
-            auto frame_record_queue = Holovibes::instance().get_record_queue().load();
             record_frame_size = 0;
             if (frame_record_queue)
                 record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());

@@ -36,6 +36,7 @@ struct OptionsDescriptor
     bool benchmark;
     std::optional<unsigned int> frame_skip;
     std::optional<unsigned int> mp4_fps;
+    bool moments_record;
 };
 
 /*! \class OptionsParser
@@ -68,4 +69,5 @@ class OptionsParser
 
     OptionsDescriptor options_;
 };
+
 } // namespace holovibes

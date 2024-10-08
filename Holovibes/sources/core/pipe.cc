@@ -292,6 +292,9 @@ void Pipe::refresh()
 
     converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
 
+    insert_moments();
+    insert_moments_record();
+
     insert_filter2d_view();
 
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
@@ -343,6 +346,19 @@ void Pipe::insert_wait_frames()
             while (input_queue_.is_empty())
                 continue;
         });
+}
+
+void Pipe::insert_moments()
+{
+    bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
+    ImgType type = setting<settings::ImageType>();
+
+    if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
+    {
+        converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
+
+        fourier_transforms_->insert_moments();
+    }
 }
 
 void Pipe::insert_reset_batch_index()
@@ -502,9 +518,7 @@ void Pipe::insert_raw_record()
                 if (setting<settings::RecordFrameCount>() != std::nullopt &&
                     inserted >= setting<settings::RecordFrameCount>().value())
                 {
-                    auto& manager = NotifierManager::get_instance();
-                    auto notifier = manager.get_notifier<bool>("acquisition_finished");
-                    notifier->notify(true);
+                    NotifierManager::notify<bool>("acquisition_finished", true);
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;
@@ -517,6 +531,32 @@ void Pipe::insert_raw_record()
                 input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
                 inserted += setting<settings::BatchSize>();
+            });
+    }
+}
+
+void Pipe::insert_moments_record()
+{
+    if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
+    {
+        // if (Holovibes::instance().is_cli)
+        fn_compute_vect_.push_back([&]() { keep_contiguous(3); });
+
+        fn_compute_vect_.conditional_push_back(
+            [&]()
+            {
+                record_queue_.enqueue(moments_env_.moment0_buffer,
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue(moments_env_.moment1_buffer,
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
+                record_queue_.enqueue(moments_env_.moment2_buffer,
+                                      stream_,
+                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                              : cudaMemcpyDeviceToHost);
             });
     }
 }

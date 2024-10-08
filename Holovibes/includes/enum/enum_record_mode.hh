@@ -22,6 +22,7 @@ enum class RecordMode
     CUTS_YZ,
     HOLOGRAM,
     RAW,
+    MOMENTS,
 };
 
 // clang-format off
@@ -32,6 +33,7 @@ SERIALIZE_JSON_ENUM(RecordMode, {
     {RecordMode::HOLOGRAM, "HOLOGRAM"},
     {RecordMode::CHART, "CHART"},
     {RecordMode::CUTS_XZ, "CUTS_XZ"},
+    {RecordMode::MOMENTS, "MOMENTS"}
 })
 // clang-format on
 } // namespace holovibes

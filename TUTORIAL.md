@@ -308,9 +308,7 @@ If you want to use a custom widget, you can change its class in the `.ui` file d
       - If you want to send multiple arguments, either use a struct or a tuple.
 
    ```cpp
-   auto& manager = NotifierManager::get_instance();
-   auto notifier = manager.get_notifier<type>("notifier_name");
-   notifier->notify(data);
+   NotifierManager::notify<type>("notifier_name", data);
    ```
 2. Create a new subscriber in the UI.
    - Add it in the constructor.

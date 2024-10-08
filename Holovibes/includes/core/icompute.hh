@@ -30,6 +30,7 @@
 
 // clang-format off
 #define REALTIME_SETTINGS                                        \
+    holovibes::settings::InputFPS,                               \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
@@ -278,7 +279,30 @@ class ICompute
   protected:
     virtual void refresh() = 0;
 
-    bool update_time_transformation_size(const unsigned short time_transformation_size);
+    /*!
+     * \brief Returns the Discrete Fourier Transform sample frequencies.
+     * The returned float array contains the frequency bin centers in cycles times unit of the sample spacing (with zero
+     * at the start).
+     * For instance, if the sample spacing is in seconds, then the frequency unit is cycles/second.
+     * In our case, we reason in terms of sampling rate (fps), which is the inverse of the sample spacing ; this doesn't
+     * affect the frequency unit.
+     *
+     * For a given sampling rate (input_fps) Fs, and a window length n (time_transformation_size), the sample
+     * frequencies correspond to :
+     *
+     * f = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
+     * f = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
+     *
+     * The functions compute f0, f1 and f2, corresponding to f at order 0 (an array of size time_transformation_size)
+     * filled with 1, f at order 1, and f at order 2 (f^2)
+     *
+     * The function modifies the buffers f0_buffer, f1_buffer and f2_buffer in ICompute
+     */
+    void fft_freqs();
+
+    void init_moments();
+
+    virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management
      * \{
@@ -329,6 +353,9 @@ class ICompute
 
     /*! \brief STFT environment. */
     TimeTransformationEnv time_transformation_env_;
+
+    /*! \brief Moments environment. */
+    MomentsEnv moments_env_;
 
     /*! \brief Chart environment. */
     ChartEnv chart_env_;

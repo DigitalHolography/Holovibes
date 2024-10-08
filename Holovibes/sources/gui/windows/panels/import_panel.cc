@@ -173,17 +173,7 @@ void ImportPanel::import_start()
     // parent_->shift_screen();
 
     // if the file is to be imported in GPU, we should load the buffer preset for such case
-    if (api::get_load_file_in_gpu())
-    {
-        auto& manager = NotifierManager::get_instance();
-        auto notifier = manager.get_notifier<bool>("set_preset_file_gpu");
-        notifier->notify(true);
-    }
-    {
-        auto& manager = NotifierManager::get_instance();
-        auto notifier = manager.get_notifier<bool>("import_start");
-        notifier->notify(true);
-    }
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     bool res_import_start = api::import_start();
 

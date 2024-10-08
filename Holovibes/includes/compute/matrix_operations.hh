@@ -10,6 +10,12 @@
 
 namespace holovibes::compute
 {
+constexpr cuComplex alpha_complex{1, 0};
+constexpr cuComplex beta_complex{0, 0};
+
+constexpr float alpha = 1.0f;
+constexpr float beta = 0.0f;
+
 /*! \brief Compute the covariance matrix of a given matrix
  *
  *  \param matrix input matrix
@@ -46,6 +52,26 @@ void eigen_values_vectors(cuComplex* matrix,
                           int work_buffer_size,
                           int* dev_info);
 
+/*! \brief Multiplies 2 complex matrices
+ *
+ *  \param A first input matrix
+ *  \param B second input matrix
+ *  \param A_height height of matrix A
+ *  \param B_width width of matrix B
+ *  \param A_width_B_height width of matrix A and height of matrix B
+ *  \param C output matrix
+ *  \param op_A operation to apply on matrix A
+ *  \param op_B operation to apply on matrix B
+ */
+void matrix_multiply_complex(const cuComplex* A,
+                             const cuComplex* B,
+                             int A_height,
+                             int B_width,
+                             int A_width_B_height,
+                             cuComplex* C,
+                             cublasOperation_t op_A = CUBLAS_OP_N,
+                             cublasOperation_t op_B = CUBLAS_OP_N);
+
 /*! \brief Multiplies 2 matrices
  *
  *  \param A first input matrix
@@ -57,12 +83,16 @@ void eigen_values_vectors(cuComplex* matrix,
  *  \param op_A operation to apply on matrix A
  *  \param op_B operation to apply on matrix B
  */
-void matrix_multiply(const cuComplex* A,
-                     const cuComplex* B,
+template <typename T>
+void matrix_multiply(const T* A,
+                     const T* B,
                      int A_height,
                      int B_width,
                      int A_width_B_height,
-                     cuComplex* C,
+                     T* C,
                      cublasOperation_t op_A = CUBLAS_OP_N,
                      cublasOperation_t op_B = CUBLAS_OP_N);
+
 } // namespace holovibes::compute
+
+#include "matrix_operations.hxx"

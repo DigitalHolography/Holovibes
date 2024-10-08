@@ -28,7 +28,7 @@ static char* dequeue_helper(holovibes::BatchInputQueue& q, uint batch_size)
                                                                         void* const dest,
                                                                         const uint batch_size,
                                                                         const size_t frame_res,
-                                                                        const uint depth,
+                                                                        const camera::PixelDepth depth,
                                                                         const cudaStream_t stream)
     {
         const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;
@@ -410,7 +410,7 @@ TEST(BatchInputQueueTest, ProducerConsumerSituationNoDeadlockSmallSize)
                                                                               void* const dest,
                                                                               const uint batch_size,
                                                                               const size_t frame_res,
-                                                                              const uint depth,
+                                                                              const camera::PixelDepth depth,
                                                                               const cudaStream_t stream)
     {
         const size_t size = static_cast<size_t>(batch_size) * frame_res * depth;

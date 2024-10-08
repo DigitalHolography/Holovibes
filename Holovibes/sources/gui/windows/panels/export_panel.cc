@@ -203,6 +203,8 @@ void ExportPanel::set_record_mode(const QString& value)
     stop_record();
 
     const std::string text = value.toStdString();
+    LOG_WARN("Record mode chosen :" + text);
+    // TODO: configure for Moments
 
     api::set_record_mode(text);
 
@@ -243,6 +245,11 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
         }
+        else if (api::get_record_mode() == RecordMode::MOMENTS)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+        }
 
         ui_->ChartPlotWidget->hide();
 
@@ -266,7 +273,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
     if (ui_->BatchGroupBox->isChecked())
@@ -282,9 +289,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 
     // notify others panels (info panel & lightUI) that the record is finished
-    auto& manager = NotifierManager::get_instance();
-    auto notifier = manager.get_notifier<bool>("record_finished");
-    notifier->notify(true);
+    NotifierManager::notify<bool>("record_finished", true);
 }
 
 void ExportPanel::set_record_device(bool value)
@@ -419,6 +424,8 @@ void ExportPanel::update_record_mode()
         record_mode = RecordMode::CUTS_XZ;
     else if (record_mode_str == "3D Cuts YZ")
         record_mode = RecordMode::CUTS_YZ;
+    else if (record_mode_str == "Moments")
+        record_mode = RecordMode::MOMENTS;
     else
     {
         LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);

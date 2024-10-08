@@ -108,6 +108,21 @@ void Converts::insert_to_modulus(float* gpu_postprocess_frame)
         });
 }
 
+void Converts::insert_to_modulus_moments(float* output)
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            complex_to_modulus_moments(output,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd_.get_frame_res(),
+                                       setting<settings::TimeTransformationSize>(),
+                                       stream_);
+        });
+}
+
 void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
@@ -150,23 +165,19 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
 
                 if (setting<settings::CompositeAutoWeights>())
                 {
-                    const uchar pixel_depth = 3;
                     const int factor = 10;
-                    float* averages = new float[pixel_depth];
+                    float* averages = new float[3];
                     postcolor_normalize(gpu_postprocess_frame,
                                         fd_.height,
                                         fd_.width,
                                         setting<settings::CompositeZone>(),
-                                        pixel_depth,
                                         averages,
                                         stream_);
-                    if (pixel_depth >= 3)
-                    {
-                        double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                        api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                            (static_cast<double>(averages[1]) / max) * factor,
-                                            (static_cast<double>(averages[2]) / max) * factor);
-                    }
+
+                    double max = std::max(std::max(averages[0], averages[1]), averages[2]);
+                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                        (static_cast<double>(averages[1]) / max) * factor,
+                                        (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
             else
@@ -361,8 +372,12 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
     LOG_FUNC(fd_.depth);
 
     // Conversion function from input queue to input buffer
-    auto convert_to_complex =
-        [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
+    auto convert_to_complex = [](const void* const src,
+                                 void* const dest,
+                                 uint batch_size,
+                                 size_t frame_res,
+                                 camera::PixelDepth depth,
+                                 cudaStream_t stream)
     { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
 
     // Task to convert input queue to input buffer
