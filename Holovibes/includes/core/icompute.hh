@@ -91,6 +91,7 @@
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
     holovibes::settings::BatchSize,                              \
+    holovibes::settings::FramePacket,                              \
     holovibes::settings::XY,                                     \
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \

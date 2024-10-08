@@ -208,8 +208,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
                 unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     unwrap_2d(gpu_postprocess_frame,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
@@ -283,8 +282,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
         }
         else
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     rescale_float(unwrap_res_->gpu_angle_current_, gpu_postprocess_frame, fd_.get_frame_res(), stream_);
                 });
     }
@@ -369,7 +367,7 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
     auto conversion_task = [this, &input_queue, convert_to_complex]()
     {
         // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
-        // next batch. We wait 0 ms to avoid blocking the thread.
+        // next batch. We wait 0 ms to avoid blocking the thread.?
         while (input_queue.size_ == 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));

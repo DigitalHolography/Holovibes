@@ -207,7 +207,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     }
 
     // TODO : Add filter
-
+    pipe->request(ICS::UpdateFramePacket);
     pipe->request(ICS::UpdateBatchSize);
     pipe->request(ICS::UpdateTimeStride);
     pipe->request(ICS::UpdateTimeTransformationSize);

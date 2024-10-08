@@ -26,6 +26,7 @@ namespace holovibes
 
 class Queue;
 
+// TODO : Update names with frame packet
 /*! \class BatchInputQueue
  *
  * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be

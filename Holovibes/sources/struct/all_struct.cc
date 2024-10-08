@@ -75,6 +75,7 @@ void Rendering::Filter2D::Update()
 void Rendering::Update()
 {
     this->image_mode = GET_SETTING(ComputeMode);
+    this->frame_packet = GET_SETTING(FramePacket);
     this->batch_size = GET_SETTING(BatchSize);
     this->time_transformation_stride = GET_SETTING(TimeStride);
     this->filter2d.Update();

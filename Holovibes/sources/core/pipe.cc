@@ -152,8 +152,15 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        input_queue_.resize(setting<settings::BatchSize>());
+        // input_queue_.resize(setting<settings::BatchSize>());
         clear_request(ICS::UpdateBatchSize);
+    }
+
+    if (is_requested(ICS::UpdateFramePacket))
+    {
+        LOG_DEBUG("Update frame packet");
+        input_queue_.resize(setting<settings::FramePacket>());
+        clear_request(ICS::UpdateFramePacket);
     }
 
     HANDLE_REQUEST(ICS::TimeTransformationCuts, "Time transformation cuts", init_cuts());
@@ -367,7 +374,7 @@ void Pipe::update_batch_index()
     fn_compute_vect_.push_back(
         [this]()
         {
-            batch_env_.batch_index += setting<settings::BatchSize>();
+            batch_env_.batch_index += setting<settings::BatchSize>(); // previos was batch iundex
             CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
                   "batch_index = {}",
                   batch_env_.batch_index);
@@ -385,7 +392,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [this]()
         {
-            (*processed_output_fps_) += setting<settings::BatchSize>();
+            (*processed_output_fps_) += setting<settings::FramePacket>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
@@ -493,7 +500,7 @@ void Pipe::insert_raw_record()
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::RAW)
     {
         // if (Holovibes::instance().is_cli)
-        fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
+        fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::FramePacket>()); });
 
         fn_compute_vect_.push_back(
             [&]()
@@ -514,9 +521,9 @@ void Pipe::insert_raw_record()
                     memcpy_kind =
                         get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
-                input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
+                input_queue_.copy_multiple(record_queue_, memcpy_kind);
 
-                inserted += setting<settings::BatchSize>();
+                inserted += setting<settings::FramePacket>();
             });
     }
 }

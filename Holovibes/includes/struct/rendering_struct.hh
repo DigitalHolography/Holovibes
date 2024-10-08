@@ -84,6 +84,7 @@ struct Rendering
     };
 
     Computation image_mode = Computation::Raw;
+    unsigned frame_packet = 1;
     unsigned batch_size = 1;
     unsigned time_transformation_stride = 1;
     Filter2D filter2d;
@@ -99,6 +100,7 @@ struct Rendering
     SERIALIZE_JSON_STRUCT(Rendering,
                           input_filter,
                           image_mode,
+                          frame_packet,
                           batch_size,
                           time_transformation_stride,
                           filter2d,

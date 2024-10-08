@@ -145,9 +145,7 @@ MainWindow::MainWindow(QWidget* parent)
     {
         api::load_compute_settings(holovibes::settings::compute_settings_filepath);
         // Set values not set by notify
-        // TODO : not sur it will work
-        // ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-        // TODO : Call api frame packet
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
         ui_->FramePacketSpinBox->setValue(api::get_frame_packet());
     }
     catch (const std::exception&)
@@ -428,9 +426,7 @@ void MainWindow::reload_ini(const std::string& filename)
         api::load_compute_settings(filename);
         // Set values not set by notify
 
-        // TODO : not sur it will work
-        // ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-        // TODO : Call api frame packet
+        ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
         ui_->FramePacketSpinBox->setValue(api::get_frame_packet());
     }
     catch (const std::exception&)

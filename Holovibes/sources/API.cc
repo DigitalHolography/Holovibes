@@ -268,7 +268,6 @@ void set_raw_mode(uint window_max_size)
     create_pipe();
 
     LOG_INFO("Raw mode set");
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
     UserInterfaceDescriptor::instance().mainDisplay.reset(
         new holovibes::gui::RawWindow(pos,
                                       size,
@@ -292,8 +291,6 @@ void create_holo_window(ushort window_size)
     QPoint pos = getSavedHoloWindowPos();
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
-
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
 
     try
     {
@@ -402,15 +399,15 @@ void update_frame_packet(std::function<void()> notify_callback, const uint frame
 
     bool batch_size_changed = set_frame_packet(frame_packet);
 
-    // TODO
-    // if (get_compute_mode() == Computation::Hologram)
-    // {
-    //     if (time_stride_changed)
-    //         Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-    //     Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
-    // }
-    // else
-    //     Holovibes::instance().get_input_queue()->resize(get_batch_size());
+    if (get_compute_mode() == Computation::Hologram) // TODO: Mabe need to fix with the moments adding
+    {
+        if (batch_size_changed)
+            Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
+        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateFramePacket);
+    }
+    else
+        Holovibes::instance().get_input_queue()->resize(get_frame_packet());
+
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {
         pipe->insert_fn_end_vect(notify_callback);
@@ -428,14 +425,12 @@ void update_batch_size(const uint batch_size)
 
     bool time_stride_changed = set_batch_size(batch_size);
 
-    if (get_compute_mode() == Computation::Hologram)
+    if (get_compute_mode() == Computation::Hologram) // TODO: Mabe need to fix with the moments adding
     {
         if (time_stride_changed)
             Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
         Holovibes::instance().get_compute_pipe()->request(ICS::UpdateBatchSize);
     }
-    else
-        Holovibes::instance().get_input_queue()->resize(get_batch_size());
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)

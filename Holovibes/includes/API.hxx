@@ -156,8 +156,8 @@ inline bool set_batch_size(uint value)
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
 
     // TODO : Remove these 2 lines
-    if (value > get_input_buffer_size())
-        value = get_input_buffer_size();
+    // if (value > get_input_buffer_size())
+    // value = get_input_buffer_size();
 
     uint frame_packet = holovibes::Holovibes::instance().get_setting<settings::FramePacket>().value;
 
