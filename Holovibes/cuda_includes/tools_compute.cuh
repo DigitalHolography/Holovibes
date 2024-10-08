@@ -56,3 +56,13 @@ void gpu_normalize(float* const input,
                    const size_t frame_res,
                    const uint norm_constant,
                    const cudaStream_t stream);
+
+/*! \brief Performs tensor vector multiplication. Parallelisation is done along frame_res.
+ * \param output the place to sae
+*/
+void tensor_multiply_vector(float* output,
+                            const float* tensor,
+                            const float* vector,
+                            const uint frame_res,
+                            const uint size,
+                            const cudaStream_t stream);

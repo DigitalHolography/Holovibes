@@ -29,6 +29,35 @@ static __global__ void kernel_complex_to_modulus_pacc(
     }
 }
 
+/* Kernel function wrapped by complex_to_modulus. */
+static __global__ void
+kernel_complex_to_modulus(float* output, const cuComplex* input, const size_t frame_res, const size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < frame_res)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            const cuComplex* current_p_frame = input + i * frame_res;
+            float* output_frame = output + i * frame_res;
+
+            output_frame[index] = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+        }
+    }
+}
+
+void complex_to_modulus_moments(
+    float* output, const cuComplex* input, const size_t frame_res, const size_t size, const cudaStream_t stream)
+{
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(frame_res, threads); // FIXME
+
+    kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(output, input, frame_res, size);
+    // No sync needed since everything is run on stream 0
+    cudaCheckError();
+}
+
 void complex_to_modulus(float* output,
                         const cuComplex* input,
                         const ushort pmin,
@@ -341,7 +370,7 @@ void float_to_ushort(
 
 void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream)
 {
-    const auto lambda = [] __device__(const float in) -> ushort {return in * max_ushort_value; };
+    const auto lambda = [] __device__(const float in) -> ushort { return in * max_ushort_value; };
     map_generic(input, output, size, lambda, stream);
 }
 

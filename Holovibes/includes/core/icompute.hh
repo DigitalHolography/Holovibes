@@ -160,6 +160,11 @@ struct MomentsEnv
     cuda_tools::CudaUniquePtr<float> moment1_buffer = nullptr;
     cuda_tools::CudaUniquePtr<float> moment2_buffer = nullptr;
 
+    /*! \brief Temporary buffer that contains a batch of time transformation size frames
+     *  It will contains the complex modulus of result of the time transformation
+     */
+    cuda_tools::CudaUniquePtr<float> stft_res_buffer = nullptr;
+
     /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
      * Used to compute the moment of order 0*/
     cuda_tools::CudaUniquePtr<float> f0_buffer = nullptr;
