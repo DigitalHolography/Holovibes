@@ -50,7 +50,7 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
 
 EHoloGrabberInt::~EHoloGrabberInt()
 {
-    for (size_t i = 0; i < nb_grabbers_; i++)
+    for (size_t i = 0; i < available_grabbers_.size(); i++)
         available_grabbers_[i]->reallocBuffers(0);
 
     cudaFreeHost(ptr_);
@@ -184,14 +184,6 @@ void EHoloGrabberInt::stop()
         available_grabbers_[i]->stop();
 }
 
-// namespace
-// {
-// void dispatch_init(CameraPhantomInt* cam) { cam->init_camera(); }
-
-// std::unique_ptr<EHoloGrabberInt> dispatch_make_holo_grabber(CameraPhantomInt* cam) { return cam->make_holo_grabber();
-// } } // namespace std::unique_ptr<EHoloGrabberInt> CameraPhantomInt::call_make_holo_grabber() { return
-// make_holo_grabber(); }
-
 CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::string& ini_prefix)
     : Camera(ini_name)
     , ini_prefix_(ini_prefix)
@@ -206,15 +198,7 @@ CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::strin
     }
 
     gentl_ = std::make_unique<Euresys::EGenTL>();
-    // grabber_ = call_make_holo_grabber();
-    // std::make_unique<EHoloGrabberInt>(*gentl_, buffer_part_count_, pixel_format_, nb_grabbers_);
-
-    // dispatch_init(this);
-    // this->init_camera();
 }
-// std::unique_ptr<EHoloGrabberInt> CameraPhantomInt::make_holo_grabber() { return {}; }
-
-// void CameraPhantomInt::init_camera() {}
 
 void CameraPhantomInt::init_camera_(EHoloGrabberInt::SetupParam& param)
 {

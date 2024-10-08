@@ -18,7 +18,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     // S710 only supports 2 and 4 frame grabbers setup
     if (nb_grabbers != 2 && nb_grabbers != 4)
     {
-        Logger::camera()->error("Incompatible number of frame grabbers requested for camera S710, please check the ",
+        Logger::camera()->error("Incompatible number of frame grabbers requested for camera S710, please check the "
                                 "NbGrabbers parameter of the S710 ini file");
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }

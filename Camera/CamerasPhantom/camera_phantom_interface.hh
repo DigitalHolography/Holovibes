@@ -124,9 +124,6 @@ class CameraPhantomInt : public Camera
   public:
     virtual ~CameraPhantomInt() {}
 
-    // std::unique_ptr<EHoloGrabberInt> call_make_holo_grabber();
-
-    // virtual std::unique_ptr<EHoloGrabberInt> make_holo_grabber() = 0;
     virtual void init_camera() = 0;
     virtual void start_acquisition() override;
     virtual void stop_acquisition() override;
