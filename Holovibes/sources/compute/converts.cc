@@ -108,6 +108,21 @@ void Converts::insert_to_modulus(float* gpu_postprocess_frame)
         });
 }
 
+void Converts::insert_to_modulus_moments(float* output)
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            complex_to_modulus_moments(output,
+                                       time_transformation_env_.gpu_p_acc_buffer,
+                                       fd_.get_frame_res(),
+                                       setting<settings::TimeTransformationSize>(),
+                                       stream_);
+        });
+}
+
 void Converts::insert_to_squaredmodulus(float* gpu_postprocess_frame)
 {
     LOG_FUNC();

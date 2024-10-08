@@ -46,6 +46,24 @@ kernel_divide_frames_float(const float* numerator, const float* denominator, flo
     }
 }
 
+__global__ void kernel_tensor_multiply_vector(
+    float* output, const float* tensor, const float* vector, const uint frame_res, const uint size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < frame_res)
+    {
+        float val = 0.0f;
+        for (uint i = 0; i < size; i++)
+        {
+            const float* current_frame = tensor + i * frame_res;
+            val += current_frame[index] * vector[i];
+        }
+
+        output[index] = val;
+    }
+}
+
 void multiply_frames_complex(
     const cuComplex* input1, const cuComplex* input2, cuComplex* output, const uint size, const cudaStream_t stream)
 {
@@ -79,4 +97,17 @@ void gpu_normalize(float* const input,
     };
 
     map_generic(input, input, frame_res, map_function, stream);
+}
+
+void tensor_multiply_vector(float* output,
+                            const float* tensor,
+                            const float* vector,
+                            const uint frame_res,
+                            const uint size,
+                            const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, size);
+    cudaCheckError();
 }
