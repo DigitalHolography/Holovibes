@@ -247,6 +247,7 @@ void FourierTransform::insert_moments()
         {
             LOG_INFO("moments");
             uint time_transformation_size = setting<settings::TimeTransformationSize>();
+            auto type = setting<settings::ImageType>();
 
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
