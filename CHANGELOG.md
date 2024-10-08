@@ -1,5 +1,9 @@
 ## Changelog
 
+### ##.#.#
+
+- Holovibes and the Process Holo Files script can now be installed separately in the installer
+
 ### 13.7.0
 
 - Support for Alvium Camera

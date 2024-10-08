@@ -197,6 +197,12 @@ install(FILES "${HOLO_DIR}/Holovibes.ico"
     COMPONENT application
 )
 
+# Installing the icon in the process component as well, as the script shortcut needs it.
+install(FILES "${HOLO_DIR}/Holovibes.ico"
+    DESTINATION .
+    COMPONENT process
+)
+
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
     DESTINATION .
     COMPONENT application
@@ -204,7 +210,7 @@ install(FILES "${HOLO_DIR}/holovibes_logo.png"
 
 install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
     DESTINATION scripts
-    COMPONENT application
+    COMPONENT process
 )
 
 install(FILES
@@ -287,9 +293,10 @@ set(INSTALL_DIRECTORY "Holovibes\\\\${PROJECT_VERSION}")
 
 set(CPACK_GENERATOR "NSIS")
 
-set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
+#set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE ON)
 set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
-set(CPACK_COMPONENTS_ALL application)
+set(CPACK_COMPONENT_PROCESS_DISPLAY_NAME "Process Holo Files")
+set(CPACK_COMPONENTS_ALL application process)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
@@ -313,8 +320,13 @@ set(PSONE_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
 
 # Creating the shortcut to Holovibes on the desktop.
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-    CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
-    CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0
+    \\\${If} \\\${SectionIsSelected} \\\${application}
+        CreateShortCut \\\"${SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\Holovibes.exe\\\"
+    \\\${EndIf}
+
+    \\\${If} \\\${SectionIsSelected} \\\${process}
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0
+    \\\${EndIf}
 ")
 
 # Removes the Desktop shortcut of Holovibes.
