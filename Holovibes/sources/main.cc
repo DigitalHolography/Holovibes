@@ -1,7 +1,12 @@
-/*! \mainpage Holovibes
-
-    Documentation for developpers. \n
-*/
+/*! \file main.cc
+ * 
+ * \brief Starts the application in CLI mode or GUI mode (light ui mode if previously
+ * closed in light ui mode) in function of passed parameters. 
+ * 
+ * This file also check if a GPU in installed and if the CUDA version is greater than 3.5.
+ * On each run in release mode, data from the local AppData (preset, camera ini, shaders, ...) 
+ * are copied to the user AppData. 
+ */
 
 #include <QApplication>
 #include <QLocale>

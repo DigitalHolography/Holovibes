@@ -78,13 +78,6 @@ QString create_absolute_qt_path(const std::string& relative_path)
     return QString(dir.string().c_str());
 }
 
-std::string create_absolute_path(const std::string& relative_path)
-{
-    std::filesystem::path dir(GET_EXE_DIR);
-    dir = dir / relative_path;
-    return dir.string();
-}
-
 std::filesystem::path get_user_documents_path()
 {
     wchar_t document_path[MAX_PATH];
