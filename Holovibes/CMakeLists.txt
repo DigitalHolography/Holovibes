@@ -197,8 +197,7 @@ install(FILES "${HOLO_DIR}/Holovibes.ico"
     COMPONENT application
 )
 
-# Installing the icon in the process component as well, as the script shortcut needs it.
-install(FILES "${HOLO_DIR}/Holovibes.ico"
+install(FILES "${HOLO_DIR}/Script.ico"
     DESTINATION .
     COMPONENT process
 )
@@ -267,7 +266,6 @@ if(HAVE_VIMBAX)
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/Log_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/NodeMapData_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
         COMMAND ${CMAKE_COMMAND} -E copy "${VIMBAX_SDK}/bin/MathParser_MD_VC141_v3_2_AVT.dll" $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
-        
         )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
@@ -325,7 +323,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${EndIf}
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
-        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\Holovibes.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\script.ico\\\" 0
     \\\${EndIf}
 ")
 
