@@ -52,13 +52,14 @@ void CameraPhantom::init_camera()
         .trigger_source = trigger_source_,
         .block_height = 0,
         .offsets = stripe_offsets_,
-        .trigger_mode = trigger_mode_,
+        .trigger_mode = std::nullopt,
         .trigger_selector = trigger_selector_,
         .cycle_minimum_period = cycle_minimum_period_,
         .exposure_time = exposure_time_,
         .gain_selector = gain_selector_,
         .gain = gain_,
         .balance_white_marker = balance_white_marker_,
+        .acquisition_frame_rate = acquisition_frame_rate_,
     };
     init_camera_(param);
 }
