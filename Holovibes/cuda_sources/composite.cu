@@ -71,8 +71,7 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
     RGBPixel* begin = image;
     RGBPixel* end = begin + image_res;
     RGBPixel* result = begin; // In-place transform.
-    auto normalize = [rgb_average] __host__ __device__(RGBPixel val)
-    {
+    auto normalize = [rgb_average] __host__ __device__(RGBPixel val) {
         val.r /= rgb_average.r;
         val.g /= rgb_average.g;
         val.b /= rgb_average.b;
@@ -89,7 +88,6 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
  * @param fd_height The height of the buffer
  * @param fd_width The width of the buffer
  * @param selection The selected zone
- * @param pixel_depth The depth of the pixel (usually 3)
  * @param averages The rgb averages to fill, used in UI
  * @param stream The used cuda stream
  */
@@ -97,7 +95,6 @@ void postcolor_normalize(float* output,
                          const uint fd_height,
                          const uint fd_width,
                          holovibes::units::RectFd selection,
-                         const uchar pixel_depth,
                          float* averages,
                          const cudaStream_t stream)
 {
@@ -162,4 +159,3 @@ void postcolor_normalize(float* output,
         cudaXFree(gpu_zone_data);
     }
 }
-

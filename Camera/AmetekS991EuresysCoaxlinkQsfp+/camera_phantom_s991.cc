@@ -23,7 +23,7 @@ CameraPhantom::CameraPhantom()
     }
 
     gentl_ = std::make_unique<Euresys::EGenTL>();
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, nb_images_per_buffer_, pixel_format_);
+    grabber_ = std::make_unique<EHoloGrabber>(*gentl_, buffer_part_count_, pixel_format_);
 
     init_camera();
 }
@@ -91,7 +91,7 @@ void CameraPhantom::load_ini_params()
 {
     const boost::property_tree::ptree& pt = get_ini_pt();
     nb_buffers_ = pt.get<unsigned int>("s991.NbBuffers", nb_buffers_);
-    nb_images_per_buffer_ = pt.get<unsigned int>("s991.NbImagesPerBuffer", nb_images_per_buffer_);
+    buffer_part_count_ = pt.get<unsigned int>("s991.BufferPartCount", buffer_part_count_);
     nb_grabbers_ = pt.get<unsigned int>("s991.NbGrabbers", nb_grabbers_);
     fullHeight_ = pt.get<unsigned int>("s991.FullHeight", fullHeight_);
     width_ = pt.get<unsigned int>("s991.Width", width_);
@@ -105,12 +105,11 @@ void CameraPhantom::load_ini_params()
     cycle_minimum_period_ = pt.get<unsigned int>("s991.CycleMinimumPeriod", cycle_minimum_period_);
     acquisition_frame_rate_ = pt.get<unsigned int>("s991.AcquisitionFrameRate", acquisition_frame_rate_);
     pixel_format_ = pt.get<std::string>("s991.PixelFormat", pixel_format_);
-    
+
     gain_selector_ = pt.get<std::string>("s991.GainSelector", gain_selector_);
     trigger_mode_ = pt.get<std::string>("s991.TriggerMode", trigger_mode_);
     gain_ = pt.get<float>("s991.Gain", gain_);
     balance_white_marker_ = pt.get<std::string>("s991.BalanceWhiteMarker", balance_white_marker_);
-
 
     if (nb_grabbers_ != 4 && nb_grabbers_ != 2)
     {

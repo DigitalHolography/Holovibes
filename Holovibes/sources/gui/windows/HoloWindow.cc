@@ -32,8 +32,12 @@ std::shared_ptr<ICompute> HoloWindow::getPipe() { return Ic; }
 void HoloWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.holo.glsl").string()));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
     overlay_manager_.create_default();
 }

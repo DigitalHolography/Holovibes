@@ -50,7 +50,8 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
     {
-        batch_streams_ = std::unique_ptr<cudaStream_t[], std::default_delete<cudaStream_t[]>>(new cudaStream_t[max_size_]);
+        batch_streams_ =
+            std::unique_ptr<cudaStream_t[], std::default_delete<cudaStream_t[]>>(new cudaStream_t[max_size_]);
 
         for (uint i = 0; i < max_size_; ++i)
             cudaSafeCall(
@@ -187,7 +188,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     }
 }
 
-void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
+void BatchInputQueue::dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func)
 {
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer

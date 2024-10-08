@@ -80,8 +80,7 @@ class Converts
     }
 
     /*! \brief Insert functions relative to the convertion Complex => Float */
-    void insert_to_float(bool unwrap_2d_requested,
-                         float* buffers_gpu_postprocess_frame);
+    void insert_to_float(bool unwrap_2d_requested, float* buffers_gpu_postprocess_frame);
 
     /*! \brief Insert functions relative to the convertion Float => Unsigned Short */
     void insert_to_ushort();
@@ -119,8 +118,7 @@ class Converts
     void insert_to_argument(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Complex => Phase increase */
-    void
-    insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame);
+    void insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_postprocess_frame);
 
     /*! \brief Insert the convertion Float => Unsigned Short in XY window */
     void insert_main_ushort();

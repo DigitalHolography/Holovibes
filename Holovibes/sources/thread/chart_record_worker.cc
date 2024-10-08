@@ -16,8 +16,7 @@ void ChartRecordWorker::run()
 
     // Header displaying
     of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start
-       << ", lambda : " << api::get_lambda() << ", z : " << setting<settings::ZDistance>() << "]"
-       << std::endl;
+       << ", lambda : " << api::get_lambda() << ", z : " << setting<settings::ZDistance>() << "]" << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "
@@ -57,8 +56,8 @@ void ChartRecordWorker::run()
            << std::endl;
     }
 
-    pipe->request_disable_record_chart();
-    while (pipe->get_disable_chart_record_requested() && !stop_requested_)
+    pipe->request(ICS::DisableChartRecord);
+    while (pipe->is_requested(ICS::DisableChartRecord) && !stop_requested_)
         continue;
 
     GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);

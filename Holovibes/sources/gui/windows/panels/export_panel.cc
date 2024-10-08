@@ -289,9 +289,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     api::record_finished();
 
     // notify others panels (info panel & lightUI) that the record is finished
-    auto& manager = NotifierManager::get_instance();
-    auto notifier = manager.get_notifier<bool>("record_finished");
-    notifier->notify(true);
+    NotifierManager::notify<bool>("record_finished", true);
 }
 
 void ExportPanel::set_record_device(bool value)

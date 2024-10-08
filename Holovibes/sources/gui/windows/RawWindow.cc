@@ -58,8 +58,12 @@ RawWindow::~RawWindow()
 void RawWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.raw.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.raw.glsl"));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.raw.glsl").string()));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.raw.glsl").string()));
     Program->link();
     overlay_manager_.create_default();
 }
@@ -82,9 +86,9 @@ void RawWindow::initializeGL()
     glGenBuffers(1, &Pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
     size_t size;
-    if (fd_.depth == 8) // cuComplex displayed as a uint
+    if (fd_.depth == camera::PixelDepth::Complex) // cuComplex displayed as a uint
         size = fd_.get_frame_res() * sizeof(uint);
-    else if (fd_.depth == 4) // Float are displayed as ushort
+    else if (fd_.depth == camera::PixelDepth::Bits32) // Float are displayed as ushort
         size = fd_.get_frame_res() * sizeof(ushort);
     else
         size = fd_.get_frame_size();
@@ -97,9 +101,9 @@ void RawWindow::initializeGL()
     /* -------------------------------------------------- */
     glGenTextures(1, &Tex);
     glBindTexture(GL_TEXTURE_2D, Tex);
-    texDepth = (fd_.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-    texType = (fd_.depth == 8) ? GL_RG : GL_RED;
-    if (fd_.depth == 6)
+    texDepth = (fd_.depth == camera::PixelDepth::Bits8) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+    texType = (fd_.depth == camera::PixelDepth::Complex) ? GL_RG : GL_RED;
+    if (fd_.depth == camera::PixelDepth::Bits48)
         texType = GL_RGB;
     glTexImage2D(GL_TEXTURE_2D, 0, texType, fd_.width, fd_.height, 0, texType, texDepth, nullptr);
 
@@ -111,12 +115,12 @@ void RawWindow::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    if (fd_.depth == 8)
+    if (fd_.depth == camera::PixelDepth::Complex)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
     }
-    else if (fd_.depth != 6)
+    else if (fd_.depth != camera::PixelDepth::Bits48)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);

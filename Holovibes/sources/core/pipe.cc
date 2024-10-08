@@ -19,7 +19,7 @@
 #include "tools.hh"
 #include "contrast_correction.cuh"
 #include "enqueue_exception.hh"
-#include "pipeline_utils.hh"
+#include "aliases.hh"
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
 #include "global_state_holder.hh"
@@ -34,113 +34,87 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
     while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
            Holovibes::instance().is_recording())
-    {
-    }
+        continue;
 }
 
 using camera::FrameDescriptor;
 
 Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
+#define HANDLE_REQUEST(setting, log_message, action)                                                                   \
+    if (is_requested(setting))                                                                                         \
+    {                                                                                                                  \
+        LOG_DEBUG(log_message "requested");                                                                            \
+        action;                                                                                                        \
+        clear_request(setting);                                                                                        \
+    }
+
 bool Pipe::make_requests()
 {
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
-
     bool success_allocation = true;
 
     /* Free buffers */
-    if (disable_convolution_requested_)
-    {
-        LOG_DEBUG("disable_convolution_requested");
+    HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());
+    HANDLE_REQUEST(ICS::DisableFilter, "Disable filter", postprocess_->dispose());
 
-        postprocess_->dispose();
-        disable_convolution_requested_ = false;
-    }
+    HANDLE_REQUEST(ICS::DisableLensView, "Disable lens view", fourier_transforms_->get_lens_queue().reset(nullptr));
 
-    if (disable_filter_requested_)
-    {
-        LOG_DEBUG("disable_filter_requested");
-
-        postprocess_->dispose();
-        disable_filter_requested_ = false;
-    }
-
-    if (request_disable_lens_view_)
-    {
-        LOG_DEBUG("request_disable_lens_view");
-
-        fourier_transforms_->get_lens_queue().reset(nullptr);
-
-        request_disable_lens_view_ = false;
-    }
-
-    if (disable_raw_view_requested_)
+    if (is_requested(ICS::DisableRawView))
     {
         LOG_DEBUG("disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
         api::set_raw_view_enabled(false);
-        disable_raw_view_requested_ = false;
+        clear_request(ICS::DisableRawView);
     }
 
-    if (disable_filter2d_view_requested_)
+    if (is_requested(ICS::DisableFilter2DView))
     {
         LOG_DEBUG("disable_filter2D_view_requested");
 
         gpu_filter2d_view_queue_.reset(nullptr);
         api::set_filter2d_view_enabled(false);
-        disable_filter2d_view_requested_ = false;
+        clear_request(ICS::DisableFilter2DView);
     }
 
-    if (request_delete_time_transformation_cuts_)
-    {
-        LOG_DEBUG("request_delete_time_transformation_cuts");
+    HANDLE_REQUEST(ICS::DeleteTimeTransformationCuts, "Delete time transformation cuts", dispose_cuts());
 
-        dispose_cuts();
-        request_delete_time_transformation_cuts_ = false;
-    }
-
-    if (disable_chart_display_requested_)
+    if (is_requested(ICS::DisableChartDisplay))
     {
         LOG_DEBUG("disable_chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(nullptr);
         api::set_chart_display_enabled(false);
-        disable_chart_display_requested_ = false;
+        clear_request(ICS::DisableChartDisplay);
     }
 
-    if (disable_chart_record_requested_)
+    if (is_requested(ICS::DisableChartRecord))
     {
         LOG_DEBUG("disable_chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(nullptr);
         api::set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
-        disable_chart_record_requested_ = false;
+        clear_request(ICS::DisableChartRecord);
     }
 
-    if (disable_frame_record_requested_)
+    if (is_requested(ICS::DisableFrameRecord))
     {
         LOG_DEBUG("disable_frame_record_requested");
 
         record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
         api::set_frame_record_enabled(false);
-        disable_frame_record_requested_ = false;
+        clear_request(ICS::DisableFrameRecord);
     }
 
     image_accumulation_->dispose(); // done only if requested
 
     /* Allocate buffer */
-    if (convolution_requested_)
-    {
-        LOG_DEBUG("convolution_requested");
+    HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
-        postprocess_->init();
-        convolution_requested_ = false;
-    }
-
-    if (filter_requested_)
+    if (is_requested(ICS::Filter))
     {
         LOG_DEBUG("filter_requested");
 
@@ -149,19 +123,11 @@ bool Pipe::make_requests()
         api::enable_filter();
         auto filter = api::get_input_filter();
         fourier_transforms_->update_setting(settings::InputFilter{filter});
-        filter_requested_ = false;
-    }
-
-    if (output_resize_requested_.load() != std::nullopt)
-    {
-        LOG_DEBUG("output_resize_requested");
-
-        gpu_output_queue_.resize(output_resize_requested_.load().value(), stream_);
-        output_resize_requested_ = std::nullopt;
+        clear_request(ICS::Filter);
     }
 
     // Updating number of images
-    if (update_time_transformation_size_requested_)
+    if (is_requested(ICS::UpdateTimeTransformationSize))
     {
         LOG_DEBUG("update_time_transformation_size_requested");
 
@@ -175,45 +141,28 @@ bool Pipe::make_requests()
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
         }
-        update_time_transformation_size_requested_ = false;
+
+        clear_request(ICS::UpdateTimeTransformationSize);
     }
 
-    if (request_update_time_stride_)
-    {
-        LOG_DEBUG("request_update_time_stride");
+    HANDLE_REQUEST(ICS::UpdateTimeStride, "Update time stride", batch_env_.batch_index = 0);
 
-        batch_env_.batch_index = 0;
-        request_update_time_stride_ = false;
-    }
-
-    if (request_update_batch_size_)
+    if (is_requested(ICS::UpdateBatchSize))
     {
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
         input_queue_.resize(setting<settings::BatchSize>());
-        request_update_batch_size_ = false;
+        clear_request(ICS::UpdateBatchSize);
     }
 
-    if (request_time_transformation_cuts_)
-    {
-        LOG_DEBUG("request_time_transformation_cuts");
-
-        init_cuts();
-        request_time_transformation_cuts_ = false;
-    }
+    HANDLE_REQUEST(ICS::TimeTransformationCuts, "Time transformation cuts", init_cuts());
 
     image_accumulation_->init(); // done only if requested
 
-    if (request_clear_img_accu)
-    {
-        LOG_DEBUG("request_clear_img_accu");
+    HANDLE_REQUEST(ICS::ClearImgAccu, "Clear image accu", image_accumulation_->clear());
 
-        image_accumulation_->clear();
-        request_clear_img_accu = false;
-    }
-
-    if (raw_view_requested_)
+    if (is_requested(ICS::RawView))
     {
         LOG_DEBUG("raw_view_requested");
 
@@ -223,26 +172,26 @@ bool Pipe::make_requests()
                                             QueueType::UNDEFINED,
                                             setting<settings::RawViewQueueLocation>()));
         api::set_raw_view_enabled(true);
-        raw_view_requested_ = false;
+        clear_request(ICS::RawView);
     }
 
-    if (filter2d_view_requested_)
+    if (is_requested(ICS::Filter2DView))
     {
         LOG_DEBUG("filter2d_view_requested");
 
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
         api::set_filter2d_view_enabled(true);
-        filter2d_view_requested_ = false;
+        clear_request(ICS::Filter2DView);
     }
 
-    if (chart_display_requested_)
+    if (is_requested(ICS::ChartDisplay))
     {
         LOG_DEBUG("chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
         api::set_chart_display_enabled(true);
-        chart_display_requested_ = false;
+        clear_request(ICS::ChartDisplay);
     }
 
     if (chart_record_requested_.load() != std::nullopt)
@@ -255,16 +204,7 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
-    if (frame_record_requested_)
-    {
-        LOG_DEBUG("Frame Record Request Processing");
-        api::set_frame_record_enabled(true);
-        frame_record_requested_ = false;
-        LOG_DEBUG("Frame Record Request Processed");
-
-        if (api::get_record_mode() == RecordMode::MOMENTS)
-            init_moments();
-    }
+    HANDLE_REQUEST(ICS::FrameRecord, "Frame Record", api::set_frame_record_enabled(true));
 
     return success_allocation;
 }
@@ -273,14 +213,14 @@ void Pipe::refresh()
 {
     pipe_refresh_apply_updates();
 
-    refresh_requested_ = false;
+    clear_request(ICS::Refresh);
 
     fn_compute_vect_.clear();
 
     // Aborting if allocation failed
     if (!make_requests())
     {
-        refresh_requested_ = false;
+        clear_request(ICS::Refresh);
         return;
     }
 
@@ -350,7 +290,7 @@ void Pipe::refresh()
     // Used for phase increase
     fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(unwrap_2d_requested_, buffers_.gpu_postprocess_frame.get());
+    converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
 
     insert_moments();
     insert_moments_record();
@@ -360,24 +300,20 @@ void Pipe::refresh()
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
-    auto insert = [&]()
-    {
-        image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
-                                                       buffers_.gpu_postprocess_frame_size,
-                                                       *buffers_.gpu_postprocess_frame_xz,
-                                                       *buffers_.gpu_postprocess_frame_yz);
-    };
-    insert();
+    image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
+                                                   buffers_.gpu_postprocess_frame_size,
+                                                   *buffers_.gpu_postprocess_frame_xz,
+                                                   *buffers_.gpu_postprocess_frame_yz);
 
     rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
 
     insert_request_autocontrast();
-    rendering_->insert_contrast(autocontrast_requested_,
-                                autocontrast_slice_xz_requested_,
-                                autocontrast_slice_yz_requested_,
-                                autocontrast_filter2d_requested_);
+    rendering_->insert_contrast(is_requested(ICS::Autocontrast),
+                                is_requested(ICS::AutocontrastSliceXZ),
+                                is_requested(ICS::AutocontrastSliceYZ),
+                                is_requested(ICS::AutocontrastFilter2D));
 
     // converts_->insert_cuts_final();
 
@@ -404,7 +340,7 @@ void Pipe::refresh()
 void Pipe::insert_wait_frames()
 {
     fn_compute_vect_.push_back(
-        [&]()
+        [&input_queue_ = input_queue_]()
         {
             // Wait while the input queue is enough filled
             while (input_queue_.is_empty())
@@ -427,13 +363,13 @@ void Pipe::insert_moments()
 
 void Pipe::insert_reset_batch_index()
 {
-    fn_compute_vect_.conditional_push_back([&]() { batch_env_.batch_index = 0; });
+    fn_compute_vect_.conditional_push_back([&batch_env_ = batch_env_]() { batch_env_.batch_index = 0; });
 }
 
 void Pipe::insert_transfer_for_time_transformation()
 {
     fn_compute_vect_.push_back(
-        [&]()
+        [this]()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
                 buffers_.gpu_spatial_transformation_buffer.get(),
@@ -445,7 +381,7 @@ void Pipe::insert_transfer_for_time_transformation()
 void Pipe::update_batch_index()
 {
     fn_compute_vect_.push_back(
-        [&]()
+        [this]()
         {
             batch_env_.batch_index += setting<settings::BatchSize>();
             CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
@@ -463,7 +399,7 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 void Pipe::insert_dequeue_input()
 {
     fn_compute_vect_.push_back(
-        [&]()
+        [this]()
         {
             (*processed_output_fps_) += setting<settings::BatchSize>();
 
@@ -485,7 +421,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
     LOG_FUNC();
 
     fn_compute_vect_.conditional_push_back(
-        [&]()
+        [this]()
         {
             (*processed_output_fps_)++;
 
@@ -520,7 +456,7 @@ void Pipe::insert_filter2d_view()
     if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
     {
         fn_compute_vect_.conditional_push_back(
-            [&]()
+            [this]()
             {
                 int width = gpu_output_queue_.get_fd().width;
                 int height = gpu_output_queue_.get_fd().height;
@@ -539,27 +475,26 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (setting<settings::RawViewEnabled>())
-    {
-        // FIXME: Copy multiple copies a batch of frames
-        // The view use get last image which will always the
-        // last image of the batch.
-        fn_compute_vect_.push_back(
-            [&]()
-            {
-                // Copy a batch of frame from the input queue to the raw view
-                // queue
-                cudaMemcpyKind memcpy_kind;
-                if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                           : cudaMemcpyDeviceToHost;
-                else
-                    memcpy_kind = setting<settings::RawViewQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
-                                                                                           : cudaMemcpyHostToHost;
+    if (!setting<settings::RawViewEnabled>())
+        return;
 
-                input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
-            });
-    }
+    // FIXME: Copy multiple copies a batch of frames
+    // The view use get last image which will always the
+    // last image of the batch.
+    fn_compute_vect_.push_back(
+        [this]()
+        {
+            // Copy a batch of frame from the input queue to the raw view
+            // queue
+            cudaMemcpyKind memcpy_kind;
+            if (setting<settings::InputQueueLocation>() == Device::GPU)
+                memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>();
+            else
+                memcpy_kind =
+                    get_memcpy_kind<settings::RawViewQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyHostToHost);
+
+            input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
+        });
 }
 
 void Pipe::insert_raw_record()
@@ -583,18 +518,15 @@ void Pipe::insert_raw_record()
                 if (setting<settings::RecordFrameCount>() != std::nullopt &&
                     inserted >= setting<settings::RecordFrameCount>().value())
                 {
-                    auto& manager = NotifierManager::get_instance();
-                    auto notifier = manager.get_notifier<bool>("acquisition_finished");
-                    notifier->notify(true);
+                    NotifierManager::notify<bool>("acquisition_finished", true);
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;
                 if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                          : cudaMemcpyDeviceToHost;
+                    memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
                 else
-                    memcpy_kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyHostToDevice
-                                                                                          : cudaMemcpyDeviceToHost;
+                    memcpy_kind =
+                        get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
                 input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
@@ -634,55 +566,38 @@ void Pipe::insert_hologram_record()
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::HOLOGRAM)
     {
         // if (Holovibes::instance().is_cli)
-        fn_compute_vect_.push_back([&]() { keep_contiguous(1); });
+        fn_compute_vect_.push_back([this]() { keep_contiguous(1); });
 
         fn_compute_vect_.conditional_push_back(
-            [&]()
+            [this]()
             {
-                if (gpu_output_queue_.get_fd().depth == 6) // Complex mode
+                if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
                     record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
                                                      stream_,
-                                                     setting<settings::RecordQueueLocation>() == Device::GPU
-                                                         ? cudaMemcpyDeviceToDevice
-                                                         : cudaMemcpyDeviceToHost);
+                                                     get_memcpy_kind<settings::RecordQueueLocation>());
                 else
                     record_queue_.enqueue(buffers_.gpu_output_frame.get(),
                                           stream_,
-                                          setting<settings::RecordQueueLocation>() == Device::GPU
-                                              ? cudaMemcpyDeviceToDevice
-                                              : cudaMemcpyDeviceToHost);
+                                          get_memcpy_kind<settings::RecordQueueLocation>());
             });
     }
 }
 
 void Pipe::insert_cuts_record()
 {
-    if (setting<settings::FrameRecordEnabled>())
+    if (!setting<settings::FrameRecordEnabled>())
+        return;
+
+    auto recordMode = setting<settings::RecordMode>();
+    auto buffer = recordMode == RecordMode::CUTS_XZ   ? buffers_.gpu_output_frame_xz.get()
+                  : recordMode == RecordMode::CUTS_YZ ? buffers_.gpu_output_frame_yz.get()
+                                                      : nullptr;
+
+    if (buffer != nullptr)
     {
-        if (setting<settings::RecordMode>() == RecordMode::CUTS_XZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                {
-                    record_queue_.enqueue(buffers_.gpu_output_frame_xz.get(),
-                                          stream_,
-                                          setting<settings::RecordQueueLocation>() == Device::GPU
-                                              ? cudaMemcpyDeviceToDevice
-                                              : cudaMemcpyDeviceToHost);
-                });
-        }
-        else if (setting<settings::RecordMode>() == RecordMode::CUTS_YZ)
-        {
-            fn_compute_vect_.push_back(
-                [&]()
-                {
-                    record_queue_.enqueue(buffers_.gpu_output_frame_yz.get(),
-                                          stream_,
-                                          setting<settings::RecordQueueLocation>() == Device::GPU
-                                              ? cudaMemcpyDeviceToDevice
-                                              : cudaMemcpyDeviceToHost);
-                });
-        }
+        fn_compute_vect_.push_back(
+            [this, &buffer = buffer]()
+            { record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>()); });
     }
 }
 
@@ -696,20 +611,18 @@ void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
 
-    if (refresh_requested_ && refresh_enabled_)
+    if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
         refresh();
 
-    while (!termination_requested_)
+    while (!is_requested(ICS::Termination))
     {
         try
         {
             // Run the entire pipeline of calculation
             run_all();
 
-            if (refresh_requested_ && refresh_enabled_)
-            {
+            if (is_requested(ICS::Refresh) && is_requested(ICS::RefreshEnabled))
                 refresh();
-            }
         }
         catch (CustomException& e)
         {
@@ -731,12 +644,11 @@ void Pipe::run_all()
 {
     for (FnType& f : fn_compute_vect_)
         f();
-    {
-        std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-        for (FnType& f : fn_end_vect_)
-            f();
-        fn_end_vect_.clear();
-    }
+
+    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
+    for (FnType& f : fn_end_vect_)
+        f();
+    fn_end_vect_.clear();
 }
 
 } // namespace holovibes

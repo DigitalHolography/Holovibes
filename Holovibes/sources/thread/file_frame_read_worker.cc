@@ -38,7 +38,8 @@ void FileFrameReadWorker::run()
     LOG_TRACE("[FileFrameReadWorker] [run]");
 
     onrestart_settings_.apply_updates();
-    total_nb_frames_to_read_ = static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());
+    total_nb_frames_to_read_ =
+        static_cast<unsigned int>(setting<settings::InputFileEndIndex>() - setting<settings::InputFileStartIndex>());
 
     // Open file.
     try
@@ -86,13 +87,16 @@ size_t FileFrameReadWorker::get_buffer_nb_frames()
 bool FileFrameReadWorker::init_frame_buffers()
 {
     // Function used within this method to handle any error that may occur during initialization.
-    auto handleError = [&](const std::string& error_message_base, bool cleanupCpu = false, bool cleanupGpu = false) {
+    auto handleError = [&](const std::string& error_message_base, bool cleanupCpu = false, bool cleanupGpu = false)
+    {
         std::string error_message = error_message_base;
         if (setting<settings::LoadFileInGPU>())
             error_message += " (consider disabling \"Load file in GPU\" option)";
         LOG_ERROR("{}", error_message);
-        if (cleanupCpu) cudaXFreeHost(cpu_frame_buffer_);
-        if (cleanupGpu) cudaXFree(gpu_frame_buffer_);
+        if (cleanupCpu)
+            cudaXFreeHost(cpu_frame_buffer_);
+        if (cleanupGpu)
+            cudaXFree(gpu_frame_buffer_);
 
         return false; // Explicitly return false for clarity.
     };
@@ -100,23 +104,25 @@ bool FileFrameReadWorker::init_frame_buffers()
     size_t buffer_size = frame_size_ * get_buffer_nb_frames();
 
     cudaError_t error_code = cudaXRMallocHost(&cpu_frame_buffer_, buffer_size);
-    if (error_code != cudaSuccess) {
+    if (error_code != cudaSuccess)
+    {
         return handleError("Not enough CPU RAM to read file");
     }
 
     error_code = cudaXRMalloc(&gpu_frame_buffer_, buffer_size);
-    if (error_code != cudaSuccess) {
+    if (error_code != cudaSuccess)
+    {
         return handleError("Not enough GPU DRAM to read file", true);
     }
 
     error_code = cudaXRMalloc(&gpu_packed_buffer_, frame_size_);
-    if (error_code != cudaSuccess) {
+    if (error_code != cudaSuccess)
+    {
         return handleError("Not enough GPU DRAM to read file", true, true);
     }
 
     return true;
 }
-
 
 void FileFrameReadWorker::free_frame_buffers()
 {
@@ -165,7 +171,8 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = static_cast<unsigned int>(setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
+    const unsigned int batch_size = static_cast<unsigned int>(
+        setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -262,8 +269,8 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         if (Holovibes::instance().is_cli)
         {
-            while (Holovibes::instance().get_input_queue()->get_size() ==
-                       Holovibes::instance().get_input_queue()->get_total_nb_frames() &&
+            while (api::get_input_queue()->get_size() ==
+                       api::get_input_queue()->get_total_nb_frames() &&
                    !stop_requested_)
             {
             }
@@ -272,7 +279,10 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (stop_requested_)
             break;
 
-        input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_, api::get_input_queue_location() == holovibes::Device::GPU ? cudaMemcpyDeviceToDevice : cudaMemcpyDeviceToHost);
+        input_queue_.load()->enqueue(gpu_frame_buffer_ + frames_enqueued * frame_size_,
+                                     api::get_input_queue_location() == holovibes::Device::GPU
+                                         ? cudaMemcpyDeviceToDevice
+                                         : cudaMemcpyDeviceToHost);
 
         current_nb_frames_read_++;
         processed_frames_++;
@@ -288,7 +298,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     // so we don't have to sync
     //
     // If the input queue is not on the GPU no sync is needed
-    if (setting<settings::LoadFileInGPU>() == false && (api::get_input_queue_location() == holovibes::Device::GPU)) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
+    if (setting<settings::LoadFileInGPU>() == false &&
+        (api::get_input_queue_location() ==
+         holovibes::Device::GPU)) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
         input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker

@@ -430,7 +430,8 @@ void hsv(const cuComplex* gpu_input,
     cudaXFree(tmp_hsv_arr);
 }
 
-// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly gradient overlay
+// NOTE: This code was never used, but it could be useful for the 3D cuts view in HSV mode, instead of using an ugly
+// gradient overlay
 /*
 __global__ void kernel_fill_hsv_xz_cut(const float* gpu_in_cut,
                                        float* gpu_hsv_cut,

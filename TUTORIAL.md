@@ -49,7 +49,7 @@ To develop for Holovibes, ensure you have the following software installed:
 
 - GIT
 - CMake
-- Visual Studio 2022 with C++ Desktop Development 
+- Visual Studio 2022 with C++ Desktop Development
 - CUDA 12.6
 - Python 3.8.10
 - NSIS
@@ -61,7 +61,7 @@ To develop for Holovibes, ensure you have the following software installed:
 2. **Install Visual Studio 2022** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false).
    - The minimum requirements in _Components_ (installable from Visual Studio installer) are the following:
       - Desktop applications in C++
-   
+
    - The minimum requirements in _Individual Components_ (installable from Visual Studio installer) are the following:
       - C++ AddressSanitizer
       - MSVC vXXX - VS XXXX C++ x64/x86 build tools (Latest)
@@ -157,7 +157,7 @@ The UI calls API functions and listens to a notifier using a subscriber/observer
 
 On Visual Studio Code you can install the extension `Clang-format` and enable `Format On Save` in preferences.
 
-If possible, install a pre-commit hook with `pip install pre-commit` and then use `pre-commit install` at the root of the project.
+Install a pre-commit hook with `pip install pre-commit` and then use `pre-commit install` at the root of the project.
 
 Adhere to the following coding standards to maintain code consistency:
 
@@ -308,9 +308,7 @@ If you want to use a custom widget, you can change its class in the `.ui` file d
       - If you want to send multiple arguments, either use a struct or a tuple.
 
    ```cpp
-   auto& manager = NotifierManager::get_instance();
-   auto notifier = manager.get_notifier<type>("notifier_name");
-   notifier->notify(data);
+   NotifierManager::notify<type>("notifier_name", data);
    ```
 2. Create a new subscriber in the UI.
    - Add it in the constructor.
@@ -320,7 +318,7 @@ If you want to use a custom widget, you can change its class in the `.ui` file d
    Subscriber<type> notifier_name_subscriber;
    // In the .cc
    Class::Constructor()
-      : notifier_name_subscriber("notifier_name", 
+      : notifier_name_subscriber("notifier_name",
          std::bind(&Class::on_notifier_name, this, std::placeholders::_1))
    ```
    - Implement the function that will be called when the notifier is triggered.

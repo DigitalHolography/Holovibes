@@ -38,7 +38,7 @@ InputCineFile::InputCineFile(const std::string& file_path)
 
     fd_.width = std::abs(bitmap_info_header_.bi_width);
     fd_.height = std::abs(bitmap_info_header_.bi_height);
-    fd_.depth = bitmap_info_header_.bi_bit_count / 8;
+    fd_.depth = static_cast<camera::PixelDepth>(bitmap_info_header_.bi_bit_count / 8);
     fd_.byteEndian = camera::Endianness::LittleEndian;
 
     frame_size_ = fd_.get_frame_size();

@@ -10,6 +10,7 @@
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
+
 namespace holovibes::gui
 {
 SliceWindow::SliceWindow(QPoint p, QSize s, DisplayQueue* q, KindOfView k)
@@ -32,8 +33,12 @@ SliceWindow::~SliceWindow()
 void SliceWindow::initShaders()
 {
     Program = new QOpenGLShaderProgram();
-    Program->addShaderFromSourceFile(QOpenGLShader::Vertex, create_absolute_qt_path("shaders/vertex.holo.glsl"));
-    Program->addShaderFromSourceFile(QOpenGLShader::Fragment, create_absolute_qt_path("shaders/fragment.tex.glsl"));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Vertex,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "vertex.holo.glsl").string()));
+    Program->addShaderFromSourceFile(
+        QOpenGLShader::Fragment,
+        create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
     if (api::get_img_type() == ImgType::Composite)
         overlay_manager_.create_overlay<Rainbow>();
@@ -73,7 +78,7 @@ void SliceWindow::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST); // GL_NEAREST ~ GL_LINEAR
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    if (fd_.depth == 8)
+    if (fd_.depth == camera::PixelDepth::Complex)
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);

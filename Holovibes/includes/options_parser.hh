@@ -69,4 +69,5 @@ class OptionsParser
 
     OptionsDescriptor options_;
 };
+
 } // namespace holovibes

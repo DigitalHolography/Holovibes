@@ -1,16 +1,26 @@
 ## Changelog
 
+### 13.7.0
+
+- Support for Alvium Camera
+- Changed default preset to 'doppler_8b_384_27'
+- Rename preset 'doppler_8b_384_28' to 'doppler_8b_384_27'
+- Default display rate is now 24
+- Added an executable desktop shortcut for ProcessHoloFiles.ps1
+- Rename ini config variable 'NbImageBuffer' to 'BufferCountPart' for camera phantom_s710 / phantom_s711 / phantom_s991
+
+### 13.5.1
+
+- Adjusted S711 ini configuration file
+
 ### 13.5.0
 
 - Create option in CLI for frame skip and fps for mp4 records
 - Change the .ps1 to ask for frame skip (not for mp4 fps)
-- Add support for Alvium Camera
-
-### 13.4.0
-
+- Begin support for Alvium Camera
 - Drop down menu to select any preset in the preset directory
-- Prevents the allocation of buffer with a size greater than the available GPU memory
-- Refactorization of GUI
+- The ProcessHoloFiles.ps1 is now installed along Holovibes, in a separate directory
+- Display the right input fps when it is indicated in the footer of the holo file
 
 ### 13.4.0
 

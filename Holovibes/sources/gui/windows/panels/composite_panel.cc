@@ -56,11 +56,9 @@ void CompositePanel::on_notify()
     QSliderQuietSetValue(ui_->horizontalSlider_hue_threshold_max,
                          static_cast<int>(api::get_slider_h_threshold_max() * 1000));
     ui_->CompositePanel->slide_update_threshold_h_max();
-    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_min,
-                         static_cast<int>(api::get_slider_h_shift_min() * 1000));
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_min, static_cast<int>(api::get_slider_h_shift_min() * 1000));
     ui_->CompositePanel->slide_update_shift_h_min();
-    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_max,
-                         static_cast<int>(api::get_slider_h_shift_max() * 1000));
+    QSliderQuietSetValue(ui_->horizontalSlider_hue_shift_max, static_cast<int>(api::get_slider_h_shift_max() * 1000));
     ui_->CompositePanel->slide_update_shift_h_max();
 
     QSpinBoxQuietSetValue(ui_->SpinBox_saturation_freq_min, api::get_composite_p_min_s());
@@ -99,7 +97,8 @@ void CompositePanel::on_notify()
     ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
 }
 
-void CompositePanel::click_z_fft_shift(bool checked) {
+void CompositePanel::click_z_fft_shift(bool checked)
+{
     api::set_z_fft_shift(checked);
 
     parent_->notify();

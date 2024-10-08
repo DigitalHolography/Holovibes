@@ -33,25 +33,6 @@ void get_good_size(ushort& width, ushort& height, ushort window_size)
     }
 }
 
-std::string get_exe_dir()
-{
-#ifdef UNICODE
-    wchar_t path[MAX_PATH];
-#else
-    char path[MAX_PATH];
-#endif
-    HMODULE hmodule = GetModuleHandle(NULL);
-    if (hmodule != NULL)
-    {
-        GetModuleFileName(hmodule, path, (sizeof(path)));
-        std::filesystem::path p(path);
-        return p.parent_path().string();
-    }
-
-    LOG_ERROR("Failed to find executable dir");
-    throw std::runtime_error("Failed to find executable dir");
-}
-
 std::string get_record_filename(std::string filename)
 {
     size_t dot_index = filename.find_last_of('.');
@@ -92,14 +73,14 @@ std::string get_record_filename(std::string filename)
 
 QString create_absolute_qt_path(const std::string& relative_path)
 {
-    std::filesystem::path dir(get_exe_dir());
+    std::filesystem::path dir(GET_EXE_DIR);
     dir = dir / relative_path;
     return QString(dir.string().c_str());
 }
 
 std::string create_absolute_path(const std::string& relative_path)
 {
-    std::filesystem::path dir(get_exe_dir());
+    std::filesystem::path dir(GET_EXE_DIR);
     dir = dir / relative_path;
     return dir.string();
 }
