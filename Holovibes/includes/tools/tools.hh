@@ -60,9 +60,6 @@ bool is_between(T val, T min, T max)
 namespace holovibes
 {
 
-/*! \brief Calculate the nearest upper power of 2 */
-unsigned short upper_window_size(ushort width, ushort height);
-
 /*! \brief return width and height with the same ratio and the max of the two being window_size */
 void get_good_size(ushort& width, ushort& height, ushort window_size);
 

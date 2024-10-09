@@ -12,8 +12,6 @@
 
 namespace holovibes
 {
-unsigned short upper_window_size(ushort width, ushort height) { return std::max(width, height); }
-
 void get_good_size(ushort& width, ushort& height, ushort window_size)
 {
     if (window_size == 0)
