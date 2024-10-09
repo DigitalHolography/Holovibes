@@ -55,7 +55,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setSingleStep(api::get_frame_packet());
     ui_->BatchSizeSpinBox->setMinimum(api::get_frame_packet());
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ && !is_raw);
 
     ui_->FramePacketSpinBox->setValue(api::get_frame_packet());
     ui_->FramePacketSpinBox->setMaximum(api::get_input_buffer_size());

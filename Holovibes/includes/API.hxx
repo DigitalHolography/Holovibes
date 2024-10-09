@@ -155,10 +155,6 @@ inline bool set_batch_size(uint value)
     bool request_time_stride_update = false;
     holovibes::Holovibes::instance().update_setting(holovibes::settings::BatchSize{value});
 
-    // TODO : Remove these 2 lines
-    // if (value > get_input_buffer_size())
-    // value = get_input_buffer_size();
-
     uint frame_packet = holovibes::Holovibes::instance().get_setting<settings::FramePacket>().value;
 
     if (frame_packet > value)
@@ -178,7 +174,7 @@ inline bool set_batch_size(uint value)
     if (time_stride % value != 0)
     {
         set_time_stride(time_stride - time_stride % value);
-        holovibes::Holovibes::instance().update_setting(holovibes::settings::TimeStride{value});
+        request_time_stride_update = true;
     }
 
     return request_time_stride_update;
@@ -206,6 +202,8 @@ inline bool set_frame_packet(uint value)
     {
         // handle time stride update
         time_stride_changed = time_stride_changed || set_batch_size(batch_size - batch_size % value);
+        request_batch_size_update = true;
+
     }
     if (get_compute_mode() == Computation::Hologram &&
         time_stride_changed) // TODO: Mabe need to fix with the moments adding
