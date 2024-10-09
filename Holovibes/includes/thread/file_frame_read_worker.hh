@@ -27,6 +27,7 @@
 #include "input_frame_file.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
+#include "global_state_holder.hh"
 #include "utils/custom_type_traits.hh"
 #include "utils/fps_limiter.hh"
 #include <optional>

@@ -21,7 +21,6 @@
 #include "logger.hh"
 
 #include "cli.hh"
-#include "global_state_holder.hh"
 
 #include <spdlog/spdlog.h>
 

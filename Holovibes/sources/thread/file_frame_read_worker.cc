@@ -6,7 +6,6 @@
 #include "logger.hh"
 
 #include "holovibes.hh"
-#include "global_state_holder.hh"
 #include "API.hh"
 
 namespace api = ::holovibes::api;

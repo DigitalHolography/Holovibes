@@ -8,7 +8,6 @@
 #include "API.hh"
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
-#include "global_state_holder.hh"
 #include <iomanip>
 #include <spdlog/spdlog.h>
 

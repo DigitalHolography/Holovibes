@@ -11,6 +11,7 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
+#include "global_state_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
 #include "postprocessing.hh"
