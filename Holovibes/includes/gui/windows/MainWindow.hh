@@ -113,6 +113,19 @@ class MainWindow : public QMainWindow, public Observer
     void camera_euresys_egrabber();
     void camera_alvium();
 
+    void camera_adimec_settings();
+    void camera_ids_settings();
+    void camera_phantom_settings();
+    void camera_bitflow_cyton_settings();
+    void camera_hamamatsu_settings();
+    void camera_xiq_settings();
+    void camera_xib_settings();
+    void camera_opencv_settings();
+    void camera_ametek_s991_coaxlink_qspf_plus_settings();
+    void camera_ametek_s711_coaxlink_qspf_plus_settings();
+    void camera_euresys_egrabber_settings();
+    void camera_alvium_settings();
+
     /*! \brief Opens the credit display */
     void credits();
     void documentation();
