@@ -10,8 +10,8 @@
 #include "tools_compute.cuh"
 #include "filter2D.cuh"
 #include "input_filter.cuh"
-#include "fft1.cuh"
-#include "fft2.cuh"
+#include "fresnel_transform.cuh"
+#include "angular_spectrum.cuh"
 #include "transforms.cuh"
 #include "stft.cuh"
 #include "frame_reshape.cuh"
@@ -53,17 +53,17 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
                          stream_);
         }
 
-        // In FFT2 we do an optimisation to compute the filter2d in the same
+        // In ANGULARSP we do an optimisation to compute the filter2d in the same
         // reciprocal space to reduce the number of fft calculation
-        if (space_transformation != SpaceTransformation::FFT2)
+        if (space_transformation != SpaceTransformation::ANGULARSP)
             insert_filter2d();
     }
 
-    if (space_transformation == SpaceTransformation::FFT1)
-        insert_fft1();
-    else if (space_transformation == SpaceTransformation::FFT2)
-        insert_fft2(filter2d_enabled);
-    if (space_transformation == SpaceTransformation::FFT1 || space_transformation == SpaceTransformation::FFT2)
+    if (space_transformation == SpaceTransformation::FRESNELTR)
+        insert_fresnel_transform();
+    else if (space_transformation == SpaceTransformation::ANGULARSP)
+        insert_angular_spectrum(filter2d_enabled);
+    if (space_transformation == SpaceTransformation::FRESNELTR || space_transformation == SpaceTransformation::ANGULARSP)
         fn_compute_vect_.push_back([=]() { enqueue_lens(space_transformation); });
 }
 
@@ -86,50 +86,50 @@ void FourierTransform::insert_filter2d()
         });
 }
 
-void FourierTransform::insert_fft1()
+void FourierTransform::insert_fresnel_transform()
 {
     LOG_FUNC();
 
     const float z = setting<settings::ZDistance>();
 
-    fft1_lens(gpu_lens_.get(),
-              lens_side_size_,
-              fd_.height,
-              fd_.width,
-              setting<settings::Lambda>(),
-              z,
-              setting<settings::PixelSize>(),
-              stream_);
+    fresnel_transform_lens(gpu_lens_.get(),
+                          lens_side_size_,
+                          fd_.height,
+                          fd_.width,
+                          setting<settings::Lambda>(),
+                          z,
+                          setting<settings::PixelSize>(),
+                          stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
     fn_compute_vect_.push_back(
         [=]()
         {
-            fft_1(static_cast<cuComplex*>(input_output),
-                  static_cast<cuComplex*>(input_output),
-                  setting<settings::BatchSize>(),
-                  gpu_lens_.get(),
-                  spatial_transformation_plan_,
-                  fd_.get_frame_res(),
-                  stream_);
+            fresnel_transform(static_cast<cuComplex*>(input_output),
+                              static_cast<cuComplex*>(input_output),
+                              setting<settings::BatchSize>(),
+                              gpu_lens_.get(),
+                              spatial_transformation_plan_,
+                              fd_.get_frame_res(),
+                              stream_);
         });
 }
 
-void FourierTransform::insert_fft2(bool filter2d_enabled)
+void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 {
     LOG_FUNC();
 
     const float z = setting<settings::ZDistance>();
 
-    fft2_lens(gpu_lens_.get(),
-              lens_side_size_,
-              fd_.height,
-              fd_.width,
-              setting<settings::Lambda>(),
-              z,
-              setting<settings::PixelSize>(),
-              stream_);
+    angular_spectrum_lens(gpu_lens_.get(),
+                          lens_side_size_,
+                          fd_.height,
+                          fd_.width,
+                          setting<settings::Lambda>(),
+                          z,
+                          setting<settings::PixelSize>(),
+                          stream_);
 
     shift_corners(gpu_lens_.get(), 1, fd_.width, fd_.height, stream_);
 
@@ -141,15 +141,15 @@ void FourierTransform::insert_fft2(bool filter2d_enabled)
     fn_compute_vect_.push_back(
         [=]()
         {
-            fft_2(static_cast<cuComplex*>(input_output),
-                  static_cast<cuComplex*>(input_output),
-                  setting<settings::BatchSize>(),
-                  gpu_lens_.get(),
-                  buffers_.gpu_complex_filter2d_frame,
-                  setting<settings::Filter2dEnabled>(),
-                  spatial_transformation_plan_,
-                  fd_,
-                  stream_);
+            angular_spectrum(static_cast<cuComplex*>(input_output),
+                             static_cast<cuComplex*>(input_output),
+                             setting<settings::BatchSize>(),
+                             gpu_lens_.get(),
+                             buffers_.gpu_complex_filter2d_frame,
+                             setting<settings::Filter2dEnabled>(),
+                             spatial_transformation_plan_,
+                             fd_,
+                             stream_);
         });
 }
 
@@ -177,9 +177,9 @@ void FourierTransform::enqueue_lens(SpaceTransformation space_transformation)
         cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());
         gpu_lens_queue_->enqueue(gpu_lens_, stream_);
 
-        // For optimisation purposes, when FFT2 is activated, lens is shifted
+        // For optimisation purposes, when ANGULARSP is activated, lens is shifted
         // We have to shift it again to ensure a good display
-        if (space_transformation == SpaceTransformation::FFT2)
+        if (space_transformation == SpaceTransformation::ANGULARSP)
             shift_corners(copied_lens_ptr, 1, fd_.width, fd_.height, stream_);
         // Normalizing the newly enqueued element
         normalize_complex(copied_lens_ptr, fd_.get_frame_res(), stream_);

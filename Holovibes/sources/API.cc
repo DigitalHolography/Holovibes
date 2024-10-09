@@ -381,14 +381,23 @@ void set_view_mode(const std::string& value, std::function<void()> callback)
 {
     UserInterfaceDescriptor::instance().last_img_type_ = value;
 
-    auto pipe = get_compute_pipe();
+    try
+    {
+        auto pipe = get_compute_pipe();
 
-    pipe->insert_fn_end_vect(callback);
-    pipe_refresh();
+        pipe->insert_fn_end_vect(callback);
+        pipe_refresh();
 
-    // Force XYview autocontrast
-    pipe->request_autocontrast(WindowKind::XYview);
-    // Force cuts views autocontrast if needed
+        // Force XYview autocontrast
+        pipe->request_autocontrast(WindowKind::XYview);
+        // Force cuts views autocontrast if needed
+    }
+    catch(const std::runtime_error&) // The pipe is not initialized
+    {
+        // The compute settings were just loaded but there is no pipe, so instead of giving the callback to the pipe, we run it.
+        // It does change the view mode setting, and when the pipe is loaded it copies the current settings, so no worries.
+        callback();
+    }
 }
 
 #pragma endregion

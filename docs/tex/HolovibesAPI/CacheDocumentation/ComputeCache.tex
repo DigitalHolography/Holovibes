@@ -61,11 +61,11 @@ Description : Apply a filter between main frames and the surface between squares
 
 \subsubsection{SpaceTransformation}
 \noindent
-Type : Enum SpaceTransformationEnum \{ NONE, FFT1, FFT2 \}\\
+Type : Enum SpaceTransformationEnum \{ NONE, FRESNELTR, ANGULARSP \}\\
 Unit : calcul\\
 DefaultValue : NONE\\
 Pre-Condition : None\\
-Description : FFT1 will apply one fft on batch\_size frames and apply a quadratic mask. FFT2 will apply one forward fft then a spectral mask and a reverse fft on batch\_size frames.\\
+Description : FRESNELTR will apply one fft on batch\_size frames and apply a quadratic mask. ANGULARSP will apply one forward fft then a spectral mask and a reverse fft on batch\_size frames.\\
 
 \subsubsection{TimeTransformation}
 \noindent

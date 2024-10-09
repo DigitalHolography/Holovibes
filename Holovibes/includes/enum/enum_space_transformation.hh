@@ -16,19 +16,29 @@ namespace holovibes
  */
 enum class SpaceTransformation
 {
-    NONE = 0, /*!< Nothing Applied */
-    FFT1,     /*!< Fresnel Transform */
-    FFT2      /*!< Angular spectrum propagation */
+    NONE = 0,  /*!< Nothing Applied */
+    FRESNELTR, /*!< Fresnel Transform */
+    ANGULARSP  /*!< Angular spectrum propagation */
 };
 
 // clang-format off
+
+/* There are that many entries here for the purpose of Retrocompatibility.
+ * The original ones were FFT1 and FFT2, but when the names were changed to
+ * FRESNELTR and ANGULARSP, they were left here to allow older version of
+ * compute settings to work with the new names.
+ */
 SERIALIZE_JSON_ENUM(SpaceTransformation, {
     {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FFT1, "FFT1"},
-    {SpaceTransformation::FFT2, "FFT2"},
-    {SpaceTransformation::FFT1, "1FFT"}, // Compat
-    {SpaceTransformation::FFT2, "2FFT"}, // Compat
-    {SpaceTransformation::NONE, "None"}, // Compat
+    {SpaceTransformation::FRESNELTR, "FRESNELTR"}, // Actual saved strings
+    {SpaceTransformation::ANGULARSP, "ANGULARSP"},
+    {SpaceTransformation::FRESNELTR, "FresnelTR"}, // | (Retro)compatibility
+    {SpaceTransformation::ANGULARSP, "AngularSP"}, // |
+    {SpaceTransformation::FRESNELTR, "FFT1"},      // |
+    {SpaceTransformation::ANGULARSP, "FFT2"},      // |
+    {SpaceTransformation::FRESNELTR, "1FFT"},      // |
+    {SpaceTransformation::ANGULARSP, "2FFT"},      // |
+    {SpaceTransformation::NONE, "None"},           // v
 })
 // clang-format on
 } // namespace holovibes
