@@ -1,5 +1,12 @@
 ## Changelog
 
+### 13.7.1
+
+- Added the possibility to change .ini files before loading cameras
+- Simplify .ps1 script
+- Holovibes and the Process Holo Files script can now be installed separately in the installer
+- Added a logo for the ps1 script
+
 ### 13.7.0
 
 - Support for Alvium Camera
