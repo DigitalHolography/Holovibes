@@ -6,10 +6,11 @@
 
 namespace holovibes
 {
-BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
-                                 const uint batch_size,
-                                 const camera::FrameDescriptor& fd,
-                                 const Device device)
+InputQueue::InputQueue(const uint total_nb_frames,
+                       const uint frame_packet,
+                       const uint batch_size,
+                       const camera::FrameDescriptor& fd,
+                       const Device device)
     : DisplayQueue(fd)
     , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
     , curr_nb_frames_(std::get<0>(*fast_updates_entry_))  //->first)
@@ -23,12 +24,14 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
     curr_nb_frames_ = 0;
     total_nb_frames_ = total_nb_frames;
 
+    batch_size_ = batch_size;
+
     // Set priority of streams
     // Set batch_size and max_size
-    create_queue(batch_size);
+    create_queue(frame_packet);
 }
 
-BatchInputQueue::~BatchInputQueue()
+InputQueue::~InputQueue()
 {
     destroy_mutexes_streams();
     // data is free as it is a CudaUniquePtr.
@@ -36,16 +39,16 @@ BatchInputQueue::~BatchInputQueue()
     GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
-void BatchInputQueue::create_queue(const uint new_batch_size)
+void InputQueue::create_queue(const uint frame_packet)
 {
-    CHECK(new_batch_size > 0, "Batch size cannot be 0.");
+    CHECK(frame_packet > 0, "Frame packet cannot be 0.");
+    frame_packet_ = frame_packet;
 
-    batch_size_ = new_batch_size;
-    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
+    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % frame_packet_);
 
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
-    max_size_ = total_nb_frames_ / batch_size_;
+    max_size_ = total_nb_frames_ / frame_packet_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
@@ -58,10 +61,10 @@ void BatchInputQueue::create_queue(const uint new_batch_size)
                 cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
     }
 
-    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
+    data_.resize(static_cast<size_t>(max_size_) * frame_packet_ * fd_.get_frame_size());
 }
 
-void BatchInputQueue::sync_current_batch() const
+void InputQueue::sync_current_batch() const
 {
     if (curr_batch_counter_ > 0) // A batch is currently enqueued
         cudaXStreamSynchronize(batch_streams_[end_index_]);
@@ -71,9 +74,9 @@ void BatchInputQueue::sync_current_batch() const
         cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
 }
 
-bool BatchInputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
+bool InputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
 
-void BatchInputQueue::destroy_mutexes_streams()
+void InputQueue::destroy_mutexes_streams()
 {
     if (device_ == Device::GPU)
     {
@@ -88,7 +91,7 @@ void BatchInputQueue::destroy_mutexes_streams()
     batch_mutexes_.reset(nullptr);
 }
 
-void BatchInputQueue::reset_override()
+void InputQueue::reset_override()
 {
     auto index = end_index_.load();
 

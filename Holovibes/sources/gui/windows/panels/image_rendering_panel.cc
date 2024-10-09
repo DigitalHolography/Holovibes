@@ -51,14 +51,21 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
+    ui_->TimeStrideSpinBox->setMaximum(api::get_input_buffer_size()); // to check
+
+
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setSingleStep(api::get_frame_packet());
     ui_->BatchSizeSpinBox->setMinimum(api::get_frame_packet());
-    ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
+    // ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setMaximum(api::get_time_stride()); // to check
+
     ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ && !is_raw);
 
     ui_->FramePacketSpinBox->setValue(api::get_frame_packet());
-    ui_->FramePacketSpinBox->setMaximum(api::get_input_buffer_size());
+    // ui_->FramePacketSpinBox->setMaximum(api::get_input_buffer_size());
+    ui_->FramePacketSpinBox->setMaximum(api::get_batch_size()); // to check
+
 
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));

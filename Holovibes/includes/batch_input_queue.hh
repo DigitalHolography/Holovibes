@@ -1,6 +1,7 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief File containing InputQueue class. This class is used to receive the frames by frame_packet and dequeue by
+ * batch_size. See class documentation for more info.
  */
 #pragma once
 
@@ -27,11 +28,11 @@ namespace holovibes
 class Queue;
 
 // TODO : Update names with frame packet
-/*! \class BatchInputQueue
+/*! \class InputQueue
  *
- * \brief Circular queue to handle CPU and GPU data, split into thread-safe batches, so that different batches can be
+ * \brief Circular queue to handle CPU and GPU data, split into thread-safe data, so that different data can be
  * read and written simultaneously
- *
+ * The data being read is enqueued by Frame Packet and dequeued by Batch Size.
  * Conditons:
  *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
  *   batch size in the queue must be a submultiple of the queue size
@@ -39,15 +40,22 @@ class Queue;
  *   i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
  *   Dequeue, Enqueue
  */
-class BatchInputQueue final : public DisplayQueue
+class InputQueue final : public DisplayQueue
 {
   public: /* Public methods */
-    BatchInputQueue(const uint total_nb_frames,
-                    const uint batch_size,
-                    const camera::FrameDescriptor& fd,
-                    const Device device = Device::GPU);
-
-    ~BatchInputQueue();
+    /*! \brief InputQueue constructor.
+     *  \param total_nb_frames Total number of frame in the queue.
+     *  \param frame_packet Frame packet size, represent the number of frames being enqueued.
+     *  \param batch_size Batch size, represent the number of frames being dequeued.
+     *  \param fd The input file descriptor.
+     *  \param device The device where the queue is being stored (CPU or GPU).
+     */
+    InputQueue(const uint total_nb_frames,
+               const uint frame_packet,
+               const uint batch_size,
+               const camera::FrameDescriptor& fd,
+               const Device device = Device::GPU);
+    ~InputQueue();
 
     /*! \brief Enqueue a frame in the queue
      *
@@ -55,10 +63,11 @@ class BatchInputQueue final : public DisplayQueue
      * The producer is in the critical while enqueueing in a batch
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
+     *
+     *  \param input_frame The frame to enqueue. Frames are enqueued one by one.
+     *  \param memcpy_kind The kind of memory transfer. Default = cudaMemcpyDeviceToDevice.
      */
     void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
-
-    // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
      *
@@ -136,10 +145,10 @@ class BatchInputQueue final : public DisplayQueue
      */
     void stop_producer();
 
-    // void start_producer();
-
+    /*! \brief Synchronize the batch being processed in order to ensure that all process are finished. */
     void sync_current_batch() const;
 
+    /*! \brief Check if the frames being enqueued are making at least one batch. */
     bool is_current_batch_full();
 
     inline void* get_last_image() const override
@@ -171,10 +180,11 @@ class BatchInputQueue final : public DisplayQueue
     /*! \brief Set size attributes and create mutexes and streams arrays.
      *
      * Used by the consumer and constructor
+     * frame_packet_, total_nb_frames_, max_size_ and batch_mutexes_ are modified in this function
      *
-     * \param new_batch_size The new number of frames in a batch
+     * \param frame_packet The number of frames in a packet
      */
-    void create_queue(const uint new_batch_size);
+    void create_queue(const uint frame_packet);
 
     /*! \brief Destroy mutexes and streams arrays.
      *
@@ -235,6 +245,12 @@ class BatchInputQueue final : public DisplayQueue
      * Can concurrently be modified by the producer (enqueue) and the consumer (dequeue, resize)
      */
     std::atomic<uint> size_{0};
+    /*! \brief Number of frames in a packet
+     *
+     * Frame packet can only be changed by the consumer when the producer is
+     * blocked. Thus std::atomic is not required.
+     */
+    uint frame_packet_{0};
     /*! \brief Number of frames in a batch
      *
      * Batch size can only be changed by the consumer when the producer is
