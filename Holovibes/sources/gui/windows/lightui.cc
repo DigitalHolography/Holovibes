@@ -46,7 +46,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
 
 LightUI::~LightUI()
 {
-    api::write_ui_mode(visible_);
+    api::set_light_ui_mode(visible_);
 
     delete ui_;
 }
