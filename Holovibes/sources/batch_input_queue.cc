@@ -144,6 +144,24 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     char* const new_frame_adress =
         data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
+    size_t data_size = static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size();
+    char* data_ptr = data_.get();
+
+    if (new_frame_adress < data_ptr || new_frame_adress >= (data_ptr + data_size))
+    {
+        LOG_ERROR("Invalid memory address calculated for new_frame_adress in enqueue.");
+    }
+
+    if (device_ == Device::GPU && batch_streams_[end_index_] == nullptr)
+    {
+        LOG_ERROR("CUDA stream is not initialized before use in enqueue.");
+    }
+
+    if (end_index_ >= max_size_)
+    {
+        LOG_ERROR("Invalid end_index_ while accessing batch_streams_.");
+    }
+
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
                          input_frame,
@@ -271,8 +289,15 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
     // Critical section between the enqueue (producer) & the resize (consumer)
 
+    // Synchronize all active CUDA streams
+    if (device_ == Device::GPU)
+    {
+        for (uint i = 0; i < max_size_; ++i)
+        {
+            cudaSafeCall(cudaStreamSynchronize(batch_streams_[i]));
+        }
+    }
     // Every mutexes must be unlocked here.
-
     // Destroy all streams and mutexes that must be all unlocked
     destroy_mutexes_streams();
 
