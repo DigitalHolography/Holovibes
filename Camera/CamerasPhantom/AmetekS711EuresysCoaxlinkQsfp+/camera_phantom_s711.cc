@@ -44,6 +44,7 @@ void CameraPhantom::load_default_params()
     params_.set<unsigned int>("BlockHeight", 8, false);
     params_.set<std::string>("StripeArrangement", "Geometry_1X_1YM", false);
     params_.set<std::string>("TriggerSelector", "");
+    params_.set<std::string>("TriggerMode", "");
 }
 
 void CameraPhantom::init_camera()

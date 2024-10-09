@@ -251,7 +251,6 @@ void CameraPhantomInt::load_default_params()
     params_.set<std::string>("TriggerSource", "");
     params_.set<std::string>("PixelFormat", "");
     params_.set<std::string>("GainSelector", "");
-    params_.set<std::string>("TriggerMode", "");
     params_.set<std::string>("BalanceWhiteMarker", "");
 }
 
