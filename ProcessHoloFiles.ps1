@@ -1,6 +1,12 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
+$moments=0
+if ($args[0] -eq "-m")
+{
+    $moments=1
+}
+
 # Function to prompt the user to select a file, starting at the last used folder
 function Select-File([string]$description, [string]$filter, [string]$envVarName) {
     Write-Host $description -ForegroundColor Green
@@ -111,6 +117,7 @@ $configFiles = Get-ConfigFiles
 
 $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
+$exePath = ""
 
 # Check if ../Holovibes.exe exists
 if (Test-Path $exePath1) {
@@ -118,12 +125,12 @@ if (Test-Path $exePath1) {
 } else {
     $exePath = $exePath2
 }
-# Ask for the frame skip (optional)
-$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
-$frameSkip
-if (-not ($frameSkip -match '^\d+$')) {
-    $frameSkip = "0"
-}
+# Set the frame skip to 16
+$frameSkip = 16
+#$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
+#if (-not ($frameSkip -match '^\d+$')) {
+#    $frameSkip = "0"
+#}
 
 # Check if the user selected the executable, if not, use local or PATH version
 if (-not $exePath) {
@@ -146,7 +153,6 @@ else {
     Write-Host "No configuration files selected, continuing without them." -ForegroundColor Yellow
 }
 Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
-Read-Host "Press Enter to continue or Ctrl+C to exit"
 
 # Function to prompt the user to select an output extension
 function Select-OutputExtension {
@@ -165,9 +171,13 @@ function Select-OutputExtension {
     }
 }
 
-# Prompt the user to select the output file extension
-$outputExtension = Select-OutputExtension
-Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+$outputExtension = ".holo"
+if ($moments -eq 0)
+{
+    # Prompt the user to select the output file extension
+    $script:outputExtension = Select-OutputExtension
+    Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+}
 
 # Get a list of all .holo files in the selected folder
 $holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
@@ -180,40 +190,88 @@ foreach ($file in $holoFiles) {
     $counter++
 }
 
+# Get the total number of operations
+$total = 0
+if ($configFiles.Count -gt 0)
+{
+    $total = $configFiles.Count * ($counter - 1)
+}
+else {
+    $total = ($counter - 1)
+}
+$counter = 1
+$number_pb = 0
+
 # Confirm action with the user before processing files
 Read-Host "Press Enter to start processing files or Ctrl+C to exit"
 
-# Execute Holovibes.exe for each .holo file and each configuration file (or no config file)
-foreach ($file in $holoFiles) {
-    if ($configFiles.Count -gt 0) {
-        foreach ($configFile in $configFiles) {
-            $inputFilePath = $file.FullName
-            $outputFileName = "$($file.BaseName)_out$outputExtension"
-            $outputFilePath = Join-Path $holoFolderPath $outputFileName
+# Function to run Holovibes in CLI
+function Execute-Holovibes {
+    param (
+        [string]$inputFilePath,
+        [string]$outputFilePath,
+        [string]$frameSkip,
+        [string]$configFile = $null
+    )
 
-            # Prepare arguments for Holovibes.exe
-            $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" -c `"$configFile`" --frame_skip `"$frameSkip`""
+    $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
 
-            # Run Holovibes.exe with the .holo file and the current configuration file
-            Write-Host "Processing $($file.Name) with config $($configFile)..." -ForegroundColor Yellow
-            Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
-            Write-Host "Finished processing $($file.Name) with config $($configFile), output saved as $outputFileName" -ForegroundColor Green
-        }
+    if ($moments -eq 1)
+    {
+        $args += " --moments_record"
     }
     else {
-        $inputFilePath = $file.FullName
-        $outputFileName = "$($file.BaseName)_out$outputExtension"
-        $outputFilePath = Join-Path $holoFolderPath $outputFileName
+        if ($outputExtension -eq ".mp4")
+        {
+            $args += " --mp4_fps 24"
+        } else {
+            $args += " --frame_skip $frameSkip"
+        }
+    }
 
-        # Prepare arguments for Holovibes.exe without configuration file
-        $args = "-i `"$inputFilePath`" -o `"$outputFilePath`" --frame_skip `"$frameSkip`""
+    if ($configFile) {
+        $args += " -c `"$configFile`""
+        Write-Host "Processing $(Split-Path -Leaf $inputFilePath) with config $configFile..." -ForegroundColor Yellow
+    } else {
+        Write-Host "Processing $(Split-Path -Leaf $inputFilePath) without configuration..." -ForegroundColor Yellow
+    }
+    $args
+    Write-Host "Processing holo files ($counter/$total)" -ForegroundColor Cyan
+    $process = (Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -PassThru -Wait)
+    if ($process.ExitCode -ne 0)
+    {
+        Write-Host "Program exited with bad exit code" -ForegroundColor Red
+        $script:number_pb += 1
+    }
+    else {
+        Write-Host "Finished processing $(Split-Path -Leaf $inputFilePath), output saved as $(Split-Path -Leaf $outputFilePath)" -ForegroundColor Green
+    }
+}
 
-        # Run Holovibes.exe with the .holo file and no configuration file
-        Write-Host "Processing $($file.Name) without configuration..." -ForegroundColor Yellow
-        Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -Wait
-        Write-Host "Finished processing $($file.Name), output saved as $outputFileName" -ForegroundColor Green
+# Execute Holovibes.exe for each .holo file and each configuration file (or no config file)
+foreach ($file in $holoFiles) {
+    $inputFilePath = $file.FullName
+    $outputFileName = "$($file.BaseName)_out$outputExtension"
+    if ($moments -eq 1)
+    {
+        $outputFileName = "$($file.BaseName)_moments$outputExtension"
+    }
+    $outputFilePath = Join-Path $holoFolderPath $outputFileName
+
+    if ($configFiles.Count -gt 0) {
+        foreach ($configFile in $configFiles) {
+            Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -configFile $configFile
+            $counter += 1
+        }
+    } else {
+        Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip
+        $counter += 1
     }
 }
 
 # Final message after all files have been processed
-Write-Host "All .holo files have been processed." -ForegroundColor Cyan
+Write-Host "All $total .holo files have been processed." -ForegroundColor Cyan
+if ($number_pb -gt 0)
+{
+    Write-Host "$number_pb returned an error." -ForegroundColor Red
+}
