@@ -184,8 +184,8 @@ void EHoloGrabberInt::stop()
         available_grabbers_[i]->stop();
 }
 
-CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::string& ini_prefix)
-    : Camera(ini_name)
+CameraPhantomInt::CameraPhantomInt(const std::string& ini_filename, const std::string& ini_prefix)
+    : Camera(ini_filename)
     , ini_prefix_(ini_prefix)
     , params_{ini_prefix}
 {

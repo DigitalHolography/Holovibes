@@ -1,6 +1,6 @@
 #pragma once
 
-#include "camera_param.hh"
+#include "camera_param_map.hh"
 
 #include <string>
 #include "camera.hh"

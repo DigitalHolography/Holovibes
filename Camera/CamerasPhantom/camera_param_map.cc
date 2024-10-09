@@ -1,4 +1,4 @@
-#include "camera_param.hh"
+#include "camera_param_map.hh"
 
 namespace camera
 {

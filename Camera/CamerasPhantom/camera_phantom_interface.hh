@@ -1,3 +1,8 @@
+/*! \file camera_phantom_interface.hh
+ *
+ * \brief Contains base classes serving as interfaces with default implementations (common behaviour) for each camera's
+ * CameraPhantom implementation
+ */
 #pragma once
 
 #include <optional>
@@ -5,83 +10,60 @@
 #include <EGrabbers.h>
 
 #include "camera.hh"
-#include "camera_param.hh"
+#include "camera_param_map.hh"
 
 namespace camera
 {
-// using namespace Euresys;
 
 /*! \class EHoloSubGrabber
  *
- * \brief Class to handle the different EHoloSubGrabber used to acquire images
- * from the Phantom camera with a Coaxlink Octo frame grabber.
- *
- * The events and callbacks are handled by the same thread calling get_frames
- * (camera frame read worker) as we do not need to capture multiple frames at once.
+ * \brief Alias to the \ref Euresys::EGrabberCallbackOnDemand "EGrabberCallbackOnDemand" class for better code
+ * lisibility
  */
-
 using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
 
-/*! \class EHoloGrabber // TODO REDO
+/*! \class EHoloGrabberInt
  *
- *\brief Class to handle the different EHoloSubGrabber used to acquire images
- * from the Phantom S710 with a Coaxlink Octo frame grabber.
- *
- * This implementation supposes that the frame grabber has been configured
- * properly, through the GenICam API, so that:
- * 1. Only banks A and B are used.
- * 2. Each bank is responsible for capturing half of the full image height.
- *
- * For instance, to capture a frame of 1024*512, the first and second grabber
- * will acquire 1024*256 and stack both parts to create the full 1024*512 image.
- *
- * The documentation of the Euresys eGrabber Programmer Guide can be found at
- * https://documentation.euresys.com/Products/COAXLINK/COAXLINK_14_0/en-us/Content/00_Home/PDF_Guides.htm.
+ * \brief Baser class serving as an interface for each camera's EHoloGrabber implementation to handle the different
+ *  EHoloSubGrabber used to acquire images from an Ametek Phantom camera
  */
 class EHoloGrabberInt
 {
   protected:
+    /*! \brief Constructor of EHoloGrabberInt. Protected to prevent instantiation outside of a derived class
+     *
+     * \param gentl reference to an instance of Euresys::EGenTL&
+     * \param buffer_part_count buffer_part_count (i.e number of images per buffer) setting value
+     * \param pixel_format reference to string specifying pixel format used by the camera
+     * \param nb_grabbers specify requested number of nb_grabbers
+     */
     EHoloGrabberInt(Euresys::EGenTL& gentl,
                     unsigned int buffer_part_count,
                     std::string& pixel_format,
                     unsigned int nb_grabbers);
 
   public:
+    /*! \brief Destructor of EHoloGrabberint, free each grabber buffer and cuda memory previsouly allocated pointed by
+     * ptr_ */
     virtual ~EHoloGrabberInt();
 
-    // magic nunmber for number max of frame grabber supported (can be less for some implementation)
-#define NB_MAX_GRABBER 4
-
-    // TODO: find a better handling of the below struct
-    // struct SetupParam
-    // {
-    //     unsigned int full_height;
-    //     unsigned int width;
-    //     unsigned int nb_grabbers;
-    //     std::string pixel_format;
-    //     size_t stripe_height;
-    //     std::string stripe_arrangement;
-    //     std::string& trigger_source;
-    //     unsigned int block_height;
-    //     unsigned int (&offsets)[NB_MAX_GRABBER];
-    //     std::optional<std::string> trigger_mode;
-    //     std::optional<std::string> trigger_selector;
-    //     unsigned int cycle_minimum_period;
-    //     float exposure_time;
-    //     std::string& gain_selector;
-    //     float gain;
-    //     std::string& balance_white_marker;
-    //     std::string flat_field_correction;
-    //     std::string fan_ctrl;
-    //     unsigned int acquisition_frame_rate;
-    // };
-
+    /*! \brief Apply settings specified in the params CameraParamMap
+     *
+     * \param params reference to the CameraParamMap containing requested settings
+     * \param gentl reference to an instance of Euresys::EGenTL&
+     */
     virtual void setup(const CameraParamMap& params, Euresys::EGenTL& gentl);
 
+    /*! \brief Allocate buffers and cuda memory
+     *
+     * \param nb_buffers number of buffers that was specified in the ini file
+     */
     void init(unsigned int nb_buffers);
 
+    /*! \brief Start each available grabber in reverser order */
     void start();
 
+    /*! \brief Stop each available grabber */
     void stop();
 
     /*! \brief The width of the acquired frames. */
@@ -93,14 +75,13 @@ class EHoloGrabberInt
     /*! \brief The depth of the acquired frames. */
     PixelDepth depth_;
 
-    /*! \brief An EGrabbers instance composed of the two EHoloSubGrabber grabbers.  */
+    /*! \brief An EGrabbers instance giving access to each detected frame grabber. */
     Euresys::EGrabbers<EHoloSubGrabber> grabbers_;
 
-    /*! \brief The list of detected grabbers that are connected to a camera and are truly available for use. Built from
-     * grabbers_ above. */
+    /*! \brief The list of detected grabbers that are connected to a camera and are truly available for use. */
     std::vector<Euresys::EGrabberRef<EHoloSubGrabber>> available_grabbers_;
 
-    /*! \brief Number of requested grabbers */
+    /*! \brief Number of requested grabbers to use */
     unsigned int nb_grabbers_;
 
   private:
@@ -117,34 +98,80 @@ class EHoloGrabberInt
      */
     uint8_t* ptr_;
 };
+
+/*! \class CameraPhantomInt
+ *
+ * \brief Base class serving as interface for each camera's CameraPhantom implementation.
+ */
 class CameraPhantomInt : public Camera
 {
   protected:
-    CameraPhantomInt(const std::string& name, const std::string& ini_prefix);
+    /*! \brief Constructor of CameraPhantomInt. Protected to prevent instiation outside of a derived class
+     *
+     * \param ini_filename filename of the ini file associated to the camera
+     * \param ini_prefix prefix of the camera for the ini file
+     */
+    CameraPhantomInt(const std::string& ini_filename, const std::string& ini_prefix);
 
   public:
+    /*! \brief Destructor of CameraPhantomInt. Nothing to do */
     virtual ~CameraPhantomInt() {}
 
+    /*! \brief Virtual pure function for camera initialization. Must be implemented in each CameraPhantom */
     virtual void init_camera() = 0;
+    /*! \brief Start camera acquisition */
     virtual void start_acquisition() override;
+    /*! \brief Stop camera acquisition */
     virtual void stop_acquisition() override;
+    /*! \brief Shutdown camera */
     virtual void shutdown_camera() override;
+    /*! \brief Handles the frame reconstitution (stiching) using each frame grabber and return them
+     *
+     * \return CapturedFramesDescriptor containing pointer to frames
+     */
     virtual CapturedFramesDescriptor get_frames() override;
 
   protected:
+    /*! \brief Load parameters from the INI file and store them (into private attributes).
+     *
+     * Reads the file stream opened to the INI file, and fill the parser object with corresponding data.
+     */
     virtual void load_ini_params() override;
+    /*! \brief Load default parameters for the camera.
+     *
+     * Fill default values in class fields and frame descriptor
+     * (e.g. exposure time, ROI, fps). Each camera model has specific
+     * capabilities, which is why further classes inherit from Camera to
+     * implement their behaviours with appropriate their SDK.
+     *
+     * The camera must work with these default, fallback settings.
+     */
     virtual void load_default_params() override;
+    /*! \brief Set parameters with data loaded with load_ini_params().
+     *
+     * This method shall use the camera's API to properly modify its
+     * configuration. Validity checking for any parameter is enclosed in this
+     * method.
+     */
     virtual void bind_params() override;
 
+    /*! \brief Unique pointer to \ref Euresys::EGenTL "EGenTL" instance used by the camera */
     std::unique_ptr<Euresys::EGenTL> gentl_;
+    /*! \brief Unique pointer to an implementation of \ref camera::EHoloGrabberInt "EHoloGrabberInt" that was
+     * instantiated by the camera*/
     std::unique_ptr<EHoloGrabberInt> grabber_;
 
+    /*! \brief Camera prefix used in the ini file */
     std::string ini_prefix_;
 
+    /*! \brief Instance of \ref camera::CameraParamMap "CameraParamMap" containing the requested settings */
     CameraParamMap params_;
 
+    /*! \brief Number of buffers used by the camera */
     unsigned int nb_buffers_;
+    /*! \brief Height of a frame after stiching */
     unsigned int full_height_;
+    /*! \brief Width of a frame */
     unsigned int width_;
 };
 
