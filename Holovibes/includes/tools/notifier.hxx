@@ -21,7 +21,7 @@ std::shared_ptr<Notifier<T, D>> NotifierManager::get_notifier(const std::string&
 template <typename T, typename D>
 inline D NotifierManager::notify(const std::string& name, const T& data)
 {
-    return NotifierManager::get_instance().get_notifier<T, D>(name)->notify(data);
+    return NotifierManager::instance().get_notifier<T, D>(name)->notify(data);
 }
 
 template <typename T, typename D>
@@ -85,7 +85,7 @@ void Notifier<T, D>::unsubscribe(SubscriptionId id)
 template <typename T, typename D>
 template <typename Func>
 Subscriber<T, D>::Subscriber(const std::string& name, Func&& callback)
-    : notifier_(NotifierManager::get_instance().get_notifier<T, D>(name))
+    : notifier_(NotifierManager::instance().get_notifier<T, D>(name))
     , callback_(std::forward<Func>(callback))
 {
     subscriptionId_ = notifier_->subscribe([this](const T& value) { return this->callback_(value); });

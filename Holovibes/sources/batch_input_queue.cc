@@ -188,7 +188,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     }
 }
 
-void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
+void BatchInputQueue::dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func)
 {
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer

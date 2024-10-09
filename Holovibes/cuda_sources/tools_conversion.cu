@@ -85,7 +85,7 @@ void input_queue_to_input_buffer(void* const output,
                                  const void* const input,
                                  const size_t frame_res,
                                  const int batch_size,
-                                 const uint depth,
+                                 const camera::PixelDepth depth,
                                  const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
@@ -106,7 +106,7 @@ void input_queue_to_input_buffer(void* const output,
     static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
     switch (depth)
     {
-    case 1:
+    case camera::PixelDepth::Bits8:
         kernel_input_queue_to_input_buffer<cuComplex, uchar>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const uchar* const>(input),
@@ -114,7 +114,7 @@ void input_queue_to_input_buffer(void* const output,
                                              frame_res,
                                              batch_size);
         break;
-    case 2:
+    case camera::PixelDepth::Bits16:
         kernel_input_queue_to_input_buffer<cuComplex, ushort>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const ushort* const>(input),
@@ -122,7 +122,7 @@ void input_queue_to_input_buffer(void* const output,
                                              frame_res,
                                              batch_size);
         break;
-    case 4:
+    case camera::PixelDepth::Bits32:
         kernel_input_queue_to_input_buffer<cuComplex, float>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<cuComplex* const>(output),
                                              reinterpret_cast<const float* const>(input),
@@ -423,41 +423,43 @@ void normalize_complex(cuComplex* image, const size_t size, const cudaStream_t s
     map_generic(image, image, size, lambda, stream);
 }
 
-void convert_frame_for_display(
-    const void* input, void* output, const size_t size, const uint depth, const ushort shift, const cudaStream_t stream)
+void convert_frame_for_display(const void* input,
+                               void* output,
+                               const size_t size,
+                               const camera::PixelDepth depth,
+                               const ushort shift,
+                               const cudaStream_t stream)
 {
-    if (depth == 8)
+    switch (depth)
     {
-        // In depth 8 the output is encoded onto a uint (for the lens)
+    case camera::PixelDepth::Complex:
         complex_to_uint(static_cast<const cuComplex* const>(input),
                         static_cast<uint* const>(output),
                         size,
                         stream,
                         shift);
-    }
-    else if (depth == 4)
-    {
+        break;
+    case camera::PixelDepth::Bits32:
         float_to_ushort(static_cast<const float* const>(input),
                         static_cast<ushort* const>(output),
                         size,
                         stream,
                         shift);
-    }
-    else if (depth == 2)
-    {
+        break;
+    case camera::PixelDepth::Bits16:
         ushort_to_shifted_ushort(static_cast<const ushort* const>(input),
                                  static_cast<ushort* const>(output),
                                  size,
                                  stream,
                                  shift);
-    }
-    else if (depth == 1)
-    {
+        break;
+    case camera::PixelDepth::Bits8:
         uchar_to_shifted_uchar(static_cast<const uchar* const>(input),
                                static_cast<uchar* const>(output),
                                size,
                                stream,
                                shift);
+        break;
     }
 }
 
