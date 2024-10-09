@@ -218,4 +218,5 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
 }
 
 po::options_description OptionsParser::get_opts_desc() const { return opts_desc_; }
+
 } // namespace holovibes

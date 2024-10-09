@@ -18,10 +18,6 @@
 
 #define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
-#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
-#define UPDATE_SETTING(setting, value)                                                                                 \
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
-
 namespace holovibes
 {
 
