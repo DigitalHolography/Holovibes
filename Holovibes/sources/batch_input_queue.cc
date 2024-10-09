@@ -147,21 +147,6 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     size_t data_size = static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size();
     char* data_ptr = data_.get();
 
-    if (new_frame_adress < data_ptr || new_frame_adress >= (data_ptr + data_size))
-    {
-        LOG_ERROR("Invalid memory address calculated for new_frame_adress in enqueue.");
-    }
-
-    if (device_ == Device::GPU && batch_streams_[end_index_] == nullptr)
-    {
-        LOG_ERROR("CUDA stream is not initialized before use in enqueue.");
-    }
-
-    if (end_index_ >= max_size_)
-    {
-        LOG_ERROR("Invalid end_index_ while accessing batch_streams_.");
-    }
-
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
                          input_frame,
