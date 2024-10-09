@@ -11,7 +11,7 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
 #include "postprocessing.hh"
@@ -69,7 +69,7 @@ class Pipe : public ICompute
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
+        , processed_output_fps_(FastUpdatesMap::map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 

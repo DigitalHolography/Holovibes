@@ -136,20 +136,20 @@ void FileFrameReadWorker::insert_fast_update_map_entries()
                                         std::to_string(fd_.value().height) + std::string(" - ") +
                                         std::to_string(fd_.value().depth * 8) + std::string("bit");
 
-    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
-    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    auto entry1 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
     *entry1 = "File";
     *entry2 = input_descriptor_info;
 
-    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = FastUpdatesMap::map<FpsType>.create_entry(FpsType::INPUT_FPS);
 }
 
 void FileFrameReadWorker::remove_fast_update_map_entries()
 {
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FILE_READ);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 }
 
 void FileFrameReadWorker::read_file_in_gpu()

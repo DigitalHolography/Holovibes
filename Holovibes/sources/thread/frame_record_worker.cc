@@ -4,7 +4,7 @@
 #include "tools.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "API.hh"
 #include "logger.hh"
 #include <spdlog/spdlog.h>
@@ -15,7 +15,7 @@ namespace holovibes::worker
 {
 void FrameRecordWorker::integrate_fps_average()
 {
-    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto& fps_map = FastUpdatesMap::map<FpsType>;
     auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
     int current_fps = input_fps->load();
 
@@ -60,7 +60,7 @@ void FrameRecordWorker::run()
     LOG_FUNC();
     // Progress recording FastUpdatesHolder entry
 
-    auto fast_update_progress_entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
+    auto fast_update_progress_entry = FastUpdatesMap::map<ProgressType>.create_entry(ProgressType::FRAME_RECORD);
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
@@ -75,7 +75,7 @@ void FrameRecordWorker::run()
 
     // Processed FPS FastUpdatesHolder entry
 
-    std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
+    std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request(ICS::FrameRecord);
@@ -214,8 +214,8 @@ void FrameRecordWorker::run()
 
     reset_record_queue();
 
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::SAVING_FPS);
+    FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
+    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");
 }
