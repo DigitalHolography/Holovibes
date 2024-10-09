@@ -7,6 +7,8 @@
 #include "common.cuh"
 #include <nppdefs.h>
 
+#include "frame_desc.hh"
+
 /* CONVERSION FUNCTIONS */
 
 /*! \brief Compute the modulus of complex image(s).
@@ -102,13 +104,13 @@ void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, cons
  * \param input The input queue.
  * \param frame_res The total size of a frame (width * height).
  * \param batch_size The size of the batch to transfer.
- * \param depth The pixel depth (uchar : 1, ushort : 2, float : 4).
+ * \param depth The pixel depth.
  */
 void input_queue_to_input_buffer(void* const output,
                                  const void* const input,
                                  const size_t frame_res,
                                  const int batch_size,
-                                 const uint depth,
+                                 const camera::PixelDepth depth,
                                  const cudaStream_t stream);
 
 /*! \brief Cumulate images into one.
@@ -154,7 +156,7 @@ void rescale_float_unwrap2d(
 void convert_frame_for_display(const void* input,
                                void* output,
                                const size_t size,
-                               const uint depth,
+                               const camera::PixelDepth depth,
                                const ushort shift,
                                const cudaStream_t stream);
 

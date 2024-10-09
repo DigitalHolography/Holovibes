@@ -1,7 +1,12 @@
-/*! \mainpage Holovibes
-
-    Documentation for developpers. \n
-*/
+/*! \file main.cc
+ * 
+ * \brief Starts the application in CLI mode or GUI mode (light ui mode if previously
+ * closed in light ui mode) in function of passed parameters. 
+ * 
+ * This file also check if a GPU in installed and if the CUDA version is greater than 3.5.
+ * On each run in release mode, data from the local AppData (preset, camera ini, shaders, ...) 
+ * are copied to the user AppData. 
+ */
 
 #include <QApplication>
 #include <QLocale>
@@ -20,25 +25,23 @@
 
 #include <spdlog/spdlog.h>
 
+#define CUDA_MIN_VERSION 35
+
 static void check_cuda_graphic_card(bool gui)
 {
     std::string error_message;
-    int device;
     int nDevices;
-    int min_compute_capability = 35;
-    int compute_capability;
-    cudaError_t status;
-    cudaDeviceProp props;
 
     /* Checking for Compute Capability */
-    if ((status = cudaGetDeviceCount(&nDevices)) == cudaSuccess)
+    if (cudaGetDeviceCount(&nDevices) == cudaSuccess)
     {
+        cudaDeviceProp props;
+        int device;
+
         cudaGetDevice(&device);
         cudaGetDeviceProperties(&props, device);
 
-        compute_capability = props.major * 10 + props.minor;
-
-        if (compute_capability >= min_compute_capability)
+        if (props.major * 10 + props.minor >= CUDA_MIN_VERSION)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";
@@ -55,9 +58,8 @@ static void check_cuda_graphic_card(bool gui)
         messageBox.setFixedSize(800, 300);
     }
     else
-    {
         LOG_CRITICAL("{}", error_message);
-    }
+
     std::exit(11);
 }
 
@@ -88,7 +90,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::gui::MainWindow window;
 
     LOG_TRACE(" ");
-    if (holovibes::api::get_ui_mode())
+    if (holovibes::api::is_light_ui_mode())
         window.light_ui_->show();
     else
         window.show();
@@ -96,7 +98,6 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     splash.finish(&window);
 
     // Set callbacks
-    holovibes::GSH::instance().set_notify_callback([&]() { window.notify(); });
     holovibes::Holovibes::instance().set_error_callback([&](auto e) { window.notify_error(e); });
 
     if (!filename.empty())
@@ -161,9 +162,7 @@ int main(int argc, char* argv[])
     }
 
     if (opts.benchmark)
-    {
         holovibes::api::set_benchmark_mode(true);
-    }
 
     holovibes::Holovibes& holovibes = holovibes::Holovibes::instance();
 
@@ -194,13 +193,9 @@ int main(int argc, char* argv[])
             ret = cli::start_cli(holovibes, opts);
         }
         else if (opts.input_path)
-        {
             ret = start_gui(holovibes, argc, argv, opts.input_path.value());
-        }
         else
-        {
             ret = start_gui(holovibes, argc, argv);
-        }
     }
     catch (const std::exception& e)
     {

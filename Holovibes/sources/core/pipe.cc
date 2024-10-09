@@ -502,9 +502,7 @@ void Pipe::insert_raw_record()
                 if (setting<settings::RecordFrameCount>() != std::nullopt &&
                     inserted >= setting<settings::RecordFrameCount>().value())
                 {
-                    auto& manager = NotifierManager::get_instance();
-                    auto notifier = manager.get_notifier<bool>("acquisition_finished");
-                    notifier->notify(true);
+                    NotifierManager::notify<bool>("acquisition_finished", true);
                     return;
                 }
                 cudaMemcpyKind memcpy_kind;

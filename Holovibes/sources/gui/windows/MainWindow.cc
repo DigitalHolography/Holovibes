@@ -667,6 +667,63 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
 void MainWindow::configure_camera() { api::configure_camera(); }
+
+void open_file(const std::string& filename)
+{
+    if (filename.empty())
+        return;
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
+}
+
+void MainWindow::camera_ids_settings() {
+    open_file("ids.ini");
+}
+
+void MainWindow::camera_phantom_settings() {
+    open_file("ametek_s710_euresys_coaxlink_octo.ini");
+}
+
+void MainWindow::camera_bitflow_cyton_settings() { 
+    open_file("bitflow.ini");
+}
+
+void MainWindow::camera_hamamatsu_settings() { 
+    open_file("hamamatsu.ini");
+}
+
+void MainWindow::camera_adimec_settings() { 
+    open_file("adimec.ini");
+}
+
+void MainWindow::camera_xiq_settings() { 
+    open_file("xiq.ini");
+}
+
+void MainWindow::camera_xib_settings() { 
+    open_file("xib.ini");
+}
+
+void MainWindow::camera_opencv_settings() { 
+    open_file("opencv.ini");
+}
+
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus_settings() { 
+    open_file("ametek_s991_euresys_coaxlink_qsfp+.ini");
+}
+
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings() { 
+    open_file("ametek_s711_euresys_coaxlink_qsfp+.ini");
+}
+
+void MainWindow::camera_euresys_egrabber_settings() { 
+    open_file("ametek_s710_euresys_coaxlink_octo.ini");
+}
+
+void MainWindow::camera_alvium_settings() { 
+    open_file("alvium.ini");
+}
+
 #pragma endregion
 /* ------------ */
 #pragma region Image Mode
