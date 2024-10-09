@@ -60,14 +60,14 @@ void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 {
     width_ = params.at<unsigned int>("Width");
     height_ = params.at<unsigned int>("FullHeight");
-    unsigned int nb_grabbers = params.at<unsigned int>("NbGrabbers");
+    // unsigned int nb_grabbers = params.at<unsigned int>("NbGrabbers");
 
     size_t pitch = width_ * gentl.imageGetBytesPerPixel(params.at<std::string>("PixelFormat"));
-    size_t height = height_ / nb_grabbers;
+    size_t height = height_ / nb_grabbers_;
 
-    size_t stripe_pitch = params.at<unsigned int>("StripeHeight") * nb_grabbers;
+    size_t stripe_pitch = params.at<unsigned int>("StripeHeight") * nb_grabbers_;
 
-    for (size_t ix = 0; ix < nb_grabbers; ++ix)
+    for (size_t ix = 0; ix < nb_grabbers_; ++ix)
     {
         available_grabbers_[ix]->setInteger<Euresys::RemoteModule>("Width", static_cast<int64_t>(width_));
         available_grabbers_[ix]->setInteger<Euresys::RemoteModule>("Height", static_cast<int64_t>(height));
@@ -86,7 +86,7 @@ void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
         available_grabbers_[ix]->setString<Euresys::StreamModule>("LUTConfiguration", "M_10x8");
     }
 
-    for (size_t i = 0; i < nb_grabbers; ++i)
+    for (size_t i = 0; i < nb_grabbers_; ++i)
         available_grabbers_[i]->setInteger<Euresys::StreamModule>("StripeOffset",
                                                                   params.at<std::vector<unsigned int>>("Offset")[i]);
 
@@ -106,12 +106,10 @@ void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
     {
         available_grabbers_[0]->setInteger<Euresys::DeviceModule>("CycleMinimumPeriod",
                                                                   params.at<unsigned int>("CycleMinimumPeriod"));
-        available_grabbers_[0]->setString<Euresys::DeviceModule>("ExposureReadoutOverlap",
-                                                                 params.at<std::string>("ExposureReadoutOverlap"));
-        available_grabbers_[0]->setString<Euresys::DeviceModule>("ErrorSelector",
-                                                                 params.at<std::string>("ErrorSelector"));
+        available_grabbers_[0]->setString<Euresys::DeviceModule>("ExposureReadoutOverlap", "True");
+        available_grabbers_[0]->setString<Euresys::DeviceModule>("ErrorSelector", "All");
     }
-    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("ExposureTime", params.at<unsigned int>("ExposureTime"));
+    available_grabbers_[0]->setFloat<Euresys::RemoteModule>("ExposureTime", params.at<float>("ExposureTime"));
     available_grabbers_[0]->setString<Euresys::RemoteModule>("BalanceWhiteMarker",
                                                              params.at<std::string>("BalanceWhiteMarker"));
 
@@ -195,18 +193,12 @@ CameraPhantomInt::CameraPhantomInt(const std::string& ini_name, const std::strin
 
     pixel_size_ = 20;
     gentl_ = std::make_unique<Euresys::EGenTL>();
-
-    // if (ini_file_is_open())
-    // {
-    //     load_ini_params();
-    //     ini_file_.close();
-    // }
 }
 
 void CameraPhantomInt::init_camera()
 {
     grabber_->setup(params_, *gentl_);
-    grabber_->init(nb_buffers_);
+    grabber_->init(params_.at<unsigned int>("NbBuffers"));
 
     // Set frame descriptor according to grabber settings
     fd_.width = grabber_->width_;
@@ -224,8 +216,9 @@ void CameraPhantomInt::shutdown_camera() { return; }
 CapturedFramesDescriptor CameraPhantomInt::get_frames()
 {
     Euresys::ScopedBuffer buffer(*(grabber_->available_grabbers_[0]));
+    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
 
-    for (int i = 1; i < nb_grabbers_; ++i)
+    for (int i = 1; i < nb_grabbers; ++i)
         Euresys::ScopedBuffer stiching(*(grabber_->available_grabbers_[i]));
 
     // process available images
@@ -256,20 +249,13 @@ void CameraPhantomInt::load_default_params()
     params_.set<float>("ExposureTime", 0);
 
     params_.set<std::string>("TriggerSource", "");
-    params_.set<std::string>("TriggerSelector", "");
     params_.set<std::string>("PixelFormat", "");
     params_.set<std::string>("GainSelector", "");
     params_.set<std::string>("TriggerMode", "");
     params_.set<std::string>("BalanceWhiteMarker", "");
 }
 
-void CameraPhantomInt::load_ini_params()
-{
-    params_.set_from_ini(get_ini_pt());
-
-    // acquisition_frame_rate_ = pt.get<unsigned int>(prefix + "AcquisitionFrameRate", acquisition_frame_rate_); TODO
-    // 991
-}
+void CameraPhantomInt::load_ini_params() { params_.set_from_ini(get_ini_pt()); }
 
 void CameraPhantomInt::bind_params() { return; }
 

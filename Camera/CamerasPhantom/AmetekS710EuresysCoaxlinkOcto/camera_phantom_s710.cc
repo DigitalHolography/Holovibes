@@ -5,7 +5,7 @@ namespace camera
 
 EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                            unsigned int buffer_part_count,
-                           std::string& pixel_format,
+                           std::string pixel_format,
                            unsigned int& nb_grabbers)
     : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers)
 {
@@ -14,6 +14,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     // nb_grabbers = 0 means autodetect between 2 or 4
     if (nb_grabbers == 0 && available_grabbers_count >= 2)
         nb_grabbers = (available_grabbers_count >= 4) ? 4 : 2;
+    nb_grabbers_ = nb_grabbers;
 
     // S710 only supports 2 and 4 frame grabbers setup
     if (nb_grabbers != 2 && nb_grabbers != 4)
@@ -39,7 +40,6 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                                 "parameter in S710 ini config file");
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }
-    nb_grabbers_ = nb_grabbers;
 }
 
 void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
@@ -51,16 +51,10 @@ void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 
     EHoloGrabberInt::setup(params, gentl);
 
-    auto trigger_source_opt = params.get<std::string>("TriggerSource");
-    if (!trigger_source_opt)
-        Logger::camera()->error("Missing TriggerSource parameter");
-    else if (trigger_source_opt.value() == "SWTRIGGER")
+    if (params.at<std::string>("TriggerSource") == "SWTRIGGER")
         available_grabbers_[0]->setString<Euresys::RemoteModule>("TimeStamp", "TSOff");
 
-    if (auto opt = params.get<std::string>("FanCtrl"); opt)
-        available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", opt.value());
-    else
-        Logger::camera()->error("Missing FanCtrl parameter");
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", params.at<std::string>("FanCtrl"));
 }
 
 CameraPhantom::CameraPhantom()
@@ -88,10 +82,15 @@ void CameraPhantom::init_camera()
         ini_file_.close();
     }
 
+    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_,
                                               params_.at<unsigned int>("BufferPartCount"),
                                               params_.at<std::string>("PixelFormat"),
-                                              nb_grabbers_);
+                                              nb_grabbers);
+
+    // nb_grabbers may have been updated by EHoloGrabber constructor
+    params_.set<unsigned int>("NbGrabbers", nb_grabbers);
+
     CameraPhantomInt::init_camera();
 }
 

@@ -45,7 +45,7 @@ class CameraParamMap
     std::optional<T> get(const std::string key) const;
 
     template <typename T>
-    T& at(const std::string key) const;
+    T at(const std::string key) const;
 
     template <typename T>
     void set(const std::string key, T value, bool is_inside_ini = true);

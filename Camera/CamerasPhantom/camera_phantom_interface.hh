@@ -143,9 +143,7 @@ class CameraPhantomInt : public Camera
 
     CameraParamMap params_;
 
-    // TODO: maybe replace all these with an instance of SetupParam struct to simplify settings handling
     unsigned int nb_buffers_;
-    unsigned int nb_grabbers_;
     unsigned int full_height_;
     unsigned int width_;
 };

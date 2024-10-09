@@ -57,7 +57,7 @@ std::optional<T> CameraParamMap::get(const std::string key) const
 }
 
 template <typename T>
-T& CameraParamMap::at(const std::string key) const
+T CameraParamMap::at(const std::string key) const
 {
     auto opt = get<T>(key);
     assert(opt);
