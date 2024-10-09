@@ -60,7 +60,6 @@ void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
 {
     width_ = params.at<unsigned int>("Width");
     height_ = params.at<unsigned int>("FullHeight");
-    // unsigned int nb_grabbers = params.at<unsigned int>("NbGrabbers");
 
     size_t pitch = width_ * gentl.imageGetBytesPerPixel(params.at<std::string>("PixelFormat"));
     size_t height = height_ / nb_grabbers_;
