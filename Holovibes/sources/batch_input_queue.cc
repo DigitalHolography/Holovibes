@@ -144,9 +144,6 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     char* const new_frame_adress =
         data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
 
-    size_t data_size = static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size();
-    char* data_ptr = data_.get();
-
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
                          input_frame,
