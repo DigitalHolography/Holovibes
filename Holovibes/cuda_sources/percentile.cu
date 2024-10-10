@@ -32,10 +32,10 @@ thrust::device_ptr<float> allocate_thrust(const uint frame_res, const cudaStream
 *10] and size_percent = 3
 ** gives : h_out_percent = [3, 6, 8]
 */
-void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
+void compute_percentile(float* const output,
+                        thrust::device_ptr<float>& thrust_gpu_input_copy,
                         const uint frame_res,
                         const float* const h_percent,
-                        float* const h_out_percent,
                         const uint size_percent,
                         const cudaStream_t stream)
 {
@@ -44,7 +44,7 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
     for (uint i = 0; i < size_percent; ++i)
     {
         const uint index = h_percent[i] / 100 * frame_res;
-        cudaXMemcpyAsync(h_out_percent + i,
+        cudaXMemcpyAsync(output + i,
                          thrust_gpu_input_copy.get() + index,
                          sizeof(float),
                          cudaMemcpyDeviceToHost,
@@ -107,7 +107,7 @@ void compute_percentile_xy_view(const float* gpu_input,
                          gpu_input + offset + frame_res,
                          thrust_gpu_input_copy);
 
-        compute_percentile(thrust_gpu_input_copy, frame_res, h_percent, h_out_percent, size_percent, stream);
+        compute_percentile(h_out_percent, thrust_gpu_input_copy, frame_res, h_percent, size_percent, stream);
     }
     catch (const std::exception& e)
     {
@@ -147,7 +147,7 @@ void compute_percentile_yz_view(const float* gpu_input,
                                        cudaMemcpyDeviceToDevice,             // kind
                                        stream));                             // stream
 
-        compute_percentile(thrust_gpu_input_copy, frame_res, h_percent, h_out_percent, size_percent, stream);
+        compute_percentile(h_out_percent, thrust_gpu_input_copy, frame_res, h_percent, size_percent, stream);
     }
     catch (const std::exception& e)
     {
