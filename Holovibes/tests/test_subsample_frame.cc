@@ -34,7 +34,7 @@ TEST(SubSampleFrame, subsample_8x8_step_2)
     // clang-format on
 
     cudaXMemcpy(input, input_image, 8 * 8, cudaMemcpyHostToDevice);
-    subsample_frame(input, 8, 8, output, 2, sizeof(char), 0);
+    subsample_frame(output, input, 8, 8, 2, sizeof(char), 0);
     cudaMemcpy(output_image, output, 4 * 4, cudaMemcpyDeviceToHost);
 
     ASSERT_EQ(memcmp(output_image, ref_output_image, 4 * 4), 0);
@@ -70,7 +70,7 @@ TEST(SubSampleFrame, subsample_8x8_step_4)
     // clang-format on
 
     cudaXMemcpy(input, input_image, 8 * 8, cudaMemcpyHostToDevice);
-    subsample_frame(input, 8, 8, output, 4, sizeof(char), 0);
+    subsample_frame(output, input, 8, 8, 4, sizeof(char), 0);
     cudaMemcpy(output_image, output, 2 * 2, cudaMemcpyDeviceToHost);
 
     ASSERT_EQ(memcmp(output_image, ref_output_image, 2 * 2), 0);
