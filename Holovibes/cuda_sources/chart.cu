@@ -82,9 +82,9 @@ reduce_width_tile(float tile[32][32], const ushort x_tile, const ushort y_tile, 
  * Then each tile writes it's cumulative sum in the total_sum output
  */
 template <typename FUNC>
-static __global__ void kernel_apply_mapped_zone_sum(const float* input,
+static __global__ void kernel_apply_mapped_zone_sum(double* output,
+                                                    const float* input,
                                                     const uint width,
-                                                    double* total_sum,
                                                     const uint start_zone_x,
                                                     const uint start_zone_y,
                                                     const uint zone_width,
@@ -138,15 +138,15 @@ static __global__ void kernel_apply_mapped_zone_sum(const float* input,
         // Only first thread of each tile accumulate the tile result in the
         // output
         if (x_tile == 0 && y_tile == 0)
-            atomicAdd(total_sum, static_cast<double>(tile[0][0]));
+            atomicAdd(output, static_cast<double>(tile[0][0]));
     }
 }
 
 template <typename FUNC>
-void apply_mapped_zone_sum(const float* input,
+void apply_mapped_zone_sum(double* output,
+                           const float* input,
                            const uint height,
                            const uint width,
-                           double* output,
                            const RectFd& zone,
                            FUNC element_map,
                            const cudaStream_t stream)
@@ -160,9 +160,9 @@ void apply_mapped_zone_sum(const float* input,
         1);
 
     // Total sum of the zone
-    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(input,
+    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(output,
+                                                                       input,
                                                                        width,
-                                                                       output,
                                                                        zone.topLeft().x(),
                                                                        zone.topLeft().y(),
                                                                        zone.width(),
@@ -171,15 +171,15 @@ void apply_mapped_zone_sum(const float* input,
     cudaCheckError();
 }
 
-void apply_zone_sum(const float* input,
+void apply_zone_sum(double* output,
+                    const float* input,
                     const uint height,
                     const uint width,
-                    double* output,
                     const RectFd& zone,
                     const cudaStream_t stream)
 {
     static const auto identity_map = [] __device__(float val) { return val; };
-    apply_mapped_zone_sum(input, height, width, output, zone, identity_map, stream);
+    apply_mapped_zone_sum(output, input, height, width, zone, identity_map, stream);
 }
 
 static double
@@ -191,7 +191,7 @@ compute_average(float* input, const uint width, const uint height, const RectFd&
 
     cudaXMemsetAsync(gpu_sum_zone, 0.f, sizeof(double), stream);
 
-    apply_zone_sum(input, height, width, gpu_sum_zone, zone, stream);
+    apply_zone_sum(gpu_sum_zone, input, height, width, zone, stream);
 
     double cpu_avg_zone;
     cudaXMemcpyAsync(&cpu_avg_zone, gpu_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);
@@ -203,16 +203,16 @@ compute_average(float* input, const uint width, const uint height, const RectFd&
     return cpu_avg_zone;
 }
 
-void apply_zone_std_sum(const float* input,
+void apply_zone_std_sum(double* output,
+                        const float* input,
                         const uint height,
                         const uint width,
-                        double* output,
                         const RectFd& zone,
                         const double avg_zone,
                         const cudaStream_t stream)
 {
     const auto std_map = [avg_zone] __device__(float val) { return (val - avg_zone) * (val - avg_zone); };
-    apply_mapped_zone_sum(input, height, width, output, zone, std_map, stream);
+    apply_mapped_zone_sum(output, input, height, width, zone, std_map, stream);
 }
 
 static double compute_std(float* input,
@@ -228,7 +228,7 @@ static double compute_std(float* input,
 
     cudaXMemsetAsync(gpu_std_sum_zone, 0.f, sizeof(double), stream);
 
-    apply_zone_std_sum(input, height, width, gpu_std_sum_zone, zone, cpu_avg_zone, stream);
+    apply_zone_std_sum(gpu_std_sum_zone, input, height, width, zone, cpu_avg_zone, stream);
 
     double cpu_std_zone;
     cudaXMemcpyAsync(&cpu_std_zone, gpu_std_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);

@@ -13,10 +13,10 @@
  * \param width The width of the input image.
  * \param zone Coordinates of the zone to use.
  */
-void apply_zone_sum(const float* input,
+void apply_zone_sum(double* output,
+                    const float* input,
                     const uint height,
                     const uint width,
-                    double* output,
                     const holovibes::units::RectFd& zone,
                     const cudaStream_t stream);
 
@@ -26,10 +26,10 @@ void apply_zone_sum(const float* input,
  * \param width The width of the input image.
  * \param zone Coordinates of the zone to use.
  */
-void apply_zone_std_sum(const float* input,
+void apply_zone_std_sum(double* output,
+                        const float* input,
                         const uint height,
                         const uint width,
-                        double* output,
                         const holovibes::units::RectFd& zone,
                         const double avg_signal,
                         const cudaStream_t stream);
