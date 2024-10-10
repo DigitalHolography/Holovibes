@@ -36,7 +36,7 @@ ImageRenderingPanel::~ImageRenderingPanel()
     delete z_down_shortcut_;
 }
 
-void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); }
+void ImageRenderingPanel::init() { ui_->ZSpinBox->setSingleStep(z_step_); }
 
 void ImageRenderingPanel::on_notify()
 {
@@ -70,9 +70,9 @@ void ImageRenderingPanel::on_notify()
 
     ui_->LambdaSpinBox->setEnabled(!is_raw);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
-    ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
-    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->ZSpinBox->setEnabled(!is_raw);
+    ui_->ZSpinBox->setValue(api::get_z_distance());
+    ui_->ZSpinBox->setSingleStep(z_step_);
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
@@ -377,9 +377,9 @@ void ImageRenderingPanel::set_lambda(const double value)
 
 void ImageRenderingPanel::actualise_z_distance(const double z_distance)
 {
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    const QSignalBlocker blocker(ui_->ZSpinBox);
     const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZDoubleSpinBox->setValue(z_distance);
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
@@ -391,12 +391,12 @@ void ImageRenderingPanel::set_z_distance_slider(int value)
     api::set_z_distance(static_cast<float>(value) / 1000.0f);
 }
 
-void ImageRenderingPanel::set_z_distance(const double value)
+void ImageRenderingPanel::set_z_distance(int value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z_distance(static_cast<float>(value));
+    api::set_z_distance(static_cast<float>(value) / 1000.0f);
 }
 
 void ImageRenderingPanel::increment_z()
@@ -455,7 +455,7 @@ void ImageRenderingPanel::set_divide_convolution(const bool value)
 void ImageRenderingPanel::set_z_step(double value)
 {
     z_step_ = value;
-    ui_->ZDoubleSpinBox->setSingleStep(value);
+    ui_->ZSpinBox->setSingleStep(value);
 }
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }

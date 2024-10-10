@@ -105,7 +105,7 @@ class ImageRenderingPanel : public Panel
      */
 
     void set_z_distance_slider(int value);
-    void set_z_distance(const double value);
+    void set_z_distance(int value);
     /*! \brief Increment z by 1 on key shortcut */
     void increment_z();
     /*! \brief Decrement z by 1 on key shortcut */
