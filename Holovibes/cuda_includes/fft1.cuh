@@ -21,8 +21,8 @@ void fft1_lens(cuComplex* lens,
  * \param lens the lens that will be applied to the image
  * \param plan the first paramater of cufftExecC2C that will be called on the image
  */
-void fft_1(cuComplex* input,
-           cuComplex* output,
+void fft_1(cuComplex* output,
+           cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            const cufftHandle plan2D,

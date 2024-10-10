@@ -60,8 +60,8 @@ void fft1_lens(cuComplex* lens,
     }
 }
 
-void fft_1(cuComplex* input,
-           cuComplex* output,
+void fft_1(cuComplex* output,
+           cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            const cufftHandle plan2D,
