@@ -28,7 +28,7 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    size_t input_fps = 1;
+    float d = setting<settings::InputFPS>() / time_transformation_size;
 
     // initialize f0 (f0 = [1, ..., 1])
     cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size * sizeof(float));
@@ -41,20 +41,20 @@ void ICompute::fft_freqs()
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
     if (time_transformation_size % 2 == 0)
     {
-        for (auto i = 0; i < time_transformation_size / 2; i++)
-            f1[i] = i * (float)(input_fps) / time_transformation_size;
+        for (uint i = 0; i <= time_transformation_size / 2; i++)
+            f1[i] = i * d;
 
-        for (auto i = time_transformation_size / 2; i < time_transformation_size; i++)
-            f1[i] = -(time_transformation_size - i) * (float)(input_fps) / time_transformation_size;
+        for (uint i = time_transformation_size / 2; i < time_transformation_size - 1; i++)
+            f1[i] = -((float)time_transformation_size - i) * d;
     }
     // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
     else
     {
         for (auto i = 0; i < (time_transformation_size + 1) / 2; i++)
-            f1[i] = i * (float)(input_fps) / time_transformation_size;
+            f1[i] = i * d;
 
         for (auto i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
-            f1[i] = (i - time_transformation_size) * (float)(input_fps) / time_transformation_size;
+            f1[i] = (i - (float)time_transformation_size) * d;
     }
     cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
