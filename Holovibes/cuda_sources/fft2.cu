@@ -62,7 +62,7 @@ void fft_2(cuComplex* input,
 
     // Lens and Mask already shifted
     // thus we don't have to shift the 'input' buffer each time
-    apply_mask(input, lens, output, frame_res, batch_size, stream);
+    apply_mask(output, input, lens, frame_res, batch_size, stream);
     if (store_frame)
     {
         cudaXMemcpyAsync(mask_output, input, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, stream);

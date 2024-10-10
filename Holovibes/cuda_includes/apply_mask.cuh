@@ -35,23 +35,23 @@ void apply_mask(float* in_out, const float* mask, const size_t size, const uint 
  * \param batch_size The number of frames of 'input'
  * \param stream The CUDA stream on which to launch the operation.
  */
-void apply_mask(const cuComplex* input,
+void apply_mask(cuComplex* output,
+                const cuComplex* input,
                 const cuComplex* mask,
-                cuComplex* output,
                 const size_t size,
                 const uint batch_size,
                 const cudaStream_t stream);
 
-void apply_mask(const cuComplex* input,
+void apply_mask(cuComplex* output,
+                const cuComplex* input,
                 const float* mask,
-                cuComplex* output,
                 const size_t size,
                 const uint batch_size,
                 const cudaStream_t stream);
 
-void apply_mask(const float* input,
+void apply_mask(float* output,
+                const float* input,
                 const float* mask,
-                float* output,
                 const size_t size,
                 const uint batch_size,
                 const cudaStream_t stream);

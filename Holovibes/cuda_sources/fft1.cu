@@ -68,7 +68,7 @@ void fft_1(cuComplex* input,
            const size_t frame_resolution,
            const cudaStream_t stream)
 {
-    apply_mask(input, lens, output, frame_resolution, batch_size, stream);
+    apply_mask(output, input, lens, frame_resolution, batch_size, stream);
 
     // No sync needed between kernel call and cufft call
     cudaCheckError();
