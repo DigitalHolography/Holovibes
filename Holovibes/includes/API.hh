@@ -17,7 +17,6 @@
 #include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
-#include "global_state_holder.hh"
 #include "compute_settings_struct.hh"
 
 #include <nlohmann/json_fwd.hpp>
