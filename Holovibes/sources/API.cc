@@ -402,14 +402,9 @@ void update_batch_size(const uint batch_size)
 
     bool time_stride_changed = set_batch_size(batch_size);
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        if (time_stride_changed)
-            api::get_compute_pipe()->request(ICS::UpdateTimeStride);
-        api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-    }
-    else
-        api::get_input_queue()->resize(get_batch_size());
+    if (time_stride_changed)
+        api::get_compute_pipe()->request(ICS::UpdateTimeStride);
+    api::get_compute_pipe()->request(ICS::UpdateBatchSize);
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)

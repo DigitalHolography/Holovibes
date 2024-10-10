@@ -144,7 +144,10 @@ class BatchInputQueue final : public DisplayQueue
     inline void* get_last_image() const override
     {
         if (device_ == Device::GPU)
+        {
+            const std::lock_guard<std::mutex> lock(m_producer_busy_);
             sync_current_batch();
+        }
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
@@ -261,7 +264,7 @@ class BatchInputQueue final : public DisplayQueue
     /*! \name Synchronization attributes
      * \{
      */
-    std::mutex m_producer_busy_;
+    mutable std::mutex m_producer_busy_;
     std::unique_ptr<std::mutex[]> batch_mutexes_{nullptr};
     std::unique_ptr<cudaStream_t[]> batch_streams_{nullptr};
     /*! \} */

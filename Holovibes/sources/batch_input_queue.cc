@@ -271,8 +271,15 @@ void BatchInputQueue::resize(const uint new_batch_size)
 
     // Critical section between the enqueue (producer) & the resize (consumer)
 
+    // Synchronize all active CUDA streams
+    if (device_ == Device::GPU)
+    {
+        for (uint i = 0; i < max_size_; ++i)
+        {
+            cudaSafeCall(cudaStreamSynchronize(batch_streams_[i]));
+        }
+    }
     // Every mutexes must be unlocked here.
-
     // Destroy all streams and mutexes that must be all unlocked
     destroy_mutexes_streams();
 
