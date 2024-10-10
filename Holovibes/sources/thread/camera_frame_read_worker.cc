@@ -26,6 +26,7 @@ void CameraFrameReadWorker::run()
     *entry2 = input_format;
 
     current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    temperature_ = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::TEMPERATURE, true);
 
     try
     {
@@ -49,6 +50,7 @@ void CameraFrameReadWorker::run()
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
     GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::TEMPERATURE);
 
     camera_.reset();
 }
@@ -77,6 +79,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
 
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
+    *temperature_ = std::to_string(camera_->get_temperature());
 
     if (input_queue_on_gpu)
         input_queue_.load()->sync_current_batch();

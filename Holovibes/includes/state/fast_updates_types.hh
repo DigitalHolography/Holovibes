@@ -31,6 +31,7 @@ enum class IndicationType
     IMG_SOURCE,
     INPUT_FORMAT,
     OUTPUT_FORMAT,
+    TEMPERATURE,
 };
 
 enum class FpsType

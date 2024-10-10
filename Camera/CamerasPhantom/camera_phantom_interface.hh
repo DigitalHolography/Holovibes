@@ -130,6 +130,8 @@ class CameraPhantomInt : public Camera
      * \return CapturedFramesDescriptor containing pointer to frames
      */
     virtual CapturedFramesDescriptor get_frames() override;
+    /*! \brief get the temperature */
+    virtual int get_temperature() const override;
 
   protected:
     /*! \brief Load parameters from the INI file and store them (into private attributes).

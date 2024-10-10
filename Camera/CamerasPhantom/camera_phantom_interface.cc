@@ -257,4 +257,17 @@ void CameraPhantomInt::load_ini_params() { params_.set_from_ini(get_ini_pt()); }
 
 void CameraPhantomInt::bind_params() { return; }
 
+int CameraPhantomInt::get_temperature() const
+{
+    try
+    {
+        auto temperature = grabber_->available_grabbers_[0]->getInteger<Euresys::RemoteModule>("DeviceTemperature");
+        return temperature;
+    }
+    catch (...)
+    {
+        return 0;
+    }
+}
+
 } // namespace camera
