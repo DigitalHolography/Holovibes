@@ -216,6 +216,8 @@ MainWindow::MainWindow(QWidget* parent)
         ui_->ViewPanel->update_3d_cuts_view(true);
     }
 
+    init_tooltips();
+
     qApp->setStyle(QStyleFactory::create("Fusion"));
 }
 
@@ -673,56 +675,39 @@ void open_file(const std::string& filename)
     if (filename.empty())
         return;
 
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(
+        QString::fromStdString((RELATIVE_PATH(__CAMERAS_CONFIG_FOLDER_PATH__ / filename)).string())));
 }
 
-void MainWindow::camera_ids_settings() {
-    open_file("ids.ini");
-}
+void MainWindow::camera_ids_settings() { open_file("ids.ini"); }
 
-void MainWindow::camera_phantom_settings() {
-    open_file("ametek_s710_euresys_coaxlink_octo.ini");
-}
+void MainWindow::camera_phantom_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
 
-void MainWindow::camera_bitflow_cyton_settings() { 
-    open_file("bitflow.ini");
-}
+void MainWindow::camera_bitflow_cyton_settings() { open_file("bitflow.ini"); }
 
-void MainWindow::camera_hamamatsu_settings() { 
-    open_file("hamamatsu.ini");
-}
+void MainWindow::camera_hamamatsu_settings() { open_file("hamamatsu.ini"); }
 
-void MainWindow::camera_adimec_settings() { 
-    open_file("adimec.ini");
-}
+void MainWindow::camera_adimec_settings() { open_file("adimec.ini"); }
 
-void MainWindow::camera_xiq_settings() { 
-    open_file("xiq.ini");
-}
+void MainWindow::camera_xiq_settings() { open_file("xiq.ini"); }
 
-void MainWindow::camera_xib_settings() { 
-    open_file("xib.ini");
-}
+void MainWindow::camera_xib_settings() { open_file("xib.ini"); }
 
-void MainWindow::camera_opencv_settings() { 
-    open_file("opencv.ini");
-}
+void MainWindow::camera_opencv_settings() { open_file("opencv.ini"); }
 
-void MainWindow::camera_ametek_s991_coaxlink_qspf_plus_settings() { 
+void MainWindow::camera_ametek_s991_coaxlink_qspf_plus_settings()
+{
     open_file("ametek_s991_euresys_coaxlink_qsfp+.ini");
 }
 
-void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings() { 
+void MainWindow::camera_ametek_s711_coaxlink_qspf_plus_settings()
+{
     open_file("ametek_s711_euresys_coaxlink_qsfp+.ini");
 }
 
-void MainWindow::camera_euresys_egrabber_settings() { 
-    open_file("ametek_s710_euresys_coaxlink_octo.ini");
-}
+void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_euresys_coaxlink_octo.ini"); }
 
-void MainWindow::camera_alvium_settings() { 
-    open_file("alvium.ini");
-}
+void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 #pragma endregion
 /* ------------ */
@@ -731,10 +716,10 @@ void MainWindow::camera_alvium_settings() {
 void MainWindow::refresh_view_mode()
 {
     // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(window_max_size, ui_->ViewModeComboBox->currentIndex());
+    api::refresh_view_mode(window_max_size, static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
 
-    notify();
-    layout_toggled();
+    // notify();
+    // layout_toggled();
 }
 
 // Is there a change in window pixel depth (needs to be re-opened)
@@ -771,15 +756,19 @@ void MainWindow::set_view_image_type(const QString& value)
         return;
     }
 
-    const std::string& str = value.toStdString();
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, str))
+    const std::string& value_str = value.toStdString();
+    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
+    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
     {
-        refresh_view_mode();
+        // refresh_view_mode();
+        api::refresh_view_mode(window_max_size, img_type);
         if (api::get_img_type() == ImgType::Composite)
         {
             set_composite_values();
         }
     }
+
+    UserInterfaceDescriptor::instance().last_img_type_ = value_str;
 
     // FIXME: delete comment
     // C'est ce que philippe faisait pour les space/time_transform aussi
@@ -793,18 +782,11 @@ void MainWindow::set_view_image_type(const QString& value)
     // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
     // On peut demander aux autres
 
-    auto callback = ([=]() {
-        api::set_img_type(static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
-        notify();
-        layout_toggled();
-    });
+    // Here's your enum ;)
+    api::set_view_mode(img_type);
 
-    // Force XYview autocontrast
-    api::set_view_mode(str, callback);
-
-    // Force cuts views autocontrast if needed
-    if (api::get_cuts_view_enabled())
-        api::set_auto_contrast_cuts();
+    notify();
+    layout_toggled();
 }
 
 #pragma endregion
@@ -934,6 +916,48 @@ void MainWindow::set_preset(std::filesystem::path file)
     LOG_INFO("Preset loaded with file " + file.string());
 }
 
+void MainWindow::init_tooltips()
+{
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Modulus),
+                                       "Compute the modulus of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::SquaredModulus),
+                                       "Compute the squared modulus of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Argument),
+                                       "Compute the argument angle of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::PhaseIncrease),
+                                       "Adjust phase angles of the complex image",
+                                       Qt::ToolTipRole);
+    ui_->ViewModeComboBox->setItemData(static_cast<int>(ImgType::Composite),
+                                       "Do computations with color encoding",
+                                       Qt::ToolTipRole);
+
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::NONE),
+                                                  "No space transformation",
+                                                  Qt::ToolTipRole);
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FFT1),
+                                                  "Fresnel Transform",
+                                                  Qt::ToolTipRole);
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FFT2),
+                                                  "Angular Spectrum",
+                                                  Qt::ToolTipRole);
+
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::NONE),
+                                                 "No time transformation",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::PCA),
+                                                 "Principal Component Analysis",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::STFT),
+                                                 "Short-Time Fourier Transformation",
+                                                 Qt::ToolTipRole);
+    ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::SSA_STFT),
+                                                 "Self-adaptive Spectrum Analysis Short-Time Fourier Transformation",
+                                                 Qt::ToolTipRole);
+}
+
 #pragma endregion
 
 /* ------------ */
@@ -947,7 +971,7 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::WindowText, Qt::white);
     darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
     darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(53, 53, 53));
     darkPalette.setColor(QPalette::ToolTipText, Qt::white);
     darkPalette.setColor(QPalette::Text, Qt::white);
     darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));

@@ -202,6 +202,12 @@ class MainWindow : public QMainWindow, public Observer
     void load_gui();
     void save_gui();
 
+    /**
+     * \brief Small helper function that just writes tooltips.
+     * Note : the only affected locations should be drop-down menus, or 'comboBox'.
+     */
+    void init_tooltips();
+
   public:
     /*! \brief Changes camera
      *
