@@ -133,14 +133,14 @@ class ImageRenderingPanel : public Panel
      *
      * \param value the new value
      */
-    void set_z_step(double value);
+    void set_z_step(int value);
 
     /*!
      * \brief Gets the z step
      *
      * \return double the current z step
      */
-    double get_z_step();
+    int get_z_step();
 
   private:
     QShortcut* z_up_shortcut_;
@@ -149,6 +149,6 @@ class ImageRenderingPanel : public Panel
 
   public:
     // should be moved to double in the ui if we need more precision than 5 digits
-    double z_step_ = 0.005f;
+    int z_step_ = 1;
 };
 } // namespace holovibes::gui
