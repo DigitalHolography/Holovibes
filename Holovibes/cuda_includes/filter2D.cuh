@@ -6,9 +6,9 @@
 
 #include "common.cuh"
 
-void filter2D(cuComplex* input,
+void filter2D(cuComplex* output,
+              cuComplex* input,
               const float* mask,
-              cuComplex* output,
               bool store_frame,
               const uint batch_size,
               const cufftHandle plan2d,
