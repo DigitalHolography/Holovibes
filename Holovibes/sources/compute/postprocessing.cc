@@ -68,9 +68,9 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
 
     from_interweaved_components_to_distinct_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
 
-    convolution_kernel(hsv_arr_.get(),
+    convolution_kernel(cuComplex_buffer_.get(),
+                       hsv_arr_.get(),
                        gpu_convolution_buffer,
-                       cuComplex_buffer_.get(),
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
@@ -78,9 +78,9 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        true,
                        stream_);
 
-    convolution_kernel(hsv_arr_.get() + frame_res,
+    convolution_kernel(cuComplex_buffer_.get(),
+                       hsv_arr_.get() + frame_res,
                        gpu_convolution_buffer,
-                       cuComplex_buffer_.get(),
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_.get(),
@@ -88,9 +88,9 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        true,
                        stream_);
 
-    convolution_kernel(hsv_arr_.get() + (frame_res * 2),
+    convolution_kernel(cuComplex_buffer_.get(),
+                       hsv_arr_.get() + (frame_res * 2),
                        gpu_convolution_buffer,
-                       cuComplex_buffer_.get(),
                        &convolution_plan_,
                        frame_res,
                        gpu_kernel_buffer_,
@@ -113,9 +113,9 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
-                convolution_kernel(gpu_postprocess_frame,
+                convolution_kernel(cuComplex_buffer_.get(),
+                                   gpu_postprocess_frame,
                                    gpu_convolution_buffer,
-                                   cuComplex_buffer_.get(),
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),

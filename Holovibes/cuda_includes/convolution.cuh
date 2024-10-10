@@ -10,6 +10,7 @@ using holovibes::cuda_tools::CufftHandle;
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
  *
+ * \param output cuComplex_buffer
  * \param input Buffer on which the convolution will be applied
  * \param convolved_buffer Buffer used for convolution calcul (will be overwriten)
  * \param plan Plan2D used for the three fft
@@ -18,9 +19,9 @@ using holovibes::cuda_tools::CufftHandle;
  * \param kernel Array of float which is the convolution's kernel
  * \param divide_convolution_enabled Activate the division of the input by the convolved image
  */
-void convolution_kernel(float* gpu_input,
+void convolution_kernel(cuComplex* output,
+                        float* input,
                         float* gpu_convolved_buffer,
-                        cuComplex* cuComplex_buffer,
                         CufftHandle* plan,
                         const size_t size,
                         const cuComplex* gpu_kernel,
