@@ -1161,7 +1161,7 @@
 											"top": 1246,
 											"width": 1188.90966796875,
 											"height": 13,
-											"text": "-gpu_frame_buffer_: char*",
+											"text": "-gpu_file_frame_buffer_: char*",
 											"horizontalAlignment": 0
 										}
 									],
@@ -4757,7 +4757,7 @@
 							"_parent": {
 								"$ref": "AAAAAAF2UlNpr2fXELc="
 							},
-							"name": "gpu_frame_buffer_",
+							"name": "gpu_file_frame_buffer_",
 							"visibility": "private",
 							"type": "char*"
 						}
