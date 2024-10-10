@@ -108,12 +108,3 @@ __global__ void kernel_translation(float* input, float* output, uint width, uint
         output[index] = input[old_y * width + old_x];
     }
 }
-
-__global__ void printArray(float* d_in, int num)
-{
-    for (int i = 0; i < num; i++)
-    {
-        printf("%f\t", d_in[i]);
-    }
-    printf("\n");
-}

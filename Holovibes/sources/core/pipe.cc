@@ -355,6 +355,11 @@ void Pipe::insert_moments()
 
     if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
     {
+        auto p = setting<settings::P>();
+        moments_env_.f_start = p.start;
+        moments_env_.f_end =
+            std::min<int>(p.start + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()));
+
         converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
 
         fourier_transforms_->insert_moments();

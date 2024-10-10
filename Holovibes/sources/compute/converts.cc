@@ -118,7 +118,8 @@ void Converts::insert_to_modulus_moments(float* output)
             complex_to_modulus_moments(output,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        fd_.get_frame_res(),
-                                       setting<settings::TimeTransformationSize>(),
+                                       pmin_,
+                                       pmax_,
                                        stream_);
         });
 }

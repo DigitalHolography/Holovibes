@@ -28,10 +28,10 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    size_t input_fps = setting<settings::InputFPS>();
+    size_t input_fps = 1;
 
     // initialize f0 (f0 = [1, ..., 1])
-    cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size);
+    cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size * sizeof(float));
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f1(new float[time_transformation_size]);
@@ -63,20 +63,9 @@ void ICompute::fft_freqs()
         f2[i] = f1[i] * f1[i];
 
     cudaXMemcpy(moments_env_.f2_buffer, f2.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
-
-    printArray(moments_env_.f0_buffer.get(), time_transformation_size);
-    printArray(moments_env_.f1_buffer.get(), time_transformation_size);
-    printArray(moments_env_.f2_buffer.get(), time_transformation_size);
 }
 
-void ICompute::init_moments()
-{
-    auto frame_res = input_queue_.get_fd().get_frame_res();
-
-    moments_env_.moment0_buffer.resize(frame_res);
-    moments_env_.moment1_buffer.resize(frame_res);
-    moments_env_.moment2_buffer.resize(frame_res);
-}
+void ICompute::init_moments() { auto frame_res = input_queue_.get_fd().get_frame_res(); }
 
 bool ICompute::update_time_transformation_size(const unsigned short size)
 {
@@ -90,7 +79,11 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
         moments_env_.f0_buffer.resize(size);
         moments_env_.f1_buffer.resize(size);
         moments_env_.f2_buffer.resize(size);
-        init_moments();
+
+        moments_env_.moment0_buffer.resize(frame_res);
+        moments_env_.moment1_buffer.resize(frame_res);
+        moments_env_.moment2_buffer.resize(frame_res);
+
         moments_env_.stft_res_buffer.resize(frame_res * size);
         fft_freqs();
 

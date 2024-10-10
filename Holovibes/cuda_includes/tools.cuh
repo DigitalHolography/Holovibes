@@ -45,5 +45,3 @@ __global__ void circ_shift_float(const float* input,
                                  const uint size);
 
 __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size);
-
-__global__ void printArray(float* d_in, int num);

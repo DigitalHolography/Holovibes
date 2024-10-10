@@ -64,5 +64,6 @@ void tensor_multiply_vector(float* output,
                             const float* tensor,
                             const float* vector,
                             const uint frame_res,
-                            const uint size,
+                            const ushort f_start,
+                            const ushort f_end,
                             const cudaStream_t stream);

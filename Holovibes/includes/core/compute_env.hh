@@ -94,6 +94,10 @@ struct MomentsEnv
     /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
      * Used to compute the moment of order 2*/
     cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
+
+    /*! \brief Starts and end frequencies of calculus */
+    unsigned short f_start;
+    unsigned short f_end;
 };
 
 /*! \struct BatchEnv
