@@ -269,6 +269,14 @@ if(HAVE_VIMBAX)
         )
     install(FILES
         $<TARGET_FILE_DIR:Holovibes>/CameraAlvium.dll
+        $<TARGET_FILE_DIR:Holovibes>/VmbCPP.dll
+        $<TARGET_FILE_DIR:Holovibes>/VmbC.dll
+        $<TARGET_FILE_DIR:Holovibes>/GenApi_MD_VC141_v3_2_AVT.dll
+        $<TARGET_FILE_DIR:Holovibes>/GCBase_MD_VC141_v3_2_AVT.dll
+        $<TARGET_FILE_DIR:Holovibes>/XmlParser_MD_VC141_v3_2_AVT.dll
+        $<TARGET_FILE_DIR:Holovibes>/Log_MD_VC141_v3_2_AVT.dll
+        $<TARGET_FILE_DIR:Holovibes>/NodeMapData_MD_VC141_v3_2_AVT.dll
+        $<TARGET_FILE_DIR:Holovibes>/MathParser_MD_VC141_v3_2_AVT.dll
         DESTINATION .
         COMPONENT application
     )

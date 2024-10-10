@@ -98,7 +98,7 @@ void CameraAlvium::stop_acquisition()
 struct camera::CapturedFramesDescriptor CameraAlvium::get_frames()
 {
     while (waiting_queue_.empty())
-        ;
+        std::this_thread::sleep_for(std::chrono::milliseconds(0));
 
     unsigned char* buf = waiting_queue_.front();
     waiting_queue_.pop();
