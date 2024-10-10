@@ -44,8 +44,8 @@ void fft2_lens(cuComplex* lens,
     }
 }
 
-void fft_2(cuComplex* input,
-           cuComplex* output,
+void fft_2(cuComplex* output,
+           cuComplex* input,
            const uint batch_size,
            const cuComplex* lens,
            cuComplex* mask_output,
