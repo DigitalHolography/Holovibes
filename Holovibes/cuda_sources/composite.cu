@@ -38,15 +38,15 @@ static void check_zone(rect& zone, const uint frame_res, const int line_size)
 
 /**
  * @brief Copy the selected zone to a contiguous rgb pixel buffer
+ * @param output The output rgb buffer
  * @param input The whole rgb image
- * @param zone_data The output rgb buffer
  * @param zone The selected zone characteristics
  * @param range The total number of pixel to copy
  * @param fd_width The width of the input image
  * @param start_zone_id The index of the beginning of the input buffer
  */
 __global__ static void kernel_copy_zone(
-    RGBPixel* input, RGBPixel* zone_data, rect zone, size_t range, const uint fd_width, size_t start_zone_id)
+    RGBPixel* output, RGBPixel* input, rect zone, size_t range, const uint fd_width, size_t start_zone_id)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -55,7 +55,7 @@ __global__ static void kernel_copy_zone(
         size_t x = id % zone.w;
         size_t y = id / zone.w;
         size_t fd_id = start_zone_id + (y * fd_width) + x;
-        zone_data[id] = input[fd_id];
+        output[id] = input[fd_id];
     }
 }
 
@@ -128,8 +128,8 @@ void postcolor_normalize(float* output,
         uint blocks = map_blocks_to_problem(zone_size, threads);
 
         size_t start_zone_id = fd_width * zone.y + zone.x;
-        kernel_copy_zone<<<blocks, threads, 0, stream>>>(rgb_output,
-                                                         gpu_zone_data,
+        kernel_copy_zone<<<blocks, threads, 0, stream>>>(gpu_zone_data,
+                                                         rgb_output,
                                                          zone,
                                                          zone_size,
                                                          fd_width,
