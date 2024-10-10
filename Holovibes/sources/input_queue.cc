@@ -2,7 +2,7 @@
 
 #include "holovibes.hh"
 
-#include "batch_input_queue.hh"
+#include "input_queue.hh"
 
 namespace holovibes
 {
@@ -24,11 +24,12 @@ InputQueue::InputQueue(const uint total_nb_frames,
     curr_nb_frames_ = 0;
     total_nb_frames_ = total_nb_frames;
 
-    batch_size_ = batch_size;
+    // LOG_INFO(batch_size_);
+    // LOG_INFO(batch_size);
 
     // Set priority of streams
     // Set batch_size and max_size
-    create_queue(frame_packet);
+    create_queue(frame_packet, batch_size);
 }
 
 InputQueue::~InputQueue()
@@ -39,16 +40,17 @@ InputQueue::~InputQueue()
     GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
-void InputQueue::create_queue(const uint frame_packet)
+void InputQueue::create_queue(const uint frame_packet, const uint batch_size)
 {
     CHECK(frame_packet > 0, "Frame packet cannot be 0.");
     frame_packet_ = frame_packet;
+    batch_size_ = batch_size;
 
-    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % frame_packet_);
+    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
 
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
-    max_size_ = total_nb_frames_ / frame_packet_;
+    max_size_ = total_nb_frames_ / batch_size_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
@@ -61,7 +63,7 @@ void InputQueue::create_queue(const uint frame_packet)
                 cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
     }
 
-    data_.resize(static_cast<size_t>(max_size_) * frame_packet_ * fd_.get_frame_size());
+    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
 }
 
 void InputQueue::sync_current_batch() const
@@ -105,7 +107,7 @@ void InputQueue::reset_override()
     // Unlocks are handled by unique_lock going out of scope
 }
 
-void BatchInputQueue::make_empty()
+void InputQueue::make_empty()
 {
     size_ = 0;
     curr_nb_frames_ = 0;
@@ -115,7 +117,7 @@ void BatchInputQueue::make_empty()
     has_overwritten_ = false;
 }
 
-void BatchInputQueue::stop_producer()
+void InputQueue::stop_producer()
 {
     if (curr_batch_counter_ != 0)
     {
@@ -124,7 +126,7 @@ void BatchInputQueue::stop_producer()
     }
 }
 
-void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
+void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind)
 {
     if ((memcpy_kind == cudaMemcpyDeviceToDevice || memcpy_kind == cudaMemcpyHostToDevice) && (device_ == Device::CPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to device with the queue on cpu");
@@ -145,7 +147,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
 
     // Static_cast to avoid overflow
     char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) * fd_.get_frame_size());
+        data_.get() + ((static_cast<size_t>(end_index_) * frame_packet_ + curr_batch_counter_) * fd_.get_frame_size());
 
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
@@ -191,7 +193,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     }
 }
 
-void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
+void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer
@@ -224,7 +226,7 @@ void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_
     batch_mutexes_[start_index_locked].unlock();
 }
 
-void BatchInputQueue::dequeue()
+void InputQueue::dequeue()
 {
     // CHECK(size_ > 0);
 
@@ -243,17 +245,18 @@ void BatchInputQueue::dequeue()
     }
 }
 
-void BatchInputQueue::dequeue_update_attr()
+void InputQueue::dequeue_update_attr()
 {
     start_index_ = (start_index_ + 1) % max_size_;
     size_--;
     curr_nb_frames_ -= batch_size_;
 }
 
-void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
-                              const unsigned int size,
-                              const unsigned int batch_size,
-                              const Device device)
+void InputQueue::rebuild(const camera::FrameDescriptor& fd,
+                         const uint size,
+                         const uint frame_packet,
+                         const uint batch_size,
+                         const Device device)
 {
     set_fd(fd);
     if (device_ != device)
@@ -264,10 +267,10 @@ void BatchInputQueue::rebuild(const camera::FrameDescriptor& fd,
 
     frame_capacity_ = size;
 
-    resize(batch_size);
+    resize(frame_packet, batch_size);
 }
 
-void BatchInputQueue::resize(const uint new_batch_size)
+void InputQueue::resize(const uint new_frame_packet, const uint new_batch_size)
 {
     // No action on any batch must be proceed
     const std::lock_guard<std::mutex> lock(m_producer_busy_);
@@ -280,86 +283,16 @@ void BatchInputQueue::resize(const uint new_batch_size)
     destroy_mutexes_streams();
 
     // Create all streams and mutexes
-    create_queue(new_batch_size);
+    create_queue(new_frame_packet, new_batch_size);
 
     make_empty();
 
     // End of critical section
 }
 
-// void BatchInputQueue::dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind =
-// cudaMemcpyDeviceToDevice)
-// {
+void InputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind) { copy_multiple(dest, batch_size_, cuda_kind); }
 
-//     CHECK(size_ > 0, "Queue is empty. Cannot dequeue.");
-
-//     // Order cannot be guaranteed because of the try lock because a producer
-//     // might start enqueue between two try locks
-//     // Active waiting until the start batch is available to dequeue
-//     uint start_index_locked = wait_and_lock(start_index_);
-
-//     Queue::MutexGuard m_guard_dst(dest.get_guard());
-
-//     // Determine source region info
-//     struct Queue::QueueRegion src;
-//     // Get the start of the starting batch
-//     src.first = data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
-//     // Copy multiple nb_elts which might be lower than batch_size.
-//     src.first_size = nb_elts;
-
-//     // Determine destination region info
-//     struct Queue::QueueRegion dst;
-//     const uint begin_to_enqueue_index = (dest.start_index_ + dest.size_) % dest.max_size_;
-
-//     char* begin_to_enqueue = dest + (begin_to_enqueue_index * dest.fd_.get_frame_size());
-//     if (begin_to_enqueue_index + nb_elts > dest.max_size_)
-//     {
-//         dst.first = begin_to_enqueue;
-//         dst.first_size = dest.max_size_ - begin_to_enqueue_index;
-//         dst.second = dest.data_.get();
-//         dst.second_size = nb_elts - dst.first_size;
-//     }
-//     else
-//     {
-//         dst.first = begin_to_enqueue;
-//         dst.first_size = nb_elts;
-//     }
-
-//     // Use the source start index (first batch of frames in the queue) stream
-//     // An enqueue operation on this stream (if happens) is blocked until the
-//     // copy is completed. Make the copy according to the region
-//     if(device_ == Device::GPU)
-//         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), batch_streams_[start_index_locked], cuda_kind);
-//     else
-//         Queue::copy_multiple_aux(src, dst, fd_.get_frame_size(), 0, cuda_kind);
-
-//     // The consumer has the responsability to give data that
-//     // finished processing.
-//     // would kill this queue design with only 1 producer and 1 consumer).
-//     if(device_ == Device::GPU)
-//         cudaXStreamSynchronize(batch_streams_[start_index_locked]);
-
-//     // Update dest queue parameters
-//     dest.size_ += nb_elts;
-
-//     // Copy done, release the batch.
-//     batch_mutexes_[start_index_locked].unlock();
-
-//     if (dest.size_ > dest.max_size_)
-//     {
-//         dest.start_index_ = (dest.start_index_ + dest.size_) % dest.max_size_;
-//         dest.size_.store(dest.max_size_.load());
-//         dest.has_overwritten_ = true;
-//     }
-
-// }
-
-void BatchInputQueue::copy_multiple(Queue& dest, cudaMemcpyKind cuda_kind)
-{
-    copy_multiple(dest, batch_size_, cuda_kind);
-}
-
-void BatchInputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
+void InputQueue::copy_multiple(Queue& dest, const uint nb_elts, cudaMemcpyKind cuda_kind)
 {
     CHECK(size_ > 0, "Queue is empty. Cannot copy multiple.");
     CHECK(dest.get_max_size() >= nb_elts,

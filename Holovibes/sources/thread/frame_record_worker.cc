@@ -115,7 +115,7 @@ void FrameRecordWorker::run()
         {
             if (record_queue_.load()->has_overwritten() || Holovibes::instance().get_input_queue()->has_overwritten())
             {
-                // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
+                // Due to frames being overwritten when the queue/InputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
                 {
 

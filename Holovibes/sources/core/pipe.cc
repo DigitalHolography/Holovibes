@@ -159,7 +159,7 @@ bool Pipe::make_requests()
     if (is_requested(ICS::UpdateFramePacket))
     {
         LOG_DEBUG("Update frame packet");
-        input_queue_.resize(setting<settings::FramePacket>());
+        input_queue_.resize(setting<settings::FramePacket>(), setting<settings::BatchSize>());
         clear_request(ICS::UpdateFramePacket);
     }
 

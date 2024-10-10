@@ -10,7 +10,7 @@ namespace holovibes
 {
 class ICompute;
 class Queue;
-class BatchInputQueue;
+class InputQueue;
 } // namespace holovibes
 
 namespace holovibes::worker

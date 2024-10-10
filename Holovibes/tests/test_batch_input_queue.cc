@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "cuda_memory.cuh"
-#include "batch_input_queue.hh"
+#include "input_queue.hh"
 
 #include <thread>
 

@@ -17,7 +17,7 @@ namespace holovibes::worker
 class FrameReadWorker : public Worker
 {
   public:
-    FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue);
+    FrameReadWorker(std::atomic<std::shared_ptr<InputQueue>>& input_queue);
 
     /*! \brief Constructor
      *
@@ -31,7 +31,7 @@ class FrameReadWorker : public Worker
     void compute_fps();
 
     /*! \brief The queue in which the frames are stored */
-    std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue_;
+    std::atomic<std::shared_ptr<InputQueue>>& input_queue_;
 
     /*! \brief The current fps */
     std::shared_ptr<std::atomic<unsigned int>> current_fps_;

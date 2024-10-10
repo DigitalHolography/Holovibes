@@ -66,7 +66,7 @@ class FileFrameReadWorker final : public FrameReadWorker
      * It should contain at least all the settings used, but it can carry more.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue, InitSettings settings)
+    FileFrameReadWorker(std::atomic<std::shared_ptr<InputQueue>>& input_queue, InitSettings settings)
         : FrameReadWorker(input_queue)
         , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)

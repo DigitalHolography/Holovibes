@@ -6,7 +6,7 @@
 namespace holovibes::worker
 {
 CameraFrameReadWorker::CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
-                                             std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue)
+                                             std::atomic<std::shared_ptr<InputQueue>>& input_queue)
     : FrameReadWorker(input_queue)
     , camera_(camera)
 {

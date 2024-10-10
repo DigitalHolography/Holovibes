@@ -96,7 +96,7 @@ class InputQueue final : public DisplayQueue
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
-     * The queue must have at least a batch of frames filled
+     * The queue must have at least a batch size number of frames filled
      * Called by the consumer.
      *
      * \param dest Dequeue in the destination buffer
@@ -112,6 +112,7 @@ class InputQueue final : public DisplayQueue
      *
      * The queue must have at least a batch of frames filled
      * Called by the consumer
+     * It is used to skip a batch of frames.
      */
     void dequeue();
 
@@ -121,11 +122,14 @@ class InputQueue final : public DisplayQueue
      *
      * \param fd
      * \param size
-     * \param gpu
+     * \param frame_packet
+     * \param batch_size
+     * \param device
      */
     void rebuild(const camera::FrameDescriptor& fd,
-                 const unsigned int size,
-                 const unsigned int batch_size,
+                 const uint size,
+                 const uint frame_packet,
+                 const uint batch_size,
                  const Device device);
 
     /*! \brief Resize with a new batch size
@@ -133,7 +137,7 @@ class InputQueue final : public DisplayQueue
      * Called by the consumer.
      * Empty the queue.
      */
-    void resize(const uint new_batch_size);
+    void resize(const uint new_frame_packet, const uint new_batch_size);
 
     /*! \brief Stop the producer.
      *
@@ -182,9 +186,10 @@ class InputQueue final : public DisplayQueue
      * Used by the consumer and constructor
      * frame_packet_, total_nb_frames_, max_size_ and batch_mutexes_ are modified in this function
      *
-     * \param frame_packet The number of frames in a packet
+     * \param frame_packet The number of frames in a packet.
+     * \param batch_size The number frames in a batch.
      */
-    void create_queue(const uint frame_packet);
+    void create_queue(const uint frame_packet, const uint batch_size);
 
     /*! \brief Destroy mutexes and streams arrays.
      *
@@ -198,7 +203,7 @@ class InputQueue final : public DisplayQueue
      */
     void make_empty();
 
-    /*! \brief Update attributes for a dequeue */
+    /*! \brief Update attributes for a dequeue. */
     void dequeue_update_attr();
 
     /*! \brief Wait until the batch at the position index is free.

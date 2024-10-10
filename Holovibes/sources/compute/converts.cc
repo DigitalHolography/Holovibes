@@ -354,7 +354,7 @@ void Converts::insert_filter2d_ushort()
         });
 }
 
-void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
+void Converts::insert_complex_conversion(InputQueue& input_queue)
 {
     LOG_FUNC(fd_.depth);
 

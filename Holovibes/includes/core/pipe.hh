@@ -66,7 +66,7 @@ class Pipe : public ICompute
      * \param settigns Default value for the settings of the pipe.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
+    Pipe(InputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
         , processed_output_fps_(GSH::fast_updates_map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
     {

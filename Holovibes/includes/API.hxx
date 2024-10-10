@@ -203,7 +203,6 @@ inline bool set_frame_packet(uint value)
         // handle time stride update
         time_stride_changed = time_stride_changed || set_batch_size(batch_size - batch_size % value);
         request_batch_size_update = true;
-
     }
     if (get_compute_mode() == Computation::Hologram &&
         time_stride_changed) // TODO: Mabe need to fix with the moments adding
@@ -1090,7 +1089,7 @@ inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::ins
 
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
-inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
+inline std::shared_ptr<InputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
 
 inline units::RectFd get_signal_zone()
 {

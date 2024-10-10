@@ -116,7 +116,7 @@ class ICompute
 {
   public:
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ICompute(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
+    ICompute(InputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : input_queue_(input)
         , gpu_output_queue_(output)
         , record_queue_(record)
@@ -308,7 +308,7 @@ class ICompute
 
     /*! \name Queues */
     /*! \brief Reference on the input queue */
-    BatchInputQueue& input_queue_;
+    InputQueue& input_queue_;
 
     /*! \brief Reference on the output queue */
     Queue& gpu_output_queue_;

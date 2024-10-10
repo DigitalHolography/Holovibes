@@ -43,13 +43,17 @@ void Holovibes::init_input_queue(const unsigned int input_queue_size)
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
     if (!input_queue_.load())
-        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size,
-                                                         //  api::get_batch_size(),
-                                                         api::get_frame_packet(),
-                                                         fd,
-                                                         api::get_input_queue_location());
+        input_queue_ = std::make_shared<InputQueue>(input_queue_size,
+                                                    api::get_frame_packet(),
+                                                    api::get_batch_size(),
+                                                    fd,
+                                                    api::get_input_queue_location());
     else
-        input_queue_.load()->rebuild(fd, input_queue_size, api::get_frame_packet(), api::get_input_queue_location());
+        input_queue_.load()->rebuild(fd,
+                                     input_queue_size,
+                                     api::get_frame_packet(),
+                                     api::get_batch_size(),
+                                     api::get_input_queue_location());
     LOG_DEBUG("Input queue allocated");
 }
 

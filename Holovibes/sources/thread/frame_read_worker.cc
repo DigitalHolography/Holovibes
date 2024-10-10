@@ -5,7 +5,7 @@
 
 namespace holovibes::worker
 {
-FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue)
+FrameReadWorker::FrameReadWorker(std::atomic<std::shared_ptr<InputQueue>>& input_queue)
     : Worker()
     , input_queue_(input_queue)
     , current_fps_(0)

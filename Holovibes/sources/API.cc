@@ -409,7 +409,7 @@ void update_frame_packet(std::function<void()> notify_callback, const uint frame
         Holovibes::instance().get_compute_pipe()->request(ICS::UpdateFramePacket);
     }
     else
-        Holovibes::instance().get_input_queue()->resize(get_frame_packet());
+        Holovibes::instance().get_input_queue()->resize(get_frame_packet(), get_batch_size());
 
     if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
     {

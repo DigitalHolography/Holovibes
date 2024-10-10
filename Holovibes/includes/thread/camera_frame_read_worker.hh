@@ -28,7 +28,7 @@ class CameraFrameReadWorker final : public FrameReadWorker
      * \param input_queue The input queue
      */
     CameraFrameReadWorker(std::shared_ptr<camera::ICamera> camera,
-                          std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue);
+                          std::atomic<std::shared_ptr<InputQueue>>& input_queue);
 
     void run() override;
 

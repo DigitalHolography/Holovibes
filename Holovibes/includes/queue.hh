@@ -10,7 +10,7 @@
 
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
-#include "batch_input_queue.hh"
+#include "input_queue.hh"
 #include "display_queue.hh"
 #include "global_state_holder.hh"
 #include "enum_device.hh"
@@ -111,7 +111,7 @@ class HoloQueue
  */
 class Queue final : public DisplayQueue, public HoloQueue
 {
-    friend class BatchInputQueue;
+    friend class InputQueue;
 
   public:
     using MutexGuard = std::lock_guard<std::mutex>;

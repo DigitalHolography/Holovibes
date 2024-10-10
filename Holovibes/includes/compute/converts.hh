@@ -9,7 +9,7 @@
 #include <cufft.h>
 
 #include "frame_desc.hh"
-#include "batch_input_queue.hh"
+#include "input_queue.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
 #include "enum_img_type.hh"
@@ -86,7 +86,7 @@ class Converts
     void insert_to_ushort();
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
-    void insert_complex_conversion(BatchInputQueue& input);
+    void insert_complex_conversion(InputQueue& input);
 
     template <typename T>
     inline void update_setting(T setting)

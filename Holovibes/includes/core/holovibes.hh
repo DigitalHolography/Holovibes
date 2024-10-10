@@ -146,7 +146,7 @@ class MainWindow;
 namespace holovibes
 {
 class Queue;
-class BatchInputQueue;
+class InputQueue;
 
 /*! \class Holovibes
  *
@@ -197,7 +197,7 @@ class Holovibes
      * \{
      */
     /*! \brief Used to record frames */
-    std::shared_ptr<BatchInputQueue> get_input_queue();
+    std::shared_ptr<InputQueue> get_input_queue();
 
     /*! \brief Used to display frames */
     std::shared_ptr<Queue> get_gpu_output_queue();
@@ -464,7 +464,7 @@ class Holovibes
     /*! \name Frames queue (GPU)
      * \{
      */
-    std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
+    std::atomic<std::shared_ptr<InputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
