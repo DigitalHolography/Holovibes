@@ -15,8 +15,8 @@ enum HSV
     V = 2
 };
 
-void hsv(const cuComplex* d_input,
-         float* d_output,
+void hsv(float* output,
+         const cuComplex* input,
          const uint width,
          const uint height,
          const cudaStream_t stream,

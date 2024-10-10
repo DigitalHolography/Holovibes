@@ -167,8 +167,8 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
             }
             else
             {
-                hsv(time_transformation_env_.gpu_p_acc_buffer.get(),
-                    gpu_postprocess_frame,
+                hsv(gpu_postprocess_frame,
+                    time_transformation_env_.gpu_p_acc_buffer.get(),
                     fd_.width,
                     fd_.height,
                     stream_,
