@@ -152,6 +152,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
+        input_queue_.resize(setting<settings::FramePacket>(), setting<settings::BatchSize>());
 
         clear_request(ICS::UpdateBatchSize);
     }
