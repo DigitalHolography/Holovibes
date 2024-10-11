@@ -139,8 +139,8 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
 
             if (setting<settings::CompositeKind>() == CompositeKind::RGB)
             {
-                rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
-                    gpu_postprocess_frame,
+                rgb(gpu_postprocess_frame,
+                    time_transformation_env_.gpu_p_acc_buffer.get(),
                     fd_.get_frame_res(),
                     setting<settings::CompositeAutoWeights>(),
                     rgb_struct.frame_index.min,
