@@ -290,11 +290,10 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
         frame_clock.stop();
         auto elapsed_time = frame_clock.get_nanoseconds();
+        compute_fps();
 
         if (elapsed_time < frame_interval)
             fps_limiter_.wait_for((frame_interval - (double)elapsed_time) / 1000000000);
-
-        compute_fps();
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
