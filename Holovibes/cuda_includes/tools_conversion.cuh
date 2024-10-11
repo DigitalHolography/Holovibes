@@ -161,3 +161,8 @@ void convert_frame_for_display(const void* input,
                                const cudaStream_t stream);
 
 void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream);
+
+/*! \brief Convert a buffer filled with complex values into real values using the modulus.
+*/
+void complex_to_modulus_moments(
+    float* output, const cuComplex* input, const size_t frame_res, const ushort f_start, const ushort f_end, const cudaStream_t stream);

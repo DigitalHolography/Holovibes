@@ -111,6 +111,10 @@ void FrameRecordWorker::run()
         size_t nb_frames_to_record =
             setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
 
+        // One frame will result in three moments.
+        if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
+            nb_frames_to_record *= 3;
+
         while (setting<settings::RecordFrameCount>() == std::nullopt ||
                (nb_frames_recorded < nb_frames_to_record && !stop_requested_))
         {
@@ -222,12 +226,8 @@ void FrameRecordWorker::run()
 
 void FrameRecordWorker::wait_for_frames()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    while (!stop_requested_)
-    {
-        if (record_queue_.load()->get_size() != 0)
-            break;
-    }
+    while (!stop_requested_ && record_queue_.load()->get_size() == 0)
+        continue;
 }
 
 void FrameRecordWorker::reset_record_queue()

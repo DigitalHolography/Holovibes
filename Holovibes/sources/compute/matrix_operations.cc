@@ -1,11 +1,11 @@
-#include "svd.hh"
+#include "matrix_operations.hh"
 #include "logger.hh"
+#include <thrust/transform.h>
+#include <thrust/functional.h>
+#include <thrust/execution_policy.h>
 
 namespace holovibes::compute
 {
-constexpr cuComplex alpha{1, 0};
-constexpr cuComplex beta{0, 0};
-
 void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov)
 {
 
@@ -15,12 +15,12 @@ void cov_matrix(const cuComplex* matrix, int width, int height, cuComplex* cov)
                                  height,
                                  height,
                                  width,
-                                 &alpha,
+                                 &alpha_complex,
                                  matrix,
                                  width,
                                  matrix,
                                  width,
-                                 &beta,
+                                 &beta_complex,
                                  cov,
                                  height));
 }
@@ -64,14 +64,14 @@ void eigen_values_vectors(cuComplex* matrix,
                                       dev_info));
 }
 
-void matrix_multiply(const cuComplex* A,
-                     const cuComplex* B,
-                     int A_height,
-                     int B_width,
-                     int A_width_B_height,
-                     cuComplex* C,
-                     cublasOperation_t op_A,
-                     cublasOperation_t op_B)
+void matrix_multiply_complex(const cuComplex* A,
+                             const cuComplex* B,
+                             int A_height,
+                             int B_width,
+                             int A_width_B_height,
+                             cuComplex* C,
+                             cublasOperation_t op_A,
+                             cublasOperation_t op_B)
 {
     // LOG-USELESS LOG_FUNC();
 
@@ -81,12 +81,12 @@ void matrix_multiply(const cuComplex* A,
                                  A_height,
                                  B_width,
                                  A_width_B_height,
-                                 &alpha,
+                                 &alpha_complex,
                                  A,
                                  A_height,
                                  B,
                                  B_width,
-                                 &beta,
+                                 &beta_complex,
                                  C,
                                  A_height));
 }

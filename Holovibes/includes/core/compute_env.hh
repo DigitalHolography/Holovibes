@@ -63,6 +63,43 @@ struct CoreBuffersEnv
     cuda_tools::CudaUniquePtr<float> gpu_input_filter_mask = nullptr;
 };
 
+/*! \struct MomentsEnv
+ *
+ *  \brief Struct containing buffers used for the computation of the moments
+ *
+ */
+struct MomentsEnv
+{
+    /*! \brief Contains the moments, computed from the frequencies resulting from the stft and the initial batch of
+     * frames.
+     *
+     * The moment of order 0 is equal to the batch of frames multiplied by the vector f of frequencies at
+     * Contains time_transformation_size frames.
+     */
+    cuda_tools::CudaUniquePtr<float> moment0_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment1_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment2_buffer = nullptr;
+
+    /*! \brief Temporary buffer that contains a batch of time transformation size frames
+     *  It will contains the complex modulus of result of the time transformation
+     */
+    cuda_tools::CudaUniquePtr<float> stft_res_buffer = nullptr;
+
+    /*! \brief Vector of size time_transformation_size filled with 1, representing the frequencies at order 0.
+     * Used to compute the moment of order 0*/
+    cuda_tools::CudaUniquePtr<float> f0_buffer = nullptr;
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 1.
+     * Used to compute the moment of order 1*/
+    cuda_tools::CudaUniquePtr<float> f1_buffer = nullptr;
+    /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
+     * Used to compute the moment of order 2*/
+    cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
+
+    /*! \brief Starts and end frequencies of calculus */
+    unsigned short f_start;
+    unsigned short f_end;
+};
+
 /*! \struct BatchEnv
  *
  * \brief Struct containing variables related to the batch in the pipe

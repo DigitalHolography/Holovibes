@@ -87,6 +87,7 @@ class Pipe : public ICompute
                                                                           input.get_fd(),
                                                                           spatial_transformation_plan_,
                                                                           time_transformation_env_,
+                                                                          moments_env_,
                                                                           stream_,
                                                                           settings);
 
@@ -221,6 +222,10 @@ class Pipe : public ICompute
     void insert_raw_record();
 
     void insert_hologram_record();
+
+    void insert_moments();
+    
+    void insert_moments_record();
 
     void insert_cuts_record();
 
