@@ -149,8 +149,6 @@ class MainWindow : public QMainWindow, public Observer
      * * Set visibility to true
      */
 
-    void refresh_view_mode();
-
     bool need_refresh(const std::string& last_type, const std::string& new_type);
     void set_composite_values();
 

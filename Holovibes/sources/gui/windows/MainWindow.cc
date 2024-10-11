@@ -713,15 +713,6 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 /* ------------ */
 #pragma region Image Mode
 
-void MainWindow::refresh_view_mode()
-{
-    // FIXME: Create enum instead of using index.
-    api::refresh_view_mode(window_max_size, static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex()));
-
-    // notify();
-    // layout_toggled();
-}
-
 // Is there a change in window pixel depth (needs to be re-opened)
 bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
 {
@@ -760,29 +751,13 @@ void MainWindow::set_view_image_type(const QString& value)
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
     if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
     {
-        // refresh_view_mode();
         api::refresh_view_mode(window_max_size, img_type);
         if (api::get_img_type() == ImgType::Composite)
-        {
             set_composite_values();
-        }
     }
 
     UserInterfaceDescriptor::instance().last_img_type_ = value_str;
 
-    // FIXME: delete comment
-    // C'est ce que philippe faisait pour les space/time_transform aussi
-    // Pas faux
-    // Lui disait plutôt l'inverse. En gros il disait que le front devait renvoyer une enum, c'est tout
-    // Perso la string me va très bien
-    // En gros, selon lui la conversion se fait dans le front, pour que l'api ne recoive que des enums
-    // J'étais pas trop d'accord, mais je ne sais pas trop qui a raison
-    // Faudrait peut-être demander l'avis de tt le monde
-    // Ouais, j'avoue que c'est plus safe si le front envoie la string direct. je voulais dire à l'api
-    // C'est ce que tu proposes non ? Et que l'on convertisse au sein du gsh
-    // On peut demander aux autres
-
-    // Here's your enum ;)
     api::set_view_mode(img_type);
 
     notify();

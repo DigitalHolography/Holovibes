@@ -215,6 +215,9 @@
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
              <property name="text">
               <string>Batch Size</string>
              </property>
@@ -229,7 +232,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="TimeStrideLabel">
              <property name="toolTip">
-              <string># of images picked at each iteration</string>
+              <string>(time_stride - batch_size) = number of images to drop before processing a single batch</string>
              </property>
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
@@ -390,7 +393,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="TimeTransformationLabel">
              <property name="toolTip">
-              <string>Time rendering for the Hologram</string>
+              <string>Time transformation algorithm used</string>
              </property>
              <property name="text">
               <string>Time Transform</string>
@@ -403,10 +406,10 @@
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
-              <string>Time transform size: number of frequencies to group</string>
+              <string>Number of images averaged together to generate a single output image.\nIt's a post-processing step to remove noise</string>
              </property>
              <property name="text">
-              <string># img</string>
+              <string>Nb. img</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -529,7 +532,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="SpaceTransformationLabel">
              <property name="toolTip">
-              <string>Space rendering for the Hologram</string>
+              <string>Space transformation algorithm used</string>
              </property>
              <property name="text">
               <string>Space Transform</string>
@@ -592,7 +595,7 @@
          <item>
           <widget class="QGroupBox" name="ConvoCheckBox">
            <property name="toolTip">
-            <string>Add a layer of convolution in the postprocessing</string>
+            <string>Add a convolution step in the post-processing stage</string>
            </property>
            <property name="title">
             <string>Convolve</string>
@@ -826,6 +829,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
+                <property name="toolTip">
+                 <string>Number of images averaged together to generate a single output image. It's a post-processing step to remove noise</string>
+                </property>
                 <property name="text">
                  <string>Output Image Acc.</string>
                 </property>
@@ -1073,7 +1079,8 @@
            <item row="2" column="0">
             <widget class="QLabel" name="PLabel">
              <property name="toolTip">
-              <string>The Time Transform filter's start frequency</string>
+              <string>The Time Transform FFT filter's start frequency.
+The range of frequencies kept is [z, z + width].</string>
              </property>
              <property name="text">
               <string>z</string>
@@ -1125,7 +1132,8 @@
            <item row="3" column="0">
             <widget class="QLabel" name="Q_Label">
              <property name="toolTip">
-              <string>The SVD filter's start frequency</string>
+              <string>The SVD/SSA filter's start frequency.
+The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>z2</string>
@@ -1186,7 +1194,8 @@
            <item row="3" column="2">
             <widget class="QLabel" name="QaccLabel">
              <property name="toolTip">
-              <string>Interval to include after 'z2' (max #img)</string>
+              <string>Number of frequencies kept by the SVD/SSA algorithm.
+The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -1199,7 +1208,8 @@
            <item row="2" column="2">
             <widget class="QLabel" name="PaccLabel">
              <property name="toolTip">
-              <string>Interval to include after z (max #img)</string>
+              <string>Number of frequencies kept by the FFT in the time transformation algorithm.
+The range of frequencies kept is [z, z + width]</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -2653,7 +2663,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="ImportFpsLabel">
                 <property name="toolTip">
-                 <string>The fps to read the file with</string>
+                 <string>The number of images that will be read per second</string>
                 </property>
                 <property name="text">
                  <string>Input FPS</string>
@@ -2937,10 +2947,10 @@
                  <item>
                   <widget class="QCheckBox" name="NumberOfFramesCheckBox">
                    <property name="toolTip">
-                    <string># of frames to record</string>
+                    <string>Number of frames to record</string>
                    </property>
                    <property name="text">
-                    <string># of frames</string>
+                    <string>Nb. of frames</string>
                    </property>
                   </widget>
                  </item>
