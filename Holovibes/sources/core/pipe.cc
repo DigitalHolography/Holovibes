@@ -550,18 +550,12 @@ void Pipe::insert_moments_record()
         fn_compute_vect_.conditional_push_back(
             [&]()
             {
-                record_queue_.enqueue(moments_env_.moment0_buffer,
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue(moments_env_.moment1_buffer,
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
-                record_queue_.enqueue(moments_env_.moment2_buffer,
-                                      stream_,
-                                      setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                              : cudaMemcpyDeviceToHost);
+                auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                    : cudaMemcpyDeviceToHost;
+
+                record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
+                record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
+                record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
             });
     }
 }
