@@ -30,6 +30,9 @@ class FPSLimiter
      */
     void wait(size_t target_fps);
 
+    // TODO: remove this temporary function
+    void wait_for(double seconds);
+
   private:
     Chrono chrono_;
 };

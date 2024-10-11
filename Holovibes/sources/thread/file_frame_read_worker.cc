@@ -262,15 +262,15 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
 
+    Chrono frame_clock{};
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        // fps_handler_.wait();
-        fps_limiter_.wait(setting<settings::InputFPS>()); // realtime_settings_.get<settings::InputFPS>().value);
+        frame_clock.start();
+        double frame_interval = 1.0f / (double)setting<settings::InputFPS>() * 1000000000;
 
         if (Holovibes::instance().is_cli)
         {
-            while (api::get_input_queue()->get_size() ==
-                       api::get_input_queue()->get_total_nb_frames() &&
+            while (api::get_input_queue()->get_size() == api::get_input_queue()->get_total_nb_frames() &&
                    !stop_requested_)
             {
             }
@@ -287,6 +287,12 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         current_nb_frames_read_++;
         processed_frames_++;
         frames_enqueued++;
+
+        frame_clock.stop();
+        auto elapsed_time = frame_clock.get_nanoseconds();
+
+        if (elapsed_time < frame_interval)
+            fps_limiter_.wait_for((frame_interval - (double)elapsed_time) / 1000000000);
 
         compute_fps();
     }
