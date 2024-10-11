@@ -147,7 +147,8 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
 
     // Static_cast to avoid overflow
     char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * frame_packet_ + curr_batch_counter_) * fd_.get_frame_size());
+        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
+                       fd_.get_frame_size()); // need to enqueue with frame packets
 
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
