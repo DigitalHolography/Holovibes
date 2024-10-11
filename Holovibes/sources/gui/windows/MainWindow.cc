@@ -916,7 +916,7 @@ void MainWindow::init_tooltips()
                                                   "Fresnel Transform",
                                                   Qt::ToolTipRole);
     ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FFT2),
-                                                  "Angular Spectrum",
+                                                  "Angular Spectrum Propagation",
                                                   Qt::ToolTipRole);
 
     ui_->TimeTransformationComboBox->setItemData(static_cast<int>(TimeTransformation::NONE),
