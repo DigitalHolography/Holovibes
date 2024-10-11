@@ -125,28 +125,30 @@ QString ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (api::get_record_mode() == RecordMode::CHART)
+    RecordMode record_mode = api::get_record_mode();
+
+    if (record_mode == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_record_mode() == RecordMode::RAW)
+    else if (record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+    else if (record_mode == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
