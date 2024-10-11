@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief Implementation of FFT1, FFT2 and STFT algorithms.
+ * \brief Implementation of Fresnel Transform, Angular Spectrum and STFT algorithms.
  */
 #pragma once
 
@@ -12,7 +12,6 @@
 #include "cuda_tools\array.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "function_vector.hh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
@@ -130,11 +129,11 @@ class FourierTransform
     /*! \brief Enqueue the call to filter2d cuda function. */
     void insert_filter2d();
 
-    /*! \brief Compute lens and enqueue the call to fft1 cuda function. */
-    void insert_fft1();
+    /*! \brief Compute lens and enqueue the call to the fresnel_transform cuda function. */
+    void insert_fresnel_transform();
 
-    /*! \brief Compute lens and enqueue the call to fft2 cuda function. */
-    void insert_fft2(bool filter2d_enabled);
+    /*! \brief Compute lens and enqueue the call to the angular_spectrum cuda function. */
+    void insert_angular_spectrum(bool filter2d_enabled);
 
     /*! \brief Enqueue the Fresnel lens into the Lens Queue.
      *
@@ -174,7 +173,7 @@ class FourierTransform
     units::RectFd filter2d_zone_;
     units::RectFd filter2d_subzone_;
 
-    /*! \brief Lens used for fresnel transform (During FFT1 and FFT2) */
+    /*! \brief Lens used for fresnel transform (During Fresnel Transform itself and Angular Spectrum) */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_lens_;
     /*! \brief Size of a size of the lens (lens is always a square) */
     uint lens_side_size_ = {0};

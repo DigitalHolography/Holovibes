@@ -15,7 +15,6 @@
 
 // namespace holovibes
 #include "custom_exception.hh"
-#include "observer.hh"
 
 // panel struct
 #include "import_panel.hh"
@@ -47,7 +46,7 @@ namespace holovibes::gui
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
-class MainWindow : public QMainWindow, public Observer
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -59,8 +58,8 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void notify() override;
-    void notify_error(const std::exception& e) override;
+    void notify();
+    void notify_error(const std::exception& e);
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;

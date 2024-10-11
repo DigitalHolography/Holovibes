@@ -377,18 +377,24 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
 
 void set_view_mode(const ImgType type)
 {
-    auto pipe = get_compute_pipe();
+    try
+    {
+        auto pipe = get_compute_pipe();
 
-    api::set_img_type(type);
+        api::set_img_type(type);
 
-    // Force XYview autocontrast
-    pipe->request_autocontrast(WindowKind::XYview);
+        // Force XYview autocontrast
+        pipe->request_autocontrast(WindowKind::XYview);
 
-    // Force cuts views autocontrast if needed
-    if (api::get_cuts_view_enabled())
-        api::set_auto_contrast_cuts();
+        // Force cuts views autocontrast if needed
+        if (api::get_cuts_view_enabled())
+            api::set_auto_contrast_cuts();
 
-    pipe_refresh();
+        pipe_refresh();
+    }
+    catch(const std::runtime_error&) // The pipe is not initialized
+    {
+    }
 }
 
 #pragma endregion

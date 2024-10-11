@@ -10,7 +10,6 @@
 #include "logger.hh"
 #include "all_struct.hh"
 #include "API.hh"
-#include "global_state_holder.hh"
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
 
@@ -163,11 +162,11 @@ void InputHoloFile::import_compute_settings()
 
     // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
-        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V2);
+        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V2);
     else if (holo_file_header_.version < 4)
-        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V3);
+        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V3);
     else if (holo_file_header_.version == 4)
-        GSH::convert_json(meta_data_, GSH::ComputeSettingsVersion::V4);
+        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
     else if (holo_file_header_.version == 5)
         ;
     else

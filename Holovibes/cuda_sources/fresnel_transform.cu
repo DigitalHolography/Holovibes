@@ -1,4 +1,4 @@
-#include "fft1.cuh"
+#include "fresnel_transform.cuh"
 #include "transforms.cuh"
 #include "unique_ptr.hh"
 #include "common.cuh"
@@ -9,7 +9,7 @@
 
 using camera::FrameDescriptor;
 
-void fft1_lens(cuComplex* lens,
+void fresnel_transform_lens(cuComplex* lens,
                const uint lens_side_size,
                const uint frame_height,
                const uint frame_width,
@@ -60,7 +60,7 @@ void fft1_lens(cuComplex* lens,
     }
 }
 
-void fft_1(cuComplex* input,
+void fresnel_transform(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
            const cuComplex* lens,

@@ -8,7 +8,7 @@
 #include "holovibes_config.hh"
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "user_interface_descriptor.hh"
 #include "API.hh"
 #include "logger.hh"
@@ -227,10 +227,10 @@ static void main_loop(holovibes::Holovibes& holovibes)
 
     while (holovibes::api::get_frame_record_enabled())
     {
-        if (holovibes::GSH::fast_updates_map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
+        if (holovibes::FastUpdatesMap::map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
         {
             if (!progress)
-                progress = holovibes::GSH::fast_updates_map<holovibes::ProgressType>.get_entry(
+                progress = holovibes::FastUpdatesMap::map<holovibes::ProgressType>.get_entry(
                     holovibes::ProgressType::FRAME_RECORD);
             else
             {

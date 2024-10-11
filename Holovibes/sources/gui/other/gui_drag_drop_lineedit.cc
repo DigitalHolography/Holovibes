@@ -1,4 +1,3 @@
-#include "stdafx.hh"
 #include "gui_drag_drop_lineedit.hh"
 
 namespace holovibes::gui
