@@ -29,16 +29,16 @@ enum class SpaceTransformation
  * compute settings to work with the new names.
  */
 SERIALIZE_JSON_ENUM(SpaceTransformation, {
-    {SpaceTransformation::NONE, "NONE"},
-    {SpaceTransformation::FRESNELTR, "FRESNELTR"}, // Actual saved strings
-    {SpaceTransformation::ANGULARSP, "ANGULARSP"},
+    {SpaceTransformation::NONE, "NONE"},           // Actual saved name
+    {SpaceTransformation::NONE, "None"},           //   (Retro)compatibility
+    {SpaceTransformation::FRESNELTR, "FRESNELTR"}, // Actual saved name
     {SpaceTransformation::FRESNELTR, "FresnelTR"}, // | (Retro)compatibility
-    {SpaceTransformation::ANGULARSP, "AngularSP"}, // |
     {SpaceTransformation::FRESNELTR, "FFT1"},      // |
+    {SpaceTransformation::FRESNELTR, "1FFT"},      // v
+    {SpaceTransformation::ANGULARSP, "ANGULARSP"}, // Actual saved name
+    {SpaceTransformation::ANGULARSP, "AngularSP"}, // | (Retro)compatibility
     {SpaceTransformation::ANGULARSP, "FFT2"},      // |
-    {SpaceTransformation::FRESNELTR, "1FFT"},      // |
-    {SpaceTransformation::ANGULARSP, "2FFT"},      // |
-    {SpaceTransformation::NONE, "None"},           // v
+    {SpaceTransformation::ANGULARSP, "2FFT"},      // v
 })
 // clang-format on
 } // namespace holovibes
