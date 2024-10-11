@@ -215,7 +215,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     /**
      * @brief GPU buffer in which the frames are temporarly stored
      */
-    char* gpu_frame_buffer_;
+    char* gpu_file_frame_buffer_;
 
     /**
      * @brief Tmp GPU buffer in which the frames are temporarly stored to convert
