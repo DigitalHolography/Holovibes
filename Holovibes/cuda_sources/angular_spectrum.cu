@@ -1,4 +1,4 @@
-#include "fft2.cuh"
+#include "angular_spectrum.cuh"
 #include "transforms.cuh"
 #include "tools_compute.cuh"
 #include "cuda_memory.cuh"
@@ -9,7 +9,7 @@
 
 using camera::FrameDescriptor;
 
-void fft2_lens(cuComplex* lens,
+void angular_spectrum_lens(cuComplex* lens,
                const uint lens_side_size,
                const uint frame_height,
                const uint frame_width,
@@ -44,7 +44,7 @@ void fft2_lens(cuComplex* lens,
     }
 }
 
-void fft_2(cuComplex* input,
+void angular_spectrum(cuComplex* input,
            cuComplex* output,
            const uint batch_size,
            const cuComplex* lens,
