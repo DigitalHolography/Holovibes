@@ -18,7 +18,7 @@ using camera::Endianness;
 using camera::FrameDescriptor;
 
 HoloQueue::HoloQueue(QueueType type, const Device device)
-    : fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(type, true))
+    : fast_updates_entry_(FastUpdatesMap::map<QueueType>.create_entry(type, true))
     , type_(type)
     , device_(std::get<2>(*fast_updates_entry_))
     , start_index_(0)
@@ -92,7 +92,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     fd_.byteEndian = Endianness::LittleEndian;
 }
 
-Queue::~Queue() { GSH::fast_updates_map<QueueType>.remove_entry(type_); }
+Queue::~Queue() { FastUpdatesMap::map<QueueType>.remove_entry(type_); }
 
 void Queue::rebuild(const camera::FrameDescriptor& fd,
                     const unsigned int size,

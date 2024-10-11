@@ -18,10 +18,6 @@
 
 #define UPPER_BOUND(percentage) (UINT_MAX * percentage / 100)
 
-#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
-#define UPDATE_SETTING(setting, value)                                                                                 \
-    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
-
 namespace holovibes
 {
 
@@ -43,7 +39,7 @@ void Views::Update()
 {
     this->image_type = GET_SETTING(ImageType);
     this->fft_shift = GET_SETTING(FftShiftEnabled);
-    this->x = GET_SETTING(X); // GSH::instance().get_x();
+    this->x = GET_SETTING(X);
     this->y = GET_SETTING(Y);
     this->z = GET_SETTING(P);
     this->z2 = GET_SETTING(Q);

@@ -17,11 +17,45 @@
 #include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
-#include "global_state_holder.hh"
 #include "compute_settings_struct.hh"
 
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
+
+/*! \brief Return the value of setting T in the holovibes global setting
+ * Usage:
+ * ```cpp
+ * auto value = GET_SETTING(T);
+ * ```
+ */
+#define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
+
+/*! \brief Set the value of setting T in the holovibes global setting to value
+ * Usage:
+ * ```cpp
+ * UPDATE_SETTING(T, value);
+ * ```
+ */
+#define UPDATE_SETTING(setting, value)                                                                                 \
+    holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
+
+/*! \brief Update the value.path of setting T in the holovibes global setting to value
+ * Usage:
+ * ```cpp
+ * SET_SETTING(T, path, value);
+ *
+ * // Is equivalent to
+ * auto t = GET_SETTING(T);
+ * t.path = value;
+ * UPDATE_SETTING(T, t);
+ * ```
+ */
+#define SET_SETTING(type, path, value)                                                                                 \
+    {                                                                                                                  \
+        auto setting_##type = GET_SETTING(type);                                                                       \
+        setting_##type.path = value;                                                                                   \
+        UPDATE_SETTING(type, setting_##type);                                                                          \
+    }
 
 namespace holovibes::api
 {
@@ -231,9 +265,9 @@ void set_record_queue_location(Device device);
  */
 void set_record_buffer_size(uint value);
 
-void write_ui_mode(bool lightUI);
+void set_light_ui_mode(bool value);
 
-bool get_ui_mode();
+bool is_light_ui_mode();
 
 /*! \brief Closes all the currently displaying windows
  *

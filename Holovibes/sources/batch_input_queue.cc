@@ -11,7 +11,7 @@ BatchInputQueue::BatchInputQueue(const uint total_nb_frames,
                                  const camera::FrameDescriptor& fd,
                                  const Device device)
     : DisplayQueue(fd)
-    , fast_updates_entry_(GSH::fast_updates_map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
+    , fast_updates_entry_(FastUpdatesMap::map<QueueType>.create_entry(QueueType::INPUT_QUEUE))
     , curr_nb_frames_(std::get<0>(*fast_updates_entry_))  //->first)
     , total_nb_frames_(std::get<1>(*fast_updates_entry_)) //->second)
     , frame_capacity_(total_nb_frames)
@@ -33,7 +33,7 @@ BatchInputQueue::~BatchInputQueue()
     destroy_mutexes_streams();
     // data is free as it is a CudaUniquePtr.
 
-    GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
+    FastUpdatesMap::map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
 void BatchInputQueue::create_queue(const uint new_batch_size)
@@ -188,7 +188,7 @@ void BatchInputQueue::enqueue(const void* const input_frame, const cudaMemcpyKin
     }
 }
 
-void BatchInputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
+void BatchInputQueue::dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func)
 {
     CHECK(size_ > 0);
     // Order cannot be guaranteed because of the try lock because a producer

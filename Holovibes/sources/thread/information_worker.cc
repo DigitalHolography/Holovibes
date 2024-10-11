@@ -1,11 +1,12 @@
 #include <fstream>
+#include "api.hh"
 #include "holovibes.hh"
 #include "icompute.hh"
 #include "tools.hh"
 #include "chrono.hh"
 #include <cuda_runtime.h>
 #include <chrono>
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include <nvml.h>
 #include "logger.hh"
 #include "spdlog/spdlog.h"
@@ -41,7 +42,7 @@ void InformationWorker::run()
     // Init start
     Chrono chrono;
 
-    auto benchmark_mode = Holovibes::instance().get_setting<holovibes::settings::BenchmarkMode>().value;
+    auto benchmark_mode = GET_SETTING(BenchmarkMode);
     std::ofstream benchmark_file;
     bool info_found = false;
 
@@ -64,8 +65,9 @@ void InformationWorker::run()
         {
             compute_fps(waited_time);
 
-            std::shared_ptr<Queue> gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
-            std::shared_ptr<BatchInputQueue> input_queue = Holovibes::instance().get_input_queue();
+            std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
+            std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
+            std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
 
             if (gpu_output_queue && input_queue)
             {
@@ -73,7 +75,6 @@ void InformationWorker::run()
                 input_frame_size = static_cast<unsigned int>(input_queue->get_fd().get_frame_size());
             }
 
-            auto frame_record_queue = Holovibes::instance().get_record_queue().load();
             record_frame_size = 0;
             if (frame_record_queue)
                 record_frame_size = static_cast<unsigned int>(frame_record_queue->get_fd().get_frame_size());
@@ -99,14 +100,14 @@ void InformationWorker::run()
         {
             if (!info_found)
             {
-                if (!GSH::fast_updates_map<IndicationType>.empty())
+                if (!FastUpdatesMap::map<IndicationType>.empty())
                 {
                     // metadata
                     benchmark_file << "Version: 0";
-                    for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
+                    for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
                         benchmark_file << "," << indication_type_to_string_.at(key) << ": " << *value;
                     for (auto const& [key, value] :
-                         GSH::fast_updates_map<QueueType>) //! FIXME causes a crash on start when camera pre-selected
+                         FastUpdatesMap::map<QueueType>) //! FIXME causes a crash on start when camera pre-selected
                         benchmark_file << "," << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
                                        << queue_type_to_string_.at(key) << " size: " << std::get<1>(*value).load();
                     benchmark_file << "\n";
@@ -135,7 +136,7 @@ void InformationWorker::run()
 
 void InformationWorker::compute_fps(const long long waited_time)
 {
-    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto& fps_map = FastUpdatesMap::map<FpsType>;
     FastUpdatesHolder<FpsType>::const_iterator it;
     if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
         input_fps_ = it->second->load();
@@ -385,12 +386,12 @@ void InformationWorker::display_gui_information()
     std::string str;
     str.reserve(512);
     std::stringstream to_display(str);
-    auto& fps_map = GSH::fast_updates_map<FpsType>;
+    auto& fps_map = FastUpdatesMap::map<FpsType>;
 
-    for (auto const& [key, value] : GSH::fast_updates_map<IndicationType>)
+    for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
         to_display << indication_type_to_string_.at(key) << ":<br/>  " << *value << "<br/>";
 
-    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
+    for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
     {
         if (key == QueueType::UNDEFINED)
             continue;
@@ -457,16 +458,16 @@ void InformationWorker::display_gui_information()
 
     display_info_text_function_(to_display.str());
 
-    for (auto const& [key, value] : GSH::fast_updates_map<ProgressType>)
+    for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)
         update_progress_function_(key, value->first.load(), value->second.load());
 }
 
 void InformationWorker::write_information(std::ofstream& csvFile)
 {
-    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in GSH::fast_updates_map<QueueType> check if key present
+    // for fiels INPUT_QUEUE, OUTPUT_QUEUE qnd RECORD_QUEUE in FastUpdatesMap::map<QueueType> check if key present
     // then write valuem if not write 0
     uint8_t i = 3;
-    for (auto const& [key, value] : GSH::fast_updates_map<QueueType>)
+    for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
     {
         if (key == QueueType::UNDEFINED)
             continue;

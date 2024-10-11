@@ -10,6 +10,12 @@
 
 namespace holovibes
 {
+
+/*! \class FastUpdatesHolder
+ *
+ * \brief Hold a templated map which is used by the informationWorker to access and
+ * display information (like fps and queue occupancy) at a high rate, since this needs to be updated continuously.
+ */
 template <class T>
 class FastUpdatesHolder
 {
@@ -90,4 +96,16 @@ class FastUpdatesHolder
     std::mutex mutex_;
     std::unordered_map<Key, Value> map_;
 };
+
+/*! \class FastUpdatesMap
+*
+* \brief Container of all the FastUpdatesHolder map used by the application.
+*/
+struct FastUpdatesMap
+{
+    // inline prevents MSVC from brain-dying, dunno why
+    template <class T>
+    static inline FastUpdatesHolder<T> map;
+};
+
 } // namespace holovibes

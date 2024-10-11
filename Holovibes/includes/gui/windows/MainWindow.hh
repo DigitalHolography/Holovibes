@@ -15,7 +15,6 @@
 
 // namespace holovibes
 #include "custom_exception.hh"
-#include "observer.hh"
 
 // panel struct
 #include "import_panel.hh"
@@ -47,7 +46,7 @@ namespace holovibes::gui
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
-class MainWindow : public QMainWindow, public Observer
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -59,8 +58,8 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void notify() override;
-    void notify_error(const std::exception& e) override;
+    void notify();
+    void notify_error(const std::exception& e);
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
@@ -112,6 +111,19 @@ class MainWindow : public QMainWindow, public Observer
     void camera_ametek_s711_coaxlink_qspf_plus();
     void camera_euresys_egrabber();
     void camera_alvium();
+
+    void camera_adimec_settings();
+    void camera_ids_settings();
+    void camera_phantom_settings();
+    void camera_bitflow_cyton_settings();
+    void camera_hamamatsu_settings();
+    void camera_xiq_settings();
+    void camera_xib_settings();
+    void camera_opencv_settings();
+    void camera_ametek_s991_coaxlink_qspf_plus_settings();
+    void camera_ametek_s711_coaxlink_qspf_plus_settings();
+    void camera_euresys_egrabber_settings();
+    void camera_alvium_settings();
 
     /*! \brief Opens the credit display */
     void credits();

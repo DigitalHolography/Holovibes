@@ -14,9 +14,9 @@
 #include "cuda_memory.cuh"
 #include "display_queue.hh"
 #include "queue.hh"
+#include "fast_updates_holder.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
-#include "global_state_holder.hh"
 #include "enum_device.hh"
 
 using uint = unsigned int;
@@ -81,8 +81,8 @@ class BatchInputQueue final : public DisplayQueue
      *
      * src, dst, batch_size, frame_res, depth, stream -> void
      */
-    using dequeue_func_t =
-        std::function<void(const void* const, void* const, const uint, const size_t, const uint, const cudaStream_t)>;
+    using dequeue_func_t = std::function<void(
+        const void* const, void* const, const uint, const size_t, const camera::PixelDepth, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
      *
@@ -93,7 +93,7 @@ class BatchInputQueue final : public DisplayQueue
      * \param depth Depth of frame
      * \param func Apply a function to the batch of frames being dequeued
      */
-    void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
+    void dequeue(void* const dest, const camera::PixelDepth depth, const dequeue_func_t func);
 
     // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice)
     // override;
