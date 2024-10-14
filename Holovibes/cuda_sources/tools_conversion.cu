@@ -284,14 +284,14 @@ void rescale_float_unwrap2d(float* output, float* input, float* cpu_buffer, size
         else
             return (in - min) / (max - min) * max_ushort_value_to_float;
     };
-    map_generic(input, output, frame_res, lambda, stream);
+    map_generic(output, input, frame_res, lambda, stream);
 }
 
 void endianness_conversion(
     ushort* output, const ushort* input, const uint batch_size, const size_t frame_res, const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> ushort { return (in << 8) | (in >> 8); };
-    map_generic(input, output, frame_res * batch_size, lambda, stream);
+    map_generic(output, input, frame_res * batch_size, lambda, stream);
 }
 
 /*
@@ -329,40 +329,40 @@ void complex_to_uint(
 
         return ((x << size_half_uint) | y) << shift;
     };
-    map_generic(input, output, size, lambda_complex_to_ushort, stream);
+    map_generic(output, input, size, lambda_complex_to_ushort, stream);
 }
 
 void float_to_ushort(
     ushort* const output, const float* const input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda = [shift] __device__(const float in) -> ushort { return device_float_to_ushort(in, shift); };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
 void float_to_ushort_normalized(ushort* const output, const float* const input, const size_t size, cudaStream_t stream)
 {
     const auto lambda = [] __device__(const float in) -> ushort { return in * max_ushort_value; };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
 void ushort_to_shifted_ushort(
     ushort* const output, const ushort* const input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda_shift_ushort = [shift] __device__(const ushort in) -> ushort { return in << shift; };
-    map_generic(input, output, size, lambda_shift_ushort, stream);
+    map_generic(output, input, size, lambda_shift_ushort, stream);
 }
 
 void ushort_to_uchar(uchar* output, const ushort* input, const size_t size, const cudaStream_t stream)
 {
     static const auto lambda = [] __device__(const ushort in) -> uchar { return in >> (sizeof(uchar) * 8); };
-    map_generic(input, output, size, lambda, stream);
+    map_generic(output, input, size, lambda, stream);
 }
 
 void uchar_to_shifted_uchar(uchar* output, const uchar* input, const size_t size, cudaStream_t stream, const uint shift)
 {
     const auto lambda_shift_uchar = [shift] __device__(const uchar in) -> uchar { return in << shift; };
-    map_generic(static_cast<const uchar* const>(input),
-                static_cast<uchar* const>(output),
+    map_generic(static_cast<uchar* const>(output),
+                static_cast<const uchar* const>(input),
                 size,
                 lambda_shift_uchar,
                 stream);
