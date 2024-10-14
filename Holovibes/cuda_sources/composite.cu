@@ -1,14 +1,16 @@
+#include "composite.cuh"
+
 #include "cuda_memory.cuh"
 #include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "composite.cuh"
 #include "rgb.cuh"
 #include "map.cuh"
+
+#include "unique_ptr.hh"
+#include "logger.hh"
+
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/transform.h>
-
-#include "logger.hh"
 
 struct rect
 {

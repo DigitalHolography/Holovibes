@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "common.cuh"
+#include "tools.hh"
 #include "composite_struct.hh"
 
 void postcolor_normalize(float* output,
