@@ -346,9 +346,7 @@ bool set_holographic_mode(ushort window_size)
     return false;
 }
 
-// TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
-// dictionary
-void refresh_view_mode(ushort window_size, uint index)
+void refresh_view_mode(ushort window_size, ImgType img_type)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
@@ -361,7 +359,7 @@ void refresh_view_mode(ushort window_size, uint index)
     close_windows();
     close_critical_compute();
 
-    set_img_type(static_cast<ImgType>(index));
+    set_img_type(img_type);
 
     try
     {
@@ -377,18 +375,26 @@ void refresh_view_mode(ushort window_size, uint index)
     }
 }
 
-void set_view_mode(const std::string& value, std::function<void()> callback)
+void set_view_mode(const ImgType type)
 {
-    UserInterfaceDescriptor::instance().last_img_type_ = value;
+    try
+    {
+        auto pipe = get_compute_pipe();
 
-    auto pipe = get_compute_pipe();
+        api::set_img_type(type);
 
-    pipe->insert_fn_end_vect(callback);
-    pipe_refresh();
+        // Force XYview autocontrast
+        pipe->request_autocontrast(WindowKind::XYview);
 
-    // Force XYview autocontrast
-    pipe->request_autocontrast(WindowKind::XYview);
-    // Force cuts views autocontrast if needed
+        // Force cuts views autocontrast if needed
+        if (api::get_cuts_view_enabled())
+            api::set_auto_contrast_cuts();
+
+        pipe_refresh();
+    }
+    catch(const std::runtime_error&) // The pipe is not initialized
+    {
+    }
 }
 
 #pragma endregion

@@ -1,5 +1,12 @@
 ## Changelog
 
+### 13.X.X
+
+- Renamed space transforms more accordingly: fft1 to Fresnel transform and fft2 to Angular spectrum
+- New specifications table in S991, S710, S711 ini files
+- BufferPartCount default parameter set to 128 instead of 64 for camera S711
+- Added tooltips visible when putting mouse cursor on labels
+
 ### 13.7.1
 
 - Added the possibility to change .ini files before loading cameras

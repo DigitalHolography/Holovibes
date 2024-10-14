@@ -1,6 +1,6 @@
 #pragma once
 #include "convolution.cuh"
-#include "fft1.cuh"
+#include "fresnel_transform.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "logger.hh"

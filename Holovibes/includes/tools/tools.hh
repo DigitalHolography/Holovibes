@@ -57,41 +57,18 @@ bool is_between(T val, T min, T max)
     return min <= val && val <= max;
 }
 
-template <typename T>
-T read_file(const std::filesystem::path& path)
-{
-    std::ifstream file{path, std::ios::binary | std::ios::ate};
-    if (file.fail())
-    {
-        throw std::runtime_error("Could not read file " + path.string());
-    }
-
-    std::streampos end = file.tellg();
-    file.seekg(0, std::ios::beg);
-    std::streampos begin = file.tellg();
-
-    T result;
-    result.resize(static_cast<size_t>(end - begin));
-
-    file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(result.data()), end - begin);
-    file.close();
-
-    return result;
-}
-
 namespace holovibes
 {
-/*! \brief Calculate the nearest upper power of 2 */
-unsigned short upper_window_size(ushort width, ushort height);
+
 /*! \brief return width and height with the same ratio and the max of the two being window_size */
 void get_good_size(ushort& width, ushort& height, ushort window_size);
+
 /*! \brief Return the first not used filename available from the parameter filename as a base */
 std::string get_record_filename(std::string filename);
+
 /*! \brief Returns the absolute path from a relative path (prepend by the execution directory) for qt */
 QString create_absolute_qt_path(const std::string& relative_path);
-/*! \brief Returns the absolute path from a relative path (prepend by the execution directory) */
-std::string create_absolute_path(const std::string& relative_path);
+
 /*! \brief Returns the absolute path to the user Documents folder */
 std::filesystem::path get_user_documents_path();
 

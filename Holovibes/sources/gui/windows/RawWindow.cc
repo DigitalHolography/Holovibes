@@ -276,9 +276,7 @@ void RawWindow::paintGL()
     // Put the frame inside the cuda ressrouce
 
     if (api::get_img_type() == ImgType::Composite)
-    {
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
-    }
     else
     {
         // int bitshift = kView == KindOfView::Raw ? GSH::instance().get_raw_bitshift() : 0;

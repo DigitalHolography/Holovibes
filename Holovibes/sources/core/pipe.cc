@@ -8,8 +8,6 @@
 #include "notifier.hh"
 
 #include "filter2D.cuh"
-#include "fft1.cuh"
-#include "fft2.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
 #include "composite.cuh"
@@ -22,7 +20,7 @@
 #include "aliases.hh"
 #include "holovibes.hh"
 #include "cuda_memory.cuh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 
 #include "API.hh"
 
@@ -39,7 +37,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 
 using camera::FrameDescriptor;
 
-Pipe::~Pipe() { GSH::fast_updates_map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+Pipe::~Pipe() { FastUpdatesMap::map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
     if (is_requested(setting))                                                                                         \

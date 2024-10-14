@@ -39,7 +39,7 @@ void Views::Update()
 {
     this->image_type = GET_SETTING(ImageType);
     this->fft_shift = GET_SETTING(FftShiftEnabled);
-    this->x = GET_SETTING(X); // GSH::instance().get_x();
+    this->x = GET_SETTING(X);
     this->y = GET_SETTING(Y);
     this->z = GET_SETTING(P);
     this->z2 = GET_SETTING(Q);
