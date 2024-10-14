@@ -55,6 +55,8 @@ void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
         available_grabbers_[0]->setString<Euresys::RemoteModule>("TimeStamp", "TSOff");
 
     available_grabbers_[0]->setString<Euresys::RemoteModule>("FanCtrl", params.at<std::string>("FanCtrl"));
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("FlatFieldCorrection",
+                                                             params.at<std::string>("FlatFieldCorrection"));
 }
 
 CameraPhantom::CameraPhantom()
@@ -71,6 +73,8 @@ void CameraPhantom::load_default_params()
     params_.set<unsigned int>("BlockHeight", 8, false);
     params_.set<std::string>("StripeArrangement", "Geometry_1X_2YM", false);
     params_.set<std::string>("TriggerMode", "");
+    params_.set<std::string>("FlatFieldCorrection", "");
+    params_.set<std::string>("TimeStamp", "TSOff");
 }
 
 void CameraPhantom::init_camera()
