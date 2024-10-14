@@ -406,7 +406,8 @@
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
-              <string>Number of images averaged together to generate a single output image.\nIt's a post-processing step to remove noise</string>
+              <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
              </property>
              <property name="text">
               <string>Nb. img</string>
@@ -1429,7 +1430,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="2" column="2">
             <widget class="QCheckBox" name="FFTShiftCheckBox">
              <property name="toolTip">
-              <string>shifts zero-frequency components to the center of the spectrum</string>
+              <string>Shifts zero-frequency components to the center of the spectrum</string>
              </property>
              <property name="text">
               <string>FFT shift</string>
