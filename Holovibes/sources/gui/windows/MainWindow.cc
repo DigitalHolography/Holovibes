@@ -912,10 +912,10 @@ void MainWindow::init_tooltips()
     ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::NONE),
                                                   "No space transformation",
                                                   Qt::ToolTipRole);
-    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FFT1),
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FRESNELTR),
                                                   "Fresnel Transform",
                                                   Qt::ToolTipRole);
-    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::FFT2),
+    ui_->SpaceTransformationComboBox->setItemData(static_cast<int>(SpaceTransformation::ANGULARSP),
                                                   "Angular Spectrum Propagation",
                                                   Qt::ToolTipRole);
 
