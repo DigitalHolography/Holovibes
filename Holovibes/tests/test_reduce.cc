@@ -426,7 +426,7 @@ TEST(ReduceTest, Test_min_1024x1024)
     double* d_result;
     double expected = init_data_min(&d_data, &d_result, image_height * image_width);
 
-    test_gpu_reduce_min(d_data, d_result, image_width * image_height);
+    test_gpu_reduce_min(d_result, d_data, image_width * image_height);
     cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
@@ -441,7 +441,7 @@ TEST(ReduceTest, Test_int_max_1024x1024)
     int* d_result;
     int expected = init_data_max(&d_data, &d_result, image_height * image_width);
 
-    test_gpu_reduce_max(d_data, d_result, image_width * image_height);
+    test_gpu_reduce_max(d_result, d_data, image_width * image_height);
     cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
@@ -456,7 +456,7 @@ TEST(ReduceTest, Test_float_max_1024x1024)
     float* d_result;
     float expected = init_data_max(&d_data, &d_result, image_height * image_width);
 
-    test_gpu_reduce_max(d_data, d_result, image_width * image_height);
+    test_gpu_reduce_max(d_result, d_data, image_width * image_height);
     cudaXStreamSynchronize(stream);
 
     check_result(d_result, expected, d_data);
