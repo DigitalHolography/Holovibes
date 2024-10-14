@@ -206,11 +206,11 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    unwrap_2d(gpu_postprocess_frame,
+                    unwrap_2d(unwrap_res_2d_->gpu_angle_,
+                              gpu_postprocess_frame,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
                               fd_,
-                              unwrap_res_2d_->gpu_angle_,
                               stream_);
                 });
 
@@ -258,11 +258,11 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    unwrap_2d(unwrap_res_->gpu_angle_current_,
+                    unwrap_2d(unwrap_res_2d_->gpu_angle_,
+                              unwrap_res_->gpu_angle_current_,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
                               fd_,
-                              unwrap_res_2d_->gpu_angle_,
                               stream_);
                 });
 
