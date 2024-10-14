@@ -70,9 +70,9 @@ void ImageRenderingPanel::on_notify()
 
     ui_->LambdaSpinBox->setEnabled(!is_raw);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
-    ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
-    ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->ZSpinBox->setEnabled(!is_raw);
+    ui_->ZSpinBox->setValue(api::get_z_distance());
+    ui_->ZSpinBox->setSingleStep(z_step_);
 
     // Filter2D
     ui_->Filter2D->setEnabled(!is_raw);
@@ -459,5 +459,10 @@ void ImageRenderingPanel::set_z_step(double value)
 }
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }
+
+void ImageRenderingPanel::z_value_changed(double z_distance)
+{
+    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
+}
 
 } // namespace holovibes::gui

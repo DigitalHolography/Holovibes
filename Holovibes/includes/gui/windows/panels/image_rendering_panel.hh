@@ -142,6 +142,8 @@ class ImageRenderingPanel : public Panel
      */
     double get_z_step();
 
+    void z_value_changed(double z_distance);
+
   private:
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
