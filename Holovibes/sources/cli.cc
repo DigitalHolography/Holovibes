@@ -251,7 +251,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
             else
             {
                 // Change the speed of the progress bar according to the nb of frames skip
-                progress_bar(progress->first * (holovibes::api::get_nb_frame_skip() + 1), progress->second, 40);
+                progress_bar(progress->first, progress->second, 40);
 
                 // Very dirty hack
                 // Request auto contrast once we have accumualated enough images
@@ -288,7 +288,6 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     {
         record_nb_frames = opts.n_rec.value_or(input_nb_frames / holovibes::api::get_time_stride());
     }
-
     if (record_nb_frames <= 0)
     {
         LOG_ERROR("Asking to record {} frames, abort", std::to_string(record_nb_frames));

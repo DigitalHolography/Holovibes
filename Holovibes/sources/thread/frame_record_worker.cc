@@ -73,15 +73,14 @@ void FrameRecordWorker::run()
     if (frame_count.has_value())
     {
         nb_frames_to_record = static_cast<unsigned int>(frame_count.value());
-        nb_frames_to_record = nb_frames_to_record / (nb_frames_to_skip + 1);
-
+        nb_frames_to_record = std::ceil((float)(nb_frames_to_record - setting<settings::RecordFrameSkip>()) /
+                                        (float)(setting<settings::FrameSkip>() + 1));
         // One frame will result in three moments.
         if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
             nb_frames_to_record = nb_frames_to_record * 3;
     }
     else
         nb_frames_to_record = 0;
-
     // Processed FPS FastUpdatesHolder entry
 
     std::shared_ptr<std::atomic<uint>> processed_fps = GSH::fast_updates_map<FpsType>.create_entry(FpsType::SAVING_FPS);
