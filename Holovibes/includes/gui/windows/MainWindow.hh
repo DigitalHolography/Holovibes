@@ -148,8 +148,6 @@ class MainWindow : public QMainWindow
      * * Set visibility to true
      */
 
-    void refresh_view_mode();
-
     bool need_refresh(const std::string& last_type, const std::string& new_type);
     void set_composite_values();
 
@@ -200,6 +198,12 @@ class MainWindow : public QMainWindow
     /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();
+
+    /**
+     * \brief Small helper function that just writes tooltips.
+     * Note : the only affected locations should be drop-down menus, or 'comboBox'.
+     */
+    void init_tooltips();
 
   public:
     /*! \brief Changes camera

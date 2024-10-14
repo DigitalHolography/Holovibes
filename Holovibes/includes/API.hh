@@ -192,9 +192,9 @@ bool set_holographic_mode(ushort window_size);
 /*! \brief Restarts everything to change the view mode
  *
  * \param window_size the size of the window
- * \param index the index on the new mode
+ * \param img_type The new image type
  */
-void refresh_view_mode(ushort window_size, uint index);
+void refresh_view_mode(ushort window_size, ImgType img_type);
 
 /*! \brief Removes time transformation from computation
  *
@@ -877,11 +877,12 @@ void update_batch_size(std::function<void()> callback, const uint batch_size);
 void update_batch_size(const uint batch_size);
 
 /*! \brief Modifies view image type
+ * Changes the setting and requests a pipe refresh
+ * Also requests an autocontrast refresh
  *
- * \param value The new image type
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
+ * \param type The new image type
  */
-void set_view_mode(const std::string& value, std::function<void()> callback);
+void set_view_mode(const ImgType type);
 
 /*! \brief Configures the camera */
 void configure_camera();

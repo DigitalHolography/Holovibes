@@ -153,6 +153,9 @@
           <layout class="QHBoxLayout" name="ImageModeLayout">
            <item>
             <widget class="QLabel" name="ImageModeLabel">
+             <property name="toolTip">
+              <string>Either display the raw input or the processed hologram</string>
+             </property>
              <property name="text">
               <string>Image</string>
              </property>
@@ -212,6 +215,9 @@
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
              <property name="text">
               <string>Batch Size</string>
              </property>
@@ -225,6 +231,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="TimeStrideLabel">
+             <property name="toolTip">
+              <string>(time_stride - batch_size) = number of images to drop before processing a single batch</string>
+             </property>
              <property name="layoutDirection">
               <enum>Qt::LeftToRight</enum>
              </property>
@@ -257,7 +266,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string># of images picked at each iteration</string>
+              <string/>
              </property>
              <property name="readOnly">
               <bool>false</bool>
@@ -286,6 +295,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QCheckBox" name="Filter2D">
+             <property name="toolTip">
+              <string>Add a filter on top of the processed image</string>
+             </property>
              <property name="text">
               <string>Filter2D</string>
              </property>
@@ -380,6 +392,9 @@
            </property>
            <item row="2" column="0">
             <widget class="QLabel" name="TimeTransformationLabel">
+             <property name="toolTip">
+              <string>Time transformation algorithm used</string>
+             </property>
              <property name="text">
               <string>Time Transform</string>
              </property>
@@ -390,8 +405,12 @@
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
+             <property name="toolTip">
+              <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
+             </property>
              <property name="text">
-              <string># img</string>
+              <string>Nb. img</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -428,6 +447,9 @@
            </item>
            <item row="6" column="0">
             <widget class="QLabel" name="ZLabel">
+             <property name="toolTip">
+              <string>Adjust the distance to the target</string>
+             </property>
              <property name="text">
               <string>Focus (m)</string>
              </property>
@@ -438,6 +460,9 @@
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="LambdaLabel">
+             <property name="toolTip">
+              <string>Wavelength (lambda) of light used to record interferograms</string>
+             </property>
              <property name="text">
               <string>λ (nm)</string>
              </property>
@@ -449,7 +474,7 @@
            <item row="1" column="1">
             <widget class="QComboBox" name="SpaceTransformationComboBox">
              <property name="toolTip">
-              <string>select the rendering mode for Hologram</string>
+              <string/>
              </property>
              <item>
               <property name="text">
@@ -507,6 +532,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="SpaceTransformationLabel">
+             <property name="toolTip">
+              <string>Space transformation algorithm used</string>
+             </property>
              <property name="text">
               <string>Space Transform</string>
              </property>
@@ -524,7 +552,7 @@
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Wavelength (lambda) of light used to record interferograms</string>
+              <string/>
              </property>
              <property name="decimals">
               <number>4</number>
@@ -567,6 +595,9 @@
          </item>
          <item>
           <widget class="QGroupBox" name="ConvoCheckBox">
+           <property name="toolTip">
+            <string>Add a convolution step in the post-processing stage</string>
+           </property>
            <property name="title">
             <string>Convolve</string>
            </property>
@@ -799,6 +830,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
+                <property name="toolTip">
+                 <string>Number of images averaged together to generate a single output image. It's a post-processing step to remove noise</string>
+                </property>
                 <property name="text">
                  <string>Output Image Acc.</string>
                 </property>
@@ -1045,6 +1079,10 @@
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="PLabel">
+             <property name="toolTip">
+              <string>The Time Transform FFT filter's start frequency.
+The range of frequencies kept is [z, z + width].</string>
+             </property>
              <property name="text">
               <string>z</string>
              </property>
@@ -1094,6 +1132,10 @@
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="Q_Label">
+             <property name="toolTip">
+              <string>The SVD/SSA filter's start frequency.
+The range of frequencies kept is [z2, z2 + width].</string>
+             </property>
              <property name="text">
               <string>z2</string>
              </property>
@@ -1152,6 +1194,10 @@
            </item>
            <item row="3" column="2">
             <widget class="QLabel" name="QaccLabel">
+             <property name="toolTip">
+              <string>Number of frequencies kept by the SVD/SSA algorithm.
+The range of frequencies kept is [z2, z2 + width].</string>
+             </property>
              <property name="text">
               <string>Width</string>
              </property>
@@ -1162,6 +1208,10 @@
            </item>
            <item row="2" column="2">
             <widget class="QLabel" name="PaccLabel">
+             <property name="toolTip">
+              <string>Number of frequencies kept by the FFT in the time transformation algorithm.
+The range of frequencies kept is [z, z + width]</string>
+             </property>
              <property name="text">
               <string>Width</string>
              </property>
@@ -1204,6 +1254,9 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>The computation mode for the Hologram</string>
              </property>
              <property name="text">
               <string>Image Type:</string>
@@ -1324,6 +1377,9 @@
            </property>
            <item row="5" column="1">
             <widget class="QCheckBox" name="LensViewCheckBox">
+             <property name="toolTip">
+              <string extracomment="Show the lens"/>
+             </property>
              <property name="text">
               <string>Lens view</string>
              </property>
@@ -1350,6 +1406,9 @@
            </item>
            <item row="5" column="2">
             <widget class="QCheckBox" name="RawDisplayingCheckBox">
+             <property name="toolTip">
+              <string>Show the raw input</string>
+             </property>
              <property name="text">
               <string>Raw view</string>
              </property>
@@ -1371,7 +1430,7 @@
            <item row="2" column="2">
             <widget class="QCheckBox" name="FFTShiftCheckBox">
              <property name="toolTip">
-              <string>shifts zero-frequency components to the center of the spectrum</string>
+              <string>Shifts zero-frequency components to the center of the spectrum</string>
              </property>
              <property name="text">
               <string>FFT shift</string>
@@ -1417,6 +1476,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <widget class="QCheckBox" name="RenormalizeCheckBox">
+             <property name="toolTip">
+              <string>Normalize input according to a renormalize constant</string>
+             </property>
              <property name="text">
               <string>Renormalize</string>
              </property>
@@ -2483,6 +2545,9 @@
                 <property name="acceptDrops">
                  <bool>true</bool>
                 </property>
+                <property name="toolTip">
+                 <string>The .holo file to use instead of a camera</string>
+                </property>
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -2503,6 +2568,9 @@
               </property>
               <item row="1" column="0">
                <widget class="QLabel" name="ImportStartIndexLabel">
+                <property name="toolTip">
+                 <string>The frame to start reading at</string>
+                </property>
                 <property name="text">
                  <string>Start Index</string>
                 </property>
@@ -2582,6 +2650,9 @@
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="ImportEndIndexLabel">
+                <property name="toolTip">
+                 <string>The frame to stop reading at</string>
+                </property>
                 <property name="text">
                  <string>End Index</string>
                 </property>
@@ -2592,6 +2663,9 @@
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="ImportFpsLabel">
+                <property name="toolTip">
+                 <string>The number of images that will be read per second</string>
+                </property>
                 <property name="text">
                  <string>Input FPS</string>
                 </property>
@@ -2625,6 +2699,9 @@
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
+                <property name="toolTip">
+                 <string>Start processing the file</string>
+                </property>
                 <property name="text">
                  <string>Start</string>
                 </property>
@@ -2637,6 +2714,9 @@
                <widget class="QPushButton" name="ImportStopPushButton">
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Stop processing</string>
                 </property>
                 <property name="text">
                  <string>Stop</string>
@@ -2867,8 +2947,11 @@
                 <layout class="QHBoxLayout" name="numberOfFramesLayout">
                  <item>
                   <widget class="QCheckBox" name="NumberOfFramesCheckBox">
+                   <property name="toolTip">
+                    <string>Number of frames to record</string>
+                   </property>
                    <property name="text">
-                    <string># of frames</string>
+                    <string>Nb. of frames</string>
                    </property>
                   </widget>
                  </item>
@@ -2878,7 +2961,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="toolTip">
-                    <string># of frames to record</string>
+                    <string/>
                    </property>
                    <property name="minimum">
                     <number>0</number>
@@ -2960,6 +3043,9 @@
                 <layout class="QHBoxLayout" name="recordPushButtonsLayout">
                  <item>
                   <widget class="QPushButton" name="ExportRecPushButton">
+                   <property name="toolTip">
+                    <string>Start recording</string>
+                   </property>
                    <property name="text">
                     <string>Rec.</string>
                    </property>
@@ -2972,6 +3058,9 @@
                   <widget class="QPushButton" name="ExportStopPushButton">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>Stop the recording manually</string>
                    </property>
                    <property name="text">
                     <string>Stop</string>
@@ -3442,9 +3531,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </action>
   <action name="actionAlvium">
-    <property name="text">
+   <property name="text">
     <string>Alvium-1800-u/2050</string>
-    </property>
+   </property>
   </action>
   <action name="actionPhantom_S710">
    <property name="text">
@@ -3467,64 +3556,64 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </action>
   <action name="actionBitflowCytonSettings">
-    <property name="text">
-     <string>Bitflow Cyton frame grabber</string>
-    </property>
+   <property name="text">
+    <string>Bitflow Cyton frame grabber</string>
+   </property>
   </action>
   <action name="actionAdimecSettings">
-    <property name="text">
-     <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
-    </property>
+   <property name="text">
+    <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
+   </property>
   </action>
   <action name="actionAlviumSettings">
-    <property name="text">
-     <string>Alvium-1800-u/2050</string>
-    </property>
+   <property name="text">
+    <string>Alvium-1800-u/2050</string>
+   </property>
   </action>
   <action name="actionHamamatsuSettings">
-    <property name="text">
-     <string>Hamamatsu C11440</string>
-    </property>
+   <property name="text">
+    <string>Hamamatsu C11440</string>
+   </property>
   </action>
   <action name="actionIDSSettings">
-    <property name="text">
-     <string>IDS CMOSIS CMV 4000</string>
-    </property>
+   <property name="text">
+    <string>IDS CMOSIS CMV 4000</string>
+   </property>
   </action>
   <action name="actionXIQSettings">
-    <property name="text">
-     <string>XIMEA xiQ MQ042 m/RG CM</string>
-    </property>
+   <property name="text">
+    <string>XIMEA xiQ MQ042 m/RG CM</string>
+   </property>
   </action>
   <action name="actionXIBSettings">
-    <property name="text">
-     <string>XIMEA xiB-64</string>
-    </property>
+   <property name="text">
+    <string>XIMEA xiB-64</string>
+   </property>
   </action>
   <action name="actionOpenCVSettings">
-    <property name="text">
-     <string>OpenCV Camera</string>
-    </property>
+   <property name="text">
+    <string>OpenCV Camera</string>
+   </property>
   </action>
   <action name="actionPhantom_S710Settings">
-    <property name="text">
-     <string>Ametek S710 Euresys Coaxlink Octo</string>
-    </property>
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
   </action>
   <action name="actionAmetekS711EuresysCoaxlinkQSPF+Settings">
-    <property name="text">
-     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
-    </property>
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
   </action>
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
-    <property name="text">
-     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
-    </property>
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
   </action>
   <action name="actionEGrabberStudioSettings">
-    <property name="text">
-     <string>Euresys eGrabber</string>
-    </property>
+   <property name="text">
+    <string>Euresys eGrabber</string>
+   </property>
   </action>
   <action name="actionReload_ini">
    <property name="text">
