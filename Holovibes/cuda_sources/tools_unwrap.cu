@@ -297,8 +297,8 @@ void unwrap_2d(float* output,
     ushort middley = fd.height >> 1;
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fx_,
-                                                     res->gpu_shift_fx_,
+    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_shift_fx_,
+                                                     res->gpu_fx_,
                                                      1,
                                                      middlex,
                                                      middley,
@@ -306,8 +306,8 @@ void unwrap_2d(float* output,
                                                      fd.height,
                                                      fd.get_frame_res());
     cudaCheckError();
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_fy_,
-                                                     res->gpu_shift_fy_,
+    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_shift_fy_,
+                                                     res->gpu_fy_,
                                                      1,
                                                      middlex,
                                                      middley,
