@@ -6,6 +6,7 @@
 - New specifications table in S991, S710, S711 ini files
 - BufferPartCount default parameter set to 128 instead of 64 for camera S711
 - Added tooltips visible when putting mouse cursor on labels
+- Fix install of camera Alvium
 
 ### 13.7.1
 
