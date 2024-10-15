@@ -6,6 +6,7 @@
 - Simplify .ps1 script
 - Holovibes and the Process Holo Files script can now be installed separately in the installer
 - Added a logo for the ps1 script
+- Added moments
 
 ### 13.7.0
 
