@@ -74,7 +74,6 @@ void CameraPhantom::load_default_params()
     params_.set<std::string>("StripeArrangement", "Geometry_1X_2YM", false);
     params_.set<std::string>("TriggerMode", "");
     params_.set<std::string>("FlatFieldCorrection", "");
-    params_.set<std::string>("TimeStamp", "TSOff");
 }
 
 void CameraPhantom::init_camera()

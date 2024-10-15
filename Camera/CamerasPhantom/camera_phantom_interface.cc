@@ -89,10 +89,9 @@ void EHoloGrabberInt::setup(const CameraParamMap& params, Euresys::EGenTL& gentl
         available_grabbers_[i]->setInteger<Euresys::StreamModule>("StripeOffset",
                                                                   params.at<std::vector<unsigned int>>("Offset")[i]);
 
-    available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerSource", params.at<std::string>("TriggerSource"));
-
     if (params.has("TriggerMode"))
         available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerMode", params.at<std::string>("TriggerMode"));
+    available_grabbers_[0]->setString<Euresys::RemoteModule>("TriggerSource", params.at<std::string>("TriggerSource"));
 
     std::string control_mode = params.at<std::string>("TriggerSource") == "SWTRIGGER" ? "RC" : "EXTERNAL";
     available_grabbers_[0]->setString<Euresys::DeviceModule>("CameraControlMethod", control_mode);
