@@ -8,36 +8,36 @@ namespace
 template <typename T>
 __global__ void kernel_shift_corners(T* buffer, const uint batch_size, const uint size_x, const uint size_y)
 {
-    const uint i = blockIdx.x * blockDim.x + threadIdx.x;
-    const uint j = blockIdx.y * blockDim.y + threadIdx.y;
-    const uint index = j * (size_x) + i;
-    uint ni = 0;
-    uint nj = 0;
-    uint nindex = 0;
+    const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
     const uint size_x2 = size_x / 2;
     const uint size_y2 = size_y / 2;
 
-    // Superior half of the matrix
-    if (j < size_y2)
+    // Superior-left quarter of the matrix
+    if (x >= size_x2 || y >= size_y2)
+        return;
+
+    // double swap:
+    // top-left <=> bottom-right
+    // top-right <=> bottom-left
+
+    const uint top_left = y * size_x + x;
+    const uint top_right = y * size_x + (x + size_x2);
+    const uint bot_right = (y + size_x2) * size_x + (x + size_x2);
+    const uint bot_left = (y + size_y2) * size_x + x;
+
+    for (uint i = 0; i < batch_size; ++i)
     {
-        // Left superior quarter of the matrix
-        if (i < size_x2)
-            ni = i + size_x2;
-        else // Right superior quarter
-            ni = i - size_x2;
-        nj = j + size_y2;
-        nindex = nj * size_x + ni;
+        const uint index = i * size_x * size_y;
 
-        for (uint i = 0; i < batch_size; ++i)
-        {
-            const uint batch_index = index + i * size_x * size_y;
-            const uint batch_nindex = nindex + i * size_x * size_y;
+        T tmp = buffer[index + top_left];
+        buffer[index + top_left] = buffer[index + bot_right];
+        buffer[index + bot_right] = tmp;
 
-            T tmp = buffer[batch_nindex];
-            buffer[batch_nindex] = buffer[batch_index];
-            buffer[batch_index] = tmp;
-        }
+        tmp = buffer[index + top_right];
+        buffer[index + top_right] = buffer[index + bot_left];
+        buffer[index + bot_left] = tmp;
     }
 }
 
@@ -47,8 +47,8 @@ void shift_corners_caller(
 {
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
-    dim3 lblocks(static_cast<ushort>(std::ceil(size_x / static_cast<float>(lthreads.x))),
-                 static_cast<ushort>(std::ceil(size_y / static_cast<float>(lthreads.y))));
+    dim3 lblocks(static_cast<ushort>(std::ceil((size_x / 2) / static_cast<float>(lthreads.x))),
+                 static_cast<ushort>(std::ceil((size_y / 2) / static_cast<float>(lthreads.y))));
 
     kernel_shift_corners<T><<<lblocks, lthreads, 0, stream>>>(input, batch_size, size_x, size_y);
     cudaCheckError();
