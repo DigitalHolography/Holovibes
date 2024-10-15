@@ -1,7 +1,7 @@
 /*! \file
  *
- * \brief File containing InputQueue class. This class is used to receive the frames by frame_packet and dequeue by
- * batch_size. See class documentation for more info.
+ * \brief File containing InputQueue class. This class is used to receive the frames by frame_packet. See class
+ * documentation for more info.
  */
 #pragma once
 
@@ -27,32 +27,29 @@ namespace holovibes
 
 class Queue;
 
-// TODO : Update names with frame packet
 /*! \class InputQueue
  *
  * \brief Circular queue to handle CPU and GPU data, split into thread-safe data, so that different data can be
- * read and written simultaneously
- * The data being read is enqueued by Frame Packet and dequeued by Batch Size.
+ * read and written simultaneously.
+ * The data being processed by Frame Packet.
  * Conditons:
  *   2 threads: 1 Consumer (dequeue, copy multiple) and 1 producer
- *   batch size in the queue must be a submultiple of the queue size
+ *   frame_packet in the queue must be a submultiple of the queue size
  *   The order of operations cannot be guaranteed if the queue is full
  *   i.g. Enqueue, Dequeue, Enqueue might be processed in this order Enqueue,
- *   Dequeue, Enqueue
+ *   Dequeue, Enqueue.
  */
 class InputQueue final : public DisplayQueue
 {
   public: /* Public methods */
     /*! \brief InputQueue constructor.
      *  \param total_nb_frames Total number of frame in the queue.
-     *  \param frame_packet Frame packet size, represent the number of frames being enqueued.
-     *  \param batch_size Batch size, represent the number of frames being dequeued.
+     *  \param frame_packet Frame packet size, represent the number of frames being processed.
      *  \param fd The input file descriptor.
      *  \param device The device where the queue is being stored (CPU or GPU).
      */
     InputQueue(const uint total_nb_frames,
                const uint frame_packet,
-               const uint batch_size,
                const camera::FrameDescriptor& fd,
                const Device device = Device::GPU);
     ~InputQueue();
@@ -60,8 +57,8 @@ class InputQueue final : public DisplayQueue
     /*! \brief Enqueue a frame in the queue
      *
      * Called by the producer.
-     * The producer is in the critical while enqueueing in a batch
-     * and exit this critical section when a batch of frames is full
+     * The producer is in the critical while enqueueing in a packet
+     * and exit this critical section when a packet of frames is full
      * in order to let the resize occure if needed.
      *
      *  \param input_frame The frame to enqueue. Frames are enqueued one by one.
@@ -94,26 +91,22 @@ class InputQueue final : public DisplayQueue
     using dequeue_func_t =
         std::function<void(const void* const, void* const, const uint, const size_t, const uint, const cudaStream_t)>;
 
-    /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
-     * Wrapper of dequeue_packet.
+    /*! \brief Deqeue a packet of frames. Block until the queue has at least a full packet of frame.
      *
-     * The queue must have at least a batch size number of frames filled
+     * The queue must have at least a frame_packet number of frames filled
      * Called by the consumer.
      *
      * \param dest Dequeue in the destination buffer
      * \param depth Depth of frame
-     * \param func Apply a function to the batch of frames being dequeued
+     * \param func Apply a function to the packet of frames being dequeued
      */
     void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
 
-    // void dequeue(void* dest, const cudaStream_t stream, cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice)
-    // override;
-
-    /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
+    /*! \brief Deqeue a packet of frames. Block until the queue has at least a full packet of frame.
      *
-     * The queue must have at least a batch of frames filled
+     * The queue must have at least a packet of frames filled
      * Called by the consumer
-     * It is used to skip a batch of frames.
+     * It is used to skip a packet of frames.
      */
     void dequeue();
 
@@ -124,37 +117,32 @@ class InputQueue final : public DisplayQueue
      * \param fd
      * \param size
      * \param frame_packet
-     * \param batch_size
      * \param device
      */
-    void rebuild(const camera::FrameDescriptor& fd,
-                 const uint size,
-                 const uint frame_packet,
-                 const uint batch_size,
-                 const Device device);
+    void rebuild(const camera::FrameDescriptor& fd, const uint size, const uint frame_packet, const Device device);
 
-    /*! \brief Resize with a new batch size
+    /*! \brief Resize with a new frame packet
      *
      * Called by the consumer.
      * Empty the queue.
      */
-    void resize(const uint new_frame_packet, const uint new_batch_size);
+    void resize(const uint new_frame_packet);
 
     /*! \brief Stop the producer.
      *
      * Exit the critical section of the producer.
-     * It is required because the producer can only exit the critical section only when a batch is full.
+     * It is required because the producer can only exit the critical section only when a packet is full.
      * However, the producer will stop its enqueues (in Holovibes the reader is stopped)
-     * and will not be able to exit the critical section in case the current batch is still not full.
+     * and will not be able to exit the critical section in case the current packet is still not full.
      * The queue needs this critical section to be exited for its destruction later.
      */
     void stop_producer();
 
-    /*! \brief Synchronize the batch being processed in order to ensure that all process are finished. */
+    /*! \brief Synchronize the packet being processed in order to ensure that all process are finished. */
     void sync_current_packet() const;
 
-    /*! \brief Check if the frames being enqueued are making at least one batch. */
-    bool is_current_batch_full();
+    /*! \brief Check if the frames being enqueued are making at least one packet. */
+    bool is_current_packet_full();
 
     inline void* get_last_image() const override
     {
@@ -164,7 +152,7 @@ class InputQueue final : public DisplayQueue
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
 
-    bool is_batch_available() const { return size_ >= (batch_size_ / frame_packet_); }
+    bool is_empty() const { return size_ == 0; }
 
     uint get_size() const { return size_; }
 
@@ -188,9 +176,8 @@ class InputQueue final : public DisplayQueue
      * frame_packet_, total_nb_frames_, max_size_ and batch_mutexes_ are modified in this function
      *
      * \param frame_packet The number of frames in a packet.
-     * \param batch_size The number frames in a batch.
      */
-    void create_queue(const uint frame_packet, const uint batch_size);
+    void create_queue(const uint frame_packet);
 
     /*! \brief Destroy mutexes and streams arrays.
      *

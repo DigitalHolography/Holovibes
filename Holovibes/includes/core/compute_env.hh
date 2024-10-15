@@ -14,8 +14,9 @@ namespace holovibes
  */
 struct CoreBuffersEnv
 {
-    /*! \brief Input buffer. Contains only one frame. We fill it with the input frame */
+    /*! \brief Input queue. Contains only one frame. We fill it with the input frame */
     cuda_tools::CudaUniquePtr<cufftComplex> gpu_spatial_transformation_buffer = nullptr;
+    // std::unique_ptr<Queue> gpu_spatial_transformation_queue = nullptr;
 
     /*! \brief Float buffer. Contains only one frame.
      *

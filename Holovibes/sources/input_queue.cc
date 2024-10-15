@@ -8,7 +8,6 @@ namespace holovibes
 {
 InputQueue::InputQueue(const uint total_nb_frames,
                        const uint frame_packet,
-                       const uint batch_size,
                        const camera::FrameDescriptor& fd,
                        const Device device)
     : DisplayQueue(fd)
@@ -26,7 +25,7 @@ InputQueue::InputQueue(const uint total_nb_frames,
 
     // Set priority of streams
     // Set batch_size and max_size
-    create_queue(frame_packet, batch_size);
+    create_queue(frame_packet);
 }
 
 InputQueue::~InputQueue()
@@ -37,11 +36,10 @@ InputQueue::~InputQueue()
     GSH::fast_updates_map<QueueType>.remove_entry(QueueType::INPUT_QUEUE);
 }
 
-void InputQueue::create_queue(const uint frame_packet, const uint batch_size)
+void InputQueue::create_queue(const uint frame_packet)
 {
     CHECK(frame_packet > 0, "Frame packet cannot be 0.");
     frame_packet_ = frame_packet;
-    batch_size_ = batch_size;
 
     total_nb_frames_ = frame_capacity_ - (frame_capacity_ % frame_packet_);
 
@@ -73,7 +71,7 @@ void InputQueue::sync_current_packet() const
         cudaXStreamSynchronize(batch_streams_[max_size_ - 1]);
 }
 
-bool InputQueue::is_current_batch_full() { return (curr_batch_counter_ == 0); }
+bool InputQueue::is_current_packet_full() { return (curr_packet_counter_ == 0); }
 
 void InputQueue::destroy_mutexes_streams()
 {
@@ -110,7 +108,6 @@ void InputQueue::make_empty()
     curr_nb_frames_ = 0;
     start_index_ = 0;
     end_index_ = 0;
-    curr_batch_counter_ = 0;
     curr_packet_counter_ = 0;
     has_overwritten_ = false;
 }
@@ -179,8 +176,8 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
         }
         else
         {
-            curr_nb_frames_ += frame_packet_;
             size_++;
+            curr_nb_frames_ += frame_packet_;
         }
 
         // Unlock the current batch mutex
@@ -194,7 +191,7 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
 
 void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    CHECK(size_ >= (batch_size_ / frame_packet_));
+    CHECK(size_ > 0);
 
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -228,7 +225,7 @@ void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_
 
 void InputQueue::dequeue()
 {
-    if (size_ >= (batch_size_ / frame_packet_))
+    if (size_ > 0)
     {
 
         // Order cannot be guaranteed because of the try lock because a producer
@@ -246,16 +243,14 @@ void InputQueue::dequeue()
 
 void InputQueue::dequeue_update_attr()
 {
-    uint frame_packet_in_batch = batch_size_ / frame_packet_;
-    start_index_ = (start_index_ + frame_packet_in_batch) % max_size_;
-    size_ -= frame_packet_in_batch;
-    curr_nb_frames_ -= frame_packet_ * frame_packet_in_batch;
+    start_index_ = (start_index_ + 1) % max_size_;
+    size_--;
+    curr_nb_frames_ -= frame_packet_;
 }
 
 void InputQueue::rebuild(const camera::FrameDescriptor& fd,
                          const uint size,
                          const uint frame_packet,
-                         const uint batch_size,
                          const Device device)
 {
     set_fd(fd);
@@ -267,10 +262,10 @@ void InputQueue::rebuild(const camera::FrameDescriptor& fd,
 
     frame_capacity_ = size;
 
-    resize(frame_packet, batch_size);
+    resize(frame_packet);
 }
 
-void InputQueue::resize(const uint new_frame_packet, const uint new_batch_size)
+void InputQueue::resize(const uint new_frame_packet)
 {
     // No action on any batch must be proceed
     const std::lock_guard<std::mutex> lock(m_producer_busy_);
@@ -283,7 +278,7 @@ void InputQueue::resize(const uint new_frame_packet, const uint new_batch_size)
     destroy_mutexes_streams();
 
     // Create all streams and mutexes
-    create_queue(new_frame_packet, new_batch_size);
+    create_queue(new_frame_packet);
 
     make_empty();
 

@@ -152,7 +152,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("request_update_batch_size");
 
         update_spatial_transformation_parameters();
-        input_queue_.resize(setting<settings::FramePacket>(), setting<settings::BatchSize>());
+        // input_queue_.resize(setting<settings::FramePacket>(), setting<settings::BatchSize>());
 
         clear_request(ICS::UpdateBatchSize);
     }
@@ -160,7 +160,7 @@ bool Pipe::make_requests()
     if (is_requested(ICS::UpdateFramePacket))
     {
         LOG_DEBUG("Update frame packet");
-        input_queue_.resize(setting<settings::FramePacket>(), setting<settings::BatchSize>());
+        input_queue_.resize(setting<settings::FramePacket>());
         clear_request(ICS::UpdateFramePacket);
     }
 
@@ -348,7 +348,7 @@ void Pipe::insert_wait_frames()
         [&input_queue_ = input_queue_]()
         {
             // Wait while the input queue is enough filled
-            while (!input_queue_.is_batch_available())
+            while (!input_queue_.is_empty())
                 continue;
         });
 }
@@ -393,7 +393,7 @@ void Pipe::insert_dequeue_input()
     fn_compute_vect_.push_back(
         [this]()
         {
-            (*processed_output_fps_) += setting<settings::BatchSize>();
+            (*processed_output_fps_) += setting<settings::FramePacket>();
 
             // FIXME: It seems this enqueue is useless because the RawWindow use
             // the gpu input queue for display
