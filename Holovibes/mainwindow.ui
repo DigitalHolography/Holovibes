@@ -2551,7 +2551,7 @@
                  <number>2100000000</number>
                 </property>
                 <property name="value">
-                 <number>1</number>
+                 <number>60</number>
                 </property>
                </widget>
               </item>
@@ -3442,9 +3442,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </action>
   <action name="actionAlvium">
-    <property name="text">
+   <property name="text">
     <string>Alvium-1800-u/2050</string>
-    </property>
+   </property>
   </action>
   <action name="actionPhantom_S710">
    <property name="text">
@@ -3467,64 +3467,64 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </property>
   </action>
   <action name="actionBitflowCytonSettings">
-    <property name="text">
-     <string>Bitflow Cyton frame grabber</string>
-    </property>
+   <property name="text">
+    <string>Bitflow Cyton frame grabber</string>
+   </property>
   </action>
   <action name="actionAdimecSettings">
-    <property name="text">
-     <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
-    </property>
+   <property name="text">
+    <string>ADIMEC Quartz 2A750 M (BitFlow)</string>
+   </property>
   </action>
   <action name="actionAlviumSettings">
-    <property name="text">
-     <string>Alvium-1800-u/2050</string>
-    </property>
+   <property name="text">
+    <string>Alvium-1800-u/2050</string>
+   </property>
   </action>
   <action name="actionHamamatsuSettings">
-    <property name="text">
-     <string>Hamamatsu C11440</string>
-    </property>
+   <property name="text">
+    <string>Hamamatsu C11440</string>
+   </property>
   </action>
   <action name="actionIDSSettings">
-    <property name="text">
-     <string>IDS CMOSIS CMV 4000</string>
-    </property>
+   <property name="text">
+    <string>IDS CMOSIS CMV 4000</string>
+   </property>
   </action>
   <action name="actionXIQSettings">
-    <property name="text">
-     <string>XIMEA xiQ MQ042 m/RG CM</string>
-    </property>
+   <property name="text">
+    <string>XIMEA xiQ MQ042 m/RG CM</string>
+   </property>
   </action>
   <action name="actionXIBSettings">
-    <property name="text">
-     <string>XIMEA xiB-64</string>
-    </property>
+   <property name="text">
+    <string>XIMEA xiB-64</string>
+   </property>
   </action>
   <action name="actionOpenCVSettings">
-    <property name="text">
-     <string>OpenCV Camera</string>
-    </property>
+   <property name="text">
+    <string>OpenCV Camera</string>
+   </property>
   </action>
   <action name="actionPhantom_S710Settings">
-    <property name="text">
-     <string>Ametek S710 Euresys Coaxlink Octo</string>
-    </property>
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
   </action>
   <action name="actionAmetekS711EuresysCoaxlinkQSPF+Settings">
-    <property name="text">
-     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
-    </property>
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
   </action>
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
-    <property name="text">
-     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
-    </property>
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
   </action>
   <action name="actionEGrabberStudioSettings">
-    <property name="text">
-     <string>Euresys eGrabber</string>
-    </property>
+   <property name="text">
+    <string>Euresys eGrabber</string>
+   </property>
   </action>
   <action name="actionReload_ini">
    <property name="text">

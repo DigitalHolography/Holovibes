@@ -1831,9 +1831,9 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 void set_input_file_start_index(size_t value)
 {
-    if (value >= get_input_file_end_index())
-        UPDATE_SETTING(InputFileEndIndex, value + 1);
     UPDATE_SETTING(InputFileStartIndex, value);
+    if (value >= get_input_file_end_index())
+        set_input_file_end_index(value + 1);
 }
 
 void set_input_file_end_index(size_t value)
