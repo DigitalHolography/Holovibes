@@ -356,7 +356,7 @@ void Converts::insert_filter2d_ushort()
 
 void Converts::insert_complex_conversion(InputQueue& input_queue)
 {
-    LOG_FUNC(fd_.depth);
+    // LOG_FUNC(fd_.depth);
 
     // Conversion function from input queue to input buffer
     auto convert_to_complex =
