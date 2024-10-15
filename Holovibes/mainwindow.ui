@@ -432,10 +432,10 @@ It's a post-processing step to remove noise</string>
               <bool>false</bool>
              </property>
              <property name="decimals">
-              <number>4</number>
+              <number>0</number>
              </property>
              <property name="minimum">
-              <double>-10000.000000000000000</double>
+              <double>0</double>
              </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
@@ -451,7 +451,7 @@ It's a post-processing step to remove noise</string>
               <string>Adjust the distance to the target</string>
              </property>
              <property name="text">
-              <string>Focus (m)</string>
+              <string>Focus (mm)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
