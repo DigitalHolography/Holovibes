@@ -71,7 +71,7 @@ void ImageRenderingPanel::on_notify()
     ui_->LambdaSpinBox->setEnabled(!is_raw);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
     // Filter2D
