@@ -192,10 +192,23 @@ void ViewPanel::on_notify()
     QSpinBoxQuietSetValue(ui_->XSpinBox, api::get_x_cuts());
     QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_y_cuts());
 
+    // XY accu visibility
+    bool xy_visible = api::get_cuts_view_enabled();
+    ui_->XSpinBox->setVisible(xy_visible);
+    ui_->XLabel->setVisible(xy_visible);
+    ui_->XAccSpinBox->setVisible(xy_visible);
+    ui_->XAccLabel->setVisible(xy_visible);
+    ui_->YSpinBox->setVisible(xy_visible);
+    ui_->YLabel->setVisible(xy_visible);
+    ui_->YAccSpinBox->setVisible(xy_visible);
+    ui_->YAccLabel->setVisible(xy_visible);
+
     ui_->RenormalizeCheckBox->setChecked(api::get_renorm_enabled());
     ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
+
+    // Filter2D
 }
 
 void ViewPanel::load_gui(const json& j_us)
