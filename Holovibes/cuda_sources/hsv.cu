@@ -10,7 +10,6 @@
 #include "tools_compute.cuh"
 #include "percentile.cuh"
 #include "cuda_memory.cuh"
-#include "shift_corners.cuh"
 #include "map.cuh"
 #include "reduce.cuh"
 #include "unique_ptr.hh"

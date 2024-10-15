@@ -16,6 +16,7 @@
 #include "tools.cuh"
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
+#include "shift_corners.cuh"
 #include "tools.hh"
 #include "contrast_correction.cuh"
 #include "enqueue_exception.hh"

@@ -10,6 +10,7 @@
 #include "percentile.cuh"
 #include "map.cuh"
 #include "cuda_memory.cuh"
+#include "shift_corners.cuh"
 #include "logger.hh"
 
 namespace holovibes::compute
