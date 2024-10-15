@@ -143,6 +143,13 @@ class LightUI : public QMainWindow
      */
     void z_value_changed(int z_distance);
 
+    void set_contrast_mode(bool enabled);
+    void set_contrast_min(double value);
+    void set_contrast_max(double value);
+    void set_auto_contrast();
+    void set_contrast_auto_refresh(bool enabled);
+    void set_contrast_invert(bool enabled);
+
   protected:
     /**
      * @brief Overridden closeEvent handler.
