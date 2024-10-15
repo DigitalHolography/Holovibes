@@ -2619,7 +2619,7 @@ The range of frequencies kept is [z, z + width]</string>
                  <number>2100000000</number>
                 </property>
                 <property name="value">
-                 <number>1</number>
+                 <number>60</number>
                 </property>
                </widget>
               </item>
