@@ -348,7 +348,7 @@ void Pipe::insert_wait_frames()
         [&input_queue_ = input_queue_]()
         {
             // Wait while the input queue is enough filled
-            while (input_queue_.is_empty())
+            while (!input_queue_.is_batch_available())
                 continue;
         });
 }

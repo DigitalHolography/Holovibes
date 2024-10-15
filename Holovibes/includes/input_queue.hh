@@ -95,6 +95,7 @@ class InputQueue final : public DisplayQueue
         std::function<void(const void* const, void* const, const uint, const size_t, const uint, const cudaStream_t)>;
 
     /*! \brief Deqeue a batch of frames. Block until the queue has at least a full batch of frame.
+     * Wrapper of dequeue_packet.
      *
      * The queue must have at least a batch size number of frames filled
      * Called by the consumer.
@@ -150,7 +151,7 @@ class InputQueue final : public DisplayQueue
     void stop_producer();
 
     /*! \brief Synchronize the batch being processed in order to ensure that all process are finished. */
-    void sync_current_batch() const;
+    void sync_current_packet() const;
 
     /*! \brief Check if the frames being enqueued are making at least one batch. */
     bool is_current_batch_full();
@@ -158,12 +159,12 @@ class InputQueue final : public DisplayQueue
     inline void* get_last_image() const override
     {
         if (device_ == Device::GPU)
-            sync_current_batch();
+            sync_current_packet();
         // Return the previous enqueued frame
         return data_.get() + ((start_index_ + curr_nb_frames_ - 1) % total_nb_frames_) * fd_.get_frame_size();
     }
 
-    bool is_empty() const { return size_ == 0; }
+    bool is_batch_available() const { return size_ >= (batch_size_ / frame_packet_); }
 
     uint get_size() const { return size_; }
 
@@ -279,6 +280,9 @@ class InputQueue final : public DisplayQueue
 
     /*! \brief Counting how many frames have been enqueued in the current batch. */
     std::atomic<uint> curr_batch_counter_{0};
+
+    /*! \brief Counting how many frames have been enqueued in the current packet. */
+    std::atomic<uint> curr_packet_counter_{0};
 
     /*! \name Synchronization attributes
      * \{

@@ -24,9 +24,6 @@ InputQueue::InputQueue(const uint total_nb_frames,
     curr_nb_frames_ = 0;
     total_nb_frames_ = total_nb_frames;
 
-    // LOG_INFO(batch_size_);
-    // LOG_INFO(batch_size);
-
     // Set priority of streams
     // Set batch_size and max_size
     create_queue(frame_packet, batch_size);
@@ -46,11 +43,11 @@ void InputQueue::create_queue(const uint frame_packet, const uint batch_size)
     frame_packet_ = frame_packet;
     batch_size_ = batch_size;
 
-    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % batch_size_);
+    total_nb_frames_ = frame_capacity_ - (frame_capacity_ % frame_packet_);
 
     CHECK(total_nb_frames_ > 0, "There must be more at least a frame in the queue.");
 
-    max_size_ = total_nb_frames_ / batch_size_;
+    max_size_ = total_nb_frames_ / frame_packet_;
 
     batch_mutexes_ = std::unique_ptr<std::mutex[], std::default_delete<std::mutex[]>>(new std::mutex[max_size_]);
     if (device_ == Device::GPU)
@@ -63,12 +60,12 @@ void InputQueue::create_queue(const uint frame_packet, const uint batch_size)
                 cudaStreamCreateWithPriority(&(batch_streams_[i]), cudaStreamDefault, CUDA_STREAM_QUEUE_PRIORITY));
     }
 
-    data_.resize(static_cast<size_t>(max_size_) * batch_size_ * fd_.get_frame_size());
+    data_.resize(static_cast<size_t>(max_size_) * frame_packet_ * fd_.get_frame_size());
 }
 
-void InputQueue::sync_current_batch() const
+void InputQueue::sync_current_packet() const
 {
-    if (curr_batch_counter_ > 0) // A batch is currently enqueued
+    if (curr_packet_counter_ > 0) // A packet is currently enqueued
         cudaXStreamSynchronize(batch_streams_[end_index_]);
     else if (end_index_ > 0) // No batch is enqueued, sync the last one
         cudaXStreamSynchronize(batch_streams_[end_index_ - 1]);
@@ -114,12 +111,13 @@ void InputQueue::make_empty()
     start_index_ = 0;
     end_index_ = 0;
     curr_batch_counter_ = 0;
+    curr_packet_counter_ = 0;
     has_overwritten_ = false;
 }
 
 void InputQueue::stop_producer()
 {
-    if (curr_batch_counter_ != 0)
+    if (curr_packet_counter_ != 0)
     {
         batch_mutexes_[end_index_].unlock();
         m_producer_busy_.unlock();
@@ -134,7 +132,7 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
     if ((memcpy_kind == cudaMemcpyDeviceToHost || memcpy_kind == cudaMemcpyHostToHost) && (device_ == Device::GPU))
         throw std::runtime_error("Input queue : can't cudaMemcpy to host with the queue on gpu");
 
-    if (curr_batch_counter_ == 0) // Enqueue in a new batch
+    if (curr_packet_counter_ == 0) // Enqueue in a new packet
     {
         // The producer might be descheduled before locking.
         // Consumer might modified curr_batch_counter_ here by the resize
@@ -146,9 +144,9 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
     // Critical section between enqueue (producer) & resize (consumer)
 
     // Static_cast to avoid overflow
+    // Enqueue with frame packets
     char* const new_frame_adress =
-        data_.get() + ((static_cast<size_t>(end_index_) * batch_size_ + curr_batch_counter_) *
-                       fd_.get_frame_size()); // need to enqueue with frame packets
+        data_.get() + ((static_cast<size_t>(end_index_) * frame_packet_ + curr_packet_counter_) * fd_.get_frame_size());
 
     if (device_ == Device::GPU)
         cudaXMemcpyAsync(new_frame_adress,
@@ -163,13 +161,13 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
     // end. Only the consumer needs to be sure the data is here before
     // manipulating it.
 
-    // Increase the number of frames in the current batch
-    curr_batch_counter_++;
+    // Increase the number of frames in the current packet
+    curr_packet_counter_++;
 
-    // The current batch is full
-    if (curr_batch_counter_ == batch_size_)
+    // The current packet is full
+    if (curr_packet_counter_ == frame_packet_)
     {
-        curr_batch_counter_ = 0;
+        curr_packet_counter_ = 0;
         const uint prev_end_index = end_index_;
         end_index_ = (end_index_ + 1) % max_size_;
 
@@ -181,8 +179,8 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
         }
         else
         {
+            curr_nb_frames_ += frame_packet_;
             size_++;
-            curr_nb_frames_ += batch_size_;
         }
 
         // Unlock the current batch mutex
@@ -196,7 +194,8 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
 
 void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
 {
-    CHECK(size_ > 0);
+    CHECK(size_ >= (batch_size_ / frame_packet_));
+
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
     // Active waiting until the start batch is available to dequeue
@@ -208,7 +207,7 @@ void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_
 
     // From the queue
     const char* const src =
-        data_.get() + (static_cast<size_t>(start_index_locked) * batch_size_ * fd_.get_frame_size());
+        data_.get() + (static_cast<size_t>(start_index_locked) * frame_packet_ * fd_.get_frame_size());
 
     if (device_ == Device::GPU)
         func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
@@ -229,10 +228,9 @@ void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_
 
 void InputQueue::dequeue()
 {
-    // CHECK(size_ > 0);
-
-    if (size_ > 0)
+    if (size_ >= (batch_size_ / frame_packet_))
     {
+
         // Order cannot be guaranteed because of the try lock because a producer
         // might start enqueue between two try locks
         // Active waiting until the start batch is available to dequeue
@@ -248,9 +246,10 @@ void InputQueue::dequeue()
 
 void InputQueue::dequeue_update_attr()
 {
-    start_index_ = (start_index_ + 1) % max_size_;
-    size_--;
-    curr_nb_frames_ -= batch_size_;
+    uint frame_packet_in_batch = batch_size_ / frame_packet_;
+    start_index_ = (start_index_ + frame_packet_in_batch) % max_size_;
+    size_ -= frame_packet_in_batch;
+    curr_nb_frames_ -= frame_packet_ * frame_packet_in_batch;
 }
 
 void InputQueue::rebuild(const camera::FrameDescriptor& fd,

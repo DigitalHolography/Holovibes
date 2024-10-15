@@ -79,7 +79,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     compute_fps();
 
     if (input_queue_on_gpu)
-        input_queue_.load()->sync_current_batch();
+        input_queue_.load()->sync_current_packet();
 }
 
 } // namespace holovibes::worker
