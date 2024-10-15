@@ -27,6 +27,7 @@
 #include "input_frame_file.hh"
 #include "settings/settings_container.hh"
 #include "settings/settings.hh"
+#include "fast_updates_holder.hh"
 #include "utils/custom_type_traits.hh"
 #include "utils/fps_limiter.hh"
 #include <optional>
@@ -68,7 +69,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     FileFrameReadWorker(std::atomic<std::shared_ptr<BatchInputQueue>>& input_queue, InitSettings settings)
         : FrameReadWorker(input_queue)
-        , fast_updates_entry_(GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::FILE_READ))
+        , fast_updates_entry_(FastUpdatesMap::map<ProgressType>.create_entry(ProgressType::FILE_READ))
         , current_nb_frames_read_(fast_updates_entry_->first)
         , total_nb_frames_to_read_(fast_updates_entry_->second)
         , realtime_settings_(settings)
@@ -214,7 +215,7 @@ class FileFrameReadWorker final : public FrameReadWorker
     /**
      * @brief GPU buffer in which the frames are temporarly stored
      */
-    char* gpu_frame_buffer_;
+    char* gpu_file_frame_buffer_;
 
     /**
      * @brief Tmp GPU buffer in which the frames are temporarly stored to convert

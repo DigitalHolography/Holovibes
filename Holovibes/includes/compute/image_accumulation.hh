@@ -12,8 +12,6 @@
 #include "rect.hh"
 #include "logger.hh"
 
-#include "global_state_holder.hh"
-
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 

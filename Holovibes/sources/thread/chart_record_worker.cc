@@ -35,7 +35,7 @@ void ChartRecordWorker::run()
 
     auto& chart_queue = *pipe->get_chart_record_queue();
 
-    auto entry = GSH::fast_updates_map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
+    auto entry = FastUpdatesMap::map<ProgressType>.create_entry(ProgressType::CHART_RECORD);
 
     std::atomic<unsigned int>& i = entry->first;
     std::atomic<unsigned int>& nb_frames_to_record = entry->second;
@@ -60,7 +60,7 @@ void ChartRecordWorker::run()
     while (pipe->is_requested(ICS::DisableChartRecord) && !stop_requested_)
         continue;
 
-    GSH::fast_updates_map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);
+    FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::CHART_RECORD);
 }
 
 } // namespace holovibes::worker
