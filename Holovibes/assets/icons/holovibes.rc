@@ -1,3 +1,0 @@
-#include "winres.h"
-
-ICON ICON "Holovibes.ico"
