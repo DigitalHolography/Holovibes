@@ -46,6 +46,9 @@ EHoloGrabberInt::EHoloGrabberInt(Euresys::EGenTL& gentl,
         }
         available_grabbers_.push_back(grabbers_[ix]);
     }
+
+    for (unsigned i = 0; i < available_grabbers_.size(); ++i)
+        available_grabbers_[i]->setInteger<Euresys::StreamModule>("BufferPartCount", buffer_part_count_);
 }
 
 EHoloGrabberInt::~EHoloGrabberInt()
