@@ -54,7 +54,7 @@
  * \param[in] pixel_size The size of the pixel used by the kernel.
  * \param[in] stream The input (and output) stream ; the data.
  */
-void angular_spectrum_lens(cuComplex* lens,
+void angular_spectrum_lens(cuComplex* __restrict__ lens,
                const uint lens_side_size,
                const uint frame_height,
                const uint frame_width,
@@ -83,8 +83,8 @@ void angular_spectrum_lens(cuComplex* lens,
  * \param[in] fd The frame descriptor.
  * \param[in] stream The operation stream.
  */
-void angular_spectrum(cuComplex* input,
-           cuComplex* output,
+void angular_spectrum(cuComplex* __restrict__ input,
+           cuComplex* __restrict__ output,
            const uint batch_size,
            const cuComplex* lens,
            cuComplex* mask_output,

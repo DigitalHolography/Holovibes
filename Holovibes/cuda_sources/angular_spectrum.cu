@@ -10,7 +10,7 @@
 
 using camera::FrameDescriptor;
 
-void angular_spectrum_lens(cuComplex* lens,
+void angular_spectrum_lens(cuComplex* __restrict__ lens,
                const uint lens_side_size,
                const uint frame_height,
                const uint frame_width,
@@ -45,11 +45,11 @@ void angular_spectrum_lens(cuComplex* lens,
     }
 }
 
-void angular_spectrum(cuComplex* input,
-           cuComplex* output,
+void angular_spectrum(cuComplex* __restrict__ input,
+           cuComplex* __restrict__ output,
            const uint batch_size,
            const cuComplex* lens,
-           cuComplex* mask_output,
+           cuComplex* __restrict__ mask_output,
            bool store_frame,
            cufftHandle plan2d,
            const FrameDescriptor& fd,
