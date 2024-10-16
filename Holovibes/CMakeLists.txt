@@ -60,15 +60,15 @@ qt_add_executable(Holovibes
     advancedsettingswindow.ui
     plotwindow.ui
     lightui.ui
-    Holovibes.ico
-    holovibes.rc
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes.rc
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
     PREFIX "/"
     FILES
-    Holovibes.ico
-    holovibes_logo.png
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes_logo.png
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -142,8 +142,8 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
 
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -192,17 +192,17 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
     COMPONENT application
 )
 
-install(FILES "${HOLO_DIR}/Holovibes.ico"
+install(FILES "${HOLO_DIR}/assets/icons/Holovibes.ico"
     DESTINATION .
     COMPONENT application
 )
 
-install(FILES "${HOLO_DIR}/Script.ico"
+install(FILES "${HOLO_DIR}/assets/icons/Script.ico"
     DESTINATION .
     COMPONENT process
 )
 
-install(FILES "${HOLO_DIR}/holovibes_logo.png"
+install(FILES "${HOLO_DIR}/assets/icons/holovibes_logo.png"
     DESTINATION .
     COMPONENT application
 )
@@ -297,8 +297,8 @@ set(CPACK_COMPONENTS_ALL application process)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
-set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
-set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
 set(CPACK_NSIS_INSTALLED_ICON_NAME "Holovibes.exe")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
@@ -322,7 +322,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${EndIf}
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
-        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\script.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
 ")
 
