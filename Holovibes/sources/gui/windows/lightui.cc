@@ -168,8 +168,9 @@ void LightUI::notify()
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 
     // Contrast
-    ui_->ContrastCheckBox->setChecked(api::get_compute_mode() != Computation::Raw && api::get_contrast_enabled());
-    ui_->ContrastCheckBox->setEnabled(api::get_compute_mode() != Computation::Raw);
+    bool pipe_loaded = api::get_compute_pipe_no_throw() != nullptr;
+    ui_->ContrastCheckBox->setChecked(pipe_loaded && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setEnabled(pipe_loaded);
     ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
@@ -207,7 +208,11 @@ void LightUI::set_auto_contrast()
     api::set_auto_contrast();
 }
 
-void LightUI::set_contrast_auto_refresh(bool value) { api::set_contrast_auto_refresh(value); }
+void LightUI::set_contrast_auto_refresh(bool value)
+{
+    api::set_contrast_auto_refresh(value);
+    notify(); // Enable or disable the DoubleBox range
+}
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
 {
