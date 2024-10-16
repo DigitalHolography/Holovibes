@@ -50,13 +50,22 @@ void angular_spectrum(cuComplex* input,
            const cuComplex* lens,
            cuComplex* mask_output,
            bool store_frame,
-           const cufftHandle plan2d,
+           cufftHandle plan2d,
            const FrameDescriptor& fd,
            const cudaStream_t stream)
 {
     const uint frame_res = fd.get_frame_res();
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+    int n[2] = {fd.height, fd.width};
+    int inembed[2] = {fd.width, fd.width};
+    int onembed[2] = {fd.width, fd.width};
+    int idist = fd.width * fd.height;
+    int odist = fd.width * fd.height;
+    int istride = 1;
+    int ostride = 1;
+    cufftPlanMany(&plan2d, 2, n, inembed, istride, idist, onembed, ostride, odist, CUFFT_C2C, batch_size);
 
     cufftSafeCall(cufftXtExec(plan2d, input, input, CUFFT_FORWARD));
 

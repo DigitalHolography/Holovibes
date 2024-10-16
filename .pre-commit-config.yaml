@@ -12,5 +12,3 @@ repos:
     - id: check-yaml
     - id: trailing-whitespace
       exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
-    - id: end-of-file-fixer
-      exclude: ^(libs/|Holovibes/convolution_kernels/|docs/|bin/)
