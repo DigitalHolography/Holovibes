@@ -18,8 +18,6 @@ void matrix_multiply(const T* A,
                      cublasOperation_t op_A,
                      cublasOperation_t op_B)
 {
-    // LOG-USELESS LOG_FUNC();
-
     cublasSafeCall(cublasSgemm(cuda_tools::CublasHandle::instance(),
                                op_A,
                                op_B,

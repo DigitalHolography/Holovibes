@@ -19,9 +19,9 @@ enum class ImgType
     Argument,       /*!<  Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
     Composite,      /*!<  Displays different frequency intervals on color RBG or HSV chanels*/
-    Moments_0,      /*!<  Displays the moments at order 0, 1 and 2. NOT IMPLEMENTED YET*/
-    Moments_1,
-    Moments_2,
+    Moments_0,      /*!<  Displays the moment 0 (tensor_multiply of the output of the TT with fft_freq^0) */
+    Moments_1,      /*!<  Displays the moment 1 (tensor_multiply of the output of the TT with fft_freq^1) */
+    Moments_2,      /*!<  Displays the moment 2 (tensor_multiply of the output of the TT with fft_freq^2) */
 };
 
 // clang-format off
