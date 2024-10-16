@@ -138,6 +138,8 @@ void ImportPanel::import_file(const QString& filename)
         delete input_file;
 
         // Update the ui with the gathered data
+        // The start index cannot exceed the end index
+        ui_->ImportStartIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
         ui_->ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
         ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
 
@@ -222,29 +224,17 @@ void ImportPanel::update_input_file_start_index()
     api::set_input_file_start_index(start_spinbox->value() - 1);
 
     start_spinbox->setValue(static_cast<int>(api::get_input_file_start_index()) + 1);
-
-    if (api::get_input_file_start_index() + 1 > api::get_input_file_end_index())
-    {
-        QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
-        end_spinbox->setValue(static_cast<int>(api::get_input_file_start_index()));
-        update_input_file_end_index();
-    }
+    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api::get_input_file_end_index()));
 }
 
 void ImportPanel::update_input_file_end_index()
 {
     QSpinBox* end_spinbox = ui_->ImportEndIndexSpinBox;
 
-    api::set_input_file_end_index(ui_->ImportEndIndexSpinBox->value());
+    api::set_input_file_end_index(end_spinbox->value());
 
     end_spinbox->setValue(static_cast<int>(api::get_input_file_end_index()));
-
-    if (api::get_input_file_start_index() > api::get_input_file_end_index())
-    {
-        QSpinBox* start_spinbox = ui_->ImportStartIndexSpinBox;
-        start_spinbox->setValue(static_cast<int>(api::get_input_file_end_index()));
-        update_input_file_start_index();
-    }
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api::get_input_file_start_index()) + 1);
 }
 
 } // namespace holovibes::gui

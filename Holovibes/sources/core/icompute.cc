@@ -1,8 +1,6 @@
 #include <cassert>
 
 #include "icompute.hh"
-#include "fft1.cuh"
-#include "fft2.cuh"
 #include "stft.cuh"
 #include "tools.cuh"
 #include "contrast_correction.cuh"

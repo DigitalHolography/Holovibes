@@ -12,7 +12,7 @@
 #include "unique_ptr.hh"
 #include "batch_input_queue.hh"
 #include "display_queue.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "enum_device.hh"
 
 namespace holovibes
