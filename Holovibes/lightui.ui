@@ -127,6 +127,22 @@
                   <number>8</number>
                  </property>
                  <item>
+                  <widget class="QPushButton" name="AutoContrastPushButton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Apply</string>
+                   </property>
+                   <property name="flat">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QLabel" name="ContrastRangeLabel">
                    <property name="enabled">
                     <bool>true</bool>
@@ -186,29 +202,6 @@
                    </property>
                    <property name="singleStep">
                     <double>0.010000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="0" column="0" colspan="3">
-                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                 <property name="spacing">
-                  <number>8</number>
-                 </property>
-                 <item>
-                  <widget class="QPushButton" name="AutoContrastPushButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Apply</string>
-                   </property>
-                   <property name="flat">
-                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
