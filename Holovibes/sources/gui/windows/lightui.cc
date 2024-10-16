@@ -149,16 +149,6 @@ void LightUI::reset_record_progress_bar()
     actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 }
 
-// Duplicate from view panel
-// Contrast
-void LightUI::set_contrast_mode(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_contrast_mode(value);
-}
-
 void LightUI::notify()
 {
     // Z distance
@@ -178,35 +168,13 @@ void LightUI::notify()
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 }
 
-void LightUI::set_contrast_min(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
 
-    if (!api::get_contrast_enabled())
-        return;
+void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
 
-    api::set_contrast_min(value);
-}
+void LightUI::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
-void LightUI::set_contrast_max(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_max(value);
-}
-
-void LightUI::set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_auto_contrast();
-}
+void LightUI::set_auto_contrast() { api::set_auto_contrast(); }
 
 void LightUI::set_contrast_auto_refresh(bool value)
 {

@@ -447,69 +447,29 @@ void ViewPanel::set_accumulation_level(int value)
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_contrast_mode(value);
-
     parent_->notify();
 }
 
-void ViewPanel::set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_auto_contrast();
-}
+void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
 
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {
     api::set_contrast_auto_refresh(value);
-
     parent_->notify();
 }
 
-void ViewPanel::set_contrast_invert(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::set_contrast_invert(bool value) { api::set_contrast_invert(value); }
 
-    if (!api::get_contrast_enabled())
-        return;
+void ViewPanel::set_contrast_min(const double value) { api::set_contrast_min(value); }
 
-    api::set_contrast_invert(value);
-}
-
-void ViewPanel::set_contrast_min(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_min(value);
-}
-
-void ViewPanel::set_contrast_max(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_max(value);
-}
+void ViewPanel::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
 void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }
 
 void ViewPanel::display_reticle(bool value)
 {
-    if (api::get_reticle_display_enabled() != value)
-        api::display_reticle(value);
-
+    api::display_reticle(value);
     parent_->notify();
 }
 

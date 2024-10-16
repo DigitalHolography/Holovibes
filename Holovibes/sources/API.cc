@@ -992,6 +992,9 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     auto window = api::get_current_window_type();
 
     if (window == WindowKind::Filter2D)
@@ -1010,6 +1013,9 @@ void set_auto_contrast_cuts()
 
 bool set_auto_contrast()
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     try
     {
         get_compute_pipe()->request_autocontrast(get_current_window_type());
@@ -1043,11 +1049,13 @@ void set_auto_contrast_all()
 
 void set_contrast_min(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
-    if (old_val != val)
+
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
@@ -1061,10 +1069,11 @@ void set_contrast_min(float value)
 
 void set_contrast_max(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
 
     if (old_val != val)
     {
@@ -1080,6 +1089,9 @@ void set_contrast_max(float value)
 
 void set_contrast_invert(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_invert(value);
@@ -1090,6 +1102,9 @@ void set_contrast_invert(bool value)
 
 void set_contrast_auto_refresh(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_auto_refresh(value);
@@ -1485,6 +1500,9 @@ void disable_filter()
 
 void display_reticle(bool value)
 {
+    if (get_reticle_display_enabled() == value)
+        return;
+
     set_reticle_display_enabled(value);
 
     if (value)
