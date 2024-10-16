@@ -24,7 +24,7 @@ using EHoloSubGrabber = Euresys::EGrabberCallbackOnDemand;
 
 /*! \class EHoloGrabberInt
  *
- * \brief Baser class serving as an interface for each camera's EHoloGrabber implementation to handle the different
+ * \brief Base class serving as an interface for each camera's EHoloGrabber implementation to handle the different
  *  EHoloSubGrabber used to acquire images from an Ametek Phantom camera
  */
 class EHoloGrabberInt
