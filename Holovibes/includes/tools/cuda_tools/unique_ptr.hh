@@ -62,16 +62,21 @@ class CudaUniquePtr
         val_.reset(nullptr); // Free itself first
 
         T* tmp = nullptr;
-        cudaXMalloc(&tmp, size * sizeof(T)); // Allocate memory
-        val_.reset(tmp);                     // Update pointer
+        size *= sizeof(T);
+        size_ = size;
+        cudaXMalloc(&tmp, size); // Allocate memory
+        val_.reset(tmp);         // Update pointer
         return tmp != nullptr;
     }
+
+    size_t get_size() const { return size_; }
 
     void reset(T* ptr) { val_.reset(ptr); }
     void reset() { val_.reset(nullptr); }
 
   protected:
     std::unique_ptr<T, decltype(cudaXFree)*> val_{nullptr, cudaXFree};
+    size_t size_;
 };
 
 /*! \class CPUUniquePtr
@@ -105,17 +110,21 @@ class CPUUniquePtr
     {
         T* tmp;
         size *= sizeof(T);
+        size_ = size;
         val_.reset(nullptr);         // Free itself first
         cudaXMallocHost(&tmp, size); // Allocate memory
         val_.reset(tmp);             // Update pointer
         return tmp;
     }
 
+    size_t get_size() const { return size_; }
+
     void reset(T* ptr) { return val_.reset(ptr); }
     void reset() { return val_.reset(nullptr); }
 
   protected:
     std::unique_ptr<T, decltype(cudaXFreeHost)*> val_{nullptr, cudaXFreeHost};
+    size_t size_;
 };
 
 /*! \class UniquePtr
@@ -149,6 +158,11 @@ class UniquePtr
     UniquePtr(const size_t size) { resize(size); }
 
     T* get() const { return device_ == Device::GPU ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get(); }
+
+    size_t get_size() const
+    {
+        return device_ == Device::GPU ? std::get<0>(ptr_).get_size() : std::get<1>(ptr_).get_size();
+    }
 
     /*! \brief Implicit cast operator */
     operator T*() const { return device_ == Device::GPU ? std::get<0>(ptr_).get() : std::get<1>(ptr_).get(); }

@@ -346,9 +346,7 @@ bool set_holographic_mode(ushort window_size)
     return false;
 }
 
-// TODO: param index is imposed by MainWindow behavior, and should be replaced by something more generic like
-// dictionary
-void refresh_view_mode(ushort window_size, uint index)
+void refresh_view_mode(ushort window_size, ImgType img_type)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
@@ -361,7 +359,7 @@ void refresh_view_mode(ushort window_size, uint index)
     close_windows();
     close_critical_compute();
 
-    set_img_type(static_cast<ImgType>(index));
+    set_img_type(img_type);
 
     try
     {
@@ -377,18 +375,26 @@ void refresh_view_mode(ushort window_size, uint index)
     }
 }
 
-void set_view_mode(const std::string& value, std::function<void()> callback)
+void set_view_mode(const ImgType type)
 {
-    UserInterfaceDescriptor::instance().last_img_type_ = value;
+    try
+    {
+        auto pipe = get_compute_pipe();
 
-    auto pipe = get_compute_pipe();
+        api::set_img_type(type);
 
-    pipe->insert_fn_end_vect(callback);
-    pipe_refresh();
+        // Force XYview autocontrast
+        pipe->request_autocontrast(WindowKind::XYview);
 
-    // Force XYview autocontrast
-    pipe->request_autocontrast(WindowKind::XYview);
-    // Force cuts views autocontrast if needed
+        // Force cuts views autocontrast if needed
+        if (api::get_cuts_view_enabled())
+            api::set_auto_contrast_cuts();
+
+        pipe_refresh();
+    }
+    catch(const std::runtime_error&) // The pipe is not initialized
+    {
+    }
 }
 
 #pragma endregion
@@ -402,14 +408,9 @@ void update_batch_size(const uint batch_size)
 
     bool time_stride_changed = set_batch_size(batch_size);
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        if (time_stride_changed)
-            api::get_compute_pipe()->request(ICS::UpdateTimeStride);
-        api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-    }
-    else
-        api::get_input_queue()->resize(get_batch_size());
+    if (time_stride_changed)
+        api::get_compute_pipe()->request(ICS::UpdateTimeStride);
+    api::get_compute_pipe()->request(ICS::UpdateBatchSize);
 }
 
 void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
@@ -1621,7 +1622,8 @@ void set_record_mode(const std::string& text)
                                                                               {"Processed Image", RecordMode::HOLOGRAM},
                                                                               {"Raw Image", RecordMode::RAW},
                                                                               {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ}};
+                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
+                                                                              {"Moments", RecordMode::MOMENTS}};
 
     auto it = recordModeMap.find(text);
     if (it == recordModeMap.end())
@@ -1750,8 +1752,7 @@ void stop_record()
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
-             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
+    else if (record_mode != RecordMode::NONE)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
@@ -1831,9 +1832,9 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 void set_input_file_start_index(size_t value)
 {
-    if (value >= get_input_file_end_index())
-        UPDATE_SETTING(InputFileEndIndex, value + 1);
     UPDATE_SETTING(InputFileStartIndex, value);
+    if (value >= get_input_file_end_index())
+        set_input_file_end_index(value + 1);
 }
 
 void set_input_file_end_index(size_t value)

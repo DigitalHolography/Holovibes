@@ -24,6 +24,10 @@ class FunctionVector : public FnVector
     /*! \brief Push back the function in the vector.
      *
      * Execute it only if the condition is verified.
+     * in the pipe, the condition is set in the constructor, and is the following :
+     * 
+     * ConditionType batch_condition = [&]() -> bool
+     * { return batch_env_.batch_index == setting<settings::TimeStride>(); };
      */
     void conditional_push_back(const FnType& function);
 

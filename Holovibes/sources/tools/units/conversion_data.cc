@@ -2,7 +2,6 @@
 #include "units\conversion_data.hh"
 #include "units\unit.hh"
 #include "BasicOpenGLWindow.hh"
-#include "global_state_holder.hh"
 
 namespace holovibes
 {
