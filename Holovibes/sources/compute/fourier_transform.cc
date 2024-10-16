@@ -242,7 +242,6 @@ void FourierTransform::insert_moments()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            LOG_INFO("moments");
             auto type = setting<settings::ImageType>();
 
             bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
@@ -279,40 +278,21 @@ void FourierTransform::insert_moments()
                                        stream_);
             }
 
+            float* freq = nullptr;
             if (type == ImgType::Moments_0)
-            {
-                /*size_t index = fd_.get_frame_res() * (moments_env_.f_start);
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 moments_env_.stft_res_buffer + index,
-                                 fd_.get_frame_res() * sizeof(float),
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);*/
-
-                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f0_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
+                freq = moments_env_.f0_buffer.get();
 
             if (type == ImgType::Moments_1)
-            {
-                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f1_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
+                freq = moments_env_.f1_buffer.get();
 
             if (type == ImgType::Moments_2)
+                freq = moments_env_.f2_buffer.get();
+
+            if (freq != nullptr)
             {
                 tensor_multiply_vector(buffers_.gpu_postprocess_frame,
                                        moments_env_.stft_res_buffer,
-                                       moments_env_.f2_buffer,
+                                       freq,
                                        fd_.get_frame_res(),
                                        moments_env_.f_start,
                                        moments_env_.f_end,

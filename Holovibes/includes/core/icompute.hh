@@ -300,8 +300,12 @@ class ICompute
      */
     void fft_freqs();
 
-    void init_moments();
-
+    /*!
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the moments.
+     *
+     * \param  time_transformation_size  The new time transformation size.
+     * \return                           Whether there is an error or not.
+     */
     virtual bool update_time_transformation_size(const unsigned short time_transformation_size);
 
     /*! \name Resources management

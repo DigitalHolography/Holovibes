@@ -57,13 +57,28 @@ void gpu_normalize(float* const input,
                    const uint norm_constant,
                    const cudaStream_t stream);
 
-/*! \brief Performs tensor vector multiplication. Parallelisation is done along frame_res.
- * \param output the place to sae
-*/
+/*!
+ * \brief Performs tensor vector multiplication. Parallelisation is done along frame_res.
+ *
+ * - The tensor is a cube of images of size `frame_res` and of depth `TimeTransformationSize`.
+ * - The vector is a 1D array of scalar of size `TimeTransformationSize`.
+ * - The ouput is a single image of size `frame_res`.
+ *
+ * The function multiply each images in the tensor in the range [f_start, f_end] which the corresponding scalar in the
+ * vector. Then it sums the resulting images in the same range and stores the result in output.
+ *
+ * \param[out] output     The buffer in which to store the result (size: frame_res)
+ * \param[in]  tensor     The tensor
+ * \param[in]  vector     The vector
+ * \param[in]  frame_res  The resolution of a single frame
+ * \param[in]  f_start    The start index
+ * \param[in]  f_end      The end indexes
+ * \param[in]  stream     The cuda stream
+ */
 void tensor_multiply_vector(float* output,
                             const float* tensor,
                             const float* vector,
-                            const uint frame_res,
+                            const size_t frame_res,
                             const ushort f_start,
                             const ushort f_end,
                             const cudaStream_t stream);

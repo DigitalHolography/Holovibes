@@ -50,22 +50,20 @@ void ICompute::fft_freqs()
     // f1 = [0, 1, ..., (n - 1) / 2, -(n - 1) / 2, ..., -1] * fs / n if n is odd
     else
     {
-        for (auto i = 0; i < (time_transformation_size + 1) / 2; i++)
+        for (uint i = 0; i < (time_transformation_size + 1) / 2; i++)
             f1[i] = i * d;
 
-        for (auto i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
+        for (uint i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
             f1[i] = (i - (float)time_transformation_size) * d;
     }
     cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f2 (f2 = f1^2)
-    for (auto i = 0; i < time_transformation_size; i++)
+    for (uint i = 0; i < time_transformation_size; i++)
         f2[i] = f1[i] * f1[i];
 
     cudaXMemcpy(moments_env_.f2_buffer, f2.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 }
-
-void ICompute::init_moments() { auto frame_res = input_queue_.get_fd().get_frame_res(); }
 
 bool ICompute::update_time_transformation_size(const unsigned short size)
 {
