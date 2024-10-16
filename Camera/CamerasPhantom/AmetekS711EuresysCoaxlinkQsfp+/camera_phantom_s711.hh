@@ -11,7 +11,7 @@ class EHoloGrabber : public EHoloGrabberInt
     EHoloGrabber(Euresys::EGenTL& gentl,
                  unsigned int buffer_part_count,
                  std::string pixel_format,
-                 unsigned int nb_grabbers);
+                 unsigned int& nb_grabbers);
 
     void setup(const CameraParamMap& params, Euresys::EGenTL& gentl) override;
 };

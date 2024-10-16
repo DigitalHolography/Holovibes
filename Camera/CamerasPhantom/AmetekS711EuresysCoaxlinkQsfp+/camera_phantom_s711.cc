@@ -6,14 +6,38 @@ namespace camera
 EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                            unsigned int buffer_part_count,
                            std::string pixel_format,
-                           unsigned int nb_grabbers)
+                           unsigned int& nb_grabbers)
     : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers)
 {
-    if (available_grabbers_.size() < nb_grabbers_)
-    { // TODO
-        Logger::camera()->error("Not enough frame grabbers  connected to the camera, expected: {} but got: {}.",
-                                nb_grabbers_,
-                                available_grabbers_.size());
+    size_t available_grabbers_count = available_grabbers_.size();
+
+    // nb_grabbers = 0 means autodetect between 1 or 2
+    if (nb_grabbers == 0 && available_grabbers_count != 0)
+        nb_grabbers = (available_grabbers_count >= 2) ? 2 : 1;
+    nb_grabbers_ = nb_grabbers;
+
+    // S711 only supports 1 and 2 frame grabbers setup
+    if (nb_grabbers != 1 && nb_grabbers != 2)
+    {
+        Logger::camera()->error("Incompatible number of frame grabbers requested for camera S711, please check the "
+                                "NbGrabbers parameter of the S711 ini file");
+        throw CameraException(CameraException::CANT_SET_CONFIG);
+    }
+
+    // Not enough frame grabbers compared to requested number
+    if (available_grabbers_count < nb_grabbers)
+    {
+        // If possible recover to the 1 grabbers setup (with a warning)
+        if (available_grabbers_count == 1)
+        {
+            Logger::camera()->warn(
+                "Not enough frame grabbers connected to the camera, switched to 1 frame grabbers setup. Please "
+                "check your setup and the NbGrabbers parameter in S711 ini config file");
+            return;
+        }
+
+        Logger::camera()->error("Not enough frame grabbers connected to the camera. Please check NbGrabber "
+                                "parameter in S711 ini config file");
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }
 }
