@@ -270,7 +270,8 @@ void Pipe::refresh()
 
     insert_raw_view();
 
-    converts_->insert_complex_conversion(input_queue_);
+    while (!buffers_.gpu_spatial_transformation_queue.get()->is_full())
+        converts_->insert_complex_conversion(input_queue_);
 
     // Spatial transform
     fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
@@ -345,17 +346,22 @@ void Pipe::refresh()
 void Pipe::insert_wait_frames()
 {
     fn_compute_vect_.push_back(
-        [&input_queue_ = input_queue_]()
+        [this]()
         {
             // Wait while the input queue is enough filled
-            while (!input_queue_.is_empty())
+            while (input_queue_.get_size() <= setting<settings::BatchSize>() / setting<settings::FramePacket>())
                 continue;
         });
 }
 
 void Pipe::insert_reset_batch_index()
 {
-    fn_compute_vect_.conditional_push_back([&batch_env_ = batch_env_]() { batch_env_.batch_index = 0; });
+    fn_compute_vect_.conditional_push_back(
+        [this]()
+        {
+            batch_env_.batch_index = 0;
+            buffers_.gpu_spatial_transformation_queue.get()->clear();
+        });
 }
 
 void Pipe::insert_transfer_for_time_transformation()
@@ -364,7 +370,8 @@ void Pipe::insert_transfer_for_time_transformation()
         [this]()
         {
             time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
-                buffers_.gpu_spatial_transformation_buffer.get(),
+                // buffers_.gpu_spatial_transformation_buffer.get(),
+                buffers_.gpu_spatial_transformation_queue.get()->get_start(),
                 setting<settings::BatchSize>(),
                 stream_);
         });

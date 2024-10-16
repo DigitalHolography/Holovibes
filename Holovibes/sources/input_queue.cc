@@ -189,9 +189,11 @@ void InputQueue::enqueue(const void* const input_frame, const cudaMemcpyKind mem
     }
 }
 
-void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_t func)
+void InputQueue::dequeue(Queue& dest, const uint depth, const dequeue_func_t func)
 {
     CHECK(size_ > 0);
+    // Check that the queue have enough space for a frame packet.
+    CHECK(dest.get_max_size() - dest.get_size() >= frame_packet_);
 
     // Order cannot be guaranteed because of the try lock because a producer
     // might start enqueue between two try locks
@@ -207,9 +209,11 @@ void InputQueue::dequeue(void* const dest, const uint depth, const dequeue_func_
         data_.get() + (static_cast<size_t>(start_index_locked) * frame_packet_ * fd_.get_frame_size());
 
     if (device_ == Device::GPU)
-        func(src, dest, batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
+        func(src, dest.get_end(), batch_size_, fd_.get_frame_res(), depth, batch_streams_[start_index_locked]);
     else
-        func(src, dest, batch_size_, fd_.get_frame_res(), depth, 0);
+        func(src, dest.get_end(), batch_size_, fd_.get_frame_res(), depth, 0);
+
+    dest.size_ += frame_packet_;
 
     // The consumer has the responsability to give data that
     // finished processing.

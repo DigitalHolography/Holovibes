@@ -92,13 +92,13 @@ void float_to_ushort_normalized(const float* const input, ushort* const output, 
 
 void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, const cudaStream_t stream);
 
-/*! \brief Converts and tranfers data from input_queue to gpu_input_buffer
+/*! \brief Converts and tranfers data from input_queue to gpu_spatial_transformation_queue
  *
  * Template call between .cc and .cu(h) almost never works and the data has to
  * be casted anyway (switch depth void* cast) So we chose to use template inside
  * the cu/cuh to factorize code but keep the void* between the cc and cu
  *
- * \param output The gpu input buffer.
+ * \param output The gpu_spatial_transformation_queue.
  * \param input The input queue.
  * \param frame_res The total size of a frame (width * height).
  * \param batch_size The size of the batch to transfer.

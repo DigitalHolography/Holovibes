@@ -136,6 +136,8 @@ class ICompute
 
         plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
+        buffers_.gpu_spatial_transformation_queue.reset(new Queue(fd, setting<settings::BatchSize>()));
+
         update_spatial_transformation_parameters();
 
         time_transformation_env_.stft_plan

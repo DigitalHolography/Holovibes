@@ -96,11 +96,11 @@ class InputQueue final : public DisplayQueue
      * The queue must have at least a frame_packet number of frames filled
      * Called by the consumer.
      *
-     * \param dest Dequeue in the destination buffer
+     * \param dest Dequeue in the destination queue
      * \param depth Depth of frame
      * \param func Apply a function to the packet of frames being dequeued
      */
-    void dequeue(void* const dest, const uint depth, const dequeue_func_t func);
+    void dequeue(Queue& dest, const uint depth, const dequeue_func_t func);
 
     /*! \brief Deqeue a packet of frames. Block until the queue has at least a full packet of frame.
      *

@@ -288,6 +288,8 @@ class Queue final : public DisplayQueue, public HoloQueue
     /*! \} */
 
   private:
+    friend class InputQueue;
+
     /*! \brief Auxiliary method of enqueue multiple.
      *
      * Mostly make the copy

@@ -358,10 +358,15 @@ void Converts::insert_complex_conversion(InputQueue& input_queue)
 {
     // LOG_FUNC(fd_.depth);
 
-    // Conversion function from input queue to input buffer
-    auto convert_to_complex =
-        [](const void* const src, void* const dest, uint batch_size, size_t frame_res, uint depth, cudaStream_t stream)
-    { input_queue_to_input_buffer(dest, src, frame_res, batch_size, depth, stream); };
+    // Conversion function from input queue to spacial transform queue.
+    auto convert_to_complex = [](const void* const src,
+                                 void* const dest,
+                                 uint frame_packet,
+                                 //  uint dest_end_index,
+                                 size_t frame_res,
+                                 uint depth,
+                                 cudaStream_t stream)
+    { input_queue_to_input_buffer(dest, src, frame_res, frame_packet, depth, stream); };
 
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, convert_to_complex]()
@@ -372,9 +377,9 @@ void Converts::insert_complex_conversion(InputQueue& input_queue)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));
         }
-        void* output = buffers_.gpu_spatial_transformation_buffer.get();
-        // void* output = buffers_.gpu_spatial_transformation_queue.get();
-        input_queue.dequeue(output, fd_.depth, convert_to_complex);
+        // void* output = buffers_.gpu_spatial_transformation_buffer.get();
+        Queue* output = buffers_.gpu_spatial_transformation_queue.get();
+        input_queue.dequeue(*output, fd_.depth, convert_to_complex);
     };
 
     fn_compute_vect_.push_back(conversion_task);

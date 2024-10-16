@@ -74,7 +74,8 @@ void FourierTransform::insert_filter2d()
     fn_compute_vect_.push_back(
         [=]()
         {
-            filter2D(buffers_.gpu_spatial_transformation_buffer,
+            filter2D(static_cast<cuComplex*>(buffers_.gpu_spatial_transformation_queue.get()->get_start()),
+                     // filter2D(buffers_.gpu_spatial_transformation_buffer,
                      buffers_.gpu_filter2d_mask,
                      buffers_.gpu_complex_filter2d_frame,
                      setting<settings::Filter2dEnabled>(),
@@ -101,7 +102,8 @@ void FourierTransform::insert_fft1()
               setting<settings::PixelSize>(),
               stream_);
 
-    void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
+    // void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
+    void* input_output = buffers_.gpu_spatial_transformation_queue.get()->get_start();
 
     fn_compute_vect_.push_back(
         [=]()
@@ -136,7 +138,8 @@ void FourierTransform::insert_fft2(bool filter2d_enabled)
     if (filter2d_enabled)
         apply_mask(gpu_lens_.get(), buffers_.gpu_filter2d_mask.get(), fd_.width * fd_.height, 1, stream_);
 
-    void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
+    // void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
+    void* input_output = buffers_.gpu_spatial_transformation_queue.get()->get_start();
 
     fn_compute_vect_.push_back(
         [=]()
