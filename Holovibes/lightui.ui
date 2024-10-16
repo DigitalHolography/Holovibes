@@ -222,16 +222,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QCheckBox" name="InvertContrastCheckBox">
-                   <property name="text">
-                    <string>Invert</string>
-                   </property>
-                   <property name="shortcut">
-                    <string>I</string>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
                </item>
               </layout>
@@ -615,22 +605,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>InvertContrastCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>LightUI</receiver>
-   <slot>set_contrast_invert(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>259</x>
-     <y>379</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
 
  </connections>
  <slots>
@@ -646,6 +620,5 @@
   <slot>set_contrast_max(double)</slot>
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
-  <slot>set_contrast_invert(bool)</slot>
  </slots>
 </ui>

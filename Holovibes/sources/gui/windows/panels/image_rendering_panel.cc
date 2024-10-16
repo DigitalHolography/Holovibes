@@ -19,7 +19,6 @@ namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
-    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { actualise_z_distance(value); }))
 {
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -105,7 +104,7 @@ void ImageRenderingPanel::on_notify()
     // Convolution
     ui_->ConvoCheckBox->setVisible(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
-    
+
     ui_->DivideConvoCheckBox->setVisible(api::get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
@@ -359,51 +358,31 @@ void ImageRenderingPanel::set_time_transformation_size()
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_lambda(static_cast<float>(value) * 1.0e-9f);
-}
-
-void ImageRenderingPanel::actualise_z_distance(const double z_distance)
-{
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
-    const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZDoubleSpinBox->setValue(z_distance);
-    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+    float z_distance = value / 1000.0f;
 
-    api::set_z_distance(static_cast<float>(value) / 1000.0f);
+    api::set_z_distance(z_distance);
+
+    // Keep consistency between the slider and double box
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    ui_->ZDoubleSpinBox->setValue(z_distance);
 }
 
 void ImageRenderingPanel::set_z_distance(const double value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_z_distance(static_cast<float>(value));
+
+    const QSignalBlocker blocker(ui_->ZSlider);
+    ui_->ZSlider->setValue(static_cast<int>(std::round(value * 1000)));
 }
 
-void ImageRenderingPanel::increment_z()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
 
-    set_z_distance(api::get_z_distance() + z_step_);
-}
-
-void ImageRenderingPanel::decrement_z()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    set_z_distance(api::get_z_distance() - z_step_);
-}
+void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {

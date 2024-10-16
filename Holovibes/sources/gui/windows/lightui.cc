@@ -21,7 +21,6 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , ui_(new Ui::LightUI)
     , main_window_(main_window)
     , visible_(false)
-    , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
     , record_progress_subscriber_("record_progress",
@@ -64,15 +63,14 @@ void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_p
     ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
 
-void LightUI::actualise_z_distance(const double z_distance)
+void LightUI::z_value_changed(int z_distance)
 {
-    const QSignalBlocker blocker(ui_->ZSpinBox);
-    const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
-    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
-}
+    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
 
-void LightUI::z_value_changed(int z_distance) { api::set_z_distance(static_cast<float>(z_distance) / 1000.0f); }
+    // The slider and the box must have the same value
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance)));
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance)));
+}
 
 void LightUI::browse_record_output_file_ui()
 {
@@ -103,13 +101,9 @@ void LightUI::set_record_file_name()
 void LightUI::start_stop_recording(bool start)
 {
     if (start)
-    {
         NotifierManager::notify<bool>("start_record_export_panel", true);
-    }
     else
-    {
         api::stop_record();
-    }
 }
 
 void LightUI::on_record_start(RecordMode record)
@@ -162,8 +156,14 @@ void LightUI::set_contrast_mode(bool value)
         return;
 
     api::set_contrast_mode(value);
+}
 
-    // parent_->notify();
+void LightUI::notify()
+{
+    float z_distance = api::get_z_distance();
+
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
 void LightUI::set_contrast_min(const double value)
@@ -196,23 +196,7 @@ void LightUI::set_auto_contrast()
     api::set_auto_contrast();
 }
 
-void LightUI::set_contrast_auto_refresh(bool value)
-{
-    api::set_contrast_auto_refresh(value);
-
-    // parent_->notify();
-}
-
-void LightUI::set_contrast_invert(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_invert(value);
-}
+void LightUI::set_contrast_auto_refresh(bool value) { api::set_contrast_auto_refresh(value); }
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
 {
@@ -244,6 +228,7 @@ void LightUI::set_progress_bar_maximum(int maximum) { ui_->recordProgressBar->se
 void LightUI::open_configuration_ui()
 {
     main_window_->show();
+    main_window_->notify();
     this->hide();
     visible_ = false;
 }

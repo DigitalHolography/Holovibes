@@ -392,7 +392,7 @@ void set_view_mode(const ImgType type)
 
         pipe_refresh();
     }
-    catch(const std::runtime_error&) // The pipe is not initialized
+    catch (const std::runtime_error&) // The pipe is not initialized
     {
     }
 }
@@ -862,20 +862,21 @@ bool slide_update_threshold(
 
 void set_lambda(float value)
 {
-    UPDATE_SETTING(Lambda, value);
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
     pipe_refresh();
 }
 
 void set_z_distance(float value)
 {
-    if (value == 0)
-        value = 0.000001f;
-    // to avoid kernel crash with 0 distance
-    // Notify the change to the z_distance notifier
-    NotifierManager::notify<double>("z_distance", value);
-
     if (get_compute_mode() == Computation::Raw)
         return;
+
+    // Avoid 0 for cuda kernel
+    if (value <= 0)
+        value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
     pipe_refresh();

@@ -483,12 +483,12 @@ It's a post-processing step to remove noise</string>
              </item>
              <item>
               <property name="text">
-               <string>FresnelTR</string>
+               <string>Fresnel Tr.</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>AngularSP</string>
+               <string>Angular SP.</string>
               </property>
              </item>
             </widget>
