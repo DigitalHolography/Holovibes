@@ -74,6 +74,9 @@ void ViewPanel::on_notify()
     ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
     ui_->FFTShiftCheckBox->setEnabled(true);
 
+    ui_->StabilizationCheckBox->setChecked(api::get_stabilization_enabled());
+    ui_->StabilizationCheckBox->setEnabled(true);
+
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
     ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
@@ -281,8 +284,14 @@ void ViewPanel::set_fft_shift(const bool value)
         return;
 
     api::set_fft_shift_enabled(value);
+}
 
-    // api::pipe_refresh();
+void ViewPanel::set_stabilization(bool value)
+{
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    api::set_stabilization_enabled(value);
 }
 
 void ViewPanel::update_lens_view(bool checked)

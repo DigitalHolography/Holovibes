@@ -28,6 +28,7 @@
     holovibes::settings::Filter2dViewEnabled,      \
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
+    holovibes::settings::StabilizationEnabled,     \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled,       \
@@ -94,6 +95,8 @@ class Rendering
 
     /*! \brief insert the functions relative to the fft shift. */
     void insert_fft_shift();
+    /*! \brief insert the functions relative to the stabilization. */
+    void insert_stabilization();
     /*! \brief insert the functions relative to noise and signal chart. */
     void insert_chart();
     /*! \brief insert the functions relative to the log10. */

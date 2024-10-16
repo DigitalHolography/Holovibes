@@ -24,8 +24,7 @@ void Rendering::insert_fft_shift()
     {
         if (setting<settings::ImageType>() == ImgType::Composite)
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
                                   1,
                                   fd_.width,
@@ -35,6 +34,17 @@ void Rendering::insert_fft_shift()
         else
             fn_compute_vect_.conditional_push_back(
                 [=]() { shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_); });
+    }
+}
+
+void Rendering::insert_stabilization()
+{
+    LOG_FUNC();
+
+    if (setting<settings::StabilizationEnabled>())
+    {
+        // TODO : Stabilization
+        LOG_WARN("Stabilization not implemented yet");
     }
 }
 

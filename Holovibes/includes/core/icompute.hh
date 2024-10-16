@@ -42,6 +42,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::StabilizationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -300,7 +301,8 @@ class ICompute
     void fft_freqs();
 
     /*!
-     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the moments.
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the
+     * moments.
      *
      * \param  time_transformation_size  The new time transformation size.
      * \return                           Whether there is an error or not.

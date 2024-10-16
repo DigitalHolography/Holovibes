@@ -1452,6 +1452,16 @@ The range of frequencies kept is [z, z + width]</string>
              </property>
             </widget>
            </item>
+           <item row="7" column="1" colspan="2">
+            <widget class="QCheckBox" name="StabilizationCheckBox">
+             <property name="toolTip">
+              <string>Stabilize the image</string>
+             </property>
+             <property name="text">
+              <string>Stabilization</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item row="15" column="0" colspan="2">
@@ -4302,6 +4312,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>StabilizationCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_stabilization(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -6092,6 +6118,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
+  <slot>set_stabilization(bool)</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>
