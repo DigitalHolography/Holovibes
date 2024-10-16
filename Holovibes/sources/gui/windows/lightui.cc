@@ -54,6 +54,7 @@ void LightUI::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
     visible_ = true;
+    notify();
 }
 
 void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_path)
@@ -160,10 +161,20 @@ void LightUI::set_contrast_mode(bool value)
 
 void LightUI::notify()
 {
+    // Z distance
     float z_distance = api::get_z_distance();
 
     ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
+
+    // Contrast
+    ui_->ContrastCheckBox->setChecked(api::get_compute_mode() != Computation::Raw && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setEnabled(api::get_compute_mode() != Computation::Raw);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 }
 
 void LightUI::set_contrast_min(const double value)

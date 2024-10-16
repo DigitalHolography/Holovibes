@@ -873,7 +873,6 @@ void MainWindow::shift_screen()
 void MainWindow::open_light_ui()
 {
     light_ui_->show();
-    light_ui_->notify();
     this->hide();
 }
 
