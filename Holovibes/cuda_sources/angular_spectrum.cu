@@ -4,6 +4,7 @@
 #include "cuda_memory.cuh"
 #include "apply_mask.cuh"
 #include "shift_corners.cuh"
+#include "common.cuh"
 
 #include <cufftXt.h>
 
