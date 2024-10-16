@@ -101,8 +101,7 @@ void compute_percentile_xy_view(const float* gpu_input,
         thrust_gpu_input_copy = allocate_thrust(frame_res, stream);
         if (compute_on_sub_zone)
             frame_memcpy(gpu_input + offset, sub_zone, width, thrust_gpu_input_copy.get(), stream);
-        else
-            thrust::copy(thrust::cuda::par.on(stream),
+        thrust::copy(thrust::cuda::par.on(stream),
                          gpu_input + offset,
                          gpu_input + offset + frame_res,
                          thrust_gpu_input_copy);
