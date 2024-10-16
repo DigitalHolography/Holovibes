@@ -74,16 +74,16 @@ __device__ static void warp_primitive_reduce(T* sdata, const uint tid, const R_O
  *
  * We slightly improved performances by tuning it
  */
-template <typename T, typename U, uint pixel_per_block, typename R_OP, typename A_OP>
-__global__ static void kernel_reduce(U* const __restrict__ output,
-                                     const T* const __restrict__ input,
+template <typename O, typename I, uint pixel_per_block, typename R_OP, typename A_OP>
+__global__ static void kernel_reduce(O* const __restrict__ output,
+                                     const I* const __restrict__ input,
                                      const uint size,
                                      const R_OP reduce_op,
                                      const A_OP atomic_op,
-                                     const T identity_elt)
+                                     const I identity_elt)
 {
     // Each block is reduced in shared data (avoiding multiple global memory acceses)
-    __shared__ T sdata[pixel_per_block / 2];
+    __shared__ I sdata[pixel_per_block / 2];
     const uint tid = threadIdx.x;
 
     sdata[tid] = identity_elt;
@@ -139,7 +139,7 @@ __global__ static void kernel_reduce(U* const __restrict__ output,
 
     // The last reductions steps is a warp size problem and can thus be optimized
     if (tid < warp_size)
-        warp_primitive_reduce<T, pixel_per_block / 2>(sdata, tid, reduce_op);
+        warp_primitive_reduce<I, pixel_per_block / 2>(sdata, tid, reduce_op);
 
     // Each block writes it local reduce to global memory
     if (tid == 0)
@@ -159,13 +159,13 @@ __global__ static void kernel_reduce(U* const __restrict__ output,
  * Numerous benches have been done to achieve the best output possible
  * Don't modify this kernel unless making benches
  */
-template <typename T, typename U, typename R_OP, typename A_OP>
-void reduce_generic(U* const __restrict__ output,
-                    const T* const __restrict__ input,
+template <typename O, typename I, typename R_OP, typename A_OP>
+void reduce_generic(O* const __restrict__ output,
+                    const I* const __restrict__ input,
                     const uint size,
                     const R_OP reduce_op,
                     const A_OP atomic_op,
-                    const T identity_elt,
+                    const I identity_elt,
                     const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
@@ -183,20 +183,20 @@ void reduce_generic(U* const __restrict__ output,
     ** cudaMemcpyHostToDevice is too slow
     ** The fastest & generic option is using a cuda kernel (~2us)
     */
-    set_cuda_value<<<1, 1, 0, stream>>>(output, static_cast<U>(identity_elt));
+    set_cuda_value<<<1, 1, 0, stream>>>(output, static_cast<O>(identity_elt));
 
     // Each thread works at least on 2 pixels
-    kernel_reduce<T, U, optimal_block_size * 2>
+    kernel_reduce<O, I, optimal_block_size * 2>
         <<<nb_blocks, optimal_block_size, 0, stream>>>(output, input, size, reduce_op, atomic_op, identity_elt);
     cudaCheckError();
 }
 
-template <typename T, typename U>
-void reduce_add(U* const output, const T* const input, const uint size, const cudaStream_t stream)
+template <typename O, typename I>
+void reduce_add(O* const output, const I* const input, const uint size, const cudaStream_t stream)
 {
-    static const auto op_add = [] __device__(const T left, const T right) { return left + right; };
-    static const auto atomic_add = [] __device__(U* const left, const T right) { atomicAdd(left, right); };
-    static constexpr T identity_elt_add = static_cast<T>(0);
+    static const auto op_add = [] __device__(const I left, const I right) { return left + right; };
+    static const auto atomic_add = [] __device__(O* const left, const I right) { atomicAdd(left, right); };
+    static constexpr I identity_elt_add = static_cast<I>(0);
 
     reduce_generic(output, input, size, op_add, atomic_add, identity_elt_add, stream);
 }

@@ -9,8 +9,8 @@ using uint = unsigned int;
  *
  * Two types are needed to avoid overflow (sizeof(U) >= sizeof(T))
  */
-template <typename T, typename U>
-void reduce_add(U* const output, const T* const input, const uint size, const cudaStream_t stream);
+template <typename O, typename I>
+void reduce_add(O* const output, const I* const input, const uint size, const cudaStream_t stream);
 
 // Min / Max : ushort not supported by CUDA (because of atomic operation)
 

@@ -8,7 +8,7 @@
 
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
  *
- * \param image The image(s) to process. Should be contiguous memory.
+ * \param image[in out] The image(s) to process. Should be contiguous memory.
  * \param frame_res Size of the frame
  * \param divider Divider value for all elements.
  * \param batch_size The number of images
@@ -45,7 +45,7 @@ void multiply_frames_complex(
 
 /*! \brief normalize input according to a renormalize constant
  *
- * \param input input data
+ * \param input[in out] input data
  * \param result_reduce device double pointer used to store the result of the
  * reduction operation required to compute mean value of the frame
  * \param frame_res frame resolution

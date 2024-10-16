@@ -15,7 +15,7 @@ namespace _private
  * Apply func on every pixel of the input and store
  * it in output.
  */
-template <typename I, typename O, typename FUNC>
+template <typename O, typename I, typename FUNC>
 __global__ static void kernel_map_generic(O* const output, const I* const input, const size_t size, const FUNC func)
 {
     const size_t index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -30,7 +30,7 @@ __global__ static void kernel_map_generic(O* const output, const I* const input,
  *
  * This function lauches kernel calls in the most optimized way.
  */
-template <typename I, typename O, typename FUNC>
+template <typename O, typename I, typename FUNC>
 static void
 _map_regular(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
@@ -75,7 +75,7 @@ void _map_vectorize(
 
 /***** Generic map implementations *****/
 
-template <typename I, typename O, typename FUNC>
+template <typename O, typename I, typename FUNC>
 void map_generic(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
     _private::_map_regular(output, input, size, func, stream);

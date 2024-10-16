@@ -16,7 +16,7 @@ using ushort = unsigned short;
  * of the spectrum (and vice-versa), as explained in the matlab documentation
  * (http://fr.mathworks.com/help/matlab/ref/fftshift.html).
  *
- * \param input The image to modify in-place.
+ * \param input[in out] The image to modify in-place.
  * \param batch_size Number of images in input
  * \param size_x The width of data, in pixels.
  * \param size_y The height of data, in pixels.
@@ -37,8 +37,8 @@ void shift_corners(
  * of the spectrum (and vice-versa), as explained in the matlab documentation
  * (http://fr.mathworks.com/help/matlab/ref/fftshift.html).
  *
- * \param output The destination image
- * \param input The image to shift.
+ * \param output[out] The destination image
+ * \param input[in] The image to shift.
  * \param batch_size Number of images in input
  * \param size_x The width of data, in pixels.
  * \param size_y The height of data, in pixels.

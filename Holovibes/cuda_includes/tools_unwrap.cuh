@@ -18,9 +18,9 @@ __global__ void kernel_extract_angle(float* output, const cuComplex* input, cons
 
 /*! \brief Perform element-wise phase adjustment on a pixel matrix.
  *
- * \param output Where to store the unwrapped version of cur.
- * \param pred Predecessor phase image.
- * \param cur Latest phase image.
+ * \param output[out] Where to store the unwrapped version of cur.
+ * \param pred[in] Predecessor phase image.
+ * \param cur[in] Latest phase image.
  * \param size Size of an image in pixels. */
 __global__ void kernel_unwrap(float* output, const float* pred, const float* cur, const size_t size);
 
@@ -29,9 +29,9 @@ __global__ void kernel_unwrap(float* output, const float* pred, const float* cur
  * Computes cur .* conjugate(pred),
  * where .* is the element-wise complex-valued multiplication operation.
  * The angles of the resulting complex matrix are stored in output.
- * \param output The matrix which shall store ther resulting angles.
- * \param pred Predecessor complex image.
- * \param cur Latest complex image.
+ * \param output[out] The matrix which shall store ther resulting angles.
+ * \param pred[in] Predecessor complex image.
+ * \param cur[in] Latest complex image.
  * \param size The size of an image in pixels. */
 __global__ void
 kernel_compute_angle_mult(float* output, const cuComplex* pred, const cuComplex* cur, const size_t size);
@@ -40,17 +40,17 @@ kernel_compute_angle_mult(float* output, const cuComplex* pred, const cuComplex*
  *
  * Computes cur - conjugate(pred). The angles of the resulting complex matrix
  * are stored in output.
- * \param output The matrix which shall store ther resulting angles.
- * \param pred Predecessor complex image.
- * \param cur Latest complex image.
+ * \param output[out] The matrix which shall store ther resulting angles.
+ * \param pred[in] Predecessor complex image.
+ * \param cur[in] Latest complex image.
  * \param size The size of an image in pixels. */
 __global__ void
 kernel_compute_angle_diff(float* output, const cuComplex* pred, const cuComplex* cur, const size_t size);
 
 /*! \brief Iterate over saved phase corrections and apply them to an image.
  *
- * \param data The image to be corrected.
- * \param corrections Pointer to the beginning of the phase corrections buffer.
+ * \param data[in out] The image to be corrected.
+ * \param corrections[in] Pointer to the beginning of the phase corrections buffer.
  * \param image_size The number of pixels in a single image.
  * \param history_size The number of past phase corrections used. */
 __global__ void
@@ -58,14 +58,14 @@ kernel_correct_angles(float* data, const float* corrections, const size_t image_
 
 /*! \brief Initialise fx, fy, z matrix for unwrap 2d.
  *
- * \param Matrix width.
- * \param Matrix height.
- * \param Matrix resolution.
- * \param 1TF or 2TF result.
+ * \param input[in out] The matrix.
+ * \param width Matrix width.
+ * \param height height.
+ * \param frame_res resolution.
  * \param fx buffer.
  * \param fy buffer.
- * \param z buffer. */
-
+ * \param z buffer.
+ */
 __global__ void kernel_init_unwrap_2d(
     const float* input, const uint width, const uint height, const uint frame_res, float* fx, float* fy, cuComplex* z);
 

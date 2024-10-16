@@ -31,7 +31,7 @@ using ushort = unsigned short;
  * Moreover, this operation works on any sizes.
  *
  */
-template <typename I, typename O, typename FUNC>
+template <typename O, typename I, typename FUNC>
 void map_generic(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Map input (float) to output (float) throughout a mapping function.

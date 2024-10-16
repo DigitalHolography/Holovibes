@@ -75,7 +75,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
     convolution_kernel(hsv_arr_.get() + frame_res,
@@ -85,7 +84,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_.get(),
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
     convolution_kernel(hsv_arr_.get() + (frame_res * 2),
@@ -95,7 +93,6 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        frame_res,
                        gpu_kernel_buffer_,
                        divide_convolution_enabled,
-                       true,
                        stream_);
 
     from_distinct_components_to_interweaved_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
@@ -120,7 +117,6 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
                                    fd_.get_frame_res(),
                                    gpu_kernel_buffer_.get(),
                                    setting<settings::DivideConvolutionEnabled>(),
-                                   true,
                                    stream_);
             });
     }
