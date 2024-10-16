@@ -5,7 +5,6 @@
 #include "input_cine_file.hh"
 #include "file_exception.hh"
 
-#include "global_state_holder.hh"
 #include "API.hh"
 
 namespace holovibes::io_files

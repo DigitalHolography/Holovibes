@@ -21,11 +21,10 @@
 #include "logger.hh"
 
 #include "cli.hh"
-#include "global_state_holder.hh"
 
 #include <spdlog/spdlog.h>
 
-#define CUDA_MIN_VERSION 35
+#define MIN_CUDA_VERSION 35
 
 static void check_cuda_graphic_card(bool gui)
 {
@@ -41,7 +40,8 @@ static void check_cuda_graphic_card(bool gui)
         cudaGetDevice(&device);
         cudaGetDeviceProperties(&props, device);
 
-        if (props.major * 10 + props.minor >= CUDA_MIN_VERSION)
+        // Check cuda version
+        if (props.major * 10 + props.minor >= MIN_CUDA_VERSION)
             return;
         else
             error_message = "CUDA graphic card not supported.\n";

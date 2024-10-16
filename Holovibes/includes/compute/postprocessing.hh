@@ -10,7 +10,6 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"

@@ -18,7 +18,6 @@
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
 #include "enum_record_mode.hh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"

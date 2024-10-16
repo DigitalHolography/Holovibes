@@ -15,7 +15,6 @@
 
 // namespace holovibes
 #include "custom_exception.hh"
-#include "observer.hh"
 
 // panel struct
 #include "import_panel.hh"
@@ -47,7 +46,7 @@ namespace holovibes::gui
  * * Import : making a file of raw data the image source
  * * Info : Various runtime informations on the program's state
  */
-class MainWindow : public QMainWindow, public Observer
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -59,8 +58,8 @@ class MainWindow : public QMainWindow, public Observer
     MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    void notify() override;
-    void notify_error(const std::exception& e) override;
+    void notify();
+    void notify_error(const std::exception& e);
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
@@ -149,8 +148,6 @@ class MainWindow : public QMainWindow, public Observer
      * * Set visibility to true
      */
 
-    void refresh_view_mode();
-
     bool need_refresh(const std::string& last_type, const std::string& new_type);
     void set_composite_values();
 
@@ -201,6 +198,12 @@ class MainWindow : public QMainWindow, public Observer
     /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();
+
+    /**
+     * \brief Small helper function that just writes tooltips.
+     * Note : the only affected locations should be drop-down menus, or 'comboBox'.
+     */
+    void init_tooltips();
 
   public:
     /*! \brief Changes camera
