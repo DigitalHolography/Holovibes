@@ -3211,7 +3211,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
-     <addaction name="actionEGrabberStudio"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3228,7 +3227,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionPhantom_S710Settings"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
-     <addaction name="actionEGrabberStudioSettings"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3461,11 +3459,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
-  <action name="actionEGrabberStudio">
-   <property name="text">
-    <string>Euresys eGrabber</string>
-   </property>
-  </action>
   <action name="actionBitflowCytonSettings">
     <property name="text">
      <string>Bitflow Cyton frame grabber</string>
@@ -3519,11 +3512,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
     <property name="text">
      <string>Ametek S991 Euresys Coaxlink QSPF+</string>
-    </property>
-  </action>
-  <action name="actionEGrabberStudioSettings">
-    <property name="text">
-     <string>Euresys eGrabber</string>
     </property>
   </action>
   <action name="actionReload_ini">
@@ -5409,22 +5397,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>actionEGrabberStudio</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_euresys_egrabber()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionBitflowCytonSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5589,22 +5561,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>camera_ametek_s991_coaxlink_qspf_plus_settings()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionEGrabberStudioSettings</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_euresys_egrabber_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
