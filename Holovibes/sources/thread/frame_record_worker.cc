@@ -64,22 +64,28 @@ void FrameRecordWorker::run()
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
+    size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
+
     nb_frames_recorded = 0;
 
-    if (setting<settings::RecordFrameCount>().has_value())
+    // Get the real number of frames to record taking in account the frame skip
+    auto frame_count = setting<settings::RecordFrameCount>();
+    if (frame_count.has_value())
     {
-        nb_frames_to_record = static_cast<unsigned int>(setting<settings::RecordFrameCount>().value());
+        nb_frames_to_record = static_cast<unsigned int>(frame_count.value());
+        nb_frames_to_record = std::ceil((float)(nb_frames_to_record) / (float)(setting<settings::FrameSkip>() + 1));
+        // One frame will result in three moments.
+        if (setting<settings::RecordMode>() == RecordMode::MOMENTS)
+            nb_frames_to_record = nb_frames_to_record * 3;
     }
     else
         nb_frames_to_record = 0;
-
     // Processed FPS FastUpdatesHolder entry
 
     std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<FpsType>.create_entry(FpsType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request(ICS::FrameRecord);
-    // Queue& record_queue = *pipe->get_frame_record_queue();
 
     const size_t output_frame_size = record_queue_.load()->get_fd().get_frame_size();
     io_files::OutputFrameFile* output_frame_file = nullptr;
@@ -101,25 +107,18 @@ void FrameRecordWorker::run()
 
         frame_buffer = new char[output_frame_size];
 
-        size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
         auto input_queue = api::get_input_queue();
 
         if (input_queue->has_overwritten())
             input_queue->reset_override();
 
-        // Get the real number of frames to record taking in account the frame skip
-        size_t nb_frames_to_record =
-            setting<settings::RecordFrameCount>().value() / (setting<settings::FrameSkip>() + 1);
-
-        while (setting<settings::RecordFrameCount>() == std::nullopt ||
-               (nb_frames_recorded < nb_frames_to_record && !stop_requested_))
+        while (!stop_requested_ && (frame_count == std::nullopt || nb_frames_recorded < nb_frames_to_record))
         {
             if (record_queue_.load()->has_overwritten() || input_queue->has_overwritten())
             {
                 // Due to frames being overwritten when the queue/batchInputQueue is full, the contiguity is lost.
                 if (!contiguous_frames.has_value())
                 {
-
                     contiguous_frames =
                         std::make_optional(nb_frames_recorded.load() + record_queue_.load()->get_size());
 
@@ -222,12 +221,8 @@ void FrameRecordWorker::run()
 
 void FrameRecordWorker::wait_for_frames()
 {
-    auto pipe = Holovibes::instance().get_compute_pipe();
-    while (!stop_requested_)
-    {
-        if (record_queue_.load()->get_size() != 0)
-            break;
-    }
+    while (!stop_requested_ && record_queue_.load()->get_size() == 0)
+        continue;
 }
 
 void FrameRecordWorker::reset_record_queue()

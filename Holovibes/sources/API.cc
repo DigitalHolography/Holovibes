@@ -1622,7 +1622,8 @@ void set_record_mode(const std::string& text)
                                                                               {"Processed Image", RecordMode::HOLOGRAM},
                                                                               {"Raw Image", RecordMode::RAW},
                                                                               {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ}};
+                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
+                                                                              {"Moments", RecordMode::MOMENTS}};
 
     auto it = recordModeMap.find(text);
     if (it == recordModeMap.end())
@@ -1751,8 +1752,7 @@ void stop_record()
 
     if (record_mode == RecordMode::CHART)
         Holovibes::instance().stop_chart_record();
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
-             record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
+    else if (record_mode != RecordMode::NONE)
         Holovibes::instance().stop_frame_record();
 
     // Holovibes::instance().get_record_queue().load()->dequeue(-1);
