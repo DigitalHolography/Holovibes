@@ -1,4 +1,4 @@
-name: Holovibes CI
+name: Self-Hosted CI test
 
 on:
   pull_request_target:
