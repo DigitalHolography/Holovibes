@@ -94,11 +94,4 @@ void CameraPhantom711::init_camera()
     CameraPhantomInt::init_camera();
 }
 
-ICamera* new_camera_device()
-{
-    auto* res = new CameraPhantom711();
-    res->init_camera();
-    return res;
-}
-
 } // namespace camera

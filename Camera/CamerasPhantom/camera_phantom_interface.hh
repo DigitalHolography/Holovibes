@@ -15,6 +15,9 @@
 namespace camera
 {
 
+template <class Cam>
+Cam* initCam();
+
 /*! \class EHoloSubGrabber
  *
  * \brief Alias to the \ref Euresys::EGrabberCallbackOnDemand "EGrabberCallbackOnDemand" class for better code
@@ -176,3 +179,5 @@ class CameraPhantomInt : public Camera
 };
 
 } // namespace camera
+
+#include "camera_phantom_interface.hxx"

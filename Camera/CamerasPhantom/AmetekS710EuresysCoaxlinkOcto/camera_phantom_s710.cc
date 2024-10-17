@@ -92,16 +92,10 @@ void CameraPhantom710::init_camera()
                                                  params_.at<std::string>("PixelFormat"),
                                                  nb_grabbers);
 
-    // nb_grabbers may have been updated by EHoloGrabber constructor
+    // nb_grabbers may have been updated by EHoloGrabber710 constructor
     params_.set<unsigned int>("NbGrabbers", nb_grabbers);
 
     CameraPhantomInt::init_camera();
 }
 
-ICamera* new_camera_device()
-{
-    auto* res = new CameraPhantom710();
-    res->init_camera();
-    return res;
-}
 } // namespace camera
