@@ -36,6 +36,37 @@ reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x
     }
 }
 
+/*!
+ * \brief Performs a warp-level reduction to sum values across threads in a warp using warp-level primitives.
+ *
+ * This inline device function leverages CUDA's warp-level primitives to perform an efficient sum
+ * reduction across all threads within a warp (typically 32 threads). Warp-level primitives, like
+ * `__shfl_down_sync`, enable threads within a warp to communicate directly without the overhead of
+ * shared memory or explicit synchronization, significantly optimizing reduction operations.
+ *
+ * The reduction is achieved by progressively halving the number of active threads in each iteration.
+ * Starting with an offset equal to `warpSize / 2`, each thread exchanges its value with a neighbor
+ * `offset` positions below, and accumulates the result. This continues until all values in the warp
+ * are summed together. The function returns the final sum, and while every thread in the warp
+ * computes this sum, typically only thread 0 will use the result.
+ *
+ * As highlighted in NVIDIA's CUDA blog on warp-level primitives
+ * (https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/), this approach avoids the
+ * need for full block-wide synchronization and the use of shared memory, making it faster and more
+ * efficient for warp-level reductions.
+ *
+ * In the for loop:
+ * - The initial `offset` is `warpSize / 2`, which corresponds to 16 threads (assuming `warpSize` is 32).
+ * - The value of `offset` is halved after each iteration (16, 8, 4, 2, 1), allowing the threads to
+ *   progressively accumulate values within the warp.
+ *
+ * The intrinsic `__shfl_down_sync` enables this reduction by shifting values between threads in a warp.
+ * The mask `0xFFFFFFFF` ensures that all threads in the warp participate in the operation.
+ *
+ * \param[in] val The value held by the current thread, which will be summed across the warp.
+ * \return The sum of the values across the warp. Although all threads in the warp return the same sum,
+ *         usually only the first thread in each warp (thread 0) will use the final result.
+ */
 __inline__ __device__
 float warp_reduce_sum(float val) {
     for (int offset = warpSize / 2; offset > 0; offset /= 2)
