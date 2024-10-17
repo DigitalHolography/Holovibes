@@ -1,0 +1,43 @@
+name: Holovibes CI
+
+on:
+  pull_request_target:
+    branches: [ "ci_self_host" ]
+  pull_request:
+    branches: [ "ci_self_host" ]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code 
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        
+    - name: Cache Conan dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.conan
+        key: ${{ runner.os }}-conan-${{ hashFiles('conanfile.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-conan-
+          
+    - name: Install Dependencies
+      run: |
+        pip install conan
+        conan profile detect
+        conan install . --build missing --settings compiler.cppstd=20 --settings build_type=Release
+        
+    - name: Building the projet
+      run: |
+        ./dev.py clean build -b Release
+        
+    - name: Run Tests
+      run: |
+        ./dev.py pytest -b Release
