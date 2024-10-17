@@ -538,12 +538,6 @@ float get_truncate_contrast_max(const int precision = 2);
  */
 float get_truncate_contrast_min(const int precision = 2);
 
-/*! \brief Enables or Disables contrast invertion
- *
- * \param value true: enable, false: disable
- */
-void set_contrast_invert(bool value);
-
 /*! \brief Enables or Disables auto refresh contrast
  *
  * \param value true: enable, false: disable

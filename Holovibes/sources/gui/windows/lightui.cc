@@ -21,7 +21,6 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
     , ui_(new Ui::LightUI)
     , main_window_(main_window)
     , visible_(false)
-    , z_distance_subscriber_("z_distance", std::bind(&LightUI::actualise_z_distance, this, std::placeholders::_1))
     , record_start_subscriber_("record_start", std::bind(&LightUI::on_record_start, this, std::placeholders::_1))
     , record_end_subscriber_("record_stop", std::bind(&LightUI::on_record_stop, this, std::placeholders::_1))
     , record_progress_subscriber_("record_progress",
@@ -55,6 +54,7 @@ void LightUI::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
     visible_ = true;
+    notify();
 }
 
 void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_path)
@@ -64,15 +64,14 @@ void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_p
     ui_->OutputFileNameLineEdit->setText(QString::fromStdString(file_path.stem().string()));
 }
 
-void LightUI::actualise_z_distance(const double z_distance)
+void LightUI::z_value_changed(int z_distance)
 {
-    const QSignalBlocker blocker(ui_->ZSpinBox);
-    const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
-    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
-}
+    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
 
-void LightUI::z_value_changed(int z_distance) { api::set_z_distance(static_cast<float>(z_distance) / 1000.0f); }
+    // The slider and the box must have the same value
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance)));
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance)));
+}
 
 void LightUI::browse_record_output_file_ui()
 {
@@ -103,13 +102,9 @@ void LightUI::set_record_file_name()
 void LightUI::start_stop_recording(bool start)
 {
     if (start)
-    {
         NotifierManager::notify<bool>("start_record_export_panel", true);
-    }
     else
-    {
         api::stop_record();
-    }
 }
 
 void LightUI::on_record_start(RecordMode record)
@@ -154,6 +149,66 @@ void LightUI::reset_record_progress_bar()
     actualise_record_progress(0, 1); // So as to reset the progress of the bar.
 }
 
+void LightUI::notify()
+{
+    // Z distance
+    float z_distance = api::get_z_distance();
+
+    ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
+    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
+
+    // Contrast
+    bool pipe_loaded = api::get_compute_pipe_no_throw() != nullptr;
+    ui_->ContrastCheckBox->setChecked(pipe_loaded && api::get_contrast_enabled());
+    ui_->ContrastCheckBox->setEnabled(pipe_loaded);
+    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
+
+    // Camera
+    ui_->actionSettings->setEnabled(false);
+}
+
+void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
+
+void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
+
+void LightUI::set_contrast_max(const double value) { api::set_contrast_max(value); }
+
+void LightUI::set_auto_contrast() { api::set_auto_contrast(); }
+
+void LightUI::set_contrast_auto_refresh(bool value)
+{
+    api::set_contrast_auto_refresh(value);
+    notify(); // Enable or disable the DoubleBox range
+}
+
+void LightUI::change_camera(CameraKind camera)
+{
+    main_window_->change_camera(camera);
+
+    ui_->actionSettings->setEnabled(true);
+    notify();
+}
+
+void LightUI::camera_none()
+{
+    change_camera(CameraKind::NONE);
+
+    // Make camera's settings menu unaccessible
+    ui_->actionSettings->setEnabled(false);
+}
+
+void LightUI::camera_phantom() { change_camera(CameraKind::Phantom); }
+
+void LightUI::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP); }
+
+void LightUI::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
+
+void LightUI::configure_camera() { api::configure_camera(); }
+
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
 {
     ui_->recordProgressBar->setStyleSheet("QProgressBar::chunk { background-color: " + color.name() +
@@ -184,6 +239,7 @@ void LightUI::set_progress_bar_maximum(int maximum) { ui_->recordProgressBar->se
 void LightUI::open_configuration_ui()
 {
     main_window_->show();
+    main_window_->notify();
     this->hide();
     visible_ = false;
 }

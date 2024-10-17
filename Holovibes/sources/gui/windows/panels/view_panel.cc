@@ -92,7 +92,16 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+
+    // Enable only row that are actually displayed on the screen
+    QListView* window_slection_view = qobject_cast<QListView*>(window_selection->view());
+    window_slection_view->setRowHidden(1, !api::get_xz_enabled());
+    window_slection_view->setRowHidden(2, !api::get_yz_enabled());
+    window_slection_view->setRowHidden(3, !api::get_filter2d_view_enabled());
+
+    // If one view gets disabled set to the standard XY view
+    int index = static_cast<int>(api::get_current_window_type());
+    window_selection->setCurrentIndex(window_slection_view->isRowHidden(index) ? 0 : index);
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);
@@ -192,10 +201,23 @@ void ViewPanel::on_notify()
     QSpinBoxQuietSetValue(ui_->XSpinBox, api::get_x_cuts());
     QSpinBoxQuietSetValue(ui_->YSpinBox, api::get_y_cuts());
 
+    // XY accu visibility
+    bool xy_visible = api::get_cuts_view_enabled();
+    ui_->XSpinBox->setVisible(xy_visible);
+    ui_->XLabel->setVisible(xy_visible);
+    ui_->XAccSpinBox->setVisible(xy_visible);
+    ui_->XAccLabel->setVisible(xy_visible);
+    ui_->YSpinBox->setVisible(xy_visible);
+    ui_->YLabel->setVisible(xy_visible);
+    ui_->YAccSpinBox->setVisible(xy_visible);
+    ui_->YAccLabel->setVisible(xy_visible);
+
     ui_->RenormalizeCheckBox->setChecked(api::get_renorm_enabled());
     ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
+
+    // Filter2D
 }
 
 void ViewPanel::load_gui(const json& j_us)
@@ -434,69 +456,29 @@ void ViewPanel::set_accumulation_level(int value)
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_contrast_mode(value);
-
     parent_->notify();
 }
 
-void ViewPanel::set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_auto_contrast();
-}
+void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
 
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {
     api::set_contrast_auto_refresh(value);
-
     parent_->notify();
 }
 
-void ViewPanel::set_contrast_invert(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::set_contrast_invert(bool value) { api::set_contrast_invert(value); }
 
-    if (!api::get_contrast_enabled())
-        return;
+void ViewPanel::set_contrast_min(const double value) { api::set_contrast_min(value); }
 
-    api::set_contrast_invert(value);
-}
-
-void ViewPanel::set_contrast_min(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_min(value);
-}
-
-void ViewPanel::set_contrast_max(const double value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_contrast_enabled())
-        return;
-
-    api::set_contrast_max(value);
-}
+void ViewPanel::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
 void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }
 
 void ViewPanel::display_reticle(bool value)
 {
-    if (api::get_reticle_display_enabled() != value)
-        api::display_reticle(value);
-
+    api::display_reticle(value);
     parent_->notify();
 }
 

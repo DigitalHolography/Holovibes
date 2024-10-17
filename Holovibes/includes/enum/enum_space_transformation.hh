@@ -29,16 +29,16 @@ enum class SpaceTransformation
  * compute settings to work with the new names.
  */
 SERIALIZE_JSON_ENUM(SpaceTransformation, {
-    {SpaceTransformation::NONE, "NONE"},           // Actual saved name
-    {SpaceTransformation::NONE, "None"},           //   (Retro)compatibility
-    {SpaceTransformation::FRESNELTR, "FRESNELTR"}, // Actual saved name
-    {SpaceTransformation::FRESNELTR, "FresnelTR"}, // | (Retro)compatibility
-    {SpaceTransformation::FRESNELTR, "FFT1"},      // |
-    {SpaceTransformation::FRESNELTR, "1FFT"},      // v
-    {SpaceTransformation::ANGULARSP, "ANGULARSP"}, // Actual saved name
-    {SpaceTransformation::ANGULARSP, "AngularSP"}, // | (Retro)compatibility
-    {SpaceTransformation::ANGULARSP, "FFT2"},      // |
-    {SpaceTransformation::ANGULARSP, "2FFT"},      // v
+    {SpaceTransformation::NONE, "NONE"},             // Actual saved name
+    {SpaceTransformation::NONE, "None"},             //   (Retro)compatibility
+    {SpaceTransformation::FRESNELTR, "FRESNELTR"},   // Actual saved name
+    {SpaceTransformation::FRESNELTR, "Fresnel Tr."}, // | (Retro)compatibility
+    {SpaceTransformation::FRESNELTR, "FFT1"},        // |
+    {SpaceTransformation::FRESNELTR, "1FFT"},        // v
+    {SpaceTransformation::ANGULARSP, "ANGULARSP"},   // Actual saved name
+    {SpaceTransformation::ANGULARSP, "Angular SP."}, // | (Retro)compatibility
+    {SpaceTransformation::ANGULARSP, "FFT2"},        // |
+    {SpaceTransformation::ANGULARSP, "2FFT"},        // v
 })
 // clang-format on
 } // namespace holovibes
