@@ -5,6 +5,8 @@ on:
     branches: [ "ci_self_host-1" ]
   pull_request:
     branches: [ "ci_self_host-1" ]
+  push:
+    branches: [ "ci_self_host-1" ]
   release:
     types: [published]
 
