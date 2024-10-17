@@ -1815,8 +1815,6 @@ bool import_start()
     {
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
-        // TODO remove
-        UPDATE_SETTING(LoopOnInputFile, true);
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)

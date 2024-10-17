@@ -92,7 +92,16 @@ void ViewPanel::on_notify()
     // Window selection
     QComboBox* window_selection = ui_->WindowSelectionComboBox;
     window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
+
+    // Enable only row that are actually displayed on the screen
+    QListView* window_slection_view = qobject_cast<QListView*>(window_selection->view());
+    window_slection_view->setRowHidden(1, !api::get_xz_enabled());
+    window_slection_view->setRowHidden(2, !api::get_yz_enabled());
+    window_slection_view->setRowHidden(3, !api::get_filter2d_view_enabled());
+
+    // If one view gets disabled set to the standard XY view
+    int index = static_cast<int>(api::get_current_window_type());
+    window_selection->setCurrentIndex(window_slection_view->isRowHidden(index) ? 0 : index);
 
     // Log
     ui_->LogScaleCheckBox->setEnabled(true);

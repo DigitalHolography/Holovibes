@@ -184,8 +184,6 @@ inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::in
 inline holovibes::Device get_raw_view_queue_location() { return GET_SETTING(RawViewQueueLocation); }
 inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTING(RawViewQueueLocation, value); }
 
-inline int get_unwrap_history_size() { return GET_SETTING(UnwrapHistorySize); }
-
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
 
@@ -242,9 +240,6 @@ inline size_t get_input_file_end_index() { return GET_SETTING(InputFileEndIndex)
 
 inline std::string get_input_file_path() { return GET_SETTING(InputFilePath); }
 inline void set_input_file_path(std::string value) { UPDATE_SETTING(InputFilePath, value); }
-
-inline bool get_loop_on_input_file() { return GET_SETTING(LoopOnInputFile); }
-inline void set_loop_on_input_file(bool value) { UPDATE_SETTING(LoopOnInputFile, value); }
 
 inline bool get_load_file_in_gpu() { return GET_SETTING(LoadFileInGPU); }
 inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, value); }

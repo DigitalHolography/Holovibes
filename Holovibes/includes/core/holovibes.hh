@@ -37,7 +37,6 @@
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::FileBufferSize,                         \
-    holovibes::settings::LoopOnInputFile,                        \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
@@ -92,7 +91,6 @@
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
-    holovibes::settings::UnwrapHistorySize,                      \
     holovibes::settings::IsComputationStopped,                   \
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
@@ -363,7 +361,6 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
-                                             settings::LoopOnInputFile{true},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
@@ -418,7 +415,6 @@ class Holovibes
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},
-                                             settings::UnwrapHistorySize{1},
                                              settings::IsComputationStopped{true},
                                              settings::TimeTransformationCutsOutputBufferSize{512},
                                              settings::SignalZone{units::RectFd{}},

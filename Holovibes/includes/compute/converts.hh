@@ -33,8 +33,7 @@
     holovibes::settings::CompositeAutoWeights,     \
     holovibes::settings::HSV,                      \
     holovibes::settings::ZFFTShift,                \
-    holovibes::settings::CompositeZone,            \
-    holovibes::settings::UnwrapHistorySize
+    holovibes::settings::CompositeZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 

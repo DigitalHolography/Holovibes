@@ -40,12 +40,6 @@ DECLARE_SETTING(InputFPS, size_t);
 DECLARE_SETTING(InputFilePath, std::string);
 
 /*!
- * \brief The setting that specifies if we loop at the end of the
- * input_file once it has been read entirely.
- */
-DECLARE_SETTING(LoopOnInputFile, bool);
-
-/*!
  * \brief The setting that specifies if we load input file entirely in GPU
  * before sending it to the compute pipeline input queue.
  */
@@ -153,7 +147,6 @@ DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
-DECLARE_SETTING(UnwrapHistorySize, uint);
 DECLARE_SETTING(IsComputationStopped, bool);
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint);
 DECLARE_SETTING(FilterEnabled, bool);
