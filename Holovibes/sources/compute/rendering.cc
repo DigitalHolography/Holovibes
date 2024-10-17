@@ -43,8 +43,9 @@ void Rendering::insert_stabilization()
 
     if (setting<settings::StabilizationEnabled>())
     {
-        // TODO : Stabilization
-        LOG_WARN("Stabilization not implemented yet");
+        // TODO : Continue Stabilization
+        fn_compute_vect_.conditional_push_back(
+            [=]() { applyCircularMask(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_); });
     }
 }
 
