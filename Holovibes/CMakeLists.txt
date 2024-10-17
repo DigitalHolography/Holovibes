@@ -56,10 +56,10 @@ qt_add_executable(Holovibes
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
-    mainwindow.ui
-    advancedsettingswindow.ui
-    plotwindow.ui
-    lightui.ui
+    assets/ui/mainwindow.ui
+    assets/ui/advancedsettingswindow.ui
+    assets/ui/plotwindow.ui
+    assets/ui/lightui.ui
     assets/icons/Holovibes.ico
     assets/icons/holovibes.rc
 )
@@ -97,6 +97,7 @@ target_include_directories(Holovibes PRIVATE
 set_target_properties(Holovibes PROPERTIES
     CUDA_ARCHITECTURES "61;75;86;89"
     CUDA_STANDARD 17
+    AUTOUIC_SEARCH_PATHS "assets/ui"
 )
 
 target_compile_options(Holovibes PRIVATE
@@ -192,18 +193,8 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
     COMPONENT application
 )
 
-install(FILES "${HOLO_DIR}/assets/icons/Holovibes.ico"
-    DESTINATION .
-    COMPONENT application
-)
-
-install(FILES "${HOLO_DIR}/assets/icons/Script.ico"
-    DESTINATION .
-    COMPONENT process
-)
-
-install(FILES "${HOLO_DIR}/assets/icons/holovibes_logo.png"
-    DESTINATION .
+install(DIRECTORY "${HOLO_DIR}/assets/icons/"
+    DESTINATION assets/icons
     COMPONENT application
 )
 
@@ -318,7 +309,8 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 # Set the names of both shortcuts this installer creates: one for Holovibes and one for the .ps1
 # These variable names are arbitrary and don't mean anything.
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
-set(PSONE_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
+set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
+set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}
@@ -331,6 +323,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
         CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
 ")
 
@@ -338,6 +331,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     Delete \\\"${SHORTCUT_NAME}\\\"
     Delete \\\"${PSONE_SHORTCUT_NAME}\\\"
+    Delete \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\"
 ")
 
 include(CPack)
