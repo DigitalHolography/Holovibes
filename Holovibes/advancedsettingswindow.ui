@@ -585,16 +585,32 @@ threshold</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0">
+             <item row="7" column="0" colspan="2">
                 <widget class="QCheckBox" name="RecordQueueLocationCheckBox">
                     <property name="text">
-                        <string>Record on GPU</string>
+                        <string>Record queue on GPU</string>
                     </property>
                     <property name="checkable">
                         <bool>true</bool>
                     </property>
                 </widget>
             </item>
+            <item row="8" column="0" colspan="2">
+                <widget class="QCheckBox" name="RecordDeviceCheckbox">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>CPU Record</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
              <item row="3" column="1">
               <widget class="QDoubleSpinBox" name="ContrastLowerSpinBox">
                <property name="maximum">
@@ -1028,6 +1044,22 @@ threshold</string>
    <signal>clicked()</signal>
    <receiver>AdvancedSettingsWindow</receiver>
    <slot>change_output_folder_path()</slot>
+  </connection>
+  <connection>
+   <sender>RecordDeviceCheckbox</sender>
+   <signal>clicked()</signal>
+   <receiver>ExportPanel</receiver>
+   <slot>set_record_device(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
  <slots>

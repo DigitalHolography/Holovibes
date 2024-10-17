@@ -3072,22 +3072,6 @@ The range of frequencies kept is [z, z + width]</string>
                  </item>
                 </layout>
                </item>
-               <item>
-                <widget class="QCheckBox" name="RecordDeviceCheckbox">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true"/>
-                 </property>
-                 <property name="text">
-                  <string>CPU Record</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
             </item>
@@ -3396,11 +3380,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="actionStart">
    <property name="text">
     <string>Start</string>
-   </property>
-  </action>
-  <action name="actionSettings_2">
-   <property name="text">
-    <string>Settings</string>
    </property>
   </action>
   <action name="actionAuto_contrast">
@@ -5050,22 +5029,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>RecordDeviceCheckbox</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>set_record_device(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
@@ -6106,7 +6069,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
   <slot>browse_batch_input()</slot>
-  <slot>set_record_device(bool)</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>

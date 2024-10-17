@@ -95,8 +95,6 @@ void ExportPanel::on_notify()
 
     actualise_record_output_file_ui(record_output_path);
 
-    ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
-    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
@@ -283,14 +281,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
-}
-
-void ExportPanel::set_record_device(bool value)
-{
-    LOG_DEBUG("Set record device");
-    // Mind that we negate the boolean, since true means gpu for the queues
-    api::set_record_on_gpu(!value);
-    parent_->notify();
 }
 
 void ExportPanel::start_record()
