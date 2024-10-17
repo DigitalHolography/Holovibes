@@ -2,9 +2,9 @@ name: Holovibes CI
 
 on:
   pull_request_target:
-    branches: [ "ci_self_host" ]
+    branches: [ "ci_self_host-1 " ]
   pull_request:
-    branches: [ "ci_self_host" ]
+    branches: [ "ci_self_host-1 " ]
   release:
     types: [published]
 
