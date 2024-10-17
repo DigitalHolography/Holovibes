@@ -71,7 +71,7 @@ void ImageRenderingPanel::on_notify()
     ui_->LambdaSpinBox->setEnabled(!is_raw);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
-    ui_->ZDoubleSpinBox->setValue(api::get_z_distance());
+    ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
     // Filter2D
@@ -379,7 +379,7 @@ void ImageRenderingPanel::actualise_z_distance(const double z_distance)
 {
     const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
     const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZDoubleSpinBox->setValue(z_distance);
+    ui_->ZDoubleSpinBox->setValue(z_distance * 1000);
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
@@ -396,7 +396,7 @@ void ImageRenderingPanel::set_z_distance(const double value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_z_distance(static_cast<float>(value));
+    api::set_z_distance(static_cast<float>(value) / 1000.0f);
 }
 
 void ImageRenderingPanel::increment_z()

@@ -11,7 +11,6 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
-#include "global_state_holder.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"

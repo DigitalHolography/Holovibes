@@ -5,7 +5,6 @@
 #include "info_panel.hh"
 #include "MainWindow.hh"
 #include "logger.hh"
-#include "global_state_holder.hh"
 #include "API.hh"
 
 namespace api = ::holovibes::api;

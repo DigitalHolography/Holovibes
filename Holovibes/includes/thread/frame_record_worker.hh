@@ -37,10 +37,7 @@ namespace holovibes
 class Queue;
 class ICompute;
 class Holovibes;
-} // namespace holovibes
 
-namespace holovibes
-{
 std::string get_record_filename(std::string filename);
 } // namespace holovibes
 
@@ -85,10 +82,8 @@ class FrameRecordWorker final : public Worker
     {
         LOG_TRACE("[FileFrameReadWorker] [update_setting] {}", typeid(T).name());
 
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             onrestart_settings_.update_setting(setting);
-        }
     }
 
   private:
@@ -98,10 +93,8 @@ class FrameRecordWorker final : public Worker
     template <typename T>
     auto setting()
     {
-        if constexpr (has_setting<T, decltype(onrestart_settings_)>::value)
-        {
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
             return onrestart_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Init the record queue

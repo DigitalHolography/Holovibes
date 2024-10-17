@@ -1,6 +1,6 @@
 #include "camera_frame_read_worker.hh"
 #include "holovibes.hh"
-#include "global_state_holder.hh"
+#include "fast_updates_holder.hh"
 #include "api.hh"
 
 namespace holovibes::worker
@@ -20,13 +20,13 @@ void CameraFrameReadWorker::run()
     std::string input_format = std::to_string(camera_fd.width) + std::string("x") + std::to_string(camera_fd.height) +
                                std::string(" - ") + std::to_string(camera_fd.depth * 8) + std::string("bit");
 
-    auto entry1 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
-    auto entry2 = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
+    auto entry1 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::IMG_SOURCE, true);
+    auto entry2 = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::INPUT_FORMAT, true);
     *entry1 = camera_->get_name();
     *entry2 = input_format;
 
-    current_fps_ = GSH::fast_updates_map<FpsType>.create_entry(FpsType::INPUT_FPS);
-    temperature_ = GSH::fast_updates_map<IndicationType>.create_entry(IndicationType::TEMPERATURE, true);
+    current_fps_ = FastUpdatesMap::map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    temperature_ = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::TEMPERATURE, true);
 
     try
     {
@@ -47,10 +47,10 @@ void CameraFrameReadWorker::run()
         LOG_ERROR("[CAPTURE] {}", e.what());
     }
 
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    GSH::fast_updates_map<FpsType>.remove_entry(FpsType::INPUT_FPS);
-    GSH::fast_updates_map<IndicationType>.remove_entry(IndicationType::TEMPERATURE);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
+    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::TEMPERATURE);
 
     camera_.reset();
 }
