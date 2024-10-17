@@ -1,8 +1,10 @@
-project (AmetekS991EuresysCoaxlinkQsfp+ CXX CUDA)
+project (AmetekS710EuresysCoaxlinkOcto CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
-    camera_phantom_s991.cc
-    ../Camera/camera_logger.cc
+    camera_phantom_s710.cc
+    ../../Camera/camera_logger.cc
+    ../camera_phantom_interface.cc
+    ../camera_param_map.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
@@ -11,6 +13,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
     "${CMAKE_SOURCE_DIR}/Holovibes/includes/"
+    "${CMAKE_SOURCE_DIR}/Camera/CamerasPhantom"
 )
 
 target_link_libraries("${PROJECT_NAME}"
