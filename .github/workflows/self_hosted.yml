@@ -9,6 +9,7 @@ on:
     branches: [ "ci_self_host-1" ]
   release:
     types: [published]
+  workflow_dispatch: {}
 
 jobs:
   build:
