@@ -1683,28 +1683,17 @@ void set_record_mode(const std::string& text)
 
 bool start_record_preconditions()
 {
-    bool batch_enabled = api::get_batch_enabled();
     std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
-
-    auto batch_input_path = api::get_batch_file_path().value_or("");
-
-    // Preconditions to start record
 
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART &&
         nb_frames_to_record == std::nullopt)
     {
 
         LOG_ERROR("Number of frames must be activated");
-        return false;
-    }
-
-    if (batch_enabled && batch_input_path.empty())
-    {
-        LOG_ERROR("No batch input file");
         return false;
     }
 

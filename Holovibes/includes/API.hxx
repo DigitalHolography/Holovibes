@@ -166,12 +166,6 @@ inline void set_reticle_display_enabled(bool value) { UPDATE_SETTING(ReticleDisp
 inline uint get_file_buffer_size() { return static_cast<uint>(GET_SETTING(FileBufferSize)); }
 inline void set_file_buffer_size(uint value) { UPDATE_SETTING(FileBufferSize, value); }
 
-inline bool get_batch_enabled() { return GET_SETTING(BatchEnabled); }
-inline void set_batch_enabled(bool value) { UPDATE_SETTING(BatchEnabled, value); }
-
-inline std::optional<std::string> get_batch_file_path() { return GET_SETTING(BatchFilePath); }
-inline void set_batch_file_path(std::string value) { UPDATE_SETTING(BatchFilePath, value); }
-
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
 

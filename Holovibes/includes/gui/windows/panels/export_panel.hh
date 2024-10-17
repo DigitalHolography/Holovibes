@@ -47,9 +47,6 @@ class ExportPanel : public Panel
      */
     void set_nb_frames_mode(bool value);
 
-    /*! \brief Browses output file */
-    void browse_batch_input();
-
     /*! \brief Modifies the record mode
      *
      * \param value The new record mode
@@ -81,11 +78,6 @@ class ExportPanel : public Panel
     void stop_chart_display();
 
     /**
-     * @brief Handles the update of the batch mode enabled setting checkbox.
-     */
-    void update_batch_enabled();
-
-    /**
      * @brief Handles the update of the record frame count enabled setting checkbox.
      */
     void update_record_frame_count_enabled();
@@ -99,11 +91,6 @@ class ExportPanel : public Panel
      * @brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
-
-    /**
-     * @brief Handles the update of the batch file path setting line edit.
-     */
-    void update_batch_file_path();
 
     /**
      * @brief Handles the update of the record mode setting combo box.

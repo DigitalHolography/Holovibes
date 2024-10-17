@@ -46,8 +46,6 @@
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordFrameSkip,                        \
     holovibes::settings::OutputBufferSize,                       \
-    holovibes::settings::BatchEnabled,                           \
-    holovibes::settings::BatchFilePath,                          \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
@@ -374,8 +372,6 @@ class Holovibes
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordFrameSkip{0},
                                              settings::OutputBufferSize{1024},
-                                             settings::BatchEnabled{false},
-                                             settings::BatchFilePath{std::string("")},
                                              settings::ImageType{ImgType::Modulus},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},

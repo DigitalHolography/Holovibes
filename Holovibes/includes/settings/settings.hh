@@ -76,15 +76,6 @@ DECLARE_SETTING(RecordFrameSkip, size_t);
 /*! \brief The setting that specifies the size of the output buffer. */
 DECLARE_SETTING(OutputBufferSize, size_t);
 
-/*!
- * \brief The setting that specifies whether the batch mode is enabled or not.
- * If it is enabled, a batch script is read and executed.
- */
-DECLARE_SETTING(BatchEnabled, bool);
-
-/*! \brief The setting that specifies the path of the batch script to execute. */
-DECLARE_SETTING(BatchFilePath, std::string);
-
 /*! \name View Cache */
 /*! \brief The setting that specifies the type of the image displayed. */
 DECLARE_SETTING(ImageType, ImgType);

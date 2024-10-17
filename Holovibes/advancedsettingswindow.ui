@@ -914,52 +914,10 @@ threshold</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="0" colspan="2">
-           <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchFolderPathLineEdit">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="acceptDrops">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="dragEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="placeholderText">
-             <string>Select File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QToolButton" name="BatchInputBrowseToolButton">
-            <property name="acceptDrops">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="shortcut">
-             <string>Ctrl+O</string>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="0" colspan="3">
            <widget class="QLabel" name="OutputFolderLabel">
             <property name="text">
              <string>Default Output folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0" colspan="3">
-           <widget class="QLabel" name="BatchInputLabel">
-            <property name="text">
-             <string>Batch Input folder</string>
             </property>
            </widget>
           </item>
@@ -1024,42 +982,10 @@ threshold</string>
    </hints>
   </connection>
   <connection>
-   <sender>BatchInputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AdvancedSettingsWindow</receiver>
-   <slot>change_batch_input_folder_path()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>422</x>
-     <y>182</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>230</x>
-     <y>224</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>OutputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AdvancedSettingsWindow</receiver>
    <slot>change_output_folder_path()</slot>
-  </connection>
-  <connection>
-   <sender>RecordDeviceCheckbox</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>set_record_device(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
   </connection>
  </connections>
  <slots>
@@ -1067,6 +993,5 @@ threshold</string>
   <slot>set_ui_values()</slot>
   <slot>change_input_folder_path()</slot>
   <slot>change_output_folder_path()</slot>
-  <slot>change_batch_input_folder_path()</slot>
  </slots>
 </ui>
