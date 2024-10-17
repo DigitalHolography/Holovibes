@@ -6,7 +6,7 @@
 using holovibes::ImgType;
 
 // Short-Time Fourier Transform
-void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
+void stft(cuComplex* output, cuComplex* input, const cufftHandle plan1d)
 {
     // FFT 1D
     cufftSafeCall(cufftExecC2C(plan1d, input, output, CUFFT_FORWARD));
@@ -14,9 +14,9 @@ void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d)
     // No sync needed since all the kernels are executed on stream compute
 }
 
-__global__ static void fill_32bit_slices(const cuComplex* input,
-                                         float* output_xz,
+__global__ static void fill_32bit_slices(float* output_xz,
                                          float* output_yz,
+                                         const cuComplex* input,
                                          const uint xmin,
                                          const uint ymin,
                                          const uint xmax,
@@ -75,9 +75,9 @@ __global__ static void fill_32bit_slices(const cuComplex* input,
     }
 }
 
-void time_transformation_cuts_begin(const cuComplex* input,
-                                    float* output_xz,
+void time_transformation_cuts_begin(float* output_xz,
                                     float* output_yz,
+                                    const cuComplex* input,
                                     const ushort xmin,
                                     const ushort ymin,
                                     const ushort xmax,
@@ -95,9 +95,9 @@ void time_transformation_cuts_begin(const cuComplex* input,
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(output_size, threads);
 
-    fill_32bit_slices<<<blocks, threads, 0, stream>>>(input,
-                                                      output_xz,
+    fill_32bit_slices<<<blocks, threads, 0, stream>>>(output_xz,
                                                       output_yz,
+                                                      input,
                                                       xmin,
                                                       ymin,
                                                       xmax,

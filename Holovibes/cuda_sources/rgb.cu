@@ -89,8 +89,8 @@ __global__ static void kernel_precompute_colors(float* colors, size_t range, hol
  * @param weights The RGB weights
  * @param stream The cuda stream used
  */
-void rgb(cuComplex* input,
-         float* output,
+void rgb(float* output,
+         cuComplex* input,
          const size_t frame_res,
          bool auto_weights,
          const ushort min,

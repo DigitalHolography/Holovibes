@@ -155,8 +155,8 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
 
             if (setting<settings::CompositeKind>() == CompositeKind::RGB)
             {
-                rgb(time_transformation_env_.gpu_p_acc_buffer.get(),
-                    gpu_postprocess_frame,
+                rgb(gpu_postprocess_frame,
+                    time_transformation_env_.gpu_p_acc_buffer.get(),
                     fd_.get_frame_res(),
                     setting<settings::CompositeAutoWeights>(),
                     rgb_struct.frame_index.min,
@@ -222,11 +222,11 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    unwrap_2d(gpu_postprocess_frame,
+                    unwrap_2d(unwrap_res_2d_->gpu_angle_,
+                              gpu_postprocess_frame,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
                               fd_,
-                              unwrap_res_2d_->gpu_angle_,
                               stream_);
                 });
 
@@ -234,8 +234,8 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
-                                           gpu_postprocess_frame,
+                    rescale_float_unwrap2d(gpu_postprocess_frame,
+                                           unwrap_res_2d_->gpu_angle_,
                                            unwrap_res_2d_->minmax_buffer_,
                                            fd_.get_frame_res(),
                                            stream_);
@@ -274,11 +274,11 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    unwrap_2d(unwrap_res_->gpu_angle_current_,
+                    unwrap_2d(unwrap_res_2d_->gpu_angle_,
+                              unwrap_res_->gpu_angle_current_,
                               plan_unwrap_2d_,
                               unwrap_res_2d_.get(),
                               fd_,
-                              unwrap_res_2d_->gpu_angle_,
                               stream_);
                 });
 
@@ -286,8 +286,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    rescale_float_unwrap2d(unwrap_res_2d_->gpu_angle_,
-                                           gpu_postprocess_frame,
+                    rescale_float_unwrap2d(gpu_postprocess_frame,
+                                           unwrap_res_2d_->gpu_angle_,
                                            unwrap_res_2d_->minmax_buffer_,
                                            fd_.get_frame_res(),
                                            stream_);
@@ -297,7 +297,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
             fn_compute_vect_.conditional_push_back(
                 [=]()
                 {
-                    rescale_float(unwrap_res_->gpu_angle_current_, gpu_postprocess_frame, fd_.get_frame_res(), stream_);
+                    rescale_float(gpu_postprocess_frame, unwrap_res_->gpu_angle_current_, fd_.get_frame_res(), stream_);
                 });
     }
     catch (std::exception& e)
@@ -313,8 +313,8 @@ void Converts::insert_main_ushort()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            float_to_ushort(buffers_.gpu_postprocess_frame.get(),
-                            buffers_.gpu_output_frame.get(),
+            float_to_ushort(buffers_.gpu_output_frame.get(),
+                            buffers_.gpu_postprocess_frame.get(),
                             buffers_.gpu_postprocess_frame_size,
                             stream_);
         });
@@ -328,13 +328,13 @@ void Converts::insert_slice_ushort()
         [=]()
         {
             /*
-            float_to_ushort(buffers_.gpu_postprocess_frame_xz_final.get(),
-                            buffers_.gpu_output_frame_xz.get(),
+            float_to_ushort(buffers_.gpu_output_frame_xz.get(),
+                            buffers_.gpu_postprocess_frame_xz_final.get(),
                             buffers_.gpu_postprocess_frame_xz_size,
                             stream_);
             */
-            float_to_ushort(buffers_.gpu_postprocess_frame_xz.get(),
-                            buffers_.gpu_output_frame_xz.get(),
+            float_to_ushort(buffers_.gpu_output_frame_xz.get(),
+                            buffers_.gpu_postprocess_frame_xz.get(),
                             time_transformation_env_.gpu_output_queue_xz->get_fd().get_frame_res(),
                             stream_);
         });
@@ -342,13 +342,13 @@ void Converts::insert_slice_ushort()
         [=]()
         {
             /*
-            float_to_ushort(buffers_.gpu_postprocess_frame_yz_final.get(),
-                            buffers_.gpu_output_frame_yz.get(),
+            float_to_ushort(buffers_.gpu_output_frame_yz.get(),
+                            buffers_.gpu_postprocess_frame_yz_final.get(),
                             buffers_.gpu_postprocess_frame_yz_size,
                             stream_);
             */
-            float_to_ushort(buffers_.gpu_postprocess_frame_yz.get(),
-                            buffers_.gpu_output_frame_yz.get(),
+            float_to_ushort(buffers_.gpu_output_frame_yz.get(),
+                            buffers_.gpu_postprocess_frame_yz.get(),
                             time_transformation_env_.gpu_output_queue_yz->get_fd().get_frame_res(),
                             stream_);
         });
@@ -361,8 +361,8 @@ void Converts::insert_filter2d_ushort()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            float_to_ushort_normalized(buffers_.gpu_float_filter2d_frame.get(),
-                                       buffers_.gpu_filter2d_frame.get(),
+            float_to_ushort_normalized(buffers_.gpu_filter2d_frame.get(),
+                                       buffers_.gpu_float_filter2d_frame.get(),
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
         });

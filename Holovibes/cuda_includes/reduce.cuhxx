@@ -74,16 +74,16 @@ __device__ static void warp_primitive_reduce(T* sdata, const uint tid, const R_O
  *
  * We slightly improved performances by tuning it
  */
-template <typename T, typename U, uint pixel_per_block, typename R_OP, typename A_OP>
-__global__ static void kernel_reduce(const T* const __restrict__ input,
-                                     U* const __restrict__ result,
+template <typename O, typename I, uint pixel_per_block, typename R_OP, typename A_OP>
+__global__ static void kernel_reduce(O* const __restrict__ output,
+                                     const I* const __restrict__ input,
                                      const uint size,
                                      const R_OP reduce_op,
                                      const A_OP atomic_op,
-                                     const T identity_elt)
+                                     const I identity_elt)
 {
     // Each block is reduced in shared data (avoiding multiple global memory acceses)
-    __shared__ T sdata[pixel_per_block / 2];
+    __shared__ I sdata[pixel_per_block / 2];
     const uint tid = threadIdx.x;
 
     sdata[tid] = identity_elt;
@@ -139,20 +139,33 @@ __global__ static void kernel_reduce(const T* const __restrict__ input,
 
     // The last reductions steps is a warp size problem and can thus be optimized
     if (tid < warp_size)
-        warp_primitive_reduce<T, pixel_per_block / 2>(sdata, tid, reduce_op);
+        warp_primitive_reduce<I, pixel_per_block / 2>(sdata, tid, reduce_op);
 
     // Each block writes it local reduce to global memory
     if (tid == 0)
-        atomic_op(result, sdata[tid]);
+        atomic_op(output, sdata[tid]);
 }
 
-template <typename T, typename U, typename R_OP, typename A_OP>
-void reduce_generic(const T* const __restrict__ input,
-                    U* const __restrict__ result,
+/*! \brief Reduce operation gpu side
+ *
+ * \param output Output of the reduce (even with double, imprecision may arise)
+ * \param input Input buffer
+ * \param size Input size
+ * \param reduce_op Operator used for the reduction
+ * \param atomic_op Atomic operator used for the write back in output
+ * \param identity_elt Identity element needed to initilize data (add needs 0, min needs max...)
+ *
+ * This kernel has been highly tuned in order to maximize the memory bandwidth usage
+ * Numerous benches have been done to achieve the best output possible
+ * Don't modify this kernel unless making benches
+ */
+template <typename O, typename I, typename R_OP, typename A_OP>
+void reduce_generic(O* const __restrict__ output,
+                    const I* const __restrict__ input,
                     const uint size,
                     const R_OP reduce_op,
                     const A_OP atomic_op,
-                    const T identity_elt,
+                    const I identity_elt,
                     const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
@@ -165,42 +178,42 @@ void reduce_generic(const T* const __restrict__ input,
     // We still reduce the number of blocks if this reduce is used for really small input
     const uint nb_blocks = std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
 
-    /* Reset result to identity element
+    /* Reset output to identity element
     ** cudaMemset can only set a value for each byte (can't memset to 0xFFFFFFF because of float)
     ** cudaMemcpyHostToDevice is too slow
     ** The fastest & generic option is using a cuda kernel (~2us)
     */
-    set_cuda_value<<<1, 1, 0, stream>>>(result, static_cast<U>(identity_elt));
+    set_cuda_value<<<1, 1, 0, stream>>>(output, static_cast<O>(identity_elt));
 
     // Each thread works at least on 2 pixels
-    kernel_reduce<T, U, optimal_block_size * 2>
-        <<<nb_blocks, optimal_block_size, 0, stream>>>(input, result, size, reduce_op, atomic_op, identity_elt);
+    kernel_reduce<O, I, optimal_block_size * 2>
+        <<<nb_blocks, optimal_block_size, 0, stream>>>(output, input, size, reduce_op, atomic_op, identity_elt);
     cudaCheckError();
 }
 
-template <typename T, typename U>
-void reduce_add(const T* const input, U* const result, const uint size, const cudaStream_t stream)
+template <typename O, typename I>
+void reduce_add(O* const output, const I* const input, const uint size, const cudaStream_t stream)
 {
-    static const auto op_add = [] __device__(const T left, const T right) { return left + right; };
-    static const auto atomic_add = [] __device__(U* const left, const T right) { atomicAdd(left, right); };
-    static constexpr T identity_elt_add = static_cast<T>(0);
+    static const auto op_add = [] __device__(const I left, const I right) { return left + right; };
+    static const auto atomic_add = [] __device__(O* const left, const I right) { atomicAdd(left, right); };
+    static constexpr I identity_elt_add = static_cast<I>(0);
 
-    reduce_generic(input, result, size, op_add, atomic_add, identity_elt_add, stream);
+    reduce_generic(output, input, size, op_add, atomic_add, identity_elt_add, stream);
 }
 
 template <typename T>
-void reduce_min(const T* const input, T* const result, const uint size, const cudaStream_t stream)
+void reduce_min(T* const output, const T* const input, const uint size, const cudaStream_t stream)
 {
     static const auto op_min = [] __device__(const T left, const T right) { return min(left, right); };
     static const auto atomic_min = [] __device__(T* const left, const T right) { atomicMin(left, right); };
     // The identity element of min operation is the max of the type : min(A, max(T)) = A
     static constexpr T identity_elt_min = std::numeric_limits<T>::max();
 
-    reduce_generic(input, result, size, op_min, atomic_min, identity_elt_min, stream);
+    reduce_generic(output, input, size, op_min, atomic_min, identity_elt_min, stream);
 }
 
 template <typename T>
-void reduce_max(const T* const input, T* const result, const uint size, const cudaStream_t stream)
+void reduce_max(T* const output, const T* const input, const uint size, const cudaStream_t stream)
 {
     static const auto op_max = [] __device__(const T left, const T right) { return max(left, right); };
     static const auto atomic_max = [] __device__(T* const left, const T right) { atomicMax(left, right); };
@@ -210,5 +223,5 @@ void reduce_max(const T* const input, T* const result, const uint size, const cu
     // From the cpp reference, the min value of floating numbers is the closest value to 0.
     static constexpr T identity_elt_max = std::numeric_limits<T>::lowest();
 
-    reduce_generic(input, result, size, op_max, atomic_max, identity_elt_max, stream);
+    reduce_generic(output, input, size, op_max, atomic_max, identity_elt_max, stream);
 }
