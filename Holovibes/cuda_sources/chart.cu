@@ -1,19 +1,15 @@
 #include "chart.cuh"
 
-#include "tools_conversion.cuh"
-#include "units/rect.hh"
 #include "unique_ptr.hh"
-#include "tools.hh"
-#include "cuda_memory.cuh"
-
-#include <cstdio>
-#include <cmath>
 
 using holovibes::ChartPoint;
 using holovibes::units::RectFd;
 
+#define TILE_SIZE 32
+#define STRIDE_SIZE 16
+
 /*
- * Reduce a 32x32 tile
+ * Reduce a TILE_SIZExTILE_SIZE tile
  * Each line is reduce at index 0 of the line
  *
  * Since 1 thread handles 2 pixels, we need to drop the 16 last threads
@@ -26,10 +22,11 @@ using holovibes::units::RectFd;
  * But we need to tag the shared memory as volatile to avoid compiler reordering
  *
  */
-static __device__ void reduce_full_width_tile(volatile float tile[32][32], const ushort x_tile, const ushort y_tile)
+static __device__ void
+reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x_tile, const ushort y_tile)
 {
-    // Reduce a line of 32 with a stride starting at 16
-    if (x_tile < 16)
+    // Reduce a line of TILE_SIZE with a stride starting at STRIDE_SIZE
+    if (x_tile < STRIDE_SIZE)
     {
         tile[y_tile][x_tile] += tile[y_tile][x_tile + 16];
         tile[y_tile][x_tile] += tile[y_tile][x_tile + 8];
@@ -37,54 +34,44 @@ static __device__ void reduce_full_width_tile(volatile float tile[32][32], const
         tile[y_tile][x_tile] += tile[y_tile][x_tile + 2];
         tile[y_tile][x_tile] += tile[y_tile][x_tile + 1];
     }
-    else // Drop 16 last threads
-        return;
 }
 
-/*
- * Specific tile reduction to handle lines that are smaller than 32
- */
-static __device__ void
-reduce_width_tile(float tile[32][32], const ushort x_tile, const ushort y_tile, const ushort tile_width)
-{
-    // Stride should be tile width / 2, odd numbers forces the usage of ceil
-    ushort stride = static_cast<ushort>(ceil(static_cast<float>(tile_width) / 2.0f));
-
-    while (stride > 0)
-    {
-        if (x_tile + stride < tile_width)
-            tile[y_tile][x_tile] += tile[y_tile][x_tile + stride];
-
-        // We need to ceil for the calculations, but ceil(1/2) = 1 resulting in
-        // an infinite loop
-        if (stride == 1)
-            return;
-
-        // Again, to handle odd number, the stride should always be ceiled
-        stride = static_cast<ushort>(ceil(static_cast<float>(stride) / 2.0f));
-    }
+__inline__ __device__
+float warp_reduce_sum(float val) {
+    for (int offset = warpSize / 2; offset > 0; offset /= 2)
+        val += __shfl_down_sync(0xFFFFFFFF, val, offset);
+    return val;
 }
 
-/*
- * This kernel is used to make the sum of all pixel values of a zone in a frame
+/*! \brief Kernel to compute the sum of pixel values within a zone in a frame
  *
- * 1 thread is started for each pixel of the zone
- * Thread (0,0) is located at the top left corner of the zone
+ * This kernel assigns one thread to each pixel in a specified zone.
+ * Thread (0,0) corresponds to the top-left corner of the zone.
  *
- * Each thread fill the local tile shared memory with the value of its pixel
+ * Each thread loads its corresponding pixel value into shared memory.
  *
- * Each thread warp handles a line of the tile and executes a reduce to have the
- * sum at index 0 of the line
+ * A warp (32 threads) processes a row of the tile, performing a reduction to
+ * store the sum in the first index of the row.
  *
- * Each first thread of the warp then writes its line cumulative sum inside the
- * first cell of the tile ([0][0])
+ * The first thread in each warp writes the cumulative sum of its row to the
+ * top-left tile element (tile[0][0]).
  *
- * Then each tile writes it's cumulative sum in the total_sum output
+ * Finally, the top-left element of the tile is written to the global output,
+ * representing the sum of all pixels in the tile.
+ *
+ * \param[out] output Global memory location where the cumulative sum of the zone will be written
+ * \param[in] input Input frame from which pixel values are read
+ * \param[in] width Width of the input frame
+ * \param[in] start_zone_x X-coordinate of the top-left corner of the zone
+ * \param[in] start_zone_y Y-coordinate of the top-left corner of the zone
+ * \param[in] zone_width Width of the zone to process
+ * \param[in] zone_height Height of the zone to process
+ * \param[in] element_map Mapping function to apply to each pixel before summing
  */
 template <typename FUNC>
-static __global__ void kernel_apply_mapped_zone_sum(const float* input,
+static __global__ void kernel_apply_mapped_zone_sum(double* __restrict__ output,
+                                                    const float* __restrict__ input,
                                                     const uint width,
-                                                    double* total_sum,
                                                     const uint start_zone_x,
                                                     const uint start_zone_y,
                                                     const uint zone_width,
@@ -99,9 +86,11 @@ static __global__ void kernel_apply_mapped_zone_sum(const float* input,
     const uint x_zone = blockIdx.x * blockDim.x + x_tile;
     const uint y_zone = blockIdx.y * blockDim.y + y_tile;
 
-    /* Each 32x32 tile loads its image value in shared memory
-       Shared memory is used to speed up the reduce speed */
-    __shared__ float tile[32][32];
+    /*
+     * Each TILE_SIZExTILE_SIZE tile loads its image value in shared memory
+     *   Shared memory is used to speed up the reduce speed
+     */
+    __shared__ float tile[TILE_SIZE][TILE_SIZE];
 
     // Boundary check: thread is inside the zone
     if (x_zone < zone_width && y_zone < zone_height)
@@ -110,35 +99,35 @@ static __global__ void kernel_apply_mapped_zone_sum(const float* input,
         const uint x_image = x_zone + start_zone_x;
         const uint y_image = y_zone + start_zone_y;
 
-        // No __syncthreads() is needed since we work at warp level, it's sync
-        // by hardware constraint
+        /*
+         * No explicit __syncthreads() is needed here because each warp operates on its own line,
+         * and warp-level synchronization is automatically handled by the hardware.
+         * The threads within a warp are inherently synchronized by the GPU architecture.
+         */
         tile[y_tile][x_tile] = element_map(input[x_image + y_image * width]);
 
-        // Last column might be smaller than 32
-        const ushort last_column_tile_width = zone_width % blockDim.x;
-        if (blockIdx.x != gridDim.x - 1 || last_column_tile_width == 0)
+        // Each thread checks if he is in a valid area
+        if (x_zone < zone_width)
             reduce_full_width_tile(tile, x_tile, y_tile);
-        else
-            reduce_width_tile(tile, x_tile, y_tile, last_column_tile_width);
 
         // Wait for all lines to finish accumulating
         __syncthreads();
-        /* x_tile == 0 because only the first thread of each line should write
-           its accumulated value
-           y_tile != 0 because the first line already has its accumalted value
-           in tile[0][0] */
-        if (x_tile == 0 && y_tile != 0)
-        {
-            // Accumulate every line result in the top left corner of the tile
-            atomicAdd(&tile[0][0], tile[y_tile][0]);
+
+        // Optimized reduction with warp-level primitives
+        if (x_tile == 0) {
+            float row_sum = warp_reduce_sum(tile[y_tile][0]);
+            if (threadIdx.x == 0) {
+                atomicAdd(&tile[0][0], row_sum);
+            }
         }
+
         // Wait for first thread of each line to accumulate in [0][0]
         __syncthreads();
 
         // Only first thread of each tile accumulate the tile result in the
         // output
         if (x_tile == 0 && y_tile == 0)
-            atomicAdd(total_sum, static_cast<double>(tile[0][0]));
+            atomicAdd(output, static_cast<double>(tile[0][0]));
     }
 }
 
@@ -160,9 +149,9 @@ void apply_mapped_zone_sum(const float* input,
         1);
 
     // Total sum of the zone
-    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(input,
+    kernel_apply_mapped_zone_sum<<<grid_size, block_size, 0, stream>>>(output,
+                                                                       input,
                                                                        width,
-                                                                       output,
                                                                        zone.topLeft().x(),
                                                                        zone.topLeft().y(),
                                                                        zone.width(),
