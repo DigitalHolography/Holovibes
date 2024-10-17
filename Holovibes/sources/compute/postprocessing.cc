@@ -66,7 +66,7 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
 
     const size_t frame_res = fd_.get_frame_res();
 
-    from_interweaved_components_to_distinct_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
+    from_interweaved_components_to_distinct_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
 
     convolution_kernel(hsv_arr_.get(),
                        gpu_convolution_buffer,
@@ -98,7 +98,7 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        true,
                        stream_);
 
-    from_distinct_components_to_interweaved_components(hsv_arr_.get(), gpu_postprocess_frame, frame_res, stream_);
+    from_distinct_components_to_interweaved_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
 }
 
 void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer)

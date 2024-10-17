@@ -377,7 +377,7 @@ bool Queue::enqueue_multiple(void* elts, unsigned int nb_elts, const cudaStream_
 void Queue::enqueue_from_48bit(void* src, const cudaStream_t stream, cudaMemcpyKind cuda_kind)
 {
     cuda_tools::CudaUniquePtr<uchar> src_uchar(fd_.get_frame_size());
-    ushort_to_uchar(static_cast<ushort*>(src), src_uchar, static_cast<uint>(fd_.get_frame_size()), stream);
+    ushort_to_uchar(src_uchar, static_cast<ushort*>(src), static_cast<uint>(fd_.get_frame_size()), stream);
     enqueue(src_uchar, stream, cuda_kind);
 }
 

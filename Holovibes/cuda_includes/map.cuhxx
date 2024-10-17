@@ -16,7 +16,7 @@ namespace _private
  * it in output.
  */
 template <typename I, typename O, typename FUNC>
-__global__ static void kernel_map_generic(const I* const input, O* const output, const size_t size, const FUNC func)
+__global__ static void kernel_map_generic(O* const output, const I* const input, const size_t size, const FUNC func)
 {
     const size_t index = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -32,14 +32,14 @@ __global__ static void kernel_map_generic(const I* const input, O* const output,
  */
 template <typename I, typename O, typename FUNC>
 static void
-_map_regular(const I* const input, O* const output, const size_t size, const FUNC func, const cudaStream_t stream)
+_map_regular(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
     // Using 64 threads per blocks is more efficient than using the max number
     // of threads supported
     constexpr uint threads = 64;
     const uint blocks = map_blocks_to_problem(size, threads);
 
-    kernel_map_generic<<<blocks, threads, 0, stream>>>(input, output, size, func);
+    kernel_map_generic<<<blocks, threads, 0, stream>>>(output, input, size, func);
     cudaCheckError();
 }
 
@@ -59,7 +59,7 @@ _map_regular(const I* const input, O* const output, const size_t size, const FUN
  */
 template <typename T, typename FUNC>
 void _map_vectorize(
-    const T* const input, T* const output, const size_t size, const FUNC func, const cudaStream_t stream)
+    T* const output, const T* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
     CHECK(size % 4 == 0, "Map vectorize requires a size divisible by 4.");
 
@@ -69,64 +69,64 @@ void _map_vectorize(
     { return T{func(in.x), func(in.y), func(in.z), func(in.w)}; };
 
     // Call regular generic map with the new vectorized lambda and an updated size
-    _map_regular(input, output, size / 4, vectorized_lambda, stream);
+    _map_regular(output, input, size / 4, vectorized_lambda, stream);
 }
 } // namespace _private
 
 /***** Generic map implementations *****/
 
 template <typename I, typename O, typename FUNC>
-void map_generic(const I* const input, O* const output, const size_t size, const FUNC func, const cudaStream_t stream)
+void map_generic(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
-    _private::_map_regular(input, output, size, func, stream);
+    _private::_map_regular(output, input, size, func, stream);
 }
 
 template <typename FUNC>
 void map_generic(
-    const float* const input, float* const output, const size_t size, const FUNC func, const cudaStream_t stream)
+    float* const output, const float* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
     if (size % 4 == 0)
     {
-        _private::_map_vectorize<float4>(reinterpret_cast<const float4* const>(input),
-                                         reinterpret_cast<float4* const>(output),
+        _private::_map_vectorize<float4>(reinterpret_cast<float4* const>(output),
+                                         reinterpret_cast<const float4* const>(input),
                                          size,
                                          func,
                                          stream);
     }
     else
     {
-        _private::_map_regular(input, output, size, func, stream);
+        _private::_map_regular(output, input, size, func, stream);
     }
 }
 
 template <typename FUNC>
 void map_generic(
-    const ushort* const input, ushort* const output, const size_t size, const FUNC func, const cudaStream_t stream)
+    ushort* const output, const ushort* const input, const size_t size, const FUNC func, const cudaStream_t stream)
 {
     if (size % 4 == 0)
     {
-        _private::_map_vectorize<ushort4>(reinterpret_cast<const ushort4* const>(input),
-                                          reinterpret_cast<ushort4* const>(output),
+        _private::_map_vectorize<ushort4>(reinterpret_cast<ushort4* const>(output),
+                                          reinterpret_cast<const ushort4* const>(input),
                                           size,
                                           func,
                                           stream);
     }
     else
-        _private::_map_regular(input, output, size, func, stream);
+        _private::_map_regular(output, input, size, func, stream);
 }
 
 template <typename T>
-void map_divide(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream)
+void map_divide(T* const output, const T* const input, const size_t size, const T value, const cudaStream_t stream)
 {
     const auto divide = [value] __device__(const T input_pixel) -> T { return input_pixel / value; };
 
-    map_generic(input, output, size, divide, stream);
+    map_generic(output, input, size, divide, stream);
 }
 
 template <typename T>
-void map_multiply(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream)
+void map_multiply(T* const output, const T* const input, const size_t size, const T value, const cudaStream_t stream)
 {
     const auto multiply = [value] __device__(const T input_pixel) -> T { return input_pixel * value; };
 
-    map_generic(input, output, size, multiply, stream);
+    map_generic(output, input, size, multiply, stream);
 }

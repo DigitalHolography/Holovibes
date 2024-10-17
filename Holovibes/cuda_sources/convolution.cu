@@ -46,8 +46,8 @@ void convolution_kernel(float* gpu_input,
     // At this point, cuComplex_buffer is the FFT of the input
 
     kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                                   gpu_kernel,
                                                                    cuComplex_buffer,
+                                                                   gpu_kernel,
                                                                    size);
     cudaCheckError();
     // At this point, cuComplex_buffer is the FFT of the input multiplied by the
@@ -57,13 +57,13 @@ void convolution_kernel(float* gpu_input,
 
     if (divide_convolution_enabled)
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer, gpu_convolved_buffer, size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(gpu_convolved_buffer, cuComplex_buffer, size);
         cudaCheckError();
-        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(gpu_input, gpu_convolved_buffer, gpu_input, size);
+        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(gpu_input, gpu_input, gpu_convolved_buffer, size);
     }
     else
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer, gpu_input, size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(gpu_input, cuComplex_buffer, size);
     }
     cudaCheckError();
 }

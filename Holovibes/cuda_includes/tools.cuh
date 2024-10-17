@@ -18,15 +18,15 @@
  * \param Where to store the cropped image
  * \param stream The CUDA stream on which to launch the operation.
  */
-void frame_memcpy(const float* input,
+void frame_memcpy(float* output,
+                  const float* input,
                   const holovibes::units::RectFd& zone,
                   const uint input_width,
-                  float* output,
                   const cudaStream_t stream);
 
 /*! \brief Circularly shifts the elements in input given a point(i,j) and the size of the frame. */
-__global__ void circ_shift(const cuComplex* input,
-                           cuComplex* output,
+__global__ void circ_shift(cuComplex* output,
+                           const cuComplex* input,
                            const uint batch_size,
                            const int i, // shift on x axis
                            const int j, // shift on y axis
@@ -35,8 +35,8 @@ __global__ void circ_shift(const cuComplex* input,
                            const uint size);
 
 /*! \brief Circularly shifts the elements in input given a point(i,j) given float output & inputs. */
-__global__ void circ_shift_float(const float* input,
-                                 float* output,
+__global__ void circ_shift_float(float* output,
+                                 const float* input,
                                  const uint batch_size,
                                  const int i, // shift on x axis
                                  const int j, // shift on y axis
@@ -44,4 +44,4 @@ __global__ void circ_shift_float(const float* input,
                                  const uint height,
                                  const uint size);
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size);
+__global__ void kernel_complex_to_modulus(float* output, const cuComplex* input, const uint size);

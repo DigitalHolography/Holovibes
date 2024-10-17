@@ -54,15 +54,15 @@ inline void cudaXFree(void* devPtr) { cudaSafeCall(cudaFree(devPtr)); }
 
 inline void cudaXFreeHost(void* devPtr) { cudaSafeCall(cudaFreeHost(devPtr)); }
 
-inline void cudaXMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
+inline void cudaXMemcpy(void* output, const void* input, size_t count, cudaMemcpyKind kind)
 {
-    cudaSafeCall(cudaMemcpy(dst, src, count, kind));
+    cudaSafeCall(cudaMemcpy(output, input, count, kind));
 }
 
 inline void
-cudaXMemcpyAsync(void* dst, const void* src, size_t count, cudaMemcpyKind kind, const cudaStream_t stream = 0)
+cudaXMemcpyAsync(void* output, const void* input, size_t count, cudaMemcpyKind kind, const cudaStream_t stream = 0)
 {
-    cudaSafeCall(cudaMemcpyAsync(dst, src, count, kind, stream));
+    cudaSafeCall(cudaMemcpyAsync(output, input, count, kind, stream));
 }
 
 inline void cudaXMemset(void* devPtr, int value, size_t count) { cudaSafeCall(cudaMemset(devPtr, value, count)); }

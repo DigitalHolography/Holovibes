@@ -63,7 +63,8 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
         insert_fresnel_transform();
     else if (space_transformation == SpaceTransformation::ANGULARSP)
         insert_angular_spectrum(filter2d_enabled);
-    if (space_transformation == SpaceTransformation::FRESNELTR || space_transformation == SpaceTransformation::ANGULARSP)
+    if (space_transformation == SpaceTransformation::FRESNELTR ||
+        space_transformation == SpaceTransformation::ANGULARSP)
         fn_compute_vect_.push_back([=]() { enqueue_lens(space_transformation); });
 }
 
@@ -93,13 +94,13 @@ void FourierTransform::insert_fresnel_transform()
     const float z = setting<settings::ZDistance>();
 
     fresnel_transform_lens(gpu_lens_.get(),
-                          lens_side_size_,
-                          fd_.height,
-                          fd_.width,
-                          setting<settings::Lambda>(),
-                          z,
-                          setting<settings::PixelSize>(),
-                          stream_);
+                           lens_side_size_,
+                           fd_.height,
+                           fd_.width,
+                           setting<settings::Lambda>(),
+                           z,
+                           setting<settings::PixelSize>(),
+                           stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
@@ -229,8 +230,8 @@ void FourierTransform::insert_stft()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                 time_transformation_env_.gpu_p_acc_buffer,
+            stft(time_transformation_env_.gpu_p_acc_buffer,
+                 reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                  time_transformation_env_.stft_plan);
         });
 }
@@ -389,9 +390,9 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posy = y.start;
                     }
                     // -----------------------------------------------------
-                    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                                   gpu_postprocess_frame_xz,
+                    time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
+                                                   time_transformation_env_.gpu_p_acc_buffer,
                                                    mouse_posx,
                                                    mouse_posy,
                                                    mouse_posx + x.width,

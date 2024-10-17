@@ -10,7 +10,7 @@
 #include <cmath>
 
 using holovibes::ChartPoint;
-//using holovibes::units::RectFd;
+using holovibes::units::RectFd;
 
 /*
  * Reduce a 32x32 tile

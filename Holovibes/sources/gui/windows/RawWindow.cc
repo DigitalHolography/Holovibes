@@ -278,7 +278,10 @@ void RawWindow::paintGL()
     if (api::get_img_type() == ImgType::Composite)
         cudaXMemcpyAsync(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyDeviceToDevice, cuStream);
     else
-        convert_frame_for_display(frame, cuPtrToPbo, fd_.get_frame_res(), fd_.depth, 0, cuStream);
+    {
+        // int bitshift = kView == KindOfView::Raw ? GSH::instance().get_raw_bitshift() : 0;
+        convert_frame_for_display(cuPtrToPbo, frame, fd_.get_frame_res(), fd_.depth, 0, cuStream);
+    }
 
     // Release resources (needs to be done at each call) and sync
     cudaSafeCall(cudaGraphicsUnmapResources(1, &cuResource, cuStream));
