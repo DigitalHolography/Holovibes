@@ -130,7 +130,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy shaders and convolution kernels and json patch
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/assets/json_patches_holofile/
 
