@@ -1,16 +1,16 @@
 #include "chart.cuh"
+
 #include "tools_conversion.cuh"
 #include "units/rect.hh"
 #include "unique_ptr.hh"
 #include "tools.hh"
 #include "cuda_memory.cuh"
-#include "common.cuh"
 
 #include <cstdio>
 #include <cmath>
 
 using holovibes::ChartPoint;
-using holovibes::units::RectFd;
+//using holovibes::units::RectFd;
 
 /*
  * Reduce a 32x32 tile
