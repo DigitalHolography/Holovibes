@@ -123,7 +123,7 @@ struct JsonSettings
     inline static const auto latest_version = ComputeSettingsVersion::V5;
 
     /*! \brief path to json patch directories  */
-    inline static const auto patches_folder = dir / "json_patches_holofile";
+    inline static const auto patches_folder = dir / "assets/json_patches_holofile";
 
     /*! \brief default convertion function */
     static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }

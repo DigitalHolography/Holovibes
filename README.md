@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/DigitalHolography/Holovibes/blob/master/Holovibes/Holovibes.ico"/>
+  <img src="https://github.com/DigitalHolography/Holovibes/blob/master/Holovibes/assets/icons/Holovibes.ico"/>
 </p>
 
 ## Introduction

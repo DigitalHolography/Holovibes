@@ -71,11 +71,11 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     QLocale::setDefault(QLocale("en_US"));
     // Create the Qt app
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(":/Holovibes.ico"));
+    app.setWindowIcon(QIcon(":/assets/icons/Holovibes.ico"));
 
     LOG_TRACE(" ");
     check_cuda_graphic_card(true);
-    QSplashScreen splash(QPixmap(":/holovibes_logo.png"));
+    QSplashScreen splash(QPixmap(":/assets/icons/holovibes_logo.png"));
     splash.show();
 
     LOG_TRACE(" ");
