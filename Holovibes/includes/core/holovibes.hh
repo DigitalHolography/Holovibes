@@ -409,7 +409,7 @@ class Holovibes
                                              settings::SpaceTransformation{SpaceTransformation::NONE},
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
-                                             settings::ZDistance{1.50f},
+                                             settings::ZDistance{0.0f},
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},

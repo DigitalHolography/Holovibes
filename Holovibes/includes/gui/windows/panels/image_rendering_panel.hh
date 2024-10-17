@@ -146,6 +146,6 @@ class ImageRenderingPanel : public Panel
 
   public:
     // should be moved to double in the ui if we need more precision than 5 digits
-    double z_step_ = 0.005f;
+    double z_step_ = 1.0f;
 };
 } // namespace holovibes::gui

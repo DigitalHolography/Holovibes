@@ -123,28 +123,30 @@ QString ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (api::get_record_mode() == RecordMode::CHART)
+    RecordMode record_mode = api::get_record_mode();
+
+    if (record_mode == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_record_mode() == RecordMode::RAW)
+    else if (record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+    else if (record_mode == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -226,6 +228,11 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
         }
+        else if (api::get_record_mode() == RecordMode::MOMENTS)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+        }
 
         ui_->ChartPlotWidget->hide();
 
@@ -249,7 +256,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
     LOG_INFO("[RECORDER] {}", info);
@@ -383,6 +390,8 @@ void ExportPanel::update_record_mode()
         record_mode = RecordMode::CUTS_XZ;
     else if (record_mode_str == "3D Cuts YZ")
         record_mode = RecordMode::CUTS_YZ;
+    else if (record_mode_str == "Moments")
+        record_mode = RecordMode::MOMENTS;
     else
     {
         LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);

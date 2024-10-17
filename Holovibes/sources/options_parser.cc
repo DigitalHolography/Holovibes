@@ -94,6 +94,11 @@ OptionsParser::OptionsParser()
         po::value<unsigned int>(),
         "MP4 fps value, default 24. Warning : it may crash for big values"
     )
+    (
+        "moments_record",
+        po::bool_switch()->default_value(false),
+        "Record moments (default = false)"
+    )
     ;
     // clang-format on
 
@@ -189,6 +194,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
                 exit(31);
             }
         }
+        options_.moments_record = vm_["moments_record"].as<bool>();
     }
     catch (std::exception& e)
     {
