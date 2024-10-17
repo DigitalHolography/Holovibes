@@ -7,6 +7,7 @@
 #include "notifier_struct.hh"
 #include "notifier.hh"
 #include "enum_record_mode.hh"
+#include "enum_camera_kind.hh"
 
 namespace Ui
 {
@@ -147,6 +148,13 @@ class LightUI : public QMainWindow
     void set_contrast_max(double value);
     void set_auto_contrast();
     void set_contrast_auto_refresh(bool enabled);
+
+    void change_camera(CameraKind camera);
+    void camera_none();
+    void camera_phantom();
+    void camera_ametek_s711_coaxlink_qspf_plus();
+    void camera_ametek_s991_coaxlink_qspf_plus();
+    void configure_camera();
 
   protected:
     /**

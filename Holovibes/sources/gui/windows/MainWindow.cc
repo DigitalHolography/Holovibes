@@ -640,8 +640,6 @@ void MainWindow::camera_none()
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
-
-    notify();
 }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }

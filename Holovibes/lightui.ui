@@ -352,8 +352,27 @@
     </property>
     <addaction name="actionConfiguration_UI"/>
    </widget>
+
+   <widget class="QMenu" name="menu_Camera">
+    <property name="title">
+     <string>&amp;Camera</string>
+    </property>
+    <widget class="QMenu" name="menu_Model">
+     <property name="title">
+      <string>&amp;Model</string>
+     </property>
+     <addaction name="actionNone"/>
+     <addaction name="actionPhantom_S710"/>
+     <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
+     <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+    </widget>
+    <addaction name="menu_Model"/>
+    <addaction name="actionSettings"/>
+   </widget>
+
    <addaction name="menuOptions"/>
    <addaction name="menuView"/>
+   <addaction name="menu_Camera"/>
   </widget>
   <action name="actionConfiguration_UI">
    <property name="text">
@@ -379,6 +398,39 @@
     <string>Ctrl+P</string>
    </property>
   </action>
+
+  <action name="actionNone">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="actionPhantom_S710">
+   <property name="text">
+    <string>Ametek S710 Euresys Coaxlink Octo</string>
+   </property>
+  </action>
+  <action name="actionAmetekS711EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S711 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
+   <property name="text">
+    <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+C</string>
+   </property>
+  </action>
+
  </widget>
  <customwidgets>
   <customwidget>
@@ -599,6 +651,87 @@
    </hints>
   </connection>
 
+  <connection>
+   <sender>actionNone</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>LightUI</receiver>
+   <slot>camera_none()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPhantom_S710</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>camera_phantom()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS711EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAmetekS991EuresysCoaxlinkQSPF+</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>LightUI</receiver>
+   <slot>configure_camera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+
  </connections>
  <slots>
   <slot>start_stop_recording(bool)</slot>
@@ -613,5 +746,11 @@
   <slot>set_contrast_max(double)</slot>
   <slot>set_auto_contrast()</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
+
+  <slot>camera_none()</slot>
+  <slot>camera_phantom()</slot>
+  <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
+  <slot>configure_camera()</slot>
  </slots>
 </ui>

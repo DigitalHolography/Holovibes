@@ -1014,7 +1014,7 @@ void set_auto_contrast_cuts()
 bool set_auto_contrast()
 {
     if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return;
+        return false;
 
     try
     {
@@ -1075,7 +1075,7 @@ void set_contrast_max(float value)
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
 
-    if (old_val != val)
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
