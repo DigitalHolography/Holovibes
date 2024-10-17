@@ -132,7 +132,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/assets/json_patches_holofile/
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
@@ -183,8 +183,8 @@ install(TARGETS Holovibes
     COMPONENT application
 )
 
-install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
-    DESTINATION json_patches_holofile
+install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
+    DESTINATION assets/json_patches_holofile
     COMPONENT application
 )
 
