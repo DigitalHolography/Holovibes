@@ -24,6 +24,7 @@ ICamera* new_camera_device()
         Euresys::EGenTL gentl;
         Euresys::EGrabber<> grabber(gentl, 0, 0);
         model_name = grabber.getString<Euresys::DeviceModule>("DeviceModelName");
+        Logger::camera()->info("Detected : " + model_name);
     }
     if (camera_init_map.contains(model_name))
         return camera_init_map[model_name]();
