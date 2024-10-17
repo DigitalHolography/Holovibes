@@ -4,7 +4,6 @@
 
 namespace camera
 {
-#define NB_GRABBER 2
 class EHoloGrabber : public EHoloGrabberInt
 {
   public:

@@ -109,7 +109,7 @@ class CameraParamMap
 
     /*! \brief return the value of the parameter \key
      *
-     * /!\ Pay attention this function must aborted if the type is wrong or the key not present!!!
+     * /!\ Pay attention this function will abort the program if the type is wrong or the key not present!!!
      *
      * \tparam T type of return value
      * \param key name of the parameter
@@ -120,7 +120,7 @@ class CameraParamMap
 
     /*! \brief Set the value of the parameter \key of insert it on the map
      *
-     * /!\ Pay attention this function must aborted if the key present and type is wrong !!!
+     * /!\ Pay attention this function will abort the program if the key present and type is wrong !!!
      *
      * \tparam T type of the value
      * \param key name of the parameter

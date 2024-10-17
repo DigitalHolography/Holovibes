@@ -11,13 +11,14 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                            unsigned int buffer_part_count,
                            std::string pixel_format,
                            unsigned int nb_grabbers)
-    : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, NB_GRABBER)
+    : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers_)
 {
     if (available_grabbers_.size() < nb_grabbers_)
-    { // TODO tkt
-        Logger::camera()->error("Not enough frame grabbers connected to the camera, expected: {} but got: {}.",
-                                nb_grabbers_,
-                                available_grabbers_.size());
+    {
+        Logger::camera()->error(
+            "Not enough frame grabbers connected to the camera, expected: {} (from the ini config file) but got: {}.",
+            nb_grabbers_,
+            available_grabbers_.size());
         throw CameraException(CameraException::CANT_SET_CONFIG);
     }
 }
@@ -58,14 +59,10 @@ void CameraPhantom::init_camera()
         ini_file_.close();
     }
 
-    unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
     grabber_ = std::make_unique<EHoloGrabber>(*gentl_,
                                               params_.at<unsigned int>("BufferPartCount"),
                                               params_.at<std::string>("PixelFormat"),
-                                              nb_grabbers);
-
-    // nb_grabbers may have been updated by EHoloGrabber constructor
-    params_.set<unsigned int>("NbGrabbers", nb_grabbers);
+                                              params_.at<unsigned int>("NbGrabbers"));
 
     CameraPhantomInt::init_camera();
 }
