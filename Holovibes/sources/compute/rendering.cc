@@ -53,14 +53,15 @@ void Rendering::insert_stabilization()
                                   fd_.width,
                                   fd_.height,
                                   stream_);
-                applyCircularMask(stabilization_env_.gpu_reference_image,
+                applyCircularMask(buffers_.gpu_postprocess_frame,
                                   buffers_.gpu_postprocess_frame,
                                   stabilization_env_.reference_image_mean.get(),
                                   fd_.width,
                                   fd_.height,
                                   stream_);
+
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));
-                // LOG_INFO(*(stabilization_env_.reference_image_mean.get()));
+                // LOG_WARN(*(stabilization_env_.reference_image_mean.get()));
             });
     }
 }

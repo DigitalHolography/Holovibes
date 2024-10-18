@@ -6,9 +6,8 @@ namespace
  *   (x^2 +  y^2 = r^2)
  *  \param[out] output The output image after mask application.
  *  \param[in] input The input image on which the mask is applied.
- *  \param[in out] pixels_mean Pointer to store the mean of the pixels inside the circle. Just process the sum in this
- *  function.
- *  \param [in out] pixels_number Pointer to store the number of pixels inside the circle.
+ *  \param[in out] mean_vector Vector used to store the sum of the pixels [0] and the number of pixels [1] inside the
+ *  circle.
  *  \param[in] width The width of the image.
  *  \param[in] height The height of the image.
  *  \param[in] centerX The x composite of the center of the image.
@@ -17,8 +16,7 @@ namespace
  */
 __global__ void applyCircularMaskKernel(float* output,
                                         float* input,
-                                        float* pixels_mean,
-                                        uint* pixels_number,
+                                        float* mean_vector,
                                         short width,
                                         short height,
                                         float centerX,
@@ -39,11 +37,11 @@ __global__ void applyCircularMaskKernel(float* output,
             output[idx] = 0.0f;
         else
         {
-            // *(pixels_mean) += input[idx];
-            // atomicAdd(pixels_mean, input[idx]);
             output[idx] = input[idx];
-            // *(pixels_number)++;
-            // atomicAdd(pixels_number, 1);
+            // TODO : Optimize the compute with shared memory and reduction, warp-level primitives.
+            // (See reduction functions)
+            atomicAdd(&mean_vector[0], input[idx]); // Pixels sum
+            atomicAdd(&mean_vector[1], 1.0f);       // Pixels count
         }
     }
 }
@@ -62,21 +60,35 @@ void applyCircularMask(
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
-    uint pixels_number = 0;
-    // size_t shared_memory_size = 2 * threads_2d * threads_2d * sizeof(float);
+    // Allocating memory on GPU to compute the sum [0] and number [1] of pixels, used for mean computation.
+    float* gpu_mean_vector;
+    cudaMalloc(&gpu_mean_vector, 2 * sizeof(float));
+    cudaMemset(gpu_mean_vector, 0, 2 * sizeof(float));
 
     applyCircularMaskKernel<<<lblocks, lthreads, 0, stream>>>(output,
                                                               input,
-                                                              pixels_mean,
-                                                              &pixels_number,
+                                                              gpu_mean_vector,
                                                               width,
                                                               height,
                                                               centerX,
                                                               centerY,
                                                               radius);
 
+    // Make sur that the mean compute is done.
     cudaXStreamSynchronize(stream);
 
-    // *(pixels_mean) = *(pixels_mean) / pixels_number;
+    // Transfering memory to the CPU.
+    float cpu_mean_vector[2];
+    cudaMemcpy(cpu_mean_vector, gpu_mean_vector, 2 * sizeof(float), cudaMemcpyDeviceToHost);
+
+    // Avoid zero division
+    if (cpu_mean_vector[1] > 0)
+        *pixels_mean = cpu_mean_vector[0] / cpu_mean_vector[1];
+    else
+        *pixels_mean = 0.0f;
+
+    // Release GPU memory
+    cudaFree(gpu_mean_vector);
+
     cudaCheckError();
 }
