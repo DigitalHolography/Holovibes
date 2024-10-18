@@ -18,11 +18,11 @@ class Queue;
 /*! \brief Compute the STFT time transform from gpu_time_transformation_queue_
  * to gpu_p_acc_buffer using plan1d wich is the data and computation descriptor
  */
-void stft(cuComplex* input, cuComplex* output, const cufftHandle plan1d);
+void stft(cuComplex* output, cuComplex* input, const cufftHandle plan1d);
 
-void time_transformation_cuts_begin(const cuComplex* input,
-                                    float* output_xz,
+void time_transformation_cuts_begin(float* output_xz,
                                     float* output_yz,
+                                    const cuComplex* input,
                                     const ushort xmin,
                                     const ushort ymin,
                                     const ushort xmax,
