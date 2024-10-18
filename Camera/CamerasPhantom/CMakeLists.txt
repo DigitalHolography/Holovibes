@@ -1,0 +1,3 @@
+add_subdirectory(AmetekS710EuresysCoaxlinkOcto)
+add_subdirectory(AmetekS711EuresysCoaxlinkQsfp+)
+add_subdirectory(AmetekS991EuresysCoaxlinkQsfp+)

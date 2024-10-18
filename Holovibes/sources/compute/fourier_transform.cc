@@ -20,7 +20,7 @@
 #include "queue.hh"
 #include "shift_corners.cuh"
 #include "apply_mask.cuh"
-#include "svd.hh"
+#include "matrix_operations.hh"
 #include "logger.hh"
 
 using holovibes::FunctionVector;
@@ -229,9 +229,75 @@ void FourierTransform::insert_stft()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                 time_transformation_env_.gpu_p_acc_buffer,
+            stft(time_transformation_env_.gpu_p_acc_buffer,
+                 reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                  time_transformation_env_.stft_plan);
+        });
+}
+
+void FourierTransform::insert_moments()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            auto type = setting<settings::ImageType>();
+
+            bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
+            if (recording)
+            {
+                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
+                // frequencies at order 0 (all equal to 1)
+                tensor_multiply_vector(moments_env_.moment0_buffer,
+                                       moments_env_.stft_res_buffer,
+                                       moments_env_.f0_buffer,
+                                       fd_.get_frame_res(),
+                                       moments_env_.f_start,
+                                       moments_env_.f_end,
+                                       stream_);
+
+                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
+                // frequencies at order 1
+                tensor_multiply_vector(moments_env_.moment1_buffer,
+                                       moments_env_.stft_res_buffer,
+                                       moments_env_.f1_buffer,
+                                       fd_.get_frame_res(),
+                                       moments_env_.f_start,
+                                       moments_env_.f_end,
+                                       stream_);
+
+                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
+                // frequencies at order 2
+                tensor_multiply_vector(moments_env_.moment2_buffer,
+                                       moments_env_.stft_res_buffer,
+                                       moments_env_.f2_buffer,
+                                       fd_.get_frame_res(),
+                                       moments_env_.f_start,
+                                       moments_env_.f_end,
+                                       stream_);
+            }
+
+            float* freq = nullptr;
+            if (type == ImgType::Moments_0)
+                freq = moments_env_.f0_buffer.get();
+
+            if (type == ImgType::Moments_1)
+                freq = moments_env_.f1_buffer.get();
+
+            if (type == ImgType::Moments_2)
+                freq = moments_env_.f2_buffer.get();
+
+            if (freq != nullptr)
+            {
+                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
+                                       moments_env_.stft_res_buffer,
+                                       freq,
+                                       fd_.get_frame_res(),
+                                       moments_env_.f_start,
+                                       moments_env_.f_end,
+                                       stream_);
+            }
         });
 }
 
@@ -265,12 +331,12 @@ void FourierTransform::insert_pca()
                                  time_transformation_env_.pca_dev_info);
 
             // gpu_p_acc_buffer = H * V
-            matrix_multiply(H,
-                            V,
-                            static_cast<int>(fd_.get_frame_res()),
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_env_.gpu_p_acc_buffer);
+            matrix_multiply_complex(H,
+                                    V,
+                                    static_cast<int>(fd_.get_frame_res()),
+                                    time_transformation_size,
+                                    time_transformation_size,
+                                    time_transformation_env_.gpu_p_acc_buffer);
         });
 }
 
@@ -318,22 +384,22 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
             cudaXMemsetAsync(V + q_index + q_acc_index, 0, copy_size * sizeof(cuComplex), stream_);
 
             // tmp = V * V'
-            matrix_multiply(V,
-                            V,
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_size,
-                            tmp_matrix,
-                            CUBLAS_OP_N,
-                            CUBLAS_OP_C);
+            matrix_multiply_complex(V,
+                                    V,
+                                    time_transformation_size,
+                                    time_transformation_size,
+                                    time_transformation_size,
+                                    tmp_matrix,
+                                    CUBLAS_OP_N,
+                                    CUBLAS_OP_C);
 
             // H = H * tmp
-            matrix_multiply(H,
-                            tmp_matrix,
-                            static_cast<int>(fd_.get_frame_res()),
-                            time_transformation_size,
-                            time_transformation_size,
-                            time_transformation_env_.gpu_p_acc_buffer);
+            matrix_multiply_complex(H,
+                                    tmp_matrix,
+                                    static_cast<int>(fd_.get_frame_res()),
+                                    time_transformation_size,
+                                    time_transformation_size,
+                                    time_transformation_env_.gpu_p_acc_buffer);
 
             stft(time_transformation_env_.gpu_p_acc_buffer,
                  time_transformation_env_.gpu_p_acc_buffer,
@@ -389,9 +455,9 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posy = y.start;
                     }
                     // -----------------------------------------------------
-                    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                                   gpu_postprocess_frame_xz,
+                    time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
+                                                   time_transformation_env_.gpu_p_acc_buffer,
                                                    mouse_posx,
                                                    mouse_posy,
                                                    mouse_posx + x.width,

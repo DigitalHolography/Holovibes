@@ -483,12 +483,12 @@ It's a post-processing step to remove noise</string>
              </item>
              <item>
               <property name="text">
-               <string>FresnelTR</string>
+               <string>Fresnel Tr.</string>
               </property>
              </item>
              <item>
               <property name="text">
-               <string>AngularSP</string>
+               <string>Angular SP.</string>
               </property>
              </item>
             </widget>
@@ -1297,6 +1297,21 @@ The range of frequencies kept is [z, z + width]</string>
              <item>
               <property name="text">
                <string>Composite image</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 0</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Moments 2</string>
               </property>
              </item>
             </widget>
@@ -2792,6 +2807,11 @@ The range of frequencies kept is [z, z + width]</string>
                   <string>Chart</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>Moments</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
@@ -2977,69 +2997,6 @@ The range of frequencies kept is [z, z + width]</string>
                 </layout>
                </item>
                <item>
-                <widget class="QGroupBox" name="BatchGroupBox">
-                 <property name="title">
-                  <string>Batch</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_19">
-                  <property name="leftMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>2</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>2</number>
-                  </property>
-                  <item>
-                   <layout class="QHBoxLayout" name="batchFileSelectionLayout">
-                    <property name="spacing">
-                     <number>6</number>
-                    </property>
-                    <item>
-                     <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit">
-                      <property name="inputMask">
-                       <string/>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="dragEnabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
-                      <property name="placeholderText">
-                       <string>Select batch input file</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QToolButton" name="BatchInputBrowseToolButton">
-                      <property name="toolTip">
-                       <string>Allow batch file reading</string>
-                      </property>
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
                 <layout class="QHBoxLayout" name="recordPushButtonsLayout">
                  <item>
                   <widget class="QPushButton" name="ExportRecPushButton">
@@ -3071,22 +3028,6 @@ The range of frequencies kept is [z, z + width]</string>
                   </widget>
                  </item>
                 </layout>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="RecordDeviceCheckbox">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true"/>
-                 </property>
-                 <property name="text">
-                  <string>CPU Record</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
                </item>
               </layout>
              </widget>
@@ -3300,7 +3241,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
-     <addaction name="actionEGrabberStudio"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3317,7 +3257,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionPhantom_S710Settings"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+Settings"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+Settings"/>
-     <addaction name="actionEGrabberStudioSettings"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3396,11 +3335,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="actionStart">
    <property name="text">
     <string>Start</string>
-   </property>
-  </action>
-  <action name="actionSettings_2">
-   <property name="text">
-    <string>Settings</string>
    </property>
   </action>
   <action name="actionAuto_contrast">
@@ -3550,11 +3484,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
-  <action name="actionEGrabberStudio">
-   <property name="text">
-    <string>Euresys eGrabber</string>
-   </property>
-  </action>
   <action name="actionBitflowCytonSettings">
    <property name="text">
     <string>Bitflow Cyton frame grabber</string>
@@ -3608,11 +3537,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+Settings">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
-   </property>
-  </action>
-  <action name="actionEGrabberStudioSettings">
-   <property name="text">
-    <string>Euresys eGrabber</string>
    </property>
   </action>
   <action name="actionReload_ini">
@@ -3744,7 +3668,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <tabstop>OutputFileBrowseToolButton</tabstop>
   <tabstop>ExportRecPushButton</tabstop>
   <tabstop>ExportStopPushButton</tabstop>
-  <tabstop>BatchInputBrowseToolButton</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
   <tabstop>InputBrowseToolButton</tabstop>
   <tabstop>ImportInputFpsSpinBox</tabstop>
@@ -5034,38 +4957,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>BatchInputBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>browse_batch_input()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>923</x>
-     <y>560</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>RecordDeviceCheckbox</sender>
-   <signal>clicked()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>set_record_device(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ExportRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>ExportPanel</receiver>
@@ -5498,22 +5389,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>actionEGrabberStudio</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_euresys_egrabber()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionBitflowCytonSettings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5690,22 +5565,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>actionEGrabberStudioSettings</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_euresys_egrabber_settings()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5818,22 +5677,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>BatchGroupBox</sender>
-   <signal>toggled()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>update_batch_enabled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>NumberOfFramesCheckBox</sender>
    <signal>stateChanged()</signal>
    <receiver>ExportPanel</receiver>
@@ -5870,22 +5713,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <signal>textChanged()</signal>
    <receiver>ExportPanel</receiver>
    <slot>update_record_file_path()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>BatchInputPathLineEdit</sender>
-   <signal>textChanged()</signal>
-   <receiver>ExportPanel</receiver>
-   <slot>update_batch_file_path()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>20</x>
@@ -6105,8 +5932,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>camera_alvium_settings()</slot>
   <slot>start_chart_display()</slot>
   <slot>browse_record_output_file()</slot>
-  <slot>browse_batch_input()</slot>
-  <slot>set_record_device(bool)</slot>
   <slot>start_record()</slot>
   <slot>stop_record()</slot>
   <slot>import_browse_file()</slot>

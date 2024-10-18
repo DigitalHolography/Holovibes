@@ -13,8 +13,10 @@
 
 /*! \brief Compute the modulus of complex image(s).
  *
- * \param input Input data should be contiguous.
- * \param output Where to store the output.
+ * \param output[out] Where to store the output.
+ * \param input[in] Input data should be contiguous.
+ * \param pmin Minimum index to compute on
+ * \param pmax Maximum index to compute on
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
@@ -27,8 +29,10 @@ void complex_to_modulus(float* output,
 
 /*! \brief Compute the squared modulus of complex image(s).
  *
- * \param input Input data should be contiguous.
- * \param output Where to store the output.
+ * \param output[out] Where to store the output.
+ * \param input[in] Input data should be contiguous.
+ * \param pmin Minimum index to compute on
+ * \param pmax Maximum index to compute on
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
@@ -41,8 +45,10 @@ void complex_to_squared_modulus(float* output,
 
 /*! \brief Compute argument (angle) of complex image(s).
  *
- * \param input Input data should be contiguous.
- * \param output Where to store the output.
+ * \param output[out] Where to store the output.
+ * \param input[in] Input data should be contiguous.
+ * \param pmin Minimum index to compute on
+ * \param pmax Maximum index to compute on
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
@@ -59,21 +65,24 @@ void complex_to_argument(float* output,
  * the *size* elements, and rescales all elements so that the minimum
  * becomes "zero", and the maximum "2^16" on a 16-bit scale.
  *
- * \param input Angles values.
- * \param output Where to store the rescaled result.
+ * \param output[out] Where to store the rescaled result.
+ * \param input[in] Angles values.
+ * \param pmin Minimum index to compute on
+ * \param pmax Maximum index to compute on
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void rescale_float(const float* input, float* output, const size_t size, const cudaStream_t stream);
+void rescale_float(float* output, const float* input, const size_t size, const cudaStream_t stream);
 
 /*! \brief Convert from big endian to little endian.
- * \param input The input data in big endian.
- * \param output Where to store the data converted in little endian.
+ * \param output[out] Where to store the data converted in little endian.
+ * \param input[in] The input data in big endian.
+ * \param batch_size The batch size of the input.
  * \param frame_res The resolution (number of pixel) of a frame
  * \param stream The CUDA stream on which to launch the operation.
  */
 void endianness_conversion(
-    const ushort* input, ushort* output, const uint batch_size, const size_t frame_res, const cudaStream_t stream);
+    ushort* output, const ushort* input, const uint batch_size, const size_t frame_res, const cudaStream_t stream);
 
 /*! \brief Convert data from float to unsigned short (16-bit).
  *
@@ -82,17 +91,17 @@ void endianness_conversion(
  * greater than 2^16 - 1 to 2^16 - 1.
  * Then it is truncated to unsigned short data type.
  *
- * \param input The input floating-point data.
- * \param output Where to store the data converted in unsigned short.
+ * \param output[out] Where to store the data converted in unsigned short.
+ * \param input[in] The input floating-point data.
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
 void float_to_ushort(
-    const float* const input, ushort* const output, const size_t size, const cudaStream_t stream, const uint shift = 0);
+    ushort* const output, const float* const input, const size_t size, const cudaStream_t stream, const uint shift = 0);
 
-void float_to_ushort_normalized(const float* const input, ushort* const output, const size_t size, cudaStream_t stream);
+void float_to_ushort_normalized(ushort* const output, const float* const input, const size_t size, cudaStream_t stream);
 
-void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, const cudaStream_t stream);
+void ushort_to_uchar(uchar* output, const ushort* input, const size_t size, const cudaStream_t stream);
 
 /*! \brief Converts and tranfers data from input_queue to gpu_input_buffer
  *
@@ -105,6 +114,7 @@ void ushort_to_uchar(const ushort* input, uchar* output, const size_t size, cons
  * \param frame_res The total size of a frame (width * height).
  * \param batch_size The size of the batch to transfer.
  * \param depth The pixel depth.
+ * \param stream The CUDA stream on which to launch the operation.
  */
 void input_queue_to_input_buffer(void* const output,
                                  const void* const input,
@@ -115,16 +125,16 @@ void input_queue_to_input_buffer(void* const output,
 
 /*! \brief Cumulate images into one.
  *
- * \param input Input data should be contiguous.
- * \param output Where to store the output.
+ * \param output[out] Where to store the output.
+ * \param input[in] Input data should be contiguous.
  * \param end End of the queue. The most recent element in the queue
  * \param max_elmt Total number of elmt.
  * \param nb_elmt Number of elmt that should be added.
  * \param nb_pixel Number of pixel per image.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void accumulate_images(const float* input,
-                       float* output,
+void accumulate_images(float* output,
+                       const float* input,
                        const size_t end,
                        const size_t max_elmt,
                        const size_t nb_elmt,
@@ -133,16 +143,16 @@ void accumulate_images(const float* input,
 
 /*! \brief Kernel to cumulate images into one.
  *
- * \param input Input data should be contiguous.
- * \param output Where to store the output.
+ * \param output[out] Where to store the output.
+ * \param input[in] Input data should be contiguous.
  * \param start Number of starting elmt.
  * \param max_elmt Total number of elmt.
  * \param nb_elmt Number of elmt that should be added.
  * \param nb_pixel Number of pixel per image.
  * \param stream The CUDA stream on which to launch the operation.
  */
-__global__ void kernel_accumulate_images(const float* input,
-                                         float* output,
+__global__ void kernel_accumulate_images(float* output,
+                                         const float* input,
                                          const size_t start,
                                          const size_t max_elmt,
                                          const size_t nb_elmt,
@@ -151,13 +161,31 @@ __global__ void kernel_accumulate_images(const float* input,
 void normalize_complex(cuComplex* image, const size_t size, const cudaStream_t stream);
 
 void rescale_float_unwrap2d(
-    float* input, float* output, float* cpu_buffer, size_t frame_res, const cudaStream_t stream);
+    float* output, float* input, float* cpu_buffer, size_t frame_res, const cudaStream_t stream);
 
-void convert_frame_for_display(const void* input,
-                               void* output,
+void convert_frame_for_display(void* output,
+                               const void* input,
                                const size_t size,
                                const camera::PixelDepth depth,
                                const ushort shift,
                                const cudaStream_t stream);
 
 void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream);
+
+/*!
+ * \brief Convert a buffer filled with complex values into real values using the modulus. The function will
+ * only convert from index f_start to index f_end.
+ *
+ * \param[out] output     Where to store the result. Same size as the input
+ * \param[in]  input      The input buffer of size frame_res and of depth of at least `f_end`.
+ * \param[in]  frame_res  The resolution of a single image
+ * \param[in]  f_start    The start index
+ * \param[in]  f_end      The end index
+ * \param[in]  stream     The cuda stream
+ */
+void complex_to_modulus_moments(float* output,
+                                const cuComplex* input,
+                                const size_t frame_res,
+                                const ushort f_start,
+                                const ushort f_end,
+                                const cudaStream_t stream);

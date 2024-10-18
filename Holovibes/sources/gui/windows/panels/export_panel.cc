@@ -95,8 +95,6 @@ void ExportPanel::on_notify()
 
     actualise_record_output_file_ui(record_output_path);
 
-    ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
-    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
@@ -125,28 +123,30 @@ QString ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    if (api::get_record_mode() == RecordMode::CHART)
+    RecordMode record_mode = api::get_record_mode();
+
+    if (record_mode == RecordMode::CHART)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Chart output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Text files (*.txt);;CSV files (*.csv)"));
     }
-    else if (api::get_record_mode() == RecordMode::RAW)
+    else if (record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo)"));
     }
-    else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+    else if (record_mode == RecordMode::HOLOGRAM)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
                                                 UserInterfaceDescriptor::instance().record_output_directory_.c_str(),
                                                 tr("Holo files (*.holo);; Avi Files (*.avi);; Mp4 files (*.mp4)"));
     }
-    else if (api::get_record_mode() == RecordMode::CUTS_XZ || api::get_record_mode() == RecordMode::CUTS_YZ)
+    else if (record_mode == RecordMode::CUTS_XZ || record_mode == RecordMode::CUTS_YZ)
     {
         filepath = QFileDialog::getSaveFileName(this,
                                                 tr("Record output file"),
@@ -179,21 +179,6 @@ void ExportPanel::set_output_file_name(std::string std_filepath)
 }
 
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
-
-void ExportPanel::browse_batch_input()
-{
-
-    // Open file explorer on the fly
-    QString filename = QFileDialog::getOpenFileName(this,
-                                                    tr("Batch input file"),
-                                                    UserInterfaceDescriptor::instance().batch_input_directory_.c_str(),
-                                                    tr("All files (*)"));
-
-    // Output the file selected in he ui line edit widget
-    QLineEdit* batch_input_line_edit = ui_->BatchInputPathLineEdit;
-    batch_input_line_edit->clear();
-    batch_input_line_edit->insert(filename);
-}
 
 void ExportPanel::set_record_mode(const QString& value)
 {
@@ -243,6 +228,11 @@ void ExportPanel::set_record_mode(const QString& value)
             ui_->RecordExtComboBox->insertItem(0, ".mp4");
             ui_->RecordExtComboBox->insertItem(1, ".avi");
         }
+        else if (api::get_record_mode() == RecordMode::MOMENTS)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+        }
 
         ui_->ChartPlotWidget->hide();
 
@@ -266,11 +256,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
-
-    if (ui_->BatchGroupBox->isChecked())
-        info = "Batch " + info;
 
     LOG_INFO("[RECORDER] {}", info);
 
@@ -283,14 +270,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
-}
-
-void ExportPanel::set_record_device(bool value)
-{
-    LOG_DEBUG("Set record device");
-    // Mind that we negate the boolean, since true means gpu for the queues
-    api::set_record_on_gpu(!value);
-    parent_->notify();
 }
 
 void ExportPanel::start_record()
@@ -370,7 +349,6 @@ void ExportPanel::stop_chart_display()
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }
-void ExportPanel::update_batch_enabled() { api::set_batch_enabled(ui_->BatchGroupBox->isChecked()); }
 
 void ExportPanel::update_record_frame_count_enabled()
 {
@@ -388,11 +366,6 @@ void ExportPanel::update_record_file_path()
 {
     api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
                               ui_->RecordExtComboBox->currentText().toStdString());
-}
-
-void ExportPanel::update_batch_file_path()
-{
-    api::set_batch_file_path(ui_->BatchInputPathLineEdit->text().toStdString());
 }
 
 void ExportPanel::set_record_image_mode()
@@ -417,6 +390,8 @@ void ExportPanel::update_record_mode()
         record_mode = RecordMode::CUTS_XZ;
     else if (record_mode_str == "3D Cuts YZ")
         record_mode = RecordMode::CUTS_YZ;
+    else if (record_mode_str == "Moments")
+        record_mode = RecordMode::MOMENTS;
     else
     {
         LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);

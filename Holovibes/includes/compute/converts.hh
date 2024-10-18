@@ -33,8 +33,7 @@
     holovibes::settings::CompositeAutoWeights,     \
     holovibes::settings::HSV,                      \
     holovibes::settings::ZFFTShift,                \
-    holovibes::settings::CompositeZone,            \
-    holovibes::settings::UnwrapHistorySize
+    holovibes::settings::CompositeZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -87,6 +86,9 @@ class Converts
 
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
+
+    /*! \brief Insert the conversion Complex => Modulus on a batch of time transformation size frames. */
+    void insert_to_modulus_moments(float* output);
 
     template <typename T>
     inline void update_setting(T setting)
