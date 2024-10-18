@@ -11,9 +11,9 @@ namespace camera
 namespace
 {
 static auto camera_init_map = std::map<std::string, std::function<ICamera*()>>{
-    {"Phantom S710", initCam<CameraPhantom710>},
-    {"Phantom S711", initCam<CameraPhantom711>},
-    {"Phantom S991", initCam<CameraPhantom991>},
+    {"Phantom S710", InitCam<CameraPhantom710>},
+    {"Phantom S711", InitCam<CameraPhantom711>},
+    {"Phantom S991", InitCam<CameraPhantom991>},
 };
 } // namespace
 

@@ -20,7 +20,7 @@ namespace camera
  * \return A pointer to the new camera object.
  */
 template <class Cam>
-Cam* initCam();
+Cam* InitCam();
 
 /*! \class EHoloSubGrabber
  *

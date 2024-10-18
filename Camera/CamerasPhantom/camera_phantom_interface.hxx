@@ -3,7 +3,7 @@
 namespace camera
 {
 template <class Cam>
-Cam* initCam<Cam>()
+Cam* InitCam<Cam>()
 {
     auto* res = new Cam();
     res->init_camera();

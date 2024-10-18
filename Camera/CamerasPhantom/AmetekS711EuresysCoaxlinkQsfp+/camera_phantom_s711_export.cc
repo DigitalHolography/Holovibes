@@ -3,6 +3,6 @@
 namespace camera
 {
 
-inline ICamera* new_camera_device() { return initCam<CameraPhantom711>(); }
+inline ICamera* new_camera_device() { return InitCam<CameraPhantom711>(); }
 
 } // namespace camera
