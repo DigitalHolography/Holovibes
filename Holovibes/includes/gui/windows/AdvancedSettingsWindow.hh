@@ -73,6 +73,5 @@ class AdvancedSettingsWindow : public QMainWindow
 
     void change_input_folder_path();
     void change_output_folder_path();
-    void change_batch_input_folder_path();
 };
 } // namespace holovibes::gui

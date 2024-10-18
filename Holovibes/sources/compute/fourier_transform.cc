@@ -229,8 +229,8 @@ void FourierTransform::insert_stft()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            stft(reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
-                 time_transformation_env_.gpu_p_acc_buffer,
+            stft(time_transformation_env_.gpu_p_acc_buffer,
+                 reinterpret_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue.get()->get_data()),
                  time_transformation_env_.stft_plan);
         });
 }
@@ -455,9 +455,9 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posy = y.start;
                     }
                     // -----------------------------------------------------
-                    time_transformation_cuts_begin(time_transformation_env_.gpu_p_acc_buffer,
-                                                   gpu_postprocess_frame_xz,
+                    time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
+                                                   time_transformation_env_.gpu_p_acc_buffer,
                                                    mouse_posx,
                                                    mouse_posy,
                                                    mouse_posx + x.width,

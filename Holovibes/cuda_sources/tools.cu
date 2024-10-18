@@ -14,7 +14,7 @@ using namespace holovibes;
 using cuda_tools::CudaUniquePtr;
 using cuda_tools::CufftHandle;
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
+__global__ void kernel_complex_to_modulus(float* output, const cuComplex* input, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -23,7 +23,7 @@ __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output,
 }
 
 void frame_memcpy(
-    const float* input, const units::RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
+    float* output, const float* input, const units::RectFd& zone, const uint input_width, const cudaStream_t stream)
 {
     const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,
@@ -36,8 +36,8 @@ void frame_memcpy(
                                    stream));
 }
 
-__global__ void circ_shift(const cuComplex* input,
-                           cuComplex* output,
+__global__ void circ_shift(cuComplex* output,
+                           const cuComplex* input,
                            const uint batch_size,
                            const int i, // shift on x axis
                            const int j, // shift on y axis
@@ -66,8 +66,8 @@ __global__ void circ_shift(const cuComplex* input,
     }
 }
 
-__global__ void circ_shift_float(const float* input,
-                                 float* output,
+__global__ void circ_shift_float(float* output,
+                                 const float* input,
                                  const uint batch_size,
                                  const int i, // shift on x axis
                                  const int j, // shift on y axis
@@ -96,7 +96,7 @@ __global__ void circ_shift_float(const float* input,
     }
 }
 
-__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
+__global__ void kernel_translation(float* output, float* input, uint width, uint height, int shift_x, int shift_y)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < width * height)
