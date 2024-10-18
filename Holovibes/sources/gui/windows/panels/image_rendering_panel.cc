@@ -19,7 +19,6 @@ namespace holovibes::gui
 {
 ImageRenderingPanel::ImageRenderingPanel(QWidget* parent)
     : Panel(parent)
-    , z_distance_subscriber_(Subscriber<double>("z_distance", [this](double value) { actualise_z_distance(value); }))
 {
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -75,35 +74,22 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
 
     // Filter2D
+    bool filter2D_enabled = !is_raw && api::get_filter2d_enabled();
     ui_->Filter2D->setEnabled(!is_raw);
-    ui_->Filter2D->setChecked(api::get_filter2d_enabled());
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2D->setChecked(filter2D_enabled);
+
+    ui_->Filter2DView->setVisible(filter2D_enabled);
     ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
-    ui_->Filter2DN1SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->Filter2DN1SpinBox->setVisible(filter2D_enabled);
     ui_->Filter2DN1SpinBox->setValue(api::get_filter2d_n1());
 
-    ui_->Filter2DN2SpinBox->setEnabled(!is_raw && api::get_filter2d_enabled());
-
-    // Uncaught exception: Pipe is not initialized is thrown on the setValue() :
-    // Might need to find a better fix one day or another
-    try
-    {
-        ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
-    }
-    catch (const std::exception&)
-    {
-    }
-
+    ui_->Filter2DN2SpinBox->setVisible(filter2D_enabled);
+    ui_->Filter2DN2SpinBox->setValue(api::get_filter2d_n2());
     ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-
-    ui_->Filter2DN1SpinBox->setMaximum(ui_->Filter2DN2SpinBox->value() - 1);
-
-    ui_->Filter2DView->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->Filter2DView->setChecked(!is_raw && api::get_filter2d_view_enabled());
 
     // Filter
-    ui_->InputFilterLabel->setEnabled(!is_raw && api::get_filter2d_enabled());
-    ui_->InputFilterQuickSelectComboBox->setEnabled(!is_raw && api::get_filter2d_enabled());
+    ui_->InputFilterLabel->setVisible(filter2D_enabled);
+    ui_->InputFilterQuickSelectComboBox->setVisible(filter2D_enabled);
     if (!api::get_filter_enabled())
     {
         ui_->InputFilterQuickSelectComboBox->setCurrentIndex(
@@ -116,9 +102,12 @@ void ImageRenderingPanel::on_notify()
     }
 
     // Convolution
-    ui_->ConvoCheckBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+    ui_->ConvoCheckBox->setVisible(api::get_compute_mode() == Computation::Hologram);
     ui_->ConvoCheckBox->setChecked(api::get_convolution_enabled());
-    ui_->DivideConvoCheckBox->setChecked(api::get_convolution_enabled() && api::get_divide_convolution_enabled());
+
+    ui_->DivideConvoCheckBox->setVisible(api::get_convolution_enabled());
+    ui_->DivideConvoCheckBox->setChecked(api::get_divide_convolution_enabled());
+    ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
 }
@@ -292,6 +281,7 @@ void ImageRenderingPanel::update_filter2d_view(bool checked)
         return;
 
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
@@ -369,51 +359,31 @@ void ImageRenderingPanel::set_time_transformation_size()
 // λ
 void ImageRenderingPanel::set_lambda(const double value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_lambda(static_cast<float>(value) * 1.0e-9f);
-}
-
-void ImageRenderingPanel::actualise_z_distance(const double z_distance)
-{
-    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
-    const QSignalBlocker blocker2(ui_->ZSlider);
-    ui_->ZDoubleSpinBox->setValue(z_distance * 1000);
-    ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+    float z_distance = value / 1000.0f;
 
-    api::set_z_distance(static_cast<float>(value) / 1000.0f);
+    api::set_z_distance(z_distance);
+
+    // Keep consistency between the slider and double box
+    const QSignalBlocker blocker(ui_->ZDoubleSpinBox);
+    ui_->ZDoubleSpinBox->setValue(value);
 }
 
 void ImageRenderingPanel::set_z_distance(const double value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_z_distance(static_cast<float>(value) / 1000.0f);
+
+    const QSignalBlocker blocker(ui_->ZSlider);
+    ui_->ZSlider->setValue(value);
 }
 
-void ImageRenderingPanel::increment_z()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
 
-    set_z_distance(api::get_z_distance() + z_step_);
-}
-
-void ImageRenderingPanel::decrement_z()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    set_z_distance(api::get_z_distance() - z_step_);
-}
+void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {

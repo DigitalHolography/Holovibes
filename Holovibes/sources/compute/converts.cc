@@ -255,9 +255,8 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
     try
     {
         if (!unwrap_res_)
-            unwrap_res_.reset(
-                new UnwrappingResources(setting<settings::UnwrapHistorySize>(), fd_.get_frame_res(), stream_));
-        unwrap_res_->reset(setting<settings::UnwrapHistorySize>());
+            unwrap_res_.reset(new UnwrappingResources(1, fd_.get_frame_res(), stream_));
+        unwrap_res_->reset(1);
         unwrap_res_->reallocate(fd_.get_frame_res());
         fn_compute_vect_.conditional_push_back(
             [=]()
