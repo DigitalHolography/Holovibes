@@ -5,6 +5,7 @@
 using holovibes::ChartPoint;
 using holovibes::units::RectFd;
 
+#define FULL_MASK 0xFFFFFFFF
 #define TILE_SIZE 32
 #define STRIDE_SIZE 16
 
@@ -70,7 +71,10 @@ reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x
 __inline__ __device__
 float warp_reduce_sum(float val) {
     for (int offset = warpSize / 2; offset > 0; offset /= 2)
-        val += __shfl_down_sync(0xFFFFFFFF, val, offset);
+    {
+        // TODO: use __ballot_sync() to determine a more optimized mask than a full mask
+        val += __shfl_down_sync(FULL_MASK, val, offset);
+    }
     return val;
 }
 
@@ -163,10 +167,10 @@ static __global__ void kernel_apply_mapped_zone_sum(double* __restrict__ output,
 }
 
 template <typename FUNC>
-void apply_mapped_zone_sum(const float* input,
+void apply_mapped_zone_sum(double* __restrict__ output,
+                           const float* __restrict__ input,
                            const uint height,
                            const uint width,
-                           double* output,
                            const RectFd& zone,
                            FUNC element_map,
                            const cudaStream_t stream)
@@ -191,19 +195,19 @@ void apply_mapped_zone_sum(const float* input,
     cudaCheckError();
 }
 
-void apply_zone_sum(const float* input,
+void apply_zone_sum(double* __restrict__ output,
+                    const float* __restrict__ input,
                     const uint height,
                     const uint width,
-                    double* output,
                     const RectFd& zone,
                     const cudaStream_t stream)
 {
     static const auto identity_map = [] __device__(float val) { return val; };
-    apply_mapped_zone_sum(input, height, width, output, zone, identity_map, stream);
+    apply_mapped_zone_sum(output, input, height, width, zone, identity_map, stream);
 }
 
 static double
-compute_average(float* input, const uint width, const uint height, const RectFd& zone, const cudaStream_t stream)
+compute_average(float* __restrict__ input, const uint width, const uint height, const RectFd& zone, const cudaStream_t stream)
 {
     holovibes::cuda_tools::CudaUniquePtr<double> gpu_sum_zone;
     if (!gpu_sum_zone.resize(1))
@@ -211,7 +215,7 @@ compute_average(float* input, const uint width, const uint height, const RectFd&
 
     cudaXMemsetAsync(gpu_sum_zone, 0.f, sizeof(double), stream);
 
-    apply_zone_sum(input, height, width, gpu_sum_zone, zone, stream);
+    apply_zone_sum(gpu_sum_zone, input, height, width, zone, stream);
 
     double cpu_avg_zone;
     cudaXMemcpyAsync(&cpu_avg_zone, gpu_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);
@@ -223,19 +227,19 @@ compute_average(float* input, const uint width, const uint height, const RectFd&
     return cpu_avg_zone;
 }
 
-void apply_zone_std_sum(const float* input,
+void apply_zone_std_sum(double* __restrict__ output,
+                        const float* __restrict__ input,
                         const uint height,
                         const uint width,
-                        double* output,
                         const RectFd& zone,
                         const double avg_zone,
                         const cudaStream_t stream)
 {
     const auto std_map = [avg_zone] __device__(float val) { return (val - avg_zone) * (val - avg_zone); };
-    apply_mapped_zone_sum(input, height, width, output, zone, std_map, stream);
+    apply_mapped_zone_sum(output, input, height, width, zone, std_map, stream);
 }
 
-static double compute_std(float* input,
+static double compute_std(float* __restrict__ input,
                           const uint width,
                           const uint height,
                           const RectFd& zone,
@@ -248,7 +252,7 @@ static double compute_std(float* input,
 
     cudaXMemsetAsync(gpu_std_sum_zone, 0.f, sizeof(double), stream);
 
-    apply_zone_std_sum(input, height, width, gpu_std_sum_zone, zone, cpu_avg_zone, stream);
+    apply_zone_std_sum(gpu_std_sum_zone, input, height, width, zone, cpu_avg_zone, stream);
 
     double cpu_std_zone;
     cudaXMemcpyAsync(&cpu_std_zone, gpu_std_sum_zone, sizeof(double), cudaMemcpyDeviceToHost, stream);
@@ -259,7 +263,7 @@ static double compute_std(float* input,
     return cpu_std_zone;
 }
 
-ChartPoint make_chart_plot(float* input,
+ChartPoint make_chart_plot(float* __restrict__ input,
                            const uint width,
                            const uint height,
                            const RectFd& signal_zone,
