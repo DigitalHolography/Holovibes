@@ -656,6 +656,8 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
+
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }

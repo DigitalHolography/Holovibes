@@ -5,20 +5,20 @@
 namespace camera
 {
 
-class EHoloGrabber : public EHoloGrabberInt
+class EHoloGrabber711 : public EHoloGrabberInt
 {
   public:
-    EHoloGrabber(Euresys::EGenTL& gentl,
-                 unsigned int buffer_part_count,
-                 std::string pixel_format,
-                 unsigned int& nb_grabbers);
+    EHoloGrabber711(Euresys::EGenTL& gentl,
+                    unsigned int buffer_part_count,
+                    std::string pixel_format,
+                    unsigned int& nb_grabbers);
 
     void setup(const CameraParamMap& params, Euresys::EGenTL& gentl) override;
 };
-class CameraPhantom : public CameraPhantomInt
+class CameraPhantom711 : public CameraPhantomInt
 {
   public:
-    CameraPhantom();
+    CameraPhantom711();
     void init_camera() override;
     void load_default_params() override;
 };

@@ -3241,6 +3241,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <addaction name="actionPhantom_S710"/>
      <addaction name="actionAmetekS711EuresysCoaxlinkQSPF+"/>
      <addaction name="actionAmetekS991EuresysCoaxlinkQSPF+"/>
+     <addaction name="AutoDetectionPhantom"/>
     </widget>
     <widget class="QMenu" name="menu_Settings">
      <property name="title">
@@ -3478,10 +3479,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
    </property>
-  </action>
+  </action> 
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
+   </property>
+  </action>
+  <action name="AutoDetectionPhantom">
+   <property name="text">
+    <string>Auto Detection Camera Euresys</string>
    </property>
   </action>
   <action name="actionBitflowCytonSettings">
@@ -5373,6 +5379,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>AutoDetectionPhantom</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>auto_detection_phantom()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionAlvium</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -5906,6 +5928,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>camera_bitflow_cyton()</slot>
   <slot>camera_ametek_s991_coaxlink_qspf_plus()</slot>
   <slot>camera_ametek_s711_coaxlink_qspf_plus()</slot>
+  <slot>auto_detection_phantom()</slot>
   <slot>camera_alvium()</slot>
   <slot>camera_euresys_egrabber()</slot>
   <slot>camera_xiq()</slot>

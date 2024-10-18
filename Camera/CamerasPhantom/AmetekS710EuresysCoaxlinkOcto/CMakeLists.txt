@@ -2,6 +2,7 @@ project (AmetekS710EuresysCoaxlinkOcto CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     camera_phantom_s710.cc
+    camera_phantom_s710_export.cc
     ../../Camera/camera_logger.cc
     ../camera_phantom_interface.cc
     ../camera_param_map.cc
