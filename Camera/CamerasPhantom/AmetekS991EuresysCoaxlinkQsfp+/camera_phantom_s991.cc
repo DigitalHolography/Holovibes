@@ -11,7 +11,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
                            unsigned int buffer_part_count,
                            std::string pixel_format,
                            unsigned int nb_grabbers)
-    : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers_)
+    : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers)
 {
     if (available_grabbers_.size() < nb_grabbers_)
     {
