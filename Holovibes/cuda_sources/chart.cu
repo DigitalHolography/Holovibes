@@ -5,7 +5,6 @@
 using holovibes::ChartPoint;
 using holovibes::units::RectFd;
 
-#define FULL_MASK 0xFFFFFFFF
 #define TILE_SIZE 32
 #define STRIDE_SIZE 16
 
@@ -37,45 +36,28 @@ reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x
     }
 }
 
-/*!
- * \brief Performs a warp-level reduction to sum values across threads in a warp using warp-level primitives.
- *
- * This inline device function leverages CUDA's warp-level primitives to perform an efficient sum
- * reduction across all threads within a warp (typically 32 threads). Warp-level primitives, like
- * `__shfl_down_sync`, enable threads within a warp to communicate directly without the overhead of
- * shared memory or explicit synchronization, significantly optimizing reduction operations.
- *
- * The reduction is achieved by progressively halving the number of active threads in each iteration.
- * Starting with an offset equal to `warpSize / 2`, each thread exchanges its value with a neighbor
- * `offset` positions below, and accumulates the result. This continues until all values in the warp
- * are summed together. The function returns the final sum, and while every thread in the warp
- * computes this sum, typically only thread 0 will use the result.
- *
- * As highlighted in NVIDIA's CUDA blog on warp-level primitives
- * (https://developer.nvidia.com/blog/using-cuda-warp-level-primitives/), this approach avoids the
- * need for full block-wide synchronization and the use of shared memory, making it faster and more
- * efficient for warp-level reductions.
- *
- * In the for loop:
- * - The initial `offset` is `warpSize / 2`, which corresponds to 16 threads (assuming `warpSize` is 32).
- * - The value of `offset` is halved after each iteration (16, 8, 4, 2, 1), allowing the threads to
- *   progressively accumulate values within the warp.
- *
- * The intrinsic `__shfl_down_sync` enables this reduction by shifting values between threads in a warp.
- * The mask `0xFFFFFFFF` ensures that all threads in the warp participate in the operation.
- *
- * \param[in] val The value held by the current thread, which will be summed across the warp.
- * \return The sum of the values across the warp. Although all threads in the warp return the same sum,
- *         usually only the first thread in each warp (thread 0) will use the final result.
+/*
+ * Specific tile reduction to handle lines that are smaller than 32
  */
-__inline__ __device__
-float warp_reduce_sum(float val) {
-    for (int offset = warpSize / 2; offset > 0; offset /= 2)
+static __device__ void
+reduce_width_tile(float tile[TILE_SIZE][TILE_SIZE], const ushort x_tile, const ushort y_tile, const ushort tile_width)
+{
+    // Stride should be tile width / 2, odd numbers forces the usage of ceil
+    ushort stride = static_cast<ushort>(ceil(static_cast<float>(tile_width) / 2.0f));
+
+    while (stride > 0)
     {
-        // TODO: use __ballot_sync() to determine a more optimized mask than a full mask
-        val += __shfl_down_sync(FULL_MASK, val, offset);
+        if (x_tile + stride < tile_width)
+            tile[y_tile][x_tile] += tile[y_tile][x_tile + stride];
+
+        // We need to ceil for the calculations, but ceil(1/2) = 1 resulting in
+        // an infinite loop
+        if (stride == 1)
+            return;
+
+        // Again, to handle odd number, the stride should always be ceiled
+        stride = static_cast<ushort>(ceil(static_cast<float>(stride) / 2.0f));
     }
-    return val;
 }
 
 /*! \brief Kernel to compute the sum of pixel values within a zone in a frame
@@ -121,11 +103,9 @@ static __global__ void kernel_apply_mapped_zone_sum(double* __restrict__ output,
     const uint x_zone = blockIdx.x * blockDim.x + x_tile;
     const uint y_zone = blockIdx.y * blockDim.y + y_tile;
 
-    /*
-     * Each TILE_SIZExTILE_SIZE tile loads its image value in shared memory
-     *   Shared memory is used to speed up the reduce speed
-     */
-    __shared__ float tile[TILE_SIZE][TILE_SIZE];
+    /* Each 32x32 tile loads its image value in shared memory
+       Shared memory is used to speed up the reduce speed */
+    __shared__ float tile[32][32];
 
     // Boundary check: thread is inside the zone
     if (x_zone < zone_width && y_zone < zone_height)
@@ -134,28 +114,28 @@ static __global__ void kernel_apply_mapped_zone_sum(double* __restrict__ output,
         const uint x_image = x_zone + start_zone_x;
         const uint y_image = y_zone + start_zone_y;
 
-        /*
-         * No explicit __syncthreads() is needed here because each warp operates on its own line,
-         * and warp-level synchronization is automatically handled by the hardware.
-         * The threads within a warp are inherently synchronized by the GPU architecture.
-         */
+        // No __syncthreads() is needed since we work at warp level, it's sync
+        // by hardware constraint
         tile[y_tile][x_tile] = element_map(input[x_image + y_image * width]);
 
-        // Each thread checks if he is in a valid area
-        if (x_zone < zone_width)
+        // Last column might be smaller than 32
+        const ushort last_column_tile_width = zone_width % blockDim.x;
+        if (blockIdx.x != gridDim.x - 1 || last_column_tile_width == 0)
             reduce_full_width_tile(tile, x_tile, y_tile);
+        else
+            reduce_width_tile(tile, x_tile, y_tile, last_column_tile_width);
 
         // Wait for all lines to finish accumulating
         __syncthreads();
-
-        // Optimized reduction with warp-level primitives
-        if (x_tile == 0) {
-            float row_sum = warp_reduce_sum(tile[y_tile][0]);
-            if (threadIdx.x == 0) {
-                atomicAdd(&tile[0][0], row_sum);
-            }
+        /* x_tile == 0 because only the first thread of each line should write
+           its accumulated value
+           y_tile != 0 because the first line already has its accumalted value
+           in tile[0][0] */
+        if (x_tile == 0 && y_tile != 0)
+        {
+            // Accumulate every line result in the top left corner of the tile
+            atomicAdd(&tile[0][0], tile[y_tile][0]);
         }
-
         // Wait for first thread of each line to accumulate in [0][0]
         __syncthreads();
 
