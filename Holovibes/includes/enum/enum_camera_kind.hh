@@ -25,6 +25,6 @@ enum class CameraKind
     AmetekS711EuresysCoaxlinkQSFP, /*!< Ametek S711 Euresys Coaxlink QSFP+ */
     Ametek,                        /*!< Ametek camera with EGrabber Studio */
     Alvium,                        /*!< Alvium-1800-u/2050 */
-    AutoDetectionPhantom,
+    AutoDetectionPhantom,          /*!< Auto detection of Euresys cameras */
 };
 } // namespace holovibes
