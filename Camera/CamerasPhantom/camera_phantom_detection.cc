@@ -17,6 +17,10 @@ static auto camera_init_map = std::map<std::string, std::function<ICamera*()>>{
 };
 } // namespace
 
+/*! \brief Detect a Camera euresys and alocate a new on, this function handle Camera S711 / S710 / S991
+ *
+ * \return A pointer to the new camera object.
+ */
 ICamera* new_camera_device()
 {
     std::string model_name;

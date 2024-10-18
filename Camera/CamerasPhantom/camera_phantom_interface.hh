@@ -15,6 +15,10 @@
 namespace camera
 {
 
+/*! \brief Allocate a new camera and initialise it
+ *
+ * \return A pointer to the new camera object.
+ */
 template <class Cam>
 Cam* initCam();
 
