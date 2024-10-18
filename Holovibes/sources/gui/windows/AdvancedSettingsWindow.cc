@@ -46,6 +46,7 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 void AdvancedSettingsWindow::set_ui_values()
 {
     api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
+    api::set_record_on_gpu(!ui.RecordDeviceCheckbox->isChecked());
 
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
@@ -64,7 +65,6 @@ void AdvancedSettingsWindow::set_ui_values()
     UserInterfaceDescriptor::instance().output_filename_ = ui.OutputNameLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().record_output_directory_ = ui.InputFolderPathLineEdit->text().toStdString();
     UserInterfaceDescriptor::instance().file_input_directory_ = ui.OutputFolderPathLineEdit->text().toStdString();
-    UserInterfaceDescriptor::instance().batch_input_directory_ = ui.BatchFolderPathLineEdit->text().toStdString();
 
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
@@ -79,7 +79,6 @@ void AdvancedSettingsWindow::set_ui_values()
 
 void AdvancedSettingsWindow::change_input_folder_path() { change_folder(ui.InputFolderPathLineEdit); }
 void AdvancedSettingsWindow::change_output_folder_path() { change_folder(ui.OutputFolderPathLineEdit); }
-void AdvancedSettingsWindow::change_batch_input_folder_path() { change_folder(ui.BatchFolderPathLineEdit); }
 
 #pragma endregion
 
@@ -99,7 +98,6 @@ void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
 
 void AdvancedSettingsWindow::set_current_values()
 {
-
     ui.FileBSSpinBox->setValue(api::get_file_buffer_size());
     ui.InputBSSpinBox->setValue(api::get_input_buffer_size());
     ui.RecordBSSpinBox->setValue(api::get_record_buffer_size());
@@ -116,11 +114,11 @@ void AdvancedSettingsWindow::set_current_values()
 
     ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location() == Device::GPU);
     ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location() == Device::GPU);
+    ui.RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());
     ui.OutputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().file_input_directory_.c_str());
-    ui.BatchFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().batch_input_directory_.c_str());
 
     ui.autoScalePointThresholdSpinBox->setValue(
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));

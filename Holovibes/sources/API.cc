@@ -392,7 +392,7 @@ void set_view_mode(const ImgType type)
 
         pipe_refresh();
     }
-    catch(const std::runtime_error&) // The pipe is not initialized
+    catch (const std::runtime_error&) // The pipe is not initialized
     {
     }
 }
@@ -857,20 +857,21 @@ bool slide_update_threshold(
 
 void set_lambda(float value)
 {
-    UPDATE_SETTING(Lambda, value);
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
     pipe_refresh();
 }
 
 void set_z_distance(float value)
 {
-    if (value == 0)
-        value = 0.000001f;
-    // to avoid kernel crash with 0 distance
-    // Notify the change to the z_distance notifier
-    NotifierManager::notify<double>("z_distance", value);
-
     if (get_compute_mode() == Computation::Raw)
         return;
+
+    // Avoid 0 for cuda kernel
+    if (value <= 0)
+        value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
     pipe_refresh();
@@ -986,6 +987,9 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     auto window = api::get_current_window_type();
 
     if (window == WindowKind::Filter2D)
@@ -1004,6 +1008,9 @@ void set_auto_contrast_cuts()
 
 bool set_auto_contrast()
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return false;
+
     try
     {
         get_compute_pipe()->request_autocontrast(get_current_window_type());
@@ -1037,11 +1044,13 @@ void set_auto_contrast_all()
 
 void set_contrast_min(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
-    if (old_val != val)
+
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
@@ -1055,12 +1064,13 @@ void set_contrast_min(float value)
 
 void set_contrast_max(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
 
-    if (old_val != val)
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
@@ -1074,6 +1084,9 @@ void set_contrast_max(float value)
 
 void set_contrast_invert(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_invert(value);
@@ -1084,6 +1097,9 @@ void set_contrast_invert(bool value)
 
 void set_contrast_auto_refresh(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_auto_refresh(value);
@@ -1479,6 +1495,9 @@ void disable_filter()
 
 void display_reticle(bool value)
 {
+    if (get_reticle_display_enabled() == value)
+        return;
+
     set_reticle_display_enabled(value);
 
     if (value)
@@ -1660,28 +1679,17 @@ void set_record_mode(const std::string& text)
 
 bool start_record_preconditions()
 {
-    bool batch_enabled = api::get_batch_enabled();
     std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
-
-    auto batch_input_path = api::get_batch_file_path().value_or("");
-
-    // Preconditions to start record
 
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART &&
         nb_frames_to_record == std::nullopt)
     {
 
         LOG_ERROR("Number of frames must be activated");
-        return false;
-    }
-
-    if (batch_enabled && batch_input_path.empty())
-    {
-        LOG_ERROR("No batch input file");
         return false;
     }
 
@@ -1802,8 +1810,6 @@ bool import_start()
     {
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
-        // TODO remove
-        UPDATE_SETTING(LoopOnInputFile, true);
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
