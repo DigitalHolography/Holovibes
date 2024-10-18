@@ -3571,7 +3571,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </action>
   <action name="AutoDetectionPhantom">
    <property name="text">
-    <string>Auto Detection Phantom</string>
+    <string>Auto Detection Camera Euresys</string>
    </property>
   </action>
   <action name="actionBitflowCytonSettings">
