@@ -97,6 +97,7 @@ class Pipe : public ICompute
                                                           chart_env_,
                                                           image_acc_env_,
                                                           time_transformation_env_,
+                                                          stabilization_env_,
                                                           input.get_fd(),
                                                           output.get_fd(),
                                                           stream_,
@@ -225,7 +226,7 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();

@@ -119,6 +119,42 @@ struct BatchEnv
     uint batch_index = 0;
 };
 
+/*! \struct StabilizationEnv
+ *   \brief Struct containing variables used to store informations required for the stabilization.
+ */
+struct StabilizationEnv
+{
+    /*! \brief Circular queue used to store the images used as reference.
+     *  This queue will be used as a sliding window to keep the stabilization in real-time.
+     *  The reference image will be the mean of all the images of this queue.
+     */
+    std::unique_ptr<Queue> reference_images_queue = nullptr;
+
+    /*! \brief Number of images to store in the `reference_images_queue`. */
+    uint reference_images_number = 3;
+
+    /*! \brief The reference image computed from the `reference_images_queue`. Contain only one frame.
+     *  This image is the one used to compute the cross-correlation with the other images to stabilize the frames.
+     */
+    cuda_tools::CudaUniquePtr<float> gpu_reference_image = nullptr;
+
+    /*! \brief Pointer containing the mean of the pixels inside the cicrle of `gpu_reference_image` after applying the
+     *  mask.
+     */
+    std::unique_ptr<float> reference_image_mean = std::make_unique<float>(0.0f);
+
+    /*! \brief Float buffer. Contains only one frame.
+     *  Contain the frame after applying the circular mask and rescaling. This image is used for the cross-correlation
+     *  with the `gpu_reference_image`.
+     */
+    cuda_tools::CudaUniquePtr<float> gpu_current_image = nullptr;
+
+    /*! \brief Pointer containing the mean of the pixels inside the cicrle of `gpu_current_image` after applying the
+     *  mask.
+     */
+    std::unique_ptr<float> current_image_mean = std::make_unique<float>(0.0f);
+};
+
 /*! \struct TimeTransformationEnv
  *
  * \brief Struct containing variables related to STFT shared by multiple

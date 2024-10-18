@@ -157,6 +157,8 @@ class ICompute
         // Allocate the buffers
         int err = !buffers_.gpu_output_frame.resize(zone_size);
         err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !stabilization_env_.gpu_reference_image.resize(buffers_.gpu_postprocess_frame_size);
+        err += !stabilization_env_.gpu_current_image.resize(buffers_.gpu_postprocess_frame_size);
         err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
@@ -358,6 +360,9 @@ class ICompute
 
     /*! \brief STFT environment. */
     TimeTransformationEnv time_transformation_env_;
+
+    /*! \brief Stabilization environment. */
+    StabilizationEnv stabilization_env_;
 
     /*! \brief Moments environment. */
     MomentsEnv moments_env_;

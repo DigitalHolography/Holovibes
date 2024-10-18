@@ -20,19 +20,23 @@
 
 #include "common.cuh"
 #include "cuda_runtime.h"
+#include "tools.hh"
+#include "cuda_memory.cuh"
 
 using uint = unsigned int;
 
 /*! \brief Apply the first step of the process.
  *  Computes the center of the image, compute and apply a circular mask to keep only the center of the
  *  eye.
- *  TODO : Compute the mean of each image at the same time to avoid calling a kernel just for the mean.
- *  Need to add an env for all the buffer used.
+ *  Computes the mean of each image at the same time to avoid calling a kernel just for the mean.
+ *  Because of the mean computation the function apply_mask is not appiled, this allows more efficiency.
  *
- *  \param[in out] in_out The gpu_post_process_buffer, changes are made in place for now but will
- *  probably change.
+ *  \param[out] output The output image after mask application.
+ *  \param[in] input The gpu_post_process_buffer on which the mask is applied.
+ *  \param[in out] pixels_mean Pointer to store the mean of the pixels inside the circle.
  *  \param[in] width The width of an image.
  *  \param[in] height The height of an image.
  *  \param[in] stream The CUDA stream on which to launch the operation.
  */
-void applyCircularMask(float* in_out, short width, short height, const cudaStream_t stream);
+void applyCircularMask(
+    float* output, float* input, float* pixels_mean, short width, short height, const cudaStream_t stream);

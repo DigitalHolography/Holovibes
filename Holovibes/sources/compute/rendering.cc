@@ -45,7 +45,23 @@ void Rendering::insert_stabilization()
     {
         // TODO : Continue Stabilization
         fn_compute_vect_.conditional_push_back(
-            [=]() { applyCircularMask(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_); });
+            [=]()
+            {
+                applyCircularMask(stabilization_env_.gpu_current_image,
+                                  buffers_.gpu_postprocess_frame,
+                                  stabilization_env_.current_image_mean.get(),
+                                  fd_.width,
+                                  fd_.height,
+                                  stream_);
+                applyCircularMask(stabilization_env_.gpu_reference_image,
+                                  buffers_.gpu_postprocess_frame,
+                                  stabilization_env_.reference_image_mean.get(),
+                                  fd_.width,
+                                  fd_.height,
+                                  stream_);
+                // LOG_INFO(*(stabilization_env_.current_image_mean.get()));
+                // LOG_INFO(*(stabilization_env_.reference_image_mean.get()));
+            });
     }
 }
 
