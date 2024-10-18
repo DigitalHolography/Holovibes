@@ -139,9 +139,6 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
-    # Copy not all but some resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
-
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
@@ -185,11 +182,6 @@ install(TARGETS Holovibes
 
 install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
     DESTINATION assets/json_patches_holofile
-    COMPONENT application
-)
-
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
-    DESTINATION resources
     COMPONENT application
 )
 
