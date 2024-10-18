@@ -143,18 +143,67 @@ class LightUI : public QMainWindow
      */
     void z_value_changed(int z_distance);
 
+    /*! \name Contrast settings
+     * \{
+     */
+    /*!
+     * \brief Enable or disable contrast
+     *
+     * \param enabled
+     */
     void set_contrast_mode(bool enabled);
-    void set_contrast_min(double value);
-    void set_contrast_max(double value);
-    void set_auto_contrast();
-    void set_contrast_auto_refresh(bool enabled);
 
+    /*!
+     * \brief Set the min value for contrast
+     *
+     * \param value The new min value
+     */
+    void set_contrast_min(double value);
+
+    /*!
+     * \brief Set the contrast max value
+     *
+     * \param[in] value The new max value
+     */
+    void set_contrast_max(double value);
+
+    /*! \brief Apply auto contrast */
+    void set_auto_contrast();
+
+    /*!
+     * \brief Enable or not the auto refresh
+     *
+     * \param[in] enabled
+     */
+    void set_contrast_auto_refresh(bool enabled);
+    /*! \} */
+
+    /*! \name Camera settings
+     * \{
+     */
+
+    /*!
+     * \brief Change the camera to the one in parameter
+     *
+     * \param[in] camera The camera to load
+     */
     void change_camera(CameraKind camera);
+
+    /*! \brief Button NONE in the UI, unload any loaded camera */
     void camera_none();
+
+    /*! \brief Load the 710 Phantom camera */
     void camera_phantom();
+
+    /*! \brief Load the 711 Phantom camera */
     void camera_ametek_s711_coaxlink_qspf_plus();
+
+    /*! \brief Load the 991 Phantom camera */
     void camera_ametek_s991_coaxlink_qspf_plus();
+
+    /*! \brief the Apply setting button in the UI. Load the settings file of the current camera */
     void configure_camera();
+    /*! \} */
 
   protected:
     /**
