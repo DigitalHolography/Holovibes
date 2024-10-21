@@ -67,11 +67,13 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setEnabled(!is_raw && !api::get_cuts_view_enabled());
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
+    // Z (focus)
     ui_->LambdaSpinBox->setEnabled(!is_raw);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary());
 
     // Filter2D
     bool filter2D_enabled = !is_raw && api::get_filter2d_enabled();
@@ -360,6 +362,7 @@ void ImageRenderingPanel::set_time_transformation_size()
 void ImageRenderingPanel::set_lambda(const double value)
 {
     api::set_lambda(static_cast<float>(value) * 1.0e-9f);
+    ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary());
 }
 
 void ImageRenderingPanel::set_z_distance_slider(int value)

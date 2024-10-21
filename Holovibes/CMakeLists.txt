@@ -60,6 +60,7 @@ qt_add_executable(Holovibes
     advancedsettingswindow.ui
     plotwindow.ui
     lightui.ui
+    style.css
     Holovibes.ico
     holovibes.rc
 )
@@ -69,6 +70,7 @@ qt_add_resources(Holovibes "HolovibesRessources"
     FILES
     Holovibes.ico
     holovibes_logo.png
+    style.css
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -141,9 +143,10 @@ add_custom_command(TARGET Holovibes POST_BUILD
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
 
-    # Copy icon and logo
+    # Copy icon logo and style
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/style.css" $<TARGET_FILE_DIR:Holovibes>/style.css
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -203,6 +206,11 @@ install(FILES "${HOLO_DIR}/Script.ico"
 )
 
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
+    DESTINATION .
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/style.css"
     DESTINATION .
     COMPONENT application
 )

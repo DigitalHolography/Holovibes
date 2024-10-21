@@ -453,9 +453,6 @@ void InformationWorker::display_gui_information()
     to_display << gpu_load() << "<br/>";
     to_display << gpu_memory_controller_load() << "<br/>";
 
-    // #TODO change this being called every frame to only being called to update the value if needed
-    to_display << "<br/>z boundary: " << Holovibes::instance().get_boundary() << "m<br/>";
-
     display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)

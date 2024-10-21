@@ -191,14 +191,13 @@ MainWindow::MainWindow(QWidget* parent)
     // spinBox allow ',' and '.' as decimal point
     spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
+    spinBoxDecimalPointReplacement(ui_->BoundaryDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
-    ;
 
     // ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ExportPanel->init_light_ui();
@@ -953,20 +952,36 @@ void MainWindow::set_night()
     darkPalette.setColor(QPalette::HighlightedText, Qt::black);
     darkPalette.setColor(QPalette::Light, Qt::black);
 
-    qApp->setPalette(darkPalette);
+    // qApp->setPalette(darkPalette);
     theme_ = Theme::Dark;
+    QFile file(":/style.css");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+
+    qApp->setStyleSheet(styleSheet);
 }
 
 void MainWindow::set_classic()
 {
-    qApp->setPalette(this->style()->standardPalette());
+    // qApp->setPalette(this->style()->standardPalette());
     qApp->setStyleSheet("");
     theme_ = Theme::Classic;
+    QFile file(":/style.css");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+
+    qApp->setStyleSheet(styleSheet);
 }
 
 void MainWindow::set_theme(const Theme theme)
 {
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    QFile file(":/style.css");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+
+    qApp->setStyleSheet(styleSheet);
 
     if (theme == Theme::Classic)
         set_classic();
