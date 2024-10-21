@@ -79,8 +79,8 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
 
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
-    *temperature_ =
-        camera_->get_temperature() == 0 ? "No temperature available" : std::to_string(camera_->get_temperature());
+    *temperature_ = camera_->get_temperature() == 0 ? "No temperature available"
+                                                    : std::to_string(camera_->get_temperature()) + " °C";
 
     if (input_queue_on_gpu)
         input_queue_.load()->sync_current_batch();
