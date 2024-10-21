@@ -247,7 +247,7 @@ void LightUI::open_configuration_ui()
 void LightUI::set_preset()
 {
     std::filesystem::path dest = __PRESET_FOLDER_PATH__ / "preset.json";
-    main_window_->reload_ini(dest.string());
+    main_window_->reload_compute_settings(dest.string());
     LOG_INFO("Preset loaded");
 }
 

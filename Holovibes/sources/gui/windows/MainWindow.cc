@@ -409,7 +409,7 @@ void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentat
 
 void MainWindow::write_compute_settings() { api::save_compute_settings(); }
 
-void MainWindow::browse_export_ini()
+void MainWindow::browse_export_compute_settings()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("All files (*.json)"));
     api::save_compute_settings(filename.toStdString());
@@ -417,7 +417,7 @@ void MainWindow::browse_export_ini()
     notify();
 }
 
-void MainWindow::reload_ini(const std::string& filename)
+void MainWindow::reload_compute_settings(const std::string& filename)
 {
     ImportType it = UserInterfaceDescriptor::instance().import_type_;
     ui_->ImportPanel->import_stop();
@@ -443,7 +443,7 @@ void MainWindow::reload_ini(const std::string& filename)
         notify();
 }
 
-void MainWindow::browse_import_ini()
+void MainWindow::browse_import_compute_settings()
 {
     QString filename = QFileDialog::getOpenFileName(this,
                                                     tr("import .json file"),
@@ -451,10 +451,13 @@ void MainWindow::browse_import_ini()
                                                     tr("All files (*.json);; Json files (*.json)"));
 
     if (!filename.isEmpty())
-        reload_ini(filename.toStdString());
+        reload_compute_settings(filename.toStdString());
 }
 
-void MainWindow::reload_ini() { reload_ini(::holovibes::settings::compute_settings_filepath); }
+void MainWindow::reload_compute_settings()
+{
+    reload_compute_settings(::holovibes::settings::compute_settings_filepath);
+}
 
 void set_module_visibility(QAction*& action, GroupBox*& groupbox, bool to_hide)
 {
@@ -874,14 +877,14 @@ void MainWindow::open_light_ui()
 void MainWindow::set_preset()
 {
     std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_27.json"));
-    reload_ini(preset_directory_path.string());
+    reload_compute_settings(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }
 
 // Set preset from a file (called on notify)
 void MainWindow::set_preset(std::filesystem::path file)
 {
-    reload_ini(file.string());
+    reload_compute_settings(file.string());
     LOG_INFO("Preset loaded with file " + file.string());
 }
 

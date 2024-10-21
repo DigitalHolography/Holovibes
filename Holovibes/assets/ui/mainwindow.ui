@@ -3201,7 +3201,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <property name="title">
       <string>Import compute settings</string>
      </property>
-     <addaction name="actionReload_ini"/>
+     <addaction name="actionReload_compute_settings"/>
      <addaction name="actionBrowse"/>
     </widget>
     <widget class="QMenu" name="menuExport_to_ini">
@@ -3545,7 +3545,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>
    </property>
   </action>
-  <action name="actionReload_ini">
+  <action name="actionReload_compute_settings">
    <property name="text">
     <string>Default</string>
    </property>
@@ -5590,7 +5590,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>actionBrowse</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_import_ini()</slot>
+   <slot>browse_import_compute_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5603,10 +5603,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>actionReload_ini</sender>
+   <sender>actionReload_compute_settings</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>reload_ini()</slot>
+   <slot>reload_compute_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5638,7 +5638,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>actionExport_as</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
-   <slot>browse_export_ini()</slot>
+   <slot>browse_export_compute_settings()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -5971,10 +5971,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_classic()</slot>
   <slot>set_accumulation_level(int)</slot>
   <slot>set_unwrapping_2d(bool)</slot>
-  <slot>reload_ini()</slot>
-  <slot>browse_import_ini()</slot>
+  <slot>reload_compute_settings()</slot>
+  <slot>browse_import_compute_settings()</slot>
   <slot>write_compute_settings()</slot>
-  <slot>browse_export_ini()</slot>
+  <slot>browse_export_compute_settings()</slot>
   <slot>update_batch_size()</slot>
   <slot>update_time_stride()</slot>
   <slot>rotateTexture()</slot>

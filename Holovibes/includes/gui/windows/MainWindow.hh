@@ -88,10 +88,10 @@ class MainWindow : public QMainWindow
      */
     void synchronize_thread(std::function<void()> f);
 
-    void browse_import_ini();
-    void browse_export_ini();
-    void reload_ini();
-    void reload_ini(const std::string& filename);
+    void browse_import_compute_settings();
+    void browse_export_compute_settings();
+    void reload_compute_settings();
+    void reload_compute_settings(const std::string& filename);
     void write_compute_settings();
     void open_advanced_settings();
     void reset_settings();
