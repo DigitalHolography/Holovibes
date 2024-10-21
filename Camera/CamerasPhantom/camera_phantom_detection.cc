@@ -35,6 +35,6 @@ ICamera* new_camera_device()
 
     Logger::camera()->error(
         model_name + " camera cannot be detected by this auto detection try with an other way to connect your camera.");
-    throw CameraException(CameraException::CANT_SET_CONFIG);
+    return nullptr;
 }
 } // namespace camera
