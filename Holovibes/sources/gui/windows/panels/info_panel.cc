@@ -27,6 +27,12 @@ void InfoPanel::init()
         parent_->synchronize_thread(
             [=]()
             {
+                if (UserInterfaceDescriptor::instance().import_type_ == ImportType::Camera &&
+                    type == ProgressType::FILE_READ)
+                {
+                    set_visible_file_reader_progress(false);
+                    return;
+                }
                 switch (type)
                 {
                 case ProgressType::FILE_READ:

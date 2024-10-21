@@ -459,7 +459,13 @@ void InformationWorker::display_gui_information()
     display_info_text_function_(to_display.str());
 
     for (auto const& [key, value] : FastUpdatesMap::map<ProgressType>)
+    {
         update_progress_function_(key, value->first.load(), value->second.load());
+    }
+    if (FastUpdatesMap::map<ProgressType>.empty())
+    {
+        update_progress_function_(ProgressType::FILE_READ, 0, 0);
+    }
 }
 
 void InformationWorker::write_information(std::ofstream& csvFile)
