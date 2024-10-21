@@ -24,6 +24,10 @@
 
 #include "API.hh"
 
+#include <chrono>
+#include <iostream>
+#include <vector>
+
 namespace holovibes
 {
 
@@ -637,15 +641,88 @@ void Pipe::insert_fn_end_vect(std::function<void()> function)
     fn_end_vect_.push_back(function);
 }
 
+// Option to enable/disable benchmark
+bool enable_benchmark = true;
+
+// Structure to store the function name and the time taken
+struct BenchmarkResult
+{
+    std::string function_name;
+    double duration_ms; // Time in milliseconds
+};
+
+// Vector to store the benchmark results for each function
+std::vector<BenchmarkResult> benchmark_results;
+
 void Pipe::run_all()
 {
+    benchmark_results.clear(); // Clear previous results
+
     for (FnType& f : fn_compute_vect_)
-        f();
+    {
+        if (enable_benchmark)
+        {
+            // Measure start time
+            auto start = std::chrono::high_resolution_clock::now();
+
+            // Execute the function
+            f();
+
+            // Measure end time
+            auto end = std::chrono::high_resolution_clock::now();
+
+            // Calculate duration in milliseconds
+            std::chrono::duration<double, std::milli> duration = end - start;
+
+            // Store the result
+            benchmark_results.push_back({"fn_compute_vect_", duration.count()});
+        }
+        else
+        {
+            // If benchmark is disabled, just run the function
+            f();
+        }
+    }
 
     std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
     for (FnType& f : fn_end_vect_)
-        f();
+    {
+        if (enable_benchmark)
+        {
+            auto start = std::chrono::high_resolution_clock::now();
+            f();
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+            benchmark_results.push_back({"fn_end_vect_", duration.count()});
+        }
+        else
+        {
+            f();
+        }
+    }
     fn_end_vect_.clear();
+
+    // Display benchmark results if enabled
+    if (enable_benchmark)
+    {
+        std::cout << "Benchmark results (in milliseconds):\n";
+        double total_time = 0;
+        for (const auto& result : benchmark_results)
+        {
+            std::cout << result.function_name << ": " << result.duration_ms << " ms\n";
+            total_time += result.duration_ms;
+        }
+
+        std::cout << "Total time: " << total_time << " ms\n";
+
+        // Optionally, display proportions
+        std::cout << "\nProportions of total time:\n";
+        for (const auto& result : benchmark_results)
+        {
+            double proportion = (result.duration_ms / total_time) * 100;
+            std::cout << result.function_name << ": " << proportion << "%\n";
+        }
+    }
 }
 
 } // namespace holovibes
