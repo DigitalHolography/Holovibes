@@ -46,7 +46,7 @@ static void check_zone(rect& zone, const uint frame_res, const int line_size)
  * @param start_zone_id The index of the beginning of the input buffer
  */
 __global__ static void kernel_copy_zone(
-    RGBPixel* input, RGBPixel* zone_data, rect zone, size_t range, const uint fd_width, size_t start_zone_id)
+    RGBPixel* __restrict__ input, RGBPixel* zone_data, rect zone, size_t range, const uint fd_width, size_t start_zone_id)
 {
     const uint id = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -66,7 +66,7 @@ __global__ static void kernel_copy_zone(
  * @param rgb_average The average RGB components used to normalize the image.
  * @param stream The cuda stream used.
  */
-void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, cudaStream_t stream)
+void normalize_rgb_image(RGBPixel* __restrict__ image, uint image_res, RGBPixel rgb_average, cudaStream_t stream)
 {
     RGBPixel* begin = image;
     RGBPixel* end = begin + image_res;
@@ -91,7 +91,7 @@ void normalize_rgb_image(RGBPixel* image, uint image_res, RGBPixel rgb_average, 
  * @param averages The rgb averages to fill, used in UI
  * @param stream The used cuda stream
  */
-void postcolor_normalize(float* output,
+void postcolor_normalize(float* __restrict__ output,
                          const uint fd_height,
                          const uint fd_width,
                          holovibes::units::RectFd selection,

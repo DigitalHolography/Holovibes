@@ -1,7 +1,7 @@
 /*!
- * @file apply_mask.cuh
+ * \file apply_mask.cuh
  *
- * @brief Contains functions for applying a mask to a number of frames in CUDA.
+ * \brief Contains functions for applying a mask to a number of frames in CUDA.
  *
  * Usage:
  * - To apply a mask to an input buffer in-place, use \ref `apply_mask` without output.
@@ -9,7 +9,6 @@
  * - The functions take a CUDA stream as a parameter, which can be used to launch the operation asynchronously.
  *
  * Code example:
- * ```cpp
  * // Create a mask and input buffer
  * cuComplex mask[SIZE];
  * cuComplex input[SIZE * BATCH_SIZE];
@@ -20,7 +19,6 @@
  * // Create an output buffer and apply the mask to the input buffer
  * cuComplex output[SIZE * BATCH_SIZE];
  * apply_mask(input, mask, output, SIZE, BATCH_SIZE, stream);
- * ```
  */
 
 #pragma once

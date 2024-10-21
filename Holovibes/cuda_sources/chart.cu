@@ -8,9 +8,10 @@ using holovibes::units::RectFd;
 #define TILE_SIZE 32
 #define STRIDE_SIZE 16
 
-/*
- * Reduce a TILE_SIZExTILE_SIZE tile
- * Each line is reduce at index 0 of the line
+/*! \brief Perform a reduction operation on a row of a 2D tile using a fixed stride size
+ *
+ * This function reduces the values in a single row of a 2D tile of size TILE_SIZE. The reduction is performed in a series of
+ * steps where elements at a specific stride from each other are summed. The reduction happens in place, modifying the input tile.
  *
  * Since 1 thread handles 2 pixels, we need to drop the 16 last threads
  * One could argue that everytime, the number of thread should be divided by 2
@@ -21,6 +22,9 @@ using holovibes::units::RectFd;
  * No sync needed between += since we are using warps to reduce one line
  * But we need to tag the shared memory as volatile to avoid compiler reordering
  *
+ * \param[in,out] tile The 2D tile of size TILE_SIZE x TILE_SIZE to reduce
+ * \param[in] x_tile The column index within the tile
+ * \param[in] y_tile The row index within the tile
  */
 static __device__ void
 reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x_tile, const ushort y_tile)
@@ -36,8 +40,15 @@ reduce_full_width_tile(volatile float tile[TILE_SIZE][TILE_SIZE], const ushort x
     }
 }
 
-/*
- * Specific tile reduction to handle lines that are smaller than 32
+/*! \brief Specific tile reduction to handle lines that are smaller than 32
+ *
+ * This function reduces the values in a single row of a 2D tile of size TILE_SIZE. It handles cases where
+ * the tile width is smaller than 32 by using a dynamically computed stride. The reduction happens in place, modifying the input tile.
+ *
+ * \param[in,out] tile The 2D tile of size TILE_SIZE x TILE_SIZE to reduce
+ * \param[in] x_tile The column index within the tile
+ * \param[in] y_tile The row index within the tile
+ * \param[in] tile_width The width of the current tile to reduce, which is smaller than 32
  */
 static __device__ void
 reduce_width_tile(float tile[TILE_SIZE][TILE_SIZE], const ushort x_tile, const ushort y_tile, const ushort tile_width)
@@ -146,6 +157,21 @@ static __global__ void kernel_apply_mapped_zone_sum(double* __restrict__ output,
     }
 }
 
+/*! \brief Apply a user-defined mapping function to a specific zone of input data and compute the sum
+ *
+ * This function launches a CUDA kernel that applies a mapping function to each element of a specific zone in the input data.
+ * The mapped values are then summed and stored in the `output` variable. The kernel configuration uses a block size of 32x32 and
+ * adapts the grid size based on the dimensions of the specified zone.
+ *
+ * \tparam FUNC A callable type (e.g., a lambda or function) representing the mapping function applied to each element
+ * \param[out] output The device memory pointer where the total sum of the mapped values will be stored
+ * \param[in] input The input buffer containing image data
+ * \param[in] height The height of the input image
+ * \param[in] width The width of the input image
+ * \param[in] zone The region of interest (zone) where the mapping and summation will occur
+ * \param[in] element_map A callable function that maps each element in the zone to a desired value
+ * \param[in] stream The CUDA stream on which the kernel will be launched
+ */
 template <typename FUNC>
 void apply_mapped_zone_sum(double* __restrict__ output,
                            const float* __restrict__ input,
@@ -175,6 +201,18 @@ void apply_mapped_zone_sum(double* __restrict__ output,
     cudaCheckError();
 }
 
+/*! \brief Compute the sum of values in a specific zone of the input data
+ *
+ * This function computes the sum of all values within a specified rectangular zone of the input data.
+ * It uses the `apply_mapped_zone_sum` function with an identity mapping, meaning the values themselves are summed without modification.
+ *
+ * \param[out] output The device memory pointer where the total sum of the zone will be stored
+ * \param[in] input The input buffer containing image data
+ * \param[in] height The height of the input image
+ * \param[in] width The width of the input image
+ * \param[in] zone The region of interest (zone) where the summation will occur
+ * \param[in] stream The CUDA stream on which the operation will be performed
+ */
 void apply_zone_sum(double* __restrict__ output,
                     const float* __restrict__ input,
                     const uint height,
@@ -207,6 +245,18 @@ compute_average(float* __restrict__ input, const uint width, const uint height, 
     return cpu_avg_zone;
 }
 
+/*! \brief Compute the average value of a specific zone within the input data
+ *
+ * This function calculates the average value of all pixels within a specified rectangular zone of the input data.
+ * It first computes the sum of all values in the zone and then divides it by the number of pixels in the zone to obtain the average.
+ *
+ * \param[in] input The input buffer containing image data
+ * \param[in] width The width of the input image
+ * \param[in] height The height of the input image
+ * \param[in] zone The region of interest (zone) where the average will be computed
+ * \param[in] stream The CUDA stream on which the computations will be launched
+ * \return The computed average value for the specified zone
+ */
 void apply_zone_std_sum(double* __restrict__ output,
                         const float* __restrict__ input,
                         const uint height,
@@ -219,6 +269,16 @@ void apply_zone_std_sum(double* __restrict__ output,
     apply_mapped_zone_sum(output, input, height, width, zone, std_map, stream);
 }
 
+/*! \brief Compute the standard deviation of the values in a specified zone of the input data
+ *
+ * \param[in] input The input buffer containing image data
+ * \param[in] width The width of the input image
+ * \param[in] height The height of the input image
+ * \param[in] zone The region of interest in the image for which the standard deviation is computed
+ * \param[in] cpu_avg_zone The precomputed average value of the data within the specified zone
+ * \param[in] stream The CUDA stream on which the computations will be launched
+ * \return The computed standard deviation of the values within the specified zone
+ */
 static double compute_std(float* __restrict__ input,
                           const uint width,
                           const uint height,
