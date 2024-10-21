@@ -3096,13 +3096,13 @@ The range of frequencies kept is [z, z + width]</string>
         </property>
         <property name="minimumSize">
          <size>
-          <width>250</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>250</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
