@@ -15,6 +15,13 @@
 namespace camera
 {
 
+/*! \brief Allocate a new camera and initialise it
+ *
+ * \return A pointer to the new camera object.
+ */
+template <class Cam>
+Cam* InitCam();
+
 /*! \class EHoloSubGrabber
  *
  * \brief Alias to the \ref Euresys::EGrabberCallbackOnDemand "EGrabberCallbackOnDemand" class for better code
@@ -178,3 +185,5 @@ class CameraPhantomInt : public Camera
 };
 
 } // namespace camera
+
+#include "camera_phantom_interface.hxx"

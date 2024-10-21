@@ -95,8 +95,6 @@ void ExportPanel::on_notify()
 
     actualise_record_output_file_ui(record_output_path);
 
-    ui_->RecordDeviceCheckbox->setEnabled(api::get_record_mode() == RecordMode::RAW);
-    ui_->RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
@@ -182,21 +180,6 @@ void ExportPanel::set_output_file_name(std::string std_filepath)
 
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
 
-void ExportPanel::browse_batch_input()
-{
-
-    // Open file explorer on the fly
-    QString filename = QFileDialog::getOpenFileName(this,
-                                                    tr("Batch input file"),
-                                                    UserInterfaceDescriptor::instance().batch_input_directory_.c_str(),
-                                                    tr("All files (*)"));
-
-    // Output the file selected in he ui line edit widget
-    QLineEdit* batch_input_line_edit = ui_->BatchInputPathLineEdit;
-    batch_input_line_edit->clear();
-    batch_input_line_edit->insert(filename);
-}
-
 void ExportPanel::set_record_mode(const QString& value)
 {
     if (api::get_record_mode() == RecordMode::CHART)
@@ -276,9 +259,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
-    if (ui_->BatchGroupBox->isChecked())
-        info = "Batch " + info;
-
     LOG_INFO("[RECORDER] {}", info);
 
     ui_->RawDisplayingCheckBox->setHidden(false);
@@ -290,14 +270,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
-}
-
-void ExportPanel::set_record_device(bool value)
-{
-    LOG_DEBUG("Set record device");
-    // Mind that we negate the boolean, since true means gpu for the queues
-    api::set_record_on_gpu(!value);
-    parent_->notify();
 }
 
 void ExportPanel::start_record()
@@ -377,7 +349,6 @@ void ExportPanel::stop_chart_display()
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }
-void ExportPanel::update_batch_enabled() { api::set_batch_enabled(ui_->BatchGroupBox->isChecked()); }
 
 void ExportPanel::update_record_frame_count_enabled()
 {
@@ -395,11 +366,6 @@ void ExportPanel::update_record_file_path()
 {
     api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
                               ui_->RecordExtComboBox->currentText().toStdString());
-}
-
-void ExportPanel::update_batch_file_path()
-{
-    api::set_batch_file_path(ui_->BatchInputPathLineEdit->text().toStdString());
 }
 
 void ExportPanel::set_record_image_mode()

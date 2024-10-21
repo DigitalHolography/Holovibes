@@ -526,11 +526,6 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().file_input_directory_,
                             "files",
                             "file input directory");
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().batch_input_directory_,
-                            "files",
-                            "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
@@ -586,7 +581,6 @@ void MainWindow::save_gui()
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
-    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -640,8 +634,6 @@ void MainWindow::camera_none()
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
-
-    notify();
 }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
@@ -663,6 +655,8 @@ void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP); }
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
+
+void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
 
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 

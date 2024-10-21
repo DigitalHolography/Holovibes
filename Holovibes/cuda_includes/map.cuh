@@ -31,8 +31,8 @@ using ushort = unsigned short;
  * Moreover, this operation works on any sizes.
  *
  */
-template <typename I, typename O, typename FUNC>
-void map_generic(const I* const input, O* const output, const size_t size, const FUNC func, const cudaStream_t stream);
+template <typename O, typename I, typename FUNC>
+void map_generic(O* const output, const I* const input, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Map input (float) to output (float) throughout a mapping function.
  *
@@ -45,7 +45,7 @@ void map_generic(const I* const input, O* const output, const size_t size, const
  */
 template <typename FUNC>
 void map_generic(
-    const float* const input, float* const output, const size_t size, const FUNC func, const cudaStream_t stream);
+    float* const output, const float* const input, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Map input (ushort) to output (ushort) throughout a mapping function.
  *
@@ -53,30 +53,30 @@ void map_generic(
  */
 template <typename FUNC>
 void map_generic(
-    const ushort* const input, ushort* const output, const size_t size, const FUNC func, const cudaStream_t stream);
+    ushort* const output, const ushort* const input, const size_t size, const FUNC func, const cudaStream_t stream);
 
 /*! \brief Divide every pixel by a value */
 template <typename T>
-void map_divide(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream);
+void map_divide(T* const output, const T* const input, const size_t size, const T value, const cudaStream_t stream);
 
 /*! \brief Multiply every pixel by a value */
 template <typename T>
-void map_multiply(const T* const input, T* const output, const size_t size, const T value, const cudaStream_t stream);
+void map_multiply(T* const output, const T* const input, const size_t size, const T value, const cudaStream_t stream);
 
 /* The following functions can be called from any files
  * since they are templated
  */
 
 /*! \brief Apply log10 on every pixel of the input (float array) */
-void map_log10(const float* const input, float* const output, const size_t size, const cudaStream_t stream);
+void map_log10(float* const output, const float* const input, const size_t size, const cudaStream_t stream);
 
 /*! \brief Divide every pixel of a float array by a value  */
 void map_divide(
-    const float* const input, float* const output, const size_t size, const float value, const cudaStream_t stream);
+    float* const output, const float* const input, const size_t size, const float value, const cudaStream_t stream);
 
 /*! \brief Multiply every pixel of a float array by a value */
 void map_multiply(
-    const float* const input, float* const output, const size_t size, const float value, const cudaStream_t stream);
+    float* const output, const float* const input, const size_t size, const float value, const cudaStream_t stream);
 
 // The map.cuhxx file contains functions only compilable via nvcc
 // but the cpp compiler still needs the declarations of the templates

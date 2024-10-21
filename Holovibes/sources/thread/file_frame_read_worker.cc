@@ -160,11 +160,7 @@ void FileFrameReadWorker::read_file_in_gpu()
     while (!stop_requested_)
     {
         enqueue_loop(frames_read);
-
-        if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
-            current_nb_frames_read_ = 0;
-        else
-            stop_requested_ = true;
+        current_nb_frames_read_ = 0;
     }
 }
 
@@ -187,16 +183,9 @@ void FileFrameReadWorker::read_file_batch()
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
         {
-            if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
-            {
-                size_t frame_id = setting<settings::InputFileStartIndex>();
-                input_file_->set_pos_to_frame(frame_id);
-                current_nb_frames_read_ = 0;
-            }
-            else
-            {
-                stop_requested_ = true; // break
-            }
+            size_t frame_id = setting<settings::InputFileStartIndex>();
+            input_file_->set_pos_to_frame(frame_id);
+            current_nb_frames_read_ = 0;
         }
     }
 }
