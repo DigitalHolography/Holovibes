@@ -234,6 +234,7 @@ if (HAVE_EGrabber AND HAVE_EGrabbers)
         $<TARGET_FILE_DIR:Holovibes>/AmetekS710EuresysCoaxlinkOcto.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS711EuresysCoaxlinkQsfp+.dll
         $<TARGET_FILE_DIR:Holovibes>/AmetekS991EuresysCoaxlinkQsfp+.dll
+        $<TARGET_FILE_DIR:Holovibes>/CameraPhantomAutoDetection.dll
         DESTINATION .
         COMPONENT application
     )
