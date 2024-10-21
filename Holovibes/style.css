@@ -40,9 +40,10 @@ QMenu::item:selected {
 #ImportPanel::title,
 #InfoPanel::title,
 #ExportPanel::title,
-#CompositePanel::title {
+#CompositePanel::title,
+QGroupBox::title {
     subcontrol-position: top left;
-    top: -6px;
+    top: -10px;
     left: -6px;
     margin: 2px;
 }
@@ -52,28 +53,32 @@ QMenu::item:selected {
 #ImportPanel,
 #InfoPanel,
 #ExportPanel,
-#CompositePanel {
+#CompositePanel,
+QGroupBox {
     background-color: #161818;
     border: 1px solid #272727;
-    margin: 20px 5px 5px 5px;
+    margin: 15px 5px 5px 5px;
     padding: 5px;
     padding-top: 15px;
     border-radius: 5%;
 }
 
 /* InputField styling */
-QCheckBox::indicator {
+QCheckBox::indicator,
+QGroupBox::indicator {
     background-color: #101111;
     border: 1px solid #272727;
     border-radius: 2%;
 }
 
-QCheckBox::indicator:checked {
+QCheckBox::indicator:checked,
+QGroupBox::indicator:checked {
     background-clip: content;
     background-color: #0067C6;
     padding: 10px;
 }
 
+/* Button styling */
 QPushButton,
 QToolButton {
     background-color: #353535;
@@ -88,6 +93,7 @@ QToolButton:hover {
     border: 1px solid #0C2B4B;
 }
 
+QTextEdit,
 QLineEdit,
 QSpinBox,
 QDoubleSpinBox {
@@ -105,17 +111,10 @@ QDoubleSpinBox::down-button {
     background-color: transparent;
 }
 
-/*
-QSlider::groove { 
-	background-color: #0067C6;
-	border: 0px solid #424242; 
-	height: 8px;
-	border-radius: 4%;
-}*/
-
+/* Slider styling */
 QSlider::groove:horizontal {
     border: 1px solid #272727;
-    height: 7px;
+    height: 6px;
     border-radius: 4%;
     background-color: #101111;
 }
@@ -123,11 +122,10 @@ QSlider::groove:horizontal {
 QSlider::handle:horizontal {
     background: #353535;
     border: 1px solid #272727;
-    width: 12px;
-    height: 12px;
-    margin: -4px 0;
-    /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-    border-radius: 5%;
+    width: 11px;
+    height: 10px;
+    margin: -3px 0;
+    border-radius: 5px;
 }
 
 QSlider::add-page:horizontal {
@@ -140,4 +138,61 @@ QSlider::sub-page:horizontal {
     border: 1px solid #272727;
     background-color: #0067C6;
     border-radius: 4%;
+}
+
+/* QComboBox styling */
+QComboBox {
+    background-color: #353535;
+    border: 1px solid #101111;
+    border-radius: 4%;
+    padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+QComboBox::down-arrow {
+    image: url(":/drop_down.png");
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid #272727;
+    border-radius: 6%;
+    padding: 3px;
+    background-color: #1A1C1C;
+}
+
+QComboBox::item {
+    margin: 0px;
+    height: 25%;
+    padding: 0px;
+    padding-left: -20px;
+}
+
+QComboBox::item:selected {
+    background: #0067C6;
+    border-radius: 5%;
+}
+
+QComboBox::indicator {
+    image: none;
+}
+
+/* Progress bar styling */
+QProgressBar {
+    border: 1px solid #272727;
+    background-color: #101111;
+    border-radius: 6px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: #0067C6;
+    border-radius: 5%;
 }

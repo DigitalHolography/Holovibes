@@ -70,6 +70,7 @@ qt_add_resources(Holovibes "HolovibesRessources"
     FILES
     Holovibes.ico
     holovibes_logo.png
+    drop_down.png
     style.css
 )
 
@@ -146,6 +147,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     # Copy icon logo and style
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/drop_down.png
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/style.css" $<TARGET_FILE_DIR:Holovibes>/style.css
 
     # Deploy Qt
@@ -206,6 +208,11 @@ install(FILES "${HOLO_DIR}/Script.ico"
 )
 
 install(FILES "${HOLO_DIR}/holovibes_logo.png"
+    DESTINATION .
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/drop_down.png"
     DESTINATION .
     COMPONENT application
 )
