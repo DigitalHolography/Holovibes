@@ -63,6 +63,7 @@ class CameraAlvium : public Camera
     virtual void stop_acquisition() override;
     virtual void shutdown_camera() override;
     virtual CapturedFramesDescriptor get_frames() override;
+    virtual int get_temperature() const override;
 
   private:
     virtual void load_default_params() override;

@@ -18,7 +18,9 @@ using MutexGuard = std::lock_guard<std::mutex>;
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
     {IndicationType::INPUT_FORMAT, "Input Format"},
-    {IndicationType::OUTPUT_FORMAT, "Output Format"}};
+    {IndicationType::OUTPUT_FORMAT, "Output Format"},
+    {IndicationType::TEMPERATURE, "Camera Temperature"},
+};
 
 const std::unordered_map<FpsType, std::string> InformationWorker::fps_type_to_string_ = {
     {FpsType::INPUT_FPS, "Input FPS"},
@@ -64,7 +66,6 @@ void InformationWorker::run()
         if (waited_time >= 1000)
         {
             compute_fps(waited_time);
-
             std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
             std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
             std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();

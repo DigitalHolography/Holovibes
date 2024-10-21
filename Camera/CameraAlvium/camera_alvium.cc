@@ -219,6 +219,15 @@ void CameraAlvium::shutdown_camera()
     api_vmb_.Shutdown();
 }
 
+int CameraAlvium::get_temperature() const
+{
+    VmbCPP::FeaturePtr temperature;
+    camera_ptr_->GetFeatureByName("DeviceTemperature", temperature);
+    double temp;
+    temperature->GetValue(temp);
+    return static_cast<int>(temp);
+}
+
 ICamera* new_camera_device() { return new CameraAlvium(); }
 
 } // namespace camera
