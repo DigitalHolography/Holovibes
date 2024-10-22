@@ -12,7 +12,7 @@
 #include "input_filter.cuh"
 #include "fresnel_transform.cuh"
 #include "angular_spectrum.cuh"
-#include "transforms.cuh"
+#include "masks.cuh"
 #include "stft.cuh"
 #include "frame_reshape.cuh"
 #include "cuda_tools/cufft_handle.hh"

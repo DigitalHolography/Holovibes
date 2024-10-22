@@ -1,5 +1,4 @@
 /*! \file
- *  \author ArthurCourselle
  *  \brief Functions used to parallelize the computation used for the stabilization.
  *  The stabilization performs computation as follows:
  *  - Apply a circular mask to each images where each values outside of the circle is 0 and each
@@ -22,14 +21,14 @@
 #include "cuda_runtime.h"
 #include "tools.hh"
 #include "cuda_memory.cuh"
+#include "apply_mask.cuh"
+#include "masks.cuh"
 
 using uint = unsigned int;
 
-/*! \brief Apply the first step of the process.
- *  Computes the center of the image, compute and apply a circular mask to keep only the center of the
+/*! \brief Apply the first step of the process by getting a circular mask using `kernel_circular_mask`.
+ *  Computes the center of the image and a circular mask to keep only the center of the
  *  eye.
- *  Computes the mean of each image at the same time to avoid calling a kernel just for the mean.
- *  Because of the mean computation the function apply_mask is not appiled, this allows more efficiency.
  *
  *  \param[out] output The output image after mask application.
  *  \param[in] input The gpu_post_process_buffer on which the mask is applied.
@@ -38,5 +37,5 @@ using uint = unsigned int;
  *  \param[in] height The height of an image.
  *  \param[in] stream The CUDA stream on which to launch the operation.
  */
-void applyCircularMask(
-    float* output, float* input, float* pixels_mean, short width, short height, const cudaStream_t stream);
+void stabilization_get_mask(
+    float* output, float* input, float* mask, float* pixels_mean, short width, short height, const cudaStream_t stream);

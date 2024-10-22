@@ -153,6 +153,9 @@ struct StabilizationEnv
      *  mask.
      */
     std::unique_ptr<float> current_image_mean = std::make_unique<float>(0.0f);
+
+    /*! \brief TODO */
+    cuda_tools::CudaUniquePtr<float> gpu_circle_mask = nullptr;
 };
 
 /*! \struct TimeTransformationEnv

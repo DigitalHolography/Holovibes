@@ -1,4 +1,4 @@
-#include "transforms.cuh"
+#include "masks.cuh"
 
 using camera::FrameDescriptor;
 
@@ -48,5 +48,27 @@ __global__ void kernel_spectral_lens(
         const float csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
         output[index].x = cosf(csquare);
         output[index].y = sinf(csquare);
+    }
+}
+
+__global__ void
+kernel_circular_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int index = y * width + x;
+
+    if (x < width && y < height)
+    {
+        float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
+        float radius_squared = radius * radius;
+
+        if (distance_squared > radius_squared)
+            output[index] = 0.0f;
+        else
+        {
+            output[index] = 1.0f;
+        }
     }
 }

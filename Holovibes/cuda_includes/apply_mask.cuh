@@ -6,6 +6,7 @@
 
 #include "cuComplex.h"
 #include "cuda_runtime.h"
+#include "cuda_memory.cuh"
 
 using uint = unsigned int;
 using ushort = unsigned short;
@@ -55,3 +56,15 @@ void apply_mask(const float* input,
                 const size_t size,
                 const uint batch_size,
                 const cudaStream_t stream);
+
+/*! \brief Computes the mean of the pixels inside the image only if the pixel is in the given mask.
+ *  Calls a CUDA Kernel.
+ *
+ *  \param[in] input The input image on which the mask is applied and the mean of pixels is computed.
+ *  \param[in] mask The mean will be computed only inside this mask.
+ *  \param[in out] pixels_mean Pointer to store the mean of the pixels inside the circle.
+ *  \param[in] size The size of the image, e.g : width x height.
+ *  \param[in] stream The CUDA stream on which to launch the operation.
+ */
+void get_mean_in_mask(
+    const float* input, const float* mask, float* pixels_mean, const size_t size, const cudaStream_t stream);

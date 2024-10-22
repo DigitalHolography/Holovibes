@@ -12,6 +12,7 @@
 #include "rect.hh"
 #include "shift_corners.cuh"
 #include "stabilization.cuh"
+#include "apply_mask.cuh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
