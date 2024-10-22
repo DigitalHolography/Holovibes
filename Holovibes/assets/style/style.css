@@ -3,6 +3,7 @@ QMainWindow {
 }
 
 /* Style Tooltip */
+QMessageBox,
 QToolTip {
     background-color: #101111;
     border: 1px solid #272727;
