@@ -97,7 +97,7 @@ MainWindow::MainWindow(QWidget* parent)
             this,
             SLOT(synchronize_thread(std::function<void()>)));
 
-    setWindowIcon(QIcon(":/holovibes_logo.png"));
+    setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
     ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
     { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
@@ -655,6 +655,8 @@ void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraK
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
+void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
+
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
@@ -954,7 +956,7 @@ void MainWindow::set_night()
 
     // qApp->setPalette(darkPalette);
     theme_ = Theme::Dark;
-    QFile file(":/style.css");
+    QFile file(":/assets/style/style.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
 
@@ -966,7 +968,7 @@ void MainWindow::set_classic()
     // qApp->setPalette(this->style()->standardPalette());
     qApp->setStyleSheet("");
     theme_ = Theme::Classic;
-    QFile file(":/style.css");
+    QFile file(":/assets/style/style.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
 
@@ -977,7 +979,7 @@ void MainWindow::set_theme(const Theme theme)
 {
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
-    QFile file(":/style.css");
+    QFile file(":/assets/style/style.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
 

@@ -3,10 +3,10 @@
 
 namespace camera
 {
-EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
-                           unsigned int buffer_part_count,
-                           std::string pixel_format,
-                           unsigned int& nb_grabbers)
+EHoloGrabber711::EHoloGrabber711(Euresys::EGenTL& gentl,
+                                 unsigned int buffer_part_count,
+                                 std::string pixel_format,
+                                 unsigned int& nb_grabbers)
     : EHoloGrabberInt(gentl, buffer_part_count, pixel_format, nb_grabbers)
 {
     size_t available_grabbers_count = available_grabbers_.size();
@@ -42,7 +42,7 @@ EHoloGrabber::EHoloGrabber(Euresys::EGenTL& gentl,
     }
 }
 
-void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
+void EHoloGrabber711::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
 {
     if (nb_grabbers_ > 1)
         available_grabbers_[0]->setString<Euresys::RemoteModule>("Banks", "Banks_AB");
@@ -55,13 +55,13 @@ void EHoloGrabber::setup(const CameraParamMap& params, Euresys::EGenTL& gentl)
                                                              params.at<std::string>("FlatFieldCorrection"));
 }
 
-CameraPhantom::CameraPhantom()
+CameraPhantom711::CameraPhantom711()
     : CameraPhantomInt("ametek_s711_euresys_coaxlink_qsfp+.ini", "s711")
 {
     name_ = "Phantom S711";
 }
 
-void CameraPhantom::load_default_params()
+void CameraPhantom711::load_default_params()
 {
     CameraPhantomInt::load_default_params();
     params_.set<unsigned int>("StripeHeight", 8, false);
@@ -72,7 +72,7 @@ void CameraPhantom::load_default_params()
     params_.set<std::string>("FlatFieldCorrection", "");
 }
 
-void CameraPhantom::init_camera()
+void CameraPhantom711::init_camera()
 {
     load_default_params();
 
@@ -83,22 +83,15 @@ void CameraPhantom::init_camera()
     }
 
     unsigned int nb_grabbers = params_.at<unsigned int>("NbGrabbers");
-    grabber_ = std::make_unique<EHoloGrabber>(*gentl_,
-                                              params_.at<unsigned int>("BufferPartCount"),
-                                              params_.at<std::string>("PixelFormat"),
-                                              nb_grabbers);
+    grabber_ = std::make_unique<EHoloGrabber711>(*gentl_,
+                                                 params_.at<unsigned int>("BufferPartCount"),
+                                                 params_.at<std::string>("PixelFormat"),
+                                                 nb_grabbers);
 
-    // nb_grabbers may have been updated by EHoloGrabber constructor
+    // nb_grabbers may have been updated by EHoloGrabber711 constructor
     params_.set<unsigned int>("NbGrabbers", nb_grabbers);
 
     CameraPhantomInt::init_camera();
-}
-
-ICamera* new_camera_device()
-{
-    auto* res = new CameraPhantom();
-    res->init_camera();
-    return res;
 }
 
 } // namespace camera
