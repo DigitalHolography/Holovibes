@@ -2,6 +2,22 @@ QMainWindow {
     background-color: #101111;
 }
 
+/* Style Tooltip */
+QToolTip {
+    background-color: #101111;
+    border: 1px solid #272727;
+    border-radius: 6%;
+    padding: 3px;
+}
+
+/* The little frame in the view panel for contrast and log */
+#frame {
+    border: 1px solid #272727;
+    border-radius: 6%;
+    margin: 0px;
+    padding: 1px;
+}
+
 /* Menu bar and menu bar item styling */
 QMenuBar {
     border-bottom: 1px solid #272727;
