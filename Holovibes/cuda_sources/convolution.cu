@@ -7,6 +7,10 @@
 #include "common.cuh"
 #include "cuda_memory.cuh"
 
+#include "cuda_tools\unique_ptr.hh"
+#include "cuda_tools\array.hh"
+#include "cuda_tools\cufft_handle.hh"
+
 using holovibes::cuda_tools::CufftHandle;
 
 void convolution_kernel(float* gpu_input,
@@ -46,8 +50,8 @@ void convolution_kernel(float* gpu_input,
     // At this point, cuComplex_buffer is the FFT of the input
 
     kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                                   gpu_kernel,
                                                                    cuComplex_buffer,
+                                                                   gpu_kernel,
                                                                    size);
     cudaCheckError();
     // At this point, cuComplex_buffer is the FFT of the input multiplied by the
@@ -66,4 +70,46 @@ void convolution_kernel(float* gpu_input,
         kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer, gpu_input, size);
     }
     cudaCheckError();
+}
+
+void convolution_float(float* output,
+                       const float* input1,
+                       const float* input2,
+                       const uint size,
+                       const cufftHandle plan2d_a,
+                       const cufftHandle plan2d_b,
+                       const cufftHandle plan2d_inverse,
+                       cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    // The convolution operator could be optimized.
+    // TODO: pre allocate tmp buffers and pass them to the function
+    holovibes::cuda_tools::CudaUniquePtr<cuComplex> tmp_a(size);
+    holovibes::cuda_tools::CudaUniquePtr<cuComplex> tmp_b(size);
+    if (!tmp_a || !tmp_b)
+        return;
+
+    cufftExecR2C(plan2d_a, const_cast<float*>(input1), tmp_a.get());
+    cufftExecR2C(plan2d_b, const_cast<float*>(input2), tmp_b.get());
+
+    cudaStreamSynchronize(0);
+
+    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(tmp_a.get(), tmp_a.get(), tmp_b.get(), size);
+    cudaCheckError();
+    cudaStreamSynchronize(stream);
+    cufftExecC2R(plan2d_inverse, tmp_a.get(), output);
+    cudaStreamSynchronize(0);
+}
+
+void xcorr2(
+    float* output, const float* input1, const float* input2, const short width, const short height, cudaStream_t stream)
+{
+
+    CufftHandle plan2d_1(height, width, CUFFT_R2C);
+    CufftHandle plan2d_2(height, width, CUFFT_R2C);
+    CufftHandle plan2d_inverse(height, width, CUFFT_C2R);
+
+    convolution_float(output, input1, input2, width * height, plan2d_1, plan2d_2, plan2d_inverse, stream);
 }

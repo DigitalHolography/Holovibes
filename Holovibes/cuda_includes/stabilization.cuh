@@ -37,5 +37,4 @@ using uint = unsigned int;
  *  \param[in] height The height of an image.
  *  \param[in] stream The CUDA stream on which to launch the operation.
  */
-void stabilization_get_mask(
-    float* output, float* input, float* mask, float* pixels_mean, short width, short height, const cudaStream_t stream);
+void stabilization_get_mask(float* mask, short width, short height, const cudaStream_t stream);

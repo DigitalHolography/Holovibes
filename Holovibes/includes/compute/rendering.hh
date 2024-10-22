@@ -14,6 +14,7 @@
 #include "stabilization.cuh"
 #include "apply_mask.cuh"
 #include "logger.hh"
+#include "convolution.cuh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"

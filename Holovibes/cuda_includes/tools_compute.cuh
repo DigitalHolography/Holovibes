@@ -23,7 +23,7 @@ kernel_complex_divide(cuComplex* image, const uint frame_res, const float divide
  * Output should have the same size of inputs.
  */
 __global__ void
-kernel_multiply_frames_complex(const cuComplex* input1, const cuComplex* input2, cuComplex* output, const uint size);
+kernel_multiply_frames_complex(cuComplex* output, const cuComplex* input1, const cuComplex* input2, const uint size);
 
 /*! \brief  divide pixels value of numerator float input images by denominator
  *

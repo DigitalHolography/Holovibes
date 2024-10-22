@@ -1,7 +1,6 @@
 #include "stabilization.cuh"
 
-void stabilization_get_mask(
-    float* output, float* input, float* mask, float* pixels_mean, short width, short height, const cudaStream_t stream)
+void stabilization_get_mask(float* mask, short width, short height, const cudaStream_t stream)
 {
     // Get the center and radius of the circle.
     float center_X = width / 2.0f;

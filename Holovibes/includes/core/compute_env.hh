@@ -156,6 +156,11 @@ struct StabilizationEnv
 
     /*! \brief TODO */
     cuda_tools::CudaUniquePtr<float> gpu_circle_mask = nullptr;
+
+    /*! \brief TODO */
+    cuda_tools::CudaUniquePtr<float> gpu_xcorr_output = nullptr;
+
+    std::unique_ptr<bool> ref = std::make_unique<bool>(false);
 };
 
 /*! \struct TimeTransformationEnv

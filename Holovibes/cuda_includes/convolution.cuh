@@ -27,3 +27,19 @@ void convolution_kernel(float* gpu_input,
                         const bool divide_convolution_enabled,
                         const bool normalize_enabled,
                         const cudaStream_t stream);
+
+void convolution_float(float* output,
+                       const float* input1,
+                       const float* input2,
+                       const uint size,
+                       const cufftHandle plan2d_a,
+                       const cufftHandle plan2d_b,
+                       const cufftHandle plan2d_inverse,
+                       cudaStream_t stream);
+
+void xcorr2(float* output,
+            const float* input1,
+            const float* input2,
+            const short width,
+            const short height,
+            cudaStream_t stream);

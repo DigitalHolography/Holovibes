@@ -47,30 +47,46 @@ void Rendering::insert_stabilization()
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
-                stabilization_get_mask(buffers_.gpu_postprocess_frame,
-                                       buffers_.gpu_postprocess_frame,
-                                       stabilization_env_.gpu_circle_mask,
-                                       stabilization_env_.current_image_mean.get(),
-                                       fd_.width,
-                                       fd_.height,
-                                       stream_);
+                stabilization_get_mask(stabilization_env_.gpu_circle_mask, fd_.width, fd_.height, stream_);
+
                 get_mean_in_mask(buffers_.gpu_postprocess_frame,
                                  stabilization_env_.gpu_circle_mask,
                                  stabilization_env_.current_image_mean.get(),
                                  fd_.width * fd_.height,
                                  stream_);
 
-                apply_mask(buffers_.gpu_postprocess_frame,
+                rescale_in_mask(stabilization_env_.gpu_current_image,
+                                buffers_.gpu_postprocess_frame,
+                                stabilization_env_.gpu_circle_mask,
+                                *(stabilization_env_.current_image_mean.get()),
+                                fd_.width * fd_.height,
+                                stream_);
+
+                apply_mask(stabilization_env_.gpu_current_image,
                            stabilization_env_.gpu_circle_mask,
                            fd_.width * fd_.height,
                            1,
                            stream_);
 
-                rescale_in_mask(buffers_.gpu_postprocess_frame,
-                                stabilization_env_.gpu_circle_mask,
-                                *(stabilization_env_.current_image_mean.get()),
-                                fd_.width * fd_.height,
-                                stream_);
+                if (!*(stabilization_env_.ref.get()))
+                {
+                    *(stabilization_env_.ref) = true;
+                    cudaMemcpy(stabilization_env_.gpu_reference_image.get(),
+                               stabilization_env_.gpu_current_image.get(),
+                               fd_.width * fd_.height,
+                               cudaMemcpyDeviceToDevice);
+
+                    *(stabilization_env_.reference_image_mean) = *(stabilization_env_.current_image_mean);
+                }
+                else
+                {
+
+                    xcorr2(stabilization_env_.gpu_xcorr_output,
+                           stabilization_env_.gpu_current_image,
+                           stabilization_env_.gpu_reference_image,
+                           fd.width,
+                           fd.height);
+                }
 
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));
                 // LOG_WARN(*(stabilization_env_.reference_image_mean.get()));
