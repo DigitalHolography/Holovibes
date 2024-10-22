@@ -225,13 +225,15 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();
 
     /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
+
+    void insert_mask_computing();
     /*! \}*/
 
     /*! \brief Iterates and executes function of the pipe.

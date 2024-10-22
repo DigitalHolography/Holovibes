@@ -604,6 +604,12 @@ void Pipe::insert_request_autocontrast()
         request_autocontrast(setting<settings::CurrentWindow>());
 }
 
+void Pipe::insert_mask_computing()
+{
+    // TODO: add setting to enable mask computing
+    fn_compute_vect_.push_back([] {});
+}
+
 void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
