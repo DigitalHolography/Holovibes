@@ -6,6 +6,7 @@
 
 #include "output_frame_file.hh"
 #include "file_exception.hh"
+#include "enum_recorded_data_type.hh"
 
 namespace holovibes::io_files
 {
@@ -41,6 +42,9 @@ class OutputFrameFileFactory
      * \param file_path The path of the file to create, the extension must be supported
      * \throw FileException if the OutputFrameFile is not created or if the file extension is not supported
      */
-    static OutputFrameFile* create(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
+    static OutputFrameFile* create(const std::string& file_path,
+                                   const camera::FrameDescriptor& fd,
+                                   uint64_t img_nb,
+                                   RecordedDataType data_type);
 };
 } // namespace holovibes::io_files

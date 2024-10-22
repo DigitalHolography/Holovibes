@@ -67,8 +67,10 @@ class HoloFile
         uint64_t total_data_size;
         /*! \brief Data endianness */
         uint8_t endianness;
+        /*! \brief The type of data that the file contains. Is a member of the enum Computation. */
+        uint8_t data_type;
         /*! \brief Padding to make the header 64 bytes long */
-        char padding[35];
+        char padding[34];
     };
 
     /*! \brief Default constructor */
@@ -90,6 +92,6 @@ class HoloFile
     /*! \brief The json meta data present in the footer */
     ComputeSettings raw_footer_;
     /*! \brief Current version of the holo file, update it when changing version */
-    static constexpr uint16_t current_version_ = 5;
+    static constexpr uint16_t current_version_ = 6;
 };
 } // namespace holovibes::io_files
