@@ -1,5 +1,6 @@
 #include "reduce.cuh"
 #include "map.cuh"
+#include "tools_compute.cuh"
 
 #include <stdio.h>
 
@@ -115,4 +116,128 @@ void tensor_multiply_vector(float* output,
     uint blocks = map_blocks_to_problem(frame_res, threads);
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
+}
+
+__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < width * height)
+    {
+        const int new_x = index % width;
+        const int new_y = index / width;
+        const int old_x = (new_x - shift_x + width) % width;
+        const int old_y = (new_y - shift_y + height) % height;
+        output[index] = input[old_y * width + old_x];
+    }
+}
+
+void complex_translation(float* frame, uint width, uint height, int shift_x, int shift_y)
+{
+    // We have to use a temporary buffer to avoid overwriting pixels that haven't moved yet
+    float* tmp_buffer;
+    if (cudaMalloc(&tmp_buffer, width * height * sizeof(float)) != cudaSuccess)
+    {
+        LOG_ERROR("Can't callocate buffer for repositioning");
+        return;
+    }
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(width * height, threads);
+    kernel_translation<<<blocks, threads, 0, 0>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
+    cudaCheckError();
+    cudaStreamSynchronize(0);
+    cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaFree(tmp_buffer);
+}
+
+__global__ void find_max(float* d_data, int size, float* max_val, int* max_idx)
+{
+    __shared__ float shared_max[256];
+    __shared__ int shared_idx[256];
+
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    int local_tid = threadIdx.x;
+
+    // Initialiser le maximum local et l'index
+    float local_max = -FLT_MAX;
+    int local_idx = -1;
+
+    // Recherche du maximum local
+    if (tid < size)
+    {
+        local_max = d_data[tid];
+        local_idx = tid;
+    }
+
+    shared_max[local_tid] = local_max;
+    shared_idx[local_tid] = local_idx;
+
+    __syncthreads();
+
+    // Réduction pour trouver le maximum
+    for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
+    {
+        if (local_tid < stride)
+        {
+            if (shared_max[local_tid] < shared_max[local_tid + stride])
+            {
+                shared_max[local_tid] = shared_max[local_tid + stride];
+                shared_idx[local_tid] = shared_idx[local_tid + stride];
+            }
+        }
+        __syncthreads();
+    }
+
+    // Écriture du maximum global
+    if (local_tid == 0)
+    {
+        max_val[blockIdx.x] = shared_max[0];
+        max_idx[blockIdx.x] = shared_idx[0];
+    }
+}
+
+// void compute_max(float* d_data, int size, cudaStream_t stream, float* max_val, int* max_idx) {}
+void compute_max(float* d_data, int size, cudaStream_t stream, float* max_val, int* max_idx)
+{
+    int blockSize = 256; // Taille du bloc
+    int numBlocks = (size + blockSize - 1) / blockSize;
+
+    // Allocation de la mémoire pour les résultats intermédiaires
+    float* d_max_val;
+    int* d_max_idx;
+
+    cudaMalloc(&d_max_val, numBlocks * sizeof(float));
+    cudaMalloc(&d_max_idx, numBlocks * sizeof(int));
+
+    // Lancer le noyau
+    find_max<<<numBlocks, blockSize, 0, stream>>>(d_data, size, d_max_val, d_max_idx);
+
+    // Récupérer le maximum global
+    float h_max_val = -FLT_MAX;
+    int h_max_idx = -1;
+
+    float* h_results_val = new float[numBlocks];
+    int* h_results_idx = new int[numBlocks];
+
+    cudaMemcpy(h_results_val, d_max_val, numBlocks * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_results_idx, d_max_idx, numBlocks * sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Trouver le maximum global
+    for (int i = 0; i < numBlocks; ++i)
+    {
+        if (h_results_val[i] > h_max_val)
+        {
+            h_max_val = h_results_val[i];
+            h_max_idx = h_results_idx[i];
+        }
+    }
+
+    // Copie des résultats finaux
+    *max_val = h_max_val;
+    *max_idx = h_max_idx;
+
+    // Nettoyage
+    delete[] h_results_val;
+    delete[] h_results_idx;
+    cudaFree(d_max_val);
+    cudaFree(d_max_idx);
 }

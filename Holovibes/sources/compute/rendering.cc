@@ -11,6 +11,12 @@
 #include "map.cuh"
 #include "cuda_memory.cuh"
 #include "logger.hh"
+#include "tools_compute.cuh"
+
+#include <thrust/device_ptr.h>
+#include <thrust/extrema.h>
+#include <thrust/execution_policy.h>
+#include <cuda_runtime.h>
 
 namespace holovibes::compute
 {
@@ -87,7 +93,30 @@ void Rendering::insert_stabilization()
                            fd_.height,
                            stream_);
 
-                    
+                    cudaStreamSynchronize(stream_);
+
+                    float max_val;
+                    int max_index;
+
+                    compute_max(stabilization_env_.gpu_xcorr_output.get(),
+                                fd_.width * fd_.height,
+                                stream_,
+                                &max_val,
+                                &max_index);
+
+                    // Step 4: Convert the linear index to (x, y) coordinates
+                    int x = max_index % fd_.width; // Column
+                    int y = max_index / fd_.width; // Row
+
+                    if (x > fd_.width / 2)
+                        x -= fd_.width;
+                    if (y > fd_.height / 2)
+                        y -= fd_.height;
+
+                    x = -x;
+                    y = -y;
+
+                    complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y);
                 }
 
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));

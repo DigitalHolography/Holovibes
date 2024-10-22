@@ -96,15 +96,15 @@ __global__ void circ_shift_float(const float* input,
     }
 }
 
-__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < width * height)
-    {
-        const int new_x = index % width;
-        const int new_y = index / width;
-        const int old_x = (new_x - shift_x + width) % width;
-        const int old_y = (new_y - shift_y + height) % height;
-        output[index] = input[old_y * width + old_x];
-    }
-}
+// __global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
+// {
+//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (index < width * height)
+//     {
+//         const int new_x = index % width;
+//         const int new_y = index / width;
+//         const int old_x = (new_x - shift_x + width) % width;
+//         const int old_y = (new_y - shift_y + height) % height;
+//         output[index] = input[old_y * width + old_x];
+//     }
+// }
