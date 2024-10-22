@@ -170,7 +170,7 @@ void InputHoloFile::import_compute_settings()
     else if (holo_file_header_.version == 5)
         ;
     else if (holo_file_header_.version == 6) // Version that adds data type in the header
-        ;
+        api::set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
     else
         LOG_ERROR("HOLO file version not supported!");
 

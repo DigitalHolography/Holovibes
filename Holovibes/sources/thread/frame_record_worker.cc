@@ -95,8 +95,10 @@ void FrameRecordWorker::run()
     {
         std::string record_file_path = append_date_to_filepath(setting<settings::RecordFilePath>());
 
-        RecordedDataType data_type =
-            api::get_record_mode() == RecordMode::MOMENTS ? RecordedDataType::MOMENTS : RecordedDataType::RAW;
+        static std::map<RecordMode, RecordedDataType> m = {{RecordMode::RAW, RecordedDataType::RAW},
+                                                           {RecordMode::HOLOGRAM, RecordedDataType::PROCESSED},
+                                                           {RecordMode::MOMENTS, RecordedDataType::MOMENTS}};
+        RecordedDataType data_type = m[api::get_record_mode()];
 
         output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),

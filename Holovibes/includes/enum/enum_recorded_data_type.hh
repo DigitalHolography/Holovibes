@@ -12,9 +12,10 @@ namespace holovibes
  * This exists because loading moments is a completely different task\
  * compared to regular images.
  */
-enum class RecordedDataType
+enum RecordedDataType
 {
-    RAW,     // Raw data, such as an interferogram or even processed images.
-    MOMENTS, // The 3 recorded moments (0, 1 and 2)
+    RAW,       /*!< Raw data, an interferogram*/
+    PROCESSED, /*!< A generated hologram */
+    MOMENTS,   /*!< The 3 recorded moments (0, 1 and 2). They are contiguous : moment 0, then 1, then 2, ... */
 };
 } // namespace holovibes

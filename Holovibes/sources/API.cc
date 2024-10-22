@@ -127,6 +127,8 @@ bool change_camera(CameraKind c)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
+        set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
+
         try
         {
             Holovibes::instance().start_camera_frame_read(c);
@@ -1685,8 +1687,7 @@ bool start_record_preconditions()
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART &&
-        nb_frames_to_record == std::nullopt)
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
 
         LOG_ERROR("Number of frames must be activated");
