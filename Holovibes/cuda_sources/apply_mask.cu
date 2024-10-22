@@ -57,6 +57,79 @@ kernel_apply_mask(const T* input, const M* mask, T* output, const size_t size, c
     }
 }
 
+/*! \brief The CUDA Kernel computing the mean of the pixels inside the image only if the pixel is in the given mask.
+ *  This kernel is using shared memory and block reduction.
+ *
+ *  \param[in] input The input image on which the mask is applied and the mean of pixels is computed.
+ *  \param[in] mask The mean will be computed only inside this mask.
+ *  \param[in] size The size of the image, e.g : width x height.
+ *  \param [in out] mean_vector Vector used to store the sum of the pixels [0] and the number of pixels [1] inside the
+ *  circle.
+ */
+__global__ static void
+kernel_get_mean_in_mask(const float* input, const float* mask, const size_t size, float* mean_vector)
+{
+    extern __shared__ float shared_memory[];          // Getting the shared memory.
+    float* shared_sum = shared_memory;                // Pointer to the sum of pixels inside the mask.
+    float* shared_count = shared_memory + blockDim.x; // Pointer to the count of pixels inside the mask.
+
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint thread_index = threadIdx.x;
+
+    // Setting initial values in the shared memory.
+    shared_sum[thread_index] = 0.0f;
+    shared_count[thread_index] = 0.0f;
+
+    // Loading data in the shared memory.
+    if (index < size && mask[index] != 0)
+    {
+        shared_sum[thread_index] = input[index];
+        shared_count[thread_index] = 1.0f;
+    }
+    __syncthreads();
+
+    // Hierarchic block reduction in shared memory.
+    for (uint stride = 1; stride < blockDim.x; stride *= 2)
+    {
+        if (thread_index % (2 * stride) == 0)
+        {
+            shared_sum[thread_index] += shared_sum[thread_index + stride];
+            shared_count[thread_index] += shared_count[thread_index + stride];
+        }
+        __syncthreads();
+    }
+
+    // Write block result to global memory.
+    // Check for warp level primitive for more optimization.
+    if (thread_index == 0)
+    {
+        atomicAdd(&mean_vector[0], shared_sum[0]);   // Pixels sum
+        atomicAdd(&mean_vector[1], shared_count[0]); // Pixels count
+    }
+}
+
+/*! \brief Cuda kernel performing rescaling operations inside the masks. Set the others pixels to 0.
+ *
+ *  \param[out] output The output image on which the mask is applied and the pixels are rescaled.
+ *  \param[in] input The input image to get the pixels.
+ *  \param[in] mask The pixels are rescaled only inside this mask.
+ *  \param[in] mean The mean substracted to the pixels.
+ *  \param[in] size The size of the image, e.g : width x height.
+ */
+__global__ static void
+kernel_rescale_in_mask(float* output, const float* input, const float* mask, float mean, size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < size && mask[index])
+    {
+        if (mask[index])
+            output[index] = input[index] - mean;
+        else
+            output[index] = 0.0f;
+    }
+}
+
 template <typename T, typename M>
 static void
 apply_mask_caller(T* in_out, const M* mask, const size_t size, const uint batch_size, const cudaStream_t stream)
@@ -126,57 +199,6 @@ void apply_mask(const float* input,
     apply_mask_caller<float, float>(input, mask, output, size, batch_size, stream);
 }
 
-/*! \brief The CUDA Kernel computing the mean of the pixels inside the image only if the pixel is in the given mask.
- *  This kernel is using shared memory and block reduction.
- *
- *  \param[in] input The input image on which the mask is applied and the mean of pixels is computed.
- *  \param[in] mask The mean will be computed only inside this mask.
- *  \param[in] size The size of the image, e.g : width x height.
- *  \param [in out] mean_vector Vector used to store the sum of the pixels [0] and the number of pixels [1] inside the
- *  circle.
- */
-__global__ static void
-kernel_get_mean_in_mask(const float* input, const float* mask, const size_t size, float* mean_vector)
-{
-    extern __shared__ float shared_memory[];          // Getting the shared memory.
-    float* shared_sum = shared_memory;                // Pointer to the sum of pixels inside the mask.
-    float* shared_count = shared_memory + blockDim.x; // Pointer to the count of pixels inside the mask.
-
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    const uint thread_index = threadIdx.x;
-
-    // Setting initial values in the shared memory.
-    shared_sum[thread_index] = 0.0f;
-    shared_count[thread_index] = 0.0f;
-
-    // Loading data in the shared memory.
-    if (index < size && mask[index] != 0)
-    {
-        shared_sum[thread_index] = input[index];
-        shared_count[thread_index] = 1.0f;
-    }
-    __syncthreads();
-
-    // Hierarchic block reduction in shared memory.
-    for (uint stride = 1; stride < blockDim.x; stride *= 2)
-    {
-        if (thread_index % (2 * stride) == 0)
-        {
-            shared_sum[thread_index] += shared_sum[thread_index + stride];
-            shared_count[thread_index] += shared_count[thread_index + stride];
-        }
-        __syncthreads();
-    }
-
-    // Write block result to global memory.
-    // Check for warp level primitive for more optimization.
-    if (thread_index == 0)
-    {
-        atomicAdd(&mean_vector[0], shared_sum[0]);   // Pixels sum
-        atomicAdd(&mean_vector[1], shared_count[0]); // Pixels count
-    }
-}
-
 void get_mean_in_mask(
     const float* input, const float* mask, float* pixels_mean, const size_t size, const cudaStream_t stream)
 {
@@ -209,4 +231,20 @@ void get_mean_in_mask(
 
     // Make sur that the mean compute is done.
     cudaCheckError();
+}
+
+void rescale_in_mask(
+    float* output, const float* input, const float* mask, const float mean, size_t size, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_rescale_in_mask<<<blocks, threads, 0, stream>>>(output, input, mask, mean, size);
+
+    cudaCheckError();
+}
+
+void rescale_in_mask(float* input_output, const float* mask, const float mean, size_t size, const cudaStream_t stream)
+{
+    rescale_in_mask(input_output, input_output, mask, mean, size, stream);
 }

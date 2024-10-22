@@ -66,7 +66,13 @@ void Rendering::insert_stabilization()
                            1,
                            stream_);
 
-                LOG_INFO(*(stabilization_env_.current_image_mean.get()));
+                rescale_in_mask(buffers_.gpu_postprocess_frame,
+                                stabilization_env_.gpu_circle_mask,
+                                *(stabilization_env_.current_image_mean.get()),
+                                fd_.width * fd_.height,
+                                stream_);
+
+                // LOG_INFO(*(stabilization_env_.current_image_mean.get()));
                 // LOG_WARN(*(stabilization_env_.reference_image_mean.get()));
             });
     }
