@@ -37,10 +37,6 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
                                   })
 {
     ui_->setupUi(this);
-
-    // ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
-    // ui_->startButton->setShortcut(Qt::CTRL + Qt::Key_R);  #FIXME: This shortcut is not working, even though it works
-    // for MainWindow
 }
 
 LightUI::~LightUI()
@@ -110,7 +106,6 @@ void LightUI::start_stop_recording(bool start)
 void LightUI::on_record_start(RecordMode record)
 {
     ui_->startButton->setText("Stop recording");
-    // ui_->startButton->setStyleSheet("background-color: rgb(0, 0, 255);");
     LOG_INFO("Recording started");
 }
 
@@ -134,7 +129,6 @@ void LightUI::reset_start_button()
 {
     ui_->startButton->setChecked(false);
     ui_->startButton->setText("Start recording");
-    // ui_->startButton->setStyleSheet("background-color: rgb(50, 50, 50);");
 }
 
 void LightUI::actualise_record_progress(const int value, const int max)
