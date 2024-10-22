@@ -80,12 +80,14 @@ void Rendering::insert_stabilization()
                 }
                 else
                 {
-
                     xcorr2(stabilization_env_.gpu_xcorr_output,
                            stabilization_env_.gpu_current_image,
                            stabilization_env_.gpu_reference_image,
-                           fd.width,
-                           fd.height);
+                           fd_.width,
+                           fd_.height,
+                           stream_);
+
+                    
                 }
 
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));

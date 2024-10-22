@@ -160,6 +160,7 @@ class ICompute
         err += !stabilization_env_.gpu_reference_image.resize(buffers_.gpu_postprocess_frame_size);
         err += !stabilization_env_.gpu_current_image.resize(buffers_.gpu_postprocess_frame_size);
         err += !stabilization_env_.gpu_circle_mask.resize(buffers_.gpu_postprocess_frame_size);
+        err += !stabilization_env_.gpu_xcorr_output.resize((fd.height * 2 - 1) * (fd.width * 2 - 1));
         err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
