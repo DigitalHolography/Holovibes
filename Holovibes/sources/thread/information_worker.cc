@@ -171,41 +171,41 @@ static std::string format_throughput(size_t throughput, const std::string& unit)
     return ss.str();
 }
 
-std::string gpu_load()
+int get_gpu_load(nvmlUtilization_t* gpuLoad)
 {
-    std::stringstream ss;
-    ss << "<td>GPU load</td>";
-    nvmlReturn_t result;
     nvmlDevice_t device;
-    nvmlUtilization_t gpuLoad;
 
     // Initialize NVML
-    result = nvmlInit();
-    if (result != NVML_SUCCESS)
-    {
-        result = nvmlShutdown();
-        nvmlShutdown();
-        ss << "<td>Could not load GPU usage</td>";
-        return ss.str();
-    }
+    if (nvmlInit() != NVML_SUCCESS)
+        return -1;
 
     // Get the device handle (assuming only one GPU is present)
-    result = nvmlDeviceGetHandleByIndex(0, &device);
-    if (result != NVML_SUCCESS)
+    if (nvmlDeviceGetHandleByIndex(0, &device) != NVML_SUCCESS)
     {
-        ss << "<td>Could not load GPU usage</td>";
-        result = nvmlShutdown();
         nvmlShutdown();
-        return ss.str();
+        return -1;
     }
 
     // Query GPU load
-    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
-    if (result != NVML_SUCCESS)
+    if (nvmlDeviceGetUtilizationRates(device, gpuLoad) != NVML_SUCCESS)
+    {
+        nvmlShutdown();
+        return -1;
+    }
+
+    // Shutdown NVML
+    return nvmlShutdown();
+}
+
+std::string gpu_load()
+{
+    nvmlUtilization_t gpuLoad;
+    std::stringstream ss;
+    ss << "<td>GPU load</td>";
+
+    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
     {
         ss << "<td>Could not load GPU usage</td>";
-        result = nvmlShutdown();
-        nvmlShutdown();
         return ss.str();
     }
 
@@ -220,86 +220,28 @@ std::string gpu_load()
         ss << "red";
     ss << ";\">" << load << "%</td>";
 
-    // Shutdown NVML
-    result = nvmlShutdown();
-    nvmlShutdown();
-
     return ss.str();
 }
 
 std::string gpu_load_as_number()
 {
-    nvmlReturn_t result;
-    nvmlDevice_t device;
     nvmlUtilization_t gpuLoad;
 
-    // Initialize NVML
-    result = nvmlInit();
-    if (result != NVML_SUCCESS)
-    {
+    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
         return "Could not load GPU usage";
-    }
-
-    // Get the device handle (assuming only one GPU is present)
-    result = nvmlDeviceGetHandleByIndex(0, &device);
-    if (result != NVML_SUCCESS)
-    {
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return "Could not load GPU usage";
-    }
-
-    // Query GPU load
-    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
-    if (result != NVML_SUCCESS)
-    {
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return "Could not load GPU usage";
-    }
-
-    // Shutdown NVML
-    result = nvmlShutdown();
-    nvmlShutdown();
 
     return std::to_string(gpuLoad.gpu);
 }
 
 std::string gpu_memory_controller_load()
 {
+    nvmlUtilization_t gpuLoad;
     std::stringstream ss;
     ss << "<td>VRAM controller load</td>";
-    nvmlReturn_t result;
-    nvmlDevice_t device;
-    nvmlUtilization_t gpuLoad;
 
-    // Initialize NVML
-    result = nvmlInit();
-    if (result != NVML_SUCCESS)
+    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
     {
         ss << "<td>Could not load GPU usage</td>";
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return ss.str();
-    }
-
-    // Get the device handle (assuming only one GPU is present)
-    result = nvmlDeviceGetHandleByIndex(0, &device);
-    if (result != NVML_SUCCESS)
-    {
-        ss << "<td>Could not load GPU usage</td>";
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return ss.str();
-    }
-
-    // Query GPU load
-    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
-    if (result != NVML_SUCCESS)
-    {
-        ss << "<td>Could not load GPU usage</td>";
-        result = nvmlShutdown();
-        nvmlShutdown();
         return ss.str();
     }
 
@@ -314,47 +256,15 @@ std::string gpu_memory_controller_load()
         ss << "red";
     ss << ";\">" << load << "%</td>";
 
-    // Shutdown NVML
-    result = nvmlShutdown();
-    nvmlShutdown();
-
     return ss.str();
 }
 
 std::string gpu_memory_controller_load_as_number()
 {
-    nvmlReturn_t result;
-    nvmlDevice_t device;
     nvmlUtilization_t gpuLoad;
 
-    // Initialize NVML
-    result = nvmlInit();
-    if (result != NVML_SUCCESS)
-    {
+    if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
         return "Could not load GPU usage";
-    }
-
-    // Get the device handle (assuming only one GPU is present)
-    result = nvmlDeviceGetHandleByIndex(0, &device);
-    if (result != NVML_SUCCESS)
-    {
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return "Could not load GPU usage";
-    }
-
-    // Query GPU load
-    result = nvmlDeviceGetUtilizationRates(device, &gpuLoad);
-    if (result != NVML_SUCCESS)
-    {
-        result = nvmlShutdown();
-        nvmlShutdown();
-        return "Could not load GPU usage";
-    }
-
-    // Shutdown NVML
-    result = nvmlShutdown();
-    nvmlShutdown();
 
     return std::to_string(gpuLoad.memory);
 }
