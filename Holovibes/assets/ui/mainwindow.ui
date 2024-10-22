@@ -452,7 +452,7 @@ It's a post-processing step to remove noise</string>
               <string>The boundary</string>
              </property>
              <property name="text">
-              <string>Boundary (m)</string>
+              <string>Boundary (mm)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -474,21 +474,20 @@ It's a post-processing step to remove noise</string>
               <bool>false</bool>
              </property>
              <property name="decimals">
-              <number>6</number>
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
              </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="toolTip">
               <string>Adjust the distance to the target</string>
@@ -501,7 +500,7 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="6" column="1">
             <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -529,7 +528,7 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="0" colspan="2">
+           <item row="7" column="0" colspan="2">
             <widget class="QSlider" name="ZSlider">
              <property name="styleSheet">
               <string notr="true"/>

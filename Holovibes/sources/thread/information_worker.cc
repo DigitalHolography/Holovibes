@@ -237,7 +237,7 @@ std::string gpu_memory_controller_load()
 {
     nvmlUtilization_t gpuLoad;
     std::stringstream ss;
-    ss << "<td>VRAM controller load</td>";
+    ss << "<td style=\"padding-right: 15px\">VRAM controller load</td>";
 
     if (get_gpu_load(&gpuLoad) != NVML_SUCCESS)
     {

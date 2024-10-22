@@ -191,7 +191,6 @@ MainWindow::MainWindow(QWidget* parent)
     // spinBox allow ',' and '.' as decimal point
     spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui_->BoundaryDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
