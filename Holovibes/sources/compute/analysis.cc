@@ -135,6 +135,14 @@ void Analysis::init()
     // convolution subprocess is called
     shift_corners(gpu_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(cufftExecC2C(convolution_plan_, gpu_kernel_buffer_.get(), gpu_kernel_buffer_.get(), CUFFT_FORWARD));
+    number_image_mean_ = 0;
+
+    // 100 = batch_moment for analysis
+    buffer_m0_ff_img_ = new float*[100];
+    for (int i = 0; i < 100; i++)
+    {
+        buffer_m0_ff_img_[i] = new float[buffers_.gpu_postprocess_frame_size];
+    }
 }
 
 void Analysis::dispose()
@@ -155,12 +163,6 @@ void Analysis::insert_show_artery()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>() == true)
             {
-                // apply_flat_field_correction(buffers_.gpu_postprocess_frame,
-                //                             fd_.width,
-                //                             0.07 * fd_.width,
-                //                             0.25f,
-                //                             stream_);
-                // TODO do convolution with 256 gauss
                 convolution_kernel(buffers_.gpu_postprocess_frame,
                                    buffers_.gpu_convolution_buffer,
                                    cuComplex_buffer_.get(),
@@ -169,6 +171,55 @@ void Analysis::insert_show_artery()
                                    gpu_kernel_buffer_.get(),
                                    true,
                                    stream_);
+                number_image_mean_++;
+                if (number_image_mean_ == 1)
+                {
+                    cudaXMemcpy(buffer_m0_ff_img_[0],
+                                buffers_.gpu_postprocess_frame,
+                                buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                cudaMemcpyDeviceToHost);
+
+                    m0_ff_sum_image_ = new float[buffers_.gpu_postprocess_frame_size];
+                    std::memcpy(m0_ff_sum_image_,
+                                buffer_m0_ff_img_[0],
+                                buffers_.gpu_postprocess_frame_size * sizeof(float));
+                }
+                else
+                {
+                    float* new_image = new float[buffers_.gpu_postprocess_frame_size];
+                    cudaXMemcpy(new_image,
+                                buffers_.gpu_postprocess_frame,
+                                buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                cudaMemcpyDeviceToHost);
+                    if (number_image_mean_ >= 100)
+                    {
+                        for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
+                        {
+                            m0_ff_sum_image_[i] -= buffer_m0_ff_img_[(number_image_mean_ - 1) % 100][i];
+                        }
+                    }
+                    std::memcpy(buffer_m0_ff_img_[(number_image_mean_ - 1) % 100],
+                                new_image,
+                                buffers_.gpu_postprocess_frame_size * sizeof(float));
+
+                    for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
+                    {
+                        m0_ff_sum_image_[i] += new_image[i];
+                    }
+                    // TODO its not 100 it s batch_moment for analysis
+                    if (number_image_mean_ >= 100)
+                    {
+                        for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
+                        {
+                            new_image[i] = m0_ff_sum_image_[i] / 100;
+                        }
+                        cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                                    new_image,
+                                    buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                    cudaMemcpyHostToDevice);
+                    }
+                    delete new_image;
+                }
             }
         });
 }

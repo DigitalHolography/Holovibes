@@ -118,6 +118,15 @@ class Analysis
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
+    /*! \brief Get the number of image for the mean mask*/
+    int number_image_mean_ = 0;
+
+    /*! \brief Get the mean image*/
+    float* m0_ff_sum_image_;
+
+    /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs*/
+    float** buffer_m0_ff_img_;
+
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
