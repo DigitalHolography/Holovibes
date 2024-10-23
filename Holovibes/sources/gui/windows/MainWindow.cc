@@ -84,12 +84,15 @@ MainWindow::MainWindow(QWidget* parent)
     , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
 {
     ui_->setupUi(this);
-    panels_ = {ui_->ImageRenderingPanel,
-               ui_->ViewPanel,
-               ui_->CompositePanel,
-               ui_->ImportPanel,
-               ui_->ExportPanel,
-               ui_->InfoPanel};
+    panels_ = {
+        ui_->ImageRenderingPanel,
+        ui_->ViewPanel,
+        ui_->CompositePanel,
+        ui_->ImportPanel,
+        ui_->ExportPanel,
+        ui_->InfoPanel,
+        ui_->AnalysisPanel,
+    };
 
     qRegisterMetaType<std::function<void()>>();
     connect(this,

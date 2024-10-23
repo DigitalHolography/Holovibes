@@ -256,7 +256,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
     LOG_INFO("[RECORDER] {}", info);
