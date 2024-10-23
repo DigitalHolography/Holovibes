@@ -287,12 +287,7 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (!api::get_cuts_view_enabled())
         return;
 
-    std::function<void()> callback = ([=]() {
-        Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
-        parent_->notify();
-    });
-
-    api::cancel_time_transformation_cuts(callback);
+    api::cancel_time_transformation_cuts();
 }
 
 void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
