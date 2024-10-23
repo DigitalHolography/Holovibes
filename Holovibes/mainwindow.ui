@@ -2468,7 +2468,65 @@ It's a post-processing step to remove noise</string>
       </item>
       <item>
        <widget class="holovibes::gui::AnalysisPanel" name="AnalysisPanel">
-        
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Analysis</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_123">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="AnalysisLayout">
+           <item>
+            <widget class="QCheckBox" name="ArteryCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Artery</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+            
+           
        </widget>
       </item>
       <item>
@@ -4247,6 +4305,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>ArteryCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -5941,6 +6015,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
+  <slot>set_artery_mask(bool)</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>

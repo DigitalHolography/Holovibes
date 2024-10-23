@@ -38,7 +38,8 @@
     holovibes::settings::Filter2dN2,               \
     holovibes::settings::Filter2dSmoothHigh,       \
     holovibes::settings::Filter2dSmoothLow,        \
-    holovibes::settings::SpaceTransformation
+    holovibes::settings::SpaceTransformation,      \
+    holovibes::settings::ArteryMaskEnabled
 
 #define PIPEREFRESH_SETTINGS                         \
     holovibes::settings::BatchSize,                  \

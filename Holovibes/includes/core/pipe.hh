@@ -11,6 +11,7 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
+#include "analysis.hh"
 #include "fast_updates_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
@@ -225,7 +226,7 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();
@@ -288,6 +289,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
+    std::unique_ptr<compute::Analysis> analysis_;
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;

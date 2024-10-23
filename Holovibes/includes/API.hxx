@@ -535,6 +535,17 @@ inline void set_fft_shift_enabled(bool value)
     pipe_refresh();
 }
 
+/*!
+ * \name Artery Mask
+ *
+ */
+inline bool set_artery_mask_enabled() { return GET_SETTING(ArteryMaskEnabled); }
+inline void set_artery_mask_enabled(bool value)
+{
+    UPDATE_SETTING(ArteryMaskEnabled, value);
+    pipe_refresh();
+}
+
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
 /*! \} */

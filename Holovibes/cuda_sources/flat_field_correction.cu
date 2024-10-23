@@ -15,193 +15,157 @@
 
 #include <cufftXt.h>
 
-__global__ void normalizeImage(float* image, float Im_min, float Im_max, int size) {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size) {
-        image[index] = (image[index] - Im_min) / (Im_max - Im_min);
-    }
-}
-
-__global__ void denormalizeImage(float* image, float Im_min, float Im_max, int size) {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size) {
-        image[index] = image[index] * (Im_max - Im_min) + Im_min;
-    }
-}
-
-__global__ void normalizeByGaussian(float* image, float* blurredImage, float* output, int size) {
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size) {
-        output[index] = image[index] / (blurredImage[index] + 1e-6);
-    }
-}
-
-__global__ void applyGaussianBlur(float* input, float* output, int width, int height, const float* kernel, int kWidth) {
+// Kernel pour appliquer un flou gaussien 5x5
+__global__ void gaussian_blur_5x5(const float* input, float* output, int width, int height, const float* kernel) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    int half_k = kWidth / 2;
 
-    if (x < width && y < height) {
-        float sum = 0.0f;
-        float weightSum = 0.0f;
+    if (x >= width || y >= height) return;  // Sortir si en dehors des limites
 
-        for (int ky = -half_k; ky <= half_k; ky++) {
-            for (int kx = -half_k; kx <= half_k; kx++) {
-                int ix = min(max(x + kx, 0), width - 1);
-                int iy = min(max(y + ky, 0), height - 1);
-                float weight = kernel[(ky + half_k) * kWidth + (kx + half_k)];
-                sum += input[iy * width + ix] * weight;
-                weightSum += weight;
-            }
+    float sum = 0.0f;
+    int halfKernel = 2;  // Noyau 5x5 a une moitié de taille 2 (de -2 à 2 autour du centre)
+
+    // Appliquer le noyau gaussien
+    for (int ky = -halfKernel; ky <= halfKernel; ++ky) {
+        for (int kx = -halfKernel; kx <= halfKernel; ++kx) {
+            int ix = min(max(x + kx, 0), width - 1);  // Clamper les indices dans l'image
+            int iy = min(max(y + ky, 0), height - 1);
+
+            // Calcul de l'indice dans l'image et application du noyau
+            float pixelValue = input[iy * width + ix];
+            float kernelValue = kernel[(ky + halfKernel) * 5 + (kx + halfKernel)];
+            sum += pixelValue * kernelValue;
         }
-        output[y * width + x] = sum / weightSum;
+    }
+
+    // Écriture du résultat dans l'image de sortie
+    output[y * width + x] = sum;
+}
+
+// Fonction pour créer un noyau gaussien 5x5
+void create_gaussian_kernel_5x5(float* kernel, float sigma) {
+    const int size = 5;
+    int halfSize = size / 2;
+    float sum = 0.0f;
+    float sigma2 = 2.0f * sigma * sigma;
+
+    // Générer les valeurs du noyau gaussien
+    for (int y = -halfSize; y <= halfSize; ++y) {
+        for (int x = -halfSize; ++x <= halfSize;) {
+            float value = expf(-(x * x + y * y) / sigma2) / (M_PI * sigma2);
+            kernel[(y + halfSize) * size + (x + halfSize)] = value;
+            sum += value;
+        }
+    }
+
+    // Normaliser le noyau pour que la somme soit égale à 1
+    for (int i = 0; i < size * size; ++i) {
+        kernel[i] /= sum;
     }
 }
 
-//!
-//! \fn void std_to_box(int boxes[], float sigma, int n)  
-//!
-//! \brief this function converts the standard deviation of 
-//! Gaussian blur into dimensions of boxes for box blur. For 
-//! further details please refer to :
-//! https://www.peterkovesi.com/matlabfns/#integral
-//! https://www.peterkovesi.com/papers/FastGaussianSmoothing.pdf
-//!
-//! \param[out] boxes   boxes dimensions
-//! \param[in] sigma    Gaussian standard deviation
-//! \param[in] n        number of boxes
-//!
-void std_to_box(int boxes[], float sigma, int n)  
-{
-    // ideal filter width
-    float wi = std::sqrt((12*sigma*sigma/n)+1); 
-    int wl = std::floor(wi);  
-    if(wl%2==0) wl--;
-    int wu = wl+2;
-                
-    float mi = (12*sigma*sigma - n*wl*wl - 4*n*wl - 3*n)/(-4*wl - 4);
-    int m = std::round(mi);
-                
-    for(int i=0; i<n; i++) 
-        boxes[i] = ((i < m ? wl : wu) - 1) / 2;
+// Fonction pour appliquer le flou gaussien 5x5 avec CUDA
+void fast_gaussian_blur(float* d_input, float* d_output, int width, int height, float gw, cudaStream_t stream = 0) {
+    // Création du noyau gaussien sur l'hôte
+    float h_kernel[25];  // 5x5 = 25 éléments
+    create_gaussian_kernel_5x5(h_kernel, gw);
+
+    // Allocation de mémoire pour le noyau gaussien sur le GPU
+    float* d_kernel;
+    cudaMalloc(&d_kernel, 25 * sizeof(float));
+    cudaMemcpyAsync(d_kernel, h_kernel, 25 * sizeof(float), cudaMemcpyHostToDevice, stream);
+
+    // Définir la taille du bloc et de la grille
+    dim3 threadsPerBlock(16, 16);
+    dim3 numBlocks((width + threadsPerBlock.x - 1) / threadsPerBlock.x, (height + threadsPerBlock.y - 1) / threadsPerBlock.y);
+
+    // Lancer le kernel CUDA pour appliquer le flou gaussien
+    gaussian_blur_5x5<<<numBlocks, threadsPerBlock, 0, stream>>>(d_input, d_output, width, height, d_kernel);
+
+    // Synchroniser pour attendre la fin du kernel
+    cudaStreamSynchronize(stream);
+
+    // Libérer la mémoire du noyau gaussien sur le GPU
+    cudaFree(d_kernel);
 }
 
-//!
-//! \fn void horizontal_blur(float * in, float * out, int w, int h, int r)    
-//!
-//! \brief this function performs the horizontal blur pass for box blur. 
-//!
-//! \param[in,out] in       source channel
-//! \param[in,out] out      target channel
-//! \param[in] w            image width
-//! \param[in] h            image height
-//! \param[in] r            box dimension
-//!
-void horizontal_blur(float * in, float * out, int w, int h, int r) 
-{
-    float iarr = 1.f / (r+r+1);
-    #pragma omp parallel for
-    for(int i=0; i<h; i++) 
-    {
-        int ti = i*w, li = ti, ri = ti+r;
-        float fv = in[ti], lv = in[ti+w-1], val = (r+1)*fv;
 
-        for(int j=0; j<r; j++) val += in[ti+j];
-        for(int j=0  ; j<=r ; j++) { val += in[ri++] - fv      ; out[ti++] = val*iarr; }
-        for(int j=r+1; j<w-r; j++) { val += in[ri++] - in[li++]; out[ti++] = val*iarr; }
-        for(int j=w-r; j<w  ; j++) { val += lv       - in[li++]; out[ti++] = val*iarr; }
+
+__global__ void kernel_normalize(float* in_out, const uint min, const uint max, const uint size)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+        in_out[index] = (in_out[index] - min) / (max - min);
+}
+
+__global__ void kernel_multiplication(float* in_out, const float value, const uint size)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+        in_out[index] *= value;
+}
+
+__global__ void kernel_division(float* in_out, const float* value, const uint size)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+        in_out[index] = value[index];
+}
+
+
+// Kernel de réduction pour calculer la somme
+__global__ void sum_region_kernel(const float* input, float* output, int width, int a, int b, int c, int d) {
+    extern __shared__ float sdata[]; // mémoire partagée pour la réduction
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Initialiser la mémoire partagée avec des zéros
+    sdata[tid] = 0;
+
+    // Vérifier que l'index global est dans les limites de la région spécifiée
+    int x = idx % width;
+    int y = idx / width;
+
+    if (x >= a && x <= b && y >= c && y <= d) {
+        sdata[tid] = input[idx];
     }
-}
 
-//!
-//! \fn void total_blur(float * in, float * out, int w, int h, int r)   
-//!
-//! \brief this function performs the total blur pass for box blur. 
-//!
-//! \param[in,out] in       source channel
-//! \param[in,out] out      target channel
-//! \param[in] w            image width
-//! \param[in] h            image height
-//! \param[in] r            box dimension
-//!
-void total_blur(float * in, float * out, int w, int h, int r) 
-{
-    float iarr = 1.f / (r+r+1);
-    #pragma omp parallel for
-    for(int i=0; i<w; i++) 
-    {
-        int ti = i, li = ti, ri = ti+r*w;
-        float fv = in[ti], lv = in[ti+w*(h-1)], val = (r+1)*fv;
-        for(int j=0; j<r; j++) val += in[ti+j*w];
-        for(int j=0  ; j<=r ; j++) { val += in[ri] - fv    ; out[ti] = val*iarr; ri+=w; ti+=w; }
-        for(int j=r+1; j<h-r; j++) { val += in[ri] - in[li]; out[ti] = val*iarr; li+=w; ri+=w; ti+=w; }
-        for(int j=h-r; j<h  ; j++) { val += lv     - in[li]; out[ti] = val*iarr; li+=w; ti+=w; }
+    // Synchroniser tous les threads du bloc avant la réduction
+    __syncthreads();
+
+    // Réduction en utilisant une addition parallèle
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (tid < s) {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
     }
-}
 
-//!
-//! \fn void box_blur(float * in, float * out, int w, int h, int r)    
-//!
-//! \brief this function performs a box blur pass. 
-//!
-//! \param[in,out] in       source channel
-//! \param[in,out] out      target channel
-//! \param[in] w            image width
-//! \param[in] h            image height
-//! \param[in] r            box dimension
-//!
-void box_blur(float *& in, float *& out, int w, int h, int r) 
-{
-    std::swap(in, out);
-    horizontal_blur(out, in, w, h, r);
-    total_blur(in, out, w, h, r);
-    // Note to myself : 
-    // here we could go anisotropic with different radiis rx,ry in HBlur and TBlur
-}
-
-//!
-//! \fn void fast_gaussian_blur(float * in, float * out, int w, int h, float sigma)   
-//!
-//! \brief this function performs a fast Gaussian blur. Applying several
-//! times box blur tends towards a true Gaussian blur. Three passes are sufficient
-//! for good results. For further details please refer to :  
-//! http://blog.ivank.net/fastest-gaussian-blur.html
-//!
-//! \param[in,out] in       source channel
-//! \param[in,out] out      target channel
-//! \param[in] w            image width
-//! \param[in] h            image height
-//! \param[in] r            box dimension
-//!
-void fast_gaussian_blur(float *& in, float *& out, int w, int h, float sigma) 
-{
-    // sigma conversion to box dimensions
-    int boxes[3];
-    std_to_box(boxes, sigma, 3);
-    box_blur(in, out, w, h, boxes[0]);
-    box_blur(out, in, w, h, boxes[1]);
-    box_blur(in, out, w, h, boxes[2]);
+    // Le thread 0 stocke le résultat partiel pour ce bloc
+    if (tid == 0) {
+        atomicAdd(output, sdata[0]);
+    }
 }
 
 void apply_flat_field_correction(float* input_output, const uint width, const float gw, const float borderAmount, const cudaStream_t stream) {
     int size = width * width;
     // Trouver le min et max de l'image
     float* h_image = new float[size];
-    float* copy_input = new float[size];
     cudaXMemcpyAsync(h_image, input_output, size * sizeof(float), cudaMemcpyDeviceToHost, stream);
-    cudaXMemcpyAsync(copy_input, input_output, size * sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
     auto Im_min = *std::min_element(h_image, h_image + size);
+    //std::cout << "le min : " << Im_min << std::endl;
     auto Im_max = *std::max_element(h_image, h_image + size);
+    //std::cout << "le max : " << Im_max << std::endl;
+
 
     bool flag = false;
     if (Im_min < 0 || Im_max > 1) {
         flag = true;
-        int blockSize = 256;
-        int numBlocks = (size + blockSize - 1) / blockSize;
-        for (int i = 0; i < size; i++)
-        {
-            copy_input[i] = (copy_input[i] - Im_min) / (Im_max - Im_min);
-        }
+        uint threads = get_max_threads_1d();
+        uint blocks = map_blocks_to_problem(size, threads);
+        kernel_normalize<<<blocks, threads, 0, stream>>>(input_output, Im_min, Im_max, size);
+        cudaXStreamSynchronize(stream);
     }
     
     int a=0, b=0, c=0, d=0;
@@ -220,51 +184,72 @@ void apply_flat_field_correction(float* input_output, const uint width, const fl
         d = std::floor(width * ( 1 -  borderAmount));
     }
     
-    int a_bis = a;
-    int c_bis = c;
-    float sum = 0;
-    while (a_bis <= b)
-    {
-        while (c_bis <= d)
-        {
-            sum += copy_input[a_bis + c_bis * width];
-            c_bis++;
-        }
-        a_bis++;
-    }
-    float ms = sum;
+    // Allocation de mémoire pour stocker le résultat partiel de la somme
+    float* d_sum;
+    float h_sum = 0;
+    cudaXMalloc(&d_sum, sizeof(float));
+    cudaXMemcpyAsync(d_sum, &h_sum, sizeof(float), cudaMemcpyHostToDevice, stream);
 
-    cudaXMemcpyAsync(h_image, input_output, size * sizeof(float), cudaMemcpyDeviceToHost, stream);
-    fast_gaussian_blur(h_image, copy_input, width, width, gw);
-    
-    a_bis = a;
-    c_bis = c;
-    sum = 0;
-    while (a_bis <= b)
-    {
-        while (c_bis <= d)
-        {
-            sum += copy_input[a_bis + c_bis * width];
-            c_bis++;
-        }
-        a_bis++;
-    }
-    float ms2 = sum;
+    // Lancer le kernel pour calculer la somme dans la zone définie par (a, b, c, d)
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    size_t sharedMemSize = threads * sizeof(float);  // Taille de la mémoire partagée
+    sum_region_kernel<<<blocks, threads, sharedMemSize, stream>>>(input_output, d_sum, width, a, b, c, d);
+    cudaXStreamSynchronize(stream);  // Attendre que la somme soit calculée
 
-    for (int i = 0; i < size; i++)
-    {
-        copy_input[i] *= (ms / ms2);
-    }
+    // Copier la somme du GPU vers l'hôte
+    cudaXMemcpyAsync(&h_sum, d_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+
+    float ms = h_sum;
     
+    float* d_input_blur;
+    cudaXMalloc(&d_input_blur, size * sizeof(float));
+    fast_gaussian_blur(input_output, d_input_blur, width, width, gw, stream);
+
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(size, threads);
+    kernel_division<<<blocks, threads, 0, stream>>>(input_output, d_input_blur, size);
+    cudaXStreamSynchronize(stream);
+    
+    /*// Allocation de mémoire pour stocker le résultat partiel de la somme
+    float* d_sum2;
+    float h_sum2 = 0;
+    cudaXMalloc(&d_sum2, sizeof(float));
+    cudaXMemcpyAsync(d_sum2, &h_sum2, sizeof(float), cudaMemcpyHostToDevice, stream);
+
+    // Lancer le kernel pour calculer la somme dans la zone définie par (a, b, c, d)
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(size, threads);
+    sharedMemSize = threads * sizeof(float);  // Taille de la mémoire partagée
+    sum_region_kernel<<<blocks, threads, sharedMemSize, stream>>>(input_output, d_sum2, width, a, b, c, d);
+    cudaXStreamSynchronize(stream);  // Attendre que la somme soit calculée
+
+    // Copier la somme du GPU vers l'hôte
+    cudaXMemcpyAsync(&h_sum2, d_sum2, sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+
+    float ms2 = h_sum2;
+
+    std::cout << "ms / ms2 : " << ms / ms2 << std::endl;
+    std::cout << "ms : " << ms << std::endl;
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(size, threads);
+    kernel_multiplication<<<blocks, threads, 0, stream>>>(input_output, ms / ms2, size);
+    cudaXStreamSynchronize(stream);
+    
+    /*
     if (flag)
     {
         for (int i = 0; i < size; i++)
         {
             copy_input[i] = Im_min + (Im_max - Im_min) * copy_input[i];
         }
-    }
+    }*/
     cudaXStreamSynchronize(stream);
 
-    cudaXMemcpyAsync(input_output, copy_input, size * sizeof(float), cudaMemcpyDeviceToHost, stream);
     delete[] h_image;
+    cudaXFree(d_sum);
+    //cudaXFree(d_sum2);
+    cudaXFree(d_input_blur);
 }

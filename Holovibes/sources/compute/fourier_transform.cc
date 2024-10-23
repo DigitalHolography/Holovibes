@@ -299,7 +299,6 @@ void FourierTransform::insert_moments()
                                        moments_env_.f_start,
                                        moments_env_.f_end,
                                        stream_);
-                apply_flat_field_correction(buffers_.gpu_postprocess_frame, fd_.width, 0.07 * fd_.width, 0.1f, stream_);
             }
         });
 }

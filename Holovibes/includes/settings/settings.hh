@@ -88,6 +88,7 @@ DECLARE_SETTING(ChartDisplayEnabled, bool);
 DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
+DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
