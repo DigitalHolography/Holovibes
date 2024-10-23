@@ -153,7 +153,6 @@ MainWindow::MainWindow(QWidget* parent)
     }
 
     // Display default values
-    api::set_compute_mode(api::get_compute_mode());
     UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
                                                              ? "Composite image"
                                                              : UserInterfaceDescriptor::instance().last_img_type_;
@@ -168,18 +167,10 @@ MainWindow::MainWindow(QWidget* parent)
     if (UserInterfaceDescriptor::instance().is_enabled_camera_)
     {
         ui_->actionSettings->setEnabled(true);
-        if (api::get_compute_mode() == Computation::Raw)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
+
+        bool is_raw = api::get_img_type() == ImgType::Raw;
+        LOG_INFO(is_raw ? "RAW" : "HOLO");
+        api::open_window(is_raw, 1);
     }
 
     notify();
@@ -224,7 +215,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none_without_json();
+    api::camera_none();
 
     delete ui_;
 }
@@ -305,13 +296,12 @@ void MainWindow::on_notify()
     if (UserInterfaceDescriptor::instance().is_enabled_camera_)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
-        ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
+        ui_->ViewPanel->setEnabled(true);
         ui_->ExportPanel->setEnabled(true);
         light_ui_->pipeline_active(true);
     }
 
-    ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
-                                   (api::get_img_type() != ImgType::Composite));
+    ui_->CompositePanel->setHidden(api::get_img_type() != ImgType::Composite);
 
     resize(baseSize());
 
@@ -319,45 +309,6 @@ void MainWindow::on_notify()
 }
 
 static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
-
-void MainWindow::notify_error(const std::exception& e)
-{
-    const CustomException* err_ptr = dynamic_cast<const CustomException*>(&e);
-    if (err_ptr)
-    {
-        const UpdateException* err_update_ptr = dynamic_cast<const UpdateException*>(err_ptr);
-        if (err_update_ptr)
-        {
-            auto lambda = [&, this]
-            {
-                // notify will be in close_critical_compute
-                api::handle_update_exception();
-                api::close_windows();
-                api::close_critical_compute();
-                LOG_ERROR("GPU computing error occured. : {}", e.what());
-                notify();
-            };
-            synchronize_thread(lambda);
-        }
-
-        auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
-        {
-            if (accu)
-            {
-                handle_accumulation_exception();
-            }
-            api::close_critical_compute();
-
-            LOG_ERROR("GPU computing error occured. : {}", e.what());
-            notify();
-        };
-        synchronize_thread(lambda);
-    }
-    else
-    {
-        LOG_ERROR("Unknown error occured. : {}", e.what());
-    }
-}
 
 void MainWindow::layout_toggled()
 {
@@ -597,7 +548,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
-    api::camera_none_without_json();
+    api::camera_none();
     Logger::flush();
 }
 
@@ -612,7 +563,7 @@ void MainWindow::change_camera(CameraKind c)
     if (res)
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageRenderingPanel->open_window(api::get_img_type() == ImgType::Raw);
         shift_screen();
 
         // TODO: Trigger callbacks of view (filter2d/raw/lens/3d_cuts)
@@ -703,16 +654,6 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 /* ------------ */
 #pragma region Image Mode
 
-// Is there a change in window pixel depth (needs to be re-opened)
-bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
-{
-    std::vector<std::string> types_needing_refresh({"Composite image"});
-    for (auto& type : types_needing_refresh)
-        if ((last_type == type) != (new_type == type))
-            return true;
-    return false;
-}
-
 void MainWindow::set_composite_values()
 {
     const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
@@ -731,23 +672,17 @@ void MainWindow::set_composite_values()
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-    {
-        LOG_ERROR("Cannot set view image type in raw mode");
-        return;
-    }
-
     const std::string& value_str = value.toStdString();
+    if (value_str == UserInterfaceDescriptor::instance().last_img_type_)
+        return;
+
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
-    {
-        api::refresh_view_mode(window_max_size, img_type);
-        if (api::get_img_type() == ImgType::Composite)
-            set_composite_values();
-    }
+    if (api::get_img_type() == ImgType::Composite)
+        set_composite_values();
 
     UserInterfaceDescriptor::instance().last_img_type_ = value_str;
 
+    ui_->ImageRenderingPanel->open_window(img_type == ImgType::Raw);
     api::set_view_mode(img_type);
 
     notify();

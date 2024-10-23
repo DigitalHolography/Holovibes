@@ -252,7 +252,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (setting<settings::ComputeMode>() == Computation::Raw)
+    if (setting<settings::ImageType>() == ImgType::Raw)
     {
         insert_dequeue_input();
         return;

@@ -14,7 +14,6 @@
 #include "enum/enum_window_kind.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
-#include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
 #include "rect.hh"
 
@@ -145,7 +144,6 @@ DECLARE_SETTING(ZDistance, float);
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
-DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);
 DECLARE_SETTING(TimeTransformationCutsOutputBufferSize, uint);

@@ -183,7 +183,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     if (opts.record_raw)
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::RAW});
-        holovibes::api::set_compute_mode(holovibes::Computation::Raw);
+        holovibes::api::set_img_type(holovibes::ImgType::Raw);
         holovibes::api::set_record_mode(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
@@ -194,7 +194,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     else
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::HOLOGRAM});
-        holovibes::api::set_compute_mode(holovibes::Computation::Hologram);
+        holovibes::api::set_img_type(holovibes::ImgType::Modulus);
         holovibes::api::set_record_mode(holovibes::RecordMode::HOLOGRAM);
     }
 

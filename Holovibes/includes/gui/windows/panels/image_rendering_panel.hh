@@ -32,7 +32,6 @@ class ImageRenderingPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-  public slots:
     /*! \brief Set image mode either to raw or hologram mode
      *
      * Check if Camera has been enabled, then create a new GuiGLWindow keeping
@@ -41,7 +40,9 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_mode(int mode);
+    void open_window(bool raw_mode);
+
+  public slots:
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();

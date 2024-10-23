@@ -96,11 +96,6 @@ void set_input_file_end_index(size_t value);
  */
 void camera_none();
 
-/*! \brief Switchs operating camera to none without changes on the user_setting.json
- *
- */
-void camera_none_without_json();
-
 /*! \brief Stops the program compute
  *
  */
@@ -175,26 +170,8 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
-/*! \brief Sets the image mode to Raw or Holographic*/
-void set_image_mode(Computation mode, uint window_max_size);
-
-/*! \brief Changes display mode to Raw */
-void set_raw_mode(uint window_max_size);
-
-/*! \brief Changes display mode to Holographic
- *
- * \param window_size the size of the window
- * \return true on success
- * \return false on failure
- */
-bool set_holographic_mode(ushort window_size);
-
-/*! \brief Restarts everything to change the view mode
- *
- * \param window_size the size of the window
- * \param img_type The new image type
- */
-void refresh_view_mode(ushort window_size, ImgType img_type);
+/*! \brief Open a Raw or Holographic window */
+void open_window(bool raw_mode, uint window_max_size);
 
 /*! \brief Removes time transformation from computation
  *
@@ -298,7 +275,6 @@ void enable_pipe_refresh();
  */
 void disable_pipe_refresh();
 
-void create_holo_window(ushort window_size);
 void create_pipe();
 
 /*! \brief Modifies p accumulation

@@ -22,12 +22,6 @@ inline void ThreadWorkerController<T>::set_callback(std::function<void()> callba
 }
 
 template <WorkerDerived T>
-inline void ThreadWorkerController<T>::set_error_callback(std::function<void(const std::exception&)> error_callback)
-{
-    error_callback_ = error_callback;
-}
-
-template <WorkerDerived T>
 inline void ThreadWorkerController<T>::set_priority(int priority)
 {
     SetThreadPriority(thread_.native_handle(), priority);

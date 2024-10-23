@@ -89,7 +89,6 @@
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
-    holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
     holovibes::settings::IsComputationStopped,                   \
     holovibes::settings::SignalZone,                             \
@@ -312,11 +311,6 @@ class Holovibes
      * used to know if queues have to keep contiguity or not. */
     bool is_cli;
 
-    /*! \brief function called when some thread throws an exception */
-    std::function<void(const std::exception&)> error_callback_;
-
-    void set_error_callback(std::function<void(const std::exception&)> func) { error_callback_ = func; }
-
     /**
      * @brief Update a setting. The actual application of the update
      * might ve delayed until a certain event occurs.
@@ -413,7 +407,6 @@ class Holovibes
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
-                                             settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},
                                              settings::IsComputationStopped{true},
                                              settings::TimeTransformationCutsOutputBufferSize{512},

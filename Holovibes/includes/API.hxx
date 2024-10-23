@@ -86,9 +86,6 @@ constexpr std::vector<std::string> get_credits()
     return res;
 }
 
-inline Computation get_compute_mode() { return GET_SETTING(ComputeMode); }
-inline void set_compute_mode(Computation mode) { UPDATE_SETTING(ComputeMode, mode); }
-
 inline float get_pixel_size() { return GET_SETTING(PixelSize); }
 inline void set_pixel_size(float value) { UPDATE_SETTING(PixelSize, value); }
 

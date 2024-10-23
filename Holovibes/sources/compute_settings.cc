@@ -135,8 +135,9 @@ struct JsonSettings
 
         data["compute settings"]["image rendering"]["space transformation"] = static_cast<SpaceTransformation>(
             static_cast<int>(data["compute settings"]["image rendering"]["space transformation"]));
-        data["compute settings"]["image rendering"]["image mode"] =
-            static_cast<Computation>(static_cast<int>(data["compute settings"]["image rendering"]["image mode"]) - 1);
+        // TODO moi update footer
+        // data["compute settings"]["image rendering"]["image mode"] =
+        //    static_cast<Computation>(static_cast<int>(data["compute settings"]["image rendering"]["image mode"]) - 1);
         data["compute settings"]["image rendering"]["time transformation"] = static_cast<TimeTransformation>(
             static_cast<int>(data["compute settings"]["image rendering"]["time transformation"]));
     }

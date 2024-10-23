@@ -14,7 +14,8 @@ namespace holovibes
  */
 enum class ImgType
 {
-    Modulus = 0,    /*!< Modulus of the complex data */
+    Raw = 0,        /*!< The raw data */
+    Modulus,        /*!< Modulus of the complex data */
     SquaredModulus, /*!<  Modulus taken to its square value */
     Argument,       /*!<  Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
     PhaseIncrease,  /*!<  Phase value, the conjugate between the phase of the last image and the previous one */
@@ -26,6 +27,7 @@ enum class ImgType
 
 // clang-format off
 SERIALIZE_JSON_ENUM(ImgType, {
+    {ImgType::Raw, "RAW"},
     {ImgType::Modulus, "MODULUS"},
     {ImgType::SquaredModulus, "SQUARED_MODULUS"},
     {ImgType::Argument, "ARGUMENT"},

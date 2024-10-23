@@ -193,9 +193,7 @@ void RawWindow::resizeGL(int w, int h)
 
     auto point = this->position();
 
-    if ((api::get_compute_mode() == Computation::Hologram &&
-         api::get_space_transformation() == SpaceTransformation::NONE) ||
-        api::get_compute_mode() == Computation::Raw)
+    if (api::get_space_transformation() == SpaceTransformation::NONE || api::get_img_type() == ImgType::Raw)
     {
         if (w != old_width)
         {

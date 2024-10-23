@@ -159,7 +159,6 @@ void Holovibes::start_file_frame_read(const std::function<void()>& callback)
     CHECK(input_queue_.load() != nullptr);
 
     file_read_worker_controller_.set_callback(callback);
-    file_read_worker_controller_.set_error_callback(error_callback_);
     file_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
@@ -202,7 +201,6 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
-        camera_read_worker_controller_.set_error_callback(error_callback_);
         camera_read_worker_controller_.set_priority(THREAD_READER_PRIORITY);
         camera_read_worker_controller_.start(active_camera_, input_queue_);
     }
@@ -249,7 +247,6 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
         init_record_queue();
 
     frame_record_worker_controller_.set_callback(callback);
-    frame_record_worker_controller_.set_error_callback(error_callback_);
     frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
@@ -261,7 +258,6 @@ void Holovibes::stop_frame_record() { frame_record_worker_controller_.stop(); }
 void Holovibes::start_chart_record(const std::function<void()>& callback)
 {
     chart_record_worker_controller_.set_callback(callback);
-    chart_record_worker_controller_.set_error_callback(error_callback_);
     chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
 
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
@@ -273,7 +269,6 @@ void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 void Holovibes::start_information_display(const std::function<void()>& callback)
 {
     info_worker_controller_.set_callback(callback);
-    info_worker_controller_.set_error_callback(error_callback_);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
     info_worker_controller_.start(all_settings);
@@ -285,7 +280,7 @@ void Holovibes::init_pipe()
 {
     LOG_FUNC();
     camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
-    if (api::get_compute_mode() == Computation::Hologram)
+    if (api::get_img_type() != ImgType::Raw)
     {
         output_fd.depth = camera::PixelDepth::Bits16;
         if (api::get_img_type() == ImgType::Composite)
@@ -296,7 +291,6 @@ void Holovibes::init_pipe()
                                                     QueueType::OUTPUT_QUEUE));
     if (!compute_pipe_.load())
     {
-
         init_record_queue();
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),
@@ -309,7 +303,6 @@ void Holovibes::init_pipe()
 void Holovibes::start_compute_worker(const std::function<void()>& callback)
 {
     compute_worker_controller_.set_callback(callback);
-    compute_worker_controller_.set_error_callback(error_callback_);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
 
     compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
@@ -317,11 +310,6 @@ void Holovibes::start_compute_worker(const std::function<void()>& callback)
 
 void Holovibes::start_compute(const std::function<void()>& callback)
 {
-    /**
-     * TODO change the assert by the // CHECK macro, but we don't know yet if it's a strict equivalent of it.
-     * Here is a suggestion :
-     * // CHECK(!!input_queue_.load()) << "Input queue not initialized";
-     */
     CHECK(input_queue_.load() != nullptr, "Input queue not initialized");
     try
     {

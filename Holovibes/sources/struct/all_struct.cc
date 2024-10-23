@@ -70,7 +70,6 @@ void Rendering::Filter2D::Update()
 
 void Rendering::Update()
 {
-    this->image_mode = GET_SETTING(ComputeMode);
     this->batch_size = GET_SETTING(BatchSize);
     this->time_transformation_stride = GET_SETTING(TimeStride);
     this->filter2d.Update();
@@ -232,7 +231,6 @@ void Rendering::Filter2D::Load()
 void Rendering::Load()
 {
     UPDATE_SETTING(TimeStride, this->time_transformation_stride);
-    UPDATE_SETTING(ComputeMode, this->image_mode);
     api::set_batch_size(this->batch_size);
     this->filter2d.Load();
     UPDATE_SETTING(SpaceTransformation, this->space_transformation);
@@ -337,15 +335,7 @@ void AdvancedSettings::Assert() const
     this->contrast.Assert();
 }
 
-void Composite::Assert() const
-{
-    /*
-    if (this->mode == Computation::RGB && this->auto_weight)
-        throw std::exception("Auto weight is enabled but composite mode is RGB");
-    if (this->mode == Computation::HSV && this->auto_weight)
-        throw std::exception("Auto weight is enabled but composite mode is HSV");
-    */  // TODO: check if auto weight can be enabled when composite mode is RGB or HSV
-}
+void Composite::Assert() const {}
 
 void ComputeSettings::Assert() const
 {

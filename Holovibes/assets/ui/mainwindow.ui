@@ -126,42 +126,6 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="ImageModeLabel">
-             <property name="toolTip">
-              <string>Either display the raw input or the processed hologram</string>
-             </property>
-             <property name="text">
-              <string>Image</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="ImageModeComboBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <item>
-              <property name="text">
-               <string>Raw</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Processed</string>
-              </property>
-             </item>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
              <property name="toolTip">
@@ -1205,6 +1169,11 @@ The range of frequencies kept is [z, z + width]</string>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
              </property>
+             <item>
+              <property name="text">
+               <string>Raw</string>
+              </property>
+             </item>
              <item>
               <property name="text">
                <string>Magnitude</string>
@@ -4702,22 +4671,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>ImageModeComboBox</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>378</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>KernelQuickSelectComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>ImageRenderingPanel</receiver>
@@ -5839,7 +5792,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_lambda(double)</slot>
   <slot>set_z_distance(double)</slot>
