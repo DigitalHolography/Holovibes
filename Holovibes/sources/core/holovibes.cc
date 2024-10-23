@@ -266,9 +266,8 @@ void Holovibes::start_chart_record(const std::function<void()>& callback)
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 
-void Holovibes::start_information_display(const std::function<void()>& callback)
+void Holovibes::start_information_display()
 {
-    info_worker_controller_.set_callback(callback);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);
     info_worker_controller_.start(all_settings);
@@ -300,15 +299,14 @@ void Holovibes::init_pipe()
     }
 }
 
-void Holovibes::start_compute_worker(const std::function<void()>& callback)
+void Holovibes::start_compute_worker()
 {
-    compute_worker_controller_.set_callback(callback);
     compute_worker_controller_.set_priority(THREAD_COMPUTE_PRIORITY);
 
     compute_worker_controller_.start(compute_pipe_, gpu_output_queue_);
 }
 
-void Holovibes::start_compute(const std::function<void()>& callback)
+void Holovibes::start_compute()
 {
     CHECK(input_queue_.load() != nullptr, "Input queue not initialized");
     try
@@ -321,7 +319,7 @@ void Holovibes::start_compute(const std::function<void()>& callback)
         return;
     }
 
-    start_compute_worker(callback);
+    start_compute_worker();
 
     while (!compute_pipe_.load())
         continue;

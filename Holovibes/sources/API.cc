@@ -1796,10 +1796,7 @@ void open_advanced_settings(QMainWindow* parent)
 
 #pragma region Information
 
-void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
+void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
 
