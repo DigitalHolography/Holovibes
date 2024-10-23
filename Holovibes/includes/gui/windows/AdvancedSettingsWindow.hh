@@ -13,7 +13,6 @@
 #include <QSpinBox>
 #include <QGroupBox>
 
-#include "advanced_settings_window_panel.hh"
 #include "ui_advancedsettingswindow.h"
 
 namespace holovibes::gui
@@ -35,21 +34,14 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief Advanced Settings Window
      *
      * \param parent the object that will embed the layouts
-     * \param specific_panel the external panel to plug
      */
 
-    AdvancedSettingsWindow(QMainWindow* parent = nullptr, AdvancedSettingsWindowPanel* specific_panel = nullptr);
+    AdvancedSettingsWindow(QMainWindow* parent = nullptr);
 
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
   private:
-    /*! \brief Link/Plug the given panel to the AdvancedSettingWindow (this)
-     *
-     * \param specific_panel The given panel to plug
-     */
-    void plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel);
-
     /*!
      * \brief Change the correspondant folder lineEdit
      *
@@ -62,7 +54,6 @@ class AdvancedSettingsWindow : public QMainWindow
 
   private:
     Ui::AdvancedSettingsWindow ui;
-    AdvancedSettingsWindowPanel* specific_panel_;
 
   public slots:
     /*! \brief emit signal closed on window is closed */

@@ -5,6 +5,7 @@
 #include "panel.hh"
 
 #include "MainWindow.hh"
+#include <QGraphicsDropShadowEffect>
 
 namespace holovibes::gui
 {
@@ -13,6 +14,11 @@ Panel::Panel(QWidget* parent)
     , parent_(find_main_window(parent))
     , ui_(parent_->get_ui())
 {
+    QGraphicsDropShadowEffect* effect = new QGraphicsDropShadowEffect();
+    effect->setBlurRadius(5);
+    effect->setColor(QColor(0, 0, 0));
+    effect->setOffset(0.5f, 0.5f);
+    setGraphicsEffect(effect);
 }
 
 Panel::~Panel() {}
