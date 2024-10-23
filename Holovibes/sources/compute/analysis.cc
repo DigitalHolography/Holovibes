@@ -68,6 +68,7 @@ void Analysis::insert_show_artery()
                 //                             0.07 * fd_.width,
                 //                             0.25f,
                 //                             stream_);
+                // TODO do convolution with 256 gauss
             }
         });
 }

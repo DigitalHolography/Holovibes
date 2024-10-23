@@ -113,6 +113,8 @@ class Pipe : public ICompute
         postprocess_ =
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
+        analysis_ = std::make_unique<compute::Analysis>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
+
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
 
