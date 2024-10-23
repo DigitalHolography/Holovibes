@@ -127,6 +127,7 @@ class Analysis
     /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs*/
     float** buffer_m0_ff_img_;
 
+    int number_hardcode_ = 100;
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute

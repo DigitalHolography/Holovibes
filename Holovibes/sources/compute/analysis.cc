@@ -138,8 +138,8 @@ void Analysis::init()
     number_image_mean_ = 0;
 
     // 100 = batch_moment for analysis
-    buffer_m0_ff_img_ = new float*[100];
-    for (int i = 0; i < 100; i++)
+    buffer_m0_ff_img_ = new float*[number_hardcode_];
+    for (int i = 0; i < number_hardcode_; i++)
     {
         buffer_m0_ff_img_[i] = new float[buffers_.gpu_postprocess_frame_size];
     }
@@ -191,14 +191,14 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame,
                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
                                 cudaMemcpyDeviceToHost);
-                    if (number_image_mean_ >= 100)
+                    if (number_image_mean_ >= number_hardcode_)
                     {
                         for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
                         {
-                            m0_ff_sum_image_[i] -= buffer_m0_ff_img_[(number_image_mean_ - 1) % 100][i];
+                            m0_ff_sum_image_[i] -= buffer_m0_ff_img_[(number_image_mean_ - 1) % number_hardcode_][i];
                         }
                     }
-                    std::memcpy(buffer_m0_ff_img_[(number_image_mean_ - 1) % 100],
+                    std::memcpy(buffer_m0_ff_img_[(number_image_mean_ - 1) % number_hardcode_],
                                 new_image,
                                 buffers_.gpu_postprocess_frame_size * sizeof(float));
 
@@ -207,11 +207,11 @@ void Analysis::insert_show_artery()
                         m0_ff_sum_image_[i] += new_image[i];
                     }
                     // TODO its not 100 it s batch_moment for analysis
-                    if (number_image_mean_ >= 100)
+                    if (number_image_mean_ >= number_hardcode_)
                     {
                         for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
                         {
-                            new_image[i] = m0_ff_sum_image_[i] / 100;
+                            new_image[i] = m0_ff_sum_image_[i] / number_hardcode_;
                         }
                         cudaXMemcpy(buffers_.gpu_postprocess_frame,
                                     new_image,
