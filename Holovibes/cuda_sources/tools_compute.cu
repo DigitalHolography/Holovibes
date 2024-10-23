@@ -131,7 +131,7 @@ __global__ void kernel_translation(float* input, float* output, uint width, uint
     }
 }
 
-void complex_translation(float* frame, uint width, uint height, int shift_x, int shift_y)
+void complex_translation(float* frame, uint width, uint height, int shift_x, int shift_y, cudaStream_t stream)
 {
     // We have to use a temporary buffer to avoid overwriting pixels that haven't moved yet
     float* tmp_buffer;
@@ -142,9 +142,9 @@ void complex_translation(float* frame, uint width, uint height, int shift_x, int
     }
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(width * height, threads);
-    kernel_translation<<<blocks, threads, 0, 0>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
+    kernel_translation<<<blocks, threads, 0, stream>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
     cudaCheckError();
-    cudaStreamSynchronize(0);
+    cudaStreamSynchronize(stream);
     cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
     cudaFree(tmp_buffer);
 }

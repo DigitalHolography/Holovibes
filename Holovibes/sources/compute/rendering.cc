@@ -62,7 +62,7 @@ void Rendering::insert_stabilization()
                                  stream_);
 
                 rescale_in_mask(stabilization_env_.gpu_current_image,
-                                buffers_.gpu_postprocess_frame,
+                                buffers_.gpu_postprocess_frame, // buffers_.gpu_postprocess_frame,
                                 stabilization_env_.gpu_circle_mask,
                                 *(stabilization_env_.current_image_mean.get()),
                                 fd_.width * fd_.height,
@@ -74,19 +74,40 @@ void Rendering::insert_stabilization()
                            1,
                            stream_);
 
+                // copy_(buffers_.gpu_postprocess_frame,
+                //       stabilization_env_.gpu_current_image,
+                //       fd_.width * fd_.height,
+                //       stream_);
+
+                // cudaMemcpy(buffers_.gpu_postprocess_frame.get(),
+                //            stabilization_env_.gpu_current_image.get(),
+                //            fd_.width * fd_.height,
+                //            cudaMemcpyDeviceToDevice);
+
+                // apply_mask(buffers_.gpu_postprocess_frame,
+                //            stabilization_env_.gpu_circle_mask,
+                //            fd_.width * fd_.height,
+                //            1,
+                //            stream_);
+
                 if (!*(stabilization_env_.ref.get()))
                 {
                     *(stabilization_env_.ref) = true;
-                    cudaMemcpy(stabilization_env_.gpu_reference_image.get(),
-                               stabilization_env_.gpu_current_image.get(),
-                               fd_.width * fd_.height,
-                               cudaMemcpyDeviceToDevice);
+                    // cudaMemcpy(stabilization_env_.gpu_reference_image.get(),
+                    //            stabilization_env_.gpu_current_image.get(),
+                    //            fd_.width * fd_.height,
+                    //            cudaMemcpyDeviceToDevice);
+
+                    copy_(stabilization_env_.gpu_reference_image,
+                          stabilization_env_.gpu_current_image,
+                          fd_.width * fd_.height,
+                          stream_);
 
                     *(stabilization_env_.reference_image_mean) = *(stabilization_env_.current_image_mean);
                 }
                 else
                 {
-                    xcorr2(stabilization_env_.gpu_xcorr_output,
+                    xcorr2(stabilization_env_.gpu_xcorr_output, //  // //buffers_.gpu_postprocess_frame, //
                            stabilization_env_.gpu_current_image,
                            stabilization_env_.gpu_reference_image,
                            fd_.width,
@@ -94,15 +115,17 @@ void Rendering::insert_stabilization()
                            stream_);
 
                     cudaStreamSynchronize(stream_);
-
-                    float max_val;
+                    return;
                     int max_index;
-
-                    compute_max(stabilization_env_.gpu_xcorr_output.get(),
-                                fd_.width * fd_.height,
-                                stream_,
-                                &max_val,
-                                &max_index);
+                    cublasHandle_t handle;
+                    cublasCreate(&handle);
+                    cublasIsamax(handle,
+                                 (fd_.width * 2 - 1) * (fd_.height * 2 - 1),
+                                 stabilization_env_.gpu_xcorr_output,
+                                 1,
+                                 &max_index);
+                    max_index--;
+                    cublasDestroy(handle);
 
                     // Step 4: Convert the linear index to (x, y) coordinates
                     int x = max_index % fd_.width; // Column
@@ -113,10 +136,19 @@ void Rendering::insert_stabilization()
                     if (y > fd_.height / 2)
                         y -= fd_.height;
 
+                    // x = 1; // 384 + fd_.width;
+                    // y = 1; // 384 + fd_.height;
+                    // LOG_INFO("max: ");
+                    // LOG_INFO(max_index);
+                    // LOG_INFO("X: ");
+                    // LOG_INFO(x);
+                    // LOG_INFO("Y: ");
+                    // LOG_INFO(y);
+
                     x = -x;
                     y = -y;
 
-                    complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y);
+                    complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y, stream_);
                 }
 
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));

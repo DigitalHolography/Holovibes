@@ -248,3 +248,23 @@ void rescale_in_mask(float* input_output, const float* mask, const float mean, s
 {
     rescale_in_mask(input_output, input_output, mask, mean, size, stream);
 }
+
+__global__ static void kernel_copy(float* output, float* input, size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < size)
+    {
+        output[index] = input[index];
+    }
+}
+
+void copy_(float* output, float* input, size_t size, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_copy<<<blocks, threads, 0, stream>>>(output, input, size);
+
+    cudaCheckError();
+}

@@ -103,13 +103,46 @@ void convolution_float(float* output,
     cudaStreamSynchronize(0);
 }
 
+__global__ void cross_correlation_2d(const float* input, const float* kernel, float* output, short width, short height)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height)
+    {
+        float result = 0.0f;
+
+        for (int ky = 0; ky < height; ++ky)
+        {
+            for (int kx = 0; kx < width; ++kx)
+            {
+                int ix = x + kx - width / 2;
+                int iy = y + ky - height / 2;
+
+                if (ix >= 0 && ix < width && iy >= 0 && iy < height)
+                {
+                    result += input[iy * width + ix] * kernel[ky * width + kx];
+                }
+            }
+        }
+
+        output[y * width + x] = result;
+    }
+}
+
 void xcorr2(
     float* output, const float* input1, const float* input2, const short width, const short height, cudaStream_t stream)
 {
 
-    CufftHandle plan2d_1(height, width, CUFFT_R2C);
-    CufftHandle plan2d_2(height, width, CUFFT_R2C);
-    CufftHandle plan2d_inverse(height, width, CUFFT_C2R);
+    // CufftHandle plan2d_1(height, width, CUFFT_R2C);
+    // CufftHandle plan2d_2(height, width, CUFFT_R2C);
+    // CufftHandle plan2d_inverse(height, width, CUFFT_C2R);
 
-    convolution_float(output, input1, input2, width * height, plan2d_1, plan2d_2, plan2d_inverse, stream);
+    // convolution_float(output, input1, input2, width * height, plan2d_1, plan2d_2, plan2d_inverse, stream);
+
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+    cross_correlation_2d<<<lblocks, lthreads, 0, stream>>>(input1, input2, output, width, height);
+    cudaCheckError();
 }

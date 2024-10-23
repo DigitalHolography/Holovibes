@@ -83,7 +83,7 @@ void tensor_multiply_vector(float* output,
                             const ushort f_end,
                             const cudaStream_t stream);
 
-void complex_translation(float* frame, uint width, uint height, int shift_x, int shift_y);
+void complex_translation(float* frame, uint width, uint height, int shift_x, int shift_y, cudaStream_t stream);
 
 // void compute_max(float* d_data, int size, cudaStream_t stream, float* max_val, int* max_idx);
 void compute_max(float* d_data, int size, cudaStream_t stream, float* max_val, int* max_idx);
