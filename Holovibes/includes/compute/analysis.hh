@@ -97,6 +97,9 @@ class Analysis
     /*! \brief Buffer used for convolution */
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
 
+    /* \brief Gaussian kernel used for flat field correction */
+    std::vector<float> gaussian_kernel_;
+
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 

@@ -176,6 +176,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Analysis>)
+            analysis_->update_setting(setting);
     }
 
   private:
@@ -195,6 +198,8 @@ class Pipe : public ICompute
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
+        // TODO: clean this init
+        analysis_->init();
     }
 
     /*! \name Insert computation functions in the pipe

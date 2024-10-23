@@ -9,7 +9,6 @@
 #include "tools_conversion.cuh"
 #include "tools_compute.cuh"
 #include "filter2D.cuh"
-#include "flat_field_correction.cuh"
 #include "input_filter.cuh"
 #include "fresnel_transform.cuh"
 #include "angular_spectrum.cuh"

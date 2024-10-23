@@ -5,15 +5,105 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
-#include "tools_hsv.cuh"
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
 #include "map.cuh"
+#include "holovibes.hh"
 
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes::compute
 {
+
+namespace // petit flex
+{
+std::vector<float> load_convolution_matrix()
+{
+    // There is no file None.txt for convolution
+    std::vector<float> convo_matrix = {};
+    const std::string& file = "gaussian_128_128_1.txt";
+    auto& holo = holovibes::Holovibes::instance();
+
+    try
+    {
+        auto path_file = GET_EXE_DIR / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+        std::string path = path_file.string();
+
+        std::vector<float> matrix;
+        uint matrix_width = 0;
+        uint matrix_height = 0;
+        uint matrix_z = 1;
+
+        // Doing this the C way because it's faster
+        FILE* c_file;
+        fopen_s(&c_file, path.c_str(), "r");
+
+        if (c_file == nullptr)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid file path");
+        }
+
+        // Read kernel dimensions
+        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Invalid kernel dimensions");
+        }
+
+        size_t matrix_size = matrix_width * matrix_height * matrix_z;
+        matrix.resize(matrix_size);
+
+        // Read kernel values
+        for (size_t i = 0; i < matrix_size; ++i)
+        {
+            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+            {
+                fclose(c_file);
+                throw std::runtime_error("Missing values");
+            }
+        }
+
+        fclose(c_file);
+
+        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+        const uint size = output_width * output_height;
+
+        // The convo matrix is centered and padded with 0 since the kernel is
+        // usally smaller than the output Example: kernel size is (2, 2) and
+        // output size is (4, 4) The kernel is represented by 'x' and
+        //  | 0 | 0 | 0 | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | x | x | 0 |
+        //  | 0 | 0 | 0 | 0 |
+        const uint first_col = (output_width / 2) - (matrix_width / 2);
+        const uint last_col = (output_width / 2) + (matrix_width / 2);
+        const uint first_row = (output_height / 2) - (matrix_height / 2);
+        const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+        convo_matrix.resize(size, 0.0f);
+
+        uint kernel_indice = 0;
+        for (uint i = first_row; i < last_row; i++)
+        {
+            for (uint j = first_col; j < last_col; j++)
+            {
+                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+                kernel_indice++;
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
+        return {};
+    };
+    return convo_matrix;
+}
+
+} // namespace
 
 void Analysis::init()
 {
@@ -27,11 +117,13 @@ void Analysis::init()
     // No need for memset here since it will be memset in the actual convolution
     cuComplex_buffer_.resize(frame_res);
 
+    gaussian_kernel_ = load_convolution_matrix();
+
     gpu_kernel_buffer_.resize(frame_res);
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   setting<settings::ConvolutionMatrix>().data(),
+                                   gaussian_kernel_.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -69,6 +161,14 @@ void Analysis::insert_show_artery()
                 //                             0.25f,
                 //                             stream_);
                 // TODO do convolution with 256 gauss
+                convolution_kernel(buffers_.gpu_postprocess_frame,
+                                   buffers_.gpu_convolution_buffer,
+                                   cuComplex_buffer_.get(),
+                                   &convolution_plan_,
+                                   fd_.get_frame_res(),
+                                   gpu_kernel_buffer_.get(),
+                                   true,
+                                   stream_);
             }
         });
 }
