@@ -160,6 +160,8 @@ void InputHoloFile::import_compute_settings()
         this->load_footer();
     }
 
+    api::set_data_type(RecordedDataType::RAW);
+
     // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V2);

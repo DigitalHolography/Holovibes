@@ -250,13 +250,6 @@ void Pipe::refresh()
     insert_wait_frames();
     // A batch of frame is ready
 
-    if (api::get_data_type() == RecordedDataType::MOMENTS)
-    {
-        insert_input_to_moments();
-
-        return;
-    }
-
     insert_raw_record();
 
     if (setting<settings::ComputeMode>() == Computation::Raw)
@@ -265,40 +258,49 @@ void Pipe::refresh()
         return;
     }
 
-    insert_raw_view();
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        insert_input_to_moments();
+        update_batch_index();
+        // return;
+    }
+    else
+    {
+        insert_raw_view();
 
-    converts_->insert_complex_conversion(input_queue_);
+        converts_->insert_complex_conversion(input_queue_);
 
-    // Spatial transform
-    fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
-                                    input_queue_.get_fd().width,
-                                    input_queue_.get_fd().height);
+        // Spatial transform
+        fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
+                                        input_queue_.get_fd().width,
+                                        input_queue_.get_fd().height);
 
-    // Move frames from gpu_space_transformation_buffer to
-    // gpu_time_transformation_queue (with respect to
-    // time_stride)
-    insert_transfer_for_time_transformation();
+        // Move frames from gpu_space_transformation_buffer to
+        // gpu_time_transformation_queue (with respect to
+        // time_stride)
+        insert_transfer_for_time_transformation();
 
-    update_batch_index();
+        update_batch_index();
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    // time transform
-    fourier_transforms_->insert_time_transform();
-    fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
-                                                              buffers_.gpu_postprocess_frame_xz.get(),
-                                                              buffers_.gpu_postprocess_frame_yz.get());
-    insert_cuts_record();
+        // time transform
+        fourier_transforms_->insert_time_transform();
+        fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
+                                                                  buffers_.gpu_postprocess_frame_xz.get(),
+                                                                  buffers_.gpu_postprocess_frame_yz.get());
+        insert_cuts_record();
 
-    // Used for phase increase
-    fourier_transforms_->insert_store_p_frame();
+        // Used for phase increase
+        fourier_transforms_->insert_store_p_frame();
 
-    converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
+        converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
 
-    insert_moments();
-    insert_moments_record();
+        insert_moments();
+        insert_moments_record();
+    }
 
     insert_filter2d_view();
 
@@ -380,9 +382,9 @@ void Pipe::insert_input_to_moments()
             size_t offset0 = 0, offset1 = 0, offset2 = 0;
             float* src_buf = moments_env_.stft_res_buffer.get();
             size_t image_resolution = input_queue_.get_fd().get_frame_res();
-            // size_t image_size = input_queue_.get_fd().get_frame_size();
-            // LOG_INFO("Batch size: {}", setting<settings::BatchSize>());
-            for (unsigned int i = 0; i < setting<settings::BatchSize>(); i++)
+
+            // For each image of the batch, it is placed in its corresponding buffer.
+            for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
             {
                 if (i % 3 == 0)
                 {
@@ -415,6 +417,14 @@ void Pipe::insert_input_to_moments()
                     offset2 += image_resolution;
                 }
                 src_buf += image_resolution;
+            }
+            if (setting<settings::ImageType>() == ImgType::Moments_0)
+            {
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
+                                 moments_env_.moment0_buffer.get(),
+                                 image_resolution * input_queue_.get_fd().depth,
+                                 cudaMemcpyHostToDevice,
+                                 stream_);
             }
         });
 }

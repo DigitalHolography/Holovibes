@@ -157,7 +157,7 @@ void ICompute::update_spatial_transformation_parameters()
         auto batch_size = api::get_batch_size();
         size_t size = (frame_res * batch_size) / 3;
         if (batch_size % 3 != 0)
-            LOG_WARN("Batch size is not a multiple of 3, moments will not be read correctly");
+            LOG_WARN("Batch size ({}) is not a multiple of 3, moments will not be read correctly", batch_size);
 
         // This buffer will contain the inputted moments,
         // dequeued batch by batch from the input queue.
