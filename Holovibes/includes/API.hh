@@ -832,19 +832,12 @@ bool set_3d_cuts_view(uint time_transformation_size);
  */
 void update_time_stride(std::function<void()> callback, const uint time_stride);
 
-/*! \brief Modifies batch size from ui value
- *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
- * \param batch_size the new value
- */
-void update_batch_size(std::function<void()> callback, const uint batch_size);
-
-/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
- * time_stride were modified on the GUI, so no notify is needed.
+/*! \brief Modifies batch size from ui value.
  *
  * \param batch_size the new value
+ * \return whether the time_stride has changed to adjust to the batch size
  */
-void update_batch_size(const uint batch_size);
+bool update_batch_size(const uint batch_size);
 
 /*! \brief Modifies view image type
  * Changes the setting and requests a pipe refresh

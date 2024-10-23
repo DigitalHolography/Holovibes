@@ -134,9 +134,6 @@ void ImageRenderingPanel::open_window(bool raw_mode)
         return;
 
     api::open_window(raw_mode, parent_->window_max_size);
-
-    parent_->notify();
-    parent_->layout_toggled();
 }
 
 void ImageRenderingPanel::update_batch_size()
@@ -144,12 +141,8 @@ void ImageRenderingPanel::update_batch_size()
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
-    uint batch_size = ui_->BatchSizeSpinBox->value();
-
-    // Need a notify because time transformation stride might change due to change on batch size
-    auto notify_callback = [=]() { parent_->notify(); };
-
-    api::update_batch_size(notify_callback, batch_size);
+    if (api::update_batch_size(ui_->BatchSizeSpinBox->value()))
+        ui_->TimeStrideSpinBox->setValue(api::get_time_stride());
 }
 
 void ImageRenderingPanel::update_time_stride()

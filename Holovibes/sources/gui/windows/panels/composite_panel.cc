@@ -23,8 +23,6 @@ CompositePanel::~CompositePanel() {}
 
 void CompositePanel::on_notify()
 {
-    if (!isVisible())
-        return;
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -95,8 +93,6 @@ void CompositePanel::on_notify()
     ui_->groupBox_value->setVisible(!rgbMode);
 
     ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
-
-    parent_->layout_toggled();
 }
 
 void CompositePanel::click_z_fft_shift(bool checked) { api::set_z_fft_shift(checked); }

@@ -329,30 +329,18 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+bool update_batch_size(const uint batch_size)
 {
     if (batch_size == get_batch_size())
-        return;
+        return false;
 
     bool time_stride_changed = set_batch_size(batch_size);
 
     if (time_stride_changed)
         api::get_compute_pipe()->request(ICS::UpdateTimeStride);
     api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-}
 
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
-{
-    update_batch_size(batch_size);
-
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(notify_callback);
-    }
-    else
-    {
-        notify_callback();
-    }
+    return time_stride_changed;
 }
 
 #pragma endregion
@@ -1663,7 +1651,7 @@ void set_record_device(const Device device)
         else
             import_start();
 
-        open_window(get_img_type() == ImgType::Raw, 1);
+        // open_window(get_img_type() == ImgType::Raw, 1);
     }
 }
 
@@ -1733,7 +1721,14 @@ bool import_start()
 {
     LOG_FUNC();
 
+    // Check if computation is currently running
+    if (!api::get_is_computation_stopped())
+        import_stop();
+
     set_is_computation_stopped(false);
+
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     // Because we are in file mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
@@ -1743,6 +1738,7 @@ bool import_start()
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read();
+        create_pipe();
     }
     catch (const std::exception& e)
     {

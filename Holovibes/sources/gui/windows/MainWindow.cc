@@ -301,7 +301,7 @@ void MainWindow::on_notify()
         light_ui_->pipeline_active(true);
     }
 
-    ui_->CompositePanel->setHidden(api::get_img_type() != ImgType::Composite);
+    ui_->CompositePanel->setVisible(api::get_img_type() == ImgType::Composite);
 
     resize(baseSize());
 
