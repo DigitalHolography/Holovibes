@@ -225,8 +225,10 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
+
+    void insert_input_to_moments();
 
     void insert_cuts_record();
 

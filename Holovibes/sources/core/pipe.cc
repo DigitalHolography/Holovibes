@@ -250,6 +250,13 @@ void Pipe::refresh()
     insert_wait_frames();
     // A batch of frame is ready
 
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        insert_input_to_moments();
+
+        return;
+    }
+
     insert_raw_record();
 
     if (setting<settings::ComputeMode>() == Computation::Raw)
@@ -362,6 +369,54 @@ void Pipe::insert_moments()
 
         fourier_transforms_->insert_moments();
     }
+}
+
+void Pipe::insert_input_to_moments()
+{
+    converts_->insert_float_dequeue(input_queue_, moments_env_.stft_res_buffer.get());
+    fn_compute_vect_.push_back(
+        [this]()
+        {
+            size_t offset0 = 0, offset1 = 0, offset2 = 0;
+            float* src_buf = moments_env_.stft_res_buffer.get();
+            size_t image_resolution = input_queue_.get_fd().get_frame_res();
+            // size_t image_size = input_queue_.get_fd().get_frame_size();
+            // LOG_INFO("Batch size: {}", setting<settings::BatchSize>());
+            for (unsigned int i = 0; i < setting<settings::BatchSize>(); i++)
+            {
+                if (i % 3 == 0)
+                {
+                    // Image goes to moment 0
+                    cudaXMemcpyAsync(moments_env_.moment0_buffer + offset0,
+                                     src_buf,
+                                     image_resolution,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                    offset0 += image_resolution;
+                }
+                else if (i % 3 == 1)
+                {
+                    // Image goes to moment 1
+                    cudaXMemcpyAsync(moments_env_.moment1_buffer + offset1,
+                                     src_buf,
+                                     image_resolution,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                    offset1 += image_resolution;
+                }
+                else
+                {
+                    // Image goes to moment 2
+                    cudaXMemcpyAsync(moments_env_.moment2_buffer + offset2,
+                                     src_buf,
+                                     image_resolution,
+                                     cudaMemcpyDeviceToDevice,
+                                     stream_);
+                    offset2 += image_resolution;
+                }
+                src_buf += image_resolution;
+            }
+        });
 }
 
 void Pipe::insert_reset_batch_index()

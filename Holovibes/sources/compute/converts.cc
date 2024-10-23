@@ -220,8 +220,7 @@ void Converts::insert_to_argument(bool unwrap_2d_requested, float* gpu_postproce
                 unwrap_res_2d_->reallocate(fd_.get_frame_res());
 
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     unwrap_2d(unwrap_res_2d_->gpu_angle_,
                               gpu_postprocess_frame,
                               plan_unwrap_2d_,
@@ -294,8 +293,7 @@ void Converts::insert_to_phase_increase(bool unwrap_2d_requested, float* gpu_pos
         }
         else
             fn_compute_vect_.conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     rescale_float(gpu_postprocess_frame, unwrap_res_->gpu_angle_current_, fd_.get_frame_res(), stream_);
                 });
     }
@@ -390,6 +388,34 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
             std::this_thread::sleep_for(std::chrono::milliseconds(0));
         }
         void* output = buffers_.gpu_spatial_transformation_buffer.get();
+        input_queue.dequeue(output, fd_.depth, convert_to_complex);
+    };
+
+    fn_compute_vect_.push_back(conversion_task);
+}
+
+void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
+{
+    LOG_FUNC(fd_.depth);
+
+    // Conversion function from input queue to input buffer
+    auto convert_to_complex = [](const void* const src,
+                                 void* const dest,
+                                 uint batch_size,
+                                 size_t frame_res,
+                                 camera::PixelDepth depth,
+                                 cudaStream_t stream)
+    { input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream); };
+
+    // Task to convert input queue to input buffer
+    auto conversion_task = [this, &input_queue, convert_to_complex, output]()
+    {
+        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
+        // next batch. We wait 0 ms to avoid blocking the thread.
+        while (input_queue.size_ == 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(0));
+        }
         input_queue.dequeue(output, fd_.depth, convert_to_complex);
     };
 
