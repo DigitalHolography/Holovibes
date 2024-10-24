@@ -441,7 +441,7 @@ class Holovibes
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
-                                             settings::TimeWindow{5}))
+                                             settings::TimeWindow{1}))
     {
     }
 

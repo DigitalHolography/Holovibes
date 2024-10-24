@@ -126,10 +126,10 @@ class Analysis
     /*! \brief Get the mean image*/
     float* m0_ff_sum_image_;
 
-    /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs*/
-    float** buffer_m0_ff_img_;
+    /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs */
+    float* buffer_m0_ff_img_;
 
-    int number_hardcode_ = 100;
+    int time_window_;
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute

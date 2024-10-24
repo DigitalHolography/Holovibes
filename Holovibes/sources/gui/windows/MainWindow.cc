@@ -991,5 +991,6 @@ void MainWindow::set_theme(const Theme theme)
     else
         set_night();
 }
+
 #pragma endregion
 } // namespace holovibes::gui

@@ -29,7 +29,13 @@ class AnalysisPanel : public Panel
     void init() override;
     void on_notify() override;
 
-    // public slots:
+  public slots:
+    /*!
+     * \brief Change the value for the spin box of time window
+     *
+     */
+
+    void update_time_window();
 
     // private:
 };

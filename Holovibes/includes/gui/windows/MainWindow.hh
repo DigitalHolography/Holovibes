@@ -19,6 +19,7 @@
 // panel struct
 #include "import_panel.hh"
 #include "export_panel.hh"
+#include "analysis_panel.hh"
 
 #include "lightui.hh"
 

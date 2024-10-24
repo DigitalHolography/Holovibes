@@ -547,6 +547,18 @@ inline void set_artery_mask_enabled(bool value)
 }
 
 /*!
+ * \brief Time Window
+ *
+ */
+
+inline int get_time_window() { return GET_SETTING(TimeWindow); }
+inline void set_time_window(int value)
+{
+    UPDATE_SETTING(TimeWindow, value);
+    pipe_refresh();
+}
+
+/*!
  * \name Otsu
  *
  */
