@@ -945,10 +945,8 @@ void start_information_display(const std::function<void()>& callback = []() {});
 /*! \brief Opens additional settings window
  *
  * \param parent then window that will embed the specific panel
- * \param specific_panel the specific panel to link
  */
-void open_advanced_settings(QMainWindow* parent = nullptr,
-                            ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
+void open_advanced_settings(QMainWindow* parent = nullptr);
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

@@ -50,34 +50,6 @@
     <property name="sizeConstraint">
      <enum>QLayout::SetNoConstraint</enum>
     </property>
-    <property name="leftMargin">
-     <number>1</number>
-    </property>
-    <property name="topMargin">
-     <number>1</number>
-    </property>
-    <property name="rightMargin">
-     <number>1</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <item row="0" column="1">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>10</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
       <property name="spacing">
@@ -150,8 +122,11 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="ImageModeLayout">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
+           <property name="verticalSpacing">
+            <number>6</number>
+           </property>
+           <item row="0" column="0">
             <widget class="QLabel" name="ImageModeLabel">
              <property name="toolTip">
               <string>Either display the raw input or the processed hologram</string>
@@ -164,7 +139,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QComboBox" name="ImageModeComboBox">
              <property name="enabled">
               <bool>true</bool>
@@ -187,33 +162,7 @@
              </item>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
-           <property name="verticalSpacing">
-            <number>1</number>
-           </property>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="BatchSizeSpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="BatchSizeLabel">
              <property name="toolTip">
               <string>Number of images processed at once by the spatial transformation algorithm</string>
@@ -229,7 +178,14 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="BatchSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QLabel" name="TimeStrideLabel">
              <property name="toolTip">
               <string>(time_stride - batch_size) = number of images to drop before processing a single batch</string>
@@ -245,25 +201,13 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QSpinBox" name="TimeStrideSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
              </property>
              <property name="toolTip">
               <string/>
@@ -286,13 +230,6 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="Filter2DView">
-             <property name="text">
-              <string>View</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QCheckBox" name="Filter2D">
              <property name="toolTip">
@@ -303,20 +240,15 @@
              </property>
             </widget>
            </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="Filter2DView">
+             <property name="text">
+              <string>View</string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QSpinBox" name="Filter2DN1SpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
              <property name="minimum">
               <number>0</number>
              </property>
@@ -330,18 +262,6 @@
            </item>
            <item row="2" column="1">
             <widget class="QSpinBox" name="Filter2DN2SpinBox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
              <property name="minimum">
               <number>1</number>
              </property>
@@ -367,8 +287,6 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <layout class="QHBoxLayout" name="InputFilterSelectLayout">
-             <item>
               <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -380,8 +298,6 @@
                 <string/>
                </property>
               </widget>
-             </item>
-            </layout>
            </item>
           </layout>
          </item>
@@ -530,10 +446,44 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QLabel" name="label">
+           <item row="5" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
+             <property name="toolTip">
+              <string>The boundary</string>
+             </property>
              <property name="text">
-              <string/>
+              <string>Boundary (mm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>The boundary value</string>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -578,42 +528,7 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="BoundaryLabel">
-             <property name="toolTip">
-              <string>The boundary</string>
-             </property>
-             <property name="text">
-              <string>Boundary (m)</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>The boundary value</string>
-             </property>
-             <property name="showGroupSeparator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>6</number>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0" colspan="2">
+           <item row="7" column="0" colspan="2">
             <widget class="QSlider" name="ZSlider">
              <property name="styleSheet">
               <string notr="true"/>
@@ -642,20 +557,6 @@ It's a post-processing step to remove noise</string>
            <property name="checked">
             <bool>false</bool>
            </property>
-           <layout class="QGridLayout" name="gridLayout_8">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item row="0" column="0">
              <layout class="QHBoxLayout" name="kernelSelectLayout">
               <item>
                <widget class="QComboBox" name="KernelQuickSelectComboBox">
@@ -676,25 +577,23 @@ It's a post-processing step to remove noise</string>
                  <string>Divide</string>
                 </property>
                </widget>
-              </item>
-             </layout>
             </item>
            </layout>
           </widget>
          </item>
-         <item>
-          <spacer name="verticalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
+                     <item row="2" column="0">
+             <spacer name="BottomViewSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
         </layout>
        </widget>
       </item>
@@ -759,9 +658,6 @@ It's a post-processing step to remove noise</string>
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -3613,7 +3509,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <property name="text">
     <string>Ametek S711 Euresys Coaxlink QSPF+</string>
    </property>
-  </action> 
+  </action>
   <action name="actionAmetekS991EuresysCoaxlinkQSPF+">
    <property name="text">
     <string>Ametek S991 Euresys Coaxlink QSPF+</string>

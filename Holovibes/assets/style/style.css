@@ -1,16 +1,77 @@
+/* The color palettte used:
+*  - #101111: dark background color
+*  - #161818: light background color
+*  - #202222: very light background color (menu bar and combobox popup)
+*  - #353535: button color (push button, combo box, slider handler)
+*  - #0067C6: accentuation color
+*  - darkgrey: disabled text color
+*  - white: enabled text color
+*  - #272727: border color
+*/
+
 QMainWindow {
     background-color: #101111;
 }
 
+/* Text color for disabled and enabld elements */
+QLabel:disabled,
+QPushButton:disabled,
+QToolButton:disabled,
+QTextEdit:disabled,
+QLineEdit:disabled,
+QCheckBox:disabled,
+QSpinBox:disabled,
+QDoubleSpinBox:disabled,
+QComboBox:disabled,
+QProgressBar:disabled,
+QPanel::title:disabled,
+QGroupBox::title:disabled {
+    color: darkgrey;
+}
+
+QLabel,
+QPushButton,
+QToolButton,
+QTextEdit,
+QLineEdit,
+QCheckBox,
+QSpinBox,
+QDoubleSpinBox,
+QComboBox,
+QProgressBar,
+QPanel::title,
+QGroupBox::title {
+    color: white;
+}
+
+/* Style Tooltip */
+QMessageBox,
+QToolTip {
+    background-color: #101111;
+    border: 1px solid #272727;
+    border-radius: 6%;
+    padding: 3px;
+    color: white;
+}
+
+/* The little frame in the view panel for contrast and log */
+#frame {
+    border: 1px solid #272727;
+    border-radius: 6%;
+    margin: 0px;
+    padding: 1px;
+}
+
 /* Menu bar and menu bar item styling */
 QMenuBar {
-    border-bottom: 1px solid #272727;
+    border-bottom: 1px solid #353535;
 }
 
 QMenuBar,
 QMenu {
-    background-color: #1A1C1C;
+    background-color: #202222;
     padding: 4px;
+    color: white;
 }
 
 QMenu {
@@ -87,6 +148,9 @@ QTextEdit,
 QLineEdit,
 QSpinBox,
 QDoubleSpinBox {
+    selection-background-color: #0067C6;
+    selection-color: white;
+
     background-color: #101111;
     border: 1px solid #272727;
     border-radius: 4%;
@@ -145,7 +209,7 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-    image: url(":/drop_down.png");
+    image: url(":/assets/style/drop_down.png");
     width: 20px;
     height: 20px;
     margin-top: 2px;
@@ -155,7 +219,7 @@ QComboBox QAbstractItemView {
     border: 1px solid #272727;
     border-radius: 6%;
     padding: 3px;
-    background-color: #1A1C1C;
+    background-color: #202222;
 }
 
 QComboBox::item {
@@ -176,6 +240,7 @@ QComboBox::indicator {
 
 /* Progress bar styling */
 QProgressBar {
+    color: white;
     border: 1px solid #272727;
     background-color: #101111;
     border-radius: 6px;

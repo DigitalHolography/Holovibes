@@ -22,8 +22,6 @@
 
 #include "view_struct.hh"
 
-#include "asw_mainwindow_panel.hh"
-
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
@@ -194,7 +192,6 @@ MainWindow::MainWindow(QWidget* parent)
     // spinBox allow ',' and '.' as decimal point
     spinBoxDecimalPointReplacement(ui_->LambdaSpinBox);
     spinBoxDecimalPointReplacement(ui_->ZDoubleSpinBox);
-    spinBoxDecimalPointReplacement(ui_->BoundaryDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMaxDoubleSpinBox);
     spinBoxDecimalPointReplacement(ui_->ContrastMinDoubleSpinBox);
 
@@ -841,8 +838,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
-    api::open_advanced_settings(this, panel);
+    api::open_advanced_settings(this);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),
@@ -936,30 +932,8 @@ void MainWindow::init_tooltips()
 
 void MainWindow::set_night()
 {
-    // Dark mode style
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-    darkPalette.setColor(QPalette::Light, Qt::black);
-
-    // qApp->setPalette(darkPalette);
     theme_ = Theme::Dark;
-    QFile file(":/style.css");
+    QFile file(":/assets/style/style.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
 
@@ -968,25 +942,14 @@ void MainWindow::set_night()
 
 void MainWindow::set_classic()
 {
-    // qApp->setPalette(this->style()->standardPalette());
+    qApp->setPalette(this->style()->standardPalette());
     qApp->setStyleSheet("");
     theme_ = Theme::Classic;
-    QFile file(":/style.css");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-
-    qApp->setStyleSheet(styleSheet);
 }
 
 void MainWindow::set_theme(const Theme theme)
 {
     qApp->setStyle(QStyleFactory::create("Fusion"));
-
-    QFile file(":/style.css");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-
-    qApp->setStyleSheet(styleSheet);
 
     if (theme == Theme::Classic)
         set_classic();

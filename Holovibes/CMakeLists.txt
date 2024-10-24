@@ -56,6 +56,7 @@ qt_add_executable(Holovibes
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
+<<<<<<< HEAD
     mainwindow.ui
     advancedsettingswindow.ui
     plotwindow.ui
@@ -63,15 +64,31 @@ qt_add_executable(Holovibes
     style.css
     Holovibes.ico
     holovibes.rc
+=======
+    assets/ui/mainwindow.ui
+    assets/ui/advancedsettingswindow.ui
+    assets/ui/plotwindow.ui
+    assets/ui/lightui.ui
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes.rc
+    assets/style/style.css
+>>>>>>> dev
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
     PREFIX "/"
     FILES
+<<<<<<< HEAD
     Holovibes.ico
     holovibes_logo.png
     drop_down.png
     style.css
+=======
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes_logo.png
+    assets/style/drop_down.png
+    assets/style/style.css
+>>>>>>> dev
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -142,6 +159,7 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
+<<<<<<< HEAD
     # Copy not all but some resources (python scripts, ...)
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
 
@@ -150,6 +168,13 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/drop_down.png
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/style.css" $<TARGET_FILE_DIR:Holovibes>/style.css
+=======
+    # Copy icon and logo
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/style.css" $<TARGET_FILE_DIR:Holovibes>/assets/style/style.css
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/assets/style/drop_down.png
+>>>>>>> dev
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -198,13 +223,8 @@ install(DIRECTORY "${HOLO_DIR}/assets/icons/"
     COMPONENT application
 )
 
-install(FILES "${HOLO_DIR}/drop_down.png"
-    DESTINATION .
-    COMPONENT application
-)
-
-install(FILES "${HOLO_DIR}/style.css"
-    DESTINATION .
+install(DIRECTORY "${HOLO_DIR}/assets/style/"
+    DESTINATION assets/style
     COMPONENT application
 )
 
