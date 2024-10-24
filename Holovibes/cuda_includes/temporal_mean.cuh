@@ -7,8 +7,6 @@
 #include "cuComplex.h"
 #include "composite_struct.hh"
 
-// void initialize_all_image(float** all_images, const int frame_size, const int time_window, const cudaStream_t
-// stream);
 void temporal_mean(float* input_output,
                    int* current_image,
                    float* image_buffer,

@@ -127,7 +127,7 @@ class Analysis
     float* m0_ff_sum_image_;
 
     /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs */
-    float* buffer_m0_ff_img_;
+    float* buffer_m0_ff_img_ = nullptr;
 
     int time_window_;
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
