@@ -5965,8 +5965,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>OtsuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <!-- TODO: Titouan replace the slot function by your thing -->
-   <slot>set_artery_mask(bool)</slot>
+   <slot>set_otsu(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>

@@ -73,6 +73,9 @@ class Analysis
     /*! \brief Insert artery mask computing */
     void insert_show_artery();
 
+    /*! \brief TODO */
+    void insert_otsu();
+
     template <typename T>
     inline void update_setting(T setting)
     {

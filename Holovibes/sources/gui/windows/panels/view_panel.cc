@@ -309,6 +309,8 @@ void ViewPanel::set_fft_shift(const bool value)
 
 void ViewPanel::set_artery_mask(bool value) { api::set_artery_mask_enabled(value); }
 
+void ViewPanel::set_otsu(bool value) { api::set_otsu_enabled(value); }
+
 void ViewPanel::update_lens_view(bool checked)
 {
     if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)

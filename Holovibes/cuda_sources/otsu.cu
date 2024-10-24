@@ -1,12 +1,18 @@
-#include "otsu's.cuh"
+#include "otsu.cuh"
+#include "common.cuh"
+#include "cuComplex.h"
+#include "cuda_runtime.h"
+#include "hardware_limits.hh"
+using uint = unsigned int;
 
-#define NUM_BINS 256
+#define NUM_BINS 64
 
 // CUDA kernel to calculate the histogram
 __global__ void histogramKernel(float* image, int* hist, int imgSize)
 {
-    if (int idx = blockIdx.x * blockDim.x + threadIdx.x; idx < imgSize)
-        atomicAdd(&hist[(unsigned char)image[idx]], 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < imgSize)
+        atomicAdd(&hist[(unsigned char)(image[idx] * NUM_BINS)], 1);
 }
 
 // CUDA kernel to compute Otsu's between-class variance
@@ -62,39 +68,47 @@ __global__ void otsuKernel(int* hist, int imgSize, float* betweenClassVariance)
 // CUDA kernel to DO What i want
 __global__ void myKernel(float* image, float p, int imgSize)
 {
-    if (int idx = blockIdx.x * blockDim.x + threadIdx.x; idx < imgSize)
-        image[idx] = (image[idx] < p) ? 0 : 255;
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < imgSize)
+        image[index] = ((unsigned char)(image[index] * NUM_BINS) < p) ? 0 : 255;
+}
+
+__global__ void myKernel2(float* d_input, float min, float max, int size)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < size)
+    {
+        d_input[tid] = (d_input[tid] - min) / (max - min);
+    }
+}
+
+void myKernel2_wrapper(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    myKernel2<<<blocks, threads, 0, stream>>>(d_input, min, max, size);
 }
 
 // Host function to run Otsu's algorithm using CUDA
-void otsuThreshold(float* image,
-                   const size_t frame_res,
-                   const int batch_size,
-                   const camera::PixelDepth depth,
-                   const cudaStream_t stream)
+void otsuThreshold(float* image, const size_t frame_res, const cudaStream_t stream)
 {
-    float* d_image;
     int* d_hist;
     float* d_betweenClassVariance;
-    // float h_betweenClassVariance[2];
+    float h_betweenClassVariance[2];
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
 
     // Allocate memory on the GPU
-    cudaMalloc(&d_image, frame_res * sizeof(float));
     cudaMalloc(&d_hist, NUM_BINS * sizeof(int));
     cudaMalloc(&d_betweenClassVariance, 2 * sizeof(float));
-
-    // Copy image data to GPU
-    cudaMemcpy(d_image, image, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 
     // Initialize the histogram on the GPU
     cudaMemset(d_hist, 0, NUM_BINS * sizeof(int));
 
-    // Define block and grid sizes
-    int blockSize = 256;
-    int gridSize = (frame_res + blockSize - 1) / blockSize;
-
     // Run histogram kernel
-    histogramKernel<<<gridSize, blockSize, 0, stream>>>(d_image, d_hist, frame_res); // TODO check 0 befor stram
+    histogramKernel<<<blocks, threads, 0, stream>>>(image, d_hist, frame_res); // TODO check 0 befor stram
     cudaDeviceSynchronize();
 
     // Run Otsu's kernel to compute the optimal threshold
@@ -102,17 +116,21 @@ void otsuThreshold(float* image,
     cudaDeviceSynchronize();
 
     // Copy the result back to host
-    // cudaMemcpy(h_betweenClassVariance, d_betweenClassVariance, 2 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_betweenClassVariance, d_betweenClassVariance, 2 * sizeof(float), cudaMemcpyDeviceToHost);
+    //-----------------
+    int h_hist[NUM_BINS];
 
+    cudaMemcpy(h_hist, d_hist, NUM_BINS * sizeof(int), cudaMemcpyDeviceToHost);
+    for (size_t i = 0; i < NUM_BINS; i++)
+        std::cout << h_hist[i] << " ";
+    std::cout << std::endl << "p" << h_betweenClassVariance[1] << std::endl << "-------------------" << std::endl;
+
+    //-----------------
     // TODO
-    myKernel<<<gridSize, blockSize, 0, stream>>>(d_image, d_betweenClassVariance[1], frame_res);
+    myKernel<<<blocks, threads, 0, stream>>>(image, h_betweenClassVariance[1], frame_res);
     cudaDeviceSynchronize();
 
-    // Copy image data to GPU
-    cudaMemcpy(image, d_image, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
-
     // Free GPU memory
-    cudaFree(d_image);
     cudaFree(d_hist);
     cudaFree(d_betweenClassVariance);
 
