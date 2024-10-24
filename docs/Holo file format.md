@@ -14,13 +14,17 @@ of .raw files.
 
 The holo file format is designed this way:
 
-### 18 bytes binary header
+### 64 bytes binary header
 
-* "HOLO" magic number (4 bytes)
-* Number of bits per pixel (2 bytes)
-* Width of the images (4 bytes)
-* Height of the images (4 bytes)
-* Number of images (4 bytes)
+- "HOLO" magic number (4 bytes)
+- Version of the Holo file format (Latest: 7)
+- Number of bits per pixel (2 bytes)
+- Width of the images (4 bytes)
+- Height of the images (4 bytes)
+- Number of images (4 bytes)
+- Total data size (8 bytes)
+- Endianness (1 byte)
+- Data type (1 byte)
 
 ### Image data
 
@@ -28,30 +32,24 @@ The raw image data
 
 ### Json footer
 
-The fields names are (almost) the same as the ones on the Holovibes frontend
+The footer has the same format as saved Compute Settings, located in Appdata.
+The four root fields correspond to main UI panels; they are:
 
-* algorithm
-* #img
-* p
-* lambda
-* z
-* log_scale
-* contrast_min
-* contrast_max
-* endianess
-
-The following fields are here to make it easier to create holo files even though
-they are already present in the header
-
-* img_width
-* img_height
-* pixel_bits
+- advanced
+- composite
+- image_rendering
+- view
 
 ## Implementation
 
 The implementation for the holo file format can be found in:
 
-* Holovibes/sources/io_files/holo_file.cc
-* Holovibes/includes/io_files/holo_file.hh
+- Holovibes/sources/io_files/holo_file.cc
+- Holovibes/includes/io_files/holo_file.hh
 
-Last updated: 11/10/2019
+The format of the Compute Settings can be found in:
+
+- Holovibes/sources/compute_settings.cc
+- Holovibes/includes/struct/compute_settings_struct.hh
+
+Last updated: 24/10/2024

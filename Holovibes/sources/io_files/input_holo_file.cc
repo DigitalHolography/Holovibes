@@ -169,9 +169,9 @@ void InputHoloFile::import_compute_settings()
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V3);
     else if (holo_file_header_.version == 4)
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
-    else if (holo_file_header_.version == 5)
-        ;
-    else if (holo_file_header_.version == 6) // Version that adds data type in the header
+    else if (holo_file_header_.version == 5 || holo_file_header_.version == 6)
+        ; // Version 6 was skipped because of a versioning error, it is considered the same as 5
+    else if (holo_file_header_.version == 7) // Version that adds data type in the header
         api::set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
     else
         LOG_ERROR("HOLO file version not supported!");

@@ -121,9 +121,6 @@ inline void set_time_stride(uint value)
 inline uint get_batch_size() { return GET_SETTING(BatchSize); }
 inline bool set_batch_size(uint value)
 {
-    if (api::get_data_type() == RecordedDataType::MOMENTS && value % 3 != 0)
-        value = value < 3 ? 3 : value - (value % 3);
-
     bool request_time_stride_update = false;
     UPDATE_SETTING(BatchSize, value);
 

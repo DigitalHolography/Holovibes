@@ -77,7 +77,7 @@ class HoloFile
     HoloFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~HoloFile() {};
+    virtual ~HoloFile(){};
 
     /*! \brief Default copy constructor */
     HoloFile(const HoloFile&) = default;
@@ -92,6 +92,6 @@ class HoloFile
     /*! \brief The json meta data present in the footer */
     ComputeSettings raw_footer_;
     /*! \brief Current version of the holo file, update it when changing version */
-    static constexpr uint16_t current_version_ = 6;
+    static constexpr uint16_t current_version_ = 7;
 };
 } // namespace holovibes::io_files
