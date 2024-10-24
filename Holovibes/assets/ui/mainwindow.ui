@@ -112,19 +112,19 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>210</width>
+          <width>240</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>210</width>
+          <width>240</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>210</width>
+          <width>240</width>
           <height>0</height>
          </size>
         </property>
@@ -390,6 +390,41 @@
            <property name="verticalSpacing">
             <number>6</number>
            </property>
+           <item row="1" column="0">
+            <widget class="QLabel" name="SpaceTransformationLabel">
+             <property name="toolTip">
+              <string>Space transformation algorithm used</string>
+             </property>
+             <property name="text">
+              <string>Space Transform</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="SpaceTransformationComboBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Fresnel Tr.</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Angular SP.</string>
+              </property>
+             </item>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="TimeTransformationLabel">
              <property name="toolTip">
@@ -403,6 +438,30 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="TimeTransformationComboBox">
+            <item>
+              <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>STFT</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>PCA</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>SSA_STFT</string>
+              </property>
+             </item>
+            </widget>
+           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
@@ -411,6 +470,80 @@ It's a post-processing step to remove noise</string>
              </property>
              <property name="text">
               <string>Nb. img</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="LambdaLabel">
+             <property name="toolTip">
+              <string>Wavelength (lambda) of light used to record interferograms</string>
+             </property>
+             <property name="text">
+              <string>λ (nm)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDoubleSpinBox" name="LambdaSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="minimum">
+              <double>-1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1000000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="ZLabel">
+             <property name="toolTip">
+              <string>Adjust the distance to the target</string>
+             </property>
+             <property name="text">
+              <string>Focus (mm)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -445,79 +578,42 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ZLabel">
+           <item row="7" column="0">
+            <widget class="QLabel" name="BoundaryLabel">
              <property name="toolTip">
-              <string>Adjust the distance to the target</string>
+              <string>The boundary</string>
              </property>
              <property name="text">
-              <string>Focus (mm)</string>
+              <string>Boundary (m)</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="LambdaLabel">
+           <item row="7" column="1">
+            <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
-              <string>Wavelength (lambda) of light used to record interferograms</string>
+              <string>The boundary value</string>
              </property>
-             <property name="text">
-              <string>λ (nm)</string>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <property name="decimals">
+              <number>6</number>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="SpaceTransformationComboBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Fresnel Tr.</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Angular SP.</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="TimeTransformationComboBox">
-            <item>
-              <property name="text">
-               <string>None</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>STFT</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>PCA</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>SSA_STFT</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="7" column="0" colspan="2">
+           <item row="8" column="0" colspan="2">
             <widget class="QSlider" name="ZSlider">
              <property name="styleSheet">
               <string notr="true"/>
@@ -527,67 +623,6 @@ It's a post-processing step to remove noise</string>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="SpaceTransformationLabel">
-             <property name="toolTip">
-              <string>Space transformation algorithm used</string>
-             </property>
-             <property name="text">
-              <string>Space Transform</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QDoubleSpinBox" name="LambdaSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>1000000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="timeTransformationSizeSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>10000</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string/>
              </property>
             </widget>
            </item>
@@ -676,19 +711,19 @@ It's a post-processing step to remove noise</string>
         </property>
         <property name="minimumSize">
          <size>
-          <width>228</width>
+          <width>230</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>210</width>
+          <width>250</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>210</width>
+          <width>230</width>
           <height>0</height>
          </size>
         </property>
@@ -1080,8 +1115,7 @@ It's a post-processing step to remove noise</string>
            <item row="2" column="0">
             <widget class="QLabel" name="PLabel">
              <property name="toolTip">
-              <string>The Time Transform FFT filter's start frequency.
-The range of frequencies kept is [z, z + width].</string>
+              <string>The Time Transform FFT filter's start frequency.&#10;The range of frequencies kept is [z, z + width].</string>
              </property>
              <property name="text">
               <string>z</string>
@@ -1133,8 +1167,7 @@ The range of frequencies kept is [z, z + width].</string>
            <item row="3" column="0">
             <widget class="QLabel" name="Q_Label">
              <property name="toolTip">
-              <string>The SVD/SSA filter's start frequency.
-The range of frequencies kept is [z2, z2 + width].</string>
+              <string>The SVD/SSA filter's start frequency.&#10;The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>z2</string>
@@ -1195,8 +1228,7 @@ The range of frequencies kept is [z2, z2 + width].</string>
            <item row="3" column="2">
             <widget class="QLabel" name="QaccLabel">
              <property name="toolTip">
-              <string>Number of frequencies kept by the SVD/SSA algorithm.
-The range of frequencies kept is [z2, z2 + width].</string>
+              <string>Number of frequencies kept by the SVD/SSA algorithm.&#10;The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -1209,8 +1241,7 @@ The range of frequencies kept is [z2, z2 + width].</string>
            <item row="2" column="2">
             <widget class="QLabel" name="PaccLabel">
              <property name="toolTip">
-              <string>Number of frequencies kept by the FFT in the time transformation algorithm.
-The range of frequencies kept is [z, z + width]</string>
+              <string>Number of frequencies kept by the FFT in the time transformation algorithm.&#10;The range of frequencies kept is [z, z + width]</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -2436,6 +2467,109 @@ The range of frequencies kept is [z, z + width]</string>
        </widget>
       </item>
       <item>
+       <widget class="holovibes::gui::AnalysisPanel" name="AnalysisPanel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>240</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>240</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Analysis</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_123">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
+         <item>
+
+         <!-- Analysis Panel -->
+          <layout class="QHBoxLayout" name="AnalysisLayout">
+          <item>
+          <widget class="QSpinBox" name="TimeWindow">
+            <property name="enabled">
+              <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+              </sizepolicy>
+            </property>
+            <property name="toolTip">
+              <string/>
+            </property>
+            <property name="minimum">
+              <number>1</number>
+            </property>
+            <property name="maximum">
+              <number>1000</number>
+            </property>
+            <property name="value">
+              <number>5</number>
+            </property>
+          </widget>
+          </item>
+           <item>
+            <widget class="QCheckBox" name="ArteryCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Artery</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="OtsuCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Otsu</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+            
+           
+       </widget>
+      </item>
+      <item>
        <widget class="holovibes::gui::Frame" name="ImportExportFrame">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -3061,13 +3195,13 @@ The range of frequencies kept is [z, z + width]</string>
         </property>
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
         <property name="baseSize">
          <size>
-          <width>200</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
@@ -3652,6 +3786,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <class>holovibes::gui::ImageRenderingPanel</class>
    <extends>QGroupBox</extends>
    <header>image_rendering_panel.hh</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::AnalysisPanel</class>
+   <extends>QGroupBox</extends>
+   <header>analysis_panel.hh</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -5906,6 +6046,44 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+
+<!-- Analysis slots connections -->
+  <connection>
+   <sender>ArteryCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <!-- TODO: change to AnalysisPanel and make it work -->
+   <receiver>ViewPanel</receiver>
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OtsuCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <!-- TODO: Titouan replace the slot function by your thing -->
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+
+
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
@@ -5921,6 +6099,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
+  <slot>set_artery_mask(bool)</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>

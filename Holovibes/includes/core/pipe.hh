@@ -11,6 +11,7 @@
 #include "icompute.hh"
 #include "image_accumulation.hh"
 #include "fourier_transform.hh"
+#include "analysis.hh"
 #include "fast_updates_holder.hh"
 #include "rendering.hh"
 #include "converts.hh"
@@ -112,6 +113,8 @@ class Pipe : public ICompute
         postprocess_ =
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
+        analysis_ = std::make_unique<compute::Analysis>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
+
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
 
@@ -173,6 +176,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Analysis>)
+            analysis_->update_setting(setting);
     }
 
   private:
@@ -192,6 +198,8 @@ class Pipe : public ICompute
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
+        // TODO: clean this init
+        analysis_->init();
     }
 
     /*! \name Insert computation functions in the pipe
@@ -225,7 +233,7 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();
@@ -288,6 +296,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
+    std::unique_ptr<compute::Analysis> analysis_;
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;

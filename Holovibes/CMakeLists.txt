@@ -56,19 +56,22 @@ qt_add_executable(Holovibes
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
-    assets/ui/mainwindow.ui
-    assets/ui/advancedsettingswindow.ui
-    assets/ui/plotwindow.ui
-    assets/ui/lightui.ui
-    assets/icons/Holovibes.ico
-    assets/icons/holovibes.rc
+    mainwindow.ui
+    advancedsettingswindow.ui
+    plotwindow.ui
+    lightui.ui
+    style.css
+    Holovibes.ico
+    holovibes.rc
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
     PREFIX "/"
     FILES
-    assets/icons/Holovibes.ico
-    assets/icons/holovibes_logo.png
+    Holovibes.ico
+    holovibes_logo.png
+    drop_down.png
+    style.css
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -139,9 +142,14 @@ add_custom_command(TARGET Holovibes POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
-    # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
+    # Copy not all but some resources (python scripts, ...)
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
+
+    # Copy icon logo and style
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/drop_down.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/style.css" $<TARGET_FILE_DIR:Holovibes>/style.css
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -187,6 +195,16 @@ install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
 
 install(DIRECTORY "${HOLO_DIR}/assets/icons/"
     DESTINATION assets/icons
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/drop_down.png"
+    DESTINATION .
+    COMPONENT application
+)
+
+install(FILES "${HOLO_DIR}/style.css"
+    DESTINATION .
     COMPONENT application
 )
 

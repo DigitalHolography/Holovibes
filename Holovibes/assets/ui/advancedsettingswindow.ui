@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>600</height>
+    <width>580</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -267,19 +267,19 @@ threshold</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>210</width>
+         <width>350</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>210</width>
+         <width>350</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="baseSize">
         <size>
-         <width>210</width>
+         <width>350</width>
          <height>0</height>
         </size>
        </property>
@@ -314,19 +314,19 @@ threshold</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>200</width>
+            <width>300</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>210</width>
+            <width>300</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="baseSize">
            <size>
-            <width>210</width>
+            <width>300</width>
             <height>0</height>
            </size>
           </property>
@@ -447,19 +447,19 @@ threshold</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>200</width>
+            <width>300</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>210</width>
+            <width>300</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="baseSize">
            <size>
-            <width>210</width>
+            <width>300</width>
             <height>0</height>
            </size>
           </property>
