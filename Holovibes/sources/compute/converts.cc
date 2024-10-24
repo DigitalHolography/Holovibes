@@ -399,16 +399,20 @@ void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
     LOG_FUNC(fd_.depth);
 
     // Conversion function from input queue to input buffer
-    auto convert_to_complex = [](const void* const src,
-                                 void* const dest,
-                                 uint batch_size,
-                                 size_t frame_res,
-                                 camera::PixelDepth depth,
-                                 cudaStream_t stream)
-    { input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream); };
+    auto move_floats = [](const void* const src,
+                          void* const dest,
+                          uint batch_size,
+                          size_t frame_res,
+                          camera::PixelDepth depth,
+                          cudaStream_t stream)
+    {
+        // Somehow, the input queue always contains 0 while in moments mode,
+        // need to investigate
+        input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream);
+    };
 
     // Task to convert input queue to input buffer
-    auto conversion_task = [this, &input_queue, convert_to_complex, output]()
+    auto conversion_task = [this, &input_queue, move_floats, output]()
     {
         // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
         // next batch. We wait 0 ms to avoid blocking the thread.
@@ -416,7 +420,7 @@ void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));
         }
-        input_queue.dequeue(output, fd_.depth, convert_to_complex);
+        input_queue.dequeue(output, fd_.depth, move_floats);
     };
 
     fn_compute_vect_.push_back(conversion_task);

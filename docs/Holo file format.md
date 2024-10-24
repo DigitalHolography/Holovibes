@@ -17,7 +17,7 @@ The holo file format is designed this way:
 ### 64 bytes binary header
 
 - "HOLO" magic number (4 bytes)
-- Version of the Holo file format (Latest: 7)
+- Version of the Holo file format (2 bytes)
 - Number of bits per pixel (2 bytes)
 - Width of the images (4 bytes)
 - Height of the images (4 bytes)
@@ -25,6 +25,8 @@ The holo file format is designed this way:
 - Total data size (8 bytes)
 - Endianness (1 byte)
 - Data type (1 byte)
+
+- Padding (34 bytes)
 
 ### Image data
 

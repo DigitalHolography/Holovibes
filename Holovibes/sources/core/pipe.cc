@@ -262,7 +262,6 @@ void Pipe::refresh()
     {
         insert_input_to_moments();
         update_batch_index();
-        // return;
     }
     else
     {
@@ -382,6 +381,16 @@ void Pipe::insert_input_to_moments()
             size_t offset0 = 0, offset1 = 0, offset2 = 0;
             float* src_buf = moments_env_.stft_res_buffer.get();
             size_t image_resolution = input_queue_.get_fd().get_frame_res();
+            size_t image_size = image_resolution * sizeof(float);
+
+            // LOG_INFO("stft_size = {}, M0 size = {}, m0_times_three = {}, image_space = {}, image_size = {}, "
+            //          "postprocess_size = {}",
+            //          moments_env_.stft_res_buffer.get_size(),
+            //          moments_env_.moment0_buffer.get_size(),
+            //          moments_env_.moment0_buffer.get_size() * 3,
+            //          image_size * setting<settings::BatchSize>(),
+            //          image_size,
+            //          buffers_.gpu_postprocess_frame_size);
 
             // For each image of the batch, it is placed in its corresponding buffer.
             for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
@@ -389,42 +398,44 @@ void Pipe::insert_input_to_moments()
                 if (i % 3 == 0)
                 {
                     // Image goes to moment 0
-                    cudaXMemcpyAsync(moments_env_.moment0_buffer + offset0,
-                                     src_buf,
-                                     image_resolution,
-                                     cudaMemcpyDeviceToDevice,
-                                     stream_);
+                    cudaXMemcpy(moments_env_.moment0_buffer + offset0, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset0 += image_resolution;
                 }
                 else if (i % 3 == 1)
                 {
                     // Image goes to moment 1
-                    cudaXMemcpyAsync(moments_env_.moment1_buffer + offset1,
-                                     src_buf,
-                                     image_resolution,
-                                     cudaMemcpyDeviceToDevice,
-                                     stream_);
+                    cudaXMemcpy(moments_env_.moment1_buffer + offset1, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset1 += image_resolution;
                 }
                 else
                 {
                     // Image goes to moment 2
-                    cudaXMemcpyAsync(moments_env_.moment2_buffer + offset2,
-                                     src_buf,
-                                     image_resolution,
-                                     cudaMemcpyDeviceToDevice,
-                                     stream_);
+                    cudaXMemcpy(moments_env_.moment2_buffer + offset2, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset2 += image_resolution;
                 }
                 src_buf += image_resolution;
             }
+
             if (setting<settings::ImageType>() == ImgType::Moments_0)
             {
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
-                                 moments_env_.moment0_buffer.get(),
-                                 image_resolution * input_queue_.get_fd().depth,
-                                 cudaMemcpyHostToDevice,
-                                 stream_);
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment0_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
+            }
+            else if (setting<settings::ImageType>() == ImgType::Moments_1)
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment1_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
+            }
+            else if (setting<settings::ImageType>() == ImgType::Moments_2)
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment2_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
             }
         });
 }

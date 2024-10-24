@@ -167,9 +167,11 @@ void input_queue_to_input_buffer(void* const output,
     cudaCheckError();
 }
 
-template <typename OTYPE, typename ITYPE, typename FUNC>
-static __global__ void kernel_input_queue_to_input_buffer_floats(
-    OTYPE* output, const ITYPE* const input, FUNC convert, const uint frame_res, const int batch_size)
+template <typename OTYPE, typename ITYPE>
+static __global__ void kernel_input_queue_to_input_buffer_floats(OTYPE* output,
+                                                                 const ITYPE* const input,
+                                                                 const uint frame_res,
+                                                                 const int batch_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -190,22 +192,12 @@ void input_queue_to_input_buffer_floats(void* const output,
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(frame_res, threads);
 
-    static const auto convert_8_bit = [] __device__(const uchar input_pixel)
-    {
-        // max uchar value is 255, multiplied by 257 you have 65535 which is max
-        // ushort
-        return static_cast<float>(input_pixel) * 257;
-    };
-    static const auto convert_16_bit = [] __device__(const ushort input_pixel)
-    { return static_cast<float>(input_pixel); };
-    static const auto convert_32_bit = [] __device__(const float input_pixel) { return input_pixel; };
     switch (depth)
     {
     case camera::PixelDepth::Bits8:
         kernel_input_queue_to_input_buffer_floats<float, uchar>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
                                              reinterpret_cast<const uchar* const>(input),
-                                             convert_8_bit,
                                              frame_res,
                                              batch_size);
         break;
@@ -213,7 +205,6 @@ void input_queue_to_input_buffer_floats(void* const output,
         kernel_input_queue_to_input_buffer_floats<float, ushort>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
                                              reinterpret_cast<const ushort* const>(input),
-                                             convert_16_bit,
                                              frame_res,
                                              batch_size);
         break;
@@ -221,7 +212,6 @@ void input_queue_to_input_buffer_floats(void* const output,
         kernel_input_queue_to_input_buffer_floats<float, float>
             <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
                                              reinterpret_cast<const float* const>(input),
-                                             convert_32_bit,
                                              frame_res,
                                              batch_size);
         break;
