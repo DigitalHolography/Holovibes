@@ -546,6 +546,17 @@ inline void set_artery_mask_enabled(bool value)
     pipe_refresh();
 }
 
+/*!
+ * \name Otsu
+ *
+ */
+inline bool set_otsu_enabled() { return GET_SETTING(OtsuEnabled); }
+inline void set_otsu_enabled(bool value)
+{
+    UPDATE_SETTING(OtsuEnabled, value);
+    pipe_refresh();
+}
+
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
 /*! \} */

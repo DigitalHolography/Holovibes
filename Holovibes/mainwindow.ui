@@ -2508,7 +2508,34 @@ It's a post-processing step to remove noise</string>
           <number>9</number>
          </property>
          <item>
+
+         <!-- Analysis Panel -->
           <layout class="QHBoxLayout" name="AnalysisLayout">
+          <item>
+          <widget class="QSpinBox" name="TimeWindow">
+            <property name="enabled">
+              <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+              </sizepolicy>
+            </property>
+            <property name="toolTip">
+              <string/>
+            </property>
+            <property name="minimum">
+              <number>1</number>
+            </property>
+            <property name="maximum">
+              <number>1000</number>
+            </property>
+            <property name="value">
+              <number>5</number>
+            </property>
+          </widget>
+          </item>
            <item>
             <widget class="QCheckBox" name="ArteryCheckBox">
              <property name="enabled">
@@ -2519,6 +2546,19 @@ It's a post-processing step to remove noise</string>
              </property>
              <property name="text">
               <string>Show Artery</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="OtsuCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Otsu</string>
              </property>
             </widget>
            </item>
@@ -4305,22 +4345,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>ArteryCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_artery_mask(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>292</x>
-     <y>125</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -6000,6 +6024,44 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+
+<!-- Analysis slots connections -->
+  <connection>
+   <sender>ArteryCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <!-- TODO: change to AnalysisPanel and make it work -->
+   <receiver>ViewPanel</receiver>
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OtsuCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ViewPanel</receiver>
+   <!-- TODO: Titouan replace the slot function by your thing -->
+   <slot>set_artery_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+
+
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>

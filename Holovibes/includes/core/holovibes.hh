@@ -61,6 +61,8 @@
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::TimeWindow,                             \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -386,6 +388,7 @@ class Holovibes
                                              settings::Filter2dViewEnabled{false},
                                              settings::FftShiftEnabled{false},
                                              settings::ArteryMaskEnabled{false},
+                                             settings::OtsuEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
@@ -437,7 +440,8 @@ class Holovibes
                                              settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
-                                             settings::Mp4Fps{24}))
+                                             settings::Mp4Fps{24},
+                                             settings::TimeWindow{5}))
     {
     }
 

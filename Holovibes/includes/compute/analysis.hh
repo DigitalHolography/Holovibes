@@ -20,8 +20,10 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
+    holovibes::settings::OtsuEnabled,              \
     holovibes::settings::ConvolutionMatrix,        \
-    holovibes::settings::ImageType                 \
+    holovibes::settings::ImageType,                \
+    holovibes::settings::TimeWindow
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS

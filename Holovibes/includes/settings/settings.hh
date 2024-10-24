@@ -89,11 +89,14 @@ DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
 DECLARE_SETTING(ArteryMaskEnabled, bool);
+DECLARE_SETTING(OtsuEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
 DECLARE_SETTING(ReticleScale, float);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
+
+DECLARE_SETTING(TimeWindow, int);
 
 /*! \name Filter2D Cache */
 DECLARE_SETTING(Filter2dN1, int);

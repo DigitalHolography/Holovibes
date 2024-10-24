@@ -28,7 +28,6 @@
     holovibes::settings::Filter2dViewEnabled,      \
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::ArteryMaskEnabled,        \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled,       \
