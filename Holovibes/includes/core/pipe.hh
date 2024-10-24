@@ -211,9 +211,6 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
-    void insert_request_autocontrast();
-
     void insert_raw_view();
 
     void insert_raw_record();

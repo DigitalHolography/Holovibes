@@ -486,21 +486,6 @@ void rotateTexture();
  */
 void flipTexture();
 
-/*! \brief Adds auto contrast to the pipe over cut views
- *
- */
-void set_auto_contrast_cuts();
-
-/*! \brief Adds auto contrast to the current window
- *
- * \return true on success
- * \return false on failure
- */
-bool set_auto_contrast();
-
-/*! \brief Set the auto contrast to all windows */
-void set_auto_contrast_all();
-
 /*! \brief Get the rounded value of max contrast for the given WindowKind
  *
  * Qt rounds the value by default.

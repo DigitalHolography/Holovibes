@@ -182,13 +182,6 @@ class ICompute
     {
         Unwrap2D = 0,
 
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -248,8 +241,6 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 
     void request_refresh();
-
-    void request_autocontrast(WindowKind kind);
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */

@@ -171,8 +171,6 @@ void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value
 
 void LightUI::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
-void LightUI::set_auto_contrast() { api::set_auto_contrast(); }
-
 void LightUI::set_contrast_auto_refresh(bool value)
 {
     api::set_contrast_auto_refresh(value);

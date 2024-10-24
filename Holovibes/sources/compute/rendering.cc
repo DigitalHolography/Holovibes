@@ -84,18 +84,12 @@ void Rendering::insert_log()
         insert_filter2d_view_log();
 }
 
-void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
-                                std::atomic<bool>& autocontrast_slice_xz_request,
-                                std::atomic<bool>& autocontrast_slice_yz_request,
-                                std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::insert_contrast()
 {
     LOG_FUNC();
 
     // Compute min and max pixel values if requested
-    insert_compute_autocontrast(autocontrast_request,
-                                autocontrast_slice_xz_request,
-                                autocontrast_slice_yz_request,
-                                autocontrast_filter2d_request);
+    insert_compute_autocontrast();
 
     // Apply contrast on the main view
     if (setting<settings::XY>().contrast.enabled)
@@ -226,10 +220,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
-void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                            std::atomic<bool>& autocontrast_slice_xz_request,
-                                            std::atomic<bool>& autocontrast_slice_yz_request,
-                                            std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::insert_compute_autocontrast()
 {
     LOG_FUNC();
 
@@ -241,42 +232,43 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (autocontrast_request &&
+        if (setting<settings::XY>().contrast.auto_refresh &&
             (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            autocontrast_request = false;
         }
-        if (autocontrast_slice_xz_request &&
-            (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
+
+        if (setting<settings::CutsViewEnabled>())
         {
-            autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
-                                fd_.width,
-                                setting<settings::TimeTransformationSize>(),
-                                static_cast<uint>(setting<settings::CutsContrastPOffset>()),
-                                WindowKind::XZview);
-            autocontrast_slice_xz_request = false;
+            if (setting<settings::XZ>().contrast.auto_refresh &&
+                (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
+            {
+                autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
+                                    fd_.width,
+                                    setting<settings::TimeTransformationSize>(),
+                                    static_cast<uint>(setting<settings::CutsContrastPOffset>()),
+                                    WindowKind::XZview);
+            }
+
+            if (setting<settings::YZ>().contrast.auto_refresh &&
+                (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
+            {
+                autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
+                                    setting<settings::TimeTransformationSize>(),
+                                    fd_.height,
+                                    static_cast<uint>(setting<settings::CutsContrastPOffset>()),
+                                    WindowKind::YZview);
+            }
         }
-        if (autocontrast_slice_yz_request &&
-            (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
-        {
-            autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
-                                setting<settings::TimeTransformationSize>(),
-                                fd_.height,
-                                static_cast<uint>(setting<settings::CutsContrastPOffset>()),
-                                WindowKind::YZview);
-            autocontrast_slice_yz_request = false;
-        }
-        if (autocontrast_filter2d_request)
+        if (setting<settings::Filter2dViewEnabled>() && setting<settings::Filter2d>().contrast.auto_refresh)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
                                 fd_.height,
                                 0,
                                 WindowKind::Filter2D);
-            autocontrast_filter2d_request = false;
         }
     };
 
