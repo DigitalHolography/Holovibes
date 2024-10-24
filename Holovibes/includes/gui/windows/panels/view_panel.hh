@@ -35,8 +35,6 @@ class ViewPanel : public Panel
 
     /*! \brief Remove time transformation cut views */
     void cancel_time_transformation_cuts();
-    /*! \brief Adds auto contrast to the pipe over cut views */
-    void set_auto_contrast_cuts();
 
   public slots:
     /*! \brief Modifies view image type
@@ -115,8 +113,6 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
-    /*! \brief Enalbles auto-contrast */
-    void set_auto_contrast();
 
     /*! \brief Enables or Disables auto refresh contrast
      *

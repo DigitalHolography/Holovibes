@@ -23,8 +23,6 @@ CompositePanel::~CompositePanel() {}
 
 void CompositePanel::on_notify()
 {
-    if (!isVisible())
-        return;
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -97,12 +95,7 @@ void CompositePanel::on_notify()
     ui_->zFFTShiftCheckBox->setChecked(api::get_z_fft_shift());
 }
 
-void CompositePanel::click_z_fft_shift(bool checked)
-{
-    api::set_z_fft_shift(checked);
-
-    parent_->notify();
-}
+void CompositePanel::click_z_fft_shift(bool checked) { api::set_z_fft_shift(checked); }
 
 void CompositePanel::set_composite_intervals()
 {
@@ -118,43 +111,31 @@ void CompositePanel::set_composite_intervals()
 void CompositePanel::set_composite_intervals_hsv_h_min()
 {
     api::set_composite_intervals_hsv_h_min(ui_->SpinBox_hue_freq_min->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_max()
 {
     api::set_composite_intervals_hsv_h_max(ui_->SpinBox_hue_freq_max->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_min()
 {
     api::set_composite_intervals_hsv_s_min(ui_->SpinBox_saturation_freq_min->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_max()
 {
     api::set_composite_intervals_hsv_s_max(ui_->SpinBox_saturation_freq_max->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_min()
 {
     api::set_composite_intervals_hsv_v_min(ui_->SpinBox_value_freq_min->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_max()
 {
     api::set_composite_intervals_hsv_v_max(ui_->SpinBox_value_freq_max->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_weights()
@@ -162,8 +143,6 @@ void CompositePanel::set_composite_weights()
     api::set_composite_weights(ui_->WeightSpinBox_R->value(),
                                ui_->WeightSpinBox_G->value(),
                                ui_->WeightSpinBox_B->value());
-
-    parent_->notify();
 }
 
 void CompositePanel::set_composite_auto_weights(bool value)
@@ -174,7 +153,6 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_G->setEnabled(!value);
     ui_->WeightSpinBox_B->setEnabled(!value);
 
-    ui_->ViewPanel->set_auto_contrast();
     parent_->notify();
 }
 

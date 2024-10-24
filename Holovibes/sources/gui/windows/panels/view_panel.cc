@@ -41,7 +41,7 @@ ViewPanel::~ViewPanel()
 // TODO: use parameters instead of directly the GSH
 void ViewPanel::view_callback(WindowKind, ViewWindow)
 {
-    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_raw = api::get_img_type() == ImgType::Raw;
 
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(true);
@@ -60,7 +60,7 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
 
 void ViewPanel::on_notify()
 {
-    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_raw = api::get_img_type() == ImgType::Raw;
 
     ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
 
@@ -240,7 +240,7 @@ void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_ty
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     api::set_unwrapping_2d(value);
@@ -263,15 +263,14 @@ void ViewPanel::update_3d_cuts_view(bool checked)
         if (time_transformation_size > time_transformation_cuts_window_max_size)
             time_transformation_size = time_transformation_cuts_window_max_size;
 
-        const bool res = api::set_3d_cuts_view(time_transformation_size);
-
-        if (res)
+        if (!api::set_3d_cuts_view(time_transformation_size))
         {
-            set_auto_contrast_cuts();
-            parent_->notify();
-        }
-        else
             cancel_time_transformation_cuts();
+            api::set_yz_enabled(false);
+            api::set_xz_enabled(false);
+        }
+
+        parent_->notify();
     }
     // FIXME: if slice are closed, cancel time should be call.
     else
@@ -287,19 +286,12 @@ void ViewPanel::cancel_time_transformation_cuts()
     if (!api::get_cuts_view_enabled())
         return;
 
-    std::function<void()> callback = ([=]() {
-        Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
-        parent_->notify();
-    });
-
-    api::cancel_time_transformation_cuts(callback);
+    api::cancel_time_transformation_cuts();
 }
-
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     api::set_fft_shift_enabled(value);
@@ -352,7 +344,7 @@ void ViewPanel::set_y_accu()
 
 void ViewPanel::set_p(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     if (value >= static_cast<int>(api::get_time_transformation_size()))
@@ -368,7 +360,7 @@ void ViewPanel::set_p(int value)
 
 void ViewPanel::increment_p()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     // FIXME: Cannot append
@@ -379,14 +371,13 @@ void ViewPanel::increment_p()
     }
 
     set_p(api::get_p_index() + 1);
-    set_auto_contrast();
 
     parent_->notify();
 }
 
 void ViewPanel::decrement_p()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     // FIXME: Cannot append
@@ -397,7 +388,6 @@ void ViewPanel::decrement_p()
     }
 
     set_p(api::get_p_index() - 1);
-    set_auto_contrast();
 
     parent_->notify();
 }
@@ -438,7 +428,7 @@ void ViewPanel::flipTexture()
 
 void ViewPanel::set_log_scale(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     api::set_log_scale(value);
@@ -448,7 +438,7 @@ void ViewPanel::set_log_scale(const bool value)
 
 void ViewPanel::set_accumulation_level(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
         return;
 
     api::set_accumulation_level(value);
@@ -459,8 +449,6 @@ void ViewPanel::set_contrast_mode(bool value)
     api::set_contrast_mode(value);
     parent_->notify();
 }
-
-void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
 
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {

@@ -96,11 +96,6 @@ void set_input_file_end_index(size_t value);
  */
 void camera_none();
 
-/*! \brief Switchs operating camera to none without changes on the user_setting.json
- *
- */
-void camera_none_without_json();
-
 /*! \brief Stops the program compute
  *
  */
@@ -175,32 +170,14 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
-/*! \brief Sets the image mode to Raw or Holographic*/
-void set_image_mode(Computation mode, uint window_max_size);
-
-/*! \brief Changes display mode to Raw */
-void set_raw_mode(uint window_max_size);
-
-/*! \brief Changes display mode to Holographic
- *
- * \param window_size the size of the window
- * \return true on success
- * \return false on failure
- */
-bool set_holographic_mode(ushort window_size);
-
-/*! \brief Restarts everything to change the view mode
- *
- * \param window_size the size of the window
- * \param img_type The new image type
- */
-void refresh_view_mode(ushort window_size, ImgType img_type);
+/*! \brief Open a Raw or Holographic window */
+void open_window(bool raw_mode, uint window_max_size);
 
 /*! \brief Removes time transformation from computation
  *
  * \param callback FIXME: Api is not supposed to handdle callback
  */
-void cancel_time_transformation_cuts(std::function<void()> callback);
+void cancel_time_transformation_cuts();
 
 /*! \brief Checks preconditions to start recording
  *
@@ -298,7 +275,6 @@ void enable_pipe_refresh();
  */
 void disable_pipe_refresh();
 
-void create_holo_window(ushort window_size);
 void create_pipe();
 
 /*! \brief Modifies p accumulation
@@ -509,21 +485,6 @@ void rotateTexture();
  *
  */
 void flipTexture();
-
-/*! \brief Adds auto contrast to the pipe over cut views
- *
- */
-void set_auto_contrast_cuts();
-
-/*! \brief Adds auto contrast to the current window
- *
- * \return true on success
- * \return false on failure
- */
-bool set_auto_contrast();
-
-/*! \brief Set the auto contrast to all windows */
-void set_auto_contrast_all();
 
 /*! \brief Get the rounded value of max contrast for the given WindowKind
  *
@@ -817,9 +778,9 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Changes the time transformation size from ui value
  *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
+ * \param time_transformation_size The new time transformation size
  */
-void set_time_transformation_size(std::function<void()> callback);
+void update_time_transformation_size(uint time_transformation_size);
 
 /*! \brief Changes the focused windows
  *
@@ -851,24 +812,16 @@ bool set_3d_cuts_view(uint time_transformation_size);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
  * \param time_stride the new value
  */
-void update_time_stride(std::function<void()> callback, const uint time_stride);
+void update_time_stride(const uint time_stride);
 
-/*! \brief Modifies batch size from ui value
- *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
- * \param batch_size the new value
- */
-void update_batch_size(std::function<void()> callback, const uint batch_size);
-
-/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
- * time_stride were modified on the GUI, so no notify is needed.
+/*! \brief Modifies batch size from ui value.
  *
  * \param batch_size the new value
+ * \return whether the time_stride has changed to adjust to the batch size
  */
-void update_batch_size(const uint batch_size);
+bool update_batch_size(const uint batch_size);
 
 /*! \brief Modifies view image type
  * Changes the setting and requests a pipe refresh
@@ -935,12 +888,8 @@ bool slide_update_threshold(
 
 bool getLightUIMode();
 
-/*! \brief Displays information
- *
- * \param is_cli true if the current user interface is CLI
- * \param callback lambda to execute FIXME: Api is not supposed to handdle callback
- */
-void start_information_display(const std::function<void()>& callback = []() {});
+/*! \brief Displays information */
+void start_information_display();
 
 /*! \brief Opens additional settings window
  *

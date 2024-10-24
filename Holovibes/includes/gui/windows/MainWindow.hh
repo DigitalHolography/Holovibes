@@ -59,16 +59,9 @@ class MainWindow : public QMainWindow
     ~MainWindow();
 
     void notify();
-    void notify_error(const std::exception& e);
 
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
-
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
-
-    /*! \brief Stops critical compute */
-    void close_critical_compute();
 
     /*! \brief Start the import process */
     void start_import(QString filename);
@@ -149,7 +142,6 @@ class MainWindow : public QMainWindow
      * * Set visibility to true
      */
 
-    bool need_refresh(const std::string& last_type, const std::string& new_type);
     void set_composite_values();
 
     /*! \brief Modifies view image type

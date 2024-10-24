@@ -46,12 +46,6 @@ class ThreadWorkerController
      */
     void set_callback(std::function<void()> callback);
 
-    /*! \brief Set the function executed when an exception unwind the thread stack
-     *
-     * This method must be called before the start method
-     */
-    void set_error_callback(std::function<void(const std::exception&)> error_callback);
-
     /*! \brief Set the priority of the thread
      *
      * This method must be called before the start method
@@ -107,7 +101,6 @@ class ThreadWorkerController
     std::thread thread_;
     /*! \brief The function called at the end of the execution of the thread */
     std::function<void()> callback_ = []() {};
-    std::function<void(const std::exception&)> error_callback_ = [](auto) {};
     /*! \brief Mutex used to prevent data races */
     std::mutex mutex_;
 };

@@ -86,9 +86,6 @@ constexpr std::vector<std::string> get_credits()
     return res;
 }
 
-inline Computation get_compute_mode() { return GET_SETTING(ComputeMode); }
-inline void set_compute_mode(Computation mode) { UPDATE_SETTING(ComputeMode, mode); }
-
 inline float get_pixel_size() { return GET_SETTING(PixelSize); }
 inline void set_pixel_size(float value) { UPDATE_SETTING(PixelSize, value); }
 
@@ -456,18 +453,10 @@ inline void set_yz_contrast(float min, float max) noexcept
  * \{
  */
 inline int get_filter2d_n1() { return GET_SETTING(Filter2dN1); }
-inline void set_filter2d_n1(int value)
-{
-    UPDATE_SETTING(Filter2dN1, value);
-    set_auto_contrast_all();
-}
+inline void set_filter2d_n1(int value) { UPDATE_SETTING(Filter2dN1, value); }
 
 inline int get_filter2d_n2() { return GET_SETTING(Filter2dN2); }
-inline void set_filter2d_n2(int value)
-{
-    UPDATE_SETTING(Filter2dN2, value);
-    set_auto_contrast_all();
-}
+inline void set_filter2d_n2(int value) { UPDATE_SETTING(Filter2dN2, value); }
 
 inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }
 inline void set_filter2d_smooth_low(int value) { UPDATE_SETTING(Filter2dSmoothLow, value); }

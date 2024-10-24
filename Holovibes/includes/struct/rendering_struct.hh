@@ -8,7 +8,6 @@
 
 #include "enum_space_transformation.hh"
 #include "enum_time_transformation.hh"
-#include "enum_computation.hh"
 #include "all_struct.hh"
 
 namespace holovibes
@@ -83,7 +82,6 @@ struct Rendering
         SETTING_RELATED_FUNCTIONS();
     };
 
-    Computation image_mode = Computation::Raw;
     unsigned batch_size = 1;
     unsigned time_transformation_stride = 1;
     Filter2D filter2d;
@@ -98,7 +96,6 @@ struct Rendering
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Rendering,
                           input_filter,
-                          image_mode,
                           batch_size,
                           time_transformation_stride,
                           filter2d,

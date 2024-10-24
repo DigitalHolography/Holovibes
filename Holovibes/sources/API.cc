@@ -82,14 +82,12 @@ void close_windows()
 
 #pragma region Close Compute
 
-void camera_none() { camera_none_without_json(); }
-
-void camera_none_without_json()
+void camera_none()
 {
     close_windows();
     close_critical_compute();
 
-    if (get_compute_mode() == Computation::Hologram)
+    if (get_img_type() != ImgType::Raw)
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
@@ -123,8 +121,7 @@ bool change_camera(CameraKind c)
     }
     try
     {
-        if (get_compute_mode() == Computation::Raw)
-            Holovibes::instance().stop_compute();
+        Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
         try
@@ -149,6 +146,9 @@ bool change_camera(CameraKind c)
 
         std::ofstream output_file(path);
         output_file << j_us.dump(1);
+
+        // Recreate the pipe since we destroy it
+        create_pipe();
 
         return true;
     }
@@ -240,19 +240,7 @@ bool is_light_ui_mode()
     return json_get_or_default(j_us, false, "light_ui");
 }
 
-void set_image_mode(Computation mode, uint window_max_size)
-{
-    if (mode == Computation::Raw)
-    {
-        set_raw_mode(window_max_size);
-    }
-    else if (mode == Computation::Hologram)
-    {
-        set_holographic_mode(window_max_size);
-    }
-}
-
-void set_raw_mode(uint window_max_size)
+void open_window(bool raw_window, uint window_max_size)
 {
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
@@ -263,91 +251,6 @@ void set_raw_mode(uint window_max_size)
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
-    set_compute_mode(Computation::Raw);
-
-    create_pipe();
-
-    LOG_INFO("Raw mode set");
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
-    UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos,
-                                      size,
-                                      get_input_queue().get(),
-                                      static_cast<float>(width) / static_cast<float>(height)));
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
-    std::string fd_info =
-        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-
-    api::pipe_refresh();
-}
-
-void create_holo_window(ushort window_size)
-{
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_size);
-
-    QPoint pos = getSavedHoloWindowPos();
-    QSize size = getSavedHoloWindowSize(width, height);
-    init_image_mode(pos, size);
-
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
-
-    try
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new gui::HoloWindow(pos,
-                                size,
-                                get_gpu_output_queue().get(),
-                                get_compute_pipe(),
-                                UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ,
-                                static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-        UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("create_holo_window: {}", e.what());
-    }
-}
-
-bool set_holographic_mode(ushort window_size)
-{
-    /* ---------- */
-    try
-    {
-        set_compute_mode(Computation::Hologram);
-        /* Pipe & Window */
-        auto fd = get_fd();
-
-        create_pipe();
-        create_holo_window(window_size);
-        /* Info Manager */
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        /* Contrast */
-        api::set_contrast_mode(true);
-
-        LOG_INFO("Holographic mode set");
-
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("cannot set holographic mode: {}", e.what());
-    }
-
-    return false;
-}
-
-void refresh_view_mode(ushort window_size, ImgType img_type)
-{
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
     if (UserInterfaceDescriptor::instance().mainDisplay)
@@ -356,22 +259,47 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
         old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
     }
 
-    close_windows();
-    close_critical_compute();
-
-    set_img_type(img_type);
+    change_window(static_cast<int>(WindowKind::XYview));
 
     try
     {
-        create_pipe();
-        create_holo_window(window_size);
+        if (raw_window)
+        {
+            UserInterfaceDescriptor::instance().mainDisplay.reset(
+                new holovibes::gui::RawWindow(pos,
+                                              size,
+                                              get_input_queue().get(),
+                                              static_cast<float>(width) / static_cast<float>(height)));
+            UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
+
+            api::pipe_refresh();
+        }
+        else
+        {
+            UserInterfaceDescriptor::instance().mainDisplay.reset(
+                new gui::HoloWindow(pos,
+                                    size,
+                                    get_gpu_output_queue().get(),
+                                    get_compute_pipe(),
+                                    UserInterfaceDescriptor::instance().sliceXZ,
+                                    UserInterfaceDescriptor::instance().sliceYZ,
+                                    static_cast<float>(width) / static_cast<float>(height)));
+            UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
+            UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
+            UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
+            UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
+
+            api::set_contrast_mode(true);
+        }
+
+        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
     catch (const std::runtime_error& e)
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        LOG_ERROR("refresh_view_mode: {}", e.what());
+        LOG_ERROR("open_window: {}", e.what());
     }
 }
 
@@ -379,16 +307,7 @@ void set_view_mode(const ImgType type)
 {
     try
     {
-        auto pipe = get_compute_pipe();
-
         api::set_img_type(type);
-
-        // Force XYview autocontrast
-        pipe->request_autocontrast(WindowKind::XYview);
-
-        // Force cuts views autocontrast if needed
-        if (api::get_cuts_view_enabled())
-            api::set_auto_contrast_cuts();
 
         pipe_refresh();
     }
@@ -401,47 +320,34 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+bool update_batch_size(const uint batch_size)
 {
-    if (batch_size == get_batch_size())
-        return;
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || batch_size == get_batch_size())
+        return false;
 
     bool time_stride_changed = set_batch_size(batch_size);
 
     if (time_stride_changed)
         api::get_compute_pipe()->request(ICS::UpdateTimeStride);
     api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-}
 
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
-{
-    update_batch_size(batch_size);
-
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(notify_callback);
-    }
-    else
-    {
-        notify_callback();
-    }
+    return time_stride_changed;
 }
 
 #pragma endregion
 
 #pragma region STFT
 
-void update_time_stride(std::function<void()> callback, const uint time_stride)
+void update_time_stride(const uint time_stride)
 {
-    api::set_time_stride(time_stride);
+    if (api::get_img_type() == ImgType::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-        get_compute_pipe()->insert_fn_end_vect(callback);
-    }
-    else
-        callback();
+    if (time_stride == api::get_time_stride() || time_stride < api::get_batch_size())
+        return;
+
+    api::set_time_stride(time_stride);
+    Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
 bool set_3d_cuts_view(uint time_transformation_size)
@@ -497,7 +403,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
     return false;
 }
 
-void cancel_time_transformation_cuts(std::function<void()> callback)
+void cancel_time_transformation_cuts()
 {
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
@@ -509,9 +415,7 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
 
-    get_compute_pipe()->insert_fn_end_vect(callback);
-
-    // Refresh pipe to remove cuts linked lambda from pipe
+    Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
     pipe_refresh();
     set_cuts_view_enabled(false);
 }
@@ -540,11 +444,7 @@ void handle_update_exception()
     api::disable_filter();
 }
 
-void set_filter2d(bool checked)
-{
-    set_filter2d_enabled(checked);
-    set_auto_contrast_all();
-}
+void set_filter2d(bool checked) { set_filter2d_enabled(checked); }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
@@ -572,7 +472,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         set_filter2d_log_enabled(true);
-        pipe->request_autocontrast(WindowKind::Filter2D);
     }
     else
     {
@@ -585,7 +484,19 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     pipe_refresh();
 }
 
-void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
+void update_time_transformation_size(uint time_transformation_size)
+{
+    if (api::get_img_type() == ImgType::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    if (time_transformation_size == api::get_time_transformation_size())
+        return;
+
+    api::set_time_transformation_size(time_transformation_size);
+    api::get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+
+    pipe_refresh();
+}
 
 void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
@@ -593,7 +504,7 @@ void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled,
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_img_type() == ImgType::Raw)
         return;
 
     set_lens_view_enabled(checked);
@@ -642,7 +553,7 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
 
 void set_raw_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_img_type() == ImgType::Raw)
         return;
 
     auto pipe = get_compute_pipe();
@@ -711,7 +622,7 @@ void set_y_cuts(uint value)
 
 void set_x_y(uint x, uint y)
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_img_type() == ImgType::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
         return;
 
     if (x < get_fd().width)
@@ -857,7 +768,7 @@ bool slide_update_threshold(
 
 void set_lambda(float value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (get_img_type() == ImgType::Raw)
         return;
 
     UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
@@ -866,7 +777,7 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_img_type() == ImgType::Raw)
         return;
 
     // Avoid 0 for cuda kernel
@@ -877,12 +788,17 @@ void set_z_distance(float value)
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value) { UPDATE_SETTING(SpaceTransformation, value); }
+void set_space_transformation(const SpaceTransformation value)
+{
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
 
 void set_time_transformation(const TimeTransformation value)
 {
     UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
+    pipe_refresh();
 }
 
 void set_unwrapping_2d(const bool value)
@@ -918,7 +834,7 @@ void close_critical_compute()
         disable_convolution();
 
     if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts([]() {});
+        cancel_time_transformation_cuts();
 
     if (get_filter2d_view_enabled())
         set_filter2d_view(false, 0);
@@ -987,7 +903,7 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (get_img_type() == ImgType::Raw)
         return;
 
     auto window = api::get_current_window_type();
@@ -999,52 +915,9 @@ void set_contrast_mode(bool value)
     pipe_refresh();
 }
 
-void set_auto_contrast_cuts()
-{
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XZview);
-    pipe->request_autocontrast(WindowKind::YZview);
-}
-
-bool set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return false;
-
-    try
-    {
-        get_compute_pipe()->request_autocontrast(get_current_window_type());
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
-
-    return false;
-}
-
-void set_auto_contrast_all()
-{
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XYview);
-    if (api::get_cuts_view_enabled())
-    {
-        pipe->request_autocontrast(WindowKind::XZview);
-        pipe->request_autocontrast(WindowKind::YZview);
-    }
-    if (get_filter2d_view_enabled())
-        pipe->request_autocontrast(WindowKind::Filter2D);
-
-    pipe_refresh();
-}
-
 void set_contrast_min(float value)
 {
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+    if (get_img_type() == ImgType::Raw || !api::get_contrast_enabled())
         return;
 
     // Get the minimum contrast value rounded for the comparison
@@ -1064,7 +937,7 @@ void set_contrast_min(float value)
 
 void set_contrast_max(float value)
 {
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+    if (get_img_type() == ImgType::Raw || !api::get_contrast_enabled())
         return;
 
     // Get the maximum contrast value rounded for the comparison
@@ -1084,7 +957,7 @@ void set_contrast_max(float value)
 
 void set_contrast_invert(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+    if (api::get_img_type() == ImgType::Raw || !api::get_contrast_enabled())
         return;
 
     auto window = api::get_current_window_type();
@@ -1097,7 +970,7 @@ void set_contrast_invert(bool value)
 
 void set_contrast_auto_refresh(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+    if (get_img_type() == ImgType::Raw || !api::get_contrast_enabled())
         return;
 
     auto window = api::get_current_window_type();
@@ -1138,8 +1011,6 @@ void set_log_scale(const bool value)
         api::set_filter2d_log_enabled(value);
     else
         set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
-    if (value && api::get_contrast_enabled())
-        set_auto_contrast();
 
     pipe_refresh();
 }
@@ -1697,7 +1568,7 @@ bool start_record_preconditions()
 
 void set_record_device(const Device device)
 {
-    if (get_compute_mode() == Computation::Hologram)
+    if (get_img_type() != ImgType::Raw)
         Holovibes::instance().stop_compute();
 
     if (get_raw_view_queue_location() != device)
@@ -1722,15 +1593,15 @@ void set_record_device(const Device device)
 
         set_input_queue_location(device);
 
-        if (device == Device::CPU)
-            set_compute_mode(Computation::Raw);
+        // if (device == Device::CPU)
+        //     set_compute_mode(Computation::Raw);
 
         if (it == ImportType::Camera)
             change_camera(c);
         else
             import_start();
 
-        set_image_mode(get_compute_mode(), 1);
+        // open_window(get_img_type() == ImgType::Raw, 1);
     }
 }
 
@@ -1800,7 +1671,14 @@ bool import_start()
 {
     LOG_FUNC();
 
+    // Check if computation is currently running
+    if (!api::get_is_computation_stopped())
+        import_stop();
+
     set_is_computation_stopped(false);
+
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     // Because we are in file mode
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
@@ -1810,6 +1688,7 @@ bool import_start()
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read();
+        create_pipe();
     }
     catch (const std::exception& e)
     {
@@ -1863,10 +1742,7 @@ void open_advanced_settings(QMainWindow* parent)
 
 #pragma region Information
 
-void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
+void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
 

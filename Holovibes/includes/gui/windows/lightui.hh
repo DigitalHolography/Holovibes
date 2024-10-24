@@ -167,9 +167,6 @@ class LightUI : public QMainWindow
      */
     void set_contrast_max(double value);
 
-    /*! \brief Apply auto contrast */
-    void set_auto_contrast();
-
     /*!
      * \brief Enable or not the auto refresh
      *

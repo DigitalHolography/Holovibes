@@ -168,24 +168,12 @@ void ImportPanel::import_stop()
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
 void ImportPanel::import_start()
 {
-    // Check if computation is currently running
-    if (!api::get_is_computation_stopped())
-        import_stop();
-
-    // parent_->shift_screen();
-
-    // if the file is to be imported in GPU, we should load the buffer preset for such case
-    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
-
-    bool res_import_start = api::import_start();
-
-    if (res_import_start)
+    if (api::import_start())
     {
         ui_->FileReaderProgressBar->show();
 
         // Make camera's settings menu unaccessible
-        QAction* settings = ui_->actionSettings;
-        settings->setEnabled(false);
+        ui_->actionSettings->setEnabled(false);
 
         // This notify is required.
         // This sets GUI values and avoid having callbacks destroy and recreate the window and pipe.
@@ -198,17 +186,14 @@ void ImportPanel::import_start()
         parent_->notify();
 
         // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
-        if (api::get_main_display() == nullptr)
-            parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        parent_->ui_->ImageRenderingPanel->open_window(api::get_img_type() == ImgType::Raw);
 
         // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
         // this can easily be done while imapcting only the GUI, so it's done here as a dirty fix
         api::display_reticle(api::get_reticle_display_enabled());
     }
     else
-    {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
 }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }

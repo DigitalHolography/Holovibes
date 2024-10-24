@@ -44,7 +44,7 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
 
 void ExportPanel::on_notify()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api::get_img_type() == ImgType::Raw)
     {
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
@@ -256,7 +256,8 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
     if (record_mode == RecordMode::CHART)
         info = "Chart record finished";
-    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW || record_mode == RecordMode::MOMENTS)
+    else if (record_mode == RecordMode::HOLOGRAM || record_mode == RecordMode::RAW ||
+             record_mode == RecordMode::MOMENTS)
         info = "Frame record finished";
 
     LOG_INFO("[RECORDER] {}", info);
@@ -264,7 +265,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(api::get_img_type() != ImgType::Raw);
 
     api::record_finished();
 
@@ -296,7 +297,7 @@ void ExportPanel::start_record()
     ui_->InfoPanel->set_visible_record_progress(true);
 
     auto callback = [record_mode = api::get_record_mode(),
-                     compute_mode = api::get_compute_mode(),
+                     img_type = api::get_img_type(),
                      gpu_record = api::get_record_on_gpu(),
                      this]()
     {
@@ -306,7 +307,7 @@ void ExportPanel::start_record()
                 record_finished(record_mode);
                 // if the record was in cpu mode, open the previous compute mode at the end of the record
                 if (!gpu_record)
-                    ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
+                    ui_->ImageRenderingPanel->open_window(img_type == ImgType::Raw);
             });
     };
 

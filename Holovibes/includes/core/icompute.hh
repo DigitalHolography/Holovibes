@@ -61,7 +61,6 @@
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
-    holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
@@ -183,13 +182,6 @@ class ICompute
     {
         Unwrap2D = 0,
 
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -250,8 +242,6 @@ class ICompute
 
     void request_refresh();
 
-    void request_autocontrast(WindowKind kind);
-
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
 
@@ -299,7 +289,8 @@ class ICompute
     void fft_freqs();
 
     /*!
-     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the moments.
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the
+     * moments.
      *
      * \param  time_transformation_size  The new time transformation size.
      * \return                           Whether there is an error or not.

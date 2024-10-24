@@ -252,7 +252,7 @@ void Pipe::refresh()
 
     insert_raw_record();
 
-    if (setting<settings::ComputeMode>() == Computation::Raw)
+    if (setting<settings::ImageType>() == ImgType::Raw)
     {
         insert_dequeue_input();
         return;
@@ -307,11 +307,7 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
 
-    insert_request_autocontrast();
-    rendering_->insert_contrast(is_requested(ICS::Autocontrast),
-                                is_requested(ICS::AutocontrastSliceXZ),
-                                is_requested(ICS::AutocontrastSliceYZ),
-                                is_requested(ICS::AutocontrastFilter2D));
+    rendering_->insert_contrast();
 
     // converts_->insert_cuts_final();
 
@@ -598,12 +594,6 @@ void Pipe::insert_cuts_record()
     }
 }
 
-void Pipe::insert_request_autocontrast()
-{
-    if (api::get_contrast_enabled() && api::get_contrast_auto_refresh())
-        request_autocontrast(setting<settings::CurrentWindow>());
-}
-
 void Pipe::exec()
 {
     onrestart_settings_.apply_updates();
@@ -631,21 +621,10 @@ void Pipe::exec()
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
 
-void Pipe::insert_fn_end_vect(std::function<void()> function)
-{
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    fn_end_vect_.push_back(function);
-}
-
 void Pipe::run_all()
 {
     for (FnType& f : fn_compute_vect_)
         f();
-
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    for (FnType& f : fn_end_vect_)
-        f();
-    fn_end_vect_.clear();
 }
 
 } // namespace holovibes

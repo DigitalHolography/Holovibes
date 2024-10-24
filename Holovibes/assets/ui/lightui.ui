@@ -127,22 +127,6 @@
                   <number>8</number>
                  </property>
                  <item>
-                  <widget class="QPushButton" name="AutoContrastPushButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Apply</string>
-                   </property>
-                   <property name="flat">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QLabel" name="ContrastRangeLabel">
                    <property name="enabled">
                     <bool>true</bool>
@@ -619,22 +603,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>AutoContrastPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LightUI</receiver>
-   <slot>set_auto_contrast()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AutoRefreshContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>LightUI</receiver>
@@ -744,7 +712,6 @@
   <slot>set_contrast_mode(bool)</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
-  <slot>set_auto_contrast()</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
 
   <slot>camera_none()</slot>

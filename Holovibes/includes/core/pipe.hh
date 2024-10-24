@@ -74,7 +74,6 @@ class Pipe : public ICompute
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
-        fn_end_vect_ = FunctionVector(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -138,9 +137,6 @@ class Pipe : public ICompute
      * Check if a ICompute refresh has been requested.
      */
     void exec() override;
-
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
@@ -215,9 +211,6 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
-    void insert_request_autocontrast();
-
     void insert_raw_view();
 
     void insert_raw_record();
@@ -225,7 +218,7 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();
@@ -270,15 +263,6 @@ class Pipe : public ICompute
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
     FunctionVector fn_compute_vect_;
-
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
 
     /*! \name Compute objects
      * \{
