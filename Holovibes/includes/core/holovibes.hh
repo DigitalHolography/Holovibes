@@ -60,9 +60,6 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::ArteryMaskEnabled,                      \
-    holovibes::settings::OtsuEnabled,                            \
-    holovibes::settings::TimeWindow,                             \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -108,13 +105,17 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::RawViewQueueLocation,                      \
-    holovibes::settings::InputQueueLocation,                        \
-    holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU,                               \
-    holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::RawViewQueueLocation,                   \
+    holovibes::settings::InputQueueLocation,                     \
+    holovibes::settings::BenchmarkMode,                          \
+    holovibes::settings::RecordOnGPU,                            \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps,                                 \
+    holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::TimeWindow,                             \
+    holovibes::settings::VesselnessSigma                         \
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -387,8 +388,6 @@ class Holovibes
                                              settings::Filter2dEnabled{false},
                                              settings::Filter2dViewEnabled{false},
                                              settings::FftShiftEnabled{false},
-                                             settings::ArteryMaskEnabled{false},
-                                             settings::OtsuEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
@@ -441,7 +440,10 @@ class Holovibes
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
-                                             settings::TimeWindow{1}))
+                                             settings::TimeWindow{1},
+                                             settings::ArteryMaskEnabled{false},
+                                             settings::OtsuEnabled{false},
+                                             settings::VesselnessSigma{0.1}))
     {
     }
 

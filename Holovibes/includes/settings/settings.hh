@@ -88,15 +88,12 @@ DECLARE_SETTING(ChartDisplayEnabled, bool);
 DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
-DECLARE_SETTING(ArteryMaskEnabled, bool);
-DECLARE_SETTING(OtsuEnabled, bool);
+
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
 DECLARE_SETTING(ReticleScale, float);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
-
-DECLARE_SETTING(TimeWindow, int);
 
 /*! \name Filter2D Cache */
 DECLARE_SETTING(Filter2dN1, int);
@@ -184,4 +181,11 @@ DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
 DECLARE_SETTING(FrameSkip, uint)
 DECLARE_SETTING(Mp4Fps, uint)
+
+/*! \brief Analysis cache */
+DECLARE_SETTING(ArteryMaskEnabled, bool);
+DECLARE_SETTING(OtsuEnabled, bool);
+DECLARE_SETTING(TimeWindow, int);
+DECLARE_SETTING(VesselnessSigma, double);
+
 } // namespace holovibes::settings

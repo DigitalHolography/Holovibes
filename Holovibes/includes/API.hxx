@@ -539,7 +539,7 @@ inline void set_fft_shift_enabled(bool value)
  * \name Artery Mask
  *
  */
-inline bool set_artery_mask_enabled() { return GET_SETTING(ArteryMaskEnabled); }
+inline bool get_artery_mask_enabled() { return GET_SETTING(ArteryMaskEnabled); }
 inline void set_artery_mask_enabled(bool value)
 {
     UPDATE_SETTING(ArteryMaskEnabled, value);
@@ -562,10 +562,21 @@ inline void set_time_window(int value)
  * \name Otsu
  *
  */
-inline bool set_otsu_enabled() { return GET_SETTING(OtsuEnabled); }
+inline bool get_otsu_enabled() { return GET_SETTING(OtsuEnabled); }
 inline void set_otsu_enabled(bool value)
 {
     UPDATE_SETTING(OtsuEnabled, value);
+    pipe_refresh();
+}
+
+/*!
+ * \name Vesselness Sigma
+ *
+ */
+inline bool get_vesselness_sigma() { return GET_SETTING(VesselnessSigma); }
+inline void set_vesselness_sigma(double value)
+{
+    UPDATE_SETTING(VesselnessSigma, value);
     pipe_refresh();
 }
 

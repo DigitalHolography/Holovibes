@@ -185,7 +185,7 @@ void Analysis::insert_show_artery()
                               m0_ff_sum_image_,
                               time_window_,
                               buffers_.gpu_postprocess_frame_size,
-                              stream_);
+                              stream_); // call it and_centering when adding the - jsp quoi
             }
         });
 }

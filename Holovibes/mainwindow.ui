@@ -2561,6 +2561,50 @@ It's a post-processing step to remove noise</string>
            </item>
           </layout>
          </item>
+          <item>
+          <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string></string>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="minimum">
+              <double>0.10000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>5.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QSlider" name="VesselnessSigmaSlider">
+              <property name="styleSheet">
+                <string notr="true"/>
+              </property>
+              <property name="minimum">
+                <number>10</number>
+              </property>
+              <property name="maximum">
+                <number>500</number>
+              </property>
+              <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+              </property>
+            </widget>
+          </item>
         </layout>
             
            
@@ -6090,6 +6134,38 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
+  <connection>
+    <sender>VesselnessSigmaDoubleSpinBox</sender>
+    <signal>valueChanged(double)</signal>
+    <receiver>AnalysisPanel</receiver>
+    <slot>update_vesselness_sigma(double)</slot>
+    <hints>
+      <hint type="sourcelabel">
+      <x>175</x>
+      <y>336</y>
+      </hint>
+      <hint type="destinationlabel">
+      <x>0</x>
+      <y>202</y>
+      </hint>
+    </hints>
+  </connection>
+  <connection>
+   <sender>VesselnessSigmaSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_vesselness_sigma_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
 
 
  </connections>
@@ -6214,6 +6290,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
+
+  <!-- Analysis slots -->
   <slot>update_time_window(int)</slot>
+  <slot>update_vesselness_sigma(double)</slot>
+  <slot>update_vesselness_sigma_slider(int)</slot>
  </slots>
 </ui>

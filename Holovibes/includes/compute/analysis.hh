@@ -23,7 +23,8 @@
     holovibes::settings::OtsuEnabled,              \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
-    holovibes::settings::TimeWindow
+    holovibes::settings::TimeWindow,               \
+    holovibes::settings::VesselnessSigma           \
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS
