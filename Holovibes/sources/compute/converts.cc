@@ -144,6 +144,8 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
 {
     LOG_FUNC();
 
+    LOG_WARN("Insert composite");
+
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
@@ -152,6 +154,9 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
             if (!is_between<ushort>(rgb_struct.frame_index.min, 0, time_transformation_size) ||
                 !is_between<ushort>(rgb_struct.frame_index.max, 0, time_transformation_size))
                 return;
+
+            LOG_WARN("Composite");
+            cudaCheckError();
 
             if (setting<settings::CompositeKind>() == CompositeKind::RGB)
             {
@@ -163,6 +168,7 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     rgb_struct.frame_index.max,
                     rgb_struct.weight,
                     stream_);
+                cudaCheckError();
 
                 if (setting<settings::CompositeAutoWeights>())
                 {
@@ -180,6 +186,7 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                                         (static_cast<double>(averages[1]) / max) * factor,
                                         (static_cast<double>(averages[2]) / max) * factor);
                 }
+                cudaCheckError();
             }
             else
             {
@@ -192,6 +199,9 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                     setting<settings::HSV>(),
                     setting<settings::ZFFTShift>());
             }
+
+            cudaCheckError();
+            LOG_WARN("All done");
         });
 }
 

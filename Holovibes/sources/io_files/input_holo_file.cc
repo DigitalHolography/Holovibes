@@ -168,9 +168,9 @@ void InputHoloFile::import_compute_settings()
     else if (holo_file_header_.version == 4)
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
     else if (holo_file_header_.version == 5)
-        ;
+        ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V5);
     else
-        LOG_ERROR("HOLO file version not supported!");
+        LOG_ERROR("HOLO file version {} not supported!", holo_file_header_.version);
 
     if (!has_footer)
     {

@@ -135,9 +135,6 @@ struct JsonSettings
 
         data["compute settings"]["image rendering"]["space transformation"] = static_cast<SpaceTransformation>(
             static_cast<int>(data["compute settings"]["image rendering"]["space transformation"]));
-        // TODO moi update footer
-        // data["compute settings"]["image rendering"]["image mode"] =
-        //    static_cast<Computation>(static_cast<int>(data["compute settings"]["image rendering"]["image mode"]) - 1);
         data["compute settings"]["image rendering"]["time transformation"] = static_cast<TimeTransformation>(
             static_cast<int>(data["compute settings"]["image rendering"]["time transformation"]));
     }
@@ -200,6 +197,7 @@ struct JsonSettings
         {ComputeSettingsVersion::V2, ComputeSettingsVersion::V3, "patch_v2_to_v3.json", convert_default},
         {ComputeSettingsVersion::V3, ComputeSettingsVersion::V4, "patch_v3_to_v4.json", convert_v3_to_v4},
         {ComputeSettingsVersion::V4, ComputeSettingsVersion::V5, "patch_v4_to_v5.json", convert_v4_to_v5},
+        {ComputeSettingsVersion::V5, ComputeSettingsVersion::V6, "patch_v5_to_v6.json", convert_default},
     };
 };
 

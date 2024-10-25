@@ -142,24 +142,38 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
+        resize_buffers();
+    }
+
+    void resize_buffers()
+    {
+        camera::FrameDescriptor output_fd = input_queue_.get_fd();
+        uint frame_size = static_cast<int>(output_fd.get_frame_res());
+
         if (setting<settings::ImageType>() == ImgType::Composite)
         {
-            // Grey to RGB
-            zone_size *= 3;
-            buffers_.gpu_postprocess_frame_size *= 3;
+            frame_size *= 3;
+            output_fd.depth = camera::PixelDepth::Bits48;
         }
+        else if (setting<settings::ImageType>() != ImgType::Raw)
+            output_fd.depth = camera::PixelDepth::Bits16;
 
-        buffers_.gpu_postprocess_frame_size = zone_size;
+        buffers_.gpu_postprocess_frame_size = frame_size;
+
+        gpu_output_queue_.rebuild(output_fd,
+                                  static_cast<unsigned int>(setting<settings::OutputBufferSize>()),
+                                  stream_,
+                                  Device::GPU);
 
         // Allocate the buffers
-        int err = !buffers_.gpu_output_frame.resize(zone_size);
+        int err = !buffers_.gpu_output_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_mask.resize(zone_size);
-        err += !buffers_.gpu_input_filter_mask.resize(zone_size);
+        err += !buffers_.gpu_filter2d_mask.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_input_filter_mask.resize(buffers_.gpu_postprocess_frame_size);
 
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -181,6 +195,8 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
+
+        ResizeBuffer, // Called when switching ImgType is from or to Composite (since composite is x3 in buffer size)
 
         Refresh,
         RefreshEnabled,

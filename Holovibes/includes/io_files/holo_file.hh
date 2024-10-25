@@ -30,6 +30,8 @@
 #include "compute_settings_struct.hh"
 using json = ::nlohmann::json;
 
+#define HOLO_CURRENT_VERSION 6
+
 /*! \brief #TODO Add a description for this namespace */
 namespace holovibes::io_files
 {
@@ -89,7 +91,5 @@ class HoloFile
     json meta_data_;
     /*! \brief The json meta data present in the footer */
     ComputeSettings raw_footer_;
-    /*! \brief Current version of the holo file, update it when changing version */
-    static constexpr uint16_t current_version_ = 5;
 };
 } // namespace holovibes::io_files

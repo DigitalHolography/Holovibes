@@ -279,12 +279,6 @@ void Holovibes::init_pipe()
 {
     LOG_FUNC();
     camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
-    if (api::get_img_type() != ImgType::Raw)
-    {
-        output_fd.depth = camera::PixelDepth::Bits16;
-        if (api::get_img_type() == ImgType::Composite)
-            output_fd.depth = camera::PixelDepth::Bits48;
-    }
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
                                                     static_cast<unsigned int>(api::get_output_buffer_size()),
                                                     QueueType::OUTPUT_QUEUE));

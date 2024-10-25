@@ -255,38 +255,17 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
     if (checked)
     {
-        api::set_yz_enabled(true);
-        api::set_xz_enabled(true);
         const ushort nImg = api::get_time_transformation_size();
-        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-        if (time_transformation_size > time_transformation_cuts_window_max_size)
-            time_transformation_size = time_transformation_cuts_window_max_size;
+        uint time_transformation_size = std::max(256u, std::min(time_transformation_cuts_window_max_size, (uint)nImg));
 
         if (!api::set_3d_cuts_view(time_transformation_size))
-        {
-            cancel_time_transformation_cuts();
-            api::set_yz_enabled(false);
-            api::set_xz_enabled(false);
-        }
+            api::cancel_time_transformation_cuts();
 
         parent_->notify();
     }
     // FIXME: if slice are closed, cancel time should be call.
     else
-    {
-        cancel_time_transformation_cuts();
-        api::set_yz_enabled(false);
-        api::set_xz_enabled(false);
-    }
-}
-
-void ViewPanel::cancel_time_transformation_cuts()
-{
-    if (!api::get_cuts_view_enabled())
-        return;
-
-    api::cancel_time_transformation_cuts();
+        api::cancel_time_transformation_cuts();
 }
 
 void ViewPanel::set_fft_shift(const bool value)
@@ -295,8 +274,6 @@ void ViewPanel::set_fft_shift(const bool value)
         return;
 
     api::set_fft_shift_enabled(value);
-
-    // api::pipe_refresh();
 }
 
 void ViewPanel::update_lens_view(bool checked)

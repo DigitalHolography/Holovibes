@@ -82,6 +82,7 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
 
         moments_env_.stft_res_buffer.resize(frame_res * size);
         fft_freqs();
+        LOG_WARN("Moments buffer setup: {}", size);
 
         perform_time_transformation_setting_specific_tasks(size);
 

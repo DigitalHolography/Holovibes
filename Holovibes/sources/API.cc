@@ -307,6 +307,10 @@ void set_view_mode(const ImgType type)
 {
     try
     {
+        // Composite images takes x3 since they are three channels
+        if (type == ImgType::Composite || get_img_type() == ImgType::Composite)
+            api::get_compute_pipe()->request(ICS::ResizeBuffer);
+
         api::set_img_type(type);
 
         pipe_refresh();
@@ -386,7 +390,11 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+
         set_cuts_view_enabled(true);
+        set_yz_enabled(true);
+        set_xz_enabled(true);
+
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
@@ -405,6 +413,9 @@ bool set_3d_cuts_view(uint time_transformation_size)
 
 void cancel_time_transformation_cuts()
 {
+    if (!api::get_cuts_view_enabled())
+        return;
+
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -416,8 +427,12 @@ void cancel_time_transformation_cuts()
     }
 
     Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
-    pipe_refresh();
+
     set_cuts_view_enabled(false);
+    set_yz_enabled(false);
+    set_xz_enabled(false);
+
+    pipe_refresh();
 }
 
 #pragma endregion
