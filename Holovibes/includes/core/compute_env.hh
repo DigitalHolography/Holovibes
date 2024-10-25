@@ -6,6 +6,8 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <cufft.h>
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -161,6 +163,13 @@ struct StabilizationEnv
     cuda_tools::CudaUniquePtr<float> gpu_xcorr_output = nullptr;
 
     std::unique_ptr<bool> ref = std::make_unique<bool>(false);
+
+    cufftComplex* d_freq_1;
+    cufftComplex* d_freq_2;
+    cufftComplex* d_corr_freq;
+    // std::unique_ptr<cufftComplex>
+    // cufftHandle plan_2d;
+    // cufftHandle plan_2dinv;
 };
 
 /*! \struct TimeTransformationEnv

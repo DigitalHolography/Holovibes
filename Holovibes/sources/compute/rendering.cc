@@ -20,7 +20,15 @@
 
 namespace holovibes::compute
 {
-Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
+Rendering::~Rendering()
+{
+    cudaXFreeHost(percent_min_max_);
+    // cufftDestroy(*(stabilization_env.plan_2d.get()));
+    // cufftDestroy(*(stabilization_env.plan_2d.get()));
+    // cudaFree(stabilization_env_.d_freq_1);
+    // cudaFree(stabilization_env_.d_freq_2);
+    // cudaFree(stabilization_env_.d_corr_freq);
+}
 
 void Rendering::insert_fft_shift()
 {
@@ -54,7 +62,6 @@ void Rendering::insert_stabilization()
             [=]()
             {
                 stabilization_get_mask(stabilization_env_.gpu_circle_mask, fd_.width, fd_.height, stream_);
-
                 get_mean_in_mask(buffers_.gpu_postprocess_frame,
                                  stabilization_env_.gpu_circle_mask,
                                  stabilization_env_.current_image_mean.get(),
@@ -107,20 +114,25 @@ void Rendering::insert_stabilization()
                 }
                 else
                 {
-                    xcorr2(stabilization_env_.gpu_xcorr_output, //  // //buffers_.gpu_postprocess_frame, //
+                    xcorr2(stabilization_env_.gpu_xcorr_output, // buffers_.gpu_postprocess_frame, //
                            stabilization_env_.gpu_current_image,
                            stabilization_env_.gpu_reference_image,
                            fd_.width,
                            fd_.height,
-                           stream_);
+                           stream_,
+                           stabilization_env_.d_freq_1,
+                           stabilization_env_.d_freq_2,
+                           stabilization_env_.d_corr_freq);
 
+                    //    stabilization_env.plan_2d.get(),
+                    //    stabilization_env.plan_2d.get());
                     cudaStreamSynchronize(stream_);
-                    return;
                     int max_index;
                     cublasHandle_t handle;
                     cublasCreate(&handle);
                     cublasIsamax(handle,
-                                 (fd_.width * 2 - 1) * (fd_.height * 2 - 1),
+                                 fd_.width * fd_.height,
+                                 //(fd_.width * 2 - 1) * (fd_.height * 2 - 1),
                                  stabilization_env_.gpu_xcorr_output,
                                  1,
                                  &max_index);
@@ -145,10 +157,15 @@ void Rendering::insert_stabilization()
                     // LOG_INFO("Y: ");
                     // LOG_INFO(y);
 
-                    x = -x;
-                    y = -y;
+                    // x = -x;
+                    // y = -y;
 
                     complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y, stream_);
+                    // apply_mask(buffers_.gpu_postprocess_frame,
+                    //            stabilization_env_.gpu_circle_mask,
+                    //            fd_.width * fd_.height,
+                    //            1,
+                    //            stream_);
                 }
 
                 // LOG_INFO(*(stabilization_env_.current_image_mean.get()));

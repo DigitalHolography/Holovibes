@@ -15,7 +15,7 @@
 #include "apply_mask.cuh"
 #include "logger.hh"
 #include "convolution.cuh"
-
+#include <cufft.h>
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
@@ -77,7 +77,7 @@ class Rendering
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
               const TimeTransformationEnv& time_transformation_env,
-              const StabilizationEnv& stabilization_env,
+              StabilizationEnv& stabilization_env,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
@@ -175,7 +175,7 @@ class Rendering
     /*! \brief Time transformation environment */
     const TimeTransformationEnv& time_transformation_env_;
     /*! \brief Stabilization environment */
-    const StabilizationEnv& stabilization_env_;
+    StabilizationEnv& stabilization_env_;
     /*! \brief Image accumulation environment */
     const ImageAccEnv& image_acc_env_;
     /*! \brief Describes the input frame size */

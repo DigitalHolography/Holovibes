@@ -37,9 +37,16 @@ void convolution_float(float* output,
                        const cufftHandle plan2d_inverse,
                        cudaStream_t stream);
 
+// void xcorr2(float* output, float* input1, float* input2, const short width, const short height, cudaStream_t stream);
+
 void xcorr2(float* output,
-            const float* input1,
-            const float* input2,
+            float* input1,
+            float* input2,
             const short width,
             const short height,
-            cudaStream_t stream);
+            cudaStream_t stream,
+            cufftComplex* d_freq_1,
+            cufftComplex* d_freq_2,
+            cufftComplex* d_corr_freq);
+// cufftHandle plan_2d,
+// cufftHandle plan_2dinv);

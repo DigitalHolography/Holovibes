@@ -160,17 +160,30 @@ class ICompute
         err += !stabilization_env_.gpu_reference_image.resize(buffers_.gpu_postprocess_frame_size);
         err += !stabilization_env_.gpu_current_image.resize(buffers_.gpu_postprocess_frame_size);
         err += !stabilization_env_.gpu_circle_mask.resize(buffers_.gpu_postprocess_frame_size);
-        err += !stabilization_env_.gpu_xcorr_output.resize((fd.height * 2 - 1) * (fd.width * 2 - 1));
+        err += !stabilization_env_.gpu_xcorr_output.resize(
+            buffers_.gpu_postprocess_frame_size); // (fd.height * 2 - 1) * (fd.width * 2 - 1));
         err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
+        int freq_size = fd.width * (fd.height / 2 + 1); // Taille pour CUFFT R2C
+
+        cudaMalloc((void**)&(stabilization_env_.d_freq_1), sizeof(cufftComplex) * freq_size);
+        cudaMalloc((void**)&(stabilization_env_.d_freq_2), sizeof(cufftComplex) * freq_size);
+        cudaMalloc((void**)&(stabilization_env_.d_corr_freq), sizeof(cufftComplex) * freq_size);
+
+        // cufftPlan2d(&(stabilization_env.plan_2d), fd.width, fd.height, CUFFT_R2C);
+        // cufftPlan2d(&(stabilization_env.plan_2dinv), fd.width, fd.height, CUFFT_C2R);
 
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
     }
+
+    // cudaFree(stabilization_env_.d_freq_1);
+    // cudaFree(stabilization_env_.d_freq_2);
+    // cudaFree(stabilization_env_.d_corr_freq);
 
     /*! \brief Execute one iteration of the ICompute.
      *

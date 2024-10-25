@@ -118,16 +118,39 @@ void tensor_multiply_vector(float* output,
     cudaCheckError();
 }
 
-__global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
+// __global__ void kernel_translation(float* input, float* output, uint width, uint height, int shift_x, int shift_y)
+// {
+//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (index < width * height)
+//     {
+//         const int new_x = index % width;
+//         const int new_y = index / width;
+//         const int old_x = (new_x - shift_x + width) % width;
+//         const int old_y = (new_y - shift_y + height) % height;
+//         output[index] = input[old_y * width + old_x];
+//     }
+// }
+
+__global__ void circshift_kernel(const float* src, float* dst, int width, int height, int shift_x, int shift_y)
 {
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < width * height)
+    // Calcul des coordonnées globales du thread
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < width && y < height)
     {
-        const int new_x = index % width;
-        const int new_y = index / width;
-        const int old_x = (new_x - shift_x + width) % width;
-        const int old_y = (new_y - shift_y + height) % height;
-        output[index] = input[old_y * width + old_x];
+        // Calcul des nouvelles coordonnées en appliquant le décalage
+        int new_x = (x + shift_x) % width;
+        int new_y = (y + shift_y) % height;
+
+        // Ajustement pour des décalages négatifs
+        if (new_x < 0)
+            new_x += width;
+        if (new_y < 0)
+            new_y += height;
+
+        // Copie de l'élément source vers la nouvelle position dans la destination
+        dst[new_y * width + new_x] = src[y * width + x];
     }
 }
 
@@ -140,9 +163,14 @@ void complex_translation(float* frame, uint width, uint height, int shift_x, int
         LOG_ERROR("Can't callocate buffer for repositioning");
         return;
     }
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(width * height, threads);
-    kernel_translation<<<blocks, threads, 0, stream>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
+    // const uint threads = get_max_threads_1d();
+    // const uint blocks = map_blocks_to_problem(width * height, threads);
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    // kernel_translation<<<blocks, threads, 0, stream>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
+    circshift_kernel<<<lblocks, lthreads, 0, stream>>>(frame, tmp_buffer, width, height, shift_x, shift_y);
     cudaCheckError();
     cudaStreamSynchronize(stream);
     cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
