@@ -877,12 +877,17 @@ void set_z_distance(float value)
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value) { UPDATE_SETTING(SpaceTransformation, value); }
+void set_space_transformation(const SpaceTransformation value)
+{
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
 
 void set_time_transformation(const TimeTransformation value)
 {
     UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
+    pipe_refresh();
 }
 
 void set_unwrapping_2d(const bool value)

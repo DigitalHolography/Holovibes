@@ -310,9 +310,6 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
         return;
 
     api::set_space_transformation(st);
-
-    // Permit to reset holo window, to apply time transformation change
-    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -328,9 +325,6 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
         return;
 
     api::set_time_transformation(tt);
-
-    // Permit to reset holo window, to apply time transformation change
-    set_image_mode(static_cast<int>(Computation::Hologram));
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
