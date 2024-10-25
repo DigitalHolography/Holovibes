@@ -302,6 +302,73 @@ void FourierTransform::insert_moments()
         });
 }
 
+void FourierTransform::insert_split_moments()
+{
+    fn_compute_vect_.push_back(
+        [this]()
+        {
+            size_t offset0 = 0, offset1 = 0, offset2 = 0;
+            float* src_buf = moments_env_.stft_res_buffer.get();
+            size_t image_resolution = fd_.get_frame_res();
+            size_t image_size = image_resolution * sizeof(float);
+
+            // For each image of the batch, it is placed in its corresponding buffer.
+            for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
+            {
+                if (i % 3 == 0)
+                {
+                    // Image goes to moment 0
+                    cudaXMemcpy(moments_env_.moment0_buffer + offset0, src_buf, image_size, cudaMemcpyDeviceToDevice);
+                    offset0 += image_resolution;
+                }
+                else if (i % 3 == 1)
+                {
+                    // Image goes to moment 1
+                    cudaXMemcpy(moments_env_.moment1_buffer + offset1, src_buf, image_size, cudaMemcpyDeviceToDevice);
+                    offset1 += image_resolution;
+                }
+                else
+                {
+                    // Image goes to moment 2
+                    cudaXMemcpy(moments_env_.moment2_buffer + offset2, src_buf, image_size, cudaMemcpyDeviceToDevice);
+                    offset2 += image_resolution;
+                }
+                src_buf += image_resolution;
+            }
+        });
+}
+
+void FourierTransform::insert_moments_to_output()
+{
+    fn_compute_vect_.push_back(
+        [this]()
+        {
+            size_t image_resolution = fd_.get_frame_res();
+            size_t image_size = image_resolution * sizeof(float);
+            if (setting<settings::ImageType>() == ImgType::Moments_0)
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment0_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
+            }
+            else if (setting<settings::ImageType>() == ImgType::Moments_1)
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment1_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
+            }
+            else if (setting<settings::ImageType>() == ImgType::Moments_2)
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
+                            moments_env_.moment2_buffer.get(),
+                            image_size,
+                            cudaMemcpyDeviceToDevice);
+            }
+        });
+}
+
 void FourierTransform::insert_pca()
 {
     LOG_FUNC();

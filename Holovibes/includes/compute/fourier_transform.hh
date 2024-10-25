@@ -113,6 +113,23 @@ class FourierTransform
      */
     void insert_moments();
 
+    /**
+     * \brief Split the three moments from moments_env_.stft_res_buffer
+     * which has dequeued input moments, to the three moment buffers in moments_env_.
+     *
+     * Only executes when the input data is of moments type.
+     *
+     */
+    void insert_split_moments();
+
+    /**
+     * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
+     * if the corresponding image type is selected.
+     *
+     * \note This function probably only exists for test purposes.
+     */
+    void insert_moments_to_output();
+
     /*! \brief Enqueue functions relative to time transformation cuts display when there are activated */
     void insert_time_transformation_cuts_view(const camera::FrameDescriptor& fd,
                                               float* gpu_postprocess_frame_xz,

@@ -153,7 +153,7 @@ void ICompute::update_spatial_transformation_parameters()
 
     if (api::get_data_type() == RecordedDataType::MOMENTS)
     {
-        auto frame_res = input_queue_.get_fd().get_frame_res();
+        auto frame_res = input_queue_fd.get_frame_res();
         auto batch_size = api::get_batch_size();
         if (batch_size % 3 != 0)
         {
