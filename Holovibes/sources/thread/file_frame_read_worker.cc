@@ -201,7 +201,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
-        if (flag_packed != 8 && flag_packed != 16)
+        if (flag_packed != 8 && flag_packed != 16 && flag_packed != 32)
         {
             const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);

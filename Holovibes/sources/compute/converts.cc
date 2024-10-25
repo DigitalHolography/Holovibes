@@ -405,11 +405,7 @@ void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
                           size_t frame_res,
                           camera::PixelDepth depth,
                           cudaStream_t stream)
-    {
-        // Somehow, the input queue always contains 0 while in moments mode,
-        // need to investigate
-        input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream);
-    };
+    { input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream); };
 
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, move_floats, output]()
