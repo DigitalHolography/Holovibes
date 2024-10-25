@@ -127,13 +127,6 @@ class ImageRenderingPanel : public Panel
     void set_divide_convolution(const bool value);
 
     /*!
-     * \brief Sets the z step
-     *
-     * \param value the new value
-     */
-    void set_z_step(double value);
-
-    /*!
      * \brief Gets the z step
      *
      * \return double the current z step

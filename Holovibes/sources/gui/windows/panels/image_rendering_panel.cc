@@ -179,15 +179,8 @@ void ImageRenderingPanel::set_image_mode(int mode)
 
 void ImageRenderingPanel::update_batch_size()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    uint batch_size = ui_->BatchSizeSpinBox->value();
-
-    // Need a notify because time transformation stride might change due to change on batch size
-    auto notify_callback = [=]() { parent_->notify(); };
-
-    api::update_batch_size(notify_callback, batch_size);
+    api::update_batch_size(ui_->BatchSizeSpinBox->value());
+    parent_->notify();
 }
 
 void ImageRenderingPanel::update_time_stride()
@@ -273,24 +266,16 @@ void ImageRenderingPanel::refresh_input_filter()
     }
 
     api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-    holovibes::api::pipe_refresh();
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_space_transformation(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     SpaceTransformation st;
 
     try
@@ -305,24 +290,13 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
         throw;
     }
 
-    // Prevent useless reload of Holo window
-    if (st == api::get_space_transformation())
-        return;
-
     api::set_space_transformation(st);
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     // json{} return an array
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
-    LOG_DEBUG("value.toStdString() : {}", value.toStdString());
-    // Prevent useless reload of Holo window
-    if (api::get_time_transformation() == tt)
-        return;
 
     api::set_time_transformation(tt);
 }
@@ -412,17 +386,8 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
     api::set_divide_convolution(value);
-
     parent_->notify();
-}
-
-void ImageRenderingPanel::set_z_step(double value)
-{
-    z_step_ = value;
-    ui_->ZDoubleSpinBox->setSingleStep(value);
 }
 
 double ImageRenderingPanel::get_z_step() { return z_step_; }
