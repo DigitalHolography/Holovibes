@@ -11,7 +11,6 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
-#include "stabilization.cuh"
 #include "apply_mask.cuh"
 #include "logger.hh"
 #include "convolution.cuh"
@@ -31,7 +30,6 @@
     holovibes::settings::Filter2dViewEnabled,      \
     holovibes::settings::ChartDisplayEnabled,      \
     holovibes::settings::FftShiftEnabled,          \
-    holovibes::settings::StabilizationEnabled,     \
     holovibes::settings::CutsViewEnabled,          \
     holovibes::settings::ReticleDisplayEnabled,    \
     holovibes::settings::ChartRecordEnabled,       \
@@ -55,7 +53,6 @@ class ICompute;
 struct CoreBuffersEnv;
 struct ChartEnv;
 struct TimeTransformationEnv;
-struct StabilizationEnv;
 struct ImageAccEnv;
 } // namespace holovibes
 
@@ -77,7 +74,6 @@ class Rendering
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
               const TimeTransformationEnv& time_transformation_env,
-              StabilizationEnv& stabilization_env,
               const camera::FrameDescriptor& input_fd,
               const camera::FrameDescriptor& output_fd,
               const cudaStream_t& stream,
@@ -86,7 +82,6 @@ class Rendering
         , buffers_(buffers)
         , chart_env_(chart_env)
         , time_transformation_env_(time_transformation_env)
-        , stabilization_env_(stabilization_env)
         , image_acc_env_(image_acc_env)
         , input_fd_(input_fd)
         , fd_(output_fd)
@@ -101,8 +96,6 @@ class Rendering
 
     /*! \brief insert the functions relative to the fft shift. */
     void insert_fft_shift();
-    /*! \brief insert the functions relative to the stabilization. */
-    void insert_stabilization();
     /*! \brief insert the functions relative to noise and signal chart. */
     void insert_chart();
     /*! \brief insert the functions relative to the log10. */
@@ -174,8 +167,6 @@ class Rendering
     ChartEnv& chart_env_;
     /*! \brief Time transformation environment */
     const TimeTransformationEnv& time_transformation_env_;
-    /*! \brief Stabilization environment */
-    StabilizationEnv& stabilization_env_;
     /*! \brief Image accumulation environment */
     const ImageAccEnv& image_acc_env_;
     /*! \brief Describes the input frame size */

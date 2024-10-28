@@ -295,19 +295,18 @@ void Pipe::refresh()
 
     insert_filter2d_view();
 
-    // Postprocessing
+    // Postprocessing'
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
 
     // Rendering
     rendering_->insert_fft_shift();
-    rendering_->insert_stabilization();
+    stabilization_->insert_stabilization();
+
     image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
-    // if (setting<settings::StabilizationEnabled>())
-    //     rendering_->insert_fft_shift();
 
     rendering_->insert_chart();
     rendering_->insert_log();

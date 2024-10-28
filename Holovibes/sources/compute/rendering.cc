@@ -20,15 +20,7 @@
 
 namespace holovibes::compute
 {
-Rendering::~Rendering()
-{
-    cudaXFreeHost(percent_min_max_);
-    // cufftDestroy(*(stabilization_env.plan_2d.get()));
-    // cufftDestroy(*(stabilization_env.plan_2d.get()));
-    // cudaFree(stabilization_env_.d_freq_1);
-    // cudaFree(stabilization_env_.d_freq_2);
-    // cudaFree(stabilization_env_.d_corr_freq);
-}
+Rendering::~Rendering() { cudaXFreeHost(percent_min_max_); }
 
 void Rendering::insert_fft_shift()
 {
@@ -48,129 +40,6 @@ void Rendering::insert_fft_shift()
         else
             fn_compute_vect_.conditional_push_back(
                 [=]() { shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_); });
-    }
-}
-
-void Rendering::insert_stabilization()
-{
-    LOG_FUNC();
-
-    if (setting<settings::StabilizationEnabled>())
-    {
-        // TODO : Continue Stabilization
-        fn_compute_vect_.conditional_push_back(
-            [=]()
-            {
-                stabilization_get_mask(stabilization_env_.gpu_circle_mask, fd_.width, fd_.height, stream_);
-                get_mean_in_mask(buffers_.gpu_postprocess_frame,
-                                 stabilization_env_.gpu_circle_mask,
-                                 stabilization_env_.current_image_mean.get(),
-                                 fd_.width * fd_.height,
-                                 stream_);
-
-                rescale_in_mask(stabilization_env_.gpu_current_image,
-                                buffers_.gpu_postprocess_frame, // buffers_.gpu_postprocess_frame,
-                                stabilization_env_.gpu_circle_mask,
-                                *(stabilization_env_.current_image_mean.get()),
-                                fd_.width * fd_.height,
-                                stream_);
-
-                apply_mask(stabilization_env_.gpu_current_image,
-                           stabilization_env_.gpu_circle_mask,
-                           fd_.width * fd_.height,
-                           1,
-                           stream_);
-
-                // copy_(buffers_.gpu_postprocess_frame,
-                //       stabilization_env_.gpu_current_image,
-                //       fd_.width * fd_.height,
-                //       stream_);
-
-                // cudaMemcpy(buffers_.gpu_postprocess_frame.get(),
-                //            stabilization_env_.gpu_current_image.get(),
-                //            fd_.width * fd_.height,
-                //            cudaMemcpyDeviceToDevice);
-
-                // apply_mask(buffers_.gpu_postprocess_frame,
-                //            stabilization_env_.gpu_circle_mask,
-                //            fd_.width * fd_.height,
-                //            1,
-                //            stream_);
-
-                if (!*(stabilization_env_.ref.get()))
-                {
-                    *(stabilization_env_.ref) = true;
-                    // cudaMemcpy(stabilization_env_.gpu_reference_image.get(),
-                    //            stabilization_env_.gpu_current_image.get(),
-                    //            fd_.width * fd_.height,
-                    //            cudaMemcpyDeviceToDevice);
-
-                    copy_(stabilization_env_.gpu_reference_image,
-                          stabilization_env_.gpu_current_image,
-                          fd_.width * fd_.height,
-                          stream_);
-
-                    *(stabilization_env_.reference_image_mean) = *(stabilization_env_.current_image_mean);
-                }
-                else
-                {
-                    xcorr2(stabilization_env_.gpu_xcorr_output, // buffers_.gpu_postprocess_frame, //
-                           stabilization_env_.gpu_current_image,
-                           stabilization_env_.gpu_reference_image,
-                           fd_.width,
-                           fd_.height,
-                           stream_,
-                           stabilization_env_.d_freq_1,
-                           stabilization_env_.d_freq_2,
-                           stabilization_env_.d_corr_freq);
-
-                    //    stabilization_env.plan_2d.get(),
-                    //    stabilization_env.plan_2d.get());
-                    cudaStreamSynchronize(stream_);
-                    int max_index;
-                    cublasHandle_t handle;
-                    cublasCreate(&handle);
-                    cublasIsamax(handle,
-                                 fd_.width * fd_.height,
-                                 //(fd_.width * 2 - 1) * (fd_.height * 2 - 1),
-                                 stabilization_env_.gpu_xcorr_output,
-                                 1,
-                                 &max_index);
-                    max_index--;
-                    cublasDestroy(handle);
-
-                    // Step 4: Convert the linear index to (x, y) coordinates
-                    int x = max_index % fd_.width; // Column
-                    int y = max_index / fd_.width; // Row
-
-                    if (x > fd_.width / 2)
-                        x -= fd_.width;
-                    if (y > fd_.height / 2)
-                        y -= fd_.height;
-
-                    // x = 1; // 384 + fd_.width;
-                    // y = 1; // 384 + fd_.height;
-                    // LOG_INFO("max: ");
-                    // LOG_INFO(max_index);
-                    // LOG_INFO("X: ");
-                    // LOG_INFO(x);
-                    // LOG_INFO("Y: ");
-                    // LOG_INFO(y);
-
-                    // x = -x;
-                    // y = -y;
-
-                    complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y, stream_);
-                    // apply_mask(buffers_.gpu_postprocess_frame,
-                    //            stabilization_env_.gpu_circle_mask,
-                    //            fd_.width * fd_.height,
-                    //            1,
-                    //            stream_);
-                }
-
-                // LOG_INFO(*(stabilization_env_.current_image_mean.get()));
-                // LOG_WARN(*(stabilization_env_.reference_image_mean.get()));
-            });
     }
 }
 

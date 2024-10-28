@@ -17,6 +17,7 @@
 #include "postprocessing.hh"
 #include "function_vector.hh"
 #include "logger.hh"
+#include "stabilization.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -91,13 +92,14 @@ class Pipe : public ICompute
                                                                           moments_env_,
                                                                           stream_,
                                                                           settings);
+        stabilization_ =
+            std::make_unique<compute::Stabilization>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
                                                           chart_env_,
                                                           image_acc_env_,
                                                           time_transformation_env_,
-                                                          stabilization_env_,
                                                           input.get_fd(),
                                                           output.get_fd(),
                                                           stream_,
@@ -168,6 +170,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Stabilization>)
+            stabilization_->update_setting(setting);
 
         if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
@@ -286,6 +291,7 @@ class Pipe : public ICompute
      */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+    std::unique_ptr<compute::Stabilization> stabilization_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;

@@ -72,3 +72,27 @@ kernel_circular_mask(float* output, short width, short height, float center_X, f
         }
     }
 }
+
+void get_circular_mask(float* mask,
+                       const float center_X,
+                       const float center_Y,
+                       const float radius,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream)
+{
+    // Setting up the parallelisation.
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    // Allocating memory on GPU to compute the sum [0] and number [1] of pixels, used for mean computation.
+    float* gpu_mean_vector;
+    cudaMalloc(&gpu_mean_vector, 2 * sizeof(float));
+    cudaMemset(gpu_mean_vector, 0, 2 * sizeof(float));
+
+    kernel_circular_mask<<<lblocks, lthreads, 0, stream>>>(mask, width, height, center_X, center_Y, radius);
+
+    cudaXStreamSynchronize(stream);
+    cudaCheckError();
+}
