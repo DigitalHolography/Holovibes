@@ -1854,7 +1854,7 @@ void set_input_file_end_index(size_t value)
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
+void open_advanced_settings(QMainWindow* parent)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =

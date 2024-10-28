@@ -1,5 +1,11 @@
 ## Changelog
 
+### X.X.X
+
+- New dark theme style
+- Add a boundary information above the focus
+- Information worker data are now displayed in a table
+
 ### 13.8.0
 
 - Fixed default S710 ini file

@@ -62,6 +62,7 @@ qt_add_executable(Holovibes
     assets/ui/lightui.ui
     assets/icons/Holovibes.ico
     assets/icons/holovibes.rc
+    assets/style/style.css
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
@@ -69,6 +70,8 @@ qt_add_resources(Holovibes "HolovibesRessources"
     FILES
     assets/icons/Holovibes.ico
     assets/icons/holovibes_logo.png
+    assets/style/drop_down.png
+    assets/style/style.css
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -142,6 +145,8 @@ add_custom_command(TARGET Holovibes POST_BUILD
     # Copy icon and logo
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
     COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/style.css" $<TARGET_FILE_DIR:Holovibes>/assets/style/style.css
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/assets/style/drop_down.png
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -187,6 +192,11 @@ install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
 
 install(DIRECTORY "${HOLO_DIR}/assets/icons/"
     DESTINATION assets/icons
+    COMPONENT application
+)
+
+install(DIRECTORY "${HOLO_DIR}/assets/style/"
+    DESTINATION assets/style
     COMPONENT application
 )
 
