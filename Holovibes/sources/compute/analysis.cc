@@ -265,76 +265,21 @@ void Analysis::insert_otsu()
                 float* data = (float*)malloc(sizeof(float) * buffers_.gpu_postprocess_frame_size);
 
                 float h_min, h_max;
-                cudaMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
-                cudaMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+                cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+                cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
 
                 myKernel2_wrapper(buffers_.gpu_postprocess_frame,
                                   h_min,
                                   h_max,
                                   buffers_.gpu_postprocess_frame_size,
                                   stream_);
-                // cublasStatus_t cublasIsamax(cublasHandle_t handle, int n, const float* x, int incx, int* result)
-                otsuThreshold(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame_size, stream_);
-                /*
-                convolution_kernel(buffers_.gpu_postprocess_frame,
-                                   buffers_.gpu_convolution_buffer,
-                                   cuComplex_buffer_.get(),
-                                   &convolution_plan_,
-                                   fd_.get_frame_res(),
-                                   gpu_kernel_buffer_.get(),
-                                   true,
-                                   stream_);
-
-                 number_image_mean_++;
-                 if (number_image_mean_ == 1)
-                 {
-                     cudaXMemcpy(buffer_m0_ff_img_[0],
-                                 buffers_.gpu_postprocess_frame,
-                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                 cudaMemcpyDeviceToHost);
-
-                     m0_ff_sum_image_ = new float[buffers_.gpu_postprocess_frame_size];
-                     std::memcpy(m0_ff_sum_image_,
-                                 buffer_m0_ff_img_[0],
-                                 buffers_.gpu_postprocess_frame_size * sizeof(float));
-                 }
-                 else
-                 {
-                     float* new_image = new float[buffers_.gpu_postprocess_frame_size];
-                     cudaXMemcpy(new_image,
-                                 buffers_.gpu_postprocess_frame,
-                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                 cudaMemcpyDeviceToHost);
-                     if (number_image_mean_ >= number_hardcode_)
-                     {
-                         for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
-                         {
-                             m0_ff_sum_image_[i] -= buffer_m0_ff_img_[(number_image_mean_ - 1) % number_hardcode_][i];
-                         }
-                     }
-                     std::memcpy(buffer_m0_ff_img_[(number_image_mean_ - 1) % number_hardcode_],
-                                 new_image,
-                                 buffers_.gpu_postprocess_frame_size * sizeof(float));
-
-                     for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
-                     {
-                         m0_ff_sum_image_[i] += new_image[i];
-                     }
-                     // TODO its not 100 it s batch_moment for analysis
-                     if (number_image_mean_ >= number_hardcode_)
-                     {
-                         for (uint i = 0; i < buffers_.gpu_postprocess_frame_size; i++)
-                         {
-                             new_image[i] = m0_ff_sum_image_[i] / number_hardcode_;
-                         }
-                         cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                                     new_image,
-                                     buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                     cudaMemcpyHostToDevice);
-                     }
-                     delete new_image;
-                 }
-                 */
+                float *d_output;
+                computeSomething(buffers_.gpu_postprocess_frame, d_output, fd_.width, fd_.height, stream_);
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                                    d_output,
+                                    buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                    cudaMemcpyDeviceToDevice);
+                cudaFree(d_output);
             }
         });
 }

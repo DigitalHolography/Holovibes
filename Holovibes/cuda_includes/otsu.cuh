@@ -15,5 +15,6 @@
  *
  * \return optimal threshold
  * */
-void otsuThreshold(float* frame, const size_t frame_res, const cudaStream_t stream);
+void computeSomething(float* d_image,float*& d_output, const size_t width, const size_t height, const cudaStream_t stream);
+
 void myKernel2_wrapper(float* d_input, float min, float max, const size_t size, const cudaStream_t stream);
