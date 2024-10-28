@@ -100,9 +100,6 @@ class Analysis
     /*! \brief Buffer used for convolution */
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
 
-    /* \brief Gaussian kernel used for flat field correction */
-    std::vector<float> gaussian_kernel_;
-
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 
@@ -124,13 +121,36 @@ class Analysis
     /*! \brief Get the number of image for the mean mask*/
     int number_image_mean_ = 0;
 
+    // TODO: use CudaUniquePtr for each buffers
+
     /*! \brief Get the mean image*/
     float* m0_ff_sum_image_;
 
     /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs */
     float* buffer_m0_ff_img_ = nullptr;
 
+    /*! \brief Time window for mask */
     int time_window_;
+
+    /*! \brief image with mean calculated for a time window*/
+    float* image_with_mean_;
+
+    /*! \brief image with mean and centered calculated for a time window*/
+    float* image_centered_;
+
+    /*! \brief gaussian kernels for vesselness_filter*/
+    float* g_xx_px_;
+    float* g_xx_qy_;
+
+    float* g_xy_px_;
+    float* g_xy_qy_;
+
+    // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
+    // tkt
+
+    float* g_yy_px_;
+    float* g_yy_qy_;
+
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute

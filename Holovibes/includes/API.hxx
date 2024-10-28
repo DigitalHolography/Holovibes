@@ -573,7 +573,7 @@ inline void set_otsu_enabled(bool value)
  * \name Vesselness Sigma
  *
  */
-inline bool get_vesselness_sigma() { return GET_SETTING(VesselnessSigma); }
+inline double get_vesselness_sigma() { return GET_SETTING(VesselnessSigma); }
 inline void set_vesselness_sigma(double value)
 {
     UPDATE_SETTING(VesselnessSigma, value);

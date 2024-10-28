@@ -9,10 +9,69 @@
 #include "shift_corners.cuh"
 #include "map.cuh"
 #include "holovibes.hh"
-#include "temporal_mean.cuh"
+#include "m0_treatments.cuh"
+#include "vesselness_filter.cuh"
+#include "tools_analysis.cuh"
 #include "API.hh"
 
 using holovibes::cuda_tools::CufftHandle;
+
+#include <iostream>
+#include <fstream>
+
+void writeFloatArrayToFile(const float* array, int size, const std::string& filename)
+{
+    // Ouvre un fichier en mode écriture
+    std::ofstream outFile(filename);
+
+    // Vérifie que le fichier est bien ouvert
+    if (!outFile)
+    {
+        std::cerr << "Erreur : Impossible d'ouvrir le fichier " << filename << std::endl;
+        return;
+    }
+
+    // Écrit chaque élément du tableau dans le fichier, un par ligne
+    for (int i = 0; i < size; ++i)
+    {
+        outFile << array[i] << std::endl;
+    }
+
+    // Ferme le fichier
+    outFile.close();
+    std::cout << "Tableau écrit dans le fichier " << filename << std::endl;
+}
+
+void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+            {
+                outFile << " "; // Separate values in a row by a space
+            }
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
 
 namespace holovibes::compute
 {
@@ -113,6 +172,8 @@ void Analysis::init()
     {
         cudaXFree(buffer_m0_ff_img_);
         cudaXFree(m0_ff_sum_image_);
+        cudaXFree(image_with_mean_);
+        cudaXFree(image_centered_);
     }
     LOG_FUNC();
     const size_t frame_res = fd_.get_frame_res();
@@ -124,13 +185,13 @@ void Analysis::init()
     // No need for memset here since it will be memset in the actual convolution
     cuComplex_buffer_.resize(frame_res);
 
-    gaussian_kernel_ = load_convolution_matrix();
+    std::vector<float> gaussian_kernel = load_convolution_matrix();
 
     gpu_kernel_buffer_.resize(frame_res);
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
-                                   gaussian_kernel_.data(),
+                                   gaussian_kernel.data(),
                                    sizeof(float),
                                    sizeof(float),
                                    frame_res,
@@ -149,8 +210,94 @@ void Analysis::init()
     time_window_ = api::get_time_window();
 
     cudaXMalloc(&buffer_m0_ff_img_, buffers_.gpu_postprocess_frame_size * time_window_ * sizeof(float));
-
+    cudaXMalloc(&image_with_mean_, buffers_.gpu_postprocess_frame_size * sizeof(float));
+    cudaXMalloc(&image_centered_, buffers_.gpu_postprocess_frame_size * sizeof(float));
     cudaXStreamSynchronize(stream_);
+
+    // this part if for the initialisation for the vessel filter
+    float sigma = api::get_vesselness_sigma();
+    std::cout << "sigma : " << sigma << std::endl;
+
+    int gamma = 1;
+    int A = std::pow(sigma, gamma);
+    int x_lim = std::ceil(4 * sigma);
+    int y_lim = std::ceil(4 * sigma);
+    float* x = new float[(x_lim * 2 + 1)];
+    for (int i = 0; i <= 2 * x_lim; ++i)
+    {
+        x[i] = i - x_lim;
+    }
+    float* y = new float[(y_lim * 2 + 1)];
+    for (int i = 0; i <= 2 * y_lim; ++i)
+    {
+        y[i] = i - y_lim;
+    }
+
+    g_xx_px_ = comp_dgaussian(x, sigma, 2, x_lim * 2 + 1);
+    writeFloatArrayToFile(g_xx_px_, (x_lim * 2 + 1) * (y_lim * 2 + 1), "test_gauss.txt");
+    g_xx_qy_ = comp_dgaussian(y, sigma, 0, y_lim * 2 + 1);
+    float* transpose_g_xx_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
+    for (int i = 0; i < x_lim * 2 + 1; ++i)
+    {
+        for (int j = 0; j < y_lim * 2 + 1; ++j)
+        {
+            transpose_g_xx_qy[j * (y_lim * 2 + 1) + i] = g_xx_qy_[i * (x_lim * 2 + 1) + j];
+        }
+    }
+    g_xx_qy_ = transpose_g_xx_qy;
+
+    g_xy_px_ = comp_dgaussian(x, sigma, 1, x_lim * 2 + 1);
+    g_xy_qy_ = comp_dgaussian(y, sigma, 1, y_lim * 2 + 1);
+    float* transpose_g_xy_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
+    for (int i = 0; i < x_lim * 2 + 1; ++i)
+    {
+        for (int j = 0; j < y_lim * 2 + 1; ++j)
+        {
+            transpose_g_xy_qy[j * (y_lim * 2 + 1) + i] = g_xy_qy_[i * (x_lim * 2 + 1) + j];
+        }
+    }
+    g_xy_qy_ = transpose_g_xy_qy;
+
+    g_yy_px_ = comp_dgaussian(x, sigma, 0, x_lim * 2 + 1);
+    g_yy_qy_ = comp_dgaussian(y, sigma, 2, y_lim * 2 + 1);
+    float* transpose_g_yy_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
+    for (int i = 0; i < x_lim * 2 + 1; ++i)
+    {
+        for (int j = 0; j < y_lim * 2 + 1; ++j)
+        {
+            transpose_g_yy_qy[j * (y_lim * 2 + 1) + i] = g_yy_qy_[i * (x_lim * 2 + 1) + j];
+        }
+    }
+    g_yy_qy_ = transpose_g_yy_qy;
+
+    float* tmp = kernel_add_padding(g_xx_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    free(g_xx_qy_);
+    g_xx_qy_ = tmp;
+
+    tmp = kernel_add_padding(g_xx_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    free(g_xx_px_);
+    g_xx_px_ = tmp;
+
+    tmp = kernel_add_padding(g_xy_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    free(g_xy_px_);
+    g_xy_px_ = tmp;
+
+    tmp = kernel_add_padding(g_xy_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    free(g_xy_qy_);
+    g_xy_qy_ = tmp;
+
+    tmp = kernel_add_padding(g_yy_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    write1DFloatArrayToFile(g_yy_px_, 2 * x_lim + 1, 2 * y_lim + 1, "test_no_padding.txt");
+    free(g_yy_px_);
+    g_yy_px_ = tmp;
+    write1DFloatArrayToFile(g_yy_px_, fd_.height, fd_.width, "test_padding.txt");
+
+    tmp = kernel_add_padding(g_yy_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
+    free(g_yy_qy_);
+    g_yy_qy_ = tmp;
+
+    // TODO add 0 padding to every kernels as convolution_kernel function expects kernel to have same size as image even
+    // if kernel is smaller
 }
 
 void Analysis::dispose()
@@ -179,13 +326,39 @@ void Analysis::insert_show_artery()
                                    gpu_kernel_buffer_.get(),
                                    true,
                                    stream_);
-                temporal_mean(buffers_.gpu_postprocess_frame,
+                temporal_mean(image_with_mean_,
+                              buffers_.gpu_postprocess_frame,
                               &number_image_mean_,
                               buffer_m0_ff_img_,
                               m0_ff_sum_image_,
                               time_window_,
                               buffers_.gpu_postprocess_frame_size,
-                              stream_); // call it and_centering when adding the - jsp quoi
+                              stream_);
+                image_centering(image_centered_,
+                                image_with_mean_,
+                                buffers_.gpu_postprocess_frame,
+                                buffers_.gpu_postprocess_frame_size,
+                                stream_);
+
+                /*float* mescouilles = vesselness_filter(image_with_mean_,
+                                                       api::get_vesselness_sigma(),
+                                                       g_xx_px_,
+                                                       g_xx_qy_,
+                                                       g_xy_px_,
+                                                       g_xy_qy_,
+                                                       g_yy_px_,
+                                                       g_yy_qy_,
+                                                       buffers_.gpu_postprocess_frame_size,
+                                                       buffers_.gpu_convolution_buffer,
+                                                       cuComplex_buffer_,
+                                                       &convolution_plan_,
+                                                       stream_);*/
+
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                                 image_with_mean_,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyHostToDevice,
+                                 stream_);
             }
         });
 }

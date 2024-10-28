@@ -2529,7 +2529,7 @@ It's a post-processing step to remove noise</string>
               <number>1</number>
             </property>
             <property name="maximum">
-              <number>1000</number>
+              <number>100000</number>
             </property>
           </widget>
           </item>
