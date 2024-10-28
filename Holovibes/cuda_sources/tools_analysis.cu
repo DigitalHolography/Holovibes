@@ -17,8 +17,8 @@ void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t fra
                       sizeof(cuComplex),      // Pitch of destination memory (width of each row in bytes)
                       kernel,
                       sizeof(float),          // Pitch of source memory (width of each row in bytes)
-                      frame_res * sizeof(float), // Width of data to transfer (in bytes)
-                      1,                      // Height of data to transfer (1 row, since it’s 1D)
+                      sizeof(float), // Width of data to transfer (in bytes)
+                      frame_res,                      // Height of data to transfer (1 row, since it’s 1D)
                       cudaMemcpyHostToDevice,
                       stream);
 }

@@ -167,6 +167,30 @@ std::vector<float> load_convolution_matrix()
 
 } // namespace
 
+static void matrixMultiply(float* matA, float* matB, float* result, int rowsA, int colsA, int colsB)
+{
+    // Initialize result matrix to zero
+    for (int i = 0; i < rowsA; ++i)
+    {
+        for (int j = 0; j < colsB; ++j)
+        {
+            result[i * colsB + j] = 0;
+        }
+    }
+
+    // Perform matrix multiplication
+    for (int i = 0; i < rowsA; ++i)
+    {
+        for (int j = 0; j < colsB; ++j)
+        {
+            for (int k = 0; k < colsA; ++k)
+            {
+                result[i * colsB + j] += matA[i * colsA + k] * matB[k * colsB + j];
+            }
+        }
+    }
+}
+
 void Analysis::init()
 {
     if (buffer_m0_ff_img_ != nullptr)
@@ -243,6 +267,7 @@ void Analysis::init()
     free(g_xx_mul_);
     g_xx_mul_ = new float[x_size * y_size];
     // matrix_multiply<float>(g_xx_qy, g_xx_px, y_size, x_size, 1, g_xx_mul_);
+    matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
 
     float* g_xy_px = comp_dgaussian(x, sigma, 1, x_size);
     float* g_xy_qy = comp_dgaussian(y, sigma, 1, y_size);
@@ -250,6 +275,7 @@ void Analysis::init()
     free(g_xy_mul_);
     g_xy_mul_ = new float[x_size * y_size];
     // matrix_multiply<float>(g_xy_qy, g_xy_px, y_size, x_size, 1, g_xy_mul_);
+    matrixMultiply(g_xy_qy, g_xy_px, g_xy_mul_, y_size, 1, x_size);
 
     float* g_yy_px = comp_dgaussian(x, sigma, 0, x_size);
     float* g_yy_qy = comp_dgaussian(y, sigma, 2, y_size);
@@ -257,6 +283,7 @@ void Analysis::init()
     free(g_yy_mul_);
     g_yy_mul_ = new float[x_size * y_size];
     // matrix_multiply<float>(g_yy_qy, g_yy_px, y_size, x_size, 1, g_yy_mul_);
+    matrixMultiply(g_yy_qy, g_yy_px, g_yy_mul_, y_size, 1, x_size);
 
     free(g_xx_px);
     free(g_xx_qy);
@@ -342,19 +369,19 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
 
-                // float* mescouilles = vesselness_filter(image_with_mean_,
-                //                                        api::get_vesselness_sigma(),
-                //                                        g_xx_mul_,
-                //                                        g_xy_mul_,
-                //                                        g_yy_mul_,
-                //                                        buffers_.gpu_postprocess_frame_size,
-                //                                        buffers_.gpu_convolution_buffer,
-                //                                        cuComplex_buffer_,
-                //                                        &convolution_plan_,
-                //                                        stream_);
+                float* mescouilles = vesselness_filter(image_with_mean_,
+                                                       api::get_vesselness_sigma(),
+                                                       g_xx_mul_,
+                                                       g_xy_mul_,
+                                                       g_yy_mul_,
+                                                       buffers_.gpu_postprocess_frame_size,
+                                                       buffers_.gpu_convolution_buffer,
+                                                       cuComplex_buffer_,
+                                                       &convolution_plan_,
+                                                       stream_);
 
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 image_with_mean_,
+                                 mescouilles,
                                  buffers_.gpu_postprocess_frame_size * sizeof(float),
                                  cudaMemcpyHostToDevice,
                                  stream_);
