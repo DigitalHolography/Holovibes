@@ -607,6 +607,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
+    ui_->ImportPanel->import_stop();
     const bool res = api::change_camera(c);
 
     if (res)
