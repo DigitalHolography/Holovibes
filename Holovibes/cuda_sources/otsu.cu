@@ -5,9 +5,8 @@
 #include "hardware_limits.hh"
 using uint = unsigned int;
 
-#define NUM_BINS 64
+#define NUM_BINS 256
 
-// CUDA kernel to calculate the histogram
 __global__ void histogramKernel(float* image, int* hist, int imgSize)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -15,7 +14,7 @@ __global__ void histogramKernel(float* image, int* hist, int imgSize)
         atomicAdd(&hist[(unsigned char)(image[idx] * NUM_BINS)], 1);
 }
 
-__global__ void myKernel2(float* d_input, float min, float max, int size)
+__global__ void _normalise(float* d_input, float min, float max, int size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -25,11 +24,11 @@ __global__ void myKernel2(float* d_input, float min, float max, int size)
     }
 }
 
-void myKernel2_wrapper(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
+void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    myKernel2<<<blocks, threads, 0, stream>>>(d_input, min, max, size);
+    _normalise<<<blocks, threads, 0, stream>>>(d_input, min, max, size);
     cudaDeviceSynchronize();
 }
 
@@ -72,13 +71,12 @@ __global__ void bradleyThresholdKernel(const float* image,
     output[y * width + x] = (image[y * width + x] > localThreshold) ? 1.0f : 0.0f;
 }
 
-// Fonction pour calculer le seuil global d'Otsu (approximé en CPU)
 float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    // Initialisation des histogrammes
+    // get histogram
     int h_hist[NUM_BINS];
     int* d_hist;
     cudaMalloc(&d_hist, NUM_BINS * sizeof(int));
@@ -88,7 +86,7 @@ float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
     cudaMemcpy(h_hist, d_hist, NUM_BINS * sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(d_hist);
 
-    // Calculer le seuil optimal
+    // Compute optimal threshold
     int total = size;
     float sum = 0, sumB = 0, varMax = 0;
     int wB = 0, wF = 0;
@@ -116,21 +114,17 @@ float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
             threshold = t;
         }
     }
-    return threshold / NUM_BINS; // Normaliser entre 0 et 1
+    return threshold / NUM_BINS;
 }
 
-void computeSomething(
-    float* d_image, float*& output, const size_t width, const size_t height, const cudaStream_t stream)
+void computeBinariseOtsuBradley(
+    float* d_image, float*& d_output, const size_t width, const size_t height, const cudaStream_t stream)
 {
-    // Maybe output
     int windowSize = 15;
     float localThresholdFactor = 0.15;
     size_t img_size = width * height;
 
     float globalThreshold = otsuThreshold(d_image, img_size, stream);
-
-    float* d_output;
-    cudaMalloc(&d_output, img_size * sizeof(float));
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
@@ -143,7 +137,4 @@ void computeSomething(
                                                            globalThreshold,
                                                            localThresholdFactor);
     cudaDeviceSynchronize();
-    output = d_output;
-    // cudaMemcpy(d_image, d_output, img_size * sizeof(float), cudaMemcpyDeviceToDevice);
-    //  cudaFree(d_output);
 }

@@ -239,46 +239,27 @@ void Analysis::insert_otsu()
             {
 
                 cublasHandle_t handle;
-                if (cublasCreate(&handle) != CUBLAS_STATUS_SUCCESS)
-                {
-                    std::cout << "caca here 1" << std::endl;
-                    return;
-                }
+                cublasCreate(&handle);
 
                 int maxI = -1;
                 int minI = -1;
-
-                if (cublasIsamax(handle,
-                                 buffers_.gpu_postprocess_frame_size,
-                                 buffers_.gpu_postprocess_frame,
-                                 1,
-                                 &maxI) != CUBLAS_STATUS_SUCCESS ||
-                    cublasIsamin(handle,
-                                 buffers_.gpu_postprocess_frame_size,
-                                 buffers_.gpu_postprocess_frame,
-                                 1,
-                                 &minI) != CUBLAS_STATUS_SUCCESS)
-                {
-                    std::cout << "caca here 2" << std::endl;
-                    return;
-                }
-                float* data = (float*)malloc(sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
+                cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
 
                 float h_min, h_max;
                 cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
                 cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
 
-                myKernel2_wrapper(buffers_.gpu_postprocess_frame,
-                                  h_min,
-                                  h_max,
-                                  buffers_.gpu_postprocess_frame_size,
-                                  stream_);
-                float *d_output;
-                computeSomething(buffers_.gpu_postprocess_frame, d_output, fd_.width, fd_.height, stream_);
+                normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
+
+                float* d_output;
+                cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
+
+                computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame, d_output, fd_.width, fd_.height, stream_);
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                                    d_output,
-                                    buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                    cudaMemcpyDeviceToDevice);
+                            d_output,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
                 cudaFree(d_output);
             }
         });
