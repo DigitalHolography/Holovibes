@@ -58,11 +58,37 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 }
 
+void ViewPanel::update_img_type(int img_type)
+{
+    ui_->ViewModeComboBox->setCurrentIndex(img_type);
+
+    const int mom0 = static_cast<int>(ImgType::Moments_0);
+    const int mom2 = static_cast<int>(ImgType::Moments_2);
+    auto viewbox_view = qobject_cast<QListView*>(ui_->ViewModeComboBox->view());
+
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+        {
+            if (i < mom0 || i > mom2)
+                viewbox_view->setRowHidden(i, true); // Hide non-moments display options
+        }
+
+        if (img_type < mom0 || img_type > mom2)
+            ui_->ViewModeComboBox->setCurrentIndex(mom0);
+    }
+    else
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+            viewbox_view->setRowHidden(i, false); // Set all display options to be visible again
+    }
+}
+
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
+    update_img_type(static_cast<int>(api::get_img_type()));
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);

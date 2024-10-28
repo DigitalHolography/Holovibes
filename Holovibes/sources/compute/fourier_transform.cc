@@ -313,6 +313,8 @@ void FourierTransform::insert_split_moments()
             size_t image_size = image_resolution * sizeof(float);
 
             // For each image of the batch, it is placed in its corresponding buffer.
+            // QUESTION Do all moment images need to go in the buffers ?
+            // If not, can't we just force set BatchSize to three ?
             for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
             {
                 if (i % 3 == 0)
