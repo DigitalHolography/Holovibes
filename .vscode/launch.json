@@ -16,14 +16,8 @@
             //         "-s",
             //         "3",
             //         "--compute_settings", "${workspaceFolder}/tests/data/8frames_64_64_2/holovibes.json"],
-            // "args": ["-b"],
             "args": [
-                "-i",
-                "E:/DataHolovibesEPITA2023-2024/test for ps1/240718_PUD0162_od - Copy.holo",
-                "-o",
-                "E:/DataHolovibesEPITA2023-2024/test for ps1/240718_PUD0162_od - Copy_out.avi",
-                "--frame_skip",
-                "16"
+                "-b"
             ],
             // "args": ["-i", "${workspaceFolder}/tests/inputs/8frames_64_64.holo", "-o", "${workspaceFolder}/tmp2.holo", "--compute_settings", "${workspaceFolder}/../data/8frames_64_64_1/holovibes.json"],
             // "args": ["-i", "${workspaceFolder}/../../DataHolovibesEPITA/240715_FIY0713_ODD.holo", "-o", "${workspaceFolder}/../normal.holo"],
