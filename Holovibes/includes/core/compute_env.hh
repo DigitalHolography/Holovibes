@@ -203,4 +203,13 @@ struct ImageAccEnv
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
+
+/*! \struct VesselnessMaskEnv
+ *
+ *  \brief Struct containing buffers used for the computation of the vesselness masks
+ *
+ */
+struct VesselnessMaskEnv
+{
+};
 } // namespace holovibes

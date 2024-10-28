@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+
 #include "convolution.cuh"
 #include "tools_conversion.cuh"
 #include "tools_analysis.cuh"
@@ -8,21 +11,51 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
+static void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+            {
+                outFile << " "; // Separate values in a row by a space
+            }
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
 float comp_hermite_rec(int n, float x)
 {
     if (n == 0)
         return 1.0f;
-    else if (n == 1)
+    if (n == 1)
         return 2.0f * x;
-    else if (n > 1)
-        return (2.0f * x * comp_hermite_rec(n - 1, x)) - (2 * (n - 1) * comp_hermite_rec(n - 2, x));
-    else
-        throw std::exception("comp_hermite_rec in velness_filter.cu : n can't be negative");
+    if (n > 1)
+        return (2.0f * x * comp_hermite_rec(n - 1, x)) - (2.0f * (n - 1) * comp_hermite_rec(n - 2, x));
+    throw std::exception("comp_hermite_rec in velness_filter.cu : n can't be negative");
 }
 
 float* comp_gaussian(float* x, float sigma, int x_size)
 {
-    float *to_ret = new float [x_size];
+    float *to_ret = new float[x_size];
     for (int i = 0; i < x_size; i++)
     {
         to_ret[i] = (1 / (sigma * (sqrt(2 * M_PI))) * std::exp((-1 * (std::pow(x[i], 2))) / (2 * std::pow(sigma, 2))));
@@ -43,51 +76,57 @@ float* comp_dgaussian(float* x, float sigma, int n, int x_size)
     {
         C[i] = A * B[i] * C[i];   
     }
+    delete[] B;
     return C;
 }
 
 float* gaussian_imfilter_sep(float* input_img, 
-                            float* input_x, 
-                            float* input_y, 
+                            float* kernel,
                             const size_t frame_res, 
                             float* convolution_buffer, 
                             cuComplex* cuComplex_buffer, 
                             CufftHandle* convolution_plan, 
                             cudaStream_t stream)
 {
+   
     // Copy image
     float* gpu_output;
     cudaXMalloc(&gpu_output, frame_res * sizeof(float));
-    cudaXMemcpy(gpu_output, input_img, frame_res * sizeof(float));
+    cudaXMemcpyAsync(gpu_output, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
-    cuComplex* output_complex_x;
-    cudaXMalloc(&output_complex_x, frame_res * sizeof(cuComplex));
-    load_kernel_in_GPU(output_complex_x, input_x, frame_res, stream);
+    cudaXStreamSynchronize(stream);
 
-    cuComplex* output_complex_y;
-    cudaXMalloc(&output_complex_y, frame_res * sizeof(cuComplex));
-    load_kernel_in_GPU(output_complex_y, input_y, frame_res, stream);
+    cuComplex* output_complex;
+    cudaXMalloc(&output_complex, frame_res * sizeof(cuComplex));
+    load_kernel_in_GPU(output_complex, kernel, frame_res, stream);
+    cudaXStreamSynchronize(stream);
+
     // Apply both convolutions
     convolution_kernel(gpu_output,
                         convolution_buffer,
                         cuComplex_buffer,
                         convolution_plan,
                         frame_res,
-                        output_complex_x,
-                        true,
+                        output_complex,
+                        false,
                         stream);
-    convolution_kernel(gpu_output,
-                        convolution_buffer,
-                        cuComplex_buffer,
-                        convolution_plan,
-                        frame_res,
-                        output_complex_y,
-                        true,
-                        stream);
+    cudaXStreamSynchronize(stream);
 
 
+    // convolution_kernel(gpu_output,
+    //                     convolution_buffer,
+    //                     cuComplex_buffer,
+    //                     convolution_plan,
+    //                     frame_res,
+    //                     output_complex_y,
+    //                     true,
+    //                     stream);
+
+    // cudaXStreamSynchronize(stream);
     float *res = new float[frame_res];
     cudaXMemcpy(res, gpu_output, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
+
+    cudaXStreamSynchronize(stream);
 
     return res;
 }
@@ -100,15 +139,13 @@ void multiply_by_float(float* vect, float num, int frame_size)
     }
 }
 
+
 float* vesselness_filter(float* input, 
                         float sigma, 
-                        float* g_xx_px, 
-                        float* g_xx_qy, 
-                        float* g_xy_px, 
-                        float* g_xy_qy, 
-                        float* g_yy_px, 
-                        float* g_yy_qy, 
-                        int frame_size, 
+                        float* g_xx_mul, 
+                        float* g_xy_mul, 
+                        float* g_yy_mul, 
+                        int frame_res, 
                         float* convolution_buffer, 
                         cuComplex* cuComplex_buffer,
                         CufftHandle* convolution_plan,
@@ -118,19 +155,20 @@ float* vesselness_filter(float* input,
 
     float A = std::pow(sigma, gamma);
 
-    float* Ixx = gaussian_imfilter_sep(input, g_xx_px, g_xx_qy, frame_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Ixx, A, frame_size);
+    float* Ixx = gaussian_imfilter_sep(input, g_xx_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    
+    multiply_by_float(Ixx, A, frame_res);
 
-    float* Ixy = gaussian_imfilter_sep(input, g_xx_px, g_xx_qy, frame_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Ixy, A, frame_size);
+    float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    multiply_by_float(Ixy, A, frame_res);
 
-    float* Iyx = new float[frame_size];
-    for (size_t i = 0; i < frame_size; ++i) {
+    float* Iyx = new float[frame_res];
+    for (size_t i = 0; i < frame_res; ++i) {
         Iyx[i] = Ixy[i];
     }
 
-    float* Iyy = gaussian_imfilter_sep(input, g_xx_px, g_xx_qy, frame_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Iyy, A, frame_size);
+    float* Iyy = gaussian_imfilter_sep(input, g_yy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    multiply_by_float(Iyy, A, frame_res);
 
     return Iyy;
 }

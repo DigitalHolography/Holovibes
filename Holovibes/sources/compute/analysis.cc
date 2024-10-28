@@ -9,6 +9,7 @@
 #include "shift_corners.cuh"
 #include "map.cuh"
 #include "holovibes.hh"
+#include "matrix_operations.hh"
 #include "m0_treatments.cuh"
 #include "vesselness_filter.cuh"
 #include "tools_analysis.cuh"
@@ -216,88 +217,89 @@ void Analysis::init()
 
     // this part if for the initialisation for the vessel filter
     float sigma = api::get_vesselness_sigma();
-    std::cout << "sigma : " << sigma << std::endl;
 
     int gamma = 1;
     int A = std::pow(sigma, gamma);
     int x_lim = std::ceil(4 * sigma);
     int y_lim = std::ceil(4 * sigma);
-    float* x = new float[(x_lim * 2 + 1)];
+    int x_size = x_lim * 2 + 1;
+    int y_size = y_lim * 2 + 1;
+
+    float* x = new float[(x_size)];
     for (int i = 0; i <= 2 * x_lim; ++i)
     {
         x[i] = i - x_lim;
     }
-    float* y = new float[(y_lim * 2 + 1)];
+    float* y = new float[(y_size)];
     for (int i = 0; i <= 2 * y_lim; ++i)
     {
         y[i] = i - y_lim;
     }
 
-    g_xx_px_ = comp_dgaussian(x, sigma, 2, x_lim * 2 + 1);
-    writeFloatArrayToFile(g_xx_px_, (x_lim * 2 + 1) * (y_lim * 2 + 1), "test_gauss.txt");
-    g_xx_qy_ = comp_dgaussian(y, sigma, 0, y_lim * 2 + 1);
-    float* transpose_g_xx_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
-    for (int i = 0; i < x_lim * 2 + 1; ++i)
-    {
-        for (int j = 0; j < y_lim * 2 + 1; ++j)
-        {
-            transpose_g_xx_qy[j * (y_lim * 2 + 1) + i] = g_xx_qy_[i * (x_lim * 2 + 1) + j];
-        }
-    }
-    g_xx_qy_ = transpose_g_xx_qy;
+    // comp_dgaussian c'est sur elle marche
+    float* g_xx_px = comp_dgaussian(x, sigma, 2, x_size);
+    float* g_xx_qy = comp_dgaussian(y, sigma, 0, y_size);
 
-    g_xy_px_ = comp_dgaussian(x, sigma, 1, x_lim * 2 + 1);
-    g_xy_qy_ = comp_dgaussian(y, sigma, 1, y_lim * 2 + 1);
-    float* transpose_g_xy_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
-    for (int i = 0; i < x_lim * 2 + 1; ++i)
-    {
-        for (int j = 0; j < y_lim * 2 + 1; ++j)
-        {
-            transpose_g_xy_qy[j * (y_lim * 2 + 1) + i] = g_xy_qy_[i * (x_lim * 2 + 1) + j];
-        }
-    }
-    g_xy_qy_ = transpose_g_xy_qy;
+    free(g_xx_mul_);
+    g_xx_mul_ = new float[x_size * y_size];
+    // matrix_multiply<float>(g_xx_qy, g_xx_px, y_size, x_size, 1, g_xx_mul_);
 
-    g_yy_px_ = comp_dgaussian(x, sigma, 0, x_lim * 2 + 1);
-    g_yy_qy_ = comp_dgaussian(y, sigma, 2, y_lim * 2 + 1);
-    float* transpose_g_yy_qy = new float[(y_lim * 2 + 1) * (x_lim * 2 + 1)];
-    for (int i = 0; i < x_lim * 2 + 1; ++i)
-    {
-        for (int j = 0; j < y_lim * 2 + 1; ++j)
-        {
-            transpose_g_yy_qy[j * (y_lim * 2 + 1) + i] = g_yy_qy_[i * (x_lim * 2 + 1) + j];
-        }
-    }
-    g_yy_qy_ = transpose_g_yy_qy;
+    float* g_xy_px = comp_dgaussian(x, sigma, 1, x_size);
+    float* g_xy_qy = comp_dgaussian(y, sigma, 1, y_size);
 
-    float* tmp = kernel_add_padding(g_xx_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    free(g_xx_qy_);
-    g_xx_qy_ = tmp;
+    free(g_xy_mul_);
+    g_xy_mul_ = new float[x_size * y_size];
+    // matrix_multiply<float>(g_xy_qy, g_xy_px, y_size, x_size, 1, g_xy_mul_);
 
-    tmp = kernel_add_padding(g_xx_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    free(g_xx_px_);
-    g_xx_px_ = tmp;
+    float* g_yy_px = comp_dgaussian(x, sigma, 0, x_size);
+    float* g_yy_qy = comp_dgaussian(y, sigma, 2, y_size);
 
-    tmp = kernel_add_padding(g_xy_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    free(g_xy_px_);
-    g_xy_px_ = tmp;
+    free(g_yy_mul_);
+    g_yy_mul_ = new float[x_size * y_size];
+    // matrix_multiply<float>(g_yy_qy, g_yy_px, y_size, x_size, 1, g_yy_mul_);
 
-    tmp = kernel_add_padding(g_xy_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    free(g_xy_qy_);
-    g_xy_qy_ = tmp;
+    free(g_xx_px);
+    free(g_xx_qy);
+    free(g_xy_px);
+    free(g_xy_qy);
+    free(g_yy_px);
+    free(g_yy_qy);
 
-    tmp = kernel_add_padding(g_yy_px_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    write1DFloatArrayToFile(g_yy_px_, 2 * x_lim + 1, 2 * y_lim + 1, "test_no_padding.txt");
-    free(g_yy_px_);
-    g_yy_px_ = tmp;
-    write1DFloatArrayToFile(g_yy_px_, fd_.height, fd_.width, "test_padding.txt");
+    float* tmp = kernel_add_padding(g_xx_mul_, x_size, y_size, fd_.height, fd_.width);
+    free(g_xx_mul_);
+    g_xx_mul_ = tmp;
 
-    tmp = kernel_add_padding(g_yy_qy_, 2 * x_lim + 1, 2 * y_lim + 1, fd_.width, fd_.height);
-    free(g_yy_qy_);
-    g_yy_qy_ = tmp;
+    tmp = kernel_add_padding(g_xy_mul_, x_size, y_size, fd_.height, fd_.width);
+    free(g_xy_mul_);
+    g_xy_mul_ = tmp;
 
-    // TODO add 0 padding to every kernels as convolution_kernel function expects kernel to have same size as image even
-    // if kernel is smaller
+    tmp = kernel_add_padding(g_yy_mul_, x_size, y_size, fd_.height, fd_.width);
+    free(g_yy_mul_);
+    g_yy_mul_ = tmp;
+
+    // float* tmp = kernel_add_padding(g_xx_qy_, 1, y_size, 10, 10);
+    // free(g_xx_qy_);
+    // g_xx_qy_ = tmp;
+
+    // tmp = kernel_add_padding(g_xx_px_, x_size, 1, fd_.width, fd_.height);
+    // free(g_xx_px_);
+    // g_xx_px_ = tmp;
+
+    // tmp = kernel_add_padding(g_xy_px_, x_size, y_size, fd_.width, fd_.height);
+    // free(g_xy_px_);
+    // g_xy_px_ = tmp;
+
+    // tmp = kernel_add_padding(g_xy_qy_, x_size, y_size, fd_.width, fd_.height);
+    // free(g_xy_qy_);
+    // g_xy_qy_ = tmp;
+
+    // tmp = kernel_add_padding(g_yy_px_, x_size, y_size, fd_.width, fd_.height);
+    // free(g_yy_px_);
+    // g_yy_px_ = tmp;
+
+    // tmp = kernel_add_padding(g_yy_qy_, x_size, y_size, fd_.width, fd_.height);
+    // free(g_yy_qy_);
+    // g_yy_qy_ = tmp;
 }
 
 void Analysis::dispose()
@@ -340,19 +342,16 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
 
-                /*float* mescouilles = vesselness_filter(image_with_mean_,
-                                                       api::get_vesselness_sigma(),
-                                                       g_xx_px_,
-                                                       g_xx_qy_,
-                                                       g_xy_px_,
-                                                       g_xy_qy_,
-                                                       g_yy_px_,
-                                                       g_yy_qy_,
-                                                       buffers_.gpu_postprocess_frame_size,
-                                                       buffers_.gpu_convolution_buffer,
-                                                       cuComplex_buffer_,
-                                                       &convolution_plan_,
-                                                       stream_);*/
+                // float* mescouilles = vesselness_filter(image_with_mean_,
+                //                                        api::get_vesselness_sigma(),
+                //                                        g_xx_mul_,
+                //                                        g_xy_mul_,
+                //                                        g_yy_mul_,
+                //                                        buffers_.gpu_postprocess_frame_size,
+                //                                        buffers_.gpu_convolution_buffer,
+                //                                        cuComplex_buffer_,
+                //                                        &convolution_plan_,
+                //                                        stream_);
 
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                                  image_with_mean_,

@@ -11,14 +11,16 @@
 
 void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t frame_res, cudaStream_t stream)
 {
-   cudaMemcpy2DAsync(output,
-                                sizeof(cuComplex),
-                                kernel,
-                                sizeof(float),
-                                sizeof(float),
-                                frame_res,
-                                cudaMemcpyHostToDevice,
-                                stream);
+   // Set the width of each element to `sizeof(float)` in bytes to copy the float data.
+    // Set the pitch of the destination to `sizeof(cuComplex)` for correct alignment.
+    cudaMemcpy2DAsync(output,
+                      sizeof(cuComplex),      // Pitch of destination memory (width of each row in bytes)
+                      kernel,
+                      sizeof(float),          // Pitch of source memory (width of each row in bytes)
+                      frame_res * sizeof(float), // Width of data to transfer (in bytes)
+                      1,                      // Height of data to transfer (1 row, since it’s 1D)
+                      cudaMemcpyHostToDevice,
+                      stream);
 }
 
 float* kernel_add_padding(float* kernel, const int width, const int height, const int new_width, const int new_height) {

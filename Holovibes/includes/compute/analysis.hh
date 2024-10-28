@@ -127,29 +127,24 @@ class Analysis
     float* m0_ff_sum_image_;
 
     /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs */
-    float* buffer_m0_ff_img_ = nullptr;
+    float* buffer_m0_ff_img_{nullptr};
 
     /*! \brief Time window for mask */
     int time_window_;
 
     /*! \brief image with mean calculated for a time window*/
-    float* image_with_mean_;
+    float* image_with_mean_{nullptr};
 
     /*! \brief image with mean and centered calculated for a time window*/
-    float* image_centered_;
+    float* image_centered_{nullptr};
 
     /*! \brief gaussian kernels for vesselness_filter*/
-    float* g_xx_px_;
-    float* g_xx_qy_;
-
-    float* g_xy_px_;
-    float* g_xy_qy_;
+    float* g_xx_mul_{nullptr};
+    float* g_xy_mul_{nullptr};
 
     // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
     // tkt
-
-    float* g_yy_px_;
-    float* g_yy_qy_;
+    float* g_yy_mul_{nullptr};
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
