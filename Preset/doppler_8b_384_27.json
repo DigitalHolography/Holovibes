@@ -2,7 +2,7 @@
     "advanced": {
         "buffer_size": {
             "file": 1024,
-            "input": 131072,
+            "input": 2048,
             "output": 1024,
             "record": 2048,
             "time_transformation_cuts": 512

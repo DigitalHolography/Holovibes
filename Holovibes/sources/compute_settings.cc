@@ -16,6 +16,30 @@
 namespace holovibes::api
 {
 
+void merge_json(json& base_json, const json& update_json)
+{
+    for (auto& [key, value] : update_json.items())
+    {
+        // Vérifie si la clé existe dans base_json
+        if (!base_json.contains(key))
+        {
+            throw std::runtime_error("Error: Key '" + key + "' found in update_json but not in base_json");
+        }
+
+        // Si la clé existe déjà dans base_json et que les deux valeurs sont des objets JSON,
+        // appelle récursivement pour fusionner les sous-objets
+        if (base_json[key].is_object() && value.is_object())
+        {
+            merge_json(base_json[key], value);
+        }
+        else
+        {
+            // Sinon, écrase directement la valeur
+            base_json[key] = value;
+        }
+    }
+}
+
 void load_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
@@ -29,9 +53,14 @@ void load_compute_settings(const std::string& json_path)
     auto j_cs = json::parse(ifs);
 
     auto compute_settings = ComputeSettings();
+    compute_settings.Update();
+    json old_one;
+    to_json(old_one, compute_settings);
+
     try
     {
-        from_json(j_cs, compute_settings);
+        merge_json(old_one, j_cs);
+        from_json(old_one, compute_settings);
     }
     catch (const std::exception& e)
     {

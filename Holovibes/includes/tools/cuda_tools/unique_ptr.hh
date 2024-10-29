@@ -110,10 +110,8 @@ class CPUUniquePtr
     {
         T* tmp;
         size *= sizeof(T);
-        std::cout << "sizeof(T) : " << sizeof(T) << std::endl;
         size_ = size;
-        val_.reset(nullptr); // Free itself first
-        std::cout << "size : " << size << std::endl;
+        val_.reset(nullptr);         // Free itself first
         cudaXMallocHost(&tmp, size); // Allocate memory
         val_.reset(tmp);             // Update pointer
         return tmp;

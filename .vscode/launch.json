@@ -16,19 +16,17 @@
             //         "-s",
             //         "3",
             //         "--compute_settings", "${workspaceFolder}/tests/data/8frames_64_64_2/holovibes.json"],
-            //"args": [
-            //    "-b"
-            //],
             "args": [
+                "-b"
+            ],
+            /*"args": [
                 "-i",
                 "E:/DataHolovibesEPITA2023-2024/test for ps1/241023_BAP0199_OD.holo",
                 "-o",
-                "E:/DataHolovibesEPITA2023-2024/test for ps1/241023_BAP0199_OD_out.avi",
-                "--frame_skip",
-                "16",
+                "E:/DataHolovibesEPITA2023-2024/test for ps1/241023_BAP0199_OD_out.holo",
                 "-c",
                 "C:/Users/Kurskuser/Documents/Holovibes/Preset/doppler_8b_384_27.json"
-            ],
+            ],*/
             // "args": ["-i", "${workspaceFolder}/tests/inputs/8frames_64_64.holo", "-o", "${workspaceFolder}/tmp2.holo", "--compute_settings", "${workspaceFolder}/../data/8frames_64_64_1/holovibes.json"],
             // "args": ["-i", "${workspaceFolder}/../../DataHolovibesEPITA/240715_FIY0713_ODD.holo", "-o", "${workspaceFolder}/../normal.holo"],
             "stopAtEntry": false,
