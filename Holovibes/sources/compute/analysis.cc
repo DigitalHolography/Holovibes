@@ -14,6 +14,7 @@
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <algorithm>
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -270,6 +271,112 @@ void Analysis::insert_otsu()
         });
 }
 
+/*
+algorithm TwoPass(data) is
+linked = []
+labels = structure with dimensions of data, initialized with the value of Background
+NextLabel = 0
+
+First pass
+
+for row in data do
+for column in row do
+if data[row][column] is not Background then
+
+ neighbors = connected elements with the current element's value
+
+ if neighbors is empty then
+     linked[NextLabel] = set containing NextLabel
+     labels[row][column] = NextLabel
+     NextLabel += 1
+
+ else
+
+     Find the smallest label
+
+     L = neighbors labels
+     labels[row][column] = min(L)
+     for label in L do
+         linked[label] = union(linked[label], L)
+
+Second pass
+
+for row in data do
+for column in row do
+if data[row][column] is not Background then
+ labels[row][column] = find(labels[row][column])
+
+return labels
+ */
+
+#define IS_BACKGROUND(VALUE) ((VALUE) == 0.0f) // Check if float == isok
+
+/* use TwoPasse algo
+
+    labels is the output and must be set to 0 and with the size of the image
+
+    this function does not handle the border of the image
+*/
+std::vector<size_t> get_connected_componant(const float* image, int* labels, const size_t width, const size_t height)
+{
+    std::map<int, int> linked;
+    int next_label = 0;
+
+    // First pass
+    for (size_t i = 1; i < width - 1; i++)
+    {
+        for (size_t j = 1; j < height - 1; j++)
+        {
+            if (!IS_BACKGROUND(image[i * width + j]))
+            {
+                std::vector<std::pair<size_t, size_t>> neighbors;
+                for (size_t k = -1; k <= 1; k += 2)
+                {
+                    if (!IS_BACKGROUND(image[(i + k) * width + j]))
+                        neighbors.push_back({i + k, j});
+                    if (!IS_BACKGROUND(image[i * width + (j + k)]))
+                        neighbors.push_back({i, j + k});
+                }
+
+                if (neighbors.empty())
+                {
+                    linked[next_label] = -1;
+                    labels[i * width + j] = next_label;
+                    next_label++;
+                }
+                else
+                {
+                    // Find the smallest label
+                    std::vector<int> L;
+                    std::for_each(neighbors.begin(),
+                                  neighbors.end(),
+                                  [&](std::pair<size_t, size_t> p)
+                                  {
+                                      int l = image[p.first * width + p.second];
+                                      if (std::find(L.begin(), L.end(), l) != L.end())
+                                          L.push_back(l);
+                                  });
+                    labels[i * width + j] = *std::min_element(L.begin(), L.end());
+                    std::for_each(L.begin(), L.end(), [&](int l) { linked[l] = std::min(labels[i * width + j], l); });
+                }
+            }
+        }
+    }
+
+    // second pass can be later
+    auto labels_sizes = std::vector<size_t>(next_label, 0);
+
+    for (size_t i = 1; i < width - 1; i++)
+    {
+        for (size_t j = 1; j < height - 1; j++)
+        {
+            labels[i * width + j] = linked[labels[i * width + j]];
+            labels_sizes[labels[i * width + j]]++;
+        }
+    }
+    return labels_sizes;
+}
+
 void Analysis::insert_bwareafilt()
 {
     LOG_FUNC();
@@ -279,7 +386,11 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
-                std::cout << "coucou" << std::endl;
+                int* labels = new int[buffers_.gpu_postprocess_frame_size];
+                std::vector<size_t> labels_sizes =
+                    get_connected_componant(buffers_.gpu_postprocess_frame, labels, fd_.width, fd_.height);
+
+                delete labels;
             }
         });
 }
