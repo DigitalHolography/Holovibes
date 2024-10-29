@@ -48,7 +48,7 @@ namespace holovibes::compute
 {
 /*! \class Stabilization
  *
- * \brief Class implementation for the stabilization.
+ *  \brief Class implementation for the stabilization.
  *  To use the process create an object using the ctor and then just call insert_stabilization() in the pipe.
  */
 using uint = unsigned int;
@@ -57,8 +57,8 @@ class Stabilization
 {
   public:
     /*! \brief Constructor
-     *  \param fn_compute_vect The
-     *  \param buffers
+     *  \param fn_compute_vect The vector of functions of the pipe, used to push the functions.
+     *  \param buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
      *  \param fd
      *  \param stream
      *  \param settings
