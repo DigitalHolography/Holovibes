@@ -260,13 +260,11 @@ void Analysis::init()
         y[i] = i - y_lim;
     }
 
-    // comp_dgaussian c'est sur elle marche
     float* g_xx_px = comp_dgaussian(x, sigma, 2, x_size);
     float* g_xx_qy = comp_dgaussian(y, sigma, 0, y_size);
 
     free(g_xx_mul_);
     g_xx_mul_ = new float[x_size * y_size];
-    // matrix_multiply<float>(g_xx_qy, g_xx_px, y_size, x_size, 1, g_xx_mul_);
     matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
 
     float* g_xy_px = comp_dgaussian(x, sigma, 1, x_size);
@@ -274,7 +272,6 @@ void Analysis::init()
 
     free(g_xy_mul_);
     g_xy_mul_ = new float[x_size * y_size];
-    // matrix_multiply<float>(g_xy_qy, g_xy_px, y_size, x_size, 1, g_xy_mul_);
     matrixMultiply(g_xy_qy, g_xy_px, g_xy_mul_, y_size, 1, x_size);
 
     float* g_yy_px = comp_dgaussian(x, sigma, 0, x_size);
@@ -282,7 +279,6 @@ void Analysis::init()
 
     free(g_yy_mul_);
     g_yy_mul_ = new float[x_size * y_size];
-    // matrix_multiply<float>(g_yy_qy, g_yy_px, y_size, x_size, 1, g_yy_mul_);
     matrixMultiply(g_yy_qy, g_yy_px, g_yy_mul_, y_size, 1, x_size);
 
     free(g_xx_px);
@@ -303,30 +299,6 @@ void Analysis::init()
     tmp = kernel_add_padding(g_yy_mul_, x_size, y_size, fd_.height, fd_.width);
     free(g_yy_mul_);
     g_yy_mul_ = tmp;
-
-    // float* tmp = kernel_add_padding(g_xx_qy_, 1, y_size, 10, 10);
-    // free(g_xx_qy_);
-    // g_xx_qy_ = tmp;
-
-    // tmp = kernel_add_padding(g_xx_px_, x_size, 1, fd_.width, fd_.height);
-    // free(g_xx_px_);
-    // g_xx_px_ = tmp;
-
-    // tmp = kernel_add_padding(g_xy_px_, x_size, y_size, fd_.width, fd_.height);
-    // free(g_xy_px_);
-    // g_xy_px_ = tmp;
-
-    // tmp = kernel_add_padding(g_xy_qy_, x_size, y_size, fd_.width, fd_.height);
-    // free(g_xy_qy_);
-    // g_xy_qy_ = tmp;
-
-    // tmp = kernel_add_padding(g_yy_px_, x_size, y_size, fd_.width, fd_.height);
-    // free(g_yy_px_);
-    // g_yy_px_ = tmp;
-
-    // tmp = kernel_add_padding(g_yy_qy_, x_size, y_size, fd_.width, fd_.height);
-    // free(g_yy_qy_);
-    // g_yy_qy_ = tmp;
 }
 
 void Analysis::dispose()
@@ -363,6 +335,12 @@ void Analysis::insert_show_artery()
                               time_window_,
                               buffers_.gpu_postprocess_frame_size,
                               stream_);
+
+                // float* mean_copy = new float[fd_.get_frame_res()];
+                // cudaXMemcpy(mean_copy, image_with_mean_, fd_.get_frame_res() * sizeof(float),
+                // cudaMemcpyDeviceToHost); write1DFloatArrayToFile(mean_copy, fd_.height, fd_.width, "mean.txt");
+                // free(mean_copy);
+
                 image_centering(image_centered_,
                                 image_with_mean_,
                                 buffers_.gpu_postprocess_frame,

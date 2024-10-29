@@ -42,6 +42,7 @@ static void write1DFloatArrayToFile(const float* array, int rows, int cols, cons
     std::cout << "1D array written to the file " << filename << std::endl;
 }
 
+// OK
 float comp_hermite_rec(int n, float x)
 {
     if (n == 0)
@@ -53,6 +54,7 @@ float comp_hermite_rec(int n, float x)
     throw std::exception("comp_hermite_rec in velness_filter.cu : n can't be negative");
 }
 
+// OK
 float* comp_gaussian(float* x, float sigma, int x_size)
 {
     float *to_ret = new float[x_size];
@@ -63,6 +65,7 @@ float* comp_gaussian(float* x, float sigma, int x_size)
     return to_ret;
 }
 
+// OK
 float* comp_dgaussian(float* x, float sigma, int n, int x_size)
 {
     float A = std::pow((-1 / (sigma * std::sqrt(2))), n);
@@ -89,7 +92,6 @@ float* gaussian_imfilter_sep(float* input_img,
                             cudaStream_t stream)
 {
    
-    // Copy image
     float* gpu_output;
     cudaXMalloc(&gpu_output, frame_res * sizeof(float));
     cudaXMemcpyAsync(gpu_output, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
@@ -99,9 +101,14 @@ float* gaussian_imfilter_sep(float* input_img,
     cuComplex* output_complex;
     cudaXMalloc(&output_complex, frame_res * sizeof(cuComplex));
     load_kernel_in_GPU(output_complex, kernel, frame_res, stream);
+
     cudaXStreamSynchronize(stream);
 
-    // Apply both convolutions
+    cuComplex *kernel_copy = new cuComplex[frame_res];
+    cudaXMemcpyAsync(kernel_copy, output_complex, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write1DFloatArrayToFile((float*)kernel_copy, std::sqrt(frame_res), std::sqrt(frame_res), "kernel.txt");
+
     convolution_kernel(gpu_output,
                         convolution_buffer,
                         cuComplex_buffer,
@@ -110,22 +117,13 @@ float* gaussian_imfilter_sep(float* input_img,
                         output_complex,
                         false,
                         stream);
+                        
     cudaXStreamSynchronize(stream);
 
-
-    // convolution_kernel(gpu_output,
-    //                     convolution_buffer,
-    //                     cuComplex_buffer,
-    //                     convolution_plan,
-    //                     frame_res,
-    //                     output_complex_y,
-    //                     true,
-    //                     stream);
-
-    // cudaXStreamSynchronize(stream);
     float *res = new float[frame_res];
     cudaXMemcpyAsync(res, gpu_output, frame_res * sizeof(float), cudaMemcpyDeviceToHost, stream);
     cudaXStreamSynchronize(stream);
+    
     write1DFloatArrayToFile(res, std::sqrt(frame_res), std::sqrt(frame_res), "convo.txt");
 
     return res;
@@ -156,18 +154,18 @@ float* vesselness_filter(float* input,
     float A = std::pow(sigma, gamma);
 
     float* Ixx = gaussian_imfilter_sep(input, g_xx_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Ixx, A, frame_res);
+    // multiply_by_float(Ixx, A, frame_res);
 
-    float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Ixy, A, frame_res);
+    // float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    // multiply_by_float(Ixy, A, frame_res);
 
-    float* Iyx = new float[frame_res];
-    for (size_t i = 0; i < frame_res; ++i) {
-        Iyx[i] = Ixy[i];
-    }
+    // float* Iyx = new float[frame_res];
+    // for (size_t i = 0; i < frame_res; ++i) {
+    //     Iyx[i] = Ixy[i];
+    // }
 
-    float* Iyy = gaussian_imfilter_sep(input, g_yy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    multiply_by_float(Iyy, A, frame_res);
+    // float* Iyy = gaussian_imfilter_sep(input, g_yy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    // multiply_by_float(Iyy, A, frame_res);
 
-    return Iyy;
+    return Ixx;
 }
