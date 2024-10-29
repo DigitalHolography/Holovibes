@@ -30,6 +30,7 @@ class AnalysisPanel : public Panel
     void on_notify() override;
 
   public slots:
+    void set_otsu_kind(int index);
     void set_otsu_window_size(int value);
     void set_otsu_local_threshold(double value);
 

@@ -18,6 +18,7 @@
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"
+#include "enum_otsu_kind.hh"
 
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
