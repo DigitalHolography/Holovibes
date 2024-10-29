@@ -27,5 +27,8 @@ class RectOverlay : public Overlay
 
   protected:
     void setBuffer() override;
+
+    /* Whether to fill up the area or not */
+    bool filled_;
 };
 } // namespace holovibes::gui

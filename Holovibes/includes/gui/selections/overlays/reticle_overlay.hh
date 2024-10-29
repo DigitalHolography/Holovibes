@@ -5,7 +5,7 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
-#include "Overlay.hh"
+#include "rect_overlay.hh"
 
 namespace holovibes::gui
 {
@@ -13,22 +13,16 @@ namespace holovibes::gui
  *
  * \brief #TODO Add a description for this class
  */
-class ReticleOverlay : public Overlay
+class ReticleOverlay : public RectOverlay
 {
   public:
     ReticleOverlay(BasicOpenGLWindow* parent);
     virtual ~ReticleOverlay() {}
-
-    void init() override;
-    void draw() override;
 
     virtual void move(QMouseEvent* e) override {}
     virtual void release(ushort frameside) override {}
 
   protected:
     void setBuffer() override;
-
-    /*! \brief Transparency of the lines */
-    float alpha_;
 };
 } // namespace holovibes::gui

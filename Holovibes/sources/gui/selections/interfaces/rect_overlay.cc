@@ -5,6 +5,7 @@ namespace holovibes::gui
 {
 RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : Overlay(overlay, parent)
+    , filled_(true)
 {
     LOG_FUNC();
 }
@@ -58,10 +59,20 @@ void RectOverlay::init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Set vertices order
-    const GLuint elements[] = {0, 1, 2, 2, 3, 0};
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
+    if (filled_)
+    {
+        const GLuint elements[] = {0, 1, 2, 2, 3, 0};
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+    }
+    else
+    {
+        const GLuint elements[] = {0, 1, 1, 2, 2, 3, 3, 0};
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+    }
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     Vao_.release();
 
@@ -80,7 +91,10 @@ void RectOverlay::draw()
     glEnableVertexAttribArray(verticesShader_);
     Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    if (filled_)
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    else
+        glDrawElements(GL_LINES, 12, GL_UNSIGNED_INT, nullptr);
 
     glDisableVertexAttribArray(verticesShader_);
     glDisableVertexAttribArray(colorShader_);
