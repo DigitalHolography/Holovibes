@@ -92,6 +92,7 @@ DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
 DECLARE_SETTING(OtsuWindowSize, int);
 DECLARE_SETTING(OtsuLocalThreshold, float);
+DECLARE_SETTING(BwareafiltEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);

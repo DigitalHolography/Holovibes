@@ -294,6 +294,7 @@ void Pipe::refresh()
     insert_moments_record();
     analysis_->insert_show_artery();
     analysis_->insert_otsu();
+    analysis_->insert_bwareafilt();
 
     insert_filter2d_view();
 

@@ -23,6 +23,7 @@
     holovibes::settings::OtsuEnabled,              \
     holovibes::settings::OtsuWindowSize,           \
     holovibes::settings::OtsuLocalThreshold,       \
+    holovibes::settings::BwareafiltEnabled,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow
@@ -77,6 +78,9 @@ class Analysis
 
     /*! \brief TODO */
     void insert_otsu();
+
+    /*! \brief TODO */
+    void insert_bwareafilt();
 
     template <typename T>
     inline void update_setting(T setting)

@@ -562,6 +562,17 @@ inline void set_otsu_window_size(int value) { UPDATE_SETTING(OtsuWindowSize, val
 inline float get_otsu_local_threshold() { return GET_SETTING(OtsuLocalThreshold); }
 inline void set_otsu_local_threshold(float value) { UPDATE_SETTING(OtsuLocalThreshold, value); }
 
+/*!
+ * \name Bwareafilt
+ *
+ */
+inline bool get_bwareafilt_enabled() { return GET_SETTING(BwareafiltEnabled); }
+inline void set_bwareafilt_enabled(bool value)
+{
+    UPDATE_SETTING(BwareafiltEnabled, value);
+    pipe_refresh();
+}
+
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
 /*! \} */
