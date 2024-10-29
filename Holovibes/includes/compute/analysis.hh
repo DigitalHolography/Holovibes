@@ -21,6 +21,8 @@
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
     holovibes::settings::OtsuEnabled,              \
+    holovibes::settings::OtsuWindowSize,           \
+    holovibes::settings::OtsuLocalThreshold,       \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow

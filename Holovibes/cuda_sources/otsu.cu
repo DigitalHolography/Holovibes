@@ -117,14 +117,17 @@ float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
     return threshold / NUM_BINS;
 }
 
-void computeBinariseOtsuBradley(
-    float* d_image, float*& d_output, const size_t width, const size_t height, const cudaStream_t stream)
+void computeBinariseOtsuBradley(float* d_image,
+                                float*& d_output,
+                                const size_t width,
+                                const size_t height,
+                                const int window_size,
+                                const float local_threshold_factor,
+                                const cudaStream_t stream)
 {
-    int windowSize = 15;
-    float localThresholdFactor = 0.15;
     size_t img_size = width * height;
 
-    float globalThreshold = otsuThreshold(d_image, img_size, stream);
+    float global_threshold = otsuThreshold(d_image, img_size, stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
@@ -133,8 +136,8 @@ void computeBinariseOtsuBradley(
                                                            d_output,
                                                            width,
                                                            height,
-                                                           windowSize,
-                                                           globalThreshold,
-                                                           localThresholdFactor);
+                                                           window_size,
+                                                           global_threshold,
+                                                           local_threshold_factor);
     cudaDeviceSynchronize();
 }

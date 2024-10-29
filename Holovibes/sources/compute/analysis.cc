@@ -255,7 +255,13 @@ void Analysis::insert_otsu()
                 float* d_output;
                 cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
 
-                computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame, d_output, fd_.width, fd_.height, stream_);
+                computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame,
+                                           d_output,
+                                           fd_.width,
+                                           fd_.height,
+                                           setting<settings::OtsuWindowSize>(),
+                                           setting<settings::OtsuLocalThreshold>(),
+                                           stream_);
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
                             d_output,
                             buffers_.gpu_postprocess_frame_size * sizeof(float),

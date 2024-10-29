@@ -90,6 +90,8 @@ DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
 DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
+DECLARE_SETTING(OtsuWindowSize, int);
+DECLARE_SETTING(OtsuLocalThreshold, float);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);

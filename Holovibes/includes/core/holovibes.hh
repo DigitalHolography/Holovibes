@@ -62,6 +62,8 @@
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::OtsuWindowSize,                         \
+    holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
@@ -268,7 +270,8 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(
+        CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *
@@ -389,6 +392,8 @@ class Holovibes
                                              settings::FftShiftEnabled{false},
                                              settings::ArteryMaskEnabled{false},
                                              settings::OtsuEnabled{false},
+                                             settings::OtsuWindowSize{15},
+                                             settings::OtsuLocalThreshold{0.15f},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},

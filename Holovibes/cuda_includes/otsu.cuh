@@ -12,10 +12,17 @@
  * \param[out] d_output Where to store the output
  * \param[in] width Width of the frame
  * \param[in] height Height of the frame
+ * \param[in] window_size //TODO
+ * \param[in] local_threshold_factor //TODO
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void computeBinariseOtsuBradley(
-    float* d_image, float*& d_output, const size_t width, const size_t height, const cudaStream_t stream);
+void computeBinariseOtsuBradley(float* d_image,
+                                float*& d_output,
+                                const size_t width,
+                                const size_t height,
+                                const int window_size,
+                                const float local_threshold_factor,
+                                const cudaStream_t stream);
 
 /*! \brief Normalistation of \d_image
  *

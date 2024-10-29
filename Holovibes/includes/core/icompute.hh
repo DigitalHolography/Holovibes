@@ -44,6 +44,8 @@
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::OtsuWindowSize,                         \
+    holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \

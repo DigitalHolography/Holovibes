@@ -29,7 +29,9 @@ class AnalysisPanel : public Panel
     void init() override;
     void on_notify() override;
 
-    // public slots:
+  public slots:
+    void set_otsu_window_size();
+    void set_otsu_local_threshold();
 
     // private:
 };
