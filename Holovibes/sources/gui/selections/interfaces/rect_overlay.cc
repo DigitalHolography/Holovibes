@@ -83,12 +83,15 @@ void RectOverlay::draw()
 {
     // trigger basicopenglwindow painwindow() dynamically
     parent_->makeCurrent();
+
     setBuffer();
+
     Vao_.bind();
     Program_->bind();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
     glEnableVertexAttribArray(colorShader_);
     glEnableVertexAttribArray(verticesShader_);
+
     Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 
     if (filled_)
@@ -145,21 +148,13 @@ void RectOverlay::checkCorners()
     auto parent_fd = parent_->getFd();
 
     if (zone_.dst().x() < 0)
-    {
         zone_.dstRef().x().set(0);
-    }
     else if (zone_.dst().x() > parent_fd.width)
-    {
         zone_.dstRef().x().set(parent_fd.width);
-    }
 
     if (zone_.dst().y() < 0)
-    {
         zone_.dstRef().y().set(0);
-    }
     else if (zone_.dst().y() > parent_fd.height)
-    {
         zone_.dstRef().y().set(parent_fd.height);
-    }
 }
 } // namespace holovibes::gui
