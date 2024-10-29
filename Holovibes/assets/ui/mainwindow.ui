@@ -6086,9 +6086,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
   <connection>
    <sender>OtsuWindowSizeSpinBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>AnalysisPanel</receiver>
-   <slot>set_otsu_window_size()</slot>
+   <slot>set_otsu_window_size(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>926</x>
@@ -6102,9 +6102,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
   <connection>
    <sender>OtsuLocalThresholdSpinBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>valueChanged(double)</signal>
    <receiver>AnalysisPanel</receiver>
-   <slot>set_otsu_local_threshold()</slot>
+   <slot>set_otsu_local_threshold(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>926</x>
