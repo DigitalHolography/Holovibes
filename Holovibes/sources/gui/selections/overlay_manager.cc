@@ -8,7 +8,6 @@
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 #include "reticle_overlay.hh"
-#include "filter2d_reticle_overlay.hh"
 #include "logger.hh"
 
 namespace holovibes::gui
@@ -93,13 +92,6 @@ void OverlayManager::create_overlay<Reticle>()
 {
     if (!set_current(KindOfOverlay::Reticle))
         create_overlay(std::make_shared<ReticleOverlay>(parent_));
-}
-
-template <>
-void OverlayManager::create_overlay<Filter2DReticle>()
-{
-    if (!set_current(KindOfOverlay::Filter2DReticle))
-        create_overlay(std::make_shared<Filter2DReticleOverlay>(parent_));
 }
 
 void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
@@ -221,8 +213,6 @@ void OverlayManager::create_default()
 {
     switch (parent_->getKindOfView())
     {
-    case KindOfView::Filter2D:
-        create_overlay<Filter2DReticle>();
     case KindOfView::Raw:
     case KindOfView::Hologram:
         create_overlay<Zoom>();
