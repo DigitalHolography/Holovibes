@@ -26,8 +26,16 @@ void AnalysisPanel::init() {}
 void AnalysisPanel::on_notify()
 {
     // Updating UI values with current backend settings
+
+    // Otsu
+    ui_->OtsuCheckBox->setChecked(api::get_otsu_enabled());
+
     ui_->OtsuWindowSizeSpinBox->setValue(api::get_otsu_window_size());
+    ui_->OtsuWindowSizeSpinBox->setEnabled(api::get_otsu_enabled());
+    ui_->OtsuWindowSizeLabel->setEnabled(api::get_otsu_enabled());
     ui_->OtsuLocalThresholdSpinBox->setValue(api::get_otsu_local_threshold());
+    ui_->OtsuLocalThresholdSpinBox->setEnabled(api::get_otsu_enabled());
+    ui_->OtsuLocalThresholdLabel->setEnabled(api::get_otsu_enabled());
 }
 
 void AnalysisPanel::set_otsu_window_size() { api::set_otsu_window_size(ui_->OtsuWindowSizeSpinBox->value()); }
