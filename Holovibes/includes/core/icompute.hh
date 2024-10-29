@@ -370,6 +370,9 @@ class ICompute
     /*! \brief Image accumulation environment */
     ImageAccEnv image_acc_env_;
 
+    /*! \brief Vesselness masks environment. */
+    VesselnessMaskEnv vesselness_mask_env_;
+
     /*! \name Cuda */
     /*! \brief Pland 2D. Used for spatial fft performed on the complex input frame. */
     cuda_tools::CufftHandle spatial_transformation_plan_;

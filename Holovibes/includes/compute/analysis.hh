@@ -36,6 +36,7 @@ using holovibes::cuda_tools::CufftHandle;
 namespace holovibes
 {
 struct CoreBuffersEnv;
+struct VesselnessMaskEnv;
 } // namespace holovibes
 
 namespace holovibes::compute
@@ -52,6 +53,7 @@ class Analysis
     Analysis(FunctionVector& fn_compute_vect,
              CoreBuffersEnv& buffers,
              const camera::FrameDescriptor& input_fd,
+             VesselnessMaskEnv& vesselness_mask_env,
              const cudaStream_t& stream,
              InitSettings settings)
         : gpu_kernel_buffer_()
@@ -59,6 +61,7 @@ class Analysis
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
         , fd_(input_fd)
+        , vesselness_mask_env_(vesselness_mask_env)
         , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
         , realtime_settings_(settings)
@@ -112,6 +115,9 @@ class Analysis
     /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
 
+    /*! \brief Vesselness mask environment */
+    VesselnessMaskEnv& vesselness_mask_env_;
+
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
@@ -143,8 +149,10 @@ class Analysis
     float* g_xy_mul_{nullptr};
 
     // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
-    // tkt
     float* g_yy_mul_{nullptr};
+
+    size_t kernels_height_ = 0;
+    size_t kernels_width_ = 0;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

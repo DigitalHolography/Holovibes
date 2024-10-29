@@ -77,7 +77,7 @@ void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::
 namespace holovibes::compute
 {
 
-namespace // petit flex
+namespace
 {
 std::vector<float> load_convolution_matrix()
 {
@@ -250,6 +250,9 @@ void Analysis::init()
     int x_size = x_lim * 2 + 1;
     int y_size = y_lim * 2 + 1;
 
+    kernels_height_ = y_size;
+    kernels_width_ = x_size;
+
     float* x = new float[(x_size)];
     for (int i = 0; i <= 2 * x_lim; ++i)
     {
@@ -261,26 +264,22 @@ void Analysis::init()
         y[i] = i - y_lim;
     }
 
-    float* g_xx_px = comp_dgaussian(x, sigma, 2, x_size);
-    float* g_xx_qy = comp_dgaussian(y, sigma, 0, y_size);
+    float* g_xx_px = comp_dgaussian(x, x_size, sigma, 2);
+    float* g_xx_qy = comp_dgaussian(y, y_size, sigma, 0);
 
     free(g_xx_mul_);
-    g_xx_mul_ = g_xx_px;
-    // g_xx_mul_ = new float[x_size * y_size];
-    // matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
-    float* tmp = kernel_add_padding(g_xx_mul_, 3, 1, 3, 3);
-    free(g_xx_mul_);
-    g_xx_mul_ = tmp;
+    g_xx_mul_ = new float[x_size * y_size];
+    matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
 
-    float* g_xy_px = comp_dgaussian(x, sigma, 1, x_size);
-    float* g_xy_qy = comp_dgaussian(y, sigma, 1, y_size);
+    float* g_xy_px = comp_dgaussian(x, x_size, sigma, 1);
+    float* g_xy_qy = comp_dgaussian(y, y_size, sigma, 1);
 
     free(g_xy_mul_);
     g_xy_mul_ = new float[x_size * y_size];
     matrixMultiply(g_xy_qy, g_xy_px, g_xy_mul_, y_size, 1, x_size);
 
-    float* g_yy_px = comp_dgaussian(x, sigma, 0, x_size);
-    float* g_yy_qy = comp_dgaussian(y, sigma, 2, y_size);
+    float* g_yy_px = comp_dgaussian(x, x_size, sigma, 0);
+    float* g_yy_qy = comp_dgaussian(y, y_size, sigma, 2);
 
     free(g_yy_mul_);
     g_yy_mul_ = new float[x_size * y_size];
@@ -341,30 +340,27 @@ void Analysis::insert_show_artery()
                               buffers_.gpu_postprocess_frame_size,
                               stream_);
 
-                // float* mean_copy = new float[fd_.get_frame_res()];
-                // cudaXMemcpy(mean_copy, image_with_mean_, fd_.get_frame_res() * sizeof(float),
-                // cudaMemcpyDeviceToHost); write1DFloatArrayToFile(mean_copy, fd_.height, fd_.width, "mean.txt");
-                // free(mean_copy);
-
                 image_centering(image_centered_,
                                 image_with_mean_,
                                 buffers_.gpu_postprocess_frame,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
 
-                float* mescouilles = vesselness_filter(image_with_mean_,
-                                                       api::get_vesselness_sigma(),
-                                                       g_xx_mul_,
-                                                       g_xy_mul_,
-                                                       g_yy_mul_,
-                                                       buffers_.gpu_postprocess_frame_size,
-                                                       buffers_.gpu_convolution_buffer,
-                                                       cuComplex_buffer_,
-                                                       &convolution_plan_,
-                                                       stream_);
+                float* ixx = vesselness_filter(image_with_mean_,
+                                               api::get_vesselness_sigma(),
+                                               g_xx_mul_,
+                                               g_xy_mul_,
+                                               g_yy_mul_,
+                                               kernels_height_,
+                                               kernels_width_,
+                                               buffers_.gpu_postprocess_frame_size,
+                                               buffers_.gpu_convolution_buffer,
+                                               cuComplex_buffer_,
+                                               &convolution_plan_,
+                                               stream_);
 
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 mescouilles,
+                                 ixx,
                                  buffers_.gpu_postprocess_frame_size * sizeof(float),
                                  cudaMemcpyHostToDevice,
                                  stream_);

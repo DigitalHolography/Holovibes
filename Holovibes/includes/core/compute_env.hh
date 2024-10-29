@@ -211,5 +211,27 @@ struct ImageAccEnv
  */
 struct VesselnessMaskEnv
 {
+    /*! \brief Get the mean image */
+    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
+
+    /*! \brief Buffer of size 'time_window_' TODO refaire ca to compute the mean of m0 imgs */
+    cuda_tools::CudaUniquePtr<float> buffer_m0_ff_img_ = nullptr;
+
+    /*! \brief image with mean calculated for a time window*/
+    cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
+
+    /*! \brief image with mean and centered calculated for a time window*/
+    cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
+
+    /*! \brief gaussian kernels for vesselness_filter*/
+    std::unique_ptr<float> g_xx_mul_ = nullptr;
+
+    std::unique_ptr<float> g_xy_mul_ = nullptr;
+
+    // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
+    std::unique_ptr<float> g_yy_mul_ = nullptr;
+
+    /*! \brief Time window for mask */
+    int time_window_;
 };
 } // namespace holovibes

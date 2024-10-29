@@ -100,36 +100,35 @@ float comp_hermite_rec(int n, float x)
 }
 
 // OK
-float* comp_gaussian(float* x, float sigma, int x_size)
+float comp_gaussian(float x, float sigma)
 {
-    float *to_ret = new float[x_size];
-    for (int i = 0; i < x_size; i++)
-    {
-        to_ret[i] = (1 / (sigma * (sqrt(2 * M_PI))) * std::exp((-1 * (std::pow(x[i], 2))) / (2 * std::pow(sigma, 2))));
-    }
-    return to_ret;
+    return 1 / (sigma * (sqrt(2 * M_PI))) * std::exp((-1 * x * x) / (2 * sigma * sigma));
 }
 
 // OK
-float* comp_dgaussian(float* x, float sigma, int n, int x_size)
+float comp_dgaussian(float x, float sigma, int n)
 {
     float A = std::pow((-1 / (sigma * std::sqrt(2))), n);
-    float *B = new float[x_size];
-    for (int i = 0; i < x_size; i++)
+    float B = comp_hermite_rec(n, x / (sigma * std::sqrt(2)));
+    float C = comp_gaussian(x, sigma);
+    return A * B * C;
+}
+
+// Overload for float array
+float* comp_dgaussian(float* x, size_t x_size, float sigma, int n)
+{
+    float *res = new float[x_size];
+    for (size_t i = 0; i < x_size; ++i)
     {
-        B[i] = comp_hermite_rec(n, x[i] / (sigma * std::sqrt(2)));
+        res[i] = comp_dgaussian(x[i], sigma, n);
     }
-    float* C = comp_gaussian(x, sigma, x_size);
-    for (int i = 0; i < x_size; i++)
-    {
-        C[i] = A * B[i] * C[i];   
-    }
-    delete[] B;
-    return C;
+    return res;
 }
 
 float* gaussian_imfilter_sep(float* input_img, 
                             float* kernel,
+                            size_t kernel_height,
+                            size_t kernel_width,
                             const size_t frame_res, 
                             float* convolution_buffer, 
                             cuComplex* cuComplex_buffer, 
@@ -160,10 +159,11 @@ float* gaussian_imfilter_sep(float* input_img,
     // cudaXStreamSynchronize(stream);
 
     float *input_copy = new float[frame_res];
-    cudaXMemcpy(input_copy, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(input_copy, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
 
     float *output = new float[frame_res];
-    applyConvolutionWithReplicatePadding(input_copy, output, std::sqrt(frame_res), std::sqrt(frame_res), kernel, 3, 3, true);
+    applyConvolutionWithReplicatePadding(input_copy, output, std::sqrt(frame_res), std::sqrt(frame_res), kernel, kernel_width, kernel_height, true);
 
     free(input_copy);
 
@@ -187,7 +187,9 @@ float* vesselness_filter(float* input,
                         float sigma, 
                         float* g_xx_mul, 
                         float* g_xy_mul, 
-                        float* g_yy_mul, 
+                        float* g_yy_mul,
+                        size_t kernel_height,
+                        size_t kernel_width,
                         int frame_res, 
                         float* convolution_buffer, 
                         cuComplex* cuComplex_buffer,
@@ -198,7 +200,7 @@ float* vesselness_filter(float* input,
 
     float A = std::pow(sigma, gamma);
 
-    float* Ixx = gaussian_imfilter_sep(input, g_xx_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    float* Ixx = gaussian_imfilter_sep(input, g_xx_mul, kernel_height, kernel_width, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
     multiply_by_float(Ixx, A, frame_res);
 
     // float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
