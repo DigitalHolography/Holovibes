@@ -299,6 +299,20 @@ inline void set_divide_convolution_enabled(bool value) { UPDATE_SETTING(DivideCo
 /*! \} */
 
 /*!
+ * \name Interpolation
+ * \{
+ */
+inline bool get_interpolation_output_enabled() { return GET_SETTING(ImageInterpolationOutputEnabled); };
+inline void set_interpolation_output_enabled(bool value) { UPDATE_SETTING(ImageInterpolationOutputEnabled, value); }
+
+inline unsigned get_interpolation_output_x() { return GET_SETTING(ImageInterpolationOutputX); }
+inline void set_interpolation_output_x(unsigned value) { UPDATE_SETTING(ImageInterpolationOutputX, value); }
+
+inline unsigned get_interpolation_output_y() { return GET_SETTING(ImageInterpolationOutputY); }
+inline void set_interpolation_output_y(unsigned value) { UPDATE_SETTING(ImageInterpolationOutputY, value); }
+/*! \} */
+
+/*!
  * \name XY
  * \{
  */

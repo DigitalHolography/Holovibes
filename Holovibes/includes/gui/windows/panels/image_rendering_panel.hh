@@ -126,6 +126,18 @@ class ImageRenderingPanel : public Panel
      */
     void set_divide_convolution(const bool value);
 
+    /*! \brief Enable the interpolation mode
+     *
+     * \param enable true: enable, false: disable
+     */
+    void set_interpolation_mode(const bool enable);
+    /*! \brief update the interpolation x res
+     */
+    void update_interpolation_x();
+    /*! \brief update the interpolation y res
+     */
+    void update_interpolation_y();
+
     /*!
      * \brief Sets the z step
      *

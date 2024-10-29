@@ -55,6 +55,13 @@ void Rendering::Convolution::Update()
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
+void Rendering::Interpolation::Update()
+{
+    this->enabled = GET_SETTING(ImageInterpolationOutputEnabled);
+    this->x_res = GET_SETTING(ImageInterpolationOutputX);
+    this->y_res = GET_SETTING(ImageInterpolationOutputY);
+}
+
 void Rendering::Filter::Update()
 {
     this->enabled = api::get_filter_enabled();
@@ -216,6 +223,13 @@ void Rendering::Convolution::Load()
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 
+void Rendering::Interpolation::Load()
+{
+    UPDATE_SETTING(ImageInterpolationOutputEnabled, this->enabled);
+    UPDATE_SETTING(ImageInterpolationOutputX, this->x_res);
+    UPDATE_SETTING(ImageInterpolationOutputY, this->y_res);
+}
+
 void Rendering::Filter::Load()
 {
     UPDATE_SETTING(FilterEnabled, this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
@@ -261,6 +275,11 @@ void Rendering::Convolution::Assert() const
         throw std::exception("Convolution type is empty");
     if (this->divide && !this->enabled)
         throw std::exception("Divide convolution is enabled but convolution is not"); */  // TODO: check if divide convolution can be enabled when convolution is disabled
+}
+
+void Rendering::Interpolation::Assert() const
+{
+    // TO DO
 }
 
 void Rendering::Filter::Assert() const

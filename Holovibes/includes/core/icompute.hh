@@ -58,6 +58,9 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
+    holovibes::settings::ImageInterpolationOutputEnabled,        \
+    holovibes::settings::ImageInterpolationOutputX,              \
+    holovibes::settings::ImageInterpolationOutputY,              \
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
@@ -299,7 +302,8 @@ class ICompute
     void fft_freqs();
 
     /*!
-     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the moments.
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the
+     * moments.
      *
      * \param  time_transformation_size  The new time transformation size.
      * \return                           Whether there is an error or not.

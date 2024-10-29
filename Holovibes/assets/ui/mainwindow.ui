@@ -581,6 +581,44 @@ It's a post-processing step to remove noise</string>
            </layout>
           </widget>
          </item>
+         <item>
+          <widget class="QGroupBox" name="InterpolationCheckBox">
+           <property name="toolTip">
+            <string>Add an Interpolation step</string>
+           </property>
+           <property name="title">
+            <string>Interpolate</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+             <layout class="QHBoxLayout" name="InterpolationLayout">
+              <item>
+               <widget class="QSpinBox" name="InterpolationSpinBoxX">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>4096</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="InterpolationSpinBoxY">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>4096</number>
+                </property>
+               </widget>
+              </item>
+           </layout>
+          </widget>
+         </item>
                      <item row="2" column="0">
              <spacer name="BottomViewSpacer">
               <property name="orientation">
@@ -4622,6 +4660,54 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>InterpolationCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>set_interpolation_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationSpinBoxX</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_interpolation_x()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationSpinBoxY</sender>
+   <signal>editingFinished()</signal>
+   <receiver>ImageRenderingPanel</receiver>
+   <slot>update_interpolation_y()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>681</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ReticleScaleDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ViewPanel</receiver>
@@ -5897,6 +5983,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>update_convo_kernel(QString)</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution(bool)</slot>
+  <slot>set_interpolation_mode(bool)</slot>
+  <slot>update_interpolation_x()</slot>
+  <slot>update_interpolation_y()</slot>
   <slot>toggle_renormalize(bool)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>

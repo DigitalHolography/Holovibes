@@ -86,6 +86,9 @@
     holovibes::settings::TimeTransformation,                     \
     holovibes::settings::Lambda,                                 \
     holovibes::settings::ZDistance,                              \
+    holovibes::settings::ImageInterpolationOutputEnabled,        \
+    holovibes::settings::ImageInterpolationOutputX,              \
+    holovibes::settings::ImageInterpolationOutputY,              \
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
@@ -410,6 +413,9 @@ class Holovibes
                                              settings::TimeTransformation{TimeTransformation::NONE},
                                              settings::Lambda{852e-9f},
                                              settings::ZDistance{0.0f},
+                                             settings::ImageInterpolationOutputEnabled{false},
+                                             settings::ImageInterpolationOutputX{512},
+                                             settings::ImageInterpolationOutputY{512},
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},

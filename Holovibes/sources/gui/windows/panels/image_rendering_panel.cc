@@ -112,6 +112,15 @@ void ImageRenderingPanel::on_notify()
     ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
         QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
+
+    // Interpolation
+    ui_->InterpolationCheckBox->setVisible(api::get_compute_mode() == Computation::Hologram);
+    ui_->InterpolationCheckBox->setChecked(api::get_interpolation_output_enabled());
+
+    ui_->InterpolationSpinBoxX->setVisible(api::get_interpolation_output_enabled());
+    ui_->InterpolationSpinBoxX->setValue(api::get_interpolation_output_x());
+    ui_->InterpolationSpinBoxY->setVisible(api::get_interpolation_output_enabled());
+    ui_->InterpolationSpinBoxY->setValue(api::get_interpolation_output_y());
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -387,6 +396,24 @@ void ImageRenderingPanel::set_z_distance(const double value)
 void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
 
 void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
+
+void ImageRenderingPanel::set_interpolation_mode(const bool value)
+{
+    api::set_interpolation_output_enabled(value);
+    parent_->notify();
+}
+
+void ImageRenderingPanel::update_interpolation_x()
+{
+    uint x_res = ui_->InterpolationSpinBoxX->value();
+    api::set_interpolation_output_x(x_res);
+}
+
+void ImageRenderingPanel::update_interpolation_y()
+{
+    uint y_res = ui_->InterpolationSpinBoxY->value();
+    api::set_interpolation_output_y(y_res);
+}
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {

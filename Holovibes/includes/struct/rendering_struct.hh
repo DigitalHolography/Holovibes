@@ -83,6 +83,27 @@ struct Rendering
         SETTING_RELATED_FUNCTIONS();
     };
 
+    /*! \class Convolution
+     *
+     * \brief Class that represents Convolution
+     */
+    struct Interpolation
+    {
+        bool enabled = false;
+        unsigned x_res = 512;
+        unsigned y_res = 512;
+
+        /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+        SERIALIZE_JSON_STRUCT(Interpolation, enabled, x_res, y_res);
+
+        /*!
+         * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+         * synchronize variables of Convolution with the one in GSH, update variables of GSH
+         * with the one of Convolution and assert that the Convolution variables are valid
+         */
+        SETTING_RELATED_FUNCTIONS();
+    };
+
     Computation image_mode = Computation::Raw;
     unsigned batch_size = 1;
     unsigned time_transformation_stride = 1;
@@ -94,6 +115,7 @@ struct Rendering
     float propagation_distance = 1.5f;
     Convolution convolution;
     Filter input_filter;
+    Interpolation interpolation;
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
     SERIALIZE_JSON_STRUCT(Rendering,
@@ -107,7 +129,8 @@ struct Rendering
                           time_transformation_size,
                           lambda,
                           propagation_distance,
-                          convolution);
+                          convolution,
+                          interpolation);
 
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
