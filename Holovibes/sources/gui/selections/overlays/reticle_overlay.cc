@@ -10,8 +10,6 @@ ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
     LOG_FUNC();
 
     display_ = true;
-    alpha_ = 1.0f;
-    filled_ = false;
 }
 
 void ReticleOverlay::setBuffer()

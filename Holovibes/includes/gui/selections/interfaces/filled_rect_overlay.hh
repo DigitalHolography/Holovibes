@@ -1,6 +1,11 @@
 /*! \file
  *
- * \brief Interface for all rectangular overlays that are filled (can specify the opacity of the edges and the fill).
+ * \brief Interface for all filled rectangular overlays.
+ *
+ * You can control:
+ * - The color of the edges with the variable `color_`.
+ * - The opacity of the edges with the variable `alpha_`.
+ * - The opacity of the fill color with the variable `fill_alpha_`.
  */
 #pragma once
 
@@ -10,8 +15,7 @@ namespace holovibes::gui
 {
 /*! \class FilledRectOverlay
  *
- * \brief A class that implement rectangular overlays that are filled (can specify the opacity of the edges and the
- * fill).
+ * \brief A class that implement filled rectangular overlays.
  */
 class FilledRectOverlay : public RectOverlay
 {

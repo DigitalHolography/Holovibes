@@ -6,7 +6,7 @@ namespace holovibes::gui
 FilledRectOverlay::FilledRectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     : RectOverlay(overlay, parent)
     , fill_elem_index_(0)
-    , fill_alpha_(0.1f)
+    , fill_alpha_(0.4f)
 {
     LOG_FUNC();
 }

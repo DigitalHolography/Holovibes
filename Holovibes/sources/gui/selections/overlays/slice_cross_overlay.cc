@@ -11,7 +11,7 @@ SliceCrossOverlay::SliceCrossOverlay(BasicOpenGLWindow* parent)
     , pIndex_(0, 0)
 {
     display_ = true;
-    filled_ = false;
+    fill_alpha_ = 0.15f;
 }
 
 void SliceCrossOverlay::keyPress(QKeyEvent* e)
