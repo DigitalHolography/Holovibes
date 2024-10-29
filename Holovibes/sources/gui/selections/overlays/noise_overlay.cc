@@ -5,9 +5,12 @@
 namespace holovibes::gui
 {
 NoiseOverlay::NoiseOverlay(BasicOpenGLWindow* parent)
-    : RectOverlay(KindOfOverlay::Noise, parent)
+    : FilledRectOverlay(KindOfOverlay::Noise, parent)
 {
     color_ = {0.f, 0.64f, 0.67f};
+    alpha_ = 1.f;
+    fill_alpha_ = 0.4f;
+    filled_ = false;
 }
 
 void NoiseOverlay::release(ushort frameSide)

@@ -5,9 +5,12 @@
 namespace holovibes::gui
 {
 SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
-    : RectOverlay(KindOfOverlay::Signal, parent)
+    : FilledRectOverlay(KindOfOverlay::Signal, parent)
 {
     color_ = {0.557f, 0.4f, 0.85f};
+    alpha_ = 1.f;
+    fill_alpha_ = 0.4f;
+    filled_ = false;
 }
 
 void SignalOverlay::release(ushort frameSide)
