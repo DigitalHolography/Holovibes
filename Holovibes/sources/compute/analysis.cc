@@ -10,6 +10,7 @@
 #include "map.cuh"
 #include "holovibes.hh"
 #include "otsu.cuh"
+#include "cublas_handle.hh"
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -238,9 +239,7 @@ void Analysis::insert_otsu()
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)
             {
 
-                cublasHandle_t handle;
-                cublasCreate(&handle);
-
+                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
                 int maxI = -1;
                 int minI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
