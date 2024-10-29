@@ -40,10 +40,6 @@ void AnalysisPanel::on_notify()
 
 void AnalysisPanel::set_otsu_window_size(int value) { api::set_otsu_window_size(value); }
 
-void AnalysisPanel::set_otsu_local_threshold(double value)
-{
-    LOG_INFO("Local threshold value: {}", (float)value);
-    api::set_otsu_local_threshold((float)value);
-}
+void AnalysisPanel::set_otsu_local_threshold(double value) { api::set_otsu_local_threshold((float)value); }
 
 } // namespace holovibes::gui
