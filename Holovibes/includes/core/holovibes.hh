@@ -440,10 +440,10 @@ class Holovibes
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
-                                             settings::TimeWindow{1},
+                                             settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},
                                              settings::OtsuEnabled{false},
-                                             settings::VesselnessSigma{0.1}))
+                                             settings::VesselnessSigma{2.0}))
     {
     }
 

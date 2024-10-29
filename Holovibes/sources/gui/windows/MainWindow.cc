@@ -165,6 +165,9 @@ MainWindow::MainWindow(QWidget* parent)
     bool is_conv_enabled =
         api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
 
+    ui_->VesselnessSigmaDoubleSpinBox->setValue(2.0f);
+    ui_->TimeWindowSpinBox->setValue(100);
+
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
 

@@ -10,6 +10,14 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
+void applyConvolutionWithReplicatePadding(const float* image,
+                                          float* output,
+                                          int imgWidth,
+                                          int imgHeight,
+                                          const float* kernel,
+                                          int kernelWidth,
+                                          int kernelHeight);
+
 float* comp_dgaussian(float* x, float sigma, int n, int x_size);
 
 float* gaussian_imfilter_sep(float* input_img,

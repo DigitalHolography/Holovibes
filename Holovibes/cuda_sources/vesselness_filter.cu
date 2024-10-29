@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 #include "convolution.cuh"
 #include "tools_conversion.cuh"
@@ -10,6 +12,49 @@
 #include "logger.hh"
 #include "cuComplex.h"
 #include "cufft_handle.hh"
+
+// Function to apply convolution with replicate padding
+void applyConvolutionWithReplicatePadding(const float* image, float* output, int imgWidth, int imgHeight,
+                                          const float* kernel, int kernelWidth, int kernelHeight,
+                                          bool divideConvolution = false) {
+    int padWidth = kernelWidth / 2;
+    int padHeight = kernelHeight / 2;
+
+    // Calculate the sum of the kernel for normalization
+    float kernelSum = 0.0f;
+    for (int i = 0; i < kernelHeight; ++i) {
+        for (int j = 0; j < kernelWidth; ++j) {
+            kernelSum += kernel[i * kernelWidth + j];
+        }
+    }
+
+    // Iterate over each pixel in the output image
+    for (int y = 0; y < imgHeight; ++y) {
+        for (int x = 0; x < imgWidth; ++x) {
+            float sum = 0.0f;
+
+            // Convolution operation with replicate padding
+            for (int ky = -padHeight; ky <= padHeight; ++ky) {
+                for (int kx = -padWidth; kx <= padWidth; ++kx) {
+                    int imgX = std::min(std::max(x + kx, 0), imgWidth - 1);
+                    int imgY = std::min(std::max(y + ky, 0), imgHeight - 1);
+                    int kernelIndex = (ky + padHeight) * kernelWidth + (kx + padWidth);
+                    int imageIndex = imgY * imgWidth + imgX;
+
+                    // Apply the kernel
+                    sum += image[imageIndex] * kernel[kernelIndex];
+                }
+            }
+
+            // If division is enabled, normalize the convolved value
+            if (divideConvolution && kernelSum != 0.0f) {
+                output[y * imgWidth + x] = sum / kernelSum;
+            } else {
+                output[y * imgWidth + x] = sum;
+            }
+        }
+    }
+}
 
 static void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
 {
@@ -92,41 +137,41 @@ float* gaussian_imfilter_sep(float* input_img,
                             cudaStream_t stream)
 {
    
-    float* gpu_output;
-    cudaXMalloc(&gpu_output, frame_res * sizeof(float));
-    cudaXMemcpyAsync(gpu_output, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    // float* gpu_output;
+    // cudaXMalloc(&gpu_output, frame_res * sizeof(float));
+    // cudaXMemcpyAsync(gpu_output, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
-    cudaXStreamSynchronize(stream);
+    // cudaXStreamSynchronize(stream);
 
-    cuComplex* output_complex;
-    cudaXMalloc(&output_complex, frame_res * sizeof(cuComplex));
-    load_kernel_in_GPU(output_complex, kernel, frame_res, stream);
+    // cuComplex* output_complex;
+    // cudaXMalloc(&output_complex, frame_res * sizeof(cuComplex));
+    // cudaXMemset(output_complex, 0, frame_res * sizeof(cuComplex));
+    // load_kernel_in_GPU(output_complex, kernel, frame_res, stream);
+    // cudaXStreamSynchronize(stream);
 
-    cudaXStreamSynchronize(stream);
+    // convolution_kernel(gpu_output,
+    //                     convolution_buffer,
+    //                     cuComplex_buffer,
+    //                     convolution_plan,
+    //                     frame_res,
+    //                     output_complex,
+    //                     false,
+    //                     stream);
+    // cudaXStreamSynchronize(stream);
 
-    cuComplex *kernel_copy = new cuComplex[frame_res];
-    cudaXMemcpyAsync(kernel_copy, output_complex, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream);
-    write1DFloatArrayToFile((float*)kernel_copy, std::sqrt(frame_res), std::sqrt(frame_res), "kernel.txt");
+    float *input_copy = new float[frame_res];
+    cudaXMemcpy(input_copy, input_img, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
 
-    convolution_kernel(gpu_output,
-                        convolution_buffer,
-                        cuComplex_buffer,
-                        convolution_plan,
-                        frame_res,
-                        output_complex,
-                        false,
-                        stream);
-                        
-    cudaXStreamSynchronize(stream);
+    float *output = new float[frame_res];
+    applyConvolutionWithReplicatePadding(input_copy, output, std::sqrt(frame_res), std::sqrt(frame_res), kernel, 3, 3, true);
 
-    float *res = new float[frame_res];
-    cudaXMemcpyAsync(res, gpu_output, frame_res * sizeof(float), cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream);
+    free(input_copy);
+
+    // float *res = new float[frame_res];
+    // cudaXMemcpyAsync(res, gpu_output, frame_res * sizeof(float), cudaMemcpyDeviceToHost, stream);
+    // cudaXStreamSynchronize(stream);
     
-    write1DFloatArrayToFile(res, std::sqrt(frame_res), std::sqrt(frame_res), "convo.txt");
-
-    return res;
+    return output;
 }
 
 void multiply_by_float(float* vect, float num, int frame_size)
@@ -154,7 +199,7 @@ float* vesselness_filter(float* input,
     float A = std::pow(sigma, gamma);
 
     float* Ixx = gaussian_imfilter_sep(input, g_xx_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    // multiply_by_float(Ixx, A, frame_res);
+    multiply_by_float(Ixx, A, frame_res);
 
     // float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
     // multiply_by_float(Ixy, A, frame_res);

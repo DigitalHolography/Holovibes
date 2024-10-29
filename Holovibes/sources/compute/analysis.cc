@@ -222,6 +222,7 @@ void Analysis::init()
                                    frame_res,
                                    cudaMemcpyHostToDevice,
                                    stream_));
+    cudaXStreamSynchronize(stream_);
 
     constexpr uint batch_size = 1; // since only one frame.
     // We compute the FFT of the kernel, once, here, instead of every time the
@@ -264,8 +265,12 @@ void Analysis::init()
     float* g_xx_qy = comp_dgaussian(y, sigma, 0, y_size);
 
     free(g_xx_mul_);
-    g_xx_mul_ = new float[x_size * y_size];
-    matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
+    g_xx_mul_ = g_xx_px;
+    // g_xx_mul_ = new float[x_size * y_size];
+    // matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
+    float* tmp = kernel_add_padding(g_xx_mul_, 3, 1, 3, 3);
+    free(g_xx_mul_);
+    g_xx_mul_ = tmp;
 
     float* g_xy_px = comp_dgaussian(x, sigma, 1, x_size);
     float* g_xy_qy = comp_dgaussian(y, sigma, 1, y_size);
@@ -281,24 +286,24 @@ void Analysis::init()
     g_yy_mul_ = new float[x_size * y_size];
     matrixMultiply(g_yy_qy, g_yy_px, g_yy_mul_, y_size, 1, x_size);
 
-    free(g_xx_px);
+    // free(g_xx_px);
     free(g_xx_qy);
     free(g_xy_px);
     free(g_xy_qy);
     free(g_yy_px);
     free(g_yy_qy);
 
-    float* tmp = kernel_add_padding(g_xx_mul_, x_size, y_size, fd_.height, fd_.width);
-    free(g_xx_mul_);
-    g_xx_mul_ = tmp;
+    // float* tmp = kernel_add_padding(g_xx_mul_, 1, y_size, fd_.height, fd_.width);
+    // free(g_xx_mul_);
+    // g_xx_mul_ = tmp;
 
-    tmp = kernel_add_padding(g_xy_mul_, x_size, y_size, fd_.height, fd_.width);
-    free(g_xy_mul_);
-    g_xy_mul_ = tmp;
+    // tmp = kernel_add_padding(g_xy_mul_, x_size, y_size, fd_.height, fd_.width);
+    // free(g_xy_mul_);
+    // g_xy_mul_ = tmp;
 
-    tmp = kernel_add_padding(g_yy_mul_, x_size, y_size, fd_.height, fd_.width);
-    free(g_yy_mul_);
-    g_yy_mul_ = tmp;
+    // tmp = kernel_add_padding(g_yy_mul_, x_size, y_size, fd_.height, fd_.width);
+    // free(g_yy_mul_);
+    // g_yy_mul_ = tmp;
 }
 
 void Analysis::dispose()
