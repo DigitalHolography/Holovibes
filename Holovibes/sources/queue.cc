@@ -36,7 +36,6 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     , is_big_endian_(fd.depth >= 2 && fd.byteEndian == Endianness::BigEndian)
 {
     max_size_ = max_size;
-    std::cout << "max_size : " << max_size_ << std::endl;
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
     if (!data_.resize(fd_.get_frame_size() * max_size_))
     {
