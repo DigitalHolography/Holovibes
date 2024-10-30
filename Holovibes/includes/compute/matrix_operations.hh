@@ -93,6 +93,29 @@ void matrix_multiply(const T* A,
                      cublasOperation_t op_A = CUBLAS_OP_N,
                      cublasOperation_t op_B = CUBLAS_OP_N);
 
+/*! \brief Multiplies 2 matrices using specific cublas handler
+ *
+ *  \param A first input matrix
+ *  \param B second input matrix
+ *  \param A_height height of matrix A
+ *  \param B_width width of matrix B
+ *  \param A_width_B_height width of matrix A and height of matrix B
+ *  \param C output matrix
+ *  \param handler cublas handler to use
+ *  \param op_A operation to apply on matrix A
+ *  \param op_B operation to apply on matrix B
+ */
+template <typename T>
+void matrix_multiply(const T* A,
+                     const T* B,
+                     int A_height,
+                     int B_width,
+                     int A_width_B_height,
+                     T* C,
+                     const cublasHandle_t& handle,
+                     cublasOperation_t op_A = CUBLAS_OP_N,
+                     cublasOperation_t op_B = CUBLAS_OP_N);
+
 } // namespace holovibes::compute
 
 #include "matrix_operations.hxx"

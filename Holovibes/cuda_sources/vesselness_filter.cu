@@ -58,10 +58,10 @@ void applyConvolutionWithReplicatePadding(const float* image, float* output, int
 
 __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
-     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+     const int index = blockIdx.x * blockDim.x + threadIdx.x;
      if (index < size)
      {
-        output[index] = index - lim;
+        output[index] = (int)index - lim;
      }
 }
 

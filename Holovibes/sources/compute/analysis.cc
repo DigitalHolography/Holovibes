@@ -240,17 +240,16 @@ void Analysis::init()
     comp_dgaussian(g_xx_qy, y, y_size, sigma, 0, stream_);
 
     cudaXStreamSynchronize(stream_);
+
     vesselness_mask_env_.g_xx_mul_.resize(x_size * y_size);
-    matrix_multiply(g_xx_qy, g_xx_px, y_size, x_size, 1, vesselness_mask_env_.g_xx_mul_.get());
-    cudaXStreamSynchronize(stream_);
-
-    float* cpu_kernel = new float[x_size * y_size];
-    cudaXMemcpy(cpu_kernel, vesselness_mask_env_.g_xx_mul_, x_size * y_size * sizeof(float), cudaMemcpyDeviceToHost);
-    write1DFloatArrayToFile(cpu_kernel, y_size, x_size, "kernel_1.txt");
-
-    float* cpu_kernel_px = new float[x_size];
-    cudaXMemcpy(cpu_kernel_px, g_xx_px, x_size * sizeof(float), cudaMemcpyDeviceToHost);
-    write1DFloatArrayToFile(cpu_kernel, 1, x_size, "kernel_px.txt");
+    matrix_multiply<float>(g_xx_qy,
+                           g_xx_px,
+                           y_size,
+                           x_size,
+                           1,
+                           vesselness_mask_env_.g_xx_mul_.get(),
+                           cublas_handler_,
+                           CUBLAS_OP_N);
 
     cudaXFree(g_xx_qy);
     cudaXFree(g_xx_px);
@@ -264,7 +263,7 @@ void Analysis::init()
     comp_dgaussian(g_xy_qy, y, y_size, sigma, 1, stream_);
 
     vesselness_mask_env_.g_xy_mul_.resize(x_size * y_size);
-    matrix_multiply(g_xy_qy, g_xy_px, y_size, x_size, 1, vesselness_mask_env_.g_xy_mul_.get());
+    matrix_multiply<float>(g_xy_qy, g_xy_px, y_size, x_size, 1, vesselness_mask_env_.g_xy_mul_.get(), cublas_handler_);
 
     cudaXFree(g_xy_qy);
     cudaXFree(g_xy_px);
@@ -279,7 +278,7 @@ void Analysis::init()
 
     // Compute qy * px matrices to simply two 1D convolutions to one 2D convolution
     vesselness_mask_env_.g_yy_mul_.resize(x_size * y_size);
-    matrix_multiply(g_yy_qy, g_yy_px, y_size, x_size, 1, vesselness_mask_env_.g_yy_mul_.get());
+    matrix_multiply<float>(g_yy_qy, g_yy_px, y_size, x_size, 1, vesselness_mask_env_.g_yy_mul_.get(), cublas_handler_);
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);

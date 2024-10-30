@@ -10,6 +10,7 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
+#include "cublas_handle.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
@@ -66,6 +67,8 @@ class Analysis
         , stream_(stream)
         , realtime_settings_(settings)
     {
+        [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
+        cublasSetStream(cublas_handler_, stream_);
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
@@ -121,7 +124,10 @@ class Analysis
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief Cublas handler used for matrices multiplications */
+    cublasHandle_t cublas_handler_;
+
+    /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
     size_t kernels_height_ = 0;
