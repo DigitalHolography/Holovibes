@@ -15,7 +15,7 @@ void RectOverlay::init()
 
     Vao_.bind();
 
-    // Set vertices position
+    // Set vertices position (it's a rectangle that fill up the entiere window)
     const float vertices[] = {
         -1.f,
         -1.f,
@@ -71,26 +71,12 @@ void RectOverlay::init()
 
 void RectOverlay::draw()
 {
-    // trigger basicopenglwindow painwindow() dynamically
-    parent_->makeCurrent();
+    initDraw();
 
-    setBuffer();
-
-    Vao_.bind();
-    Program_->bind();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
-
-    setUniform();
-
     glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 void RectOverlay::setBuffer()

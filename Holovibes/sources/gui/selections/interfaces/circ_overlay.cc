@@ -79,26 +79,12 @@ void CircOverlay::init()
 
 void CircOverlay::draw()
 {
-    // trigger basicopenglwindow painwindow() dynamically
-    parent_->makeCurrent();
+    initDraw();
 
-    setBuffer();
-
-    Vao_.bind();
-    Program_->bind();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
-
-    setUniform();
-
     glDrawElements(GL_LINES, resolution_ * 2, GL_UNSIGNED_INT, nullptr);
 
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 void CircOverlay::setBuffer()

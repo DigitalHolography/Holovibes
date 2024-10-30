@@ -83,9 +83,6 @@ class Overlay : protected QOpenGLFunctions
     /*! \brief Initialize shaders and Vao/Vbo of the overlay */
     void initProgram();
 
-    /*! \brief Set shaders uniform values */
-    void setUniform();
-
     /*! \brief Call opengl function to draw the overlay */
     virtual void draw() = 0;
 
@@ -107,6 +104,12 @@ class Overlay : protected QOpenGLFunctions
 
     /*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
     virtual void setBuffer() = 0;
+
+    /*! \brief Setup context, shaders for drawing and bind ressources */
+    void initDraw();
+
+    /*! \brief Unbind ressources */
+    void endDraw();
 
     /*! \brief Converts QPoint to a point in the window */
     units::PointWindow getMousePos(const QPoint& pos);

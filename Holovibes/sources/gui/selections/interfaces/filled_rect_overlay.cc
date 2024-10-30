@@ -32,17 +32,10 @@ void FilledRectOverlay::init()
 
 void FilledRectOverlay::draw()
 {
-    parent_->makeCurrent();
-    setBuffer();
-    Vao_.bind();
-    Program_->bind();
-
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
+    initDraw();
 
     // Drawing two lines
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    setUniform();
     glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 
     // Drawing area between two lines
@@ -50,12 +43,7 @@ void FilledRectOverlay::draw()
     Program_->setUniformValue(Program_->uniformLocation("alpha"), fill_alpha_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 } // namespace holovibes::gui

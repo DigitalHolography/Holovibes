@@ -92,22 +92,12 @@ void RainbowOverlay::init()
 
 void RainbowOverlay::draw()
 {
-    parent_->makeCurrent();
-    setBuffer();
-    Vao_.bind();
-    Program_->bind();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
-    setUniform();
+    initDraw();
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
     glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 void RainbowOverlay::setBuffer()
