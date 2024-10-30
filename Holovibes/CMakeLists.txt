@@ -56,19 +56,22 @@ qt_add_executable(Holovibes
     ${HEADERS}
     ${CUDA_SOURCES}
     ${CUDA_HEADERS}
-    mainwindow.ui
-    advancedsettingswindow.ui
-    plotwindow.ui
-    lightui.ui
-    Holovibes.ico
-    holovibes.rc
+    assets/ui/mainwindow.ui
+    assets/ui/advancedsettingswindow.ui
+    assets/ui/plotwindow.ui
+    assets/ui/lightui.ui
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes.rc
+    assets/style/style.css
 )
 
 qt_add_resources(Holovibes "HolovibesRessources"
     PREFIX "/"
     FILES
-    Holovibes.ico
-    holovibes_logo.png
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes_logo.png
+    assets/style/drop_down.png
+    assets/style/style.css
 )
 
 target_link_libraries(Holovibes PRIVATE
@@ -97,6 +100,7 @@ target_include_directories(Holovibes PRIVATE
 set_target_properties(Holovibes PROPERTIES
     CUDA_ARCHITECTURES "61;75;86;89"
     CUDA_STANDARD 17
+    AUTOUIC_SEARCH_PATHS "assets/ui"
 )
 
 target_compile_options(Holovibes PRIVATE
@@ -128,22 +132,21 @@ endif()
 add_custom_command(TARGET Holovibes POST_BUILD
 
     # Copy shaders and convolution kernels and json patch
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/json_patches_holofile/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/shaders/" $<TARGET_FILE_DIR:Holovibes>/AppData/shaders/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/convolution_kernels/" $<TARGET_FILE_DIR:Holovibes>/AppData/convolution_kernels/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/input_filters/" $<TARGET_FILE_DIR:Holovibes>/AppData/input_filters/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${HOLO_DIR}/assets/json_patches_holofile/" $<TARGET_FILE_DIR:Holovibes>/assets/json_patches_holofile/
 
     # Copy camera libs
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ximea/xiapi64.dll" $<TARGET_FILE_DIR:Holovibes>/xiapi64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/ids/uEye_api_64.dll" $<TARGET_FILE_DIR:Holovibes>/uEye_api_64.dll
     COMMAND ${CMAKE_COMMAND} -E copy "${LIB_DIR}/hamamatsu/dcamapi.dll" $<TARGET_FILE_DIR:Holovibes>/dcamapi.dll
 
-    # Copy not all but some resources (python scripts, ...)
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/resources/" $<TARGET_FILE_DIR:Holovibes>/resources/
-
     # Copy icon and logo
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/Holovibes.ico
-    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/Holovibes.ico" $<TARGET_FILE_DIR:Holovibes>/assets/icons/Holovibes.ico
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/icons/holovibes_logo.png" $<TARGET_FILE_DIR:Holovibes>/assets/icons/holovibes_logo.png
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/style.css" $<TARGET_FILE_DIR:Holovibes>/assets/style/style.css
+    COMMAND ${CMAKE_COMMAND} -E copy "${HOLO_DIR}/assets/style/drop_down.png" $<TARGET_FILE_DIR:Holovibes>/assets/style/drop_down.png
 
     # Deploy Qt
     COMMAND Qt6::windeployqt $<TARGET_FILE_DIR:Holovibes>/Holovibes.exe
@@ -182,28 +185,18 @@ install(TARGETS Holovibes
     COMPONENT application
 )
 
-install(DIRECTORY "${HOLO_DIR}/json_patches_holofile/"
-    DESTINATION json_patches_holofile
+install(DIRECTORY "${HOLO_DIR}/assets/json_patches_holofile/"
+    DESTINATION assets/json_patches_holofile
     COMPONENT application
 )
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/"
-    DESTINATION resources
+install(DIRECTORY "${HOLO_DIR}/assets/icons/"
+    DESTINATION assets/icons
     COMPONENT application
 )
 
-install(FILES "${HOLO_DIR}/Holovibes.ico"
-    DESTINATION .
-    COMPONENT application
-)
-
-install(FILES "${HOLO_DIR}/Script.ico"
-    DESTINATION .
-    COMPONENT process
-)
-
-install(FILES "${HOLO_DIR}/holovibes_logo.png"
-    DESTINATION .
+install(DIRECTORY "${HOLO_DIR}/assets/style/"
+    DESTINATION assets/style
     COMPONENT application
 )
 
@@ -306,8 +299,8 @@ set(CPACK_COMPONENTS_ALL application process)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
-set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/Holovibes.ico")
-set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/Holovibes.ico")
+set(CPACK_NSIS_MUI_ICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
+set(CPACK_NSIS_MUI_UNIICON "${HOLO_DIR}/assets/icons/Holovibes.ico")
 set(CPACK_NSIS_INSTALLED_ICON_NAME "Holovibes.exe")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE")
 
@@ -319,7 +312,8 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 # Set the names of both shortcuts this installer creates: one for Holovibes and one for the .ps1
 # These variable names are arbitrary and don't mean anything.
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
-set(PSONE_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
+set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
+set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}
@@ -331,7 +325,8 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
     \\\${EndIf}
 
     \\\${If} \\\${SectionIsSelected} \\\${process}
-        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\script.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
+        CreateShortCut \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
 ")
 
@@ -339,6 +334,7 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     Delete \\\"${SHORTCUT_NAME}\\\"
     Delete \\\"${PSONE_SHORTCUT_NAME}\\\"
+    Delete \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\"
 ")
 
 include(CPack)

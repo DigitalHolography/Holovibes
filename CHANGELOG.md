@@ -1,8 +1,13 @@
 ## Changelog
 
-### 13.9.0
 
+### X.X.X
+
+- New dark theme style
+- Add a boundary information above the focus
+- Information worker data are now displayed in a table
 - Add temperature for phantom cameras and alvium
+
 
 ### 13.8.0
 

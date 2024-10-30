@@ -6,16 +6,14 @@
 namespace holovibes::gui
 {
 
-AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent, AdvancedSettingsWindowPanel* specific_panel)
+AdvancedSettingsWindow::AdvancedSettingsWindow(QMainWindow* parent)
     : QMainWindow(parent)
 {
 
     ui.setupUi(this);
-    setWindowIcon(QIcon(":/holovibes_logo.png"));
+    setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
     this->setAttribute(Qt::WA_DeleteOnClose);
     this->show();
-
-    plug_specific_panel(specific_panel);
 
     set_current_values();
 }
@@ -24,20 +22,6 @@ AdvancedSettingsWindow::~AdvancedSettingsWindow()
 {
     UserInterfaceDescriptor::instance().advanced_settings_window_.release();
 }
-
-#pragma region PANELS
-
-void AdvancedSettingsWindow::plug_specific_panel(AdvancedSettingsWindowPanel* specific_panel)
-{
-    specific_panel_ = specific_panel;
-
-    if (specific_panel == nullptr)
-        return;
-
-    ui.gridLayout->addWidget(specific_panel, 4, 1, 1, 1);
-}
-
-#pragma endregion
 
 #pragma region SLOTS
 
@@ -69,9 +53,6 @@ void AdvancedSettingsWindow::set_ui_values()
     UserInterfaceDescriptor::instance().auto_scale_point_threshold_ = ui.autoScalePointThresholdSpinBox->value();
 
     api::set_raw_bitshift(ui.rawBitShiftSpinBox->value());
-
-    if (specific_panel_ != nullptr)
-        specific_panel_->set_ui_values();
 
     UserInterfaceDescriptor::instance().has_been_updated = true;
     this->close();
@@ -124,9 +105,6 @@ void AdvancedSettingsWindow::set_current_values()
         static_cast<int>(UserInterfaceDescriptor::instance().auto_scale_point_threshold_));
 
     ui.rawBitShiftSpinBox->setValue(api::get_raw_bitshift());
-
-    if (specific_panel_ != nullptr)
-        specific_panel_->set_current_values();
 }
 
 } // namespace holovibes::gui
