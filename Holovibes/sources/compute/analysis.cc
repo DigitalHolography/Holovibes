@@ -254,13 +254,17 @@ void Analysis::insert_otsu()
                 float* d_output;
                 cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
 
-                computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame,
-                                           d_output,
-                                           fd_.width,
-                                           fd_.height,
-                                           setting<settings::OtsuWindowSize>(),
-                                           setting<settings::OtsuLocalThreshold>(),
-                                           stream_);
+                if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
+                    computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame,
+                                               d_output,
+                                               fd_.width,
+                                               fd_.height,
+                                               setting<settings::OtsuWindowSize>(),
+                                               setting<settings::OtsuLocalThreshold>(),
+                                               stream_);
+                else
+                    computeBinariseOtsu(d_output, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
                             d_output,
                             buffers_.gpu_postprocess_frame_size * sizeof(float),
