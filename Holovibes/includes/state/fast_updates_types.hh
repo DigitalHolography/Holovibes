@@ -31,14 +31,14 @@ enum class IndicationType
     IMG_SOURCE,
     INPUT_FORMAT,
     OUTPUT_FORMAT,
-    TEMPERATURE,
 };
 
-enum class FpsType
+enum class IntType
 {
     INPUT_FPS,
     OUTPUT_FPS,
     SAVING_FPS,
+    TEMPERATURE,
 };
 
 enum class ProgressType
@@ -77,9 +77,9 @@ struct TypeValue<IndicationType>
 };
 
 template <>
-struct TypeValue<FpsType>
+struct TypeValue<IntType>
 {
-    using key = FpsType;
+    using key = IntType;
     using value = std::atomic<uint>;
 };
 

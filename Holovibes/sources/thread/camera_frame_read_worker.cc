@@ -25,8 +25,8 @@ void CameraFrameReadWorker::run()
     *entry1 = camera_->get_name();
     *entry2 = input_format;
 
-    current_fps_ = FastUpdatesMap::map<FpsType>.create_entry(FpsType::INPUT_FPS);
-    temperature_ = FastUpdatesMap::map<IndicationType>.create_entry(IndicationType::TEMPERATURE, true);
+    current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
+    temperature_ = FastUpdatesMap::map<IntType>.create_entry(IntType::TEMPERATURE, true);
 
     try
     {
@@ -49,8 +49,8 @@ void CameraFrameReadWorker::run()
 
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::INPUT_FPS);
-    FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::TEMPERATURE);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::TEMPERATURE);
 
     camera_.reset();
 }
@@ -79,8 +79,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
 
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
     compute_fps();
-    *temperature_ = camera_->get_temperature() == 0 ? "No temperature available"
-                                                    : std::to_string(camera_->get_temperature()) + " °C";
+    *temperature_ = camera_->get_temperature();
 
     if (input_queue_on_gpu)
         input_queue_.load()->sync_current_batch();

@@ -37,7 +37,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 
 using camera::FrameDescriptor;
 
-Pipe::~Pipe() { FastUpdatesMap::map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+Pipe::~Pipe() { FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS); }
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
     if (is_requested(setting))                                                                                         \

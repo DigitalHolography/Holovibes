@@ -266,7 +266,7 @@ int CameraPhantomInt::get_temperature() const
         auto temperature = grabber_->available_grabbers_[0]->getInteger<Euresys::RemoteModule>("DeviceTemperature");
         return temperature;
     }
-    catch (...)
+    catch (std::exception)
     {
         return 0;
     }
