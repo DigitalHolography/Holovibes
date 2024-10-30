@@ -82,7 +82,7 @@ class InformationWorker final : public Worker
     static const std::unordered_map<IndicationType, std::string> indication_type_to_string_;
 
     /*! \brief The map associating a fps type with its name */
-    static const std::unordered_map<FpsType, std::string> fps_type_to_string_;
+    static const std::unordered_map<IntType, std::string> fps_type_to_string_;
 
     /*! \brief The map associating a queue type with its name */
     static const std::unordered_map<QueueType, std::string> queue_type_to_string_;
@@ -113,6 +113,9 @@ class InformationWorker final : public Worker
 
     /*! \brief Saving fps */
     size_t saving_fps_ = 0;
+
+    /*! \brief Camera temperature */
+    size_t temperature_ = 0;
 
     /*! \brief Input throughput */
     size_t input_throughput_ = 0;

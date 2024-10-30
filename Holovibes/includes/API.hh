@@ -856,13 +856,6 @@ bool set_3d_cuts_view(uint time_transformation_size);
  */
 void update_time_stride(std::function<void()> callback, const uint time_stride);
 
-/*! \brief Modifies batch size from ui value
- *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
- * \param batch_size the new value
- */
-void update_batch_size(std::function<void()> callback, const uint batch_size);
-
 /*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
  * time_stride were modified on the GUI, so no notify is needed.
  *
@@ -945,10 +938,8 @@ void start_information_display(const std::function<void()>& callback = []() {});
 /*! \brief Opens additional settings window
  *
  * \param parent then window that will embed the specific panel
- * \param specific_panel the specific panel to link
  */
-void open_advanced_settings(QMainWindow* parent = nullptr,
-                            ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel = nullptr);
+void open_advanced_settings(QMainWindow* parent = nullptr);
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

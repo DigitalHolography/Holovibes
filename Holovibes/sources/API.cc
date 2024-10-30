@@ -403,28 +403,12 @@ void set_view_mode(const ImgType type)
 
 void update_batch_size(const uint batch_size)
 {
-    if (batch_size == get_batch_size())
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || get_batch_size() == batch_size)
         return;
 
-    bool time_stride_changed = set_batch_size(batch_size);
-
-    if (time_stride_changed)
+    if (set_batch_size(batch_size))
         api::get_compute_pipe()->request(ICS::UpdateTimeStride);
     api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-}
-
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
-{
-    update_batch_size(batch_size);
-
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(notify_callback);
-    }
-    else
-    {
-        notify_callback();
-    }
 }
 
 #pragma endregion
@@ -548,6 +532,10 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     auto pipe = get_compute_pipe();
     if (checked)
     {
@@ -573,6 +561,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         set_filter2d_log_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
+        pipe_refresh();
     }
     else
     {
@@ -581,8 +570,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         while (pipe->is_requested(ICS::DisableFilter2DView))
             continue;
     }
-
-    pipe_refresh();
 }
 
 void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
@@ -877,12 +864,23 @@ void set_z_distance(float value)
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value) { UPDATE_SETTING(SpaceTransformation, value); }
+void set_space_transformation(const SpaceTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
+        return;
+
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
 
 void set_time_transformation(const TimeTransformation value)
 {
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
+        return;
+
     UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
 }
 
 void set_unwrapping_2d(const bool value)
@@ -1407,7 +1405,8 @@ void disable_convolution()
 
 void set_divide_convolution(const bool value)
 {
-    if (value == get_divide_convolution_enabled())
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None ||
+        get_divide_convolution_enabled() == value || !get_convolution_enabled())
         return;
 
     set_divide_convolution_enabled(value);
@@ -1438,6 +1437,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
         api::set_input_filter({});
         LOG_ERROR("Couldn't load input filter : {}", e.what());
     }
+    pipe_refresh();
 }
 
 void enable_filter(const std::string& filename)
@@ -1685,8 +1685,7 @@ bool start_record_preconditions()
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART &&
-        nb_frames_to_record == std::nullopt)
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
 
         LOG_ERROR("Number of frames must be activated");
@@ -1853,7 +1852,7 @@ void set_input_file_end_index(size_t value)
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
+void open_advanced_settings(QMainWindow* parent)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =

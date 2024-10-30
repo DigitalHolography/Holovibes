@@ -15,6 +15,13 @@
 namespace camera
 {
 
+/*! \brief Allocate a new camera and initialise it
+ *
+ * \return A pointer to the new camera object.
+ */
+template <class Cam>
+Cam* InitCam();
+
 /*! \class EHoloSubGrabber
  *
  * \brief Alias to the \ref Euresys::EGrabberCallbackOnDemand "EGrabberCallbackOnDemand" class for better code
@@ -130,6 +137,8 @@ class CameraPhantomInt : public Camera
      * \return CapturedFramesDescriptor containing pointer to frames
      */
     virtual CapturedFramesDescriptor get_frames() override;
+    /*! \brief get the temperature */
+    virtual int get_temperature() const override;
 
   protected:
     /*! \brief Load parameters from the INI file and store them (into private attributes).
@@ -176,3 +185,5 @@ class CameraPhantomInt : public Camera
 };
 
 } // namespace camera
+
+#include "camera_phantom_interface.hxx"

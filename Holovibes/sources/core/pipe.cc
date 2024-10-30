@@ -37,7 +37,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 
 using camera::FrameDescriptor;
 
-Pipe::~Pipe() { FastUpdatesMap::map<FpsType>.remove_entry(FpsType::OUTPUT_FPS); }
+Pipe::~Pipe() { FastUpdatesMap::map<IntType>.remove_entry(IntType::OUTPUT_FPS); }
 
 #define HANDLE_REQUEST(setting, log_message, action)                                                                   \
     if (is_requested(setting))                                                                                         \
@@ -110,6 +110,10 @@ bool Pipe::make_requests()
     image_accumulation_->dispose(); // done only if requested
 
     /* Allocate buffer */
+    HANDLE_REQUEST(ICS::UpdateTimeTransformationAlgorithm,
+                   "Update time tr. algorithm",
+                   perform_time_transformation_setting_specific_tasks(setting<settings::TimeTransformationSize>()));
+
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
     if (is_requested(ICS::Filter))
