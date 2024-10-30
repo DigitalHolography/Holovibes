@@ -256,9 +256,6 @@ inline holovibes::Device get_record_queue_location() { return GET_SETTING(Record
 
 inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
 
-inline std::optional<size_t> get_nb_frames_to_record() { return GET_SETTING(RecordFrameCount); }
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) { UPDATE_SETTING(RecordFrameCount, nb_frames); }
-
 inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); }
 inline void set_record_file_path(std::string value) { UPDATE_SETTING(RecordFilePath, value); }
 
