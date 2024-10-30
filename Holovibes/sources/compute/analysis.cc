@@ -271,44 +271,6 @@ void Analysis::insert_otsu()
         });
 }
 
-/*
-algorithm TwoPass(data) is
-linked = []
-labels = structure with dimensions of data, initialized with the value of Background
-NextLabel = 0
-
-First pass
-
-for row in data do
-for column in row do
-if data[row][column] is not Background then
-
- neighbors = connected elements with the current element's value
-
- if neighbors is empty then
-     linked[NextLabel] = set containing NextLabel
-     labels[row][column] = NextLabel
-     NextLabel += 1
-
- else
-
-     Find the smallest label
-
-     L = neighbors labels
-     labels[row][column] = min(L)
-     for label in L do
-         linked[label] = union(linked[label], L)
-
-Second pass
-
-for row in data do
-for column in row do
-if data[row][column] is not Background then
- labels[row][column] = find(labels[row][column])
-
-return labels
- */
-
 #define IS_BACKGROUND(VALUE) ((VALUE) == 0.0f) // Check if float == isok
 
 /* use TwoPasse algo
@@ -378,6 +340,38 @@ std::vector<size_t> get_connected_component(const float* image, int* labels, con
     return labels_sizes;
 }
 
+void get_n_max_index(std::vector<size_t> input, size_t* output, size_t n)
+{
+    size_t size = input.size();
+    for (size_t i = 0; i < n; i++)
+    {
+        size_t j = i;
+        output[j] = j;
+        while (j > 0 && input[output[j - 1]] > input[output[j]])
+        {
+            size_t tmp = output[j - 1];
+            output[j - 1] = output[j];
+            output[j] = tmp;
+            j--;
+        }
+    }
+    for (size_t i = n; i < size; i++)
+    {
+        if (input[i] > input[output[0]])
+        {
+            output[0] = i;
+            size_t j = 1;
+            while (j < size && input[output[j - 1]] > input[output[j]])
+            {
+                size_t tmp = output[j - 1];
+                output[j - 1] = output[j];
+                output[j] = tmp;
+                j++;
+            }
+        }
+    }
+}
+
 void Analysis::insert_bwareafilt()
 {
     LOG_FUNC();
@@ -396,17 +390,17 @@ void Analysis::insert_bwareafilt()
                 int* labels = new int[buffers_.gpu_postprocess_frame_size];
                 std::vector<size_t> labels_sizes = get_connected_component(image_h, labels, fd_.width, fd_.height);
 
-                std::vector<size_t> labels_sort(labels_sizes.size(), 0);
-                std::stable_sort(labels_sort.begin(),
-                                 labels_sort.end(),
-                                 [&labels_sizes](size_t i, size_t j) { return labels_sizes[i] < labels_sizes[j]; });
+                size_t* labels_max = new size_t[100];
+                get_n_max_index(labels_sizes, labels_max, 100);
 
-                for (size_t i = 0; i < 10; i++)
-                    std::cout << "T[" << labels_sort[i] << "] = " << labels_sizes[labels_sort[i]] << " / ";
+                std::cout << labels_sizes.size() << std::endl;
+                for (size_t i = 99; i > 90; i--)
+                    std::cout << "T[" << labels_max[i] << "] = " << labels_sizes[labels_max[i]] << " / ";
                 std::cout << std::endl;
 
                 delete labels;
                 delete image_h;
+                delete labels_max;
             }
         });
 }
