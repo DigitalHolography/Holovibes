@@ -1,7 +1,6 @@
 ## Changelog
 
-
-### X.X.X
+### 13.9.0
 
 - New dark theme style
 - Add a boundary information above the focus
