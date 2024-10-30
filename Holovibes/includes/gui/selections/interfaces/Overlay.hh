@@ -6,6 +6,8 @@
 
 #include <array>
 
+#include <glm/glm.hpp>
+
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QOpenGLFunctions>
@@ -74,6 +76,9 @@ class Overlay : protected QOpenGLFunctions
     /*! \brief Initialize shaders and Vao/Vbo of the overlay */
     void initProgram();
 
+    /*! \brief Set shaders uniform values */
+    void setUniform();
+
     /*! \brief Call opengl function to draw the overlay */
     virtual void draw() = 0;
 
@@ -132,5 +137,11 @@ class Overlay : protected QOpenGLFunctions
     bool display_;
     /*! \brief Pointer to the parent to access Compute descriptor and Pipe */
     BasicOpenGLWindow* parent_;
+
+    /*! \brief The scale of the overlays */
+    glm::vec2 scale_;
+
+    /*! \brief The translation of the overlays */
+    glm::vec2 translation_;
 };
 } // namespace holovibes::gui

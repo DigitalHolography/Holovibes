@@ -85,7 +85,7 @@ void CircOverlay::draw()
     glEnableVertexAttribArray(colorShader_);
     glEnableVertexAttribArray(verticesShader_);
 
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    setUniform();
 
     glDrawElements(GL_LINES, resolution_ * 2, GL_UNSIGNED_INT, nullptr);
 

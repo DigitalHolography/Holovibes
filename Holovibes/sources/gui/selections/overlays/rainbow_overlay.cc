@@ -99,7 +99,7 @@ void RainbowOverlay::draw()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
     glEnableVertexAttribArray(colorShader_);
     glEnableVertexAttribArray(verticesShader_);
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    setUniform();
 
     glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 

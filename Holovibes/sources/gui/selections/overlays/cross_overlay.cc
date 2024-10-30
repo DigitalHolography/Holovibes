@@ -18,7 +18,7 @@ CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
     LOG_FUNC();
 
     color_ = {1.f, 0.f, 0.f};
-    alpha_ = 0.05f;
+    alpha_ = 0.1f;
     display_ = true;
 }
 
@@ -158,6 +158,7 @@ void CrossOverlay::draw()
 
     // Drawing four lines
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
+    setUniform();
     Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
     glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

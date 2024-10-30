@@ -42,7 +42,7 @@ void FilledRectOverlay::draw()
 
     // Drawing two lines
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    setUniform();
     glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 
     // Drawing area between two lines

@@ -21,6 +21,8 @@ Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     , active_(true)
     , display_(false)
     , parent_(parent)
+    , scale_(1.f)
+    , translation_(0.f)
 {
     LOG_FUNC();
 }
@@ -87,6 +89,13 @@ void Overlay::initProgram()
     //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());
     init();
     Program_->release();
+}
+
+void Overlay::setUniform()
+{
+    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    Program_->setUniformValue(Program_->uniformLocation("scale"), scale_.x, scale_.y);
+    Program_->setUniformValue(Program_->uniformLocation("translation"), translation_.x, translation_.y);
 }
 
 units::PointWindow Overlay::getMousePos(const QPoint& pos)
