@@ -21,6 +21,7 @@
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
     holovibes::settings::OtsuEnabled,              \
+    holovibes::settings::OtsuKind,                 \
     holovibes::settings::OtsuWindowSize,           \
     holovibes::settings::OtsuLocalThreshold,       \
     holovibes::settings::BwareafiltEnabled,        \

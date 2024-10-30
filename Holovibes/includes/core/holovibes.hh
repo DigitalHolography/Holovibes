@@ -62,6 +62,7 @@
     holovibes::settings::FftShiftEnabled,                        \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::OtsuKind,                               \
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::BwareafiltEnabled,                            \
@@ -392,6 +393,7 @@ class Holovibes
                                              settings::FftShiftEnabled{false},
                                              settings::ArteryMaskEnabled{false},
                                              settings::OtsuEnabled{false},
+                                             settings::OtsuKind{OtsuKind::Global},
                                              settings::OtsuWindowSize{15},
                                              settings::OtsuLocalThreshold{0.15f},
                                              settings::BwareafiltEnabled{false},

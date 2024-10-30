@@ -16,6 +16,7 @@
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_otsu_kind.hh"
 #include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
@@ -90,6 +91,7 @@ DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
 DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
+DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
 DECLARE_SETTING(OtsuWindowSize, int);
 DECLARE_SETTING(OtsuLocalThreshold, float);
 DECLARE_SETTING(BwareafiltEnabled, bool);

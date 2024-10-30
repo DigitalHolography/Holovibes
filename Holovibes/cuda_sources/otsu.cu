@@ -30,6 +30,14 @@ void normalise(float* d_input, float min, float max, const size_t size, const cu
     cudaDeviceSynchronize();
 }
 
+__global__ void globalThresholdKernel(float* input, int size, float globalThreshold)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < size)
+        input[idx] = (input[idx] > globalThreshold) ? 0.0f : 1.0f;
+}
+
 __global__ void bradleyThresholdKernel(const float* image,
                                        float* output,
                                        int width,
@@ -41,7 +49,7 @@ __global__ void bradleyThresholdKernel(const float* image,
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     int x = idx % width;
-    int y = idx / height;
+    int y = idx / width;
 
     if (x >= width || y >= height)
         return;
@@ -113,6 +121,19 @@ float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
         }
     }
     return threshold / NUM_BINS;
+}
+
+void computeBinariseOtsu(float* d_image, const size_t width, const size_t height, const cudaStream_t stream)
+{
+    size_t img_size = width * height;
+
+    float global_threshold = otsuThreshold(d_image, img_size, stream);
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(img_size, threads);
+
+    globalThresholdKernel<<<blocks, threads, 0, stream>>>(d_image, img_size, global_threshold);
+    cudaDeviceSynchronize();
 }
 
 void computeBinariseOtsuBradley(float* d_image,

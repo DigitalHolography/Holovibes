@@ -2511,6 +2511,42 @@ The range of frequencies kept is [z, z + width]</string>
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
+            <widget class="QCheckBox" name="OtsuCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Otsu</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="OtsuKindComboBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <item>
+              <property name="text">
+               <string>Global</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Adaptive</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QLabel" name="OtsuWindowSizeLabel">
              <property name="toolTip">
               <string>Space transformation algorithm used</string>
@@ -2523,7 +2559,7 @@ The range of frequencies kept is [z, z + width]</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <widget class="QSpinBox" name="OtsuWindowSizeSpinBox">
              <property name="minimum">
               <number>1</number>
@@ -2539,7 +2575,7 @@ The range of frequencies kept is [z, z + width]</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="OtsuLocalThresholdLabel">
              <property name="toolTip">
               <string>Number of images averaged together to generate a single output image.
@@ -2553,7 +2589,7 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QDoubleSpinBox" name="OtsuLocalThresholdSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -6174,6 +6210,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <hint type="sourcelabel">
      <x>884</x>
      <y>132</y>
+   <sender>OtsuKindComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_otsu_kind(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
