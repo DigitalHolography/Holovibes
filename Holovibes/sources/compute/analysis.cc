@@ -203,11 +203,11 @@ void Analysis::init()
     vesselness_mask_env_.time_window_ = api::get_time_window();
     vesselness_mask_env_.number_image_mean_ = 0;
 
-    vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size * sizeof(float));
+    vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
     vesselness_mask_env_.buffer_m0_ff_img_.resize(buffers_.gpu_postprocess_frame_size *
-                                                  vesselness_mask_env_.time_window_ * sizeof(float));
-    vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size * sizeof(float));
-    vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size * sizeof(float));
+                                                  vesselness_mask_env_.time_window_);
+    vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
+    vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size);
 
     float sigma = api::get_vesselness_sigma();
 
@@ -239,8 +239,18 @@ void Analysis::init()
     cudaXMalloc(&g_xx_qy, y_size * sizeof(float));
     comp_dgaussian(g_xx_qy, y, y_size, sigma, 0, stream_);
 
-    vesselness_mask_env_.g_xx_mul_.resize(x_size * y_size * sizeof(float));
+    cudaXStreamSynchronize(stream_);
+    vesselness_mask_env_.g_xx_mul_.resize(x_size * y_size);
     matrix_multiply(g_xx_qy, g_xx_px, y_size, x_size, 1, vesselness_mask_env_.g_xx_mul_.get());
+    cudaXStreamSynchronize(stream_);
+
+    float* cpu_kernel = new float[x_size * y_size];
+    cudaXMemcpy(cpu_kernel, vesselness_mask_env_.g_xx_mul_, x_size * y_size * sizeof(float), cudaMemcpyDeviceToHost);
+    write1DFloatArrayToFile(cpu_kernel, y_size, x_size, "kernel_1.txt");
+
+    float* cpu_kernel_px = new float[x_size];
+    cudaXMemcpy(cpu_kernel_px, g_xx_px, x_size * sizeof(float), cudaMemcpyDeviceToHost);
+    write1DFloatArrayToFile(cpu_kernel, 1, x_size, "kernel_px.txt");
 
     cudaXFree(g_xx_qy);
     cudaXFree(g_xx_px);
@@ -253,7 +263,7 @@ void Analysis::init()
     cudaXMalloc(&g_xy_qy, y_size * sizeof(float));
     comp_dgaussian(g_xy_qy, y, y_size, sigma, 1, stream_);
 
-    vesselness_mask_env_.g_xy_mul_.resize(x_size * y_size * sizeof(float));
+    vesselness_mask_env_.g_xy_mul_.resize(x_size * y_size);
     matrix_multiply(g_xy_qy, g_xy_px, y_size, x_size, 1, vesselness_mask_env_.g_xy_mul_.get());
 
     cudaXFree(g_xy_qy);
@@ -268,7 +278,7 @@ void Analysis::init()
     comp_dgaussian(g_yy_qy, x, y_size, sigma, 2, stream_);
 
     // Compute qy * px matrices to simply two 1D convolutions to one 2D convolution
-    vesselness_mask_env_.g_yy_mul_.resize(x_size * y_size * sizeof(float));
+    vesselness_mask_env_.g_yy_mul_.resize(x_size * y_size);
     matrix_multiply(g_yy_qy, g_yy_px, y_size, x_size, 1, vesselness_mask_env_.g_yy_mul_.get());
 
     cudaXFree(g_yy_qy);
@@ -352,24 +362,18 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
 
-                float* ixx = vesselness_filter(vesselness_mask_env_.image_with_mean_,
-                                               api::get_vesselness_sigma(),
-                                               vesselness_mask_env_.g_xx_mul_,
-                                               vesselness_mask_env_.g_xy_mul_,
-                                               vesselness_mask_env_.g_yy_mul_,
-                                               kernels_height_,
-                                               kernels_width_,
-                                               buffers_.gpu_postprocess_frame_size,
-                                               buffers_.gpu_convolution_buffer,
-                                               cuComplex_buffer_,
-                                               &convolution_plan_,
-                                               stream_);
-
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 ixx,
-                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                 cudaMemcpyHostToDevice,
-                                 stream_);
+                vesselness_filter(buffers_.gpu_postprocess_frame.get(),
+                                  vesselness_mask_env_.image_with_mean_,
+                                  api::get_vesselness_sigma(),
+                                  vesselness_mask_env_.g_xx_mul_,
+                                  vesselness_mask_env_.g_xy_mul_,
+                                  vesselness_mask_env_.g_yy_mul_,
+                                  buffers_.gpu_postprocess_frame_size,
+                                  gpu_kernel_buffer_.get(),
+                                  buffers_.gpu_convolution_buffer,
+                                  cuComplex_buffer_.get(),
+                                  &convolution_plan_,
+                                  stream_);
             }
         });
 }

@@ -22,15 +22,15 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
 
-float* vesselness_filter(float* input,
-                         float sigma,
-                         float* g_xx_mul,
-                         float* g_xy_mul,
-                         float* g_yy_mul,
-                         size_t kernel_height,
-                         size_t kernel_width,
-                         int frame_size,
-                         float* convolution_buffer,
-                         cuComplex* cuComplex_buffer,
-                         CufftHandle* convolution_plan,
-                         cudaStream_t stream);
+void vesselness_filter(float* output,
+                       float* input,
+                       float sigma,
+                       float* g_xx_mul,
+                       float* g_xy_mul,
+                       float* g_yy_mul,
+                       int frame_res,
+                       cuComplex* gpu_kernel_buffer,
+                       float* convolution_buffer,
+                       cuComplex* cuComplex_buffer,
+                       CufftHandle* convolution_plan,
+                       cudaStream_t stream);
