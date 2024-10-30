@@ -122,6 +122,7 @@ inline bool set_batch_size(uint value)
 
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
+
     uint time_stride = get_time_stride();
     if (time_stride < value)
     {
@@ -129,9 +130,13 @@ inline bool set_batch_size(uint value)
         time_stride = value;
         request_time_stride_update = true;
     }
+
     // Go to lower multiple
     if (time_stride % value != 0)
+    {
+        request_time_stride_update = true;
         set_time_stride(time_stride - time_stride % value);
+    }
 
     return request_time_stride_update;
 }
@@ -255,9 +260,6 @@ inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
 inline holovibes::Device get_record_queue_location() { return GET_SETTING(RecordQueueLocation); }
 
 inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
-
-inline std::optional<size_t> get_nb_frames_to_record() { return GET_SETTING(RecordFrameCount); }
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) { UPDATE_SETTING(RecordFrameCount, nb_frames); }
 
 inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); }
 inline void set_record_file_path(std::string value) { UPDATE_SETTING(RecordFilePath, value); }

@@ -16,6 +16,21 @@
 namespace holovibes::api
 {
 
+// Merge base_json and update_json with priority from update_json
+void merge_json(json& base_json, const json& update_json)
+{
+    for (auto& [key, value] : update_json.items())
+    {
+        if (!base_json.contains(key))
+            throw std::runtime_error("Error: Key '" + key + "' found in update_json but not in base_json");
+
+        if (base_json[key].is_object() && value.is_object())
+            merge_json(base_json[key], value);
+        else
+            base_json[key] = value;
+    }
+}
+
 void load_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
@@ -29,9 +44,15 @@ void load_compute_settings(const std::string& json_path)
     auto j_cs = json::parse(ifs);
 
     auto compute_settings = ComputeSettings();
+    compute_settings.Update();
+    json old_one;
+    to_json(old_one, compute_settings);
+
     try
     {
-        from_json(j_cs, compute_settings);
+        // this allows a compute_settings to not have all the fields and to still work
+        merge_json(old_one, j_cs);
+        from_json(old_one, compute_settings);
     }
     catch (const std::exception& e)
     {
@@ -123,7 +144,7 @@ struct JsonSettings
     inline static const auto latest_version = ComputeSettingsVersion::V5;
 
     /*! \brief path to json patch directories  */
-    inline static const auto patches_folder = dir / "json_patches_holofile";
+    inline static const auto patches_folder = dir / "assets/json_patches_holofile";
 
     /*! \brief default convertion function */
     static void convert_default(json& data, const json& json_patch) { data = data.patch(json_patch); }
