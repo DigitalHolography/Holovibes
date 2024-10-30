@@ -251,10 +251,11 @@ void Analysis::insert_otsu()
 
                 normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
 
-                float* d_output;
-                cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
-
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
+                {
+
+                    float* d_output;
+                    cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
                     computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame,
                                                d_output,
                                                fd_.width,
@@ -262,14 +263,15 @@ void Analysis::insert_otsu()
                                                setting<settings::OtsuWindowSize>(),
                                                setting<settings::OtsuLocalThreshold>(),
                                                stream_);
-                else
-                    computeBinariseOtsu(d_output, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
 
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            d_output,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToDevice);
-                cudaFree(d_output);
+                    cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                                d_output,
+                                buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                cudaMemcpyDeviceToDevice);
+                    cudaFree(d_output);
+                }
+                else
+                    computeBinariseOtsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
             }
         });
 }

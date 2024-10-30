@@ -9,14 +9,12 @@
 /**
  * \brief Compute Binarisation with Otsu threshold
  *
- * \param[out] output Where to store the output image
- * \param[in] input The image to process
+ * \param[in out] input The image to process
  * \param[in] width Width of the frame
  * \param[in] height Height of the frame
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void computeBinariseOtsu(
-    float*& output, float* input, const size_t width, const size_t height, const cudaStream_t stream);
+void computeBinariseOtsu(float* input, const size_t width, const size_t height, const cudaStream_t stream);
 
 /*! \brief Compute Binarisation with Otsu threshold and bradley method
  *

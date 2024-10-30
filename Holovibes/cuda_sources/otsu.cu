@@ -19,9 +19,7 @@ __global__ void _normalise(float* d_input, float min, float max, int size)
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < size)
-    {
         d_input[tid] = (d_input[tid] - min) / (max - min);
-    }
 }
 
 void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
@@ -32,16 +30,12 @@ void normalise(float* d_input, float min, float max, const size_t size, const cu
     cudaDeviceSynchronize();
 }
 
-__global__ void globalThresholdKernel(float* output, const float* input, int width, int height, float globalThreshold)
+__global__ void globalThresholdKernel(float* input, int size, float globalThreshold)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int x = idx % width;
-    int y = idx / height;
-
-    size_t img_index = y * width + x;
-
-    output[img_index] = (input[img_index] > globalThreshold) ? 0.0f : 1.0f;
+    if (idx < size)
+        input[idx] = (input[idx] > globalThreshold) ? 0.0f : 1.0f;
 }
 
 __global__ void bradleyThresholdKernel(const float* image,
@@ -55,7 +49,7 @@ __global__ void bradleyThresholdKernel(const float* image,
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     int x = idx % width;
-    int y = idx / height;
+    int y = idx / width;
 
     if (x >= width || y >= height)
         return;
@@ -129,8 +123,7 @@ float otsuThreshold(float* d_image, int size, const cudaStream_t stream)
     return threshold / NUM_BINS;
 }
 
-void computeBinariseOtsu(
-    float*& d_output, float* d_image, const size_t width, const size_t height, const cudaStream_t stream)
+void computeBinariseOtsu(float* d_image, const size_t width, const size_t height, const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
@@ -139,7 +132,7 @@ void computeBinariseOtsu(
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
 
-    globalThresholdKernel<<<blocks, threads, 0, stream>>>(d_output, d_image, width, height, global_threshold);
+    globalThresholdKernel<<<blocks, threads, 0, stream>>>(d_image, img_size, global_threshold);
     cudaDeviceSynchronize();
 }
 
