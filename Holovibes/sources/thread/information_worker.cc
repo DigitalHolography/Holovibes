@@ -332,21 +332,21 @@ void InformationWorker::display_gui_information()
         to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
     }
 
-    if (fps_map.contains(FpsType::INPUT_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::INPUT_FPS) << "</td><td>" << input_fps_
+    if (fps_map.contains(IntType::INPUT_FPS))
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::INPUT_FPS) << "</td><td>" << input_fps_
                    << "</td></tr>";
 
     if (fps_map.contains(IntType::OUTPUT_FPS))
     {
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << "</td>";
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::OUTPUT_FPS) << "</td>";
         if (output_fps_ == 0)
             to_display << "<td style=\"color: red;\">" << output_fps_ << "</td></tr>";
         else
             to_display << "<td>" << output_fps_ << "</td></tr>";
     }
 
-    if (fps_map.contains(FpsType::SAVING_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::SAVING_FPS) << "</td><td>" << saving_fps_
+    if (fps_map.contains(IntType::SAVING_FPS))
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::SAVING_FPS) << "</td><td>" << saving_fps_
                    << "</td></tr>";
 
     if (fps_map.contains(IntType::OUTPUT_FPS))
