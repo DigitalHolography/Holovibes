@@ -120,6 +120,9 @@ class Postprocessing
     }
 
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
+
+    cuda_tools::CudaUniquePtr<cuComplex> vesselness_kernel_buffer;
+
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
     cuda_tools::CudaUniquePtr<float> hsv_arr_;
 

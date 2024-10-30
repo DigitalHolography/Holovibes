@@ -182,6 +182,8 @@ void Analysis::init()
     std::vector<float> gaussian_kernel = load_convolution_matrix();
 
     gpu_kernel_buffer_.resize(frame_res);
+    gpu_kernel_buffer_2_.resize(frame_res);
+
     cudaXMemsetAsync(gpu_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
     cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer_.get(),
                                    sizeof(cuComplex),
@@ -293,6 +295,7 @@ void Analysis::init()
                                    fd_.width,
                                    fd_.height,
                                    stream_);
+
     float* g_xy_mul_with_pading;
     cudaXMalloc(&g_xy_mul_with_pading, fd_.get_frame_res() * sizeof(float));
     cudaXMemset(g_xy_mul_with_pading, 0, fd_.get_frame_res() * sizeof(float));
@@ -318,6 +321,40 @@ void Analysis::init()
     vesselness_mask_env_.g_xx_mul_.reset(g_xx_mul_with_pading);
     vesselness_mask_env_.g_xy_mul_.reset(g_xy_mul_with_pading);
     vesselness_mask_env_.g_yy_mul_.reset(g_yy_mul_with_pading);
+
+    vesselness_mask_env_.g_xx_mul_comp_.resize(fd_.get_frame_res());
+    cudaXMemsetAsync(vesselness_mask_env_.g_xx_mul_comp_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(vesselness_mask_env_.g_xx_mul_comp_.get(),
+                                   sizeof(cuComplex),
+                                   g_xx_mul_with_pading,
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyDeviceToDevice,
+                                   stream_));
+
+    vesselness_mask_env_.g_xy_mul_comp_.resize(fd_.get_frame_res());
+    cudaXMemsetAsync(vesselness_mask_env_.g_xy_mul_comp_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(vesselness_mask_env_.g_xy_mul_comp_.get(),
+                                   sizeof(cuComplex),
+                                   g_xy_mul_with_pading,
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyDeviceToDevice,
+                                   stream_));
+
+    vesselness_mask_env_.g_yy_mul_comp_.resize(fd_.get_frame_res());
+    cudaXMemsetAsync(vesselness_mask_env_.g_yy_mul_comp_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(vesselness_mask_env_.g_yy_mul_comp_.get(),
+                                   sizeof(cuComplex),
+                                   g_yy_mul_with_pading,
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyDeviceToDevice,
+                                   stream_));
+    cudaXStreamSynchronize(stream_);
 }
 
 void Analysis::dispose()
@@ -362,13 +399,13 @@ void Analysis::insert_show_artery()
                                 stream_);
 
                 vesselness_filter(buffers_.gpu_postprocess_frame.get(),
-                                  vesselness_mask_env_.image_with_mean_,
+                                  vesselness_mask_env_.image_with_mean_.get(),
                                   api::get_vesselness_sigma(),
-                                  vesselness_mask_env_.g_xx_mul_,
-                                  vesselness_mask_env_.g_xy_mul_,
-                                  vesselness_mask_env_.g_yy_mul_,
+                                  vesselness_mask_env_.g_xx_mul_comp_.get(),
+                                  vesselness_mask_env_.g_xy_mul_comp_.get(),
+                                  vesselness_mask_env_.g_yy_mul_comp_.get(),
                                   buffers_.gpu_postprocess_frame_size,
-                                  gpu_kernel_buffer_.get(),
+                                  gpu_kernel_buffer_2_.get(),
                                   buffers_.gpu_convolution_buffer,
                                   cuComplex_buffer_.get(),
                                   &convolution_plan_,

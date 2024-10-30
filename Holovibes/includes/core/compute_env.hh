@@ -231,6 +231,13 @@ struct VesselnessMaskEnv
     // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
     cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
 
+    /*! \brief gaussian kernels converted in cuComplex */
+    cuda_tools::CudaUniquePtr<cuComplex> g_xx_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> g_xy_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> g_yy_mul_comp_ = nullptr;
+
     /*! \brief Time window for mask */
     int time_window_;
 

@@ -106,6 +106,8 @@ class Analysis
     /*! \brief Buffer used for convolution */
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
 
+    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_2_;
+
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 

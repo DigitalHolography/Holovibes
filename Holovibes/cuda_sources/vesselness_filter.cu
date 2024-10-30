@@ -145,7 +145,7 @@ static void write1DFloatArrayToFile(const float* array, int rows, int cols, cons
 }
 
 void gaussian_imfilter_sep(float* input_img,
-                            float* kernel,
+                            cuComplex* kernel,
                             const size_t frame_res,
                             cuComplex* gpu_kernel_buffer,
                             float* convolution_buffer, 
@@ -153,28 +153,14 @@ void gaussian_imfilter_sep(float* input_img,
                             CufftHandle* convolution_plan, 
                             cudaStream_t stream)
 {
-    float *cpu_kernel = new float[frame_res];
-    cudaXMemcpy(cpu_kernel, kernel, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
-    write1DFloatArrayToFile(cpu_kernel, std::sqrt(frame_res), std::sqrt(frame_res), "kernel_2.txt");
-    cudaXMemsetAsync(gpu_kernel_buffer, 0, frame_res * sizeof(cuComplex), stream);
-    cudaSafeCall(cudaMemcpy2DAsync(gpu_kernel_buffer,
-                                   sizeof(cuComplex),
-                                   kernel,
-                                   sizeof(float),
-                                   sizeof(float),
-                                   frame_res,
-                                   cudaMemcpyDeviceToDevice,
-                                   stream));
-
     convolution_kernel(input_img,
                         convolution_buffer,
                         cuComplex_buffer,
                         convolution_plan,
                         frame_res,
-                        gpu_kernel_buffer,
-                        false,
+                        kernel,
+                        true,
                         stream);
-    cudaXStreamSynchronize(stream);
 }
 
 void multiply_by_float(float* vect, float num, int frame_size)
@@ -188,9 +174,9 @@ void multiply_by_float(float* vect, float num, int frame_size)
 void vesselness_filter(float* output,
                         float* input, 
                         float sigma, 
-                        float* g_xx_mul, 
-                        float* g_xy_mul, 
-                        float* g_yy_mul,
+                        cuComplex* g_xx_mul, 
+                        cuComplex* g_xy_mul, 
+                        cuComplex* g_yy_mul,
                         int frame_res, 
                         cuComplex* gpu_kernel_buffer,
                         float* convolution_buffer, 
@@ -204,10 +190,12 @@ void vesselness_filter(float* output,
 
     float* input_copy;
     cudaXMalloc(&input_copy, frame_res * sizeof(float));
-    cudaXMemcpy(input_copy, input, frame_res * sizeof(float));
+    cudaXMemcpyAsync(input_copy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
     gaussian_imfilter_sep(input_copy, g_xx_mul, frame_res, gpu_kernel_buffer, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXMemcpy(output, input_copy, frame_res * sizeof(float));
+    cudaXMemcpyAsync(output, input_copy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
+    cudaXFree(input_copy);
     //multiply_by_float(output, A, frame_res);
 
     // float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
