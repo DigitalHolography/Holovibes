@@ -3,7 +3,7 @@
  * \brief Interface for all outlined circular overlays.
  *
  * The position of the circule is done with the `zone_` variable. `zone_.x()` and `zone_.y()` tells the position of the
- * center and `zone_.height()`/`zone_.width()` the radius.
+ * center and `radius_` the radius.
  *
  * You can control:
  * - The color of the edges with the variable `color_`.
@@ -36,5 +36,8 @@ class CircOverlay : public Overlay
 
     /*! \brief The number of vertices */
     uint resolution_;
+
+    /*! \brief The radius of the circle */
+    float radius_;
 };
 } // namespace holovibes::gui

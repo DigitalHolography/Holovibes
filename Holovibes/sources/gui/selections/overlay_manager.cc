@@ -1,6 +1,7 @@
 #include "API.hh"
 #include "overlay_manager.hh"
 #include "zoom_overlay.hh"
+#include "stabilization_overlay.hh"
 #include "noise_overlay.hh"
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
@@ -36,6 +37,13 @@ void OverlayManager::create_overlay<Zoom>()
 {
     if (!set_current(Zoom))
         create_overlay(std::make_shared<ZoomOverlay>(parent_));
+}
+
+template <>
+void OverlayManager::create_overlay<Stabilization>()
+{
+    if (!set_current(Stabilization))
+        create_overlay(std::make_shared<StabilizationOverlay>(parent_));
 }
 
 template <>

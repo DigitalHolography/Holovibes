@@ -9,6 +9,7 @@ namespace holovibes::gui
 CircOverlay::CircOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent, uint resolution)
     : Overlay(overlay, parent)
     , resolution_(resolution)
+    , radius_(0.5f)
 {
     LOG_FUNC();
 }
@@ -102,14 +103,13 @@ void CircOverlay::setBuffer()
 
     // Normalizing the zone to (-1; 1)
     units::RectOpengl zone_gl = zone_;
-    auto radius = zone_.width();
 
     float* subVertices = new float[resolution_ * 2];
     for (uint i = 0; i < resolution_; ++i)
     {
         float angle = 2.0f * M_PI * i / resolution_;
-        subVertices[i * 2] = zone_gl.src().x() + radius * cos(angle);     // x-coordinate
-        subVertices[i * 2 + 1] = zone_gl.src().y() + radius * sin(angle); // y-coordinate
+        subVertices[i * 2] = zone_gl.src().x() + radius_ * cos(angle);     // x-coordinate
+        subVertices[i * 2 + 1] = zone_gl.src().y() + radius_ * sin(angle); // y-coordinate
     }
 
     // Updating the buffer at verticesIndex_ with new coordinates
