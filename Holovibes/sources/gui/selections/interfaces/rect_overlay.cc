@@ -17,14 +17,14 @@ void RectOverlay::init()
 
     // Set vertices position
     const float vertices[] = {
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
+        -1.f,
+        -1.f,
+        1.f,
+        -1.f,
+        1.f,
+        1.f,
+        -1.f,
+        1.f,
     };
     glGenBuffers(1, &verticesIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
@@ -95,27 +95,16 @@ void RectOverlay::draw()
 
 void RectOverlay::setBuffer()
 {
-    parent_->makeCurrent();
-    Program_->bind();
-
     // Normalizing the zone to (-1; 1)
     units::RectOpengl zone_gl = zone_;
 
-    const float subVertices[] = {zone_gl.x(),
-                                 zone_gl.y(),
-                                 zone_gl.right(),
-                                 zone_gl.y(),
-                                 zone_gl.right(),
-                                 zone_gl.bottom(),
-                                 zone_gl.x(),
-                                 zone_gl.bottom()};
+    // The translation is the center of the rectangle
+    translation_.x = (zone_gl.x() + zone_gl.right()) / 2;
+    translation_.y = (zone_gl.y() + zone_gl.bottom()) / 2;
 
-    // Updating the buffer at verticesIndex_ with new coordinates
-    glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(subVertices), subVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    Program_->release();
+    // The scale is the size of the rectangle divide by 2 (because if horizontal it will scale left and also right)
+    scale_.x = (zone_gl.right() - zone_gl.x()) / 2;
+    scale_.y = (zone_gl.bottom() - zone_gl.y()) / 2;
 }
 
 void RectOverlay::move(QMouseEvent* e)

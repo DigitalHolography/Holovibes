@@ -22,7 +22,12 @@ void CircOverlay::init()
 
     // Set vertices position
     float* vertices = new float[resolution_ * 2];
-    std::memset(vertices, 0, sizeof(float) * resolution_ * 2);
+    for (uint i = 0; i < resolution_; ++i)
+    {
+        float angle = 2.0f * M_PI * i / resolution_;
+        vertices[i * 2] = cos(angle);     // x-coordinate
+        vertices[i * 2 + 1] = sin(angle); // y-coordinate
+    }
 
     glGenBuffers(1, &verticesIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
@@ -98,27 +103,15 @@ void CircOverlay::draw()
 
 void CircOverlay::setBuffer()
 {
-    parent_->makeCurrent();
-    Program_->bind();
-
     // Normalizing the zone to (-1; 1)
     units::RectOpengl zone_gl = zone_;
 
-    float* subVertices = new float[resolution_ * 2];
-    for (uint i = 0; i < resolution_; ++i)
-    {
-        float angle = 2.0f * M_PI * i / resolution_;
-        subVertices[i * 2] = zone_gl.src().x() + radius_ * cos(angle);     // x-coordinate
-        subVertices[i * 2 + 1] = zone_gl.src().y() + radius_ * sin(angle); // y-coordinate
-    }
+    // The translation is the center of the rectangle
+    translation_.x = (zone_gl.x() + zone_gl.right()) / 2;
+    translation_.y = (zone_gl.y() + zone_gl.bottom()) / 2;
 
-    // Updating the buffer at verticesIndex_ with new coordinates
-    glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * resolution_ * 2, subVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    Program_->release();
-    delete subVertices;
+    scale_.x = radius_;
+    scale_.y = radius_;
 }
 
 void CircOverlay::checkBounds()

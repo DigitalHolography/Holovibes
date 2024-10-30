@@ -156,17 +156,16 @@ void CrossOverlay::draw()
     glEnableVertexAttribArray(colorShader_);
     glEnableVertexAttribArray(verticesShader_);
 
-    // Drawing four lines
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-    setUniform();
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
-    glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
     // Drawing areas between lines
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    setUniform();
     glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    // Drawing four lines
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
+    Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
+    glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glDisableVertexAttribArray(verticesShader_);

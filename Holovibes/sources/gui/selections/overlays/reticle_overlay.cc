@@ -15,11 +15,8 @@ ReticleOverlay::ReticleOverlay(BasicOpenGLWindow* parent)
 void ReticleOverlay::setBuffer()
 {
     const float scale = api::get_reticle_scale();
-    const float w = parent_->size().width();
-    const float h = parent_->size().height();
-
-    const float w_2 = w / 2;
-    const float h_2 = h / 2;
+    const float w_2 = parent_->size().width() / 2;
+    const float h_2 = parent_->size().height() / 2;
 
     units::ConversionData convert(parent_);
     auto top_left = units::PointWindow(convert, w_2 - w_2 * scale, h_2 - h_2 * scale);
@@ -28,6 +25,7 @@ void ReticleOverlay::setBuffer()
     zone_ = units::RectWindow(top_left, bottom_right);
     api::set_reticle_zone(zone_);
 
-    RectOverlay::setBuffer();
+    scale_.x = scale;
+    scale_.y = scale;
 }
 } // namespace holovibes::gui

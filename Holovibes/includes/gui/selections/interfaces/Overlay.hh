@@ -1,6 +1,13 @@
 /*! \file
  *
  * \brief Interface for all overlays.
+ *
+ * You can change the position and scale of the overlay either:
+ * - By changing the `zone_` variable which hold a src point and a dst point.
+ * - By changing the `translation_` and the `scale_` variable. These are in OpenGL clip space. So the scale should be in
+ * [0, 1] and the translation in [-1, 1]. By default the overlay is at the center of the screen with a scale of 1.
+ *
+ * In the end the `zone_` will be converted to `translation_` and `scale_`.
  */
 #pragma once
 
@@ -22,7 +29,7 @@ namespace holovibes::gui
 
 /*! \enum KindOfOverlay
  *
- * \brief #TODO Add a description for this enum
+ * \brief Holds all the kind of overlay. It's then used to create overlay with the overlay_manager
  */
 enum KindOfOverlay
 {

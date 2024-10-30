@@ -4,6 +4,7 @@
  *
  * The position of the circule is done with the `zone_` variable. `zone_.x()` and `zone_.y()` tells the position of the
  * center and `radius_` the radius.
+ * Alternatively you can move and scale the circle with the `translation_` and `scale_` variable.
  *
  * You can control:
  * - The color of the edges with the variable `color_`.
