@@ -224,14 +224,17 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
 
     /*! \brief gaussian kernels for vesselness_filter*/
-    std::unique_ptr<float> g_xx_mul_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
 
-    std::unique_ptr<float> g_xy_mul_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
 
     // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
-    std::unique_ptr<float> g_yy_mul_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
 
     /*! \brief Time window for mask */
     int time_window_;
+
+    /*! \brief Get the number of image for the mean mask*/
+    int number_image_mean_ = 0;
 };
 } // namespace holovibes

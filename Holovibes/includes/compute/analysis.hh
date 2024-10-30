@@ -124,33 +124,6 @@ class Analysis
     /*! \brief Compute stream to perform  pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Get the number of image for the mean mask*/
-    int number_image_mean_ = 0;
-
-    // TODO: use CudaUniquePtr for each buffers
-
-    /*! \brief Get the mean image*/
-    float* m0_ff_sum_image_;
-
-    /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs */
-    float* buffer_m0_ff_img_{nullptr};
-
-    /*! \brief Time window for mask */
-    int time_window_;
-
-    /*! \brief image with mean calculated for a time window*/
-    float* image_with_mean_{nullptr};
-
-    /*! \brief image with mean and centered calculated for a time window*/
-    float* image_centered_{nullptr};
-
-    /*! \brief gaussian kernels for vesselness_filter*/
-    float* g_xx_mul_{nullptr};
-    float* g_xy_mul_{nullptr};
-
-    // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
-    float* g_yy_mul_{nullptr};
-
     size_t kernels_height_ = 0;
     size_t kernels_width_ = 0;
 

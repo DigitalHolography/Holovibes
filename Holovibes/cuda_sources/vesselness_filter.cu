@@ -56,73 +56,72 @@ void applyConvolutionWithReplicatePadding(const float* image, float* output, int
     }
 }
 
-static void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
+__global__ void kernel_normalized_list(float* output, int lim, int size)
 {
-    // Open the file in write mode
-    std::ofstream outFile(filename);
-
-    // Check if the file was opened successfully
-    if (!outFile)
-    {
-        std::cerr << "Error: Unable to open the file " << filename << std::endl;
-        return;
-    }
-
-    // Write the 1D array in row-major order to the file
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            outFile << array[i * cols + j]; // Calculate index in row-major order
-            if (j < cols - 1)
-            {
-                outFile << " "; // Separate values in a row by a space
-            }
-        }
-        outFile << std::endl; // New line after each row
-    }
-
-    // Close the file
-    outFile.close();
-    std::cout << "1D array written to the file " << filename << std::endl;
+     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+     if (index < size)
+     {
+        output[index] = index - lim;
+     }
 }
 
-// OK
-float comp_hermite_rec(int n, float x)
+void normalized_list(float* output, int lim, int size, cudaStream_t stream)
 {
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);   
+}
+
+__device__ float comp_hermite_iter(int n, float x)
+{
+    if (n < 0)
+        return 0.0f;
     if (n == 0)
         return 1.0f;
     if (n == 1)
         return 2.0f * x;
-    if (n > 1)
-        return (2.0f * x * comp_hermite_rec(n - 1, x)) - (2.0f * (n - 1) * comp_hermite_rec(n - 2, x));
-    throw std::exception("comp_hermite_rec in velness_filter.cu : n can't be negative");
+
+    float h_n_minus_2 = 1.0f;           // H_0(x)
+    float h_n_minus_1 = 2.0f * x;       // H_1(x)
+    float h_n = 0.0f;
+
+    for (int i = 2; i <= n; ++i)
+    {
+        h_n = (2.0f * x * h_n_minus_1) - (2.0f * (i - 1) * h_n_minus_2);
+        h_n_minus_2 = h_n_minus_1;
+        h_n_minus_1 = h_n;
+    }
+
+    return h_n;
 }
 
-// OK
-float comp_gaussian(float x, float sigma)
+__device__ float comp_gaussian(float x, float sigma)
 {
-    return 1 / (sigma * (sqrt(2 * M_PI))) * std::exp((-1 * x * x) / (2 * sigma * sigma));
+    return 1 / (sigma * (sqrtf(2 * M_PI))) * expf((-1 * x * x) / (2 * sigma * sigma));
 }
 
-// OK
-float comp_dgaussian(float x, float sigma, int n)
+__device__ float device_comp_dgaussian(float x, float sigma, int n)
 {
-    float A = std::pow((-1 / (sigma * std::sqrt(2))), n);
-    float B = comp_hermite_rec(n, x / (sigma * std::sqrt(2)));
+    float A = powf((-1 / (sigma * sqrtf(2))), n);
+    float B = comp_hermite_iter(n, x / (sigma * sqrtf(2)));
     float C = comp_gaussian(x, sigma);
     return A * B * C;
 }
 
-// Overload for float array
-float* comp_dgaussian(float* x, size_t x_size, float sigma, int n)
+__global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
 {
-    float *res = new float[x_size];
-    for (size_t i = 0; i < x_size; ++i)
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < input_size)
     {
-        res[i] = comp_dgaussian(x[i], sigma, n);
+        output[index] = device_comp_dgaussian(input[index], sigma, n);
     }
-    return res;
+}
+
+void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(input_size, threads);
+    kernel_comp_dgaussian<<<blocks, threads, 0, stream>>>(output, input, input_size, sigma, n);   
 }
 
 float* gaussian_imfilter_sep(float* input_img, 

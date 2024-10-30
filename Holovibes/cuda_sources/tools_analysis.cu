@@ -23,28 +23,30 @@ void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t fra
                       stream);
 }
 
-float* kernel_add_padding(float* kernel, const int width, const int height, const int new_width, const int new_height) {
-    // Check that new dimensions are greater than or equal to the original dimensions
-    if (new_width < width || new_height < height) {
-        std::cerr << "New dimensions must be greater than or equal to the original dimensions." << std::endl;
-        return nullptr;
+
+__global__ void kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y) 
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int y = idx / width;
+    int x = idx % width;
+
+    if (y < height && x < width) 
+    {
+        output[(start_y + y) * new_width + (start_x + x)] = input[y * width + x];
     }
+}
 
-    // Create a new array for the padded kernel, initialized to 0
-    float* padded_kernel = new float[new_width * new_height];
-    std::memset(padded_kernel, 0, new_width * new_height * sizeof(float));
+void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream) 
+{
+    //float* padded_kernel = new float[new_width * new_height];
+    //std::memset(padded_kernel, 0, new_width * new_height * sizeof(float));
 
-    // Calculate the starting position (top-left corner) of the original kernel in the padded kernel
     int start_x = (new_width - width) / 2;
     int start_y = (new_height - height) / 2;
 
-    // Copy the original kernel into the center of the new padded array
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            // Map original kernel indices to the padded array indices
-            padded_kernel[(start_y + y) * new_width + (start_x + x)] = kernel[y * width + x];
-        }
-    }
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(width * height, threads);
+    kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
 
-    return padded_kernel;
 }

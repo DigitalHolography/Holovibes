@@ -9,4 +9,4 @@
 
 void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t frame_res, cudaStream_t stream);
 
-float* kernel_add_padding(float* kernel, const int width, const int height, const int new_width, const int new_height);
+void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream);

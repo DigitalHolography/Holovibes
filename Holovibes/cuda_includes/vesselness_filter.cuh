@@ -18,7 +18,9 @@ void applyConvolutionWithReplicatePadding(const float* image,
                                           int kernelWidth,
                                           int kernelHeight);
 
-float* comp_dgaussian(float* x, size_t x_size, float sigma, int n);
+void normalized_list(float* output, int lim, int size, cudaStream_t stream);
+
+void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
 
 float* vesselness_filter(float* input,
                          float sigma,
