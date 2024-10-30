@@ -271,12 +271,18 @@ void Analysis::init()
     g_xx_mul_ = new float[x_size * y_size];
     matrixMultiply(g_xx_qy, g_xx_px, g_xx_mul_, y_size, 1, x_size);
 
+    free(g_xx_qy);
+    free(g_xx_px);
+
     float* g_xy_px = comp_dgaussian(x, x_size, sigma, 1);
     float* g_xy_qy = comp_dgaussian(y, y_size, sigma, 1);
 
     free(g_xy_mul_);
     g_xy_mul_ = new float[x_size * y_size];
     matrixMultiply(g_xy_qy, g_xy_px, g_xy_mul_, y_size, 1, x_size);
+
+    free(g_xy_qy);
+    free(g_xy_px);
 
     float* g_yy_px = comp_dgaussian(x, x_size, sigma, 0);
     float* g_yy_qy = comp_dgaussian(y, y_size, sigma, 2);
@@ -285,24 +291,11 @@ void Analysis::init()
     g_yy_mul_ = new float[x_size * y_size];
     matrixMultiply(g_yy_qy, g_yy_px, g_yy_mul_, y_size, 1, x_size);
 
-    // free(g_xx_px);
-    free(g_xx_qy);
-    free(g_xy_px);
-    free(g_xy_qy);
-    free(g_yy_px);
     free(g_yy_qy);
-
+    free(g_yy_px);
     // float* tmp = kernel_add_padding(g_xx_mul_, 1, y_size, fd_.height, fd_.width);
     // free(g_xx_mul_);
     // g_xx_mul_ = tmp;
-
-    // tmp = kernel_add_padding(g_xy_mul_, x_size, y_size, fd_.height, fd_.width);
-    // free(g_xy_mul_);
-    // g_xy_mul_ = tmp;
-
-    // tmp = kernel_add_padding(g_yy_mul_, x_size, y_size, fd_.height, fd_.width);
-    // free(g_yy_mul_);
-    // g_yy_mul_ = tmp;
 }
 
 void Analysis::dispose()
