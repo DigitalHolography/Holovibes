@@ -539,7 +539,8 @@ inline void set_filter2d_contrast(float min, float max) noexcept
  * \name FFT
  * \{
  */
-/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes the pipe) */
+/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
+ * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
 inline void set_fft_shift_enabled(bool value)
 {
@@ -557,7 +558,8 @@ inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); 
  * \{
  */
 
-/*! \brief Getter and Setter for the stabilization, triggered when the Stabilization button is clicked on the gui. (Setter refreshes the pipe) */
+/*! \brief Getter and Setter for the stabilization, triggered when the Stabilization button is clicked on the gui.
+ * (Setter refreshes the pipe) */
 inline bool get_stabilization_enabled() { return GET_SETTING(StabilizationEnabled); }
 inline void set_stabilization_enabled(bool value)
 {

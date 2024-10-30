@@ -24,6 +24,7 @@
 #include "cuda_tools\array.hh"
 #include "cuda_tools\cufft_handle.hh"
 #include "masks.cuh"
+#include "matrix_operations.hh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
@@ -57,11 +58,11 @@ class Stabilization
 {
   public:
     /*! \brief Constructor
-     *  \param fn_compute_vect The vector of functions of the pipe, used to push the functions.
-     *  \param buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
-     *  \param fd
-     *  \param stream
-     *  \param settings
+     *  \param[in] fn_compute_vect The vector of functions of the pipe, used to push the functions.
+     *  \param[in] buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
+     *  \param[in] fd The frame descriptor to get width and height.
+     *  \param[in] stream The current CUDA context stream.
+     *  \param[in] settings The global settings context.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Stabilization(FunctionVector& fn_compute_vect,
@@ -74,40 +75,46 @@ class Stabilization
         , fd_(fd)
         , stream_(stream)
         , realtime_settings_(settings)
+
     {
         int err = !gpu_circle_mask_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_current_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_xcorr_output_.resize(buffers_.gpu_postprocess_frame_size);
-        freq_size_ = fd_.width * (fd_.height / 2 + 1); // Size required for CUFFT R2C
-        cudaMalloc((void**)&(d_freq_1_), sizeof(cufftComplex) * freq_size_);
-        cudaMalloc((void**)&(d_freq_2_), sizeof(cufftComplex) * freq_size_);
-        cudaMalloc((void**)&(d_corr_freq_), sizeof(cufftComplex) * freq_size_);
-        cufftPlan2d(&plan_2d_, fd_.width, fd_.height, CUFFT_R2C);
-        cufftPlan2d(&plan_2dinv_, fd_.width, fd_.height, CUFFT_C2R);
+        freq_size_ = fd_.width * (fd_.height / 2 + 1);
+        err += !d_freq_1_.resize(freq_size_);
+        err += !d_freq_2_.resize(freq_size_);
+        err += !d_corr_freq_.resize(freq_size_);
 
+        cufftSafeCall(cufftPlan2d(&plan_2d_, fd_.width, fd_.height, CUFFT_R2C));
+        cufftSafeCall(cufftPlan2d(&plan_2dinv_, fd_.width, fd_.height, CUFFT_C2R));
+        // plan_2d_.plan(fd_.width, fd_.height, CUFFT_C2R);
+        // plan_2dinv_.plan(fd_.width, fd_.height, CUFFT_C2R);
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
-        // Get the center and radius of the circle.
-        float center_X = fd_.width / 2.0f;
-        float center_Y = fd_.height / 2.0f;
-        float radius =
-            std::min(fd_.width, fd_.height) / 3.0f; // 3.0f could be change to get a different size for the circle.
-        get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
+        updade_cirular_mask();
     }
 
+    /*! \brief Destructor. Release the cufft plans. */
     ~Stabilization()
     {
-        cufftDestroy(plan_2d_);
-        cufftDestroy(plan_2dinv_);
-        cudaFree(d_freq_1_);
-        cudaFree(d_freq_2_);
-        cudaFree(d_corr_freq_);
+        cufftSafeCall(cufftDestroy(plan_2d_));
+        cufftSafeCall(cufftDestroy(plan_2dinv_));
     }
 
-    /*! \brief insert the functions relative to the stabilization. */
+    /*! \brief Insert the functions to compute the stabilization. The process is descripted in the head of this file. */
     void insert_stabilization();
+
+    /*! \brief Setter for the reference image. The `new_gpu_reference_image_` is rescaled by the mean and the
+     *  `gpu_circle_mask_` is applied. Then is is stored in `gpu_reference_image_`. This process is done so the
+     *  image is ready for use in xcorr2.
+     *  \param[in] new_gpu_reference_image_ The new image to set.
+     */
+    void set_gpu_reference_image(float* new_gpu_reference_image_);
+
+    /*! \brief Recompute the circular mask with the new radius on update. Function is also called in constructor. */
+    void updade_cirular_mask();
 
     template <typename T>
     inline void update_setting(T setting)
@@ -120,9 +127,7 @@ class Stabilization
     }
 
   private:
-    /**
-     * @brief Helper function to get a settings value.
-     */
+    /*! \brief Helper function to get a settings value. */
     template <typename T>
     auto setting()
     {
@@ -132,59 +137,88 @@ class Stabilization
         }
     }
 
-    /*! \brief Vector function in which we insert the processing */
+    /*! \brief Preprocess the image and store it in `output` buffer.
+     *  The computations are:
+     *  Getting the mean and using it to rescale the `input` image while storing it in `output` buffer.
+     *  Then apply the circular `gpu_circle_mask_` mask to the `output` buffer.
+     *  \param output The output buffer used to store the processed image.
+     *  \param input The input buffer used to get images.
+     *  \param mean Pointer to the mean to store the mean of the image being computed.
+     */
+    void image_preprocess(float* output, float* input, float* mean);
+
+    /*! \brief Vector function in which we insert the processing. */
     FunctionVector& fn_compute_vect_;
-    /*! \brief Main buffers */
+
+    /*! \brief Main buffers used in pipe. */
+
     const CoreBuffersEnv& buffers_;
-    /*! \brief Describes the frame size */
+
+    /*! \brief Describes the frame size. */
     const camera::FrameDescriptor& fd_;
-    /*! \brief Compute stream to perform  pipe computation */
+
+    /*! \brief Compute stream to perform CUDA computations. */
     const cudaStream_t& stream_;
 
-    /*! \brief Circular queue used to store the images used as reference.
-     *  This queue will be used as a sliding window to keep the stabilization in real-time.
-     *  The reference image will be the mean of all the images of this queue.
-     */
-    std::unique_ptr<Queue> reference_images_queue_ = nullptr;
-
-    /*! \brief Number of images to store in the `reference_images_queue`. */
-    uint reference_images_number_ = 3;
-
-    /*! \brief The reference image computed from the `reference_images_queue`. Contain only one frame.
-     *  This image is the one used to compute the cross-correlation with the other images to stabilize the frames.
+    /*! \brief The reference image set with the `gpu_postprocess_frame` after accumulation. Contain only one frame.
+     *  This image is the one used to compute the cross-correlation with the other images to stabilize the
+     *  frames.
+     *  It is set each time after the images accumulation in the pipe. Hence, the reference is the accumulation of the
+     *  Then we have a sliding window to keep the stabilization in real-time.
      */
     cuda_tools::CudaUniquePtr<float> gpu_reference_image_ = nullptr;
 
-    /*! \brief Pointer containing the mean of the pixels inside the cicrle of `gpu_reference_image` after applying the
-     *  mask.
-     */
+    /*! \brief Mean of the pixels inside the cicrle of `gpu_reference_image_` after applying the mask. */
     float reference_image_mean_ = 0.0f;
 
-    /*! \brief Float buffer. Contains only one frame.
+    /*! \brief Float buffer containing the current `gpu_postprocess_frame` being processed. Contains only one frame.
      *  Contain the frame after applying the circular mask and rescaling. This image is used for the cross-correlation
-     *  with the `gpu_reference_image`.
+     *  with the `gpu_reference_image_`.
      */
     cuda_tools::CudaUniquePtr<float> gpu_current_image_ = nullptr;
 
-    /*! \brief Pointer containing the mean of the pixels inside the cicrle of `gpu_current_image` after applying the
-     *  mask.
-     */
+    /*! \brief Mean of the pixels inside the cicrle of `gpu_current_image_` after applying the mask. */
     float current_image_mean_ = 0.0f;
 
-    /*! \brief TODO */
+    /*! \brief Buffer to store the mask after its computation. Filled with 1 inside the circle and 0 outside.
+     *  The radius is to be set by the user and the mask buffer is filled in the `updade_cirular_mask`. Hence we do not
+     *  call the CUDA kernel at each image but only at initialization and when the radius is modified.
+     *  TODO : When user modify  , reset the mask.
+     */
     cuda_tools::CudaUniquePtr<float> gpu_circle_mask_ = nullptr;
 
-    /*! \brief TODO */
+    /*! \brief Buffer to store the result of the cross-correlation, then it is used to get the argmax. */
     cuda_tools::CudaUniquePtr<float> gpu_xcorr_output_ = nullptr;
 
     bool ref = false;
 
+    /*! \brief The size of the buffers in the frequency domain. Used in the xcorr2 computation.
+     *  It is the size required for CUFFT R2C because of Hermitian Symmetry , for more documentation refers to R2C
+     *  Section of NVIDIA Cufft lib.
+     */
     int freq_size_;
 
-    cufftComplex* d_freq_1_;
-    cufftComplex* d_freq_2_;
-    cufftComplex* d_corr_freq_;
+    /*! \brief Buffer used to store the current image after applying the R2C cufft, its size is stored in `freq_size_`.
+     */
+    cuda_tools::CudaUniquePtr<cufftComplex> d_freq_1_ = nullptr;
+
+    /*! \brief Buffer used to store the reference image after applying the R2C cufft, its size is stored in
+     * `freq_size_`.
+     */
+    cuda_tools::CudaUniquePtr<cufftComplex> d_freq_2_ = nullptr;
+
+    /*! \brief Buffer used to store the output image after applying the xcorr2 function, its size is stored in
+     * `freq_size_`.
+     */
+    cuda_tools::CudaUniquePtr<cufftComplex> d_corr_freq_ = nullptr;
+
+    // cuda_tools::CufftHandle plan_2d_;
+    // cuda_tools::CufftHandle plan_2dinv_;
+
+    /*! \brief Cufft plan used for R2C cufft in the xcorr2 function */
     cufftHandle plan_2d_;
+
+    /*! \brief Cufft plan used for C2R cufft in the xcorr2 function */
     cufftHandle plan_2dinv_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;

@@ -94,5 +94,3 @@ void rescale_in_mask(
  *  \param[in] stream The CUDA stream on which to launch the operation.
  */
 void rescale_in_mask(float* input_output, const float* mask, const float mean, size_t size, const cudaStream_t stream);
-
-void copy_(float* output, float* input, size_t size, cudaStream_t stream);
