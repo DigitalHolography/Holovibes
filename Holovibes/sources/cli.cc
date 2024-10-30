@@ -134,6 +134,8 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         return 33;
     }
 
+    // To load parameters, we now load before the footer and then the config file so that the config file overwrite the
+    // footer
     if (!opts.compute_settings_path && !input_frame_file->get_has_footer())
     {
         LOG_ERROR("No compute settings file provided and no footer found in input file");
