@@ -348,14 +348,16 @@ std::vector<size_t> get_connected_componant(const float* image, int* labels, con
                 {
                     // Find the smallest label
                     std::vector<int> L;
-                    std::for_each(neighbors.begin(),
-                                  neighbors.end(),
-                                  [&](std::pair<size_t, size_t> p)
-                                  {
-                                      int l = image[p.first * width + p.second];
-                                      if (std::find(L.begin(), L.end(), l) != L.end())
-                                          L.push_back(l);
-                                  });
+                    for ()
+
+                        std::for_each(neighbors.begin(),
+                                      neighbors.end(),
+                                      [&](std::pair<size_t, size_t> p)
+                                      {
+                                          int l = image[p.first * width + p.second];
+                                          if (std::find(L.begin(), L.end(), l) != L.end())
+                                              L.push_back(l);
+                                      });
                     labels[i * width + j] = *std::min_element(L.begin(), L.end());
                     std::for_each(L.begin(), L.end(), [&](int l) { linked[l] = std::min(labels[i * width + j], l); });
                 }
@@ -364,7 +366,7 @@ std::vector<size_t> get_connected_componant(const float* image, int* labels, con
     }
 
     // second pass can be later
-    auto labels_sizes = std::vector<size_t>(next_label, 0);
+    std::vector<size_t> labels_sizes(next_label, 0);
 
     for (size_t i = 1; i < width - 1; i++)
     {
@@ -386,11 +388,35 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
+                float* image_h = new float[buffers_.gpu_postprocess_frame_size];
+                cudaXMemcpy(image_h,
+                            buffers_.gpu_postprocess_frame,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToHost);
+
                 int* labels = new int[buffers_.gpu_postprocess_frame_size];
-                std::vector<size_t> labels_sizes =
-                    get_connected_componant(buffers_.gpu_postprocess_frame, labels, fd_.width, fd_.height);
+                try
+                {
+                    std::vector<size_t> labels_sizes = get_connected_componant(image_h, labels, fd_.width, fd_.height);
+                }
+                catch (std::exception& e)
+                {
+                    std::cout << e.what() << std::endl;
+                }
+                /*
+
+                std::vector<size_t> labels_sort(labels_sizes.size(), 0);
+                std::stable_sort(labels_sort.begin(),
+                                 labels_sort.end(),
+                                 [&labels_sizes](size_t i, size_t j) { return labels_sizes[i] < labels_sizes[j]; });
+
+                for (size_t i = 0; i < 10; i++)
+                    std::cout << "T[" << labels_sort[i] << "] = " << labels_sizes[labels_sort[i]] << " / ";
+                std::cout << std::endl;
+                */
 
                 delete labels;
+                delete image_h;
             }
         });
 }
