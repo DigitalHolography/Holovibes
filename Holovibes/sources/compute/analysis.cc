@@ -305,25 +305,10 @@ void Analysis::init()
                                    fd_.height,
                                    stream_);
     cudaXStreamSynchronize(stream_);
-    cudaXMemcpyAsync(vesselness_mask_env_.g_xx_mul_.get(),
-                     g_xx_mul_with_pading,
-                     fd_.get_frame_res() * sizeof(float),
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    cudaXMemcpyAsync(vesselness_mask_env_.g_xy_mul_.get(),
-                     g_xy_mul_with_pading,
-                     fd_.get_frame_res() * sizeof(float),
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    cudaXMemcpyAsync(vesselness_mask_env_.g_yy_mul_.get(),
-                     g_yy_mul_with_pading,
-                     fd_.get_frame_res() * sizeof(float),
-                     cudaMemcpyDeviceToDevice,
-                     stream_);
-    cudaXStreamSynchronize(stream_);
-    cudaXFree(g_xx_mul_with_pading);
-    cudaXFree(g_xy_mul_with_pading);
-    cudaXFree(g_yy_mul_with_pading);
+
+    vesselness_mask_env_.g_xx_mul_.reset(g_xx_mul_with_pading);
+    vesselness_mask_env_.g_xy_mul_.reset(g_xy_mul_with_pading);
+    vesselness_mask_env_.g_yy_mul_.reset(g_yy_mul_with_pading);
 }
 
 void Analysis::dispose()
