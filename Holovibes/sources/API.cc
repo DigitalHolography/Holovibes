@@ -880,7 +880,7 @@ void set_time_transformation(const TimeTransformation value)
 
     UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
-    pipe_refresh();
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
 }
 
 void set_unwrapping_2d(const bool value)

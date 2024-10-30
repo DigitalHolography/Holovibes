@@ -291,6 +291,7 @@ void ImageRenderingPanel::set_space_transformation(const QString& value)
     }
 
     api::set_space_transformation(st);
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation(const QString& value)
@@ -299,6 +300,7 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
     TimeTransformation tt = json{value.toStdString()}[0].get<TimeTransformation>();
 
     api::set_time_transformation(tt);
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_time_transformation_size()
