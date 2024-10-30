@@ -190,6 +190,8 @@ class ICompute
         AutocontrastSliceYZ,
         AutocontrastFilter2D,
 
+        UpdateTimeTransformationAlgorithm,
+
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -299,7 +301,8 @@ class ICompute
     void fft_freqs();
 
     /*!
-     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the moments.
+     * \brief Resize all the buffers using the `time_transformation_size` and recaclulate the `fft_freqs` for the
+     * moments.
      *
      * \param  time_transformation_size  The new time transformation size.
      * \return                           Whether there is an error or not.
@@ -325,6 +328,27 @@ class ICompute
 
     virtual ~ICompute() {}
     /*! \} */
+
+    /**
+     * @brief Helper function to get a settings value.
+     */
+    template <typename T>
+    auto setting()
+    {
+        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
+            return realtime_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
+            return onrestart_settings_.get<T>().value;
+
+        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
+            return pipe_refresh_settings_.get<T>().value;
+    }
+
+    /*! \brief Performs tasks specific to the current time transformation setting.
+     *  \param size The size for time transformation.
+     */
+    void perform_time_transformation_setting_specific_tasks(const unsigned short size);
 
   protected:
     /*! \brief Counting pipe iteration, in order to update fps only every 100 iterations. */
@@ -398,28 +422,7 @@ class ICompute
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
     /*! \} */
 
-    /**
-     * @brief Helper function to get a settings value.
-     */
-    template <typename T>
-    auto setting()
-    {
-        if constexpr (has_setting_v<T, decltype(realtime_settings_)>)
-            return realtime_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(onrestart_settings_)>)
-            return onrestart_settings_.get<T>().value;
-
-        if constexpr (has_setting_v<T, decltype(pipe_refresh_settings_)>)
-            return pipe_refresh_settings_.get<T>().value;
-    }
-
   private:
-    /*! \brief Performs tasks specific to the current time transformation setting.
-     *  \param size The size for time transformation.
-     */
-    void perform_time_transformation_setting_specific_tasks(const unsigned short size);
-
     /*! \brief Updates the STFT configuration based on the time transformation size.
      *  \param size The size for time transformation.
      */

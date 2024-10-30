@@ -6,3 +6,4 @@ repos:
         args: [-i]
         files: \.(cc|hh|hxx|cu|cuh|cuhxx)$
         exclude: ^(libs/|build/|docs/|bin/|tests/)
+        exclude: ^(libs/|build/|docs/|bin/|tests/)

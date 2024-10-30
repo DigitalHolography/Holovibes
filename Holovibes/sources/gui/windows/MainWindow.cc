@@ -607,6 +607,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
+    ui_->ImportPanel->import_stop();
     const bool res = api::change_camera(c);
 
     if (res)
@@ -630,6 +631,7 @@ void MainWindow::camera_none()
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
+    notify();
 }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }

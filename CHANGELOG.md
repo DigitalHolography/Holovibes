@@ -7,7 +7,7 @@
 - Add a boundary information above the focus
 - Information worker data are now displayed in a table
 - Add temperature for phantom cameras and alvium
-
+- Add the possibility to use compute settings which doesn't have all the fields
 
 ### 13.8.0
 
