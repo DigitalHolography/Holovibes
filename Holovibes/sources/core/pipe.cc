@@ -110,6 +110,10 @@ bool Pipe::make_requests()
     image_accumulation_->dispose(); // done only if requested
 
     /* Allocate buffer */
+    HANDLE_REQUEST(ICS::UpdateTimeTransformationAlgorithm,
+                   "Update time tr. algorithm",
+                   perform_time_transformation_setting_specific_tasks(setting<settings::TimeTransformationSize>()));
+
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
     if (is_requested(ICS::Filter))

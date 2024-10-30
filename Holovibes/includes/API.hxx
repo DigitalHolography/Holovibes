@@ -122,6 +122,7 @@ inline bool set_batch_size(uint value)
 
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
+
     uint time_stride = get_time_stride();
     if (time_stride < value)
     {
@@ -129,9 +130,13 @@ inline bool set_batch_size(uint value)
         time_stride = value;
         request_time_stride_update = true;
     }
+
     // Go to lower multiple
     if (time_stride % value != 0)
+    {
+        request_time_stride_update = true;
         set_time_stride(time_stride - time_stride % value);
+    }
 
     return request_time_stride_update;
 }

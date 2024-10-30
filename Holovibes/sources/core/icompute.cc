@@ -123,6 +123,7 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
     {
     case TimeTransformation::STFT:
         update_stft(size);
+        update_pca(0); // Clear the PCA buffer when switching to STFT
         break;
     case TimeTransformation::SSA_STFT:
         update_stft(size);
@@ -130,8 +131,11 @@ void ICompute::perform_time_transformation_setting_specific_tasks(const unsigned
         break;
     case TimeTransformation::PCA:
         update_pca(size);
+        time_transformation_env_.stft_plan.reset(); // Clear memory used by the FFT plan
         break;
     case TimeTransformation::NONE:
+        update_pca(0);
+        time_transformation_env_.stft_plan.reset();
         break;
     default:
         LOG_ERROR("Unhandled Time transformation settings");
