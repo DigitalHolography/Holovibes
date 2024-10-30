@@ -65,7 +65,8 @@
     holovibes::settings::OtsuKind,                               \
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
-    holovibes::settings::BwareafiltEnabled,                            \
+    holovibes::settings::BwareafiltEnabled,                      \
+    holovibes::settings::BwareafiltN,                            \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
@@ -397,6 +398,7 @@ class Holovibes
                                              settings::OtsuWindowSize{15},
                                              settings::OtsuLocalThreshold{0.15f},
                                              settings::BwareafiltEnabled{false},
+                                             settings::BwareafiltN{15},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},

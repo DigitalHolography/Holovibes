@@ -6206,10 +6206,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <signal>valueChanged(int)</signal>
    <receiver>AnalysisPanel</receiver>
    <slot>set_bw_area_filter_value(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>884</x>
-     <y>132</y>
+  </connection>
+  <connection>
    <sender>OtsuKindComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>AnalysisPanel</receiver>

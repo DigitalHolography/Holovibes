@@ -575,6 +575,8 @@ inline void set_bwareafilt_enabled(bool value)
     UPDATE_SETTING(BwareafiltEnabled, value);
     pipe_refresh();
 }
+inline int get_bwareafilt_n() { return GET_SETTING(BwareafiltN); }
+inline void set_bwareafilt_n(int value) { UPDATE_SETTING(BwareafiltN, value); }
 
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }

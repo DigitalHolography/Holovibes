@@ -74,7 +74,7 @@ __global__ void bradleyThresholdKernel(const float* image,
 
     float localMean = localSum / count;
     float localThreshold = localMean * (1 - localThresholdFactor * globalThreshold);
-    output[y * width + x] = (image[y * width + x] > localThreshold) ? 1.0f : 0.0f;
+    output[y * width + x] = (image[y * width + x] > localThreshold) ? 0.0f : 1.0f;
 }
 
 float otsuThreshold(float* d_image, int size, const cudaStream_t stream)

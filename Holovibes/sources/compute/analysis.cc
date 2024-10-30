@@ -277,7 +277,7 @@ void Analysis::insert_otsu()
         });
 }
 
-#define IS_BACKGROUND(VALUE) ((VALUE) == 0.0f) // Check if float == isok
+#define IS_BACKGROUND(VALUE) ((VALUE) == 1.0f)
 
 /* use TwoPasse algo
 
@@ -295,16 +295,17 @@ std::vector<size_t> get_connected_component(const float* image, int* labels, con
     {
         for (size_t j = 1; j < height - 1; j++)
         {
+            labels[i * width + j] = -1;
             if (!IS_BACKGROUND(image[i * width + j]))
             {
                 std::vector<std::pair<size_t, size_t>> neighbors;
-                for (size_t k = -1; k <= 1; k += 2)
-                {
-                    if (!IS_BACKGROUND(image[(i + k) * width + j]))
-                        neighbors.push_back({i + k, j});
-                    if (!IS_BACKGROUND(image[i * width + (j + k)]))
-                        neighbors.push_back({i, j + k});
-                }
+                // for (int k = -1; k <= 1; k += 2)
+                // {
+                if (!IS_BACKGROUND(image[(i - 1) * width + j]))
+                    neighbors.push_back({i - 1, j});
+                if (!IS_BACKGROUND(image[i * width + (j - 1)]))
+                    neighbors.push_back({i, j - 1});
+                // }
 
                 if (neighbors.empty())
                 {
@@ -318,8 +319,8 @@ std::vector<size_t> get_connected_component(const float* image, int* labels, con
                     std::vector<int> L;
                     for (std::pair<size_t, size_t> p : neighbors)
                     {
-                        int l = image[p.first * width + p.second];
-                        if (std::find(L.begin(), L.end(), l) != L.end())
+                        int l = labels[p.first * width + p.second];
+                        if (std::find(L.begin(), L.end(), l) == L.end())
                             L.push_back(l);
                     }
                     labels[i * width + j] = *std::min_element(L.begin(), L.end());
@@ -339,8 +340,11 @@ std::vector<size_t> get_connected_component(const float* image, int* labels, con
     {
         for (size_t j = 1; j < height - 1; j++)
         {
-            labels[i * width + j] = linked[labels[i * width + j]];
-            labels_sizes[labels[i * width + j]]++;
+            if (!IS_BACKGROUND(image[i * width + j]))
+            {
+                labels[i * width + j] = linked[labels[i * width + j]];
+                labels_sizes[labels[i * width + j]]++;
+            }
         }
     }
     return labels_sizes;
@@ -367,13 +371,35 @@ void get_n_max_index(std::vector<size_t> input, size_t* output, size_t n)
         {
             output[0] = i;
             size_t j = 1;
-            while (j < size && input[output[j - 1]] > input[output[j]])
+            while (j < n && input[output[j - 1]] > input[output[j]])
             {
                 size_t tmp = output[j - 1];
                 output[j - 1] = output[j];
                 output[j] = tmp;
                 j++;
             }
+        }
+    }
+}
+
+bool is_in(size_t* labels_max, const size_t n, size_t l)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+        if (labels_max[i] == l)
+            return true;
+    }
+    return false;
+}
+
+void area_filter(float* image, int* label, const size_t width, const size_t height, size_t* labels_max, const size_t n)
+{
+    for (size_t i = 1; i < width - 1; i++)
+    {
+        for (size_t j = 1; j < height - 1; j++)
+        {
+            image[i * width + j] =
+                (!IS_BACKGROUND(image[i * width + j]) && is_in(labels_max, n, label[i * width + j])) ? 0.0f : 1.0f;
         }
     }
 }
@@ -396,14 +422,15 @@ void Analysis::insert_bwareafilt()
                 int* labels = new int[buffers_.gpu_postprocess_frame_size];
                 std::vector<size_t> labels_sizes = get_connected_component(image_h, labels, fd_.width, fd_.height);
 
-                size_t* labels_max = new size_t[100];
-                get_n_max_index(labels_sizes, labels_max, 100);
+                int n = setting<settings::BwareafiltN>();
+                size_t* labels_max = new size_t[n];
+                get_n_max_index(labels_sizes, labels_max, n);
 
-                std::cout << labels_sizes.size() << std::endl;
-                for (size_t i = 99; i > 90; i--)
-                    std::cout << "T[" << labels_max[i] << "] = " << labels_sizes[labels_max[i]] << " / ";
-                std::cout << std::endl;
-
+                area_filter(image_h, labels, fd_.width, fd_.height, labels_max, n);
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            image_h,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyHostToDevice);
                 delete labels;
                 delete image_h;
                 delete labels_max;

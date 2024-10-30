@@ -95,6 +95,7 @@ DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
 DECLARE_SETTING(OtsuWindowSize, int);
 DECLARE_SETTING(OtsuLocalThreshold, float);
 DECLARE_SETTING(BwareafiltEnabled, bool);
+DECLARE_SETTING(BwareafiltN, int);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
