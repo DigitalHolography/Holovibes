@@ -317,7 +317,7 @@ return labels
 
     this function does not handle the border of the image
 */
-std::vector<size_t> get_connected_componant(const float* image, int* labels, const size_t width, const size_t height)
+std::vector<size_t> get_connected_component(const float* image, int* labels, const size_t width, const size_t height)
 {
     std::map<int, int> linked;
     int next_label = 0;
@@ -340,7 +340,7 @@ std::vector<size_t> get_connected_componant(const float* image, int* labels, con
 
                 if (neighbors.empty())
                 {
-                    linked[next_label] = -1;
+                    linked[next_label] = next_label;
                     labels[i * width + j] = next_label;
                     next_label++;
                 }
@@ -348,18 +348,17 @@ std::vector<size_t> get_connected_componant(const float* image, int* labels, con
                 {
                     // Find the smallest label
                     std::vector<int> L;
-                    for ()
-
-                        std::for_each(neighbors.begin(),
-                                      neighbors.end(),
-                                      [&](std::pair<size_t, size_t> p)
-                                      {
-                                          int l = image[p.first * width + p.second];
-                                          if (std::find(L.begin(), L.end(), l) != L.end())
-                                              L.push_back(l);
-                                      });
+                    for (std::pair<size_t, size_t> p : neighbors)
+                    {
+                        int l = image[p.first * width + p.second];
+                        if (std::find(L.begin(), L.end(), l) != L.end())
+                            L.push_back(l);
+                    }
                     labels[i * width + j] = *std::min_element(L.begin(), L.end());
-                    std::for_each(L.begin(), L.end(), [&](int l) { linked[l] = std::min(labels[i * width + j], l); });
+                    for (int l : L)
+                    {
+                        linked[l] = std::min(labels[i * width + j], l);
+                    }
                 }
             }
         }
@@ -395,15 +394,7 @@ void Analysis::insert_bwareafilt()
                             cudaMemcpyDeviceToHost);
 
                 int* labels = new int[buffers_.gpu_postprocess_frame_size];
-                try
-                {
-                    std::vector<size_t> labels_sizes = get_connected_componant(image_h, labels, fd_.width, fd_.height);
-                }
-                catch (std::exception& e)
-                {
-                    std::cout << e.what() << std::endl;
-                }
-                /*
+                std::vector<size_t> labels_sizes = get_connected_component(image_h, labels, fd_.width, fd_.height);
 
                 std::vector<size_t> labels_sort(labels_sizes.size(), 0);
                 std::stable_sort(labels_sort.begin(),
@@ -413,7 +404,6 @@ void Analysis::insert_bwareafilt()
                 for (size_t i = 0; i < 10; i++)
                     std::cout << "T[" << labels_sort[i] << "] = " << labels_sizes[labels_sort[i]] << " / ";
                 std::cout << std::endl;
-                */
 
                 delete labels;
                 delete image_h;
