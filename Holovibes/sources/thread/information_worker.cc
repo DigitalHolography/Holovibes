@@ -300,12 +300,13 @@ void InformationWorker::display_gui_information()
     std::stringstream to_display(str);
     auto& fps_map = FastUpdatesMap::map<IntType>;
 
-    if (fps_map.contains(IntType::TEMPERATURE))
-    {
-        to_display << fps_type_to_string_.at(IntType::TEMPERATURE) << ":<br/>  " << temperature_ << "<br/>";
-    }
-
     to_display << "<table>";
+
+    if (fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
+    {
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
+                   << "°C</td></tr>";
+    }
 
     for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
         to_display << "<tr><td>" << indication_type_to_string_.at(key) << "</td><td>" << *value << "</td></tr>";
