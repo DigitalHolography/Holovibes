@@ -418,8 +418,10 @@ void Analysis::insert_show_artery()
                                  buffers_.gpu_postprocess_frame_size * sizeof(float),
                                  cudaMemcpyDeviceToHost,
                                  stream_);
-                write1DFloatArrayToFile(test_filter, fd_.width, fd_.height, "test_filter.txt");
-                delete[] test_filter;
+                write1DFloatArrayToFile(test_filter,
+                                        sqrt(buffers_.gpu_postprocess_frame_size),
+                                        sqrt(buffers_.gpu_postprocess_frame_size),
+                                        "test_filter_final_result.txt");
             }
         });
 }

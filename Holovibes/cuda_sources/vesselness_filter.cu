@@ -177,16 +177,25 @@ __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
     {
-        output[index] = sqrtf(pow(lambda_1[index], 2) + pow(lambda_2[index], 2));
+        output[index] = sqrtf(powf(lambda_1[index], 2) + powf(lambda_2[index], 2));
     }
 }
 
-__global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float *c, float *c_temp)
+__global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float c, float *c_temp)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
     {
-        output[index] = exp(-(pow(R_blob[index], 2) / 2 * pow(beta, 2))) * (1 - exp(-(c_temp[index] / (2 * pow(*c, 2)))));
+        float A = powf(R_blob[index], 2);
+        float B = 2 * powf(beta, 2);
+        float C = expf(-(A / B));
+        float D = 2 * powf(c, 2);
+        float E = c_temp[index] / D;
+        float F = 1 - expf(-E);
+        output[index] = C * F;
+
+        //output[index] = expf(-(powf(R_blob[index], 2) / 2 * powf(beta, 2))) * (1 - expf(-(c_temp[index] / (2 * powf(*c, 2)))));
+        //output[index] = exp(-(pow(R_blob[index], 2) / 2 * pow(beta, 2))) * (1 - exp(-(c_temp[index] / (2 * pow(1, 2)))));
     }
 }
 
@@ -195,8 +204,81 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
     {
-        output[index] *= (lambda_2[index] <= 0.005f ? 1 : 0);
+        output[index] *= (lambda_2[index] <= 0.f ? 1 : 0);
     }
+}
+
+
+// Kernel pour calculer le min et le max d'un tableau
+__global__ void findMinMax(const float *input, float *min, float *max, int n) {
+    extern __shared__ float shared_data[];
+    float *s_min = shared_data;
+    float *s_max = shared_data + blockDim.x;
+    int tid = threadIdx.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Initialiser les valeurs partagées
+    if (index < n) {
+        s_min[tid] = input[index];
+        s_max[tid] = input[index];
+    } else {
+        s_min[tid] = FLT_MAX;
+        s_max[tid] = -FLT_MAX;
+    }
+    __syncthreads();
+
+    // Réduction pour trouver le min et le max
+    for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+        if (tid < s && index + s < n) {
+            s_min[tid] = fminf(s_min[tid], s_min[tid + s]);
+            s_max[tid] = fmaxf(s_max[tid], s_max[tid + s]);
+        }
+        __syncthreads();
+    }
+
+    // Stocker le min et le max globalement
+    if (tid == 0) {
+        atomicMin((int *)min, __float_as_int(s_min[0]));
+        atomicMax((int *)max, __float_as_int(s_max[0]));
+    }
+}
+
+// Kernel pour normaliser chaque élément entre 0 et 255
+__global__ void normalizeTo0255(float *data, float min, float max, int n) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n && max > min) {
+        data[index] = ((data[index] - min) / (max - min)) * 255.0f;
+    }
+}
+
+// Fonction principale de normalisation entre 0 et 255
+void normalizeArrayTo0255(float *d_data, int n) {
+    // Allocation pour stocker le min et le max sur le device
+    float *d_min, *d_max;
+    cudaMalloc((void **)&d_min, sizeof(float));
+    cudaMalloc((void **)&d_max, sizeof(float));
+
+    // Initialiser min et max
+    float h_min = FLT_MAX, h_max = -FLT_MAX;
+    cudaMemcpy(d_min, &h_min, sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_max, &h_max, sizeof(float), cudaMemcpyHostToDevice);
+
+    int blockSize = 256;
+    int gridSize = (n + blockSize - 1) / blockSize;
+
+    // Trouver le min et le max
+    findMinMax<<<gridSize, blockSize, 2 * blockSize * sizeof(float)>>>(d_data, d_min, d_max, n);
+
+    // Copier le min et le max du device vers le host
+    cudaMemcpy(&h_min, d_min, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&h_max, d_max, sizeof(float), cudaMemcpyDeviceToHost);
+
+    // Appliquer la normalisation entre 0 et 255
+    normalizeTo0255<<<gridSize, blockSize>>>(d_data, h_min, h_max, n);
+
+    // Libérer la mémoire
+    cudaFree(d_min);
+    cudaFree(d_max);
 }
 
 void vesselness_filter(float* output,
@@ -212,6 +294,8 @@ void vesselness_filter(float* output,
                         cublasHandle_t cublas_handler,
                         cudaStream_t stream)
 {
+    normalizeArrayTo0255(input, frame_res);
+
     int gamma = 1;
     float beta = 0.8f;
 
@@ -265,6 +349,8 @@ void vesselness_filter(float* output,
     cudaXFree(Iyx);
     cudaXFree(Iyy);
 
+    // H works here 
+
     float* lambda_1;
     cudaXMalloc(&lambda_1, frame_res * sizeof(float));
     cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
@@ -272,11 +358,26 @@ void vesselness_filter(float* output,
     cudaXMalloc(&lambda_2, frame_res * sizeof(float));
     cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
 
+    cudaXStreamSynchronize(stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_4D_eigenvalues<<<blocks, threads, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
+     // Define grid and block dimensions
+    dim3 blockSize(16, 16); // Block size (16x16)
+    dim3 gridSize((std::sqrt(frame_res) + blockSize.x - 1) / blockSize.x, (std::sqrt(frame_res) + blockSize.y - 1) / blockSize.y);
+    kernel_4D_eigenvalues<<<gridSize, blockSize, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
     cudaXStreamSynchronize(stream);
+
+    float *test_filter = new float[frame_res];
+    cudaXMemcpyAsync(test_filter,
+        lambda_2,
+        frame_res * sizeof(float),
+        cudaMemcpyDeviceToHost,
+        stream);
+    write1DFloatArrayToFile(test_filter,
+        sqrt(frame_res),
+        sqrt(frame_res),
+        "test_filter_lambda_2.txt");
 
     cudaXFree(H);
 
@@ -292,18 +393,42 @@ void vesselness_filter(float* output,
     cudaXMalloc(&c_temp, frame_res * sizeof(float));
     threads = get_max_threads_1d();
     blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_normalize<<<blocks, threads, 0, stream>>>(R_blob, lambda_1, lambda_2, frame_res);
+    kernel_normalize<<<blocks, threads, 0, stream>>>(c_temp, lambda_1, lambda_2, frame_res);
     cudaXStreamSynchronize(stream);
+
+    test_filter = new float[frame_res];
+    cudaXMemcpyAsync(test_filter,
+        c_temp,
+        frame_res * sizeof(float),
+        cudaMemcpyDeviceToHost,
+        stream);
+    write1DFloatArrayToFile(test_filter,
+        sqrt(frame_res),
+        sqrt(frame_res),
+        "test_filter_ctemp.txt");
 
     int c_index;
     cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
     cudaXStreamSynchronize(stream);
-    float* c_pointer = c_temp + c_index;
+    float c;
+    cudaMemcpy(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost);
+    std::cout << "c : " << c << std::endl;
 
     threads = get_max_threads_1d();
     blocks = map_blocks_to_problem(frame_res, threads);
-    kernel_If<<<blocks, threads, 0, stream>>>(output, frame_res, R_blob, beta, c_pointer, c_temp);
+    kernel_If<<<blocks, threads, 0, stream>>>(output, frame_res, R_blob, beta, c, c_temp);
     cudaXStreamSynchronize(stream);
+
+    test_filter = new float[frame_res];
+    cudaXMemcpyAsync(test_filter,
+        output,
+        frame_res * sizeof(float),
+        cudaMemcpyDeviceToHost,
+        stream);
+    write1DFloatArrayToFile(test_filter,
+        sqrt(frame_res),
+        sqrt(frame_res),
+        "test_filter_output.txt");
 
     cudaXFree(R_blob);
     cudaXFree(c_temp);
