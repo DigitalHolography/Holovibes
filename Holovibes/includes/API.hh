@@ -196,11 +196,8 @@ bool set_holographic_mode(ushort window_size);
  */
 void refresh_view_mode(ushort window_size, ImgType img_type);
 
-/*! \brief Removes time transformation from computation
- *
- * \param callback FIXME: Api is not supposed to handdle callback
- */
-void cancel_time_transformation_cuts(std::function<void()> callback);
+/*! \brief Removes time transformation from computation */
+void cancel_time_transformation_cuts();
 
 /*! \brief Checks preconditions to start recording
  *
@@ -928,12 +925,8 @@ bool slide_update_threshold(
 
 bool getLightUIMode();
 
-/*! \brief Displays information
- *
- * \param is_cli true if the current user interface is CLI
- * \param callback lambda to execute FIXME: Api is not supposed to handdle callback
- */
-void start_information_display(const std::function<void()>& callback = []() {});
+/*! \brief Displays information */
+void start_information_display();
 
 /*! \brief Opens additional settings window
  *
