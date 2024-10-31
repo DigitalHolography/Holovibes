@@ -2578,9 +2578,27 @@ It's a post-processing step to remove noise</string>
             </widget>
            </item>
           </layout>
-         </item>HEAD
-          <item>
-          <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
+         </item>
+         <item>
+          <layout class="QGridLayout" name="VesselnessGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="VesselnessSigmaLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Vesselness</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -2588,7 +2606,7 @@ It's a post-processing step to remove noise</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string></string>
+              <string/>
              </property>
              <property name="showGroupSeparator" stdset="0">
               <bool>false</bool>
@@ -2597,7 +2615,7 @@ It's a post-processing step to remove noise</string>
               <number>2</number>
              </property>
              <property name="minimum">
-              <double>0.10000000000000</double>
+              <double>0.100000000000000</double>
              </property>
              <property name="maximum">
               <double>5.000000000000000</double>
@@ -2606,23 +2624,77 @@ It's a post-processing step to remove noise</string>
               <double>0.010000000000000</double>
              </property>
             </widget>
-          </item>
-          <item>
+           </item>
+           <item row="1" column="0" colspan="2">
             <widget class="QSlider" name="VesselnessSigmaSlider">
-              <property name="styleSheet">
-                <string notr="true"/>
-              </property>
-              <property name="minimum">
-                <number>10</number>
-              </property>
-              <property name="maximum">
-                <number>500</number>
-              </property>
-              <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-              </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>500</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
             </widget>
-          </item>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="MinMaskAreaGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="MinMaskAreaLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Min. area of Mask</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="MinMaskAreaSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="MinMaskAreaSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
          <item>
           <spacer name="BottomAnalysisSpacer">
            <property name="orientation">
@@ -6169,20 +6241,20 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-    <sender>VesselnessSigmaDoubleSpinBox</sender>
-    <signal>valueChanged(double)</signal>
-    <receiver>AnalysisPanel</receiver>
-    <slot>update_vesselness_sigma(double)</slot>
-    <hints>
-      <hint type="sourcelabel">
-      <x>175</x>
-      <y>336</y>
-      </hint>
-      <hint type="destinationlabel">
-      <x>0</x>
-      <y>202</y>
-      </hint>
-    </hints>
+   <sender>VesselnessSigmaDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_vesselness_sigma(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>202</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>VesselnessSigmaSlider</sender>
@@ -6241,6 +6313,38 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <hint type="sourcelabel">
      <x>925</x>
      <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>261</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -6371,8 +6475,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
-
-  <!-- Analysis slots -->
   <slot>update_time_window(int)</slot>
   <slot>update_vesselness_sigma(double)</slot>
   <slot>update_vesselness_sigma_slider(int)</slot>

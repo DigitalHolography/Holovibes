@@ -28,7 +28,8 @@
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
-    holovibes::settings::VesselnessSigma           \
+    holovibes::settings::VesselnessSigma,          \
+    holovibes::settings::MinMaskArea
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS

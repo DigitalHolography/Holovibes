@@ -581,6 +581,8 @@ inline void set_vesselness_sigma(double value)
     UPDATE_SETTING(VesselnessSigma, value);
     pipe_refresh();
 }
+inline int get_min_mask_area() { return GET_SETTING(MinMaskArea); }
+inline void set_min_mask_area(int value) { return UPDATE_SETTING(MinMaskArea, value); }
 
 inline OtsuKind get_otsu_kind() { return GET_SETTING(OtsuKind); }
 inline void set_otsu_kind(OtsuKind value) { return UPDATE_SETTING(OtsuKind, value); }

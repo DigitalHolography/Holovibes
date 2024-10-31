@@ -31,6 +31,12 @@ void AnalysisPanel::on_notify()
 {
     // Updating UI values with current backend settings
 
+    // Show arteries / veins
+    ui_->ArteryCheckBox->setChecked(api::get_artery_mask_enabled());
+
+    // Time window
+    ui_->TimeWindowSpinBox->setValue(api::get_time_window());
+
     // Otsu
     ui_->OtsuCheckBox->setChecked(api::get_otsu_enabled());
 
@@ -47,6 +53,14 @@ void AnalysisPanel::on_notify()
     ui_->OtsuLocalThresholdSpinBox->setValue(api::get_otsu_local_threshold());
     ui_->OtsuLocalThresholdSpinBox->setEnabled(api::get_otsu_enabled());
     ui_->OtsuLocalThresholdLabel->setEnabled(api::get_otsu_enabled());
+
+    // Vesselness sigma
+    ui_->VesselnessSigmaDoubleSpinBox->setValue(api::get_vesselness_sigma());
+    ui_->VesselnessSigmaSlider->setValue(api::get_vesselness_sigma());
+
+    // Min mask Area
+    ui_->MinMaskAreaSpinBox->setValue(api::get_min_mask_area());
+    ui_->MinMaskAreaSlider->setValue(api::get_min_mask_area());
 }
 
 void AnalysisPanel::update_time_window()
@@ -76,6 +90,18 @@ void AnalysisPanel::update_vesselness_sigma_slider(int value)
     // Keep consistency between the slider and double box
     const QSignalBlocker blocker(ui_->VesselnessSigmaDoubleSpinBox);
     ui_->VesselnessSigmaDoubleSpinBox->setValue(new_value);
+}
+
+void AnalysisPanel::update_min_mask_area(int value)
+{
+    api::set_min_mask_area(value);
+    ui_->MinMaskAreaSlider->setValue(value);
+}
+
+void AnalysisPanel::update_min_mask_area_slider(int value)
+{
+    api::set_min_mask_area(value);
+    ui_->MinMaskAreaSpinBox->setValue(value);
 }
 
 void AnalysisPanel::set_otsu_kind(int index)

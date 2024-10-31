@@ -187,6 +187,7 @@ DECLARE_SETTING(ArteryMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
 DECLARE_SETTING(TimeWindow, int);
 DECLARE_SETTING(VesselnessSigma, double);
+DECLARE_SETTING(MinMaskArea, int);
 
 DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
 DECLARE_SETTING(OtsuWindowSize, int);

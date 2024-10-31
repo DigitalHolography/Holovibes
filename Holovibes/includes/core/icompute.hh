@@ -80,7 +80,8 @@
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::OtsuEnabled,                            \
-    holovibes::settings::VesselnessSigma
+    holovibes::settings::VesselnessSigma,                        \
+    holovibes::settings::MinMaskArea
 
 
 #define ONRESTART_SETTINGS                                       \

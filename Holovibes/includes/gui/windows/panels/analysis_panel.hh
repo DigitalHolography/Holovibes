@@ -40,6 +40,9 @@ class AnalysisPanel : public Panel
      * in range [0.01, 5] */
     void update_vesselness_sigma_slider(int value);
 
+    void update_min_mask_area(int value);
+    void update_min_mask_area_slider(int value);
+
     void set_otsu_kind(int index);
     void set_otsu_window_size(int value);
     void set_otsu_local_threshold(double value);

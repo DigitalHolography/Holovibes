@@ -118,7 +118,8 @@
     holovibes::settings::VesselnessSigma,                        \
     holovibes::settings::OtsuKind,                               \
     holovibes::settings::OtsuWindowSize,                         \
-    holovibes::settings::OtsuLocalThreshold                      \
+    holovibes::settings::OtsuLocalThreshold,                     \
+    holovibes::settings::MinMaskArea
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -449,7 +450,8 @@ class Holovibes
                                              settings::VesselnessSigma{2.0},
                                              settings::OtsuKind{OtsuKind::Global},
                                              settings::OtsuWindowSize{15},
-                                             settings::OtsuLocalThreshold{0.15f}))
+                                             settings::OtsuLocalThreshold{0.15f},
+                                             settings::MinMaskArea{10}))
     {
     }
 
