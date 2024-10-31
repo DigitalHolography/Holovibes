@@ -2,31 +2,7 @@
 
 #include "hardware_limits.hh"
 #include "common.cuh"
-
-__host__ __device__ static cuComplex& operator*=(cuComplex& c, const float& r)
-{
-    c.x = c.x * r;
-    c.y = c.y * r;
-    return c;
-}
-
-__host__ __device__ static cuComplex operator*(const cuComplex& c, const float& r)
-{
-    cuComplex n;
-
-    n.x = c.x * r;
-    n.y = c.y * r;
-
-    return n;
-}
-
-__host__ __device__ static cuComplex operator*(const cuComplex& c1, const cuComplex& c2) { return cuCmulf(c1, c2); }
-
-__host__ __device__ static cuComplex& operator*=(cuComplex& c1, const cuComplex& c2)
-{
-    c1 = cuCmulf(c1, c2);
-    return c1;
-}
+#include "complex_utils.cuh"
 
 template <typename T, typename M>
 __global__ static void kernel_apply_mask(T* in_out, const M* mask, const size_t size, const uint batch_size)

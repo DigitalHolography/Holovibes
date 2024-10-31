@@ -307,7 +307,6 @@ void Pipe::refresh()
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
-    LOG_INFO('ici');
     stabilization_->set_gpu_reference_image(buffers_.gpu_postprocess_frame);
 
     rendering_->insert_chart();

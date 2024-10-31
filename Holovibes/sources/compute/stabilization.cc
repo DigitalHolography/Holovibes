@@ -23,13 +23,13 @@ void Stabilization::insert_stabilization()
                 xcorr2(gpu_xcorr_output_,
                        gpu_current_image_,
                        gpu_reference_image_,
-                       freq_size_,
-                       stream_,
+                       d_freq_output,
                        d_freq_1_,
                        d_freq_2_,
-                       d_corr_freq_,
                        plan_2d_,
-                       plan_2dinv_);
+                       plan_2dinv_,
+                       freq_size_,
+                       stream_);
                 cudaStreamSynchronize(stream_);
 
                 // Getting the argmax of the xcorr2 output matrix.
@@ -44,8 +44,23 @@ void Stabilization::insert_stabilization()
                 if (y > fd_.height / 2)
                     y -= fd_.height;
 
-                // Shifting the image to the computed (x,y) point.
-                complex_translation(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, x, y, stream_);
+                // Shifting the image to the computed point.
+                x = -x;
+                y = -y;
+                circ_shift(gpu_circ_shift_buffer_,
+                           buffers_.gpu_postprocess_frame,
+                           fd_.width,
+                           fd_.height,
+                           x,
+                           y,
+                           stream_);
+
+                // Copy the result of the shift in `gpu_postprocess_frame`.
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                                 gpu_circ_shift_buffer_,
+                                 fd_.width * fd_.height * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
             });
     }
 }

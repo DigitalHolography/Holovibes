@@ -66,7 +66,7 @@ void eigen_values_vectors(cuComplex* matrix,
 
 void matrix_argmax(const float* matrix, const short width, const short height, int& max_index, int& x, int& y)
 {
-    cublasIsamax(cuda_tools::CublasHandle::instance(), width * height, matrix, 1, &max_index);
+    cublasSafeCall(cublasIsamax(cuda_tools::CublasHandle::instance(), width * height, matrix, 1, &max_index));
     max_index--; // Cublas start couting index from 1.
 
     // Convert the linear index to (x, y) coordinates

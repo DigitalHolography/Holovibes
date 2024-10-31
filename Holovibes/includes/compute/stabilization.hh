@@ -81,10 +81,11 @@ class Stabilization
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_current_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_xcorr_output_.resize(buffers_.gpu_postprocess_frame_size);
+        err += !gpu_circ_shift_buffer_.resize(buffers_.gpu_postprocess_frame_size);
         freq_size_ = fd_.width * (fd_.height / 2 + 1);
         err += !d_freq_1_.resize(freq_size_);
         err += !d_freq_2_.resize(freq_size_);
-        err += !d_corr_freq_.resize(freq_size_);
+        err += !d_freq_output.resize(freq_size_);
 
         cufftSafeCall(cufftPlan2d(&plan_2d_, fd_.width, fd_.height, CUFFT_R2C));
         cufftSafeCall(cufftPlan2d(&plan_2dinv_, fd_.width, fd_.height, CUFFT_C2R));
@@ -141,9 +142,9 @@ class Stabilization
      *  The computations are:
      *  Getting the mean and using it to rescale the `input` image while storing it in `output` buffer.
      *  Then apply the circular `gpu_circle_mask_` mask to the `output` buffer.
-     *  \param output The output buffer used to store the processed image.
-     *  \param input The input buffer used to get images.
-     *  \param mean Pointer to the mean to store the mean of the image being computed.
+     *  \param[out] output The output buffer used to store the processed image.
+     *  \param[in] input The input buffer used to get images.
+     *  \param[in out] mean Pointer to the variable to store the mean of the image being computed.
      */
     void image_preprocess(float* output, float* input, float* mean);
 
@@ -210,7 +211,7 @@ class Stabilization
     /*! \brief Buffer used to store the output image after applying the xcorr2 function, its size is stored in
      * `freq_size_`.
      */
-    cuda_tools::CudaUniquePtr<cufftComplex> d_corr_freq_ = nullptr;
+    cuda_tools::CudaUniquePtr<cufftComplex> d_freq_output = nullptr;
 
     // cuda_tools::CufftHandle plan_2d_;
     // cuda_tools::CufftHandle plan_2dinv_;
@@ -220,6 +221,11 @@ class Stabilization
 
     /*! \brief Cufft plan used for C2R cufft in the xcorr2 function */
     cufftHandle plan_2dinv_;
+
+    /*! \brief Buffer used to store the result of `circ_shift` function. After the shift this buffer is copied into
+     * `gpu_postprocess_frame`.
+     */
+    cuda_tools::CudaUniquePtr<float> gpu_circ_shift_buffer_ = nullptr;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

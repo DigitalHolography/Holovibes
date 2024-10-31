@@ -3,6 +3,7 @@
 #include "fresnel_transform.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "complex_utils.cuh"
 #include "logger.hh"
 #include "common.cuh"
 #include "cuda_memory.cuh"
@@ -51,11 +52,7 @@ void convolution_kernel(float* gpu_input,
     cufftSafeCall(cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_FORWARD));
     // At this point, cuComplex_buffer is the FFT of the input
 
-    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                                   cuComplex_buffer,
-                                                                   gpu_kernel,
-                                                                   size);
-    cudaCheckError();
+    complex_hadamard_product(cuComplex_buffer, cuComplex_buffer, gpu_kernel, size, stream);
     // At this point, cuComplex_buffer is the FFT of the input multiplied by the
     // FFT of the kernel
 
@@ -74,33 +71,22 @@ void convolution_kernel(float* gpu_input,
     cudaCheckError();
 }
 
-__global__ void multiply_complex(cufftComplex* a, cufftComplex* b, cufftComplex* result, int size)
-{
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    if (idx < size)
-    {
-        result[idx].x = a[idx].x * b[idx].x + a[idx].y * b[idx].y;
-        result[idx].y = a[idx].y * b[idx].x - a[idx].x * b[idx].y;
-    }
-}
-
 void xcorr2(float* output,
             float* input1,
             float* input2,
-            const int freq_size,
-            cudaStream_t stream,
+            cufftComplex* d_freq_output,
             cufftComplex* d_freq_1,
             cufftComplex* d_freq_2,
-            cufftComplex* d_corr_freq,
             cufftHandle plan_2d,
-            cufftHandle plan_2dinv)
+            cufftHandle plan_2dinv,
+            const int freq_size,
+            cudaStream_t stream)
 {
     cufftExecR2C(plan_2d, input1, d_freq_1);
     cufftExecR2C(plan_2d, input2, d_freq_2);
 
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(freq_size, threads);
-    multiply_complex<<<blocks, threads, 0, stream>>>(d_freq_2, d_freq_1, d_corr_freq, freq_size);
+    conjugate_complex(d_freq_2, freq_size, stream);
+    complex_hadamard_product(d_freq_output, d_freq_1, d_freq_2, freq_size, stream);
 
-    cufftExecC2R(plan_2dinv, d_corr_freq, output);
+    cufftExecC2R(plan_2dinv, d_freq_output, output);
 }
