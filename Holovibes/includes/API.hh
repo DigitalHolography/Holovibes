@@ -814,9 +814,9 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size);
 
 /*! \brief Changes the time transformation size from ui value
  *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
+ * \param time_transformation_size The new time transformation size
  */
-void set_time_transformation_size(std::function<void()> callback);
+void update_time_transformation_size(uint time_transformation_size);
 
 /*! \brief Changes the focused windows
  *
@@ -848,10 +848,9 @@ bool set_3d_cuts_view(uint time_transformation_size);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
- * \param callback lambda to execute at the end of the processing FIXME: Api is not supposed to handle callback
  * \param time_stride the new value
  */
-void update_time_stride(std::function<void()> callback, const uint time_stride);
+void update_time_stride(const uint time_stride);
 
 /*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
  * time_stride were modified on the GUI, so no notify is needed.

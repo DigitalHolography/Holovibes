@@ -185,27 +185,13 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_stride()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
+    api::update_time_stride(ui_->TimeStrideSpinBox->value());
 
-    uint time_stride = ui_->TimeStrideSpinBox->value();
-
-    if (time_stride == api::get_time_stride())
-        return;
-
-    auto callback = [=]()
-    {
-        // Only in file mode, if batch size change, the record frame number have to change
-        // User need.
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-        parent_->notify();
-    };
-
-    api::update_time_stride(callback, time_stride);
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeStrideSpinBox->value()));
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)
@@ -305,27 +291,8 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
-    time_transformation_size = std::max(1, time_transformation_size);
-
-    if (time_transformation_size == api::get_time_transformation_size())
-        return;
-
-    auto callback = [=]()
-    {
-        api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
-        ui_->ViewPanel->set_p_accu();
-        // This will not do anything until
-        // SliceWindow::changeTexture() isn't coded.
-        parent_->notify();
-    };
-
-    api::set_time_transformation_size(callback);
+    api::update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
+    parent_->notify();
 }
 
 // λ
