@@ -16,32 +16,31 @@
 #include "matrix_operations.hh"
 using holovibes::cuda_tools::CufftHandle;
 
-void convolution_kernel(float* gpu_input,
+void convolution_kernel(float* input_output,
                         float* gpu_convolved_buffer,
                         cuComplex* cuComplex_buffer,
                         CufftHandle* plan,
                         const size_t size,
                         const cuComplex* gpu_kernel,
                         const bool divide_convolution_enabled,
-                        const bool normalize_enabled,
                         const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
 
-    /* Copy gpu_input (float*) to cuComplex_buffer (cuComplex*)
+    /* Copy input_output (float*) to cuComplex_buffer (cuComplex*)
      * We only want to copy the float value as real part float number in the
      * cuComplex_buffer To skip the imaginary part, we use a pitch (skipped
      * data) of size sizeof(float)
      *
      * The value are first all set to 0 (real & imaginary)
-     * Then value are copied 1 by 1 from gpu_input into the real part
+     * Then value are copied 1 by 1 from input_output into the real part
      * Imaginary is skipped and thus left to its value
      */
     cudaXMemsetAsync(cuComplex_buffer, 0, size * sizeof(cuComplex), stream);
     cudaSafeCall(cudaMemcpy2DAsync(cuComplex_buffer,  // Destination memory address
                                    sizeof(cuComplex), // Pitch of destination memory
-                                   gpu_input,         // Source memory address
+                                   input_output,      // Source memory address
                                    sizeof(float),     // Pitch of source memory
                                    sizeof(float),     // Width of matrix transfer (columns in bytes)
                                    size,              // Height of matrix transfer (rows)
@@ -60,13 +59,16 @@ void convolution_kernel(float* gpu_input,
 
     if (divide_convolution_enabled)
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer, gpu_convolved_buffer, size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(gpu_convolved_buffer, cuComplex_buffer, size);
         cudaCheckError();
-        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(gpu_input, gpu_convolved_buffer, gpu_input, size);
+        kernel_divide_frames_float<<<blocks, threads, 0, stream>>>(input_output,
+                                                                   input_output,
+                                                                   gpu_convolved_buffer,
+                                                                   size);
     }
     else
     {
-        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(cuComplex_buffer, gpu_input, size);
+        kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(input_output, cuComplex_buffer, size);
     }
     cudaCheckError();
 }

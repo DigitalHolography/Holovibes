@@ -81,7 +81,8 @@ def generate_holo_from(folder: str, input: str, output: str, output_error: str, 
     if sub.returncode != 0:
         with open(output_error, "w") as f_out:
             f_out.write(f"{sub.returncode}\n{sub.stderr.decode('utf-8')}")
-
+    
+    os.makedirs("test_logs", exist_ok=True)
     with open(os.path.join("test_logs", "all_errcode.txt"), "a") as f_all:
         f_all.write(f"=== {folder} ===\nReturn: {sub.returncode}\n{sub.stderr.decode('utf-8')}\n")
 

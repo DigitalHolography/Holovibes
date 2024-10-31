@@ -70,12 +70,11 @@ class Pipe : public ICompute
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , processed_output_fps_(FastUpdatesMap::map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
+        , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
-        fn_end_vect_ = FunctionVector(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -141,9 +140,6 @@ class Pipe : public ICompute
      * Check if a ICompute refresh has been requested.
      */
     void exec() override;
-
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
 
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
@@ -276,15 +272,6 @@ class Pipe : public ICompute
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
     FunctionVector fn_compute_vect_;
-
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
 
     /*! \name Compute objects
      * \{

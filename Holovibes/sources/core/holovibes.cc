@@ -183,6 +183,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
             {CameraKind::AmetekS991EuresysCoaxlinkQSFP, "AmetekS991EuresysCoaxlinkQsfp+.dll"},
             {CameraKind::Ametek, "EuresyseGrabber.dll"},
             {CameraKind::Alvium, "CameraAlvium.dll"},
+            {CameraKind::AutoDetectionPhantom, "CameraPhantomAutoDetection.dll"},
         };
         active_camera_ = camera::CameraDLL::load_camera(camera_dictionary.at(camera_kind));
     }
@@ -238,7 +239,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
         return;
     }
 
-    api::set_nb_frames_to_record(get_setting<settings::RecordFrameCount>().value);
+    api::set_record_frame_count(get_setting<settings::RecordFrameCount>().value);
 
     // if the record is on the cpu
     if (api::get_record_on_gpu() == false)
@@ -269,9 +270,8 @@ void Holovibes::start_chart_record(const std::function<void()>& callback)
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 
-void Holovibes::start_information_display(const std::function<void()>& callback)
+void Holovibes::start_information_display()
 {
-    info_worker_controller_.set_callback(callback);
     info_worker_controller_.set_error_callback(error_callback_);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);

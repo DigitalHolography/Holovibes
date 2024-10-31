@@ -1,5 +1,26 @@
 ## Changelog
 
+### 13.9.0
+
+- New dark theme style
+- Add a boundary information above the focus
+- Information worker data are now displayed in a table
+- Add temperature for phantom cameras and alvium
+- Add the possibility to use compute settings which doesn't have all the fields
+
+### 13.8.0
+
+- Fixed default S710 ini file
+- Removed the BatchEnabled and the BatchInputFile in the UI
+- Moved "CPU Record" from the main UI to the AdvancedUI.
+- Mini panel now has contrast and camera settings
+- Renamed "Record on GPU" to "Record queue on GPU"
+- Renamed "FresnelTR" to "Fresnel Tr." and "AngularSP" to "Angular SP."
+- All parameters for Filter2D and 3DCuts are now hidden when the checkbox are not enabled
+- Show only active views in the window selection view dropdown
+- Fixed reticle displaying white screen
+- Removed useless Euresys eGrabber camera model option
+
 ### 13.7.5
 
 - Renamed space transforms more accordingly: fft1 to Fresnel transform and fft2 to Angular spectrum

@@ -66,7 +66,7 @@ __device__ void warp_primitive_reduce(T* sdata, const uint tid)
  * We slightly improved performances by tuning it
  */
 template <typename T, typename U, uint pixel_per_block>
-__global__ void kernel_reduce(const T* const __restrict__ input, U* const __restrict__ result, const uint size)
+__global__ void kernel_reduce(U* const __restrict__ output, const T* const __restrict__ input, const uint size)
 {
     // Each block is reduced in shared data (avoiding multiple global memory
     // acceses)
@@ -134,10 +134,10 @@ __global__ void kernel_reduce(const T* const __restrict__ input, U* const __rest
 
     // Each block writes it local reduce to global memory
     if (tid == 0)
-        atomicAdd(result, sdata[tid]);
+        atomicAdd(output, sdata[tid]);
 }
 
-void gpu_reduce(const float* const input, double* const result, const uint size, const cudaStream_t stream)
+void gpu_reduce(double* const output, const float* const input, const uint size, const cudaStream_t stream)
 {
     // Most optimized grid layout for Holovibes input sizes
     constexpr uint optimal_nb_blocks = 1024;
@@ -150,11 +150,11 @@ void gpu_reduce(const float* const input, double* const result, const uint size,
     // small input
     const uint nb_blocks = std::min((size - 1) / (optimal_block_size * 2) + 1, optimal_nb_blocks);
 
-    // Reset result to 0
-    cudaXMemsetAsync(result, 0, sizeof(double), stream);
+    // Reset output to 0
+    cudaXMemsetAsync(output, 0, sizeof(double), stream);
 
     // Each thread works at least on 2 pixels
     kernel_reduce<float, double, optimal_block_size * 2>
-        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), stream>>>(input, result, size);
+        <<<nb_blocks, optimal_block_size, optimal_block_size * sizeof(float), stream>>>(output, input, size);
     cudaCheckError();
 }

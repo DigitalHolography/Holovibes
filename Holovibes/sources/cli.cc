@@ -135,23 +135,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         return 33;
     }
 
-    bool load = false;
-
-    if (opts.compute_settings_path)
+    // To load parameters, we now load before the footer and then the config file so that the config file overwrite the
+    // footer
+    if (!opts.compute_settings_path && !input_frame_file->get_has_footer())
     {
-        try
-        {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
-        }
-        catch (std::exception& e)
-        {
-            LOG_INFO(e.what());
-            LOG_INFO("Error while loading compute settings, abort");
-            return 34;
-        }
-        load = true;
+        LOG_ERROR("No compute settings file provided and no footer found in input file");
+        return 35;
     }
-    else if (input_frame_file->get_has_footer())
+    if (input_frame_file->get_has_footer())
     {
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
@@ -164,15 +155,22 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         catch (std::exception& e)
         {
             LOG_ERROR("{}", e.what());
-            LOG_ERROR("Error while loading compute settings, abort");
+            LOG_ERROR("Error while loading compute settings from footer, abort");
             return 34;
         }
-        load = true;
     }
-    if (!load)
+    if (opts.compute_settings_path)
     {
-        LOG_ERROR("No compute settings file provided and no footer found in input file");
-        return 35;
+        try
+        {
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+        }
+        catch (std::exception& e)
+        {
+            LOG_INFO(e.what());
+            LOG_INFO("Error while loading compute settings, abort");
+            return 34;
+        }
     }
 
     holovibes::api::set_frame_record_enabled(true);

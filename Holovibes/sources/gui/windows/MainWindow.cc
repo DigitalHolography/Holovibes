@@ -22,8 +22,6 @@
 
 #include "view_struct.hh"
 
-#include "asw_mainwindow_panel.hh"
-
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
@@ -97,7 +95,7 @@ MainWindow::MainWindow(QWidget* parent)
             this,
             SLOT(synchronize_thread(std::function<void()>)));
 
-    setWindowIcon(QIcon(":/holovibes_logo.png"));
+    setWindowIcon(QIcon(":/assets/icons/holovibes_logo.png"));
 
     ::holovibes::worker::InformationWorker::display_info_text_function_ = [=](const std::string& text)
     { synchronize_thread([=]() { ui_->InfoPanel->set_text(text.c_str()); }); };
@@ -197,8 +195,6 @@ MainWindow::MainWindow(QWidget* parent)
     // Initialize all panels
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
-
-    ;
 
     // ui_->ExportPanel->set_light_ui(light_ui_);
     ui_->ExportPanel->init_light_ui();
@@ -526,11 +522,6 @@ void MainWindow::load_gui()
                             UserInterfaceDescriptor::instance().file_input_directory_,
                             "files",
                             "file input directory");
-    UserInterfaceDescriptor::instance().batch_input_directory_ =
-        json_get_or_default(j_us,
-                            UserInterfaceDescriptor::instance().batch_input_directory_,
-                            "files",
-                            "batch input directory");
 
     auto camera = json_get_or_default(j_us, CameraKind::NONE, "camera", "type");
 
@@ -586,7 +577,6 @@ void MainWindow::save_gui()
     j_us["files"]["default output filename"] = UserInterfaceDescriptor::instance().output_filename_;
     j_us["files"]["record output directory"] = UserInterfaceDescriptor::instance().record_output_directory_;
     j_us["files"]["file input directory"] = UserInterfaceDescriptor::instance().file_input_directory_;
-    j_us["files"]["batch input directory"] = UserInterfaceDescriptor::instance().batch_input_directory_;
 
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->save_gui(j_us);
@@ -617,6 +607,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 
 void MainWindow::change_camera(CameraKind c)
 {
+    ui_->ImportPanel->import_stop();
     const bool res = api::change_camera(c);
 
     if (res)
@@ -640,7 +631,6 @@ void MainWindow::camera_none()
 
     // Make camera's settings menu unaccessible
     ui_->actionSettings->setEnabled(false);
-
     notify();
 }
 
@@ -663,6 +653,8 @@ void MainWindow::camera_opencv() { change_camera(CameraKind::OpenCV); }
 void MainWindow::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS991EuresysCoaxlinkQSFP); }
 
 void MainWindow::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
+
+void MainWindow::auto_detection_phantom() { change_camera(CameraKind::AutoDetectionPhantom); }
 
 void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); }
 
@@ -845,8 +837,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    ASWMainWindowPanel* panel = new ASWMainWindowPanel(this);
-    api::open_advanced_settings(this, panel);
+    api::open_advanced_settings(this);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),
@@ -940,29 +931,12 @@ void MainWindow::init_tooltips()
 
 void MainWindow::set_night()
 {
-    // Dark mode style
-    QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::WindowText, Qt::white);
-    darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipBase, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-    darkPalette.setColor(QPalette::Text, Qt::white);
-    darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-    darkPalette.setColor(QPalette::ButtonText, Qt::white);
-    darkPalette.setColor(QPalette::BrightText, Qt::red);
-    darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
-    darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-    darkPalette.setColor(QPalette::Light, Qt::black);
-
-    qApp->setPalette(darkPalette);
     theme_ = Theme::Dark;
+    QFile file(":/assets/style/style.css");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+
+    qApp->setStyleSheet(styleSheet);
 }
 
 void MainWindow::set_classic()

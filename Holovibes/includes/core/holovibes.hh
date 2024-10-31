@@ -37,7 +37,6 @@
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::FileBufferSize,                         \
-    holovibes::settings::LoopOnInputFile,                        \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
     holovibes::settings::InputFileEndIndex,                      \
@@ -46,8 +45,6 @@
     holovibes::settings::RecordMode,                             \
     holovibes::settings::RecordFrameSkip,                        \
     holovibes::settings::OutputBufferSize,                       \
-    holovibes::settings::BatchEnabled,                           \
-    holovibes::settings::BatchFilePath,                          \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
     holovibes::settings::Y,                                      \
@@ -95,7 +92,6 @@
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
-    holovibes::settings::UnwrapHistorySize,                      \
     holovibes::settings::IsComputationStopped,                   \
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
@@ -294,7 +290,7 @@ class Holovibes
 
     void stop_chart_record();
 
-    void start_information_display(const std::function<void()>& callback = []() {});
+    void start_information_display();
 
     void stop_information_display();
 
@@ -366,7 +362,6 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::FileBufferSize{1024},
-                                             settings::LoopOnInputFile{true},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
                                              settings::InputFileEndIndex{60},
@@ -375,8 +370,6 @@ class Holovibes
                                              settings::RecordMode{RecordMode::RAW},
                                              settings::RecordFrameSkip{0},
                                              settings::OutputBufferSize{1024},
-                                             settings::BatchEnabled{false},
-                                             settings::BatchFilePath{std::string("")},
                                              settings::ImageType{ImgType::Modulus},
                                              settings::X{ViewXY{}},
                                              settings::Y{ViewXY{}},
@@ -424,7 +417,6 @@ class Holovibes
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},
-                                             settings::UnwrapHistorySize{1},
                                              settings::IsComputationStopped{true},
                                              settings::TimeTransformationCutsOutputBufferSize{512},
                                              settings::SignalZone{units::RectFd{}},

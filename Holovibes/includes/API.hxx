@@ -122,6 +122,7 @@ inline bool set_batch_size(uint value)
 
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
+
     uint time_stride = get_time_stride();
     if (time_stride < value)
     {
@@ -129,9 +130,13 @@ inline bool set_batch_size(uint value)
         time_stride = value;
         request_time_stride_update = true;
     }
+
     // Go to lower multiple
     if (time_stride % value != 0)
+    {
+        request_time_stride_update = true;
         set_time_stride(time_stride - time_stride % value);
+    }
 
     return request_time_stride_update;
 }
@@ -166,12 +171,6 @@ inline void set_reticle_display_enabled(bool value) { UPDATE_SETTING(ReticleDisp
 inline uint get_file_buffer_size() { return static_cast<uint>(GET_SETTING(FileBufferSize)); }
 inline void set_file_buffer_size(uint value) { UPDATE_SETTING(FileBufferSize, value); }
 
-inline bool get_batch_enabled() { return GET_SETTING(BatchEnabled); }
-inline void set_batch_enabled(bool value) { UPDATE_SETTING(BatchEnabled, value); }
-
-inline std::optional<std::string> get_batch_file_path() { return GET_SETTING(BatchFilePath); }
-inline void set_batch_file_path(std::string value) { UPDATE_SETTING(BatchFilePath, value); }
-
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
 
@@ -189,8 +188,6 @@ inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::in
 
 inline holovibes::Device get_raw_view_queue_location() { return GET_SETTING(RawViewQueueLocation); }
 inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTING(RawViewQueueLocation, value); }
-
-inline int get_unwrap_history_size() { return GET_SETTING(UnwrapHistorySize); }
 
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
@@ -249,9 +246,6 @@ inline size_t get_input_file_end_index() { return GET_SETTING(InputFileEndIndex)
 inline std::string get_input_file_path() { return GET_SETTING(InputFilePath); }
 inline void set_input_file_path(std::string value) { UPDATE_SETTING(InputFilePath, value); }
 
-inline bool get_loop_on_input_file() { return GET_SETTING(LoopOnInputFile); }
-inline void set_loop_on_input_file(bool value) { UPDATE_SETTING(LoopOnInputFile, value); }
-
 inline bool get_load_file_in_gpu() { return GET_SETTING(LoadFileInGPU); }
 inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, value); }
 
@@ -266,9 +260,6 @@ inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
 inline holovibes::Device get_record_queue_location() { return GET_SETTING(RecordQueueLocation); }
 
 inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
-
-inline std::optional<size_t> get_nb_frames_to_record() { return GET_SETTING(RecordFrameCount); }
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) { UPDATE_SETTING(RecordFrameCount, nb_frames); }
 
 inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); }
 inline void set_record_file_path(std::string value) { UPDATE_SETTING(RecordFilePath, value); }

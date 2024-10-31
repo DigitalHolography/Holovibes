@@ -44,6 +44,8 @@ class Camera : public ICamera
 
     const char* get_ini_name() const override { return ini_name_.c_str(); }
 
+    virtual int get_temperature() const override { return 0; }
+
   protected:
     /*! \brief Construct a blank camera object.
      *

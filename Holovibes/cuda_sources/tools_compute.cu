@@ -25,7 +25,7 @@ kernel_complex_divide(cuComplex* image, const uint frame_res, const float divide
 }
 
 __global__ void
-kernel_divide_frames_float(const float* numerator, const float* denominator, float* output, const uint size)
+kernel_divide_frames_float(float* output, const float* numerator, const float* denominator, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -63,7 +63,7 @@ void gpu_normalize(float* const input,
                    const uint norm_constant,
                    const cudaStream_t stream)
 {
-    reduce_add(input, result_reduce, frame_res, stream);
+    reduce_add(result_reduce, input, frame_res, stream);
 
     /* Let x be a pixel, after renormalization
     ** x = x * 2^(norm_constant) / mean

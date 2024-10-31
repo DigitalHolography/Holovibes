@@ -15,8 +15,8 @@ namespace holovibes::worker
 {
 void FrameRecordWorker::integrate_fps_average()
 {
-    auto& fps_map = FastUpdatesMap::map<FpsType>;
-    auto input_fps = fps_map.get_entry(FpsType::INPUT_FPS);
+    auto& fps_map = FastUpdatesMap::map<IntType>;
+    auto input_fps = fps_map.get_entry(IntType::INPUT_FPS);
     int current_fps = input_fps->load();
 
     // An fps of 0 is not relevent. We do not includ it in fps average.
@@ -82,7 +82,7 @@ void FrameRecordWorker::run()
         nb_frames_to_record = 0;
     // Processed FPS FastUpdatesHolder entry
 
-    std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<FpsType>.create_entry(FpsType::SAVING_FPS);
+    std::shared_ptr<std::atomic<uint>> processed_fps = FastUpdatesMap::map<IntType>.create_entry(IntType::SAVING_FPS);
     *processed_fps = 0;
     auto pipe = Holovibes::instance().get_compute_pipe();
     pipe->request(ICS::FrameRecord);
@@ -214,7 +214,7 @@ void FrameRecordWorker::run()
     reset_record_queue();
 
     FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FRAME_RECORD);
-    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::SAVING_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::SAVING_FPS);
 
     LOG_TRACE("Exiting FrameRecordWorker::run()");
 }

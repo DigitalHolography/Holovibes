@@ -14,7 +14,7 @@ using namespace holovibes;
 using cuda_tools::CudaUniquePtr;
 using cuda_tools::CufftHandle;
 
-__global__ void kernel_complex_to_modulus(const cuComplex* input, float* output, const uint size)
+__global__ void kernel_complex_to_modulus(float* output, const cuComplex* input, const uint size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -23,7 +23,7 @@ __global__ void kernel_complex_to_modulus(const cuComplex* input, float* output,
 }
 
 void frame_memcpy(
-    const float* input, const units::RectFd& zone, const uint input_width, float* output, const cudaStream_t stream)
+    float* output, const float* input, const units::RectFd& zone, const uint input_width, const cudaStream_t stream)
 {
     const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
     cudaSafeCall(cudaMemcpy2DAsync(output,

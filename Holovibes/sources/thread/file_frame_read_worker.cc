@@ -141,14 +141,14 @@ void FileFrameReadWorker::insert_fast_update_map_entries()
     *entry1 = "File";
     *entry2 = input_descriptor_info;
 
-    current_fps_ = FastUpdatesMap::map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
 }
 
 void FileFrameReadWorker::remove_fast_update_map_entries()
 {
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
     FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 }
 
@@ -160,11 +160,7 @@ void FileFrameReadWorker::read_file_in_gpu()
     while (!stop_requested_)
     {
         enqueue_loop(frames_read);
-
-        if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
-            current_nb_frames_read_ = 0;
-        else
-            stop_requested_ = true;
+        current_nb_frames_read_ = 0;
     }
 }
 
@@ -187,16 +183,9 @@ void FileFrameReadWorker::read_file_batch()
         // Reset to the first frame if needed
         if (current_nb_frames_read_ == total_nb_frames_to_read_)
         {
-            if (setting<settings::LoopOnInputFile>()) // onrestart_settings_.get<settings::LoopOnInputFile>().value)
-            {
-                size_t frame_id = setting<settings::InputFileStartIndex>();
-                input_file_->set_pos_to_frame(frame_id);
-                current_nb_frames_read_ = 0;
-            }
-            else
-            {
-                stop_requested_ = true; // break
-            }
+            size_t frame_id = setting<settings::InputFileStartIndex>();
+            input_file_->set_pos_to_frame(frame_id);
+            current_nb_frames_read_ = 0;
         }
     }
 }

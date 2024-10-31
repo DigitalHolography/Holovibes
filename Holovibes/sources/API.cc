@@ -392,7 +392,7 @@ void set_view_mode(const ImgType type)
 
         pipe_refresh();
     }
-    catch(const std::runtime_error&) // The pipe is not initialized
+    catch (const std::runtime_error&) // The pipe is not initialized
     {
     }
 }
@@ -403,45 +403,29 @@ void set_view_mode(const ImgType type)
 
 void update_batch_size(const uint batch_size)
 {
-    if (batch_size == get_batch_size())
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || get_batch_size() == batch_size)
         return;
 
-    bool time_stride_changed = set_batch_size(batch_size);
-
-    if (time_stride_changed)
+    if (set_batch_size(batch_size))
         api::get_compute_pipe()->request(ICS::UpdateTimeStride);
     api::get_compute_pipe()->request(ICS::UpdateBatchSize);
-}
-
-void update_batch_size(std::function<void()> notify_callback, const uint batch_size)
-{
-    update_batch_size(batch_size);
-
-    if (auto pipe = dynamic_cast<Pipe*>(get_compute_pipe().get()))
-    {
-        pipe->insert_fn_end_vect(notify_callback);
-    }
-    else
-    {
-        notify_callback();
-    }
 }
 
 #pragma endregion
 
 #pragma region STFT
 
-void update_time_stride(std::function<void()> callback, const uint time_stride)
+void update_time_stride(const uint time_stride)
 {
-    api::set_time_stride(time_stride);
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-        get_compute_pipe()->insert_fn_end_vect(callback);
-    }
-    else
-        callback();
+    if (time_stride == get_time_stride())
+        return;
+
+    set_time_stride(time_stride);
+    get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
 bool set_3d_cuts_view(uint time_transformation_size)
@@ -497,8 +481,11 @@ bool set_3d_cuts_view(uint time_transformation_size)
     return false;
 }
 
-void cancel_time_transformation_cuts(std::function<void()> callback)
+void cancel_time_transformation_cuts()
 {
+    if (!get_cuts_view_enabled())
+        return;
+
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -509,11 +496,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
 
-    get_compute_pipe()->insert_fn_end_vect(callback);
-
-    // Refresh pipe to remove cuts linked lambda from pipe
-    pipe_refresh();
     set_cuts_view_enabled(false);
+    get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
 #pragma endregion
@@ -548,6 +532,10 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
     auto pipe = get_compute_pipe();
     if (checked)
     {
@@ -573,6 +561,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
         set_filter2d_log_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
+        pipe_refresh();
     }
     else
     {
@@ -581,11 +570,23 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         while (pipe->is_requested(ICS::DisableFilter2DView))
             continue;
     }
-
-    pipe_refresh();
 }
 
-void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
+void update_time_transformation_size(uint time_transformation_size)
+{
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    if (time_transformation_size == api::get_time_transformation_size())
+        return;
+
+    if (time_transformation_size < 1)
+        time_transformation_size = 1;
+
+    set_time_transformation_size(time_transformation_size);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+}
 
 void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
@@ -857,31 +858,43 @@ bool slide_update_threshold(
 
 void set_lambda(float value)
 {
-    UPDATE_SETTING(Lambda, value);
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
     pipe_refresh();
 }
 
 void set_z_distance(float value)
 {
-    if (value == 0)
-        value = 0.000001f;
-    // to avoid kernel crash with 0 distance
-    // Notify the change to the z_distance notifier
-    NotifierManager::notify<double>("z_distance", value);
-
     if (get_compute_mode() == Computation::Raw)
         return;
+
+    // Avoid 0 for cuda kernel
+    if (value <= 0)
+        value = 0.000001f;
 
     UPDATE_SETTING(ZDistance, value);
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value) { UPDATE_SETTING(SpaceTransformation, value); }
+void set_space_transformation(const SpaceTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
+        return;
+
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
 
 void set_time_transformation(const TimeTransformation value)
 {
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
+        return;
+
     UPDATE_SETTING(TimeTransformation, value);
     set_z_fft_shift(value == TimeTransformation::STFT);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
 }
 
 void set_unwrapping_2d(const bool value)
@@ -917,7 +930,7 @@ void close_critical_compute()
         disable_convolution();
 
     if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts([]() {});
+        cancel_time_transformation_cuts();
 
     if (get_filter2d_view_enabled())
         set_filter2d_view(false, 0);
@@ -986,6 +999,9 @@ void flipTexture()
 
 void set_contrast_mode(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     auto window = api::get_current_window_type();
 
     if (window == WindowKind::Filter2D)
@@ -1004,6 +1020,9 @@ void set_auto_contrast_cuts()
 
 bool set_auto_contrast()
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return false;
+
     try
     {
         get_compute_pipe()->request_autocontrast(get_current_window_type());
@@ -1037,11 +1056,13 @@ void set_auto_contrast_all()
 
 void set_contrast_min(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the minimum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_min();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
-    if (old_val != val)
+
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
@@ -1055,12 +1076,13 @@ void set_contrast_min(float value)
 
 void set_contrast_max(float value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     // Get the maximum contrast value rounded for the comparison
     const float old_val = get_truncate_contrast_max();
-    // Floating number issue: cast to float for the comparison
-    const float val = value;
 
-    if (old_val != val)
+    if (old_val != value)
     {
         auto window = api::get_current_window_type();
         float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
@@ -1074,6 +1096,9 @@ void set_contrast_max(float value)
 
 void set_contrast_invert(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_invert(value);
@@ -1084,6 +1109,9 @@ void set_contrast_invert(bool value)
 
 void set_contrast_auto_refresh(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_contrast_auto_refresh(value);
@@ -1391,7 +1419,8 @@ void disable_convolution()
 
 void set_divide_convolution(const bool value)
 {
-    if (value == get_divide_convolution_enabled())
+    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None ||
+        get_divide_convolution_enabled() == value || !get_convolution_enabled())
         return;
 
     set_divide_convolution_enabled(value);
@@ -1422,6 +1451,7 @@ void load_input_filter(std::vector<float> input_filter, const std::string& file)
         api::set_input_filter({});
         LOG_ERROR("Couldn't load input filter : {}", e.what());
     }
+    pipe_refresh();
 }
 
 void enable_filter(const std::string& filename)
@@ -1479,6 +1509,9 @@ void disable_filter()
 
 void display_reticle(bool value)
 {
+    if (get_reticle_display_enabled() == value)
+        return;
+
     set_reticle_display_enabled(value);
 
     if (value)
@@ -1660,28 +1693,16 @@ void set_record_mode(const std::string& text)
 
 bool start_record_preconditions()
 {
-    bool batch_enabled = api::get_batch_enabled();
     std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
     bool nb_frame_checked = nb_frames_to_record.has_value();
-
-    auto batch_input_path = api::get_batch_file_path().value_or("");
-
-    // Preconditions to start record
 
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if ((batch_enabled || UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART) &&
-        nb_frames_to_record == std::nullopt)
+    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
 
         LOG_ERROR("Number of frames must be activated");
-        return false;
-    }
-
-    if (batch_enabled && batch_input_path.empty())
-    {
-        LOG_ERROR("No batch input file");
         return false;
     }
 
@@ -1802,8 +1823,6 @@ bool import_start()
     {
         Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
                                                api::get_input_buffer_size());
-        // TODO remove
-        UPDATE_SETTING(LoopOnInputFile, true);
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
@@ -1847,7 +1866,7 @@ void set_input_file_end_index(size_t value)
 #pragma endregion
 
 #pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSettingsWindowPanel* specific_panel)
+void open_advanced_settings(QMainWindow* parent)
 {
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
     UserInterfaceDescriptor::instance().advanced_settings_window_ =
@@ -1858,10 +1877,7 @@ void open_advanced_settings(QMainWindow* parent, ::holovibes::gui::AdvancedSetti
 
 #pragma region Information
 
-void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
+void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
 
