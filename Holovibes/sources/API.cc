@@ -120,7 +120,6 @@ bool change_camera(CameraKind c)
     {
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
 
         try
         {
@@ -1786,6 +1785,9 @@ void record_finished()
 
 void import_stop()
 {
+    if (api::get_import_type() == ImportType::None)
+        return;
+
     LOG_FUNC();
 
     close_windows();
@@ -1802,9 +1804,16 @@ bool import_start()
 {
     LOG_FUNC();
 
+    // Check if computation is currently running
+    if (!api::get_is_computation_stopped())
+        import_stop();
+
     // Because we are in file mode
     camera_none();
     set_is_computation_stopped(false);
+
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     try
     {

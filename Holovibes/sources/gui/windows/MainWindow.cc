@@ -166,10 +166,7 @@ MainWindow::MainWindow(QWidget* parent)
     load_gui();
 
     if (api::get_import_type() != ImportType::None)
-    {
-        ui_->actionSettings->setEnabled(true);
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
-    }
 
     notify();
 
@@ -302,6 +299,8 @@ void MainWindow::on_notify()
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
                                    (api::get_img_type() != ImgType::Composite));
 
+    ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
+
     resize(baseSize());
 
     adjustSize();
@@ -332,9 +331,7 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
         {
             if (accu)
-            {
                 handle_accumulation_exception();
-            }
             api::close_critical_compute();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
@@ -603,24 +600,12 @@ void MainWindow::change_camera(CameraKind c)
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
-
-        // TODO: Trigger callbacks of view (filter2d/raw/lens/3d_cuts)
-
-        // Make camera's settings menu accessible
-        ui_->actionSettings->setEnabled(true);
-
-        notify();
     }
-}
 
-void MainWindow::camera_none()
-{
-    change_camera(CameraKind::NONE);
-
-    // Make camera's settings menu unaccessible
-    ui_->actionSettings->setEnabled(false);
     notify();
 }
+
+void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
