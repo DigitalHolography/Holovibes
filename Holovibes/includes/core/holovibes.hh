@@ -113,6 +113,7 @@
     holovibes::settings::FrameSkip,                              \
     holovibes::settings::Mp4Fps,                                 \
     holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::OtsuEnabled,                            \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::VesselnessSigma,                        \
@@ -446,6 +447,7 @@ class Holovibes
                                              settings::Mp4Fps{24},
                                              settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},
+                                             settings::VeinMaskEnabled{false},
                                              settings::OtsuEnabled{false},
                                              settings::VesselnessSigma{2.0},
                                              settings::OtsuKind{OtsuKind::Global},

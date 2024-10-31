@@ -549,6 +549,17 @@ inline void set_artery_mask_enabled(bool value)
 }
 
 /*!
+ * \name Vein Mask
+ *
+ */
+inline bool get_vein_mask_enabled() { return GET_SETTING(VeinMaskEnabled); }
+inline void set_vein_mask_enabled(bool value)
+{
+    UPDATE_SETTING(VeinMaskEnabled, value);
+    pipe_refresh();
+}
+
+/*!
  * \brief Time Window
  *
  */

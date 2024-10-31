@@ -30,6 +30,8 @@ class AnalysisPanel : public Panel
     void on_notify() override;
 
   public slots:
+    void set_vein_mask(bool enabled);
+
     /*! \brief Change the value for the spin box of time window */
     void update_time_window();
 

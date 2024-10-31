@@ -33,6 +33,7 @@ void AnalysisPanel::on_notify()
 
     // Show arteries / veins
     ui_->ArteryCheckBox->setChecked(api::get_artery_mask_enabled());
+    ui_->VeinCheckBox->setChecked(api::get_vein_mask_enabled());
 
     // Time window
     ui_->TimeWindowSpinBox->setValue(api::get_time_window());
@@ -62,6 +63,8 @@ void AnalysisPanel::on_notify()
     ui_->MinMaskAreaSpinBox->setValue(api::get_min_mask_area());
     ui_->MinMaskAreaSlider->setValue(api::get_min_mask_area());
 }
+
+void AnalysisPanel::set_vein_mask(bool enabled) { api::set_vein_mask_enabled(enabled); }
 
 void AnalysisPanel::update_time_window()
 {

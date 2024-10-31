@@ -79,6 +79,7 @@
     holovibes::settings::RecordMode,                             \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::OtsuEnabled,                            \
     holovibes::settings::VesselnessSigma,                        \
     holovibes::settings::MinMaskArea

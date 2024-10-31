@@ -184,6 +184,7 @@ DECLARE_SETTING(Mp4Fps, uint)
 
 /*! \brief Analysis cache */
 DECLARE_SETTING(ArteryMaskEnabled, bool);
+DECLARE_SETTING(VeinMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
 DECLARE_SETTING(TimeWindow, int);
 DECLARE_SETTING(VesselnessSigma, double);
