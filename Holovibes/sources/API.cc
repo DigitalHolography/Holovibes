@@ -1699,9 +1699,8 @@ bool start_record_preconditions()
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
+    if (get_record_mode() == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
-
         LOG_ERROR("Number of frames must be activated");
         return false;
     }
