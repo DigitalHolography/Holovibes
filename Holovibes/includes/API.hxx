@@ -251,6 +251,9 @@ inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, val
 
 inline uint get_input_fps() { return static_cast<uint>(GET_SETTING(InputFPS)); }
 inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
+
+inline ImportType get_import_type() { return GET_SETTING(ImportType); }
+inline void set_import_type(ImportType value) { UPDATE_SETTING(ImportType, value); }
 /*! \} */
 
 /*!

@@ -63,7 +63,6 @@ class UserInterfaceDescriptor
     bool has_been_updated = false;
 
     std::string last_img_type_ = "Magnitude";
-    ImportType import_type_ = ImportType::None;
 
     size_t auto_scale_point_threshold_ = 100;
 

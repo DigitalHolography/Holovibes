@@ -130,7 +130,7 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_image_mode(int mode)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (mode == static_cast<int>(Computation::Raw))
@@ -163,7 +163,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
         /* Record Frame Calculation. Only in file mode */
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        if (api::get_import_type() == ImportType::File)
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeStrideSpinBox->value()));
@@ -187,7 +187,7 @@ void ImageRenderingPanel::update_time_stride()
 {
     api::update_time_stride(ui_->TimeStrideSpinBox->value());
 
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+    if (api::get_import_type() == ImportType::File)
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
@@ -327,7 +327,7 @@ void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() -
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (value)
@@ -340,7 +340,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (!api::get_convolution_enabled())

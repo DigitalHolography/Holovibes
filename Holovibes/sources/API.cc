@@ -37,7 +37,7 @@ void enable_pipe_refresh()
 
 void pipe_refresh()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     try
@@ -95,8 +95,7 @@ void camera_none_without_json()
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
     set_is_computation_stopped(true);
-
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+    set_import_type(ImportType::None);
 }
 
 #pragma endregion
@@ -403,7 +402,7 @@ void set_view_mode(const ImgType type)
 
 void update_batch_size(const uint batch_size)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || get_batch_size() == batch_size)
+    if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
     if (set_batch_size(batch_size))
@@ -417,8 +416,7 @@ void update_batch_size(const uint batch_size)
 
 void update_time_stride(const uint time_stride)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (time_stride == get_time_stride())
@@ -510,7 +508,7 @@ void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
 
-    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+    if (get_import_type() != ImportType::None)
         get_compute_pipe()->request(ICS::ClearImgAccu);
 
     pipe_refresh();
@@ -532,8 +530,7 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -574,8 +571,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void update_time_transformation_size(uint time_transformation_size)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (time_transformation_size == api::get_time_transformation_size())
@@ -712,7 +708,7 @@ void set_y_cuts(uint value)
 
 void set_x_y(uint x, uint y)
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (x < get_fd().width)
@@ -1038,7 +1034,7 @@ bool set_auto_contrast()
 
 void set_auto_contrast_all()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -1419,8 +1415,8 @@ void disable_convolution()
 
 void set_divide_convolution(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None ||
-        get_divide_convolution_enabled() == value || !get_convolution_enabled())
+    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+        !get_convolution_enabled())
         return;
 
     set_divide_convolution_enabled(value);
@@ -1722,7 +1718,7 @@ void set_record_device(const Device device)
 
     if (get_input_queue_location() != device)
     {
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ImportType it = get_import_type();
 
         auto c = CameraKind::NONE;
         if (it == ImportType::Camera)
@@ -1801,12 +1797,10 @@ void import_stop()
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
-
     Holovibes::instance().start_information_display();
 
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
-
     set_is_computation_stopped(true);
+    set_import_type(ImportType::None);
 }
 
 bool import_start()
@@ -1834,7 +1828,7 @@ bool import_start()
     }
 
     UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+    set_import_type(ImportType::File);
 
     return true;
 }

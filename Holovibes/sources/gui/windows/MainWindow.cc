@@ -415,7 +415,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = UserInterfaceDescriptor::instance().import_type_;
+    ImportType it = api::get_import_type();
     ui_->ImportPanel->import_stop();
 
     try
@@ -786,7 +786,7 @@ void MainWindow::close_advanced_settings()
         // If the settings have been updated, they must be not considered updated after closing the window.
         UserInterfaceDescriptor::instance().has_been_updated = false;
 
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ImportType it = api::get_import_type();
         ui_->ImportPanel->import_stop();
 
         if (it == ImportType::File)

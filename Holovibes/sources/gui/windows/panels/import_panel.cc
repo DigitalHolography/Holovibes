@@ -152,7 +152,7 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     api::import_stop();
