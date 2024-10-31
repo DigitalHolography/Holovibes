@@ -137,10 +137,6 @@ void ImageRenderingPanel::set_image_mode(int mode)
     {
         api::close_windows();
         api::close_critical_compute();
-
-        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
-            return;
-
         api::set_raw_mode(parent_->window_max_size);
 
         parent_->notify();

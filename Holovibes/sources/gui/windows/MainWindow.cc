@@ -165,7 +165,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     load_gui();
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api::get_import_type() != ImportType::None)
     {
         ui_->actionSettings->setEnabled(true);
         if (api::get_compute_mode() == Computation::Raw)
@@ -224,7 +224,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none_without_json();
+    api::camera_none();
 
     delete ui_;
 }
@@ -302,7 +302,7 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api::get_import_type() != ImportType::None)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -434,7 +434,7 @@ void MainWindow::reload_ini(const std::string& filename)
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
-        change_camera(UserInterfaceDescriptor::instance().kCamera);
+        change_camera(api::get_camera_kind());
     else // if (it == ImportType::None)
         notify();
 }
@@ -597,7 +597,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
-    api::camera_none_without_json();
+    api::camera_none();
     Logger::flush();
 }
 
@@ -792,7 +792,7 @@ void MainWindow::close_advanced_settings()
         if (it == ImportType::File)
             ui_->ImportPanel->import_start();
         else if (it == ImportType::Camera)
-            change_camera(UserInterfaceDescriptor::instance().kCamera);
+            change_camera(api::get_camera_kind());
     }
 
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;

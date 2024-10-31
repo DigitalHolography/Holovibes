@@ -38,6 +38,7 @@
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
     holovibes::settings::ImportType,                             \
+    holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
@@ -363,6 +364,7 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
+                                             settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},

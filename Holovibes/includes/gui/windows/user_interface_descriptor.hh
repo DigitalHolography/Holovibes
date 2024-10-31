@@ -58,7 +58,6 @@ class UserInterfaceDescriptor
 
     bool is_recording_ = false;
 
-    bool is_enabled_camera_ = false;
     bool is_advanced_settings_displayed = false;
     bool has_been_updated = false;
 
@@ -72,7 +71,5 @@ class UserInterfaceDescriptor
 
     std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
     std::string filter_name{UID_FILTER_TYPE_DEFAULT};
-
-    CameraKind kCamera = CameraKind::NONE;
 };
 } // namespace holovibes

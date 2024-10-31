@@ -52,8 +52,6 @@ void pipe_refresh()
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
-bool is_input_queue() { return get_input_queue() != nullptr; }
-
 static bool is_current_window_xyz_type()
 {
     static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
@@ -82,10 +80,11 @@ void close_windows()
 
 #pragma region Close Compute
 
-void camera_none() { camera_none_without_json(); }
-
-void camera_none_without_json()
+void camera_none()
 {
+    if (get_camera_kind() == CameraKind::NONE)
+        return;
+
     close_windows();
     close_critical_compute();
 
@@ -93,7 +92,7 @@ void camera_none_without_json()
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    set_camera_kind(CameraKind::NONE);
     set_is_computation_stopped(true);
     set_import_type(ImportType::None);
 }
@@ -141,9 +140,7 @@ bool change_camera(CameraKind c)
             return false;
         }
 
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        UserInterfaceDescriptor::instance().kCamera = c;
-
+        set_camera_kind(c);
         set_is_computation_stopped(false);
 
         std::ofstream output_file(path);
@@ -1723,7 +1720,7 @@ void set_record_device(const Device device)
         auto c = CameraKind::NONE;
         if (it == ImportType::Camera)
         {
-            c = UserInterfaceDescriptor::instance().kCamera;
+            c = get_camera_kind();
             camera_none();
         }
         else if (it == ImportType::File)
@@ -1807,10 +1804,9 @@ bool import_start()
 {
     LOG_FUNC();
 
-    set_is_computation_stopped(false);
-
     // Because we are in file mode
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    camera_none();
+    set_is_computation_stopped(false);
 
     try
     {
@@ -1821,13 +1817,11 @@ bool import_start()
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
         return false;
     }
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
     set_import_type(ImportType::File);
 
     return true;

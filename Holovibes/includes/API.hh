@@ -96,11 +96,6 @@ void set_input_file_end_index(size_t value);
  */
 void camera_none();
 
-/*! \brief Switchs operating camera to none without changes on the user_setting.json
- *
- */
-void camera_none_without_json();
-
 /*! \brief Stops the program compute
  *
  */
@@ -135,13 +130,6 @@ int get_input_queue_fd_height();
  * \return float boundary
  */
 float get_boundary();
-
-/*! \brief Checks if we have an input queue
- *
- * \return true on success
- * \return false on failure
- */
-bool is_input_queue();
 
 /*! \brief Enables the divide convolution mode
  *
