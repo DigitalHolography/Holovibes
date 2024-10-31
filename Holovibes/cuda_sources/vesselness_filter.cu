@@ -105,6 +105,7 @@ __global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_
     }
 }
 
+
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
@@ -144,30 +145,57 @@ static void write1DFloatArrayToFile(const float* array, int rows, int cols, cons
     std::cout << "1D array written to the file " << filename << std::endl;
 }
 
-void gaussian_imfilter_sep(float* input_img,
-                            cuComplex* kernel,
-                            const size_t frame_res,
+void gaussian_imfilter_sep(float* input_output,
                             cuComplex* gpu_kernel_buffer,
+                            const size_t frame_res,
                             float* convolution_buffer, 
                             cuComplex* cuComplex_buffer, 
                             CufftHandle* convolution_plan, 
                             cudaStream_t stream)
 {
-    convolution_kernel(input_img,
+    convolution_kernel(input_output,
                         convolution_buffer,
                         cuComplex_buffer,
                         convolution_plan,
                         frame_res,
-                        kernel,
-                        true,
+                        gpu_kernel_buffer,
+                        false,
                         stream);
 }
 
-void multiply_by_float(float* vect, float num, int frame_size)
+__global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float* lambda_2, size_t input_size)
 {
-    for (int i = 0; i < frame_size; i++)
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < input_size)
     {
-        vect[i] *= num;
+        output[index] = abs(lambda_1[index]) / abs(lambda_2[index]);
+    }
+}
+
+__global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2, size_t input_size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < input_size)
+    {
+        output[index] = sqrtf(pow(lambda_1[index], 2) + pow(lambda_2[index], 2));
+    }
+}
+
+__global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float *c, float *c_temp)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < input_size)
+    {
+        output[index] = exp(-(pow(R_blob[index], 2) / 2 * pow(beta, 2))) * (1 - exp(-(c_temp[index] / (2 * pow(*c, 2)))));
+    }
+}
+
+__global__ void kernel_lambda_2_logical(float* output, size_t input_size, float* lambda_2)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < input_size)
+    {
+        output[index] *= (lambda_2[index] <= 0.005f ? 1 : 0);
     }
 }
 
@@ -178,34 +206,113 @@ void vesselness_filter(float* output,
                         cuComplex* g_xy_mul, 
                         cuComplex* g_yy_mul,
                         int frame_res, 
-                        cuComplex* gpu_kernel_buffer,
                         float* convolution_buffer, 
                         cuComplex* cuComplex_buffer,
                         CufftHandle* convolution_plan,
+                        cublasHandle_t cublas_handler,
                         cudaStream_t stream)
 {
     int gamma = 1;
+    float beta = 0.8f;
 
     float A = std::pow(sigma, gamma);
 
-    float* input_copy;
-    cudaXMalloc(&input_copy, frame_res * sizeof(float));
-    cudaXMemcpyAsync(input_copy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-
-    gaussian_imfilter_sep(input_copy, g_xx_mul, frame_res, gpu_kernel_buffer, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXMemcpyAsync(output, input_copy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    float* Ixx;
+    cudaXMalloc(&Ixx, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Ixx, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
     cudaXStreamSynchronize(stream);
-    cudaXFree(input_copy);
-    //multiply_by_float(output, A, frame_res);
+    gaussian_imfilter_sep(Ixx, g_xx_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    cudaXStreamSynchronize(stream);
+    multiply_array_by_scalar(Ixx, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
 
-    // float* Ixy = gaussian_imfilter_sep(input, g_xy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    // multiply_by_float(Ixy, A, frame_res);
 
-    // float* Iyx = new float[frame_res];
-    // for (size_t i = 0; i < frame_res; ++i) {
-    //     Iyx[i] = Ixy[i];
-    // }
 
-    // float* Iyy = gaussian_imfilter_sep(input, g_yy_mul, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    // multiply_by_float(Iyy, A, frame_res);
+    float* Ixy;
+    cudaXMalloc(&Ixy, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Ixy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
+    gaussian_imfilter_sep(Ixy, g_xy_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    cudaXStreamSynchronize(stream);
+    multiply_array_by_scalar(Ixy, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
+
+
+    float* Iyx;
+    cudaXMalloc(&Iyx, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Iyx, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
+
+    float* Iyy;
+    cudaXMalloc(&Iyy, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Iyy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
+    gaussian_imfilter_sep(Iyy, g_yy_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    cudaXStreamSynchronize(stream);
+    multiply_array_by_scalar(Iyy, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
+
+    float* H;
+    cudaXMalloc(&H, frame_res * sizeof(float) * 4);
+    cudaXMemcpyAsync(H, Ixx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res * 2, Iyx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res * 3, Iyy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
+
+    cudaXFree(Ixx);
+    cudaXFree(Ixy);
+    cudaXFree(Iyx);
+    cudaXFree(Iyy);
+
+    float* lambda_1;
+    cudaXMalloc(&lambda_1, frame_res * sizeof(float));
+    cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+    float* lambda_2;
+    cudaXMalloc(&lambda_2, frame_res * sizeof(float));
+    cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
+
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_4D_eigenvalues<<<blocks, threads, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
+    cudaXStreamSynchronize(stream);
+
+    cudaXFree(H);
+
+    float* R_blob;
+    cudaXMalloc(&R_blob, frame_res * sizeof(float));
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_abs_lambda_division<<<blocks, threads, 0, stream>>>(R_blob, lambda_1, lambda_2, frame_res);
+    cudaXStreamSynchronize(stream);
+
+
+    float *c_temp;
+    cudaXMalloc(&c_temp, frame_res * sizeof(float));
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_normalize<<<blocks, threads, 0, stream>>>(R_blob, lambda_1, lambda_2, frame_res);
+    cudaXStreamSynchronize(stream);
+
+    int c_index;
+    cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
+    cudaXStreamSynchronize(stream);
+    float* c_pointer = c_temp + c_index;
+
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_If<<<blocks, threads, 0, stream>>>(output, frame_res, R_blob, beta, c_pointer, c_temp);
+    cudaXStreamSynchronize(stream);
+
+    cudaXFree(R_blob);
+    cudaXFree(c_temp);
+    cudaXFree(lambda_1);
+
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(frame_res, threads);
+    kernel_lambda_2_logical<<<blocks, threads, 0, stream>>>(output, frame_res, lambda_2);
+    cudaXStreamSynchronize(stream);
+
+    cudaXFree(lambda_2);
 }

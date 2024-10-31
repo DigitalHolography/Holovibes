@@ -9,6 +9,72 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
+namespace
+{
+template <typename T>
+__global__ void kernel_multiply_array_by_scalar(T* input_output, size_t size, const T scalar)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < size)
+    {
+        input_output[index] *= scalar;
+    }
+}
+
+template <typename T>
+void multiply_array_by_scalar_caller(T* input_output, size_t size, T scalar, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_multiply_array_by_scalar<<<blocks, threads, 0, stream>>>(input_output, size, scalar);
+}
+}
+
+void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream)
+{
+    multiply_array_by_scalar_caller<float>(input_output, size, scalar, stream);
+}
+
+// CUDA kernel for computing the eigenvalues of each 2x2 Hessian matrix
+__global__ void kernel_4D_eigenvalues(float *H, float *lambda_1, float *lambda_2, int rows, int cols)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < cols && y < rows)
+    {
+        int idx = y * cols + x; // Flattened index for 2D matrices
+
+        // Load elements of 2x2 Hessian matrix at (y, x)
+        float H11 = H[0 * rows * cols + idx]; // H(1,1)
+        float H12 = H[1 * rows * cols + idx]; // H(1,2)
+        float H21 = H[2 * rows * cols + idx]; // H(2,1)
+        float H22 = H[3 * rows * cols + idx]; // H(2,2)
+
+        // Compute the trace and determinant of the Hessian
+        float trace = H11 + H22;
+        float determinant = H11 * H22 - H12 * H21;
+
+        // Compute the eigenvalues using the quadratic formula
+        float sqrt_term = sqrtf(trace * trace - 4 * determinant);
+        float eig1 = (trace - sqrt_term) / 2.0f;
+        float eig2 = (trace + sqrt_term) / 2.0f;
+
+        // Assign eigenvalues based on magnitude
+        if (fabsf(eig1) <= fabsf(eig2))
+        {
+            lambda_1[idx] = eig1;
+            lambda_2[idx] = eig2;
+        } 
+        else
+        {
+            lambda_1[idx] = eig2;
+            lambda_2[idx] = eig1;
+        }
+    }
+}
+
 void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t frame_res, cudaStream_t stream)
 {
    // Set the width of each element to `sizeof(float)` in bytes to copy the float data.
