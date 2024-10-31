@@ -415,17 +415,17 @@ void update_batch_size(const uint batch_size)
 
 #pragma region STFT
 
-void update_time_stride(std::function<void()> callback, const uint time_stride)
+void update_time_stride(const uint time_stride)
 {
-    api::set_time_stride(time_stride);
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-        get_compute_pipe()->insert_fn_end_vect(callback);
-    }
-    else
-        callback();
+    if (time_stride == get_time_stride())
+        return;
+
+    set_time_stride(time_stride);
+    get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
 bool set_3d_cuts_view(uint time_transformation_size)
@@ -481,8 +481,11 @@ bool set_3d_cuts_view(uint time_transformation_size)
     return false;
 }
 
-void cancel_time_transformation_cuts(std::function<void()> callback)
+void cancel_time_transformation_cuts()
 {
+    if (!get_cuts_view_enabled())
+        return;
+
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -493,11 +496,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
 
-    get_compute_pipe()->insert_fn_end_vect(callback);
-
-    // Refresh pipe to remove cuts linked lambda from pipe
-    pipe_refresh();
     set_cuts_view_enabled(false);
+    get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
 #pragma endregion
@@ -572,7 +572,21 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     }
 }
 
-void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
+void update_time_transformation_size(uint time_transformation_size)
+{
+    if (api::get_compute_mode() == Computation::Raw ||
+        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+        return;
+
+    if (time_transformation_size == api::get_time_transformation_size())
+        return;
+
+    if (time_transformation_size < 1)
+        time_transformation_size = 1;
+
+    set_time_transformation_size(time_transformation_size);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+}
 
 void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
@@ -916,7 +930,7 @@ void close_critical_compute()
         disable_convolution();
 
     if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts([]() {});
+        cancel_time_transformation_cuts();
 
     if (get_filter2d_view_enabled())
         set_filter2d_view(false, 0);
@@ -1863,10 +1877,7 @@ void open_advanced_settings(QMainWindow* parent)
 
 #pragma region Information
 
-void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
+void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
 

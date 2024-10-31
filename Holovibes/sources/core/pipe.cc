@@ -635,21 +635,10 @@ void Pipe::exec()
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
 
-void Pipe::insert_fn_end_vect(std::function<void()> function)
-{
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    fn_end_vect_.push_back(function);
-}
-
 void Pipe::run_all()
 {
     for (FnType& f : fn_compute_vect_)
         f();
-
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    for (FnType& f : fn_end_vect_)
-        f();
-    fn_end_vect_.clear();
 }
 
 } // namespace holovibes

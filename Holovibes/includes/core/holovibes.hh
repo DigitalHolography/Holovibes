@@ -289,7 +289,7 @@ class Holovibes
 
     void stop_chart_record();
 
-    void start_information_display(const std::function<void()>& callback = []() {});
+    void start_information_display();
 
     void stop_information_display();
 
