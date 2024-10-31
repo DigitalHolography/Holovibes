@@ -1,17 +1,17 @@
-#include "stabilization.hh"
+#include "registration.hh"
 #include "apply_mask.cuh"
 #include "convolution.cuh"
 #include "tools_compute.cuh"
 
 using holovibes::FunctionVector;
 using holovibes::Queue;
-using holovibes::compute::Stabilization;
+using holovibes::compute::Registration;
 
-void Stabilization::insert_stabilization()
+void Registration::insert_registration()
 {
     LOG_FUNC();
 
-    if (setting<settings::FftShiftEnabled>() && setting<settings::StabilizationEnabled>())
+    if (setting<settings::FftShiftEnabled>() && setting<settings::RegistrationEnabled>())
     {
         fn_compute_vect_.conditional_push_back(
             [=]()
@@ -65,16 +65,16 @@ void Stabilization::insert_stabilization()
     }
 }
 
-void Stabilization::image_preprocess(float* output, float* input, float* mean)
+void Registration::image_preprocess(float* output, float* input, float* mean)
 {
     get_mean_in_mask(input, gpu_circle_mask_, mean, fd_.width * fd_.height, stream_);
     rescale_in_mask(output, input, gpu_circle_mask_, *mean, fd_.width * fd_.height, stream_);
     apply_mask(output, gpu_circle_mask_, fd_.width * fd_.height, 1, stream_);
 }
 
-void Stabilization::set_gpu_reference_image(float* new_gpu_reference_image_)
+void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
 {
-    if (setting<settings::StabilizationEnabled>())
+    if (setting<settings::RegistrationEnabled>())
     {
         cudaXMemcpyAsync(gpu_reference_image_,
                          new_gpu_reference_image_,
@@ -86,7 +86,7 @@ void Stabilization::set_gpu_reference_image(float* new_gpu_reference_image_)
     }
 }
 
-void Stabilization::updade_cirular_mask()
+void Registration::updade_cirular_mask()
 {
     // Get the center and radius of the circle.
     float center_X = fd_.width / 2.0f;

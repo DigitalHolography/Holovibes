@@ -554,16 +554,16 @@ inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); 
 /*! \} */
 
 /*!
- * \name Stabilization
+ * \name Registration
  * \{
  */
 
-/*! \brief Getter and Setter for the stabilization, triggered when the Stabilization button is clicked on the gui.
+/*! \brief Getter and Setter for the registration, triggered when the Registration button is clicked on the gui.
  * (Setter refreshes the pipe) */
-inline bool get_stabilization_enabled() { return GET_SETTING(StabilizationEnabled); }
-inline void set_stabilization_enabled(bool value)
+inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
+inline void set_registration_enabled(bool value)
 {
-    UPDATE_SETTING(StabilizationEnabled, value);
+    UPDATE_SETTING(RegistrationEnabled, value);
     pipe_refresh();
 }
 /*! \} */

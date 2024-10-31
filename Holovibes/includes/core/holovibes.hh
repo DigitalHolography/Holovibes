@@ -63,7 +63,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::StabilizationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -392,7 +392,7 @@ class Holovibes
                                              settings::Filter2dEnabled{false},
                                              settings::Filter2dViewEnabled{false},
                                              settings::FftShiftEnabled{false},
-                                             settings::StabilizationEnabled{false},
+                                             settings::RegistrationEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},

@@ -301,13 +301,13 @@ void Pipe::refresh()
 
     // Rendering
     rendering_->insert_fft_shift();
-    stabilization_->insert_stabilization();
+    registration_->insert_registration();
 
     image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
-    stabilization_->set_gpu_reference_image(buffers_.gpu_postprocess_frame);
+    registration_->set_gpu_reference_image(buffers_.gpu_postprocess_frame);
 
     rendering_->insert_chart();
     rendering_->insert_log();

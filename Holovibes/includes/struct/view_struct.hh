@@ -168,7 +168,7 @@ struct Views
 {
     ImgType image_type = ImgType::Modulus;
     bool fft_shift = false;
-    bool stabilization = false;
+    bool registration = false;
     ViewXY x;
     ViewXY y;
     ViewPQ z;
@@ -178,7 +178,7 @@ struct Views
     Reticle reticle;
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, stabilization, x, y, z, z2, window, renorm, reticle);
+    SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, registration, x, y, z, z2, window, renorm, reticle);
 
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

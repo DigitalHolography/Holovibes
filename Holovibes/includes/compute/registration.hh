@@ -1,6 +1,6 @@
 /*! \file
- *  \brief Implementation of algorithms used for stabilization.
- *  The stabilization performs computations as follows:
+ *  \brief Implementation of algorithms used for registration.
+ *  The registration performs computations as follows:
  *  - Apply a circular mask to each images where each values outside of the circle is 0 and each
  *  values inside the circle is 1. The radius is to be chosen by the user. (hardcoded for now)
  *  - Compute the mean inside the circle for each image and substract it to rescale the data.
@@ -32,7 +32,7 @@
 // clang-format off
 
 #define REALTIME_SETTINGS                          \
-    holovibes::settings::StabilizationEnabled,     \
+    holovibes::settings::RegistrationEnabled,     \
     holovibes::settings::FftShiftEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -47,14 +47,14 @@ struct CoreBuffersEnv;
 
 namespace holovibes::compute
 {
-/*! \class Stabilization
+/*! \class Registration
  *
- *  \brief Class implementation for the stabilization.
- *  To use the process create an object using the ctor and then just call insert_stabilization() in the pipe.
+ *  \brief Class implementation for the registration.
+ *  To use the process create an object using the ctor and then just call insert_registration() in the pipe.
  */
 using uint = unsigned int;
 
-class Stabilization
+class Registration
 {
   public:
     /*! \brief Constructor
@@ -65,11 +65,11 @@ class Stabilization
      *  \param[in] settings The global settings context.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Stabilization(FunctionVector& fn_compute_vect,
-                  const CoreBuffersEnv& buffers,
-                  const camera::FrameDescriptor& fd,
-                  const cudaStream_t& stream,
-                  InitSettings settings)
+    Registration(FunctionVector& fn_compute_vect,
+                 const CoreBuffersEnv& buffers,
+                 const camera::FrameDescriptor& fd,
+                 const cudaStream_t& stream,
+                 InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
         , fd_(fd)
@@ -98,14 +98,14 @@ class Stabilization
     }
 
     /*! \brief Destructor. Release the cufft plans. */
-    ~Stabilization()
+    ~Registration()
     {
         cufftSafeCall(cufftDestroy(plan_2d_));
         cufftSafeCall(cufftDestroy(plan_2dinv_));
     }
 
-    /*! \brief Insert the functions to compute the stabilization. The process is descripted in the head of this file. */
-    void insert_stabilization();
+    /*! \brief Insert the functions to compute the registration. The process is descripted in the head of this file. */
+    void insert_registration();
 
     /*! \brief Setter for the reference image. The `new_gpu_reference_image_` is rescaled by the mean and the
      *  `gpu_circle_mask_` is applied. Then is is stored in `gpu_reference_image_`. This process is done so the
@@ -122,7 +122,7 @@ class Stabilization
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
         {
-            LOG_TRACE("[Stabilization] [update_setting] {}", typeid(T).name());
+            LOG_TRACE("[Registration] [update_setting] {}", typeid(T).name());
             realtime_settings_.update_setting(setting);
         }
     }
@@ -165,7 +165,7 @@ class Stabilization
      *  This image is the one used to compute the cross-correlation with the other images to stabilize the
      *  frames.
      *  It is set each time after the images accumulation in the pipe. Hence, the reference is the accumulation of the
-     *  Then we have a sliding window to keep the stabilization in real-time.
+     *  Then we have a sliding window to keep the registration in real-time.
      */
     cuda_tools::CudaUniquePtr<float> gpu_reference_image_ = nullptr;
 
@@ -234,7 +234,7 @@ class Stabilization
 namespace holovibes
 {
 template <typename T>
-struct has_setting<T, compute::Stabilization> : is_any_of<T, ALL_SETTINGS>
+struct has_setting<T, compute::Registration> : is_any_of<T, ALL_SETTINGS>
 {
 };
 } // namespace holovibes

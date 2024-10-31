@@ -1453,12 +1453,12 @@ The range of frequencies kept is [z, z + width]</string>
             </widget>
            </item>
            <item row="7" column="1" colspan="2">
-            <widget class="QCheckBox" name="StabilizationCheckBox">
+            <widget class="QCheckBox" name="RegistrationCheckBox">
              <property name="toolTip">
               <string>Stabilize the image</string>
              </property>
              <property name="text">
-              <string>Stabilization</string>
+              <string>Registration</string>
              </property>
             </widget>
            </item>
@@ -4312,10 +4312,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>StabilizationCheckBox</sender>
+   <sender>RegistrationCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>set_stabilization(bool)</slot>
+   <slot>set_registration(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -6118,7 +6118,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_contrast_invert(bool)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_fft_shift(bool)</slot>
-  <slot>set_stabilization(bool)</slot>
+  <slot>set_registration(bool)</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>camera_ids()</slot>

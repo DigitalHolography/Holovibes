@@ -82,7 +82,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         LOG_INFO("24");
     }
     LOG_INFO("Moments record: {}", opts.moments_record);
-    LOG_INFO("Stabilization enabled: {}", opts.stabilization_enabled);
+    LOG_INFO("Registration enabled: {}", opts.registration_enabled);
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -312,8 +312,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     {
         holovibes.update_setting(holovibes::settings::Mp4Fps{opts.mp4_fps.value()});
     }
-    if (opts.stabilization_enabled)
-        holovibes.update_setting(holovibes::settings::StabilizationEnabled{opts.stabilization_enabled});
+    if (opts.registration_enabled)
+        holovibes.update_setting(holovibes::settings::RegistrationEnabled{opts.registration_enabled});
     // Change the fps according to the Mp4Fps value when having to convert in Mp4 format
     if (opts.output_path.value().ends_with(".mp4"))
     {

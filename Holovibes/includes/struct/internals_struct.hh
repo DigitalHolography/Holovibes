@@ -76,11 +76,11 @@ struct Internals
         bool filter2d = false;
         bool chart = false;
         bool fft_shift = false;
-        bool stabilization = false;
+        bool registration = false;
         ViewEnabled views;
 
         /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-        SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, stabilization, views);
+        SERIALIZE_JSON_STRUCT(Enabled, filter2d, chart, fft_shift, registration, views);
     };
 
     /*! \class Misc

@@ -100,9 +100,9 @@ OptionsParser::OptionsParser()
         "Record moments (default = false)"
     )
     (
-        "stabilization",
+        "registration",
         po::bool_switch()->default_value(false),
-        "Enable stabilization (default = false)"
+        "Enable registration (default = false)"
     )
     ;
     // clang-format on
@@ -200,7 +200,7 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
             }
         }
         options_.moments_record = vm_["moments_record"].as<bool>();
-        options_.stabilization_enabled = vm_["stabilization"].as<bool>();
+        options_.registration_enabled = vm_["registration"].as<bool>();
     }
     catch (std::exception& e)
     {

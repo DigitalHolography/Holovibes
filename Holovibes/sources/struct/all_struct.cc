@@ -39,7 +39,7 @@ void Views::Update()
 {
     this->image_type = GET_SETTING(ImageType);
     this->fft_shift = GET_SETTING(FftShiftEnabled);
-    this->stabilization = GET_SETTING(StabilizationEnabled);
+    this->registration = GET_SETTING(RegistrationEnabled);
     this->x = GET_SETTING(X);
     this->y = GET_SETTING(Y);
     this->z = GET_SETTING(P);
@@ -201,7 +201,7 @@ void Views::Load()
 {
     UPDATE_SETTING(ImageType, this->image_type);
     UPDATE_SETTING(FftShiftEnabled, this->fft_shift);
-    UPDATE_SETTING(StabilizationEnabled, this->stabilization);
+    UPDATE_SETTING(RegistrationEnabled, this->registration);
     UPDATE_SETTING(X, this->x);
     UPDATE_SETTING(Y, this->y);
     UPDATE_SETTING(P, this->z);
