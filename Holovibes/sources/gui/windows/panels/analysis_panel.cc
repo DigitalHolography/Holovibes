@@ -27,7 +27,27 @@ AnalysisPanel::~AnalysisPanel() {}
 
 void AnalysisPanel::init() {}
 
-void AnalysisPanel::on_notify() {}
+void AnalysisPanel::on_notify()
+{
+    // Updating UI values with current backend settings
+
+    // Otsu
+    ui_->OtsuCheckBox->setChecked(api::get_otsu_enabled());
+
+    ui_->OtsuKindComboBox->setCurrentIndex(static_cast<int>(api::get_otsu_kind()));
+    bool is_adaptive = api::get_otsu_kind() == OtsuKind::Adaptive;
+    ui_->OtsuWindowSizeSpinBox->setVisible(is_adaptive);
+    ui_->OtsuWindowSizeLabel->setVisible(is_adaptive);
+    ui_->OtsuLocalThresholdSpinBox->setVisible(is_adaptive);
+    ui_->OtsuLocalThresholdLabel->setVisible(is_adaptive);
+
+    ui_->OtsuWindowSizeSpinBox->setValue(api::get_otsu_window_size());
+    ui_->OtsuWindowSizeSpinBox->setEnabled(api::get_otsu_enabled());
+    ui_->OtsuWindowSizeLabel->setEnabled(api::get_otsu_enabled());
+    ui_->OtsuLocalThresholdSpinBox->setValue(api::get_otsu_local_threshold());
+    ui_->OtsuLocalThresholdSpinBox->setEnabled(api::get_otsu_enabled());
+    ui_->OtsuLocalThresholdLabel->setEnabled(api::get_otsu_enabled());
+}
 
 void AnalysisPanel::update_time_window()
 {
@@ -57,5 +77,15 @@ void AnalysisPanel::update_vesselness_sigma_slider(int value)
     const QSignalBlocker blocker(ui_->VesselnessSigmaDoubleSpinBox);
     ui_->VesselnessSigmaDoubleSpinBox->setValue(new_value);
 }
+
+void AnalysisPanel::set_otsu_kind(int index)
+{
+    api::set_otsu_kind(static_cast<OtsuKind>(index));
+    parent_->notify();
+}
+
+void AnalysisPanel::set_otsu_window_size(int value) { api::set_otsu_window_size(value); }
+
+void AnalysisPanel::set_otsu_local_threshold(double value) { api::set_otsu_local_threshold((float)value); }
 
 } // namespace holovibes::gui

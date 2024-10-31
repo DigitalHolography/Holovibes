@@ -300,6 +300,7 @@ void MainWindow::on_notify()
     if (api::get_is_computation_stopped())
     {
         ui_->CompositePanel->hide();
+        ui_->AnalysisPanel->setEnabled(false);
         ui_->ImageRenderingPanel->setEnabled(false);
         ui_->ViewPanel->setEnabled(false);
         ui_->ExportPanel->setEnabled(false);
@@ -317,7 +318,11 @@ void MainWindow::on_notify()
     }
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
-                                   (api::get_img_type() != ImgType::Composite));
+                                   api::get_img_type() != ImgType::Composite);
+
+    const int img_type_int = static_cast<int>(api::get_img_type());
+    ui_->AnalysisPanel->setEnabled(img_type_int >= static_cast<int>(ImgType::Moments_0) &&
+                                   img_type_int <= static_cast<int>(ImgType::Moments_2));
 
     resize(baseSize());
 

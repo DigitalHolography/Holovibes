@@ -115,7 +115,10 @@
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::OtsuEnabled,                            \
     holovibes::settings::TimeWindow,                             \
-    holovibes::settings::VesselnessSigma                         \
+    holovibes::settings::VesselnessSigma,                        \
+    holovibes::settings::OtsuKind,                               \
+    holovibes::settings::OtsuWindowSize,                         \
+    holovibes::settings::OtsuLocalThreshold                      \
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -443,7 +446,10 @@ class Holovibes
                                              settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},
                                              settings::OtsuEnabled{false},
-                                             settings::VesselnessSigma{2.0}))
+                                             settings::VesselnessSigma{2.0},
+                                             settings::OtsuKind{OtsuKind::Global},
+                                             settings::OtsuWindowSize{15},
+                                             settings::OtsuLocalThreshold{0.15f}))
     {
     }
 

@@ -582,6 +582,13 @@ inline void set_vesselness_sigma(double value)
     pipe_refresh();
 }
 
+inline OtsuKind get_otsu_kind() { return GET_SETTING(OtsuKind); }
+inline void set_otsu_kind(OtsuKind value) { return UPDATE_SETTING(OtsuKind, value); }
+inline int get_otsu_window_size() { return GET_SETTING(OtsuWindowSize); }
+inline void set_otsu_window_size(int value) { UPDATE_SETTING(OtsuWindowSize, value); }
+inline float get_otsu_local_threshold() { return GET_SETTING(OtsuLocalThreshold); }
+inline void set_otsu_local_threshold(float value) { UPDATE_SETTING(OtsuLocalThreshold, value); }
+
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
 /*! \} */

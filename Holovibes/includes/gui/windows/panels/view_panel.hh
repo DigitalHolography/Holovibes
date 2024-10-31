@@ -65,6 +65,11 @@ class ViewPanel : public Panel
      *
      */
     void set_artery_mask(bool value);
+    /*!
+     * \brief Enables or Disables Otsu
+     *
+     */
+    void set_otsu(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove

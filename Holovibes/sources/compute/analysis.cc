@@ -14,6 +14,11 @@
 #include "vesselness_filter.cuh"
 #include "tools_analysis.cuh"
 #include "API.hh"
+#include "otsu.cuh"
+#include "cublas_handle.hh"
+
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -413,4 +418,52 @@ void Analysis::insert_show_artery()
             }
         });
 }
+
+void Analysis::insert_otsu()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)
+            {
+
+                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
+                int maxI = -1;
+                int minI = -1;
+                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
+                cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
+
+                float h_min, h_max;
+                cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+                cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+
+                normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
+
+                if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
+                {
+
+                    float* d_output;
+                    cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
+                    computeBinariseOtsuBradley(buffers_.gpu_postprocess_frame,
+                                               d_output,
+                                               fd_.width,
+                                               fd_.height,
+                                               setting<settings::OtsuWindowSize>(),
+                                               setting<settings::OtsuLocalThreshold>(),
+                                               stream_);
+
+                    cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                                d_output,
+                                buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                cudaMemcpyDeviceToDevice);
+                    cudaFree(d_output);
+                }
+                else
+                    computeBinariseOtsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+            }
+        });
+}
+
 } // namespace holovibes::compute
