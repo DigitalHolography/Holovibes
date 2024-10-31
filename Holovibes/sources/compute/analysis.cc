@@ -11,6 +11,7 @@
 #include "holovibes.hh"
 #include "otsu.cuh"
 #include "cublas_handle.hh"
+#include "bw_area_filter.cuh"
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -277,133 +278,6 @@ void Analysis::insert_otsu()
         });
 }
 
-#define IS_BACKGROUND(VALUE) ((VALUE) == 1.0f)
-
-/* use TwoPasse algo
-
-    labels is the output and must be set to 0 and with the size of the image
-
-    this function does not handle the border of the image
-*/
-std::vector<size_t> get_connected_component(const float* image, int* labels, const size_t width, const size_t height)
-{
-    std::map<int, int> linked;
-    int next_label = 0;
-
-    // First pass
-    for (size_t i = 1; i < width - 1; i++)
-    {
-        for (size_t j = 1; j < height - 1; j++)
-        {
-            labels[i * width + j] = -1;
-            if (!IS_BACKGROUND(image[i * width + j]))
-            {
-                std::vector<std::pair<size_t, size_t>> neighbors;
-                // for (int k = -1; k <= 1; k += 2)
-                // {
-                if (!IS_BACKGROUND(image[(i - 1) * width + j]))
-                    neighbors.push_back({i - 1, j});
-                if (!IS_BACKGROUND(image[i * width + (j - 1)]))
-                    neighbors.push_back({i, j - 1});
-                // }
-
-                if (neighbors.empty())
-                {
-                    linked[next_label] = next_label;
-                    labels[i * width + j] = next_label;
-                    next_label++;
-                }
-                else
-                {
-                    // Find the smallest label
-                    std::vector<int> L;
-                    for (std::pair<size_t, size_t> p : neighbors)
-                    {
-                        int l = labels[p.first * width + p.second];
-                        if (std::find(L.begin(), L.end(), l) == L.end())
-                            L.push_back(l);
-                    }
-                    labels[i * width + j] = *std::min_element(L.begin(), L.end());
-                    for (int l : L)
-                    {
-                        linked[l] = std::min(labels[i * width + j], l);
-                    }
-                }
-            }
-        }
-    }
-
-    // second pass can be later
-    std::vector<size_t> labels_sizes(next_label, 0);
-
-    for (size_t i = 1; i < width - 1; i++)
-    {
-        for (size_t j = 1; j < height - 1; j++)
-        {
-            if (!IS_BACKGROUND(image[i * width + j]))
-            {
-                labels[i * width + j] = linked[labels[i * width + j]];
-                labels_sizes[labels[i * width + j]]++;
-            }
-        }
-    }
-    return labels_sizes;
-}
-
-void get_n_max_index(std::vector<size_t> input, size_t* output, size_t n)
-{
-    size_t size = input.size();
-    for (size_t i = 0; i < n; i++)
-    {
-        size_t j = i;
-        output[j] = j;
-        while (j > 0 && input[output[j - 1]] > input[output[j]])
-        {
-            size_t tmp = output[j - 1];
-            output[j - 1] = output[j];
-            output[j] = tmp;
-            j--;
-        }
-    }
-    for (size_t i = n; i < size; i++)
-    {
-        if (input[i] > input[output[0]])
-        {
-            output[0] = i;
-            size_t j = 1;
-            while (j < n && input[output[j - 1]] > input[output[j]])
-            {
-                size_t tmp = output[j - 1];
-                output[j - 1] = output[j];
-                output[j] = tmp;
-                j++;
-            }
-        }
-    }
-}
-
-bool is_in(size_t* labels_max, const size_t n, size_t l)
-{
-    for (size_t i = 0; i < n; i++)
-    {
-        if (labels_max[i] == l)
-            return true;
-    }
-    return false;
-}
-
-void area_filter(float* image, int* label, const size_t width, const size_t height, size_t* labels_max, const size_t n)
-{
-    for (size_t i = 1; i < width - 1; i++)
-    {
-        for (size_t j = 1; j < height - 1; j++)
-        {
-            image[i * width + j] =
-                (!IS_BACKGROUND(image[i * width + j]) && is_in(labels_max, n, label[i * width + j])) ? 0.0f : 1.0f;
-        }
-    }
-}
-
 void Analysis::insert_bwareafilt()
 {
     LOG_FUNC();
@@ -413,27 +287,40 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
-                float* image_h = new float[buffers_.gpu_postprocess_frame_size];
-                cudaXMemcpy(image_h,
-                            buffers_.gpu_postprocess_frame,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToHost);
+                size_t* labels_d = nullptr;
+                size_t* labels_sizes_d = nullptr;
+                size_t nb_labels = 0;
+                size_t n = setting<settings::BwareafiltN>();
+                size_t* labels_max_d = nullptr;
 
-                int* labels = new int[buffers_.gpu_postprocess_frame_size];
-                std::vector<size_t> labels_sizes = get_connected_component(image_h, labels, fd_.width, fd_.height);
+                shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_);
 
-                int n = setting<settings::BwareafiltN>();
-                size_t* labels_max = new size_t[n];
-                get_n_max_index(labels_sizes, labels_max, n);
+                cudaXMalloc(&labels_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+                cudaXMemset(labels_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+                get_connected_component(buffers_.gpu_postprocess_frame,
+                                        labels_d,
+                                        &labels_sizes_d,
+                                        nb_labels,
+                                        fd_.width,
+                                        fd_.height,
+                                        stream_);
 
-                area_filter(image_h, labels, fd_.width, fd_.height, labels_max, n);
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            image_h,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyHostToDevice);
-                delete labels;
-                delete image_h;
-                delete labels_max;
+                if (nb_labels < n)
+                    n = nb_labels;
+                cudaXMalloc(&labels_max_d, n * sizeof(size_t));
+                get_n_max_index(labels_sizes_d, nb_labels, labels_max_d, n);
+                // TODO repasser sur label_size pour le transformer en is_keep
+                create_is_keep_in_label_size(labels_sizes_d, nb_labels, labels_max_d, n);
+
+                area_filter(buffers_.gpu_postprocess_frame,
+                            labels_d,
+                            buffers_.gpu_postprocess_frame_size,
+                            labels_sizes_d,
+                            stream_);
+
+                cudaXFree(labels_d);
+                cudaXFree(labels_sizes_d);
+                cudaXFree(labels_max_d);
             }
         });
 }
