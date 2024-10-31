@@ -82,9 +82,6 @@ void close_windows()
 
 void camera_none()
 {
-    if (get_camera_kind() == CameraKind::NONE)
-        return;
-
     close_windows();
     close_critical_compute();
 
@@ -141,6 +138,7 @@ bool change_camera(CameraKind c)
         }
 
         set_camera_kind(c);
+        set_import_type(ImportType::Camera);
         set_is_computation_stopped(false);
 
         std::ofstream output_file(path);

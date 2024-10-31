@@ -168,18 +168,7 @@ MainWindow::MainWindow(QWidget* parent)
     if (api::get_import_type() != ImportType::None)
     {
         ui_->actionSettings->setEnabled(true);
-        if (api::get_compute_mode() == Computation::Raw)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
+        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
     }
 
     notify();
@@ -608,9 +597,8 @@ void MainWindow::closeEvent(QCloseEvent*)
 void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
-    const bool res = api::change_camera(c);
 
-    if (res)
+    if (api::change_camera(c))
     {
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
@@ -787,7 +775,6 @@ void MainWindow::close_advanced_settings()
         UserInterfaceDescriptor::instance().has_been_updated = false;
 
         ImportType it = api::get_import_type();
-        ui_->ImportPanel->import_stop();
 
         if (it == ImportType::File)
             ui_->ImportPanel->import_start();
