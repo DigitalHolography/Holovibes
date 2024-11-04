@@ -98,7 +98,8 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::FilterEnabled,                          \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 

@@ -127,6 +127,8 @@ bool change_camera(CameraKind c)
             Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
 
+        set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
+
         try
         {
             Holovibes::instance().start_camera_frame_read(c);
