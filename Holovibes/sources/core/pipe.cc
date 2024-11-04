@@ -59,6 +59,20 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::DisableLensView, "Disable lens view", fourier_transforms_->get_lens_queue().reset(nullptr));
 
+    if (true) // is_requested(ICS::EnableInterpolation)
+    {
+        LOG_ERROR("interpolation_requested");
+
+        // Allocation des buffers d'interpolation
+        auto fd = input_queue_.get_fd();
+        NppiSize dstSize = {api::get_interpolation_output_x(), api::get_interpolation_output_y()};
+
+        buffers_.gpu_interpolation_src = cuda_tools::CudaUniquePtr<Npp8u>(fd.width * fd.height);
+        buffers_.gpu_interpolation_dst = cuda_tools::CudaUniquePtr<Npp8u>(dstSize.width * dstSize.height);
+
+        // clear_request(ICS::EnableInterpolation);
+    }
+
     if (is_requested(ICS::DisableRawView))
     {
         LOG_DEBUG("disable_raw_view_requested");
@@ -317,6 +331,8 @@ void Pipe::refresh()
 
     converts_->insert_to_ushort();
 
+    insert_interpolation_step();
+
     insert_output_enqueue_hologram_mode();
 
     insert_hologram_record();
@@ -429,8 +445,8 @@ void Pipe::insert_output_enqueue_hologram_mode()
             (*processed_output_fps_)++;
 
             safe_enqueue_output(gpu_output_queue_,
-                                buffers_.gpu_output_frame.get(),
-                                "Can't enqueue the output frame in gpu_output_queue");
+                                reinterpret_cast<unsigned short*>(buffers_.gpu_interpolation_dst.get()),
+                                "Can't enqueue the interpolated output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
             if (api::get_cuts_view_enabled())
@@ -646,6 +662,54 @@ void Pipe::run_all()
     for (FnType& f : fn_end_vect_)
         f();
     fn_end_vect_.clear();
+}
+
+void Pipe::insert_interpolation_step()
+{
+    fn_compute_vect_.push_back(
+        [this]()
+        {
+            LOG_DEBUG("Interpolation step");
+
+            NppiSize dstSize = {static_cast<int>(api::get_interpolation_output_x()),
+                                static_cast<int>(api::get_interpolation_output_y())};
+            NppiSize srcSize = {static_cast<int>(input_queue_.get_fd().width),
+                                static_cast<int>(input_queue_.get_fd().height)};
+            NppiRect srcROI = {0, 0, srcSize.width, srcSize.height};
+
+            perform_interpolation(buffers_.gpu_interpolation_src.get(),
+                                  buffers_.gpu_interpolation_dst.get(),
+                                  srcSize,
+                                  srcROI,
+                                  dstSize,
+                                  stream_);
+        });
+}
+
+void Pipe::perform_interpolation(
+    Npp8u* src, Npp8u* dst, NppiSize srcSize, NppiRect srcROI, NppiSize dstSize, cudaStream_t stream)
+{
+    double xFactor = static_cast<double>(dstSize.width) / srcSize.width;
+    double yFactor = static_cast<double>(dstSize.height) / srcSize.height;
+
+    NppiRect dstROI = {0, 0, dstSize.width, dstSize.height};
+
+    // Perform interpolation using nppiResize
+    NppStatus status = nppiResize_8u_C1R(buffers_.gpu_interpolation_src.get(), // Source image pointer
+                                         srcSize.width * sizeof(Npp8u),        // Source image line step in bytes
+                                         srcSize,                              // Size of the entire source image
+                                         srcROI,                               // Region of interest in the source image
+                                         buffers_.gpu_interpolation_dst.get(), // Destination image pointer
+                                         dstSize.width * sizeof(Npp8u),        // Destination image line step in bytes
+                                         dstSize,                              // Size of the entire destination image
+                                         dstROI,                               // Region of interest in the source image
+                                         NPPI_INTER_LINEAR                     // Interpolation type
+    );
+
+    if (status != NPP_SUCCESS)
+    {
+        throw std::runtime_error("NPP resize failed with status: " + std::to_string(status));
+    }
 }
 
 } // namespace holovibes

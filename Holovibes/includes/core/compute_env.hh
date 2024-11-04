@@ -6,6 +6,8 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <nppi_geometry_transforms.h>
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -61,6 +63,12 @@ struct CoreBuffersEnv
 
     /*! \brief InputFilter mask */
     cuda_tools::CudaUniquePtr<float> gpu_input_filter_mask = nullptr;
+
+    /*! \brief Source buffer for interpolation */
+    cuda_tools::CudaUniquePtr<Npp8u> gpu_interpolation_src = nullptr;
+
+    /*! \brief Destination buffer for interpolation */
+    cuda_tools::CudaUniquePtr<Npp8u> gpu_interpolation_dst = nullptr;
 };
 
 /*! \struct MomentsEnv

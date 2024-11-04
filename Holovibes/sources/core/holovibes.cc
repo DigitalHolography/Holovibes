@@ -93,6 +93,10 @@ void Holovibes::init_record_queue()
         auto record_fd = gpu_output_queue_.load()->get_fd();
         if (record_fd.depth == camera::PixelDepth::Bits8)
             record_fd.depth = camera::PixelDepth::Bits16;
+
+        record_fd.width = api::get_interpolation_output_x();
+        record_fd.height = api::get_interpolation_output_y();
+
         if (!record_queue_.load())
         {
             record_queue_ =
@@ -133,6 +137,9 @@ void Holovibes::init_record_queue()
         LOG_DEBUG("RecordMode = Moments");
         camera::FrameDescriptor record_fd = input_queue_.load()->get_fd();
         record_fd.depth = camera::PixelDepth::Bits32;
+
+        record_fd.width = api::get_interpolation_output_x();
+        record_fd.height = api::get_interpolation_output_y();
 
         if (!record_queue_.load())
             record_queue_ =
@@ -284,19 +291,25 @@ void Holovibes::stop_information_display() { info_worker_controller_.stop(); }
 void Holovibes::init_pipe()
 {
     LOG_FUNC();
+
     camera::FrameDescriptor output_fd = input_queue_.load()->get_fd();
+
     if (api::get_compute_mode() == Computation::Hologram)
     {
         output_fd.depth = camera::PixelDepth::Bits16;
         if (api::get_img_type() == ImgType::Composite)
             output_fd.depth = camera::PixelDepth::Bits48;
     }
+
+    output_fd.width = api::get_interpolation_output_x();
+    output_fd.height = api::get_interpolation_output_y();
+
     gpu_output_queue_.store(std::make_shared<Queue>(output_fd,
                                                     static_cast<unsigned int>(api::get_output_buffer_size()),
                                                     QueueType::OUTPUT_QUEUE));
+
     if (!compute_pipe_.load())
     {
-
         init_record_queue();
         compute_pipe_.store(std::make_shared<Pipe>(*(input_queue_.load()),
                                                    *(gpu_output_queue_.load()),

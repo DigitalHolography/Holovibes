@@ -21,6 +21,8 @@
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
+#include <nppi_geometry_transforms.h>
+
 namespace holovibes
 {
 /*! \class Pipe
@@ -225,10 +227,15 @@ class Pipe : public ICompute
     void insert_hologram_record();
 
     void insert_moments();
-    
+
     void insert_moments_record();
 
     void insert_cuts_record();
+
+    void insert_interpolation_step();
+
+    void perform_interpolation(
+        Npp8u* src, Npp8u* dst, NppiSize srcSize, NppiRect srcROI, NppiSize dstSize, cudaStream_t stream);
 
     /*! \brief Reset the batch index if time_stride has been reached */
     void insert_reset_batch_index();
@@ -291,6 +298,7 @@ class Pipe : public ICompute
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
+    Npp8u* interpolated_output_frame_ = nullptr;
 };
 } // namespace holovibes
 
