@@ -23,7 +23,6 @@ void Registration::insert_registration()
                 xcorr2(gpu_xcorr_output_,
                        gpu_current_image_,
                        gpu_reference_image_,
-                       d_freq_output,
                        d_freq_1_,
                        d_freq_2_,
                        plan_2d_,
@@ -44,20 +43,14 @@ void Registration::insert_registration()
                 if (y > fd_.height / 2)
                     y -= fd_.height;
 
-                // Shifting the image to the computed point.
+                // Shifting the image to the computed point. The shifted images is stored in `gpu_current_image_`.
                 x = -x;
                 y = -y;
-                circ_shift(gpu_circ_shift_buffer_,
-                           buffers_.gpu_postprocess_frame,
-                           fd_.width,
-                           fd_.height,
-                           x,
-                           y,
-                           stream_);
+                circ_shift(gpu_current_image_, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, x, y, stream_);
 
                 // Copy the result of the shift in `gpu_postprocess_frame`.
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 gpu_circ_shift_buffer_,
+                                 gpu_current_image_,
                                  fd_.width * fd_.height * sizeof(float),
                                  cudaMemcpyDeviceToDevice,
                                  stream_);

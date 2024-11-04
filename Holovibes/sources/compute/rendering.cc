@@ -12,10 +12,6 @@
 #include "cuda_memory.cuh"
 #include "logger.hh"
 #include "tools_compute.cuh"
-
-#include <thrust/device_ptr.h>
-#include <thrust/extrema.h>
-#include <thrust/execution_policy.h>
 #include <cuda_runtime.h>
 
 namespace holovibes::compute
