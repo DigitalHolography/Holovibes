@@ -64,12 +64,8 @@ kernel_circular_mask(float* output, short width, short height, float center_X, f
         float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
         float radius_squared = radius * radius;
 
-        if (distance_squared > radius_squared)
-            output[index] = 0.0f;
-        else
-        {
-            output[index] = 1.0f;
-        }
+        // If the point is inside the circle set the value to 1.
+        output[index] = (distance_squared <= radius_squared);
     }
 }
 

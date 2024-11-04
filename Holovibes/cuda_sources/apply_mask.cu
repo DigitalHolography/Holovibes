@@ -97,12 +97,10 @@ kernel_rescale_in_mask(float* output, const float* input, const float* mask, flo
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (index < size && mask[index])
+    if (index < size)
     {
-        if (mask[index])
-            output[index] = input[index] - mean;
-        else
-            output[index] = 0.0f;
+        // If the pixel is inside the mask, the mean is substracted.
+        output[index] = (input[index] - mean) * mask[index];
     }
 }
 

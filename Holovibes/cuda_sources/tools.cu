@@ -57,10 +57,8 @@ __global__ void circ_shift_kernel(float* output, const float* input, int width, 
         int new_y = (y + shift_y) % height;
 
         // Avoid negative shifts.
-        if (new_x < 0)
-            new_x += width;
-        if (new_y < 0)
-            new_y += height;
+        new_x += width * (new_x < 0);
+        new_y += height * (new_y < 0);
 
         // Copy of the pixel at the new position.
         output[new_y * width + new_x] = input[y * width + x];
