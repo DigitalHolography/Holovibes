@@ -1,0 +1,26 @@
+{
+    "image_rendering": {
+        "convolution": {
+            "divide": true,
+            "enabled": true,
+            "type": "gaussian_128_128_1.txt"
+        },
+        "time_transformation_size": 128
+    },
+    "view": {
+        "window": {
+            "xy": {
+                "output_image_accumulation": 16
+            },
+            "xz": {
+                "output_image_accumulation": 16
+            },
+            "yz": {
+                "output_image_accumulation": 16
+            }
+        },
+        "z": {
+            "width": 96
+        }
+    }
+}
