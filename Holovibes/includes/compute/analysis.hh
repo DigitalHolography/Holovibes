@@ -62,7 +62,7 @@ class Analysis
              VesselnessMaskEnv& vesselness_mask_env,
              const cudaStream_t& stream,
              InitSettings settings)
-        : gpu_kernel_buffer_()
+        : gaussian_kernel_buffer_()
         , cuComplex_buffer_()
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
@@ -111,10 +111,8 @@ class Analysis
         }
     }
 
-    /*! \brief Buffer used for convolution */
-    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
-
-    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_2_;
+    /*! \brief Buffer used for gaussian blur convolution kernel */
+    cuda_tools::CudaUniquePtr<cuComplex> gaussian_kernel_buffer_;
 
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
@@ -139,9 +137,6 @@ class Analysis
 
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
-
-    size_t kernels_height_ = 0;
-    size_t kernels_width_ = 0;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

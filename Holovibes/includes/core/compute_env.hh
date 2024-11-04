@@ -223,20 +223,14 @@ struct VesselnessMaskEnv
     /*! \brief image with mean and centered calculated for a time window*/
     cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
 
-    /*! \brief gaussian kernels for vesselness_filter*/
-    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
-
-    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
-
-    // The calculus of Ixy = Iyx so we don't need g_yx_px and g_yd_qy
-    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
-
-    /*! \brief gaussian kernels converted in cuComplex */
+    /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
     cuda_tools::CudaUniquePtr<cuComplex> g_xx_mul_comp_ = nullptr;
 
     cuda_tools::CudaUniquePtr<cuComplex> g_xy_mul_comp_ = nullptr;
 
     cuda_tools::CudaUniquePtr<cuComplex> g_yy_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> temp_buffer_ = nullptr;
 
     /*! \brief Time window for mask */
     int time_window_;
