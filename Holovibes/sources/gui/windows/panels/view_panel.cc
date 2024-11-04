@@ -76,6 +76,8 @@ void ViewPanel::on_notify()
 
     ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
     ui_->RegistrationCheckBox->setEnabled(true);
+    ui_->RegistrationZoneSpinBox->setEnabled(api::get_registration_enabled());
+    ui_->RegistrationZoneSpinBox->setValue(api::get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
@@ -491,4 +493,13 @@ void ViewPanel::reticle_scale(double value)
 
     api::reticle_scale(value);
 }
+
+void ViewPanel::registration_zone(double value)
+{
+    if (!is_between(value, 0., 1.))
+        return;
+
+    api::registration_zone(value);
+}
+
 } // namespace holovibes::gui

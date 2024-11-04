@@ -1531,6 +1531,12 @@ void reticle_scale(float value)
     pipe_refresh();
 }
 
+void registration_zone(float value)
+{
+    set_registration_zone(value);
+    pipe_refresh();
+}
+
 #pragma endregion
 
 #pragma region Chart

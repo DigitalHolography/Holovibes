@@ -47,6 +47,7 @@
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
