@@ -232,6 +232,12 @@ struct VesselnessMaskEnv
 
     cuda_tools::CudaUniquePtr<cuComplex> temp_buffer_ = nullptr;
 
+    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
+
     /*! \brief Time window for mask */
     int time_window_;
 

@@ -130,6 +130,9 @@ class Analysis
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
+    // to remove
+    bool finish_ = true;
+
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
