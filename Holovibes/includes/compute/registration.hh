@@ -10,8 +10,7 @@
  *  which is the center of the eye.
  *  - Shifts all the images to stabilize them to the reference.
  *
- *  The reference is the mean of the last 3 images of the buffer, to have a sliding window through the
- *  time. For now we only take the first one image.
+ *  The reference is taken when the user click on the registation button in the gui.
  */
 #pragma once
 
@@ -58,6 +57,7 @@ class Registration
 {
   public:
     /*! \brief Constructor
+     *
      *  \param[in] fn_compute_vect The vector of functions of the pipe, used to push the functions.
      *  \param[in] buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
      *  \param[in] fd The frame descriptor to get width and height.
@@ -110,6 +110,7 @@ class Registration
     /*! \brief Setter for the reference image. The `new_gpu_reference_image_` is rescaled by the mean and the
      *  `gpu_circle_mask_` is applied. Then is is stored in `gpu_reference_image_`. This process is done so the
      *  image is ready for use in xcorr2.
+     *
      *  \param[in] new_gpu_reference_image_ The new image to set.
      */
     void set_gpu_reference_image(float* new_gpu_reference_image_);
@@ -142,6 +143,7 @@ class Registration
      *  The computations are:
      *  Getting the mean and using it to rescale the `input` image while storing it in `output` buffer.
      *  Then apply the circular `gpu_circle_mask_` mask to the `output` buffer.
+     *
      *  \param[out] output The output buffer used to store the processed image.
      *  \param[in] input The input buffer used to get images.
      *  \param[in out] mean Pointer to the variable to store the mean of the image being computed.
@@ -152,7 +154,6 @@ class Registration
     FunctionVector& fn_compute_vect_;
 
     /*! \brief Main buffers used in pipe. */
-
     const CoreBuffersEnv& buffers_;
 
     /*! \brief Describes the frame size. */
@@ -190,8 +191,6 @@ class Registration
 
     /*! \brief Buffer to store the result of the cross-correlation, then it is used to get the argmax. */
     cuda_tools::CudaUniquePtr<float> gpu_xcorr_output_ = nullptr;
-
-    bool ref = false;
 
     /*! \brief The size of the buffers in the frequency domain. Used in the xcorr2 computation.
      *  It is the size required for CUFFT R2C because of Hermitian Symmetry , for more documentation refers to R2C

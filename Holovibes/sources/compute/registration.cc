@@ -30,7 +30,7 @@ void Registration::insert_registration()
                        plan_2dinv_,
                        freq_size_,
                        stream_);
-                cudaStreamSynchronize(stream_);
+                cudaXStreamSynchronize(stream_);
 
                 // Getting the argmax of the xcorr2 output matrix.
                 int max_index;

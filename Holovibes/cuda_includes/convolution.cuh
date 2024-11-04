@@ -34,6 +34,7 @@ void convolution_kernel(float* input_output,
  *  The cross-correlation matrix is stored in an output buffer and the buffers and plans used in
  *  frequency domain need to be given in parameter for optimization purpose to avoid multiple
  *  allocations.
+ *
  *  \param[out] output The output buffer of the cross-correlation matrix, should be the size of inputs
  *  images.
  *  \param[in] input1 The first image.

@@ -54,12 +54,12 @@ void eigen_values_vectors(cuComplex* matrix,
 
 /*! \brief Get the max linear index and the (x,y) position of the given matrix.
  *  Calls cublasIsamax function.
- *  \param matrix Const input matrix.
- *  \param width Width of the matrix.
- *  \param height Height of the matrix.
- *  \param max_index Reference to an int to store the max linear index.
- *  \param x Reference to an int to store the x composite of the 2D position.
- *  \param y Reference to an int to store the y composite of the 2D position.
+ *  \param[in] matrix Const input matrix.
+ *  \param[in] width Width of the matrix.
+ *  \param[in] height Height of the matrix.
+ *  \param[out] max_index Reference to an int to store the max linear index.
+ *  \param[out] x Reference to an int to store the x composite of the 2D position.
+ *  \param[out] y Reference to an int to store the y composite of the 2D position.
  */
 void matrix_argmax(const float* matrix, const short width, const short height, int& max_index, int& x, int& y);
 

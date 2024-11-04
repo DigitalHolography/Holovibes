@@ -38,7 +38,7 @@ __host__ __device__ inline static cuComplex& operator*=(cuComplex& c1, const cuC
     return c1;
 }
 
-/*! \brief Pointwise multiplication of the pixels values of 2 complex input images
+/*! \brief Pointwise multiplication of the pixels values of 2 complex input images.
  *
  *  \param[out] output To store the result. Same size of inputs.
  *  \param[in] input1 First matrix to multiply.

@@ -57,10 +57,11 @@ kernel_get_mean_in_mask(const float* input, const float* mask, const size_t size
     shared_count[thread_index] = 0.0f;
 
     // Loading data in the shared memory.
-    if (index < size && mask[index] != 0)
+    if (index < size)
     {
-        shared_sum[thread_index] = input[index];
-        shared_count[thread_index] = 1.0f;
+        // Loading only inside the mask, else 0.
+        shared_sum[thread_index] = input[index] * mask[index];
+        shared_count[thread_index] = 1.0f * mask[index];
     }
     __syncthreads();
 
@@ -182,8 +183,8 @@ void get_mean_in_mask(
 
     // Allocating memory on GPU to compute the sum [0] and number [1] of pixels, used for mean computation.
     float* gpu_mean_vector;
-    cudaMalloc(&gpu_mean_vector, 2 * sizeof(float));
-    cudaMemset(gpu_mean_vector, 0, 2 * sizeof(float));
+    cudaXMalloc(&gpu_mean_vector, 2 * sizeof(float));
+    cudaXMemset(gpu_mean_vector, 0, 2 * sizeof(float));
 
     kernel_get_mean_in_mask<<<blocks, threads, shared_memory_size, stream>>>(input, mask, size, gpu_mean_vector);
 
@@ -192,7 +193,7 @@ void get_mean_in_mask(
 
     // Transfering memory to the CPU.
     float cpu_mean_vector[2];
-    cudaMemcpy(cpu_mean_vector, gpu_mean_vector, 2 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(cpu_mean_vector, gpu_mean_vector, 2 * sizeof(float), cudaMemcpyDeviceToHost);
 
     // Avoid zero division
     if (cpu_mean_vector[1] > 0)
@@ -201,7 +202,7 @@ void get_mean_in_mask(
         *pixels_mean = 0.0f;
 
     // Release GPU memory
-    cudaFree(gpu_mean_vector);
+    cudaXFree(gpu_mean_vector);
 
     // Make sur that the mean compute is done.
     cudaCheckError();
