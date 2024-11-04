@@ -909,11 +909,6 @@ ViewWindow get_current_window()
         return get_filter2d();
 }
 
-void set_composite_area()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
-}
-
 void close_critical_compute()
 {
     if (get_convolution_enabled())
@@ -1859,44 +1854,10 @@ void set_input_file_end_index(size_t value)
 
 #pragma endregion
 
-#pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent)
-{
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
-    UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
-}
-
-#pragma endregion
-
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display()
-{
-    return UserInterfaceDescriptor::instance().mainDisplay;
-}
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz() { return UserInterfaceDescriptor::instance().sliceXZ; }
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz() { return UserInterfaceDescriptor::instance().sliceYZ; }
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window()
-{
-    return UserInterfaceDescriptor::instance().lens_window;
-}
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
-{
-    return UserInterfaceDescriptor::instance().raw_window;
-}
-
-std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window()
-{
-    return UserInterfaceDescriptor::instance().filter2d_window;
-}
 
 } // namespace holovibes::api

@@ -480,11 +480,6 @@ ViewWindow get_current_window();
  */
 void set_accumulation_level(int value);
 
-/*! \brief Make the ui compisite overlay visible
- *
- */
-void set_composite_area();
-
 /*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
  *
  */
@@ -910,25 +905,8 @@ constexpr std::vector<std::string> get_credits();
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
 
-bool getLightUIMode();
-
 /*! \brief Displays information */
 void start_information_display();
-
-/*! \brief Opens additional settings window
- *
- * \param parent then window that will embed the specific panel
- */
-void open_advanced_settings(QMainWindow* parent = nullptr);
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz();
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window();
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
-std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window();
 
 } // namespace holovibes::api
 

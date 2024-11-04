@@ -19,6 +19,7 @@
 #include "image_rendering_panel.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 #include "view_struct.hh"
 
@@ -809,7 +810,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    api::open_advanced_settings(this);
+    gui::open_advanced_settings(this);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),
