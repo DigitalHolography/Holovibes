@@ -76,7 +76,6 @@ void convolution_kernel(float* input_output,
 void xcorr2(float* output,
             float* input1,
             float* input2,
-            cufftComplex* d_freq_output,
             cufftComplex* d_freq_1,
             cufftComplex* d_freq_2,
             cufftHandle plan_2d,
@@ -88,7 +87,7 @@ void xcorr2(float* output,
     cufftExecR2C(plan_2d, input2, d_freq_2);
 
     conjugate_complex(d_freq_2, freq_size, stream);
-    complex_hadamard_product(d_freq_output, d_freq_1, d_freq_2, freq_size, stream);
+    complex_hadamard_product(d_freq_1, d_freq_1, d_freq_2, freq_size, stream);
 
-    cufftExecC2R(plan_2dinv, d_freq_output, output);
+    cufftExecC2R(plan_2dinv, d_freq_1, output);
 }

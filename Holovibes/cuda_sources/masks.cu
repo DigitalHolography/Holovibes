@@ -69,7 +69,7 @@ kernel_circular_mask(float* output, short width, short height, float center_X, f
     }
 }
 
-void get_circular_mask(float* mask,
+void get_circular_mask(float* output,
                        const float center_X,
                        const float center_Y,
                        const float radius,
@@ -82,7 +82,7 @@ void get_circular_mask(float* mask,
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
-    kernel_circular_mask<<<lblocks, lthreads, 0, stream>>>(mask, width, height, center_X, center_Y, radius);
+    kernel_circular_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
 
     cudaXStreamSynchronize(stream);
     cudaCheckError();

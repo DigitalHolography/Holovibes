@@ -81,11 +81,9 @@ class Registration
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_current_image_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_xcorr_output_.resize(buffers_.gpu_postprocess_frame_size);
-        err += !gpu_circ_shift_buffer_.resize(buffers_.gpu_postprocess_frame_size);
         freq_size_ = fd_.width * (fd_.height / 2 + 1);
         err += !d_freq_1_.resize(freq_size_);
         err += !d_freq_2_.resize(freq_size_);
-        err += !d_freq_output.resize(freq_size_);
 
         cufftSafeCall(cufftPlan2d(&plan_2d_, fd_.width, fd_.height, CUFFT_R2C));
         cufftSafeCall(cufftPlan2d(&plan_2dinv_, fd_.width, fd_.height, CUFFT_C2R));
@@ -134,9 +132,7 @@ class Registration
     auto setting()
     {
         if constexpr (has_setting<T, decltype(realtime_settings_)>::value)
-        {
             return realtime_settings_.get<T>().value;
-        }
     }
 
     /*! \brief Preprocess the image and store it in `output` buffer.
@@ -165,8 +161,8 @@ class Registration
     /*! \brief The reference image set with the `gpu_postprocess_frame` after accumulation. Contain only one frame.
      *  This image is the one used to compute the cross-correlation with the other images to stabilize the
      *  frames.
-     *  It is set each time after the images accumulation in the pipe. Hence, the reference is the accumulation of the
-     *  Then we have a sliding window to keep the registration in real-time.
+     *  It is set each time after the images accumulation in the pipe. Hence, the reference is the accumulation of
+     *  previous stabilized images. Then we have a sliding window to keep the registration in real-time.
      */
     cuda_tools::CudaUniquePtr<float> gpu_reference_image_ = nullptr;
 
@@ -175,7 +171,7 @@ class Registration
 
     /*! \brief Float buffer containing the current `gpu_postprocess_frame` being processed. Contains only one frame.
      *  Contain the frame after applying the circular mask and rescaling. This image is used for the cross-correlation
-     *  with the `gpu_reference_image_`.
+     *  with the `gpu_reference_image_`. Also used to store the circ-shift result.
      */
     cuda_tools::CudaUniquePtr<float> gpu_current_image_ = nullptr;
 
@@ -199,6 +195,7 @@ class Registration
     int freq_size_;
 
     /*! \brief Buffer used to store the current image after applying the R2C cufft, its size is stored in `freq_size_`.
+     *  This buffer is also used to store the output image in frequency domain after applying the xcorr2 function.
      */
     cuda_tools::CudaUniquePtr<cufftComplex> d_freq_1_ = nullptr;
 
@@ -206,11 +203,6 @@ class Registration
      * `freq_size_`.
      */
     cuda_tools::CudaUniquePtr<cufftComplex> d_freq_2_ = nullptr;
-
-    /*! \brief Buffer used to store the output image after applying the xcorr2 function, its size is stored in
-     * `freq_size_`.
-     */
-    cuda_tools::CudaUniquePtr<cufftComplex> d_freq_output = nullptr;
 
     // cuda_tools::CufftHandle plan_2d_;
     // cuda_tools::CufftHandle plan_2dinv_;
@@ -220,11 +212,6 @@ class Registration
 
     /*! \brief Cufft plan used for C2R cufft in the xcorr2 function */
     cufftHandle plan_2dinv_;
-
-    /*! \brief Buffer used to store the result of `circ_shift` function. After the shift this buffer is copied into
-     * `gpu_postprocess_frame`.
-     */
-    cuda_tools::CudaUniquePtr<float> gpu_circ_shift_buffer_ = nullptr;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

@@ -74,5 +74,4 @@ void circ_shift(float* output, float* input, uint width, uint height, int shift_
     circ_shift_kernel<<<lblocks, lthreads, 0, stream>>>(output, input, width, height, shift_x, shift_y);
 
     cudaCheckError();
-    cudaStreamSynchronize(stream);
 }
