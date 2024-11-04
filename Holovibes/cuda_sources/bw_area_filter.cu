@@ -12,95 +12,204 @@ using uint = unsigned int;
 struct vector_t
 {
     size_t* ptr_d;
-    size_t size;
-    size_t max_size;
+    size_t* size;
 };
 
-__device__ void add_label_link(vector_t& linked)
+#define _MIN_(A, B) ((A) < (B) ? (A) : (B))
+
+__device__ void lock(int* mutex)
 {
-    if (linked.size >= linked.max_size)
-    {
-        size_t* new_ptr;
-        cudaXMalloc(&new_ptr, linked.max_size * 2 * sizeof(size_t));
-        cudaXMemcpy(new_ptr, linked.ptr_d, linked.max_size * sizeof(size_t));
-        cudaXFree(linked.ptr_d);
-        linked.ptr_d = new_ptr;
-        linked.max_size *= 2;
-    }
-    linked.ptr_d[linked.size] = linked.size++;
+    while (atomicCAS(mutex, 0, 1) != 0)
+        ; // Attente active jusqu'à ce que le verrou soit acquis
 }
 
-__global__ void
-first_pass(const float* image_d, size_t* labels_d, vector_t& linked, const size_t width, const size_t height)
+__device__ void unlock(int* mutex)
 {
-    for (size_t i = 1; i < width - 1; i++)
-    {
-        for (size_t j = 1; j < height - 1; j++)
-        {
-            if (!IS_BACKGROUND(image_d[i * width + j]))
-            {
-                size_t neighbors[4][2]; // 4 neighbors
-                size_t nb_neighbors = 0;
-
-                if (!IS_BACKGROUND(image_d[(i - 1) * width + j]))
-                {
-                    neighbors[nb_neighbors][0] = i - 1;
-                    neighbors[nb_neighbors++][1] = j;
-                }
-                if (!IS_BACKGROUND(image_d[i * width + (j - 1)]))
-                {
-                    neighbors[nb_neighbors][0] = i - 1;
-                    neighbors[nb_neighbors++][1] = j;
-                }
-
-                if (nb_neighbors == 0)
-                {
-                    add_label_link(linked);
-                    labels_d[i * width + j] = linked.size - 1;
-                }
-                else if (nb_neighbors == 1)
-                {
-                    labels_d[i * width + j] = labels_d[neighbors[0][0] * width + neighbors[0][1]];
-                }
-                else
-                {
-                    // Find the smallest label and update label link
-
-                    size_t L[4]; // 4 neighbors
-                    size_t nb_neighbors_labels = 0;
-                    labels_d[i * width + j] = labels_d[neighbors[0][0] * width + neighbors[0][1]];
-                    for (size_t p = 1; p < nb_neighbors; p++)
-                    {
-                        labels_d[i * width + j] =
-                            std::min(labels_d[i * width + j], labels_d[neighbors[p][0] * width + neighbors[p][1]]);
-                    }
-                    for (size_t p = 0; p < nb_neighbors; p++)
-                    {
-                        size_t l = labels_d[neighbors[p][0] * width + neighbors[p][1]];
-                        linked.ptr_d[l] = labels_d[i * width + j] < l ? labels_d[i * width + j] : l;
-                    }
-                }
-            }
-        }
-    }
+    atomicExch(mutex, 0); // Libère le verrou
 }
 
-__global__ void second_pass_kernel(size_t* labels_d, size_t size, size_t* linked_d, size_t* labels_sizes_d)
+__device__ inline void add_label_link(vector_t& linked) { linked.ptr_d[*linked.size] = *linked.size++; }
+
+__global__ void first_pass_kernel1(const float* image_d,
+                                   size_t* labels_d,
+                                   size_t* linked_d,
+                                   size_t* lablels_sizes_d,
+                                   const size_t width,
+                                   const size_t height)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < size && labels_d[idx] != 0)
+    int x = (idx / width) * 2;
+    int y = (idx % width) * 2;
+    idx = x * width + y;
+
+    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
     {
-        labels_d[idx] = linked_d[labels_d[idx]];
-        atomicAdd(labels_sizes_d + labels_d[idx], 1);
+        linked_d[idx] = idx;
+        labels_d[idx] = idx;
+        lablels_sizes_d[idx] = 1;
     }
 }
 
-#define DEFAULT_SIZE_LINKED_D 2048
+__device__ void check_and_update_link(size_t* labels_d,
+                                      size_t* linked_d,
+                                      size_t* labels_sizes_d,
+                                      const size_t idx,
+                                      size_t* neighbors,
+                                      const int nb_neighbors)
+{
+    static int mutex = 0;
+
+    if (nb_neighbors == 0)
+    {
+        linked_d[idx] = idx;
+        labels_d[idx] = idx;
+    }
+    else
+    {
+        // lock(&mutex);
+        int min_l = 0;
+        for (int k = 1; k < nb_neighbors; k++)
+            min_l = linked_d[labels_d[neighbors[k]]] < linked_d[labels_d[neighbors[min_l]]] ? k : min_l;
+
+        labels_d[idx] = linked_d[labels_d[neighbors[min_l]]];
+
+        for (int k = 1; k < nb_neighbors; k++)
+        {
+            // Warning maybe use type of mutex
+            labels_sizes_d[linked_d[labels_d[min_l]]] += labels_sizes_d[linked_d[labels_d[(min_l + k) % nb_neighbors]]];
+            labels_sizes_d[linked_d[labels_d[(min_l + k) % nb_neighbors]]] = 0;
+
+            linked_d[labels_d[(min_l + k) % nb_neighbors]] = labels_d[min_l];
+        }
+        // unlock(&mutex);
+    }
+
+    labels_sizes_d[labels_d[idx]] += 1;
+}
+
+__global__ void first_pass_kernel2(const float* image_d,
+                                   size_t* labels_d,
+                                   size_t* linked_d,
+                                   size_t* labels_sizes_d,
+                                   const size_t width,
+                                   const size_t height)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int x = (idx / width) * 2 + 1;
+    int y = (idx % width) * 2;
+    idx = x * width + y;
+
+    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    {
+        size_t neighbors[2];
+        size_t nb_neighbors = 0;
+
+        for (int k = -1; k <= 1; k += 2)
+        {
+            size_t jdx = (x + k) * width + y;
+            if (labels_d[jdx])
+                neighbors[nb_neighbors++] = jdx;
+        }
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+    }
+}
+
+__global__ void first_pass_kernel3(const float* image_d,
+                                   size_t* labels_d,
+                                   size_t* linked_d,
+                                   size_t* labels_sizes_d,
+                                   const size_t width,
+                                   const size_t height)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int x = (idx / width) * 2;
+    int y = (idx % width) * 2 + 1;
+    idx = x * width + y;
+
+    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    {
+        size_t neighbors[2];
+        size_t nb_neighbors = 0;
+
+        for (int k = -1; k <= 1; k += 2)
+        {
+            size_t jdx = x * width + y + k;
+            if (labels_d[jdx])
+                neighbors[nb_neighbors++] = jdx;
+        }
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+    }
+}
+
+__global__ void first_pass_kernel4(const float* image_d,
+                                   size_t* labels_d,
+                                   size_t* linked_d,
+                                   size_t* labels_sizes_d,
+                                   const size_t width,
+                                   const size_t height)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int x = (idx / width) * 2 + 1;
+    int y = (idx % width) * 2 + 1;
+    idx = x * width + y;
+
+    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    {
+        size_t neighbors[4];
+        size_t nb_neighbors = 0;
+
+        for (int k = -1; k <= 1; k += 2)
+        {
+            size_t jdx = x * width + y + k;
+            if (labels_d[jdx])
+                neighbors[nb_neighbors++] = jdx;
+            jdx = (x + k) * width + y;
+            if (labels_d[jdx])
+                neighbors[nb_neighbors++] = jdx;
+        }
+
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+    }
+}
+
+void first_pass(const float* image_d,
+                size_t* labels_d,
+                size_t* linked_d,
+                size_t* labels_sizes_d,
+                const size_t width,
+                const size_t height,
+                const cudaStream_t stream)
+{
+
+    size_t size = width * height;
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size / 4, threads);
+    cudaXMemset(linked_d, 0, sizeof(size_t));
+
+    first_pass_kernel1<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    cudaDeviceSynchronize();
+    first_pass_kernel2<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    cudaDeviceSynchronize();
+    first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    cudaDeviceSynchronize();
+    first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    cudaDeviceSynchronize();
+}
+
+__global__ void second_pass_kernel(size_t* labels_d, size_t size, size_t* linked_d)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size)
+    {
+        while (linked_d[labels_d[idx]] != labels_d[idx])
+            labels_d[idx] = linked_d[labels_d[idx]];
+    }
+}
 
 void get_connected_component(const float* image_d,
                              size_t* labels_d,
-                             size_t** labels_sizes_d,
-                             size_t& nb_labels,
+                             size_t* labels_sizes_d,
+                             size_t* linked_d,
                              const size_t width,
                              const size_t height,
                              const cudaStream_t stream)
@@ -109,27 +218,20 @@ void get_connected_component(const float* image_d,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    vector_t linked = {nullptr, 0, DEFAULT_SIZE_LINKED_D};
-    cudaXMalloc(&linked.ptr_d, DEFAULT_SIZE_LINKED_D * sizeof(size_t));
-    add_label_link(linked); // label 0 is background
+    first_pass(image_d, labels_d, linked_d, labels_sizes_d, width, height, stream);
 
-    //  First pass
-    first_pass(image_d, labels_d, linked, width, height);
-
-    cudaXMalloc(labels_sizes_d, linked.size * sizeof(size_t));
-    cudaXMemset(labels_sizes_d, 0, linked.size);
-    second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked.ptr_d, *labels_sizes_d);
+    second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d);
     cudaDeviceSynchronize();
 }
 
-__device__ __host__ void swap(size_t* T, size_t i, size_t j)
+__device__ void swap(size_t* T, size_t i, size_t j)
 {
     size_t tmp = T[i];
     T[i] = T[j];
     T[j] = tmp;
 }
 
-__device__ __host__ void get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_d, size_t n)
+__global__ void _get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_d, size_t n)
 {
     for (size_t i = 0; i < n; i++)
     {
@@ -156,14 +258,44 @@ __device__ __host__ void get_n_max_index(size_t* labels_size_d, size_t nb_label,
     }
 }
 
-__global__ void area_filter_kernel(float* image_d, const size_t* label_d, size_t size, int* is_keep_d)
+void get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_d, size_t n, const cudaStream_t stream)
+{
+    _get_n_max_index<<<1, 1, 0, stream>>>(labels_size_d, nb_label, labels_max_d, n);
+    cudaDeviceSynchronize();
+}
+
+__global__ void get_nb_label_kernel(size_t* labels_size_d, size_t size, size_t* res)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size && labels_size_d[idx])
+        atomicAdd(res, 1);
+}
+
+int get_nb_label(size_t* labels_size_d, size_t size, const cudaStream_t stream)
+{
+    size_t* nb_label;
+    size_t res;
+    cudaXMalloc(&nb_label, sizeof(size_t));
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    get_nb_label_kernel<<<blocks, threads, 0, stream>>>(labels_size_d, size, nb_label);
+    cudaDeviceSynchronize();
+
+    cudaXMemcpy(&res, nb_label, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+    cudaXFree(nb_label);
+    return res;
+}
+
+__global__ void area_filter_kernel(float* image_d, const size_t* label_d, size_t size, size_t* is_keep_d)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
         image_d[idx] = is_keep_d[label_d[idx]] ? 0.0f : 1.0f;
 }
 
-void area_filter(float* image_d, const size_t* label_d, size_t size, int* is_keep_d, const cudaStream_t stream)
+void area_filter(float* image_d, const size_t* label_d, size_t size, size_t* is_keep_d, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -171,9 +303,18 @@ void area_filter(float* image_d, const size_t* label_d, size_t size, int* is_kee
     cudaDeviceSynchronize();
 }
 
-__global__ void create_is_keep_in_label_size(size_t* labels_sizes_d, size_t nb_labels, size_t* labels_max_d, size_t n)
+__global__ void
+create_is_keep_in_label_size_kernel(size_t* labels_sizes_d, size_t nb_labels, size_t* labels_max_d, size_t n)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n)
+        labels_sizes_d[labels_max_d[idx]] = 1;
+}
+
+void create_is_keep_in_label_size(
+    size_t* labels_sizes_d, size_t nb_labels, size_t* labels_max_d, size_t n, const cudaStream_t stream)
 {
     cudaXMemset(labels_sizes_d, 0, nb_labels * sizeof(size_t));
-    for (size_t i = 0; i < n; i++) // TODO use a kernel
-        labels_sizes_d[i] = 1;
+    create_is_keep_in_label_size_kernel<<<1, n, 0, stream>>>(labels_sizes_d, nb_labels, labels_max_d, n);
+    cudaDeviceSynchronize();
 }

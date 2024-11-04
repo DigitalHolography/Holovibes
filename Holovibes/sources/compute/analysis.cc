@@ -289,7 +289,9 @@ void Analysis::insert_bwareafilt()
             {
                 size_t* labels_d = nullptr;
                 size_t* labels_sizes_d = nullptr;
-                size_t nb_labels = 0;
+                size_t* linked_d = nullptr;
+
+                size_t nb_labels;
                 size_t n = setting<settings::BwareafiltN>();
                 size_t* labels_max_d = nullptr;
 
@@ -297,30 +299,64 @@ void Analysis::insert_bwareafilt()
 
                 cudaXMalloc(&labels_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
                 cudaXMemset(labels_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+
+                cudaXMalloc(&labels_sizes_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+                cudaXMemset(labels_sizes_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+
+                cudaXMalloc(&linked_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
+
                 get_connected_component(buffers_.gpu_postprocess_frame,
                                         labels_d,
-                                        &labels_sizes_d,
-                                        nb_labels,
+                                        labels_sizes_d,
+                                        linked_d,
                                         fd_.width,
                                         fd_.height,
                                         stream_);
+                nb_labels = get_nb_label(labels_sizes_d, buffers_.gpu_postprocess_frame_size, stream_);
 
                 if (nb_labels < n)
                     n = nb_labels;
-                cudaXMalloc(&labels_max_d, n * sizeof(size_t));
-                get_n_max_index(labels_sizes_d, nb_labels, labels_max_d, n);
-                // TODO repasser sur label_size pour le transformer en is_keep
-                create_is_keep_in_label_size(labels_sizes_d, nb_labels, labels_max_d, n);
+                if (n)
+                {
+                    cudaXMalloc(&labels_max_d, n * sizeof(size_t));
+                    get_n_max_index(labels_sizes_d, buffers_.gpu_postprocess_frame_size, labels_max_d, n, stream_);
 
-                area_filter(buffers_.gpu_postprocess_frame,
-                            labels_d,
-                            buffers_.gpu_postprocess_frame_size,
-                            labels_sizes_d,
-                            stream_);
+                    //-----------------------
+                    size_t* size = new size_t[buffers_.gpu_postprocess_frame_size];
+                    size_t* max = new size_t[n];
 
+                    cudaXMemcpy(size,
+                                labels_sizes_d,
+                                buffers_.gpu_postprocess_frame_size * sizeof(size_t),
+                                cudaMemcpyDeviceToHost);
+                    cudaXMemcpy(max, labels_max_d, n * sizeof(size_t), cudaMemcpyDeviceToHost);
+
+                    for (size_t i = 0; i < n; i++)
+                    {
+                        std::cout << max[i] << " -> " << size[max[i]] << " / ";
+                    }
+                    std::cout << std::endl;
+
+                    delete size;
+                    delete max;
+                    //-----------------------
+
+                    create_is_keep_in_label_size(labels_sizes_d,
+                                                 buffers_.gpu_postprocess_frame_size,
+                                                 labels_max_d,
+                                                 n,
+                                                 stream_);
+
+                    area_filter(buffers_.gpu_postprocess_frame,
+                                labels_d,
+                                buffers_.gpu_postprocess_frame_size,
+                                labels_sizes_d,
+                                stream_);
+                    cudaXFree(labels_max_d);
+                }
                 cudaXFree(labels_d);
                 cudaXFree(labels_sizes_d);
-                cudaXFree(labels_max_d);
+                cudaXFree(linked_d);
             }
         });
 }
