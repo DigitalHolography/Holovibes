@@ -209,6 +209,7 @@ class ICompute
         DeleteTimeTransformationCuts,
         UpdateBatchSize,
         UpdateTimeStride,
+        UpdateRegistrationZone,
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,

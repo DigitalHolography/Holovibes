@@ -30,9 +30,10 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define REALTIME_SETTINGS                         \
     holovibes::settings::RegistrationEnabled,     \
-    holovibes::settings::FftShiftEnabled
+    holovibes::settings::FftShiftEnabled,         \
+    holovibes::settings::RegistrationZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 

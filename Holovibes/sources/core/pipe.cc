@@ -206,6 +206,12 @@ bool Pipe::make_requests()
         chart_record_requested_ = std::nullopt;
     }
 
+    if (is_requested(ICS::UpdateRegistrationZone))
+    {
+        registration_->updade_cirular_mask();
+        clear_request(ICS::UpdateRegistrationZone);
+    }
+
     HANDLE_REQUEST(ICS::FrameRecord, "Frame Record", api::set_frame_record_enabled(true));
 
     return success_allocation;
