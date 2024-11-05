@@ -75,10 +75,6 @@ class ImageRenderingPanel : public Panel
      */
     void update_input_filter(const QString& value);
 
-    /*! \brief Refreshed the input filter iff one was passed before
-     */
-    void refresh_input_filter();
-
     /*! \brief Modifies space transform calculation
      *
      * \param value The new space transform to apply

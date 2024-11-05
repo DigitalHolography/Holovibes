@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget* parent)
                                        })
     , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
 {
+    disable_notify();
+
     ui_->setupUi(this);
     panels_ = {ui_->ImageRenderingPanel,
                ui_->ViewPanel,
@@ -169,8 +171,6 @@ MainWindow::MainWindow(QWidget* parent)
     if (api::get_import_type() != ImportType::None)
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
 
-    notify();
-
     setFocusPolicy(Qt::StrongFocus);
 
     // spinBox allow ',' and '.' as decimal point
@@ -183,11 +183,6 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    // ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ExportPanel->init_light_ui();
-    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    // ui_->InfoPanel->set_light_ui(light_ui_);
-
     api::start_information_display();
 
     ui_->ImageRenderingPanel->set_convolution_mode(
@@ -195,13 +190,15 @@ MainWindow::MainWindow(QWidget* parent)
                           // if the value is enabled in the compute settings.
 
     if (api::get_yz_enabled() and api::get_xz_enabled())
-    {
         ui_->ViewPanel->update_3d_cuts_view(true);
-    }
 
     init_tooltips();
 
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    enable_notify();
+
+    notify();
 }
 
 MainWindow::~MainWindow()

@@ -232,24 +232,6 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
     }
 }
 
-void ImageRenderingPanel::refresh_input_filter()
-{
-    LOG_FUNC();
-
-    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
-    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-
-    auto filename = UserInterfaceDescriptor::instance().filter_name;
-
-    if (filename == UID_FILTER_TYPE_DEFAULT)
-    {
-        LOG_INFO("--- || ---");
-        return;
-    }
-
-    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-}
-
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
     api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
@@ -336,16 +318,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (!api::get_convolution_enabled())
-        return;
-
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-
     api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
-
     parent_->notify();
 }
 

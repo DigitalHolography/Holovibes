@@ -532,6 +532,9 @@ void handle_update_exception()
 
 void set_filter2d(bool checked)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     set_filter2d_enabled(checked);
     set_auto_contrast_all();
 }
@@ -746,6 +749,7 @@ void set_q_accu_level(uint value)
     SET_SETTING(Q, width, value);
     pipe_refresh();
 }
+
 void set_p_index(uint value)
 {
     if (get_compute_mode() == Computation::Raw)
@@ -759,6 +763,7 @@ void set_p_index(uint value)
 
     SET_SETTING(P, start, value);
     pipe_refresh();
+    set_auto_contrast();
 }
 
 void set_p_accu_level(uint p_value)
@@ -1398,6 +1403,9 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
 void enable_convolution(const std::string& filename)
 {
+    if (api::get_import_type() == ImportType::None || !api::get_convolution_enabled())
+        return;
+
     load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)

@@ -260,13 +260,7 @@ void ViewPanel::update_3d_cuts_view(bool checked)
     parent_->notify(); // Hide x and y
 }
 
-void ViewPanel::set_fft_shift(const bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_fft_shift_enabled(value);
-}
+void ViewPanel::set_fft_shift(const bool value) { api::set_fft_shift_enabled(value); }
 
 void ViewPanel::update_lens_view(bool checked) { api::set_lens_view(checked, parent_->auxiliary_window_max_size); }
 
@@ -288,41 +282,9 @@ void ViewPanel::set_p(int value)
     parent_->notify();
 }
 
-void ViewPanel::increment_p()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::increment_p() { set_p(api::get_p_index() + 1); }
 
-    // FIXME: Cannot append
-    if (api::get_p_index() >= api::get_time_transformation_size())
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_p_index() + 1);
-    set_auto_contrast();
-
-    parent_->notify();
-}
-
-void ViewPanel::decrement_p()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    // FIXME: Cannot append
-    if (api::get_p_index() <= 0)
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_p_index() - 1);
-    set_auto_contrast();
-
-    parent_->notify();
-}
+void ViewPanel::decrement_p() { set_p(api::get_p_index() - 1); }
 
 void ViewPanel::set_p_accu()
 {

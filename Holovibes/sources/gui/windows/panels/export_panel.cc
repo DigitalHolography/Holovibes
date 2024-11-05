@@ -28,12 +28,6 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-void ExportPanel::init()
-{
-    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
-}
-
 /*
  * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
  * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
@@ -41,6 +35,14 @@ void ExportPanel::init()
 void actualise_record_output_file_ui(const std::filesystem::path file_path)
 {
     NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
+}
+
+void ExportPanel::init()
+{
+    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
+    set_record_mode(QString::fromUtf8("Raw Image"));
+
+    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
 }
 
 void ExportPanel::on_notify()
@@ -112,11 +114,6 @@ void ExportPanel::set_record_frame_step(int step)
 }
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
-
-void ExportPanel::init_light_ui()
-{
-    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
-}
 
 QString ExportPanel::browse_record_output_file()
 {

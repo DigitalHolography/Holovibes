@@ -539,6 +539,9 @@ inline void set_filter2d_contrast(float min, float max) noexcept
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
 inline void set_fft_shift_enabled(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     UPDATE_SETTING(FftShiftEnabled, value);
     pipe_refresh();
 }
