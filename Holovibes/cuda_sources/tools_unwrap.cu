@@ -2,6 +2,7 @@
 
 #include "cuda_memory.cuh"
 #include "frame_desc.hh"
+#include "complex_utils.cuh"
 
 using namespace holovibes;
 using namespace camera;
@@ -136,16 +137,6 @@ __global__ void kernel_multiply_complex_by_single_complex(cuComplex* output, con
 
         output[index].x = cpy_o1.x * input.x - cpy_o1.y * input.y;
         output[index].y = cpy_o1.x * input.y + cpy_o1.y * input.x;
-    }
-}
-
-__global__ void kernel_conjugate_complex(cuComplex* output, const uint size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < size)
-    {
-        output[index].y = -output[index].y;
     }
 }
 
@@ -293,28 +284,12 @@ void unwrap_2d(float* output,
                                                             res->gpu_fy_,
                                                             res->gpu_z_);
     cudaCheckError();
+
     ushort middlex = fd.width >> 1;
     ushort middley = fd.height >> 1;
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_shift_fx_,
-                                                     res->gpu_fx_,
-                                                     1,
-                                                     middlex,
-                                                     middley,
-                                                     fd.width,
-                                                     fd.height,
-                                                     fd.get_frame_res());
-    cudaCheckError();
-    circ_shift_float<<<blocks, threads, 0, stream>>>(res->gpu_shift_fy_,
-                                                     res->gpu_fy_,
-                                                     1,
-                                                     middlex,
-                                                     middley,
-                                                     fd.width,
-                                                     fd.height,
-                                                     fd.get_frame_res());
-    cudaCheckError();
+    circ_shift(res->gpu_shift_fx_, res->gpu_fx_, fd.width, fd.height, -middlex, -middley, stream);
+    circ_shift(res->gpu_shift_fy_, res->gpu_fy_, fd.width, fd.height, -middlex, -middley, stream);
+
     gradient_unwrap_2d(plan2d, res, fd, stream);
     eq_unwrap_2d(plan2d, res, fd, stream);
     phi_unwrap_2d(output, plan2d, res, fd, stream);
@@ -359,8 +334,7 @@ void eq_unwrap_2d(const cufftHandle plan2d,
                                                                               single_complex,
                                                                               fd.get_frame_res());
     cudaCheckError();
-    kernel_conjugate_complex<<<blocks, threads, 0, stream>>>(res->gpu_z_, fd.get_frame_res());
-    cudaCheckError();
+    conjugate_complex(res->gpu_z_, fd.get_frame_res(), stream);
     kernel_multiply_complex_frames_by_complex_frame<<<blocks, threads, 0, stream>>>(res->gpu_grad_eq_x_,
                                                                                     res->gpu_grad_eq_y_,
                                                                                     res->gpu_z_,

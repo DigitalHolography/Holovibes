@@ -299,15 +299,20 @@ void Pipe::refresh()
 
     insert_filter2d_view();
 
+    // Postprocessing'
     postprocess_->insert_convolution(buffers_.gpu_postprocess_frame.get(), buffers_.gpu_convolution_buffer.get());
     postprocess_->insert_renormalize(buffers_.gpu_postprocess_frame.get());
+
+    // Rendering
+    rendering_->insert_fft_shift();
+    registration_->insert_registration();
 
     image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
+    registration_->set_gpu_reference_image(buffers_.gpu_postprocess_frame);
 
-    rendering_->insert_fft_shift();
     rendering_->insert_chart();
     rendering_->insert_log();
 
@@ -635,21 +640,10 @@ void Pipe::exec()
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
 
-void Pipe::insert_fn_end_vect(std::function<void()> function)
-{
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    fn_end_vect_.push_back(function);
-}
-
 void Pipe::run_all()
 {
     for (FnType& f : fn_compute_vect_)
         f();
-
-    std::lock_guard<std::mutex> lock(fn_end_vect_mutex_);
-    for (FnType& f : fn_end_vect_)
-        f();
-    fn_end_vect_.clear();
 }
 
 } // namespace holovibes

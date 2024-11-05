@@ -19,6 +19,7 @@
 #include "image_rendering_panel.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 #include "view_struct.hh"
 
@@ -165,22 +166,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     load_gui();
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
-    {
-        ui_->actionSettings->setEnabled(true);
-        if (api::get_compute_mode() == Computation::Raw)
-        {
-            LOG_INFO("RAW");
-            api::set_compute_mode(Computation::Raw);
-            api::set_raw_mode(1);
-        }
-        else
-        {
-            LOG_INFO("HOLO");
-            api::set_compute_mode(Computation::Hologram);
-            api::set_holographic_mode(1);
-        }
-    }
+    if (api::get_import_type() != ImportType::None)
+        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
 
     notify();
 
@@ -224,7 +211,7 @@ MainWindow::~MainWindow()
     api::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none_without_json();
+    api::camera_none();
 
     delete ui_;
 }
@@ -302,7 +289,7 @@ void MainWindow::on_notify()
         return;
     }
 
-    if (UserInterfaceDescriptor::instance().is_enabled_camera_)
+    if (api::get_import_type() != ImportType::None)
     {
         ui_->ImageRenderingPanel->setEnabled(true);
         ui_->ViewPanel->setEnabled(api::get_compute_mode() == Computation::Hologram);
@@ -312,6 +299,8 @@ void MainWindow::on_notify()
 
     ui_->CompositePanel->setHidden(api::get_compute_mode() == Computation::Raw ||
                                    (api::get_img_type() != ImgType::Composite));
+
+    ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 
     resize(baseSize());
 
@@ -343,9 +332,7 @@ void MainWindow::notify_error(const std::exception& e)
         auto lambda = [&, this, accu = (dynamic_cast<const AccumulationException*>(err_ptr) != nullptr)]
         {
             if (accu)
-            {
                 handle_accumulation_exception();
-            }
             api::close_critical_compute();
 
             LOG_ERROR("GPU computing error occured. : {}", e.what());
@@ -415,7 +402,7 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = UserInterfaceDescriptor::instance().import_type_;
+    ImportType it = api::get_import_type();
     ui_->ImportPanel->import_stop();
 
     try
@@ -434,7 +421,7 @@ void MainWindow::reload_ini(const std::string& filename)
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
-        change_camera(UserInterfaceDescriptor::instance().kCamera);
+        change_camera(api::get_camera_kind());
     else // if (it == ImportType::None)
         notify();
 }
@@ -597,7 +584,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
-    api::camera_none_without_json();
+    api::camera_none();
     Logger::flush();
 }
 
@@ -608,31 +595,18 @@ void MainWindow::closeEvent(QCloseEvent*)
 void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
-    const bool res = api::change_camera(c);
 
-    if (res)
+    if (api::change_camera(c))
     {
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
-
-        // TODO: Trigger callbacks of view (filter2d/raw/lens/3d_cuts)
-
-        // Make camera's settings menu accessible
-        ui_->actionSettings->setEnabled(true);
-
-        notify();
     }
-}
 
-void MainWindow::camera_none()
-{
-    change_camera(CameraKind::NONE);
-
-    // Make camera's settings menu unaccessible
-    ui_->actionSettings->setEnabled(false);
     notify();
 }
+
+void MainWindow::camera_none() { change_camera(CameraKind::NONE); }
 
 void MainWindow::camera_ids() { change_camera(CameraKind::IDS); }
 
@@ -786,13 +760,12 @@ void MainWindow::close_advanced_settings()
         // If the settings have been updated, they must be not considered updated after closing the window.
         UserInterfaceDescriptor::instance().has_been_updated = false;
 
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
-        ui_->ImportPanel->import_stop();
+        ImportType it = api::get_import_type();
 
         if (it == ImportType::File)
             ui_->ImportPanel->import_start();
         else if (it == ImportType::Camera)
-            change_camera(UserInterfaceDescriptor::instance().kCamera);
+            change_camera(api::get_camera_kind());
     }
 
     UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
@@ -837,7 +810,7 @@ void MainWindow::open_advanced_settings()
     if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
         return;
 
-    api::open_advanced_settings(this);
+    gui::open_advanced_settings(this);
 
     connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
             SIGNAL(closed()),

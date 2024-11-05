@@ -1,5 +1,3 @@
-#pragma once
-
 /*! \file
  *
  * \brief Qt Advanced settings window class.

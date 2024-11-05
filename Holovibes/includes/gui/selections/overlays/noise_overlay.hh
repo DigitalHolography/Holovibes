@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "filled_rect_overlay.hh"
 
 namespace holovibes::gui
 {
@@ -12,7 +12,7 @@ namespace holovibes::gui
  *
  * \brief #TODO Add a description for this class
  */
-class NoiseOverlay : public RectOverlay
+class NoiseOverlay : public FilledRectOverlay
 {
   public:
     NoiseOverlay(BasicOpenGLWindow* parent);

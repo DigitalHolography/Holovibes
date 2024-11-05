@@ -130,17 +130,13 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_image_mode(int mode)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (mode == static_cast<int>(Computation::Raw))
     {
         api::close_windows();
         api::close_critical_compute();
-
-        if (!UserInterfaceDescriptor::instance().is_enabled_camera_)
-            return;
-
         api::set_raw_mode(parent_->window_max_size);
 
         parent_->notify();
@@ -163,7 +159,7 @@ void ImageRenderingPanel::set_image_mode(int mode)
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
 
         /* Record Frame Calculation. Only in file mode */
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
+        if (api::get_import_type() == ImportType::File)
             ui_->NumberOfFramesSpinBox->setValue(
                 ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                      (float)ui_->TimeStrideSpinBox->value()));
@@ -185,27 +181,13 @@ void ImageRenderingPanel::update_batch_size()
 
 void ImageRenderingPanel::update_time_stride()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
+    api::update_time_stride(ui_->TimeStrideSpinBox->value());
 
-    uint time_stride = ui_->TimeStrideSpinBox->value();
-
-    if (time_stride == api::get_time_stride())
-        return;
-
-    auto callback = [=]()
-    {
-        // Only in file mode, if batch size change, the record frame number have to change
-        // User need.
-        if (UserInterfaceDescriptor::instance().import_type_ == ImportType::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-        parent_->notify();
-    };
-
-    api::update_time_stride(callback, time_stride);
+    if (api::get_import_type() == ImportType::File)
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeStrideSpinBox->value()));
+    parent_->notify();
 }
 
 void ImageRenderingPanel::set_filter2d(bool checked)
@@ -305,27 +287,8 @@ void ImageRenderingPanel::set_time_transformation(const QString& value)
 
 void ImageRenderingPanel::set_time_transformation_size()
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
-    int time_transformation_size = ui_->timeTransformationSizeSpinBox->value();
-    time_transformation_size = std::max(1, time_transformation_size);
-
-    if (time_transformation_size == api::get_time_transformation_size())
-        return;
-
-    auto callback = [=]()
-    {
-        api::set_time_transformation_size(time_transformation_size);
-        api::get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
-        ui_->ViewPanel->set_p_accu();
-        // This will not do anything until
-        // SliceWindow::changeTexture() isn't coded.
-        parent_->notify();
-    };
-
-    api::set_time_transformation_size(callback);
+    api::update_time_transformation_size(ui_->timeTransformationSizeSpinBox->value());
+    parent_->notify();
 }
 
 // λ
@@ -360,7 +323,7 @@ void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() -
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (value)
@@ -373,7 +336,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (!api::get_convolution_enabled())

@@ -37,7 +37,7 @@ void enable_pipe_refresh()
 
 void pipe_refresh()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     try
@@ -51,8 +51,6 @@ void pipe_refresh()
     }
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
-
-bool is_input_queue() { return get_input_queue() != nullptr; }
 
 static bool is_current_window_xyz_type()
 {
@@ -82,9 +80,7 @@ void close_windows()
 
 #pragma region Close Compute
 
-void camera_none() { camera_none_without_json(); }
-
-void camera_none_without_json()
+void camera_none()
 {
     close_windows();
     close_critical_compute();
@@ -93,10 +89,9 @@ void camera_none_without_json()
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    set_camera_kind(CameraKind::NONE);
     set_is_computation_stopped(true);
-
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+    set_import_type(ImportType::None);
 }
 
 #pragma endregion
@@ -125,7 +120,6 @@ bool change_camera(CameraKind c)
     {
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
 
         try
         {
@@ -142,9 +136,8 @@ bool change_camera(CameraKind c)
             return false;
         }
 
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        UserInterfaceDescriptor::instance().kCamera = c;
-
+        set_camera_kind(c);
+        set_import_type(ImportType::Camera);
         set_is_computation_stopped(false);
 
         std::ofstream output_file(path);
@@ -403,7 +396,7 @@ void set_view_mode(const ImgType type)
 
 void update_batch_size(const uint batch_size)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || get_batch_size() == batch_size)
+    if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
     if (set_batch_size(batch_size))
@@ -415,17 +408,16 @@ void update_batch_size(const uint batch_size)
 
 #pragma region STFT
 
-void update_time_stride(std::function<void()> callback, const uint time_stride)
+void update_time_stride(const uint time_stride)
 {
-    api::set_time_stride(time_stride);
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
+        return;
 
-    if (get_compute_mode() == Computation::Hologram)
-    {
-        Holovibes::instance().get_compute_pipe()->request(ICS::UpdateTimeStride);
-        get_compute_pipe()->insert_fn_end_vect(callback);
-    }
-    else
-        callback();
+    if (time_stride == get_time_stride())
+        return;
+
+    set_time_stride(time_stride);
+    get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
 bool set_3d_cuts_view(uint time_transformation_size)
@@ -481,8 +473,11 @@ bool set_3d_cuts_view(uint time_transformation_size)
     return false;
 }
 
-void cancel_time_transformation_cuts(std::function<void()> callback)
+void cancel_time_transformation_cuts()
 {
+    if (!get_cuts_view_enabled())
+        return;
+
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
 
@@ -493,11 +488,8 @@ void cancel_time_transformation_cuts(std::function<void()> callback)
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
 
-    get_compute_pipe()->insert_fn_end_vect(callback);
-
-    // Refresh pipe to remove cuts linked lambda from pipe
-    pipe_refresh();
     set_cuts_view_enabled(false);
+    get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
 #pragma endregion
@@ -510,7 +502,7 @@ void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
 
-    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+    if (get_import_type() != ImportType::None)
         get_compute_pipe()->request(ICS::ClearImgAccu);
 
     pipe_refresh();
@@ -532,8 +524,7 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -572,7 +563,20 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
     }
 }
 
-void set_time_transformation_size(std::function<void()> callback) { get_compute_pipe()->insert_fn_end_vect(callback); }
+void update_time_transformation_size(uint time_transformation_size)
+{
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
+        return;
+
+    if (time_transformation_size == api::get_time_transformation_size())
+        return;
+
+    if (time_transformation_size < 1)
+        time_transformation_size = 1;
+
+    set_time_transformation_size(time_transformation_size);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
+}
 
 void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
@@ -698,7 +702,7 @@ void set_y_cuts(uint value)
 
 void set_x_y(uint x, uint y)
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (x < get_fd().width)
@@ -905,18 +909,13 @@ ViewWindow get_current_window()
         return get_filter2d();
 }
 
-void set_composite_area()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
-}
-
 void close_critical_compute()
 {
     if (get_convolution_enabled())
         disable_convolution();
 
     if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts([]() {});
+        cancel_time_transformation_cuts();
 
     if (get_filter2d_view_enabled())
         set_filter2d_view(false, 0);
@@ -1024,7 +1023,7 @@ bool set_auto_contrast()
 
 void set_auto_contrast_all()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -1405,8 +1404,8 @@ void disable_convolution()
 
 void set_divide_convolution(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None ||
-        get_divide_convolution_enabled() == value || !get_convolution_enabled())
+    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+        !get_convolution_enabled())
         return;
 
     set_divide_convolution_enabled(value);
@@ -1685,9 +1684,8 @@ bool start_record_preconditions()
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
+    if (get_record_mode() == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
-
         LOG_ERROR("Number of frames must be activated");
         return false;
     }
@@ -1709,12 +1707,12 @@ void set_record_device(const Device device)
 
     if (get_input_queue_location() != device)
     {
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ImportType it = get_import_type();
 
         auto c = CameraKind::NONE;
         if (it == ImportType::Camera)
         {
-            c = UserInterfaceDescriptor::instance().kCamera;
+            c = get_camera_kind();
             camera_none();
         }
         else if (it == ImportType::File)
@@ -1782,28 +1780,35 @@ void record_finished()
 
 void import_stop()
 {
+    if (api::get_import_type() == ImportType::None)
+        return;
+
     LOG_FUNC();
 
     close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
-
     Holovibes::instance().start_information_display();
 
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
-
     set_is_computation_stopped(true);
+    set_import_type(ImportType::None);
 }
 
 bool import_start()
 {
     LOG_FUNC();
 
-    set_is_computation_stopped(false);
+    // Check if computation is currently running
+    if (!api::get_is_computation_stopped())
+        import_stop();
 
     // Because we are in file mode
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    camera_none();
+    set_is_computation_stopped(false);
+
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     try
     {
@@ -1814,14 +1819,12 @@ bool import_start()
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
         return false;
     }
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+    set_import_type(ImportType::File);
 
     return true;
 }
@@ -1851,47 +1854,10 @@ void set_input_file_end_index(size_t value)
 
 #pragma endregion
 
-#pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent)
-{
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
-    UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
-}
-
-#pragma endregion
-
 #pragma region Information
 
-void start_information_display(const std::function<void()>& callback)
-{
-    Holovibes::instance().start_information_display(callback);
-}
+void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display()
-{
-    return UserInterfaceDescriptor::instance().mainDisplay;
-}
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz() { return UserInterfaceDescriptor::instance().sliceXZ; }
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz() { return UserInterfaceDescriptor::instance().sliceYZ; }
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window()
-{
-    return UserInterfaceDescriptor::instance().lens_window;
-}
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
-{
-    return UserInterfaceDescriptor::instance().raw_window;
-}
-
-std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window()
-{
-    return UserInterfaceDescriptor::instance().filter2d_window;
-}
 
 } // namespace holovibes::api

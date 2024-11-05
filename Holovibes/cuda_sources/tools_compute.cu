@@ -1,5 +1,7 @@
 #include "reduce.cuh"
 #include "map.cuh"
+#include "tools_compute.cuh"
+#include "tools.cuh"
 
 #include <stdio.h>
 
@@ -19,19 +21,6 @@ kernel_complex_divide(cuComplex* image, const uint frame_res, const float divide
             image[batch_index].x /= divider;
             image[batch_index].y /= divider;
         }
-    }
-}
-
-__global__ void
-kernel_multiply_frames_complex(cuComplex* output, const cuComplex* input1, const cuComplex* input2, const uint size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-    {
-        const float new_x = (input1[index].x * input2[index].x) - (input1[index].y * input2[index].y);
-        const float new_y = (input1[index].y * input2[index].x) + (input1[index].x * input2[index].y);
-        output[index].x = new_x;
-        output[index].y = new_y;
     }
 }
 
@@ -66,15 +55,6 @@ __global__ void kernel_tensor_multiply_vector(float* output,
     }
 
     output[index] = val;
-}
-
-void multiply_frames_complex(
-    cuComplex* output, const cuComplex* input1, const cuComplex* input2, const uint size, const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(output, input1, input2, size);
-    cudaCheckError();
 }
 
 void gpu_normalize(float* const input,
@@ -116,3 +96,4 @@ void tensor_multiply_vector(float* output,
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
 }
+
