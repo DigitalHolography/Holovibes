@@ -237,7 +237,7 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
 }
 
 // Debuging: return float* to print the result to the screen
-float* vesselness_filter(float* output,
+void vesselness_filter(float* output,
                         float* input, 
                         float sigma, 
                         float* g_xx_mul, 
@@ -257,90 +257,93 @@ float* vesselness_filter(float* output,
 
     float A = std::pow(sigma, gamma);
 
+
     float* Ixx;
     cudaXMalloc(&Ixx, frame_res * sizeof(float));
     cudaXMemcpyAsync(Ixx, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
     cudaXStreamSynchronize(stream);
 
-    // Apply convolution
     gaussian_imfilter_sep(Ixx, g_xx_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
     cudaXStreamSynchronize(stream);
 
-    // multiply_array_by_scalar(Ixx, frame_res, A, stream);
-    // cudaXStreamSynchronize(stream);
-
-    return Ixx;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    // DEBUGING: we only test the result of Ixx, because if he is good, then the rest is also //
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    // float* Ixy;
-    // cudaXMalloc(&Ixy, frame_res * sizeof(float));
-    // cudaXMemcpyAsync(Ixy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXStreamSynchronize(stream);
-    // gaussian_imfilter_sep(Ixy, g_xy_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    // cudaXStreamSynchronize(stream);
-    // multiply_array_by_scalar(Ixy, frame_res, A, stream);
-    // cudaXStreamSynchronize(stream);
+    multiply_array_by_scalar(Ixx, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
 
 
-    // float* Iyx;
-    // cudaXMalloc(&Iyx, frame_res * sizeof(float));
-    // cudaXMemcpyAsync(Iyx, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXStreamSynchronize(stream);
+    float* Ixy;
+    cudaXMalloc(&Ixy, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Ixy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
 
-    // float* Iyy;
-    // cudaXMalloc(&Iyy, frame_res * sizeof(float));
-    // cudaXMemcpyAsync(Iyy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXStreamSynchronize(stream);
-    // gaussian_imfilter_sep(Iyy, g_yy_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    // cudaXStreamSynchronize(stream);
-    // multiply_array_by_scalar(Iyy, frame_res, A, stream);
-    // cudaXStreamSynchronize(stream);
+    gaussian_imfilter_sep(Ixy, g_xy_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    cudaXStreamSynchronize(stream);
 
-    // float* H;
-    // cudaXMalloc(&H, frame_res * sizeof(float) * 4);
-    // cudaXMemcpyAsync(H, Ixx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXMemcpyAsync(H + frame_res, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXMemcpyAsync(H + frame_res * 2, Iyx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXMemcpyAsync(H + frame_res * 3, Iyy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    // cudaXStreamSynchronize(stream);
+    multiply_array_by_scalar(Ixy, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
 
-    // cudaXFree(Ixx);
-    // cudaXFree(Ixy);
-    // cudaXFree(Iyx);
-    // cudaXFree(Iyy);
 
-    // // H works here 
+    // Iyx is the same as Ixy, we can simply copy it
+    float* Iyx;
+    cudaXMalloc(&Iyx, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Iyx, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
 
-    // float* lambda_1;
-    // cudaXMalloc(&lambda_1, frame_res * sizeof(float));
-    // cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
-    // float* lambda_2;
-    // cudaXMalloc(&lambda_2, frame_res * sizeof(float));
-    // cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
 
-    // cudaXStreamSynchronize(stream);
+    float* Iyy;
+    cudaXMalloc(&Iyy, frame_res * sizeof(float));
+    cudaXMemcpyAsync(Iyy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXStreamSynchronize(stream);
 
-    // uint threads = get_max_threads_1d();
-    // uint blocks = map_blocks_to_problem(frame_res, threads);
-    //  // Define grid and block dimensions
-    // dim3 blockSize(16, 16); // Block size (16x16)
-    // dim3 gridSize((std::sqrt(frame_res) + blockSize.x - 1) / blockSize.x, (std::sqrt(frame_res) + blockSize.y - 1) / blockSize.y);
-    // kernel_4D_eigenvalues<<<gridSize, blockSize, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
-    // cudaXStreamSynchronize(stream);
+    gaussian_imfilter_sep(Iyy, g_yy_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    cudaXStreamSynchronize(stream);
 
-    // float *test_filter = new float[frame_res];
-    // cudaXMemcpyAsync(test_filter,
-    //     lambda_2,
-    //     frame_res * sizeof(float),
-    //     cudaMemcpyDeviceToHost,
-    //     stream);
-    // write1DFloatArrayToFile(test_filter,
-    //     sqrt(frame_res),
-    //     sqrt(frame_res),
-    //     "test_filter_lambda_2.txt");
+    multiply_array_by_scalar(Iyy, frame_res, A, stream);
+    cudaXStreamSynchronize(stream);
+
+
+    float* H;
+    cudaXMalloc(&H, frame_res * sizeof(float) * 4);
+
+    cudaXMemcpyAsync(H, Ixx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res * 2, Iyx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(H + frame_res * 3, Iyy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+
+    cudaXStreamSynchronize(stream);
+
+
+    print_in_file(Ixx, frame_res, "ixx", stream);
+    print_in_file(Ixy, frame_res, "ixy", stream);
+    print_in_file(Iyx, frame_res, "iyx", stream);
+    print_in_file(Iyy, frame_res, "iyy", stream);
+
+    cudaXFree(Ixx);
+    cudaXFree(Ixy);
+    cudaXFree(Iyx);
+    cudaXFree(Iyy);
+
+
+    float* lambda_1;
+    cudaXMalloc(&lambda_1, frame_res * sizeof(float));
+    cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+    float* lambda_2;
+    cudaXMalloc(&lambda_2, frame_res * sizeof(float));
+    cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
+
+    cudaXStreamSynchronize(stream);
+
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    dim3 blockSize(16, 16);
+    dim3 gridSize((std::sqrt(frame_res) + blockSize.x - 1) / blockSize.x, (std::sqrt(frame_res) + blockSize.y - 1) / blockSize.y);
+
+    kernel_4D_eigenvalues<<<gridSize, blockSize, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
+    
+    cudaXStreamSynchronize(stream);
+
+    print_in_file(lambda_1, frame_res, "lambda_1", stream);
+    print_in_file(lambda_2, frame_res, "lambda_2", stream);
 
     // cudaXFree(H);
 
@@ -359,16 +362,6 @@ float* vesselness_filter(float* output,
     // kernel_normalize<<<blocks, threads, 0, stream>>>(c_temp, lambda_1, lambda_2, frame_res);
     // cudaXStreamSynchronize(stream);
 
-    // test_filter = new float[frame_res];
-    // cudaXMemcpyAsync(test_filter,
-    //     c_temp,
-    //     frame_res * sizeof(float),
-    //     cudaMemcpyDeviceToHost,
-    //     stream);
-    // write1DFloatArrayToFile(test_filter,
-    //     sqrt(frame_res),
-    //     sqrt(frame_res),
-    //     "test_filter_ctemp.txt");
 
     // int c_index;
     // cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);

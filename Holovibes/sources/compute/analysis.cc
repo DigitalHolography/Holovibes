@@ -459,26 +459,20 @@ void Analysis::insert_show_artery()
                             cudaMemcpyHostToDevice);
 
                 // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
-                float* Ixx = vesselness_filter(buffers_.gpu_postprocess_frame,
-                                               vesselness_mask_env_.image_with_mean_,
-                                               api::get_vesselness_sigma(),
-                                               vesselness_mask_env_.g_xx_mul_,
-                                               vesselness_mask_env_.g_xy_mul_,
-                                               vesselness_mask_env_.g_yy_mul_,
-                                               vesselness_mask_env_.kernel_x_size_,
-                                               vesselness_mask_env_.kernel_y_size_,
-                                               buffers_.gpu_postprocess_frame_size,
-                                               buffers_.gpu_convolution_buffer,
-                                               cuComplex_buffer_,
-                                               &convolution_plan_,
-                                               cublas_handler_,
-                                               stream_);
-
-                // DEBUGING: print result on the screen
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            Ixx,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToDevice);
+                vesselness_filter(buffers_.gpu_postprocess_frame,
+                                  vesselness_mask_env_.image_with_mean_,
+                                  api::get_vesselness_sigma(),
+                                  vesselness_mask_env_.g_xx_mul_,
+                                  vesselness_mask_env_.g_xy_mul_,
+                                  vesselness_mask_env_.g_yy_mul_,
+                                  vesselness_mask_env_.kernel_x_size_,
+                                  vesselness_mask_env_.kernel_y_size_,
+                                  buffers_.gpu_postprocess_frame_size,
+                                  buffers_.gpu_convolution_buffer,
+                                  cuComplex_buffer_,
+                                  &convolution_plan_,
+                                  cublas_handler_,
+                                  stream_);
 
                 // DEBUGING: print in a file the final output
                 print_in_file(buffers_.gpu_postprocess_frame,
