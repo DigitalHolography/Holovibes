@@ -120,24 +120,28 @@ __global__ void convolutionKernel(const float* image, const float* kernel, float
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x >= width || y >= height) return; // Ne pas dépasser les limites de l'image
+    if (x >= width || y >= height) return; // Ensure we don't go out of image bounds
 
     float result = 0.0f;
     int kHalfWidth = kWidth / 2;
     int kHalfHeight = kHeight / 2;
 
-    // Appliquer la convolution
+    // Apply the convolution with replicate boundary behavior
     for (int ky = -kHalfHeight; ky <= kHalfHeight; ++ky) {
         for (int kx = -kHalfWidth; kx <= kHalfWidth; ++kx) {
+            // Calculate the coordinates for the image
             int ix = x + kx;
             int iy = y + ky;
 
-            // Vérifier si nous sommes dans les limites de l'image
-            if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
-                float imageValue = image[iy * width + ix];
-                float kernelValue = kernel[(ky + kHalfHeight) * kWidth + (kx + kHalfWidth)];
-                result += imageValue * kernelValue;
-            }
+            // Replicate boundary behavior
+            if (ix < 0) ix = 0;
+            if (ix >= width) ix = width - 1;
+            if (iy < 0) iy = 0;
+            if (iy >= height) iy = height - 1;
+
+            float imageValue = image[iy * width + ix];
+            float kernelValue = kernel[(ky + kHalfHeight) * kWidth + (kx + kHalfWidth)];
+            result += imageValue * kernelValue;
         }
     }
 

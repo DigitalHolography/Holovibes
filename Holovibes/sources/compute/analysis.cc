@@ -326,7 +326,6 @@ void Analysis::init()
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
-
     // float* g_xx_mul_with_pading;
     // cudaXMalloc(&g_xx_mul_with_pading, fd_.get_frame_res() * sizeof(float));
     // cudaXMemset(g_xx_mul_with_pading, 0, fd_.get_frame_res() * sizeof(float));
