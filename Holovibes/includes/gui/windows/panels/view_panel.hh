@@ -33,11 +33,6 @@ class ViewPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*! \brief Remove time transformation cut views */
-    void cancel_time_transformation_cuts();
-    /*! \brief Adds auto contrast to the pipe over cut views */
-    void set_auto_contrast_cuts();
-
   public slots:
     /*! \brief Modifies view image type
      *

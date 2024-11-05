@@ -3,6 +3,7 @@
 #include "input_filter.hh"
 #include "notifier.hh"
 #include "logger.hh"
+#include "tools.hh"
 
 #include <regex>
 #include <string>
@@ -422,6 +423,11 @@ void update_time_stride(const uint time_stride)
 
 bool set_3d_cuts_view(uint time_transformation_size)
 {
+    if (api::get_import_type() == ImportType::None)
+        return false;
+
+    time_transformation_size = std::max(256u, std::min(512u, time_transformation_size));
+
     try
     {
         get_compute_pipe()->request(ICS::TimeTransformationCuts);
@@ -456,11 +462,16 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+
         set_cuts_view_enabled(true);
+        set_yz_enabled(true);
+        set_xz_enabled(true);
+
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
 
+        set_auto_contrast_cuts();
         pipe_refresh();
 
         return true;
@@ -475,7 +486,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
 
 void cancel_time_transformation_cuts()
 {
-    if (!get_cuts_view_enabled())
+    if (!get_cuts_view_enabled() || api::get_import_type() == ImportType::None)
         return;
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
@@ -488,7 +499,10 @@ void cancel_time_transformation_cuts()
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
     }
 
+    set_yz_enabled(false);
+    set_xz_enabled(false);
     set_cuts_view_enabled(false);
+
     get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
@@ -584,7 +598,7 @@ void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled,
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
 
     set_lens_view_enabled(checked);
@@ -633,10 +647,17 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
 
 void set_raw_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
 
+    if (checked && get_batch_size() > get_output_buffer_size())
+    {
+        LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
+        return;
+    }
+
     auto pipe = get_compute_pipe();
+    set_raw_view_enabled(checked);
 
     if (checked)
     {
@@ -727,6 +748,15 @@ void set_q_accu_level(uint value)
 }
 void set_p_index(uint value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    if (value >= get_time_transformation_size() || value == 0)
+    {
+        LOG_ERROR("p param has to be between 1 and #img");
+        return;
+    }
+
     SET_SETTING(P, start, value);
     pipe_refresh();
 }
@@ -889,9 +919,10 @@ void set_time_transformation(const TimeTransformation value)
 
 void set_unwrapping_2d(const bool value)
 {
-    get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
 
-    pipe_refresh();
+    get_compute_pipe()->request(ICS::Unwrap2D);
 }
 
 WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
@@ -1130,6 +1161,9 @@ void update_contrast(WindowKind kind, float min, float max)
 
 void set_log_scale(const bool value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_log_enabled(value);
@@ -1228,6 +1262,9 @@ unsigned get_accumulation_level()
 
 void set_accumulation_level(int value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
     set_xyz_members(api::set_xy_accumulation_level,
@@ -1512,6 +1549,9 @@ void display_reticle(bool value)
 
 void reticle_scale(float value)
 {
+    if (!is_between(value, 0.f, 1.f))
+        return;
+
     set_reticle_scale(value);
     pipe_refresh();
 }

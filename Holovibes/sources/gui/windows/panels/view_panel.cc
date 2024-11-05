@@ -240,55 +240,25 @@ void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_ty
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_unwrapping_2d(value);
-
     parent_->notify();
 }
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
     if (checked)
     {
-        api::set_yz_enabled(true);
-        api::set_xz_enabled(true);
-        const ushort nImg = api::get_time_transformation_size();
-        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-        if (time_transformation_size > time_transformation_cuts_window_max_size)
-            time_transformation_size = time_transformation_cuts_window_max_size;
-
-        const bool res = api::set_3d_cuts_view(time_transformation_size);
-
-        if (res)
+        const ushort nImg = std::min(api::get_time_transformation_size(), time_transformation_cuts_window_max_size);
+        if (api::set_3d_cuts_view(nImg))
         {
-            set_auto_contrast_cuts();
-            parent_->notify();
+            parent_->notify(); // Make the x and y parameters visible
+            return;
         }
-        else
-            cancel_time_transformation_cuts();
     }
-    // FIXME: if slice are closed, cancel time should be call.
-    else
-    {
-        cancel_time_transformation_cuts();
-        api::set_yz_enabled(false);
-        api::set_xz_enabled(false);
-    }
-}
 
-void ViewPanel::cancel_time_transformation_cuts()
-{
     api::cancel_time_transformation_cuts();
-    parent_->notify();
+    parent_->notify(); // Hide x and y
 }
-
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
@@ -296,66 +266,25 @@ void ViewPanel::set_fft_shift(const bool value)
         return;
 
     api::set_fft_shift_enabled(value);
-
-    // api::pipe_refresh();
 }
 
-void ViewPanel::update_lens_view(bool checked)
-{
-    if (api::get_import_type() == ImportType::None)
-        return;
+void ViewPanel::update_lens_view(bool checked) { api::set_lens_view(checked, parent_->auxiliary_window_max_size); }
 
-    api::set_lens_view(checked, parent_->auxiliary_window_max_size);
-}
-
-void ViewPanel::update_raw_view(bool checked)
-{
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (checked && api::get_batch_size() > api::get_output_buffer_size())
-    {
-        LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
-        return;
-    }
-
-    api::set_raw_view(checked, parent_->auxiliary_window_max_size);
-}
+void ViewPanel::update_raw_view(bool checked) { api::set_raw_view(checked, parent_->auxiliary_window_max_size); }
 
 void ViewPanel::set_x_y()
 {
     api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
-
     parent_->notify();
 }
 
-void ViewPanel::set_x_accu()
-{
-    api::set_x_accu_level(ui_->XAccSpinBox->value());
+void ViewPanel::set_x_accu() { api::set_x_accu_level(ui_->XAccSpinBox->value()); }
 
-    parent_->notify();
-}
-
-void ViewPanel::set_y_accu()
-{
-    api::set_y_accu_level(ui_->YAccSpinBox->value());
-
-    parent_->notify();
-}
+void ViewPanel::set_y_accu() { api::set_y_accu_level(ui_->YAccSpinBox->value()); }
 
 void ViewPanel::set_p(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (value >= static_cast<int>(api::get_time_transformation_size()))
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
     api::set_p_index(value);
-
     parent_->notify();
 }
 
@@ -404,48 +333,30 @@ void ViewPanel::set_p_accu()
 void ViewPanel::set_q(int value)
 {
     api::set_q_index(value);
-
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
     api::set_q_accu_level(ui_->Q_AccSpinBox->value());
-
     parent_->notify();
 }
 
 void ViewPanel::rotateTexture()
 {
     api::rotateTexture();
-
-    parent_->notify();
+    parent_->notify(); // Update rotate number
 }
 
 void ViewPanel::flipTexture()
 {
     api::flipTexture();
-
-    parent_->notify();
+    parent_->notify(); // Update flip number
 }
 
-void ViewPanel::set_log_scale(const bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::set_log_scale(const bool value) { api::set_log_scale(value); }
 
-    api::set_log_scale(value);
-
-    parent_->notify();
-}
-
-void ViewPanel::set_accumulation_level(int value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_accumulation_level(value);
-}
+void ViewPanel::set_accumulation_level(int value) { api::set_accumulation_level(value); }
 
 void ViewPanel::set_contrast_mode(bool value)
 {
@@ -475,11 +386,5 @@ void ViewPanel::display_reticle(bool value)
     parent_->notify();
 }
 
-void ViewPanel::reticle_scale(double value)
-{
-    if (!is_between(value, 0., 1.))
-        return;
-
-    api::reticle_scale(value);
-}
+void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
 } // namespace holovibes::gui

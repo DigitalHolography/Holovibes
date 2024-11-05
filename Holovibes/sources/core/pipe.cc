@@ -64,7 +64,6 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
-        api::set_raw_view_enabled(false);
         clear_request(ICS::DisableRawView);
     }
 
@@ -173,7 +172,6 @@ bool Pipe::make_requests()
                                             static_cast<unsigned int>(setting<settings::OutputBufferSize>()),
                                             QueueType::UNDEFINED,
                                             setting<settings::RawViewQueueLocation>()));
-        api::set_raw_view_enabled(true);
         clear_request(ICS::RawView);
     }
 
@@ -482,7 +480,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (!setting<settings::RawViewEnabled>())
+    if (!setting<settings::RawViewEnabled>() || !gpu_raw_view_queue_)
         return;
 
     // FIXME: Copy multiple copies a batch of frames
