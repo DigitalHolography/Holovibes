@@ -25,7 +25,7 @@ using ConditionType = std::function<bool()>;
 using FnType = std::function<void()>;
 
 /*! \brief A procedure vector. */
-using FnVector = std::vector<std::pair<int, FnType>>;
+using FnVector = std::vector<std::pair<ushort, FnType>>;
 
 /*! \brief A procedure deque. */
 using FnDeque = std::deque<FnType>;

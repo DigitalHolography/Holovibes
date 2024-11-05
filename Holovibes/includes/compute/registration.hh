@@ -61,6 +61,7 @@ class Registration
      *
      *  \param[in] fn_compute_vect The vector of functions of the pipe, used to push the functions.
      *  \param[in] buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
+     *  \param[in] image_acc_env The image accumulation env, used to get `gpu_accumulation_xy_queue`.
      *  \param[in] fd The frame descriptor to get width and height.
      *  \param[in] stream The current CUDA context stream.
      *  \param[in] settings The global settings context.
@@ -155,7 +156,8 @@ class Registration
     /*! \brief Main buffers used in pipe. */
     const CoreBuffersEnv& buffers_;
 
-    /*! \brief Image Accumulation environment */
+    /*! \brief Image Accumulation environment. This env is used to know if we have accumulated enought images before
+     *  taking the reference image to compute cross-correlation.*/
     const ImageAccEnv& image_acc_env_;
 
     /*! \brief Describes the frame size. */
