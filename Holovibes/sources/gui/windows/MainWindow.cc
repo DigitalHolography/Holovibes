@@ -711,10 +711,14 @@ void MainWindow::set_view_image_type(const QString& value)
     }
 
     const std::string& value_str = value.toStdString();
+    if (UserInterfaceDescriptor::instance().last_img_type_ == value_str)
+        return;
+
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
     if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
     {
         api::refresh_view_mode(window_max_size, img_type);
+        LOG_ERROR("Refresh view called");
         if (api::get_img_type() == ImgType::Composite)
             set_composite_values();
     }

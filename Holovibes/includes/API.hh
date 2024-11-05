@@ -166,17 +166,6 @@ void disable_filter();
 /*! \brief Sets the image mode to Raw or Holographic*/
 void set_image_mode(Computation mode, uint window_max_size);
 
-/*! \brief Changes display mode to Raw */
-void set_raw_mode(uint window_max_size);
-
-/*! \brief Changes display mode to Holographic
- *
- * \param window_size the size of the window
- * \return true on success
- * \return false on failure
- */
-bool set_holographic_mode(ushort window_size);
-
 /*! \brief Restarts everything to change the view mode
  *
  * \param window_size the size of the window
@@ -283,7 +272,8 @@ void enable_pipe_refresh();
  */
 void disable_pipe_refresh();
 
-void create_holo_window(ushort window_size);
+void create_window(Computation window_kind, ushort window_size);
+
 void create_pipe();
 
 /*! \brief Modifies p accumulation

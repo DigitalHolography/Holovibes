@@ -105,6 +105,11 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
+
+    if (api::get_import_type() == ImportType::File)
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeStrideSpinBox->value()));
 }
 
 void ExportPanel::set_record_frame_step(int step)

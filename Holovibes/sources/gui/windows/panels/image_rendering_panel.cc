@@ -133,44 +133,18 @@ void ImageRenderingPanel::set_image_mode(int mode)
     if (api::get_import_type() == ImportType::None)
         return;
 
-    if (mode == static_cast<int>(Computation::Raw))
+    Computation comp_mode = static_cast<Computation>(mode);
+
+    api::set_image_mode(comp_mode, parent_->window_max_size);
+
+    if (comp_mode == Computation::Hologram)
     {
-        api::close_windows();
-        api::close_critical_compute();
-        api::set_raw_mode(parent_->window_max_size);
-
-        parent_->notify();
-        parent_->layout_toggled();
-    }
-    else if (mode == static_cast<int>(Computation::Hologram))
-    {
-        // That function is used to reallocate the buffers since the Square
-        // input mode could have changed
-        /* Close windows & destory thread compute */
-        api::close_windows();
-        api::close_critical_compute();
-
-        api::change_window(static_cast<int>(WindowKind::XYview));
-
-        api::set_holographic_mode(parent_->window_max_size);
-
         /* Filter2D */
         camera::FrameDescriptor fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-
-        /* Record Frame Calculation. Only in file mode */
-        if (api::get_import_type() == ImportType::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-
-        /* Batch size */
-        // The batch size is set with the value present in GUI.
-        // update_batch_size();
-
-        /* Notify */
-        parent_->notify();
     }
+
+    parent_->notify();
 }
 
 void ImageRenderingPanel::update_batch_size()
@@ -182,11 +156,6 @@ void ImageRenderingPanel::update_batch_size()
 void ImageRenderingPanel::update_time_stride()
 {
     api::update_time_stride(ui_->TimeStrideSpinBox->value());
-
-    if (api::get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
     parent_->notify();
 }
 

@@ -236,47 +236,22 @@ bool is_light_ui_mode()
 
 void set_image_mode(Computation mode, uint window_max_size)
 {
-    if (mode == Computation::Raw)
-    {
-        set_raw_mode(window_max_size);
-    }
-    else if (mode == Computation::Hologram)
-    {
-        set_holographic_mode(window_max_size);
-    }
-}
+    close_windows();
+    close_critical_compute();
 
-void set_raw_mode(uint window_max_size)
-{
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_max_size);
-
-    QPoint pos = getSavedHoloWindowPos();
-    QSize size = getSavedHoloWindowSize(width, height);
-    init_image_mode(pos, size);
-
-    set_compute_mode(Computation::Raw);
-
+    set_compute_mode(mode);
     create_pipe();
 
-    LOG_INFO("Raw mode set");
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
-    UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos,
-                                      size,
-                                      get_input_queue().get(),
-                                      static_cast<float>(width) / static_cast<float>(height)));
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
-    std::string fd_info =
-        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+    create_window(mode, window_max_size);
 
-    api::pipe_refresh();
+    if (mode == Computation::Hologram)
+    {
+        api::change_window(static_cast<int>(WindowKind::XYview));
+        api::set_contrast_mode(true);
+    }
 }
 
-void create_holo_window(ushort window_size)
+void create_window(Computation window_kind, ushort window_size)
 {
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
@@ -287,9 +262,16 @@ void create_holo_window(ushort window_size)
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
-
-    try
+    if (window_kind == Computation::Raw)
+    {
+        UserInterfaceDescriptor::instance().mainDisplay.reset(
+            new holovibes::gui::RawWindow(pos,
+                                          size,
+                                          get_input_queue().get(),
+                                          static_cast<float>(width) / static_cast<float>(height)));
+        UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
+    }
+    else
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new gui::HoloWindow(pos,
@@ -300,44 +282,12 @@ void create_holo_window(ushort window_size)
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
     }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("create_holo_window: {}", e.what());
-    }
-}
 
-bool set_holographic_mode(ushort window_size)
-{
-    /* ---------- */
-    try
-    {
-        set_compute_mode(Computation::Hologram);
-        /* Pipe & Window */
-        auto fd = get_fd();
-
-        create_pipe();
-        create_holo_window(window_size);
-        /* Info Manager */
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        /* Contrast */
-        api::set_contrast_mode(true);
-
-        LOG_INFO("Holographic mode set");
-
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("cannot set holographic mode: {}", e.what());
-    }
-
-    return false;
+    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
 }
 
 void refresh_view_mode(ushort window_size, ImgType img_type)
@@ -358,7 +308,7 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
     try
     {
         create_pipe();
-        create_holo_window(window_size);
+        create_window(Computation::Hologram, window_size);
         UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
         UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
     }
