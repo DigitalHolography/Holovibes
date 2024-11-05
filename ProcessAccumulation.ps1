@@ -75,8 +75,17 @@ if (-not $holoFolderPath) {
     exit
 }
 
+$configFile1 = "AppData/preset/registration.json"
+$configFile2 = "Preset/registration.json"
+$configFiles = ""
 
-$configFiles = "Preset/ps1_config.json"
+# Check if ../Holovibes.exe exists
+if (Test-Path $configFile1) {
+    $configFiles = $configFile1
+}
+else {
+    $configFiles = $configFile2
+}
 
 $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
@@ -128,12 +137,10 @@ function Select-OutputExtension {
     }
 }
 
-$outputExtension = ".holo"
-if ($moments -eq 0) {
-    # Prompt the user to select the output file extension
-    $script:outputExtension = Select-OutputExtension
-    Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
-}
+
+$outputExtension = Select-OutputExtension
+Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+
 
 # Get a list of all .holo files in the selected folder
 $holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
