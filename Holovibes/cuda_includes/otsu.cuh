@@ -14,7 +14,7 @@
  * \param[in] height Height of the frame
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void computeBinariseOtsu(float* input, const size_t width, const size_t height, const cudaStream_t stream);
+void compute_binarise_otsu(float* input, const size_t width, const size_t height, const cudaStream_t stream);
 
 /*! \brief Compute Binarisation with Otsu threshold and bradley method
  *
@@ -26,13 +26,13 @@ void computeBinariseOtsu(float* input, const size_t width, const size_t height, 
  * \param[in] local_threshold_factor //TODO
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void computeBinariseOtsuBradley(float* d_image,
-                                float*& d_output,
-                                const size_t width,
-                                const size_t height,
-                                const int window_size,
-                                const float local_threshold_factor,
-                                const cudaStream_t stream);
+void compute_binarise_otsu_bradley(float* d_image,
+                                   float*& d_output,
+                                   const size_t width,
+                                   const size_t height,
+                                   const int window_size,
+                                   const float local_threshold_factor,
+                                   const cudaStream_t stream);
 
 /*! \brief Normalistation of \d_image
  *
