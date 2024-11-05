@@ -116,3 +116,48 @@ void convolution_kernel_add_padding(float* output, float* kernel, const int widt
     kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
 
 }
+
+void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
+
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+            {
+                outFile << " "; // Separate values in a row by a space
+            }
+        }
+        outFile << std::endl; // New line after each row
+    }
+
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
+
+void print_in_file(float* input, uint size, std::string filename, cudaStream_t stream)
+{
+    float* result = new float[size];
+    cudaXMemcpyAsync(result,
+                        input,
+                        size * sizeof(float),
+                        cudaMemcpyDeviceToHost,
+                        stream);
+    write1DFloatArrayToFile(result,
+                            sqrt(size),
+                            sqrt(size),
+                            "test_" + filename + ".txt");
+}

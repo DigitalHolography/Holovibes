@@ -308,8 +308,8 @@ void Pipe::refresh()
 
         insert_moments();
         insert_moments_record();
-        analysis_->insert_show_artery();
     }
+    analysis_->insert_show_artery();
 
     insert_filter2d_view();
 

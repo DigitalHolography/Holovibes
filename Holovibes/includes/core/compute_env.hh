@@ -243,5 +243,11 @@ struct VesselnessMaskEnv
 
     /*! \brief Get the number of image for the mean mask*/
     int number_image_mean_ = 0;
+
+    /*! \brief X size of kernel */
+    int kernel_x_size_ = 0;
+
+    /*! \brief Y size of kernel */
+    int kernel_y_size_ = 0;
 };
 } // namespace holovibes

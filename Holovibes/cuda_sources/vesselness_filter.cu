@@ -13,7 +13,8 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
-// Function to apply convolution with replicate padding
+// MIGHT NEED TO BE DELETED
+// Useless for now !! Function to apply convolution with replicate padding
 void applyConvolutionWithReplicatePadding(const float* image, float* output, int imgWidth, int imgHeight,
                                           const float* kernel, int kernelWidth, int kernelHeight,
                                           bool divideConvolution = false) {
@@ -114,38 +115,6 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
 }
 
 
-static void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
-{
-    // Open the file in write mode
-    std::ofstream outFile(filename);
-
-    // Check if the file was opened successfully
-    if (!outFile)
-    {
-        std::cerr << "Error: Unable to open the file " << filename << std::endl;
-        return;
-    }
-
-    // Write the 1D array in row-major order to the file
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            outFile << array[i * cols + j]; // Calculate index in row-major order
-            if (j < cols - 1)
-            {
-                outFile << " "; // Separate values in a row by a space
-            }
-        }
-        outFile << std::endl; // New line after each row
-    }
-
-    // Close the file
-    outFile.close();
-    std::cout << "1D array written to the file " << filename << std::endl;
-}
-
-
 __global__ void convolutionKernel(const float* image, const float* kernel, float* output, 
                                   int width, int height, int kWidth, int kHeight) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -176,7 +145,8 @@ __global__ void convolutionKernel(const float* image, const float* kernel, float
 }
 
 void applyConvolution(float* image, const float* kernel, 
-                      int width, int height, int kWidth, int kHeight, cudaStream_t stream) {
+                      int width, int height, int kWidth, int kHeight, cudaStream_t stream)
+{
     float * d_output;
     cudaMalloc(&d_output, width * height * sizeof(float));
 
@@ -199,31 +169,22 @@ void applyConvolution(float* image, const float* kernel,
 
 void gaussian_imfilter_sep(float* input_output,
                             float* gpu_kernel_buffer,
+                            int kernel_x_size,
+                            int kernel_y_size,
                             const size_t frame_res,
-                            float* convolution_buffer, 
-                            cuComplex* cuComplex_buffer, 
+                            float* convolution_buffer,
+                            cuComplex* cuComplex_buffer,
                             CufftHandle* convolution_plan, 
                             cudaStream_t stream)
 {
-    //convolution_kernel(input_output,
-    //                    convolution_buffer,
-    //                    cuComplex_buffer,
-    //                    convolution_plan,
-    //                    frame_res,
-    //                    gpu_kernel_buffer,
-    //                    false,
-    //                    stream);
-
-    applyConvolution(input_output, gpu_kernel_buffer, 
-    std::sqrt(frame_res), std::sqrt(frame_res), 3 ,3, stream);
-
-    float* output_copy = new float[frame_res];
-    cudaXMemcpy(output_copy, input_output, frame_res * sizeof(float), cudaMemcpyDeviceToHost);
-
-    write1DFloatArrayToFile(output_copy,
-        sqrt(frame_res),
-        sqrt(frame_res),
-        "test_output_convo.txt");
+    // This convolution method gives correct values compared to matlab
+    applyConvolution(input_output,
+                     gpu_kernel_buffer, 
+                     std::sqrt(frame_res),
+                     std::sqrt(frame_res),
+                     kernel_x_size,
+                     kernel_y_size,
+                     stream);
 }
 
 __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float* lambda_2, size_t input_size)
@@ -271,13 +232,15 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
     }
 }
 
-
-void vesselness_filter(float* output,
+// Debuging: return float* to print the result to the screen
+float* vesselness_filter(float* output,
                         float* input, 
                         float sigma, 
                         float* g_xx_mul, 
                         float* g_xy_mul, 
                         float* g_yy_mul,
+                        int kernel_x_size,
+                        int kernel_y_size,
                         int frame_res, 
                         float* convolution_buffer, 
                         cuComplex* cuComplex_buffer,
@@ -294,12 +257,19 @@ void vesselness_filter(float* output,
     cudaXMalloc(&Ixx, frame_res * sizeof(float));
     cudaXMemcpyAsync(Ixx, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
     cudaXStreamSynchronize(stream);
-    gaussian_imfilter_sep(Ixx, g_xx_mul, frame_res,convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXStreamSynchronize(stream);
-    multiply_array_by_scalar(Ixx, frame_res, A, stream);
+
+    // Apply convolution
+    gaussian_imfilter_sep(Ixx, g_xx_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
     cudaXStreamSynchronize(stream);
 
+    // multiply_array_by_scalar(Ixx, frame_res, A, stream);
+    // cudaXStreamSynchronize(stream);
 
+    return Ixx;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // DEBUGING: we only test the result of Ixx, because if he is good, then the rest is also //
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     // float* Ixy;
     // cudaXMalloc(&Ixy, frame_res * sizeof(float));
