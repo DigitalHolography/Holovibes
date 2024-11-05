@@ -25,6 +25,7 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_import_type.hh"
 #include "enum_device.hh"
 
 #include <spdlog/spdlog.h>
@@ -36,6 +37,8 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
+    holovibes::settings::ImportType,                             \
+    holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
@@ -361,6 +364,8 @@ class Holovibes
     Holovibes()
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
+                                             settings::ImportType{ImportType::None},
+                                             settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},

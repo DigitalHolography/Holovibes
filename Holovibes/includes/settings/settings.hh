@@ -9,9 +9,11 @@
 #include <string>
 #include <optional>
 #include "enum/enum_record_mode.hh"
+#include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
+#include "enum/enum_camera_kind.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
@@ -38,6 +40,9 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+
+DECLARE_SETTING(ImportType, holovibes::ImportType);
+DECLARE_SETTING(CameraKind, holovibes::CameraKind);
 
 /*!
  * \brief The setting that specifies if we load input file entirely in GPU

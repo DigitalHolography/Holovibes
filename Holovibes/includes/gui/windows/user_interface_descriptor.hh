@@ -8,6 +8,7 @@
 #include "tools.hh"
 
 #include "enum_record_mode.hh"
+#include "enum_import_type.hh"
 
 // namespace camera
 #include "camera_exception.hh"
@@ -26,18 +27,6 @@
 
 namespace holovibes
 {
-/*! \struct ImportType
- *
- * \brief How the data is imported. Either by camera, file or none
- *
- * This should be declared inside UserInterfaceDescriptor but it needs to be used inside another class
- */
-enum ImportType
-{
-    None,
-    Camera,
-    File,
-};
 
 class UserInterfaceDescriptor
 {
@@ -68,14 +57,11 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
     bool is_recording_ = false;
-    RecordMode record_mode_ = RecordMode::RAW;
 
-    bool is_enabled_camera_ = false;
     bool is_advanced_settings_displayed = false;
     bool has_been_updated = false;
 
     std::string last_img_type_ = "Magnitude";
-    ImportType import_type_ = ImportType::None;
 
     size_t auto_scale_point_threshold_ = 100;
 
@@ -85,7 +71,5 @@ class UserInterfaceDescriptor
 
     std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
     std::string filter_name{UID_FILTER_TYPE_DEFAULT};
-
-    CameraKind kCamera = CameraKind::NONE;
 };
 } // namespace holovibes
