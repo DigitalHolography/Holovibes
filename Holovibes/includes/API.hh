@@ -96,11 +96,6 @@ void set_input_file_end_index(size_t value);
  */
 void camera_none();
 
-/*! \brief Switchs operating camera to none without changes on the user_setting.json
- *
- */
-void camera_none_without_json();
-
 /*! \brief Stops the program compute
  *
  */
@@ -135,13 +130,6 @@ int get_input_queue_fd_height();
  * \return float boundary
  */
 float get_boundary();
-
-/*! \brief Checks if we have an input queue
- *
- * \return true on success
- * \return false on failure
- */
-bool is_input_queue();
 
 /*! \brief Enables the divide convolution mode
  *
@@ -492,11 +480,6 @@ ViewWindow get_current_window();
  */
 void set_accumulation_level(int value);
 
-/*! \brief Make the ui compisite overlay visible
- *
- */
-void set_composite_area();
-
 /*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
  *
  */
@@ -777,6 +760,11 @@ void display_reticle(bool value);
  */
 void reticle_scale(float value);
 
+/*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+ *  \param value The new zone value.
+ */
+void registration_zone(float value);
+
 /*! \brief Restores attributs when recording ends
  *
  */
@@ -922,25 +910,8 @@ constexpr std::vector<std::string> get_credits();
 bool slide_update_threshold(
     const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
 
-bool getLightUIMode();
-
 /*! \brief Displays information */
 void start_information_display();
-
-/*! \brief Opens additional settings window
- *
- * \param parent then window that will embed the specific panel
- */
-void open_advanced_settings(QMainWindow* parent = nullptr);
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz();
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz();
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window();
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window();
-std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window();
 
 } // namespace holovibes::api
 

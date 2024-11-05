@@ -4,7 +4,7 @@
 namespace holovibes::gui
 {
 SquareOverlay::SquareOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
-    : RectOverlay(overlay, parent)
+    : FilledRectOverlay(overlay, parent)
 {
 }
 

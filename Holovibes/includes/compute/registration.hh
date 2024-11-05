@@ -30,9 +30,10 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define REALTIME_SETTINGS                         \
     holovibes::settings::RegistrationEnabled,     \
-    holovibes::settings::FftShiftEnabled
+    holovibes::settings::FftShiftEnabled,         \
+    holovibes::settings::RegistrationZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -60,6 +61,7 @@ class Registration
      *
      *  \param[in] fn_compute_vect The vector of functions of the pipe, used to push the functions.
      *  \param[in] buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
+     *  \param[in] image_acc_env The image accumulation env, used to get `gpu_accumulation_xy_queue`.
      *  \param[in] fd The frame descriptor to get width and height.
      *  \param[in] stream The current CUDA context stream.
      *  \param[in] settings The global settings context.
@@ -67,10 +69,12 @@ class Registration
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Registration(FunctionVector& fn_compute_vect,
                  const CoreBuffersEnv& buffers,
+                 const ImageAccEnv& image_acc_env,
                  const camera::FrameDescriptor& fd,
                  const cudaStream_t& stream,
                  InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
+        , image_acc_env_(image_acc_env)
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
@@ -151,6 +155,10 @@ class Registration
 
     /*! \brief Main buffers used in pipe. */
     const CoreBuffersEnv& buffers_;
+
+    /*! \brief Image Accumulation environment. This env is used to know if we have accumulated enought images before
+     *  taking the reference image to compute cross-correlation.*/
+    const ImageAccEnv& image_acc_env_;
 
     /*! \brief Describes the frame size. */
     const camera::FrameDescriptor& fd_;

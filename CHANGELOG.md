@@ -1,6 +1,6 @@
 ## Changelog
 
-### X.X.X
+### 13.10.0
 
 - Add image registration. Used to stabilize the image to the center of the eye. A reference is taken when the user click on
   `registration` check box in the frontend.

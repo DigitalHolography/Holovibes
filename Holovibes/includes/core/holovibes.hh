@@ -25,6 +25,7 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_import_type.hh"
 #include "enum_device.hh"
 
 #include <spdlog/spdlog.h>
@@ -36,6 +37,8 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
+    holovibes::settings::ImportType,                             \
+    holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
@@ -65,6 +68,7 @@
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -361,6 +365,8 @@ class Holovibes
     Holovibes()
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
+                                             settings::ImportType{ImportType::None},
+                                             settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
@@ -390,6 +396,7 @@ class Holovibes
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
                                              settings::ReticleScale{0.5f},
+                                             settings::RegistrationZone{0.7f},
                                              settings::ReticleDisplayEnabled{false},
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},

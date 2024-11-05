@@ -76,6 +76,8 @@ void ViewPanel::on_notify()
 
     ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
     ui_->RegistrationCheckBox->setEnabled(true);
+    ui_->RegistrationZoneSpinBox->setEnabled(api::get_registration_enabled());
+    ui_->RegistrationZoneSpinBox->setValue(api::get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
@@ -253,7 +255,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked)
@@ -298,6 +300,12 @@ void ViewPanel::set_fft_shift(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (api::get_registration_enabled())
+    {
+        set_registration(value);
+        ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
+    }
+
     api::set_fft_shift_enabled(value);
 }
 
@@ -306,12 +314,18 @@ void ViewPanel::set_registration(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (!api::get_fft_shift_enabled())
+    {
+        set_fft_shift(value);
+        ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
+    }
+
     api::set_registration_enabled(value);
 }
 
 void ViewPanel::update_lens_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     api::set_lens_view(checked, parent_->auxiliary_window_max_size);
@@ -319,7 +333,7 @@ void ViewPanel::update_lens_view(bool checked)
 
 void ViewPanel::update_raw_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked && api::get_batch_size() > api::get_output_buffer_size())
@@ -491,4 +505,13 @@ void ViewPanel::reticle_scale(double value)
 
     api::reticle_scale(value);
 }
+
+void ViewPanel::registration_zone(double value)
+{
+    if (!is_between(value, 0., 1.))
+        return;
+
+    api::registration_zone(value);
+}
+
 } // namespace holovibes::gui
