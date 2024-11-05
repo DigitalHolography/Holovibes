@@ -246,38 +246,36 @@ void FourierTransform::insert_moments()
             auto type = setting<settings::ImageType>();
 
             bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
-            if (recording)
-            {
-                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 0 (all equal to 1)
-                tensor_multiply_vector(moments_env_.moment0_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f0_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
 
-                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 1
-                tensor_multiply_vector(moments_env_.moment1_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f1_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 0 (all equal to 1)
+            tensor_multiply_vector(moments_env_.moment0_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f0_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
-                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 2
-                tensor_multiply_vector(moments_env_.moment2_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f2_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
+            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 1
+            tensor_multiply_vector(moments_env_.moment1_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f1_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
+
+            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 2
+            tensor_multiply_vector(moments_env_.moment2_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f2_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
             float* freq = nullptr;
             if (type == ImgType::Moments_0)
@@ -299,6 +297,12 @@ void FourierTransform::insert_moments()
                                        moments_env_.f_end,
                                        stream_);
             }
+
+            // Setup of moment 0 flatfield
+            cudaXMemcpy(moments_env_.moment0ff_buffer.get(),
+                        moments_env_.moment0_buffer.get(),
+                        fd_.get_frame_res() * sizeof(float),
+                        cudaMemcpyDeviceToDevice);
         });
 }
 
@@ -307,7 +311,7 @@ void FourierTransform::insert_split_moments()
     fn_compute_vect_.push_back(
         [this]()
         {
-            size_t offset0 = 0, offset1 = 0, offset2 = 0;
+            size_t offset0 = 0, offset1 = 0, offset2 = 0, offset0ff = 0;
             float* src_buf = moments_env_.stft_res_buffer.get();
             size_t image_resolution = fd_.get_frame_res();
             size_t image_size = image_resolution * sizeof(float);
@@ -317,23 +321,32 @@ void FourierTransform::insert_split_moments()
             // If not, can't we just force set BatchSize to three ?
             for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
             {
-                if (i % 3 == 0)
+                if (i % 4 == 0)
                 {
                     // Image goes to moment 0
                     cudaXMemcpy(moments_env_.moment0_buffer + offset0, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset0 += image_resolution;
                 }
-                else if (i % 3 == 1)
+                else if (i % 4 == 1)
                 {
                     // Image goes to moment 1
                     cudaXMemcpy(moments_env_.moment1_buffer + offset1, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset1 += image_resolution;
                 }
-                else
+                else if (i % 4 == 2)
                 {
                     // Image goes to moment 2
                     cudaXMemcpy(moments_env_.moment2_buffer + offset2, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset2 += image_resolution;
+                }
+                else
+                {
+                    // Image goes to moment 0 flatfield
+                    cudaXMemcpy(moments_env_.moment0ff_buffer + offset0ff,
+                                src_buf,
+                                image_size,
+                                cudaMemcpyDeviceToDevice);
+                    offset0ff += image_resolution;
                 }
                 src_buf += image_resolution;
             }

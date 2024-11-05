@@ -79,6 +79,7 @@ struct MomentsEnv
     cuda_tools::CudaUniquePtr<float> moment0_buffer = nullptr;
     cuda_tools::CudaUniquePtr<float> moment1_buffer = nullptr;
     cuda_tools::CudaUniquePtr<float> moment2_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> moment0ff_buffer = nullptr; // 0 order moment with flat-field correction.
 
     /*! \brief Temporary buffer that contains a batch of time transformation size frames
      *  It will contains the complex modulus of result of the time transformation

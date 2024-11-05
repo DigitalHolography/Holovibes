@@ -374,6 +374,8 @@ void Pipe::insert_moments()
         converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
 
         fourier_transforms_->insert_moments();
+
+        postprocess_->insert_convolution(moments_env_.moment0ff_buffer.get(), buffers_.gpu_convolution_buffer.get());
     }
 }
 
@@ -556,7 +558,7 @@ void Pipe::insert_moments_record()
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
     {
         // if (Holovibes::instance().is_cli)
-        fn_compute_vect_.push_back([&]() { keep_contiguous(3); });
+        fn_compute_vect_.push_back([&]() { keep_contiguous(4); });
 
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -567,6 +569,7 @@ void Pipe::insert_moments_record()
                 record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
                 record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
                 record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+                record_queue_.enqueue(moments_env_.moment0ff_buffer, stream_, kind);
             });
     }
 }

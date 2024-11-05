@@ -16,6 +16,7 @@ enum RecordedDataType
 {
     RAW,       /*!< Raw data, an interferogram*/
     PROCESSED, /*!< A generated hologram */
-    MOMENTS,   /*!< The 3 recorded moments (0, 1 and 2). They are contiguous : moment 0, then 1, then 2, ... */
+    MOMENTS,   /*!< The 4 recorded moments (0, 1, 2 and 0 with flat field correction).
+                    They are contiguous : moment 0, then 1, then 2, then moment 0 flat field, for each image. */
 };
 } // namespace holovibes
