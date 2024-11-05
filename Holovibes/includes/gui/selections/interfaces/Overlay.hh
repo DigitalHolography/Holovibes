@@ -1,10 +1,19 @@
 /*! \file
  *
  * \brief Interface for all overlays.
+ *
+ * You can change the position and scale of the overlay either:
+ * - By changing the `zone_` variable which hold a src point and a dst point.
+ * - By changing the `translation_` and the `scale_` variable. These are in OpenGL clip space. So the scale should be in
+ * [0, 1] and the translation in [-1, 1]. By default the overlay is at the center of the screen with a scale of 1.
+ *
+ * In the end the `zone_` will be converted to `translation_` and `scale_`.
  */
 #pragma once
 
 #include <array>
+
+#include <glm/glm.hpp>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -20,20 +29,20 @@ namespace holovibes::gui
 
 /*! \enum KindOfOverlay
  *
- * \brief #TODO Add a description for this enum
+ * \brief Holds all the kind of overlay. It's then used to create overlay with the overlay_manager
  */
 enum KindOfOverlay
 {
     Zoom,
     Reticle,
+    // Stabilization
+    Stabilization,
     // Chart
     Signal,
     Noise,
     // Cross
     Cross,
     SliceCross,
-    // Filter2D
-    Filter2DReticle,
     // Composite overlays
     CompositeArea,
     Rainbow
@@ -96,6 +105,12 @@ class Overlay : protected QOpenGLFunctions
     /*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
     virtual void setBuffer() = 0;
 
+    /*! \brief Setup context, shaders for drawing and bind ressources */
+    void initDraw();
+
+    /*! \brief Unbind ressources */
+    void endDraw();
+
     /*! \brief Converts QPoint to a point in the window */
     units::PointWindow getMousePos(const QPoint& pos);
 
@@ -132,5 +147,11 @@ class Overlay : protected QOpenGLFunctions
     bool display_;
     /*! \brief Pointer to the parent to access Compute descriptor and Pipe */
     BasicOpenGLWindow* parent_;
+
+    /*! \brief The scale of the overlays */
+    glm::vec2 scale_;
+
+    /*! \brief The translation of the overlays */
+    glm::vec2 translation_;
 };
 } // namespace holovibes::gui
