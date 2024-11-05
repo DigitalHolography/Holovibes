@@ -15,6 +15,9 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
+#define RED_COLORATION_PERCENTAGE 80
+#define ORANGE_COLORATION_PERCENTAGE 30
+
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
     {IndicationType::INPUT_FORMAT, "Input Format"},
@@ -216,9 +219,9 @@ std::string gpu_load()
     // Print GPU load
     auto load = gpuLoad.gpu;
     ss << "<td style=\"color:";
-    if (load < 80)
+    if (load < ORANGE_COLORATION_PERCENTAGE)
         ss << "white";
-    else if (load < 90)
+    else if (load < RED_COLORATION_PERCENTAGE)
         ss << "orange";
     else
         ss << "red";
@@ -252,9 +255,9 @@ std::string gpu_memory_controller_load()
     // Print GPU load
     auto load = gpuLoad.memory;
     ss << "<td style=\"color:";
-    if (load < 80)
+    if (load < ORANGE_COLORATION_PERCENTAGE)
         ss << "white";
-    else if (load < 90)
+    else if (load < RED_COLORATION_PERCENTAGE)
         ss << "orange";
     else
         ss << "red";
@@ -281,9 +284,9 @@ std::string gpu_memory()
     cudaMemGetInfo(&free, &total);
     // if free < 0.1 * total then red
     ss << "<td style=\"color:";
-    if (free < 0.1 * total)
+    if (free < (1 - RED_COLORATION_PERCENTAGE * 0.01) * total)
         ss << "red";
-    else if (free < 0.25 * total)
+    else if (free < (1 - ORANGE_COLORATION_PERCENTAGE * 0.01) * total)
         ss << "orange";
     else
         ss << "white";
@@ -302,14 +305,18 @@ void InformationWorker::display_gui_information()
 
     to_display << "<table>";
 
-    if (fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
-    {
-        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
-                   << "°C</td></tr>";
-    }
-
     for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
+    {
         to_display << "<tr><td>" << indication_type_to_string_.at(key) << "</td><td>" << *value << "</td></tr>";
+        if (key == IndicationType::IMG_SOURCE)
+        {
+            if (fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
+            {
+                to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
+                           << "°C</td></tr>";
+            }
+        }
+    }
 
     for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
     {
@@ -319,9 +326,10 @@ void InformationWorker::display_gui_information()
         auto maxLoad = std::get<1>(*value).load();
 
         to_display << "<tr style=\"color:";
-        if (queue_type_to_string_.at(key) == "Output Queue" || currentLoad < maxLoad * 0.8)
+        if (queue_type_to_string_.at(key) == "Output Queue" ||
+            currentLoad < maxLoad * (ORANGE_COLORATION_PERCENTAGE * 0.01))
             to_display << "white";
-        else if (currentLoad < maxLoad * 0.9)
+        else if (currentLoad < maxLoad * (RED_COLORATION_PERCENTAGE * 0.01))
             to_display << "orange";
         else
             to_display << "red";
