@@ -1,5 +1,5 @@
 #include "angular_spectrum.cuh"
-#include "transforms.cuh"
+#include "masks.cuh"
 #include "tools_compute.cuh"
 #include "cuda_memory.cuh"
 #include "apply_mask.cuh"
@@ -10,13 +10,13 @@
 using camera::FrameDescriptor;
 
 void angular_spectrum_lens(cuComplex* lens,
-               const uint lens_side_size,
-               const uint frame_height,
-               const uint frame_width,
-               const float lambda,
-               const float z,
-               const float pixel_size,
-               const cudaStream_t stream)
+                           const uint lens_side_size,
+                           const uint frame_height,
+                           const uint frame_width,
+                           const float lambda,
+                           const float z,
+                           const float pixel_size,
+                           const cudaStream_t stream)
 {
     const uint threads_2d = get_max_threads_2d();
     const dim3 lthreads(threads_2d, threads_2d);
@@ -45,14 +45,14 @@ void angular_spectrum_lens(cuComplex* lens,
 }
 
 void angular_spectrum(cuComplex* input,
-           cuComplex* output,
-           const uint batch_size,
-           const cuComplex* lens,
-           cuComplex* mask_output,
-           bool store_frame,
-           const cufftHandle plan2d,
-           const FrameDescriptor& fd,
-           const cudaStream_t stream)
+                      cuComplex* output,
+                      const uint batch_size,
+                      const cuComplex* lens,
+                      cuComplex* mask_output,
+                      bool store_frame,
+                      const cufftHandle plan2d,
+                      const FrameDescriptor& fd,
+                      const cudaStream_t stream)
 {
     const uint frame_res = fd.get_frame_res();
     const uint threads = get_max_threads_1d();

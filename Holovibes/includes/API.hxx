@@ -530,6 +530,8 @@ inline void set_filter2d_contrast(float min, float max) noexcept
  * \name FFT
  * \{
  */
+/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
+ * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
 inline void set_fft_shift_enabled(bool value)
 {
@@ -537,8 +539,24 @@ inline void set_fft_shift_enabled(bool value)
     pipe_refresh();
 }
 
+/*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
+/*! \} */
+
+/*!
+ * \name Registration
+ * \{
+ */
+
+/*! \brief Getter and Setter for the registration, triggered when the Registration button is clicked on the gui.
+ * (Setter refreshes the pipe) */
+inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
+inline void set_registration_enabled(bool value)
+{
+    UPDATE_SETTING(RegistrationEnabled, value);
+    pipe_refresh();
+}
 /*! \} */
 
 /*!

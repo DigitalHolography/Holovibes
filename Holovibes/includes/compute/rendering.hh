@@ -11,8 +11,10 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
+#include "apply_mask.cuh"
 #include "logger.hh"
-
+#include "convolution.cuh"
+#include <cufft.h>
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
