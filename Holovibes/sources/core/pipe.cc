@@ -318,7 +318,7 @@ void Pipe::refresh()
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
-    registration_->set_gpu_reference_image(buffers_.gpu_postprocess_frame);
+    registration_->set_gpu_reference_image();
 
     rendering_->insert_chart();
     rendering_->insert_log();
