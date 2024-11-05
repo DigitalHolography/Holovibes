@@ -75,7 +75,7 @@ void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
 {
     if (setting<settings::RegistrationEnabled>())
     {
-        fn_compute_vect_.conditional_push_back_remove(
+        int func_id = fn_compute_vect_.conditional_push_back(
             [=]
             {
                 cudaXMemcpyAsync(gpu_reference_image_,
@@ -83,8 +83,15 @@ void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
                                  fd_.width * fd_.height * sizeof(float),
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
-            },
-            [this] { return image_acc_env_.gpu_accumulation_xy_queue.get()->is_full(); });
+
+                image_preprocess(gpu_reference_image_, gpu_reference_image_, &reference_image_mean_);
+            });
+        fn_compute_vect_.conditionnal_remove(func_id,
+                                             [this]
+                                             {
+                                                 return !image_acc_env_.gpu_accumulation_xy_queue.get() ||
+                                                        image_acc_env_.gpu_accumulation_xy_queue.get()->is_full();
+                                             });
     }
 }
 

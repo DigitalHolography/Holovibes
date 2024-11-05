@@ -6,72 +6,67 @@ FunctionVector::FunctionVector(ConditionType condition)
     , next_id_(0)
 {
 }
-// void FunctionVector::conditional_push_back(const FnType& function)
-// {
-//     push_back(
-//         [=]()
-//         {
-//             if (!condition_())
-//                 return;
-//             function();
-//         });
-// }
-// void FunctionVector::remove(const FnType& function)
-// {
-//     auto it = std::find(begin(), end(), function);
-//     if (it != end())
-//         erase(it);
-// }
+
 void FunctionVector::call_all()
 {
+    // Call all functions in the vector.
     for (const auto& pair : fn_vect_)
     {
-        const FnType& f = pair.second; // Récupérer la fonction
-        f();                           // Appeler la fonction
+        const FnType& f = pair.second;
+        f();
     }
+
+    // If some functions need to be removed, remove them.
     for (const auto& elt_id : remove_vect_)
     {
-        remove(elt_id);
+        erase(elt_id);
     }
     remove_vect_.clear();
 }
+
 int FunctionVector::push_back(FnType function)
 {
+    // Get a new unique ID for the function to push.
     int id = next_id_++;
     fn_vect_.push_back({id, function});
     return id;
 }
-void FunctionVector::conditional_push_back(const FnType& function)
+
+int FunctionVector::conditional_push_back(const FnType& function)
 {
+    // Get a new unique ID for the function to push.
     int id = next_id_++;
-    FnType wrapped_function = [this, id, function]()
+    fn_vect_.push_back({id,
+                        [=]()
+                        {
+                            if (!condition_())
+                                return;
+                            function();
+                        }});
+    return id;
+}
+
+void FunctionVector::conditionnal_remove(int id, ConditionType remove_condition)
+{
+    int remove_id = next_id_++;
+    FnType wrapped_function = [=]()
     {
-        if (!condition_())
-            return;
-        function(); // Exécute la fonction
+        if (remove_condition())
+        {
+            this->remove_vect_.push_back(id);
+            // Because we push this function in the `fn_vect_`, we also need to remove it since we do not need it
+            // anymore.
+            this->remove_vect_.push_back(remove_id);
+        }
     };
-    // Ajoute la fonction avec son ID
     fn_vect_.push_back({id, wrapped_function});
 }
-void FunctionVector::remove(int id)
+
+void FunctionVector::erase(int id)
 {
     auto it = std::find_if(fn_vect_.begin(), fn_vect_.end(), [id](const auto& pair) { return pair.first == id; });
     if (it != fn_vect_.end())
         fn_vect_.erase(it);
-}
-
-void FunctionVector::conditional_push_back_remove(const FnType& function, ConditionType remove_condition)
-{
-    int id = next_id_++;
-    FnType wrapped_function = [this, id, function, remove_condition]()
-    {
-        if (!condition_())
-            return;
-        function(); // Exécute la fonction
-        if (remove_condition())
-            this->remove_vect_.push_back(id);
-    };
-    fn_vect_.push_back({id, wrapped_function});
 }
 
 } // namespace holovibes

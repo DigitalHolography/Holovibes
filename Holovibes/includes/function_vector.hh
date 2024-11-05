@@ -50,17 +50,18 @@ class FunctionVector
      *
      *  \param[in] function The reference to the function to push.
      */
-    void conditional_push_back(const FnType& function);
+    int conditional_push_back(const FnType& function);
     /*! \brief Remove a given function in the vector.
      *
      *  \param[in] id The id of the function to remove.
      */
-    void remove(int id);
+    void erase(int id);
+    void conditionnal_remove(int id, ConditionType remove_condition);
     void call_all();
     // void conditional_push_back_remove(const FnType& function);
     // Efface toutes les fonctions
     void clear() { fn_vect_.clear(); }
-    void conditional_push_back_remove(const FnType& function, ConditionType condition);
+    // void conditional_push_back_remove(const FnType& function, ConditionType condition);
 
   private:
     ConditionType condition_;
