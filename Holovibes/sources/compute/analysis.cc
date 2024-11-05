@@ -150,6 +150,11 @@ void Analysis::init()
     {
         buffer_m0_ff_img_[i] = new float[buffers_.gpu_postprocess_frame_size];
     }
+
+    size_t_buffer_1_.resize(frame_res);
+    size_t_buffer_2_.resize(frame_res);
+    size_t_buffer_3_.resize(frame_res);
+    size_t_gpu_.resize(1);
 }
 
 void Analysis::dispose()
@@ -159,6 +164,11 @@ void Analysis::dispose()
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gpu_kernel_buffer_.reset(nullptr);
+
+    size_t_buffer_1_.reset(nullptr);
+    size_t_buffer_2_.reset(nullptr);
+    size_t_buffer_3_.reset(nullptr);
+    size_t_gpu_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -287,9 +297,9 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
-                size_t* labels_d = nullptr;
-                size_t* labels_sizes_d = nullptr;
-                size_t* linked_d = nullptr;
+                size_t* labels_d = size_t_buffer_1_.get();
+                size_t* labels_sizes_d = size_t_buffer_2_.get();
+                size_t* linked_d = size_t_buffer_3_.get();
 
                 size_t nb_labels;
                 size_t n = setting<settings::BwareafiltN>();
@@ -297,22 +307,19 @@ void Analysis::insert_bwareafilt()
 
                 shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_);
 
-                cudaXMalloc(&labels_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
                 cudaXMemset(labels_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
-
-                cudaXMalloc(&labels_sizes_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
                 cudaXMemset(labels_sizes_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
-
-                cudaXMalloc(&linked_d, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
 
                 get_connected_component(buffers_.gpu_postprocess_frame,
                                         labels_d,
                                         labels_sizes_d,
                                         linked_d,
+                                        size_t_gpu_.get(),
                                         fd_.width,
                                         fd_.height,
                                         stream_);
-                nb_labels = get_nb_label(labels_sizes_d, buffers_.gpu_postprocess_frame_size, stream_);
+                nb_labels =
+                    get_nb_label(labels_sizes_d, buffers_.gpu_postprocess_frame_size, size_t_gpu_.get(), stream_);
 
                 if (nb_labels < n)
                     n = nb_labels;
@@ -320,26 +327,6 @@ void Analysis::insert_bwareafilt()
                 {
                     cudaXMalloc(&labels_max_d, n * sizeof(size_t));
                     get_n_max_index(labels_sizes_d, buffers_.gpu_postprocess_frame_size, labels_max_d, n, stream_);
-
-                    //-----------------------
-                    size_t* size = new size_t[buffers_.gpu_postprocess_frame_size];
-                    size_t* max = new size_t[n];
-
-                    cudaXMemcpy(size,
-                                labels_sizes_d,
-                                buffers_.gpu_postprocess_frame_size * sizeof(size_t),
-                                cudaMemcpyDeviceToHost);
-                    cudaXMemcpy(max, labels_max_d, n * sizeof(size_t), cudaMemcpyDeviceToHost);
-
-                    for (size_t i = 0; i < n; i++)
-                    {
-                        std::cout << max[i] << " -> " << size[max[i]] << " / ";
-                    }
-                    std::cout << std::endl;
-
-                    delete size;
-                    delete max;
-                    //-----------------------
 
                     create_is_keep_in_label_size(labels_sizes_d,
                                                  buffers_.gpu_postprocess_frame_size,
@@ -354,9 +341,6 @@ void Analysis::insert_bwareafilt()
                                 stream_);
                     cudaXFree(labels_max_d);
                 }
-                cudaXFree(labels_d);
-                cudaXFree(labels_sizes_d);
-                cudaXFree(linked_d);
             }
         });
 }

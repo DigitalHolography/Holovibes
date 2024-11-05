@@ -142,6 +142,14 @@ class Analysis
 
     int number_hardcode_ = 100;
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    /*! \brief TODO comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_1_;
+    /*! \brief TODO comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_2_;
+    /*! \brief TODO comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_3_;
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
 };
 } // namespace holovibes::compute
 

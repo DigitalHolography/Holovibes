@@ -17,13 +17,13 @@ struct vector_t
 
 #define _MIN_(A, B) ((A) < (B) ? (A) : (B))
 
-__device__ void lock(int* mutex)
+__device__ void lock(size_t* mutex)
 {
     while (atomicCAS(mutex, 0, 1) != 0)
         ; // Attente active jusqu'à ce que le verrou soit acquis
 }
 
-__device__ void unlock(int* mutex)
+__device__ void unlock(size_t* mutex)
 {
     atomicExch(mutex, 0); // Libère le verrou
 }
@@ -56,7 +56,6 @@ __global__ void first_pass_kernel1(const float* image_d,
     {
         linked_d[idx] = idx;
         labels_d[idx] = idx;
-        lablels_sizes_d[idx] = 1;
     }
 }
 
@@ -66,7 +65,7 @@ __device__ void check_and_update_link(size_t* labels_d,
                                       const size_t idx,
                                       size_t* neighbors,
                                       const int nb_neighbors,
-                                      int* mutex)
+                                      size_t* mutex)
 {
     if (nb_neighbors == 0)
     {
@@ -95,15 +94,10 @@ __device__ void check_and_update_link(size_t* labels_d,
 
         for (int k = 1; k < nb_neighbors; k++)
         {
-            labels_sizes_d[label_min] += labels_sizes_d[neighbors[k]];
-            labels_sizes_d[neighbors[k]] = 0;
-
             linked_d[neighbors[k]] = label_min;
         }
         unlock(mutex);
     }
-
-    labels_sizes_d[labels_d[idx]] += 1; // rm this
 }
 
 __global__ void first_pass_kernel2(const float* image_d,
@@ -112,7 +106,7 @@ __global__ void first_pass_kernel2(const float* image_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
-                                   int* mutex)
+                                   size_t* mutex)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2 + 1;
@@ -140,7 +134,7 @@ __global__ void first_pass_kernel3(const float* image_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
-                                   int* mutex)
+                                   size_t* mutex)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2;
@@ -168,7 +162,7 @@ __global__ void first_pass_kernel4(const float* image_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
-                                   int* mutex)
+                                   size_t* mutex)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2 + 1;
@@ -198,17 +192,18 @@ void first_pass(const float* image_d,
                 size_t* labels_d,
                 size_t* linked_d,
                 size_t* labels_sizes_d,
+                size_t* size_t_gpu_,
                 const size_t width,
                 const size_t height,
                 const cudaStream_t stream)
 {
-    int* mutex;
-    cudaXMalloc(&mutex, sizeof(int));
-    cudaXMemset(mutex, 0, sizeof(int));
+    // int* mutex;
+    // cudaXMalloc(&mutex, sizeof(int));
+    cudaXMemset(size_t_gpu_, 0, sizeof(int));
 
     size_t size = width * height;
     uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size / 4, threads);
+    uint blocks = map_blocks_to_problem(size / 2, threads);
     cudaXMemset(linked_d, 0, sizeof(size_t));
 
     first_pass_kernel1<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
@@ -219,7 +214,7 @@ void first_pass(const float* image_d,
                                                        labels_sizes_d,
                                                        width,
                                                        height,
-                                                       mutex);
+                                                       size_t_gpu_);
     cudaDeviceSynchronize();
     first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d,
                                                        labels_d,
@@ -227,7 +222,7 @@ void first_pass(const float* image_d,
                                                        labels_sizes_d,
                                                        width,
                                                        height,
-                                                       mutex);
+                                                       size_t_gpu_);
     cudaDeviceSynchronize();
     first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d,
                                                        labels_d,
@@ -235,19 +230,21 @@ void first_pass(const float* image_d,
                                                        labels_sizes_d,
                                                        width,
                                                        height,
-                                                       mutex);
+                                                       size_t_gpu_);
     cudaDeviceSynchronize();
 
-    cudaFree(mutex);
+    // cudaFree(mutex);
 }
 
-__global__ void second_pass_kernel(size_t* labels_d, size_t size, size_t* linked_d)
+__global__ void second_pass_kernel(size_t* labels_d, size_t size, size_t* linked_d, size_t* labels_sizes_d)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < size)
+    if (idx < size && labels_d[idx] != 0)
     {
-        while (linked_d[labels_d[idx]] != labels_d[idx])
-            labels_d[idx] = linked_d[labels_d[idx]];
+        size_t l = labels_d[idx];
+        get_linked_label(&l, linked_d);
+        labels_d[idx] = l;
+        atomicAdd(labels_sizes_d + l, 1);
     }
 }
 
@@ -255,6 +252,7 @@ void get_connected_component(const float* image_d,
                              size_t* labels_d,
                              size_t* labels_sizes_d,
                              size_t* linked_d,
+                             size_t* size_t_gpu_,
                              const size_t width,
                              const size_t height,
                              const cudaStream_t stream)
@@ -263,9 +261,9 @@ void get_connected_component(const float* image_d,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    first_pass(image_d, labels_d, linked_d, labels_sizes_d, width, height, stream);
+    first_pass(image_d, labels_d, linked_d, labels_sizes_d, size_t_gpu_, width, height, stream);
 
-    second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d);
+    second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d, labels_sizes_d);
     cudaDeviceSynchronize();
 }
 
@@ -312,24 +310,25 @@ void get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_
 __global__ void get_nb_label_kernel(size_t* labels_size_d, size_t size, size_t* res)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < size && labels_size_d[idx])
+    if (idx < size && labels_size_d[idx] != 0)
         atomicAdd(res, 1);
 }
 
-int get_nb_label(size_t* labels_size_d, size_t size, const cudaStream_t stream)
+int get_nb_label(size_t* labels_size_d, size_t size, size_t* size_t_gpu_, const cudaStream_t stream)
 {
-    size_t* nb_label;
+    // size_t* nb_label;
     size_t res;
-    cudaXMalloc(&nb_label, sizeof(size_t));
+    // cudaXMalloc(&nb_label, sizeof(size_t));
+    cudaXMemset(size_t_gpu_, 0, sizeof(size_t));
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    get_nb_label_kernel<<<blocks, threads, 0, stream>>>(labels_size_d, size, nb_label);
+    get_nb_label_kernel<<<blocks, threads, 0, stream>>>(labels_size_d, size, size_t_gpu_);
     cudaDeviceSynchronize();
 
-    cudaXMemcpy(&res, nb_label, sizeof(size_t), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(&res, size_t_gpu_, sizeof(size_t), cudaMemcpyDeviceToHost);
 
-    cudaXFree(nb_label);
+    // cudaXFree(nb_label);
     return res;
 }
 

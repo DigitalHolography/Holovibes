@@ -24,6 +24,7 @@ void get_connected_component(const float* image_d,
                              size_t* labels_d,
                              size_t* labels_sizes_d,
                              size_t* linked_d,
+                             size_t* size_t_gpu_,
                              const size_t width,
                              const size_t height,
                              const cudaStream_t stream);
@@ -44,4 +45,4 @@ void area_filter(float* image_d, const size_t* label_d, size_t size, size_t* is_
 void create_is_keep_in_label_size(
     size_t* labels_sizes_d, size_t nb_labels, size_t* labels_max_d, size_t n, const cudaStream_t stream);
 
-int get_nb_label(size_t* labels_size_d, size_t size, const cudaStream_t stream);
+int get_nb_label(size_t* labels_size_d, size_t size, size_t* size_t_gpu_, const cudaStream_t stream);
