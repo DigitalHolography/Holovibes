@@ -474,11 +474,11 @@ void Analysis::insert_show_artery()
                                   cublas_handler_,
                                   stream_);
 
-                // DEBUGING: print in a file the final output
-                print_in_file(buffers_.gpu_postprocess_frame,
-                              buffers_.gpu_postprocess_frame_size,
-                              "filter_final_result",
-                              stream_);
+                // // DEBUGING: print in a file the final output
+                // print_in_file(buffers_.gpu_postprocess_frame,
+                //               buffers_.gpu_postprocess_frame_size,
+                //               "filter_final_result",
+                //               stream_);
             }
         });
 }

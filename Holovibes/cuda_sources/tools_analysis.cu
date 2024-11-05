@@ -8,6 +8,7 @@
 #include "logger.hh"
 #include "cuComplex.h"
 #include "cufft_handle.hh"
+#include "cusolverDn.h"
 
 namespace
 {
@@ -36,59 +37,121 @@ void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cu
     multiply_array_by_scalar_caller<float>(input_output, size, scalar, stream);
 }
 
-// CUDA kernel for computing the eigenvalues of each 2x2 Hessian matrix
-__global__ void kernel_4D_eigenvalues(float *H, float *lambda_1, float *lambda_2, int rows, int cols)
+// CUDA kernel to prepare H hessian matrices
+__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyx, const float* iyy, const int size)
 {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-    if (x < cols && y < rows)
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
     {
-        int idx = y * cols + x; // Flattened index for 2D matrices
-
-        // Load elements of 2x2 Hessian matrix at (y, x)
-        float H11 = H[0 * rows * cols + idx]; // H(1,1)
-        float H12 = H[1 * rows * cols + idx]; // H(1,2)
-        float H21 = H[2 * rows * cols + idx]; // H(2,1)
-        float H22 = H[3 * rows * cols + idx]; // H(2,2)
-
-        // Compute the trace and determinant of the Hessian
-        float trace = H11 + H22;
-        float determinant = H11 * H22 - H12 * H21;
-
-        // Compute the eigenvalues using the quadratic formula
-        float sqrt_term = sqrtf(trace * trace - 4 * determinant);
-        float eig1 = (trace - sqrt_term) / 2.0f;
-        float eig2 = (trace + sqrt_term) / 2.0f;
-
-        // Assign eigenvalues based on magnitude
-        if (fabsf(eig1) <= fabsf(eig2))
-        {
-            lambda_1[idx] = eig1;
-            lambda_2[idx] = eig2;
-        } 
-        else
-        {
-            lambda_1[idx] = eig2;
-            lambda_2[idx] = eig1;
-        }
+        // Prepare the 2x2 submatrix for point `index`
+        output[index * 4 + 0] = ixx[index];
+        output[index * 4 + 1] = ixy[index];
+        output[index * 4 + 2] = iyx[index];
+        output[index * 4 + 3] = iyy[index];
     }
 }
 
-void load_kernel_in_GPU(cuComplex* output, const float* kernel, const size_t frame_res, cudaStream_t stream)
+void compute_sorted_eigenvalues_2x2(float* H, int frame_res, float* lambda1, float* lambda2, cudaStream_t stream)
 {
-   // Set the width of each element to `sizeof(float)` in bytes to copy the float data.
-    // Set the pitch of the destination to `sizeof(cuComplex)` for correct alignment.
-    cudaMemcpy2DAsync(output,
-                      sizeof(cuComplex),      // Pitch of destination memory (width of each row in bytes)
-                      kernel,
-                      sizeof(float),          // Pitch of source memory (width of each row in bytes)
-                      sizeof(float), // Width of data to transfer (in bytes)
-                      frame_res,                      // Height of data to transfer (1 row, since it’s 1D)
-                      cudaMemcpyHostToDevice,
-                      stream);
+    cusolverDnHandle_t cusolver_handle;
+    cusolverDnCreate(&cusolver_handle);
+    cusolverDnSetStream(cusolver_handle, stream);
+
+    int lwork; // Taille du tampon de travail
+    float* work_buffer; // Tampon de travail sur le GPU
+    int* dev_info; // Statut d'erreur pour chaque appel de cusolver
+    cudaXMalloc(&dev_info, sizeof(int));
+    int h_meig; // Nombre de valeurs propres trouvées
+    float *hessian_2x2 = H;
+
+    // Calculer la taille nécessaire du tampon de travail
+    cusolverStatus_t status_buffer = cusolverDnSsyevdx_bufferSize(
+            cusolver_handle,
+            CUSOLVER_EIG_MODE_VECTOR,
+            CUSOLVER_EIG_RANGE_ALL,
+            CUBLAS_FILL_MODE_LOWER,
+            2,                       // Dimension de la matrice
+            hessian_2x2,             // La matrice d'entrée
+            2,                       // Leading dimension de la matrice
+            -FLT_MAX, FLT_MAX,       // Plage complète de valeurs propres
+            1, 2,                    // Indices pour toute la plage
+            &h_meig,                 // Nombre de valeurs propres trouvées (sortie)
+            nullptr,                 // Vecteur des valeurs propres (non utilisé ici)
+            &lwork                   // Retourne la taille du tampon de travail ici
+        );
+
+    // Allouer le tampon de travail sur le GPU
+    cudaXMalloc((void**)&work_buffer, lwork * sizeof(float));
+
+    float* eigenvalues; // Pour stocker les valeurs propres
+    cudaXMalloc(&eigenvalues, sizeof(float) * 2);
+    for (int i = 0; i < frame_res; ++i)
+    {
+        // Préparer la sous-matrice 2x2 pour le point `i`
+
+        hessian_2x2 = H + (4 * i);
+
+        if (status_buffer != CUSOLVER_STATUS_SUCCESS)
+        {
+            std::cerr << "Erreur lors de la récupération de la taille du tampon de travail pour le point " << i << std::endl;
+            continue;
+        }
+
+        cusolverStatus_t status = cusolverDnSsyevdx(
+            cusolver_handle,
+            CUSOLVER_EIG_MODE_VECTOR,
+            CUSOLVER_EIG_RANGE_ALL,
+            CUBLAS_FILL_MODE_LOWER,
+            2,
+            hessian_2x2,               // Matrice d'entrée
+            2,                          // Leading dimension
+            -FLT_MAX, FLT_MAX,         // Plage complète de valeurs propres
+            1, 2,                       // Indices pour toute la plage
+            &h_meig,                    // Nombre de valeurs propres trouvées
+            eigenvalues,                // Vecteur pour stocker les valeurs propres
+            work_buffer,                // Tampon de travail
+            lwork,                      // Taille du tampon
+            dev_info                    // Statut d'erreur
+        );
+
+        // Libérer le tampon de travail pour ce point
+    }
+
+    std::cout << "fini" << std::endl;
+
+    cudaXFree(eigenvalues);
+    cudaXFree(work_buffer);
+    cudaXFree(dev_info);
+    // Détruire le handle cusolver
+    cusolverDnDestroy(cusolver_handle);
 }
 
+// Fonction pour calculer les valeurs propres d'une matrice 2x2
+void calculerValeursPropres(float a, float b, float d, float* lambda1, float* lambda2, int ind)
+{
+    // Calcul de la trace et du déterminant
+    float trace = a + d;
+    float determinant = a * d - b * b;
+
+    // Calcul du discriminant
+    float discriminant = trace * trace - 4 * determinant;
+
+    // Vérification si les valeurs propres sont réelles
+    if (discriminant >= 0) {
+        float eig1 = (trace + std::sqrt(discriminant)) / 2;
+        float eig2 = (trace - std::sqrt(discriminant)) / 2;
+        // Vérification de la condition
+        if (std::abs(eig1) < std::abs(eig2)) {
+            lambda1[ind] = eig1;
+            lambda2[ind] = eig2;
+        } else {
+            lambda1[ind] = eig2;
+            lambda2[ind] = eig1;
+        }
+    } else {
+        std::cout << "Les valeurs propres ne sont pas réelles." << std::endl;
+    }
+}
 
 __global__ void kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y) 
 {
@@ -103,6 +166,7 @@ __global__ void kernel_padding(float* output, float* input, int height, int widt
     }
 }
 
+// Useless
 void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream) 
 {
     //float* padded_kernel = new float[new_width * new_height];

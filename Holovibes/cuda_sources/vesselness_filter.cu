@@ -301,21 +301,14 @@ void vesselness_filter(float* output,
     cudaXStreamSynchronize(stream);
 
 
+    // Allocate memory on the GPU for the 2x2 submatrices
     float* H;
-    cudaXMalloc(&H, frame_res * sizeof(float) * 4);
+    cudaMalloc(&H, frame_res * 4 * sizeof(float));
 
-    cudaXMemcpyAsync(H, Ixx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXMemcpyAsync(H + frame_res, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXMemcpyAsync(H + frame_res * 2, Iyx, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXMemcpyAsync(H + frame_res * 3, Iyy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-
-    cudaXStreamSynchronize(stream);
-
-
-    print_in_file(Ixx, frame_res, "ixx", stream);
-    print_in_file(Ixy, frame_res, "ixy", stream);
-    print_in_file(Iyx, frame_res, "iyx", stream);
-    print_in_file(Iyy, frame_res, "iyy", stream);
+     // Launch a kernel to prepare the 2x2 submatrices
+    int blockSize = 256;
+    int numBlocks = (frame_res + blockSize - 1) / blockSize;
+    prepareHessian<<<numBlocks, blockSize>>>(H, Ixx, Ixy, Iyx, Iyy, frame_res);
 
     cudaXFree(Ixx);
     cudaXFree(Ixy);
@@ -323,27 +316,31 @@ void vesselness_filter(float* output,
     cudaXFree(Iyy);
 
 
-    float* lambda_1;
-    cudaXMalloc(&lambda_1, frame_res * sizeof(float));
-    cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
-    float* lambda_2;
-    cudaXMalloc(&lambda_2, frame_res * sizeof(float));
-    cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
-
+    float* lambda_1 = new float[frame_res];
+    // cudaXMalloc(&lambda_1, frame_res * sizeof(float));
+    // cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+    float* lambda_2 = new float[frame_res];
+    // cudaXMalloc(&lambda_2, frame_res * sizeof(float));
+    // cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
     cudaXStreamSynchronize(stream);
 
+    float* H_cpy = new float[frame_res * 4];
+    cudaXMemcpy(H_cpy, H, sizeof(float) * 4 * frame_res, cudaMemcpyDeviceToHost);
+    for (int i = 0; i < frame_res; ++i)
+    {
+        float *h = H_cpy + 4 * i;
+        calculerValeursPropres(h[0], h[1], h[3], lambda_1, lambda_2, i);
+    }
+    // compute_sorted_eigenvalues_2x2(H, frame_res, lambda_1, lambda_2, stream);
+    // cudaXStreamSynchronize(stream);
 
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_res, threads);
-    dim3 blockSize(16, 16);
-    dim3 gridSize((std::sqrt(frame_res) + blockSize.x - 1) / blockSize.x, (std::sqrt(frame_res) + blockSize.y - 1) / blockSize.y);
+    float* d_lambda_1;
+    cudaXMalloc(&d_lambda_1, sizeof(float) * frame_res);
+    print_in_file(d_lambda_1, frame_res, "lambda_1", stream);
 
-    kernel_4D_eigenvalues<<<gridSize, blockSize, 0, stream>>>(H, lambda_1, lambda_2, std::sqrt(frame_res), std::sqrt(frame_res));
-    
-    cudaXStreamSynchronize(stream);
-
-    print_in_file(lambda_1, frame_res, "lambda_1", stream);
-    print_in_file(lambda_2, frame_res, "lambda_2", stream);
+    float* d_lambda_2;
+    cudaXMalloc(&d_lambda_2, sizeof(float) * frame_res);
+    print_in_file(d_lambda_2, frame_res, "lambda_2", stream);
 
     // cudaXFree(H);
 
