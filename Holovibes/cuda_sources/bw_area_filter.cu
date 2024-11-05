@@ -28,6 +28,16 @@ __device__ void unlock(int* mutex)
     atomicExch(mutex, 0); // Libère le verrou
 }
 
+__device__ void get_linked_label(size_t* label, size_t* linked_d)
+{
+    size_t pred = *label;
+    while (*label != linked_d[*label])
+    {
+        *label = linked_d[*label];
+    }
+    linked_d[pred] = *label;
+}
+
 __device__ inline void add_label_link(vector_t& linked) { linked.ptr_d[*linked.size] = *linked.size++; }
 
 __global__ void first_pass_kernel1(const float* image_d,
@@ -37,12 +47,12 @@ __global__ void first_pass_kernel1(const float* image_d,
                                    const size_t width,
                                    const size_t height)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2;
     int y = (idx % width) * 2;
     idx = x * width + y;
 
-    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    if (y >= 1 && x >= 1 && x < (width - 1) && (y < height - 1) && !IS_BACKGROUND(image_d[idx]))
     {
         linked_d[idx] = idx;
         labels_d[idx] = idx;
@@ -55,10 +65,9 @@ __device__ void check_and_update_link(size_t* labels_d,
                                       size_t* labels_sizes_d,
                                       const size_t idx,
                                       size_t* neighbors,
-                                      const int nb_neighbors)
+                                      const int nb_neighbors,
+                                      int* mutex)
 {
-    static int mutex = 0;
-
     if (nb_neighbors == 0)
     {
         linked_d[idx] = idx;
@@ -66,25 +75,35 @@ __device__ void check_and_update_link(size_t* labels_d,
     }
     else
     {
-        // lock(&mutex);
+
+        lock(mutex);
+        for (size_t i = 0; i < nb_neighbors; i++)
+        {
+            size_t tmp = labels_d[neighbors[i]];
+            get_linked_label(&tmp, linked_d);
+            neighbors[i] = tmp;
+        }
+
         int min_l = 0;
         for (int k = 1; k < nb_neighbors; k++)
-            min_l = linked_d[labels_d[neighbors[k]]] < linked_d[labels_d[neighbors[min_l]]] ? k : min_l;
+        {
+            min_l = neighbors[k] < neighbors[min_l] ? k : min_l;
+        }
 
-        labels_d[idx] = linked_d[labels_d[neighbors[min_l]]];
+        size_t label_min = neighbors[min_l];
+        labels_d[idx] = label_min;
 
         for (int k = 1; k < nb_neighbors; k++)
         {
-            // Warning maybe use type of mutex
-            labels_sizes_d[linked_d[labels_d[min_l]]] += labels_sizes_d[linked_d[labels_d[(min_l + k) % nb_neighbors]]];
-            labels_sizes_d[linked_d[labels_d[(min_l + k) % nb_neighbors]]] = 0;
+            labels_sizes_d[label_min] += labels_sizes_d[neighbors[k]];
+            labels_sizes_d[neighbors[k]] = 0;
 
-            linked_d[labels_d[(min_l + k) % nb_neighbors]] = labels_d[min_l];
+            linked_d[neighbors[k]] = label_min;
         }
-        // unlock(&mutex);
+        unlock(mutex);
     }
 
-    labels_sizes_d[labels_d[idx]] += 1;
+    labels_sizes_d[labels_d[idx]] += 1; // rm this
 }
 
 __global__ void first_pass_kernel2(const float* image_d,
@@ -92,14 +111,15 @@ __global__ void first_pass_kernel2(const float* image_d,
                                    size_t* linked_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
-                                   const size_t height)
+                                   const size_t height,
+                                   int* mutex)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2 + 1;
     int y = (idx % width) * 2;
     idx = x * width + y;
 
-    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    if (y >= 1 && x >= 1 && x < (width - 1) && y < (height - 1) && !IS_BACKGROUND(image_d[idx]))
     {
         size_t neighbors[2];
         size_t nb_neighbors = 0;
@@ -110,7 +130,7 @@ __global__ void first_pass_kernel2(const float* image_d,
             if (labels_d[jdx])
                 neighbors[nb_neighbors++] = jdx;
         }
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
@@ -119,14 +139,15 @@ __global__ void first_pass_kernel3(const float* image_d,
                                    size_t* linked_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
-                                   const size_t height)
+                                   const size_t height,
+                                   int* mutex)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2;
     int y = (idx % width) * 2 + 1;
     idx = x * width + y;
 
-    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    if (y >= 1 && x >= 1 && x < (width - 1) && y < (height - 1) && !IS_BACKGROUND(image_d[idx]))
     {
         size_t neighbors[2];
         size_t nb_neighbors = 0;
@@ -137,7 +158,7 @@ __global__ void first_pass_kernel3(const float* image_d,
             if (labels_d[jdx])
                 neighbors[nb_neighbors++] = jdx;
         }
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
@@ -146,14 +167,15 @@ __global__ void first_pass_kernel4(const float* image_d,
                                    size_t* linked_d,
                                    size_t* labels_sizes_d,
                                    const size_t width,
-                                   const size_t height)
+                                   const size_t height,
+                                   int* mutex)
 {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x + 1;
     int x = (idx / width) * 2 + 1;
     int y = (idx % width) * 2 + 1;
     idx = x * width + y;
 
-    if (y >= 1 && x >= 1 && x < width - 1 && y < height - 1 && !IS_BACKGROUND(image_d[idx]))
+    if (y >= 1 && x >= 1 && x < (width - 1) && y < (height - 1) && !IS_BACKGROUND(image_d[idx]))
     {
         size_t neighbors[4];
         size_t nb_neighbors = 0;
@@ -168,7 +190,7 @@ __global__ void first_pass_kernel4(const float* image_d,
                 neighbors[nb_neighbors++] = jdx;
         }
 
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors);
+        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
@@ -180,6 +202,9 @@ void first_pass(const float* image_d,
                 const size_t height,
                 const cudaStream_t stream)
 {
+    int* mutex;
+    cudaXMalloc(&mutex, sizeof(int));
+    cudaXMemset(mutex, 0, sizeof(int));
 
     size_t size = width * height;
     uint threads = get_max_threads_1d();
@@ -188,12 +213,32 @@ void first_pass(const float* image_d,
 
     first_pass_kernel1<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
     cudaDeviceSynchronize();
-    first_pass_kernel2<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    first_pass_kernel2<<<blocks, threads, 0, stream>>>(image_d,
+                                                       labels_d,
+                                                       linked_d,
+                                                       labels_sizes_d,
+                                                       width,
+                                                       height,
+                                                       mutex);
     cudaDeviceSynchronize();
-    first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d,
+                                                       labels_d,
+                                                       linked_d,
+                                                       labels_sizes_d,
+                                                       width,
+                                                       height,
+                                                       mutex);
     cudaDeviceSynchronize();
-    first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d,
+                                                       labels_d,
+                                                       linked_d,
+                                                       labels_sizes_d,
+                                                       width,
+                                                       height,
+                                                       mutex);
     cudaDeviceSynchronize();
+
+    cudaFree(mutex);
 }
 
 __global__ void second_pass_kernel(size_t* labels_d, size_t size, size_t* linked_d)
