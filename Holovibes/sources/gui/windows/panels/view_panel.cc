@@ -321,6 +321,7 @@ void ViewPanel::set_registration(bool value)
     }
 
     api::set_registration_enabled(value);
+    parent_->notify();
 }
 
 void ViewPanel::update_lens_view(bool checked)
