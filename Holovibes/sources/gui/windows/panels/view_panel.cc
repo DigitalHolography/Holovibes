@@ -300,6 +300,12 @@ void ViewPanel::set_fft_shift(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (api::get_registration_enabled())
+    {
+        set_registration(value);
+        ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
+    }
+
     api::set_fft_shift_enabled(value);
 }
 
@@ -307,6 +313,12 @@ void ViewPanel::set_registration(bool value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
+
+    if (!api::get_fft_shift_enabled())
+    {
+        set_fft_shift(value);
+        ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
+    }
 
     api::set_registration_enabled(value);
 }
