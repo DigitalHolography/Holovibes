@@ -237,7 +237,7 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 /*! \} */
 
 /*!
- * \name Input file
+ * \name Input
  * \{
  */
 inline size_t get_input_file_start_index() { return GET_SETTING(InputFileStartIndex); }
@@ -251,6 +251,12 @@ inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, val
 
 inline uint get_input_fps() { return static_cast<uint>(GET_SETTING(InputFPS)); }
 inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
+
+inline ImportType get_import_type() { return GET_SETTING(ImportType); }
+inline void set_import_type(ImportType value) { UPDATE_SETTING(ImportType, value); }
+
+inline CameraKind get_camera_kind() { return GET_SETTING(CameraKind); }
+inline void set_camera_kind(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
 /*! \} */
 
 /*!

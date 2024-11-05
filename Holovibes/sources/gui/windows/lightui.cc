@@ -161,8 +161,7 @@ void LightUI::notify()
     ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
     ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
 
-    // Camera
-    ui_->actionSettings->setEnabled(false);
+    ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 }
 
 void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
@@ -179,21 +178,9 @@ void LightUI::set_contrast_auto_refresh(bool value)
     notify(); // Enable or disable the DoubleBox range
 }
 
-void LightUI::change_camera(CameraKind camera)
-{
-    main_window_->change_camera(camera);
+void LightUI::change_camera(CameraKind camera) { main_window_->change_camera(camera); }
 
-    ui_->actionSettings->setEnabled(true);
-    notify();
-}
-
-void LightUI::camera_none()
-{
-    change_camera(CameraKind::NONE);
-
-    // Make camera's settings menu unaccessible
-    ui_->actionSettings->setEnabled(false);
-}
+void LightUI::camera_none() { change_camera(CameraKind::NONE); }
 
 void LightUI::camera_phantom() { change_camera(CameraKind::Phantom); }
 

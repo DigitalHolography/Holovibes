@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "input_frame_file_factory.hh"
 #include "API.hh"
+#include "GUI.hh"
 #include <spdlog/spdlog.h>
 
 namespace api = ::holovibes::api;
@@ -152,14 +153,7 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
-        return;
-
     api::import_stop();
-
-    // FIXME: import_stop() and camera_none() call same methods
-    // FIXME: camera_none() weird call because we are dealing with imported file
-    parent_->camera_none();
 
     parent_->synchronize_thread([&]() { ui_->FileReaderProgressBar->hide(); });
     parent_->notify();
@@ -168,18 +162,7 @@ void ImportPanel::import_stop()
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
 void ImportPanel::import_start()
 {
-    // Check if computation is currently running
-    if (!api::get_is_computation_stopped())
-        import_stop();
-
-    // parent_->shift_screen();
-
-    // if the file is to be imported in GPU, we should load the buffer preset for such case
-    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
-
-    bool res_import_start = api::import_start();
-
-    if (res_import_start)
+    if (api::import_start())
     {
         ui_->FileReaderProgressBar->show();
 
@@ -198,7 +181,7 @@ void ImportPanel::import_start()
         parent_->notify();
 
         // Because the previous notify MIGHT create an holo window, we have to create it if it has not been done.
-        if (api::get_main_display() == nullptr)
+        if (gui::get_main_display() == nullptr)
             parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
 
         // The reticle overlay needs to be created as soon as the pipe is created, but there isn't many places where
@@ -206,9 +189,7 @@ void ImportPanel::import_start()
         api::display_reticle(api::get_reticle_display_enabled());
     }
     else
-    {
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
 }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }

@@ -253,7 +253,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked)
@@ -311,7 +311,7 @@ void ViewPanel::set_registration(bool value)
 
 void ViewPanel::update_lens_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     api::set_lens_view(checked, parent_->auxiliary_window_max_size);
@@ -319,7 +319,7 @@ void ViewPanel::update_lens_view(bool checked)
 
 void ViewPanel::update_raw_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked && api::get_batch_size() > api::get_output_buffer_size())
