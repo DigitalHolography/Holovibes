@@ -311,6 +311,7 @@ void Pipe::refresh()
 
     // Rendering
     rendering_->insert_fft_shift();
+
     registration_->insert_registration();
 
     image_accumulation_->insert_image_accumulation(*buffers_.gpu_postprocess_frame,
@@ -646,10 +647,6 @@ void Pipe::exec()
 
 std::unique_ptr<Queue>& Pipe::get_lens_queue() { return fourier_transforms_->get_lens_queue(); }
 
-void Pipe::run_all()
-{
-    for (FnType& f : fn_compute_vect_)
-        f();
-}
+void Pipe::run_all() { fn_compute_vect_.call_all(); }
 
 } // namespace holovibes

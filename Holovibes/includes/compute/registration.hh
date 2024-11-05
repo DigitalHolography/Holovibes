@@ -68,10 +68,12 @@ class Registration
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Registration(FunctionVector& fn_compute_vect,
                  const CoreBuffersEnv& buffers,
+                 const ImageAccEnv& image_acc_env,
                  const camera::FrameDescriptor& fd,
                  const cudaStream_t& stream,
                  InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
+        , image_acc_env_(image_acc_env)
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
@@ -152,6 +154,9 @@ class Registration
 
     /*! \brief Main buffers used in pipe. */
     const CoreBuffersEnv& buffers_;
+
+    /*! \brief Image Accumulation environment */
+    const ImageAccEnv& image_acc_env_;
 
     /*! \brief Describes the frame size. */
     const camera::FrameDescriptor& fd_;

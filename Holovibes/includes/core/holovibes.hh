@@ -391,7 +391,7 @@ class Holovibes
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
                                              settings::ReticleScale{0.5f},
-                                             settings::RegistrationZone{0.5f},
+                                             settings::RegistrationZone{0.7f},
                                              settings::ReticleDisplayEnabled{false},
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},

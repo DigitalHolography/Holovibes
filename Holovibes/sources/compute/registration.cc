@@ -16,6 +16,12 @@ void Registration::insert_registration()
         fn_compute_vect_.conditional_push_back(
             [=]()
             {
+                // cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                //                  gpu_reference_image_,
+                //                  fd_.width * fd_.height * sizeof(float),
+                //                  cudaMemcpyDeviceToDevice,
+                //                  stream_);
+                // return;
                 // Preprocessing the current image before the cross-correlation with the reference image.
                 image_preprocess(gpu_current_image_, buffers_.gpu_postprocess_frame, &current_image_mean_);
 
@@ -69,13 +75,16 @@ void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
 {
     if (setting<settings::RegistrationEnabled>())
     {
-        cudaXMemcpyAsync(gpu_reference_image_,
-                         new_gpu_reference_image_,
-                         fd_.width * fd_.height * sizeof(float),
-                         cudaMemcpyDeviceToDevice,
-                         stream_);
-
-        image_preprocess(gpu_reference_image_, gpu_reference_image_, &reference_image_mean_);
+        fn_compute_vect_.conditional_push_back_remove(
+            [=]
+            {
+                cudaXMemcpyAsync(gpu_reference_image_,
+                                 buffers_.gpu_postprocess_frame,
+                                 fd_.width * fd_.height * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+            },
+            [this] { return image_acc_env_.gpu_accumulation_xy_queue.get()->is_full(); });
     }
 }
 
