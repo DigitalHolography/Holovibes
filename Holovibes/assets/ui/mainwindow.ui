@@ -51,12 +51,12 @@
      <enum>QLayout::SetNoConstraint</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="centralHorizontalLayout" stretch="0,0,0,0,0,0,0">
       <property name="spacing">
        <number>3</number>
       </property>
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SetMinimumSize</enum>
       </property>
       <property name="bottomMargin">
        <number>0</number>
