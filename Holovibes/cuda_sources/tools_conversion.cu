@@ -44,6 +44,7 @@ static __global__ void kernel_complex_to_modulus(
         float* output_frame = output + i * frame_res;
 
         output_frame[index] = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+        // Maybe squared
     }
 }
 

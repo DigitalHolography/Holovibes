@@ -300,23 +300,11 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
         old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
     }
 
-    close_windows();
-    close_critical_compute();
-
     set_img_type(img_type);
+    set_image_mode(Computation::Hologram, window_size);
 
-    try
-    {
-        create_pipe();
-        create_window(Computation::Hologram, window_size);
-        UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-        UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-    }
-    catch (const std::runtime_error& e)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        LOG_ERROR("refresh_view_mode: {}", e.what());
-    }
+    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
+    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
 }
 
 void set_view_mode(const ImgType type)

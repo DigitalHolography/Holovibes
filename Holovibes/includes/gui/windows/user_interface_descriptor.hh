@@ -61,8 +61,6 @@ class UserInterfaceDescriptor
     bool is_advanced_settings_displayed = false;
     bool has_been_updated = false;
 
-    std::string last_img_type_ = "Magnitude";
-
     size_t auto_scale_point_threshold_ = 100;
 
     std::string output_filename_{"capture"};

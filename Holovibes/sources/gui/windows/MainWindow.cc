@@ -155,13 +155,8 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Display default values
-    api::set_compute_mode(api::get_compute_mode());
-    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
-                                                             ? "Composite image"
-                                                             : UserInterfaceDescriptor::instance().last_img_type_;
-    bool is_conv_enabled =
-        api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
+    // Store the value because when the camera is initialised it is reset
+    bool is_conv_enabled = api::get_convolution_enabled();
 
     // light ui
     light_ui_ = std::make_shared<LightUI>(nullptr, this);
@@ -185,16 +180,14 @@ MainWindow::MainWindow(QWidget* parent)
 
     api::start_information_display();
 
-    ui_->ImageRenderingPanel->set_convolution_mode(
-        is_conv_enabled); // Add the convolution after the initialisation of the panel
-                          // if the value is enabled in the compute settings.
+    ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
+    // Add the convolution after the initialisation of the panel
+    // if the value is enabled in the compute settings.
 
     if (api::get_yz_enabled() and api::get_xz_enabled())
         ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
-
-    qApp->setStyle(QStyleFactory::create("Fusion"));
 
     enable_notify();
 
@@ -300,7 +293,6 @@ void MainWindow::on_notify()
     ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 
     resize(baseSize());
-
     adjustSize();
 }
 
@@ -676,59 +668,23 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 /* ------------ */
 #pragma region Image Mode
 
-// Is there a change in window pixel depth (needs to be re-opened)
-bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
-{
-    std::vector<std::string> types_needing_refresh({"Composite image"});
-    for (auto& type : types_needing_refresh)
-        if ((last_type == type) != (new_type == type))
-            return true;
-    return false;
-}
-
-void MainWindow::set_composite_values()
-{
-    const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
-    const unsigned max_val_composite = api::get_time_transformation_size() - 1;
-
-    ui_->PRedSpinBox_Composite->setValue(min_val_composite);
-    ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_value_freq_min->setValue(min_val_composite);
-
-    ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
-    ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_value_freq_max->setValue(max_val_composite);
-}
-
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-    {
-        LOG_ERROR("Cannot set view image type in raw mode");
+    if (api::get_import_type() == ImportType::None || api::get_compute_mode() == Computation::Raw)
         return;
-    }
 
     const std::string& value_str = value.toStdString();
-    if (UserInterfaceDescriptor::instance().last_img_type_ == value_str)
+    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
+    if (img_type == api::get_img_type())
         return;
 
-    const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
-    {
+    // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
+    if (img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite)
         api::refresh_view_mode(window_max_size, img_type);
-        LOG_ERROR("Refresh view called");
-        if (api::get_img_type() == ImgType::Composite)
-            set_composite_values();
-    }
-
-    UserInterfaceDescriptor::instance().last_img_type_ = value_str;
 
     api::set_view_mode(img_type);
 
     notify();
-    layout_toggled();
 }
 
 #pragma endregion

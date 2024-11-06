@@ -148,10 +148,6 @@ class MainWindow : public QMainWindow
      * * Request a pipe refresh
      * * Set visibility to true
      */
-
-    bool need_refresh(const std::string& last_type, const std::string& new_type);
-    void set_composite_values();
-
     /*! \brief Modifies view image type
      *
      * \param value The new image type
