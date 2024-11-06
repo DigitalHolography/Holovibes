@@ -761,7 +761,7 @@ void display_reticle(bool value);
 void reticle_scale(float value);
 
 /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
- *  \param value The new zone value.
+ *  \param[in] value The new zone value.
  */
 void registration_zone(float value);
 

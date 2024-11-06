@@ -188,7 +188,6 @@ struct Views
 {
     ImgType image_type = ImgType::Modulus;
     bool fft_shift = false;
-    // bool registration = false;
     ViewXY x;
     ViewXY y;
     ViewPQ z;

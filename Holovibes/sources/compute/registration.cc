@@ -98,8 +98,6 @@ void Registration::updade_cirular_mask()
     // Get the center and radius of the circle.
     float center_X = fd_.width / 2.0f;
     float center_Y = fd_.height / 2.0f;
-    float radius =
-        std::min(fd_.width, fd_.height) *
-        setting<settings::RegistrationZone>(); /// 3.0f; // 3.0f could be change to get a different size for the circle.
+    float radius = std::min(fd_.width, fd_.height) * setting<settings::RegistrationZone>();
     get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
 }
