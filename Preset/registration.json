@@ -8,6 +8,10 @@
         "time_transformation_size": 128
     },
     "view": {
+        "registration": {
+            "registration_enabled": true,
+            "registration_zone": 0.699999988079071
+        },
         "window": {
             "xy": {
                 "output_image_accumulation": 16

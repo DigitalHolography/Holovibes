@@ -24,7 +24,7 @@ function Select-Folder([string]$description) {
     Write-Host $description -ForegroundColor Green
     $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
     $folderBrowser.Description = $description
-    $folderBrowser.SelectedPath =[System.Environment]::GetFolderPath('MyDocuments')
+    $folderBrowser.SelectedPath = [System.Environment]::GetFolderPath('MyDocuments')
     $dialogResult = $folderBrowser.ShowDialog()
 
     if ($dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
@@ -137,7 +137,6 @@ function Execute-Holovibes {
     $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
     $args += " -c `"$configFile`""
     $args += " --frame_skip 8"
-    $args += " --registration"
     Write-Host "Processing $(Split-Path -Leaf $inputFilePath) with config $configFile..." -ForegroundColor Yellow
    
     $args
