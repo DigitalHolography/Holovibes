@@ -8,6 +8,7 @@
         "time_transformation_size": 128
     },
     "view": {
+        "fft_shift": true,
         "registration": {
             "registration_enabled": true,
             "registration_zone": 0.699999988079071
