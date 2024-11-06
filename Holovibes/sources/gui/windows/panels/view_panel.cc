@@ -58,11 +58,37 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 }
 
+void ViewPanel::update_img_type(int img_type)
+{
+    ui_->ViewModeComboBox->setCurrentIndex(img_type);
+
+    const int mom0 = static_cast<int>(ImgType::Moments_0);
+    const int mom2 = static_cast<int>(ImgType::Moments_2);
+    auto viewbox_view = qobject_cast<QListView*>(ui_->ViewModeComboBox->view());
+
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+        {
+            if (i < mom0 || i > mom2)
+                viewbox_view->setRowHidden(i, true); // Hide non-moments display options
+        }
+
+        if (img_type < mom0 || img_type > mom2)
+            ui_->ViewModeComboBox->setCurrentIndex(mom0);
+    }
+    else
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+            viewbox_view->setRowHidden(i, false); // Set all display options to be visible again
+    }
+}
+
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
+    update_img_type(static_cast<int>(api::get_img_type()));
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
@@ -73,6 +99,9 @@ void ViewPanel::on_notify()
 
     ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
     ui_->FFTShiftCheckBox->setEnabled(true);
+
+    ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
+    ui_->RegistrationCheckBox->setEnabled(true);
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
@@ -250,7 +279,7 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked)
@@ -284,15 +313,8 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 
 void ViewPanel::cancel_time_transformation_cuts()
 {
-    if (!api::get_cuts_view_enabled())
-        return;
-
-    std::function<void()> callback = ([=]() {
-        Holovibes::instance().get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
-        parent_->notify();
-    });
-
-    api::cancel_time_transformation_cuts(callback);
+    api::cancel_time_transformation_cuts();
+    parent_->notify();
 }
 
 void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
@@ -303,8 +325,14 @@ void ViewPanel::set_fft_shift(const bool value)
         return;
 
     api::set_fft_shift_enabled(value);
+}
 
-    // api::pipe_refresh();
+void ViewPanel::set_registration(bool value)
+{
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    api::set_registration_enabled(value);
 }
 
 void ViewPanel::set_artery_mask(bool value) { api::set_artery_mask_enabled(value); }
@@ -317,7 +345,7 @@ void ViewPanel::set_otsu(bool value)
 
 void ViewPanel::update_lens_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     api::set_lens_view(checked, parent_->auxiliary_window_max_size);
@@ -325,7 +353,7 @@ void ViewPanel::update_lens_view(bool checked)
 
 void ViewPanel::update_raw_view(bool checked)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (api::get_import_type() == ImportType::None)
         return;
 
     if (checked && api::get_batch_size() > api::get_output_buffer_size())

@@ -3,10 +3,17 @@
 #include "fresnel_transform.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "complex_utils.cuh"
 #include "logger.hh"
 #include "common.cuh"
 #include "cuda_memory.cuh"
+#include <cufft.h>
+#include "cuda_tools\unique_ptr.hh"
+#include "cuda_tools\array.hh"
+#include "cuda_tools\cufft_handle.hh"
+#include <npp.h>
 
+#include "matrix_operations.hh"
 using holovibes::cuda_tools::CufftHandle;
 
 void convolution_kernel(float* input_output,
@@ -44,11 +51,7 @@ void convolution_kernel(float* input_output,
     cufftSafeCall(cufftExecC2C(plan->get(), cuComplex_buffer, cuComplex_buffer, CUFFT_FORWARD));
     // At this point, cuComplex_buffer is the FFT of the input
 
-    kernel_multiply_frames_complex<<<blocks, threads, 0, stream>>>(cuComplex_buffer,
-                                                                   cuComplex_buffer,
-                                                                   gpu_kernel,
-                                                                   size);
-    cudaCheckError();
+    complex_hadamard_product(cuComplex_buffer, cuComplex_buffer, gpu_kernel, size, stream);
     // At this point, cuComplex_buffer is the FFT of the input multiplied by the
     // FFT of the kernel
 
@@ -68,4 +71,23 @@ void convolution_kernel(float* input_output,
         kernel_complex_to_modulus<<<blocks, threads, 0, stream>>>(input_output, cuComplex_buffer, size);
     }
     cudaCheckError();
+}
+
+void xcorr2(float* output,
+            float* input1,
+            float* input2,
+            cufftComplex* d_freq_1,
+            cufftComplex* d_freq_2,
+            cufftHandle plan_2d,
+            cufftHandle plan_2dinv,
+            const int freq_size,
+            cudaStream_t stream)
+{
+    cufftExecR2C(plan_2d, input1, d_freq_1);
+    cufftExecR2C(plan_2d, input2, d_freq_2);
+
+    conjugate_complex(d_freq_2, freq_size, stream);
+    complex_hadamard_product(d_freq_1, d_freq_1, d_freq_2, freq_size, stream);
+
+    cufftExecC2R(plan_2dinv, d_freq_1, output);
 }

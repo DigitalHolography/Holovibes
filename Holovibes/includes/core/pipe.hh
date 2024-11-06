@@ -18,6 +18,7 @@
 #include "postprocessing.hh"
 #include "function_vector.hh"
 #include "logger.hh"
+#include "registration.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -70,12 +71,11 @@ class Pipe : public ICompute
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
     Pipe(BatchInputQueue& input, Queue& output, Queue& record, const cudaStream_t& stream, InitSettings settings)
         : ICompute(input, output, record, stream, settings)
-        , processed_output_fps_(FastUpdatesMap::map<FpsType>.create_entry(FpsType::OUTPUT_FPS))
+        , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
         fn_compute_vect_ = FunctionVector(batch_condition);
-        fn_end_vect_ = FunctionVector(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -92,6 +92,8 @@ class Pipe : public ICompute
                                                                           moments_env_,
                                                                           stream_,
                                                                           settings);
+        registration_ =
+            std::make_unique<compute::Registration>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
@@ -113,7 +115,12 @@ class Pipe : public ICompute
         postprocess_ =
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
-        analysis_ = std::make_unique<compute::Analysis>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
+        analysis_ = std::make_unique<compute::Analysis>(fn_compute_vect_,
+                                                        buffers_,
+                                                        input.get_fd(),
+                                                        vesselness_mask_env_,
+                                                        stream_,
+                                                        settings);
 
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
@@ -142,9 +149,6 @@ class Pipe : public ICompute
      */
     void exec() override;
 
-    /*! \brief Runs a function after the current pipe iteration ends */
-    void insert_fn_end_vect(std::function<void()> function);
-
     /*! \brief Enqueue the main FunctionVector according to the requests. */
     void refresh() override;
 
@@ -170,6 +174,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Registration>)
+            registration_->update_setting(setting);
 
         if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
@@ -279,20 +286,12 @@ class Pipe : public ICompute
     /*! \brief Vector of functions that will be executed in the exec() function. */
     FunctionVector fn_compute_vect_;
 
-    /*! \brief Vecor of functions that will be executed once, after the execution of fn_compute_vect_. */
-    FunctionVector fn_end_vect_;
-
-    /*! \brief Mutex that prevents the insertion of a function during its execution.
-     *
-     * Since we can insert functions in fn_end_vect_ from other threads  MainWindow), we need to lock it.
-     */
-    std::mutex fn_end_vect_mutex_;
-
     /*! \name Compute objects
      * \{
      */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+    std::unique_ptr<compute::Registration> registration_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;

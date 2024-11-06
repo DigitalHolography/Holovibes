@@ -6,6 +6,8 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <cufft.h>
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -202,5 +204,52 @@ struct ImageAccEnv
 
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
+};
+
+/*! \struct VesselnessMaskEnv
+ *
+ *  \brief Struct containing buffers used for the computation of the vesselness masks
+ *
+ */
+struct VesselnessMaskEnv
+{
+    /*! \brief Get the mean image */
+    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
+
+    /*! \brief Buffer of size 'time_window_' TODO refaire ca to compute the mean of m0 imgs */
+    cuda_tools::CudaUniquePtr<float> buffer_m0_ff_img_ = nullptr;
+
+    /*! \brief image with mean calculated for a time window*/
+    cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
+
+    /*! \brief image with mean and centered calculated for a time window*/
+    cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
+
+    /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
+    cuda_tools::CudaUniquePtr<cuComplex> g_xx_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> g_xy_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> g_yy_mul_comp_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<cuComplex> temp_buffer_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
+
+    /*! \brief Time window for mask */
+    int time_window_;
+
+    /*! \brief Get the number of image for the mean mask*/
+    int number_image_mean_ = 0;
+
+    /*! \brief X size of kernel */
+    int kernel_x_size_ = 0;
+
+    /*! \brief Y size of kernel */
+    int kernel_y_size_ = 0;
 };
 } // namespace holovibes

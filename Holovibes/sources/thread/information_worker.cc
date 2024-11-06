@@ -18,12 +18,14 @@ using MutexGuard = std::lock_guard<std::mutex>;
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
     {IndicationType::INPUT_FORMAT, "Input Format"},
-    {IndicationType::OUTPUT_FORMAT, "Output Format"}};
+    {IndicationType::OUTPUT_FORMAT, "Output Format"},
+};
 
-const std::unordered_map<FpsType, std::string> InformationWorker::fps_type_to_string_ = {
-    {FpsType::INPUT_FPS, "Input FPS"},
-    {FpsType::OUTPUT_FPS, "Output FPS"},
-    {FpsType::SAVING_FPS, "Saving FPS"},
+const std::unordered_map<IntType, std::string> InformationWorker::fps_type_to_string_ = {
+    {IntType::INPUT_FPS, "Input FPS"},
+    {IntType::OUTPUT_FPS, "Output FPS"},
+    {IntType::SAVING_FPS, "Saving FPS"},
+    {IntType::TEMPERATURE, "Camera Temperature"},
 };
 
 const std::unordered_map<QueueType, std::string> InformationWorker::queue_type_to_string_ = {
@@ -64,7 +66,6 @@ void InformationWorker::run()
         if (waited_time >= 1000)
         {
             compute_fps(waited_time);
-
             std::shared_ptr<Queue> gpu_output_queue = api::get_gpu_output_queue();
             std::shared_ptr<BatchInputQueue> input_queue = api::get_input_queue();
             std::shared_ptr<Queue> frame_record_queue = Holovibes::instance().get_record_queue().load();
@@ -136,18 +137,21 @@ void InformationWorker::run()
 
 void InformationWorker::compute_fps(const long long waited_time)
 {
-    auto& fps_map = FastUpdatesMap::map<FpsType>;
-    FastUpdatesHolder<FpsType>::const_iterator it;
-    if ((it = fps_map.find(FpsType::INPUT_FPS)) != fps_map.end())
+    auto& fps_map = FastUpdatesMap::map<IntType>;
+    FastUpdatesHolder<IntType>::const_iterator it;
+    if ((it = fps_map.find(IntType::TEMPERATURE)) != fps_map.end())
+        temperature_ = it->second->load();
+
+    if ((it = fps_map.find(IntType::INPUT_FPS)) != fps_map.end())
         input_fps_ = it->second->load();
 
-    if ((it = fps_map.find(FpsType::OUTPUT_FPS)) != fps_map.end())
+    if ((it = fps_map.find(IntType::OUTPUT_FPS)) != fps_map.end())
     {
         output_fps_ = std::round(it->second->load() * (1000.f / waited_time));
         it->second->store(0); // TODO Remove
     }
 
-    if ((it = fps_map.find(FpsType::SAVING_FPS)) != fps_map.end())
+    if ((it = fps_map.find(IntType::SAVING_FPS)) != fps_map.end())
     {
         saving_fps_ = std::round(it->second->load() * (1000.f / waited_time));
         it->second->store(0); // TODO Remove
@@ -294,9 +298,15 @@ void InformationWorker::display_gui_information()
     std::string str;
     str.reserve(512);
     std::stringstream to_display(str);
-    auto& fps_map = FastUpdatesMap::map<FpsType>;
+    auto& fps_map = FastUpdatesMap::map<IntType>;
 
     to_display << "<table>";
+
+    if (fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
+    {
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
+                   << "°C</td></tr>";
+    }
 
     for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
         to_display << "<tr><td>" << indication_type_to_string_.at(key) << "</td><td>" << *value << "</td></tr>";
@@ -323,24 +333,24 @@ void InformationWorker::display_gui_information()
         to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
     }
 
-    if (fps_map.contains(FpsType::INPUT_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::INPUT_FPS) << "</td><td>" << input_fps_
+    if (fps_map.contains(IntType::INPUT_FPS))
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::INPUT_FPS) << "</td><td>" << input_fps_
                    << "</td></tr>";
 
-    if (fps_map.contains(FpsType::OUTPUT_FPS))
+    if (fps_map.contains(IntType::OUTPUT_FPS))
     {
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::OUTPUT_FPS) << "</td>";
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::OUTPUT_FPS) << "</td>";
         if (output_fps_ == 0)
             to_display << "<td style=\"color: red;\">" << output_fps_ << "</td></tr>";
         else
             to_display << "<td>" << output_fps_ << "</td></tr>";
     }
 
-    if (fps_map.contains(FpsType::SAVING_FPS))
-        to_display << "<tr><td>" << fps_type_to_string_.at(FpsType::SAVING_FPS) << "</td><td>" << saving_fps_
+    if (fps_map.contains(IntType::SAVING_FPS))
+        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::SAVING_FPS) << "</td><td>" << saving_fps_
                    << "</td></tr>";
 
-    if (fps_map.contains(FpsType::OUTPUT_FPS))
+    if (fps_map.contains(IntType::OUTPUT_FPS))
     {
         to_display << "<tr><td>Input Throughput</td><td>" << format_throughput(input_throughput_, "B/s")
                    << "</td></tr>";
@@ -348,7 +358,7 @@ void InformationWorker::display_gui_information()
                    << "</td></tr>";
     }
 
-    if (fps_map.contains(FpsType::SAVING_FPS))
+    if (fps_map.contains(IntType::SAVING_FPS))
     {
         to_display << "<tr><td>Saving Throughput</td><td>  " << format_throughput(saving_throughput_, "B/s")
                    << "</td></tr>";

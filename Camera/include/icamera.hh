@@ -114,6 +114,9 @@ class ICamera
     /*! \brief Get the default path of the INI configuration file. */
     virtual const char* get_ini_name() const = 0;
 
+    /*! \brief Get the temperature if possible, else 0 */
+    virtual int get_temperature() const = 0;
+
     /*! \brief Open the camera and initialize it.
      *
      * * Open the camera and retrieve the handler

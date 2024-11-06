@@ -10,6 +10,7 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
+#include "cublas_handle.hh"
 #include "logger.hh"
 
 #include "settings/settings.hh"
@@ -20,6 +21,7 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
+    holovibes::settings::VeinMaskEnabled,          \
     holovibes::settings::OtsuEnabled,              \
     holovibes::settings::OtsuKind,                 \
     holovibes::settings::OtsuWindowSize,           \
@@ -28,7 +30,9 @@
     holovibes::settings::BwareafiltN,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
-    holovibes::settings::TimeWindow
+    holovibes::settings::TimeWindow,               \
+    holovibes::settings::VesselnessSigma,          \
+    holovibes::settings::MinMaskArea
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -40,6 +44,7 @@ using holovibes::cuda_tools::CufftHandle;
 namespace holovibes
 {
 struct CoreBuffersEnv;
+struct VesselnessMaskEnv;
 } // namespace holovibes
 
 namespace holovibes::compute
@@ -56,17 +61,21 @@ class Analysis
     Analysis(FunctionVector& fn_compute_vect,
              CoreBuffersEnv& buffers,
              const camera::FrameDescriptor& input_fd,
+             VesselnessMaskEnv& vesselness_mask_env,
              const cudaStream_t& stream,
              InitSettings settings)
-        : gpu_kernel_buffer_()
+        : gaussian_kernel_buffer_()
         , cuComplex_buffer_()
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
         , fd_(input_fd)
+        , vesselness_mask_env_(vesselness_mask_env)
         , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
         , realtime_settings_(settings)
     {
+        [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
+        cublasSetStream(cublas_handler_, stream_);
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
@@ -107,11 +116,8 @@ class Analysis
         }
     }
 
-    /*! \brief Buffer used for convolution */
-    cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
-
-    /* \brief Gaussian kernel used for flat field correction */
-    std::vector<float> gaussian_kernel_;
+    /*! \brief Buffer used for gaussian blur convolution kernel */
+    cuda_tools::CudaUniquePtr<cuComplex> gaussian_kernel_buffer_;
 
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
@@ -125,22 +131,21 @@ class Analysis
     /*! \brief Describes the frame size */
     const camera::FrameDescriptor& fd_;
 
+    /*! \brief Vesselness mask environment */
+    VesselnessMaskEnv& vesselness_mask_env_;
+
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
-    /*! \brief Compute stream to perform  pipe computation */
+    /*! \brief Cublas handler used for matrices multiplications */
+    cublasHandle_t cublas_handler_;
+
+    /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
 
-    /*! \brief Get the number of image for the mean mask*/
-    int number_image_mean_ = 0;
+    // To delete
+    cuda_tools::CudaUniquePtr<float> data_csv_;
 
-    /*! \brief Get the mean image*/
-    float* m0_ff_sum_image_;
-
-    /*! \brief Buffer of size 'batch_moment' TODO refaire ca to compute the mean of m0 imgs*/
-    float** buffer_m0_ff_img_;
-
-    int number_hardcode_ = 100;
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
     /*! \brief TODO comment */

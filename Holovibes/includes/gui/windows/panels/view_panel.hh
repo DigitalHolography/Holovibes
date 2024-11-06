@@ -38,6 +38,14 @@ class ViewPanel : public Panel
     /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
 
+    /**
+     * \brief Changes the image type in the UI and hides irrelevant options.
+     * Notably, when the input data is moments, only moments views are available.
+     *
+     * \param img_type The image type to set.
+     */
+    void update_img_type(int img_type);
+
   public slots:
     /*! \brief Modifies view image type
      *
@@ -70,6 +78,11 @@ class ViewPanel : public Panel
      *
      */
     void set_otsu(bool value);
+    /*! \brief Enables or Disables registration mode on the main display window.
+     *
+     * \param value true: enable, false: disable
+     */
+    void set_registration(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove

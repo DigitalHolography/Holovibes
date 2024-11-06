@@ -25,7 +25,9 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_import_type.hh"
 #include "enum_device.hh"
+#include "enum_recorded_data_type.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -36,6 +38,8 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
+    holovibes::settings::ImportType,                             \
+    holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
@@ -68,6 +72,7 @@
     holovibes::settings::BwareafiltEnabled,                      \
     holovibes::settings::BwareafiltN,                            \
     holovibes::settings::TimeWindow,                             \
+    holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -113,13 +118,23 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::RawViewQueueLocation,                      \
-    holovibes::settings::InputQueueLocation,                        \
-    holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU,                               \
-    holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::RawViewQueueLocation,                   \
+    holovibes::settings::InputQueueLocation,                     \
+    holovibes::settings::BenchmarkMode,                          \
+    holovibes::settings::RecordOnGPU,                            \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::DataType,                                 \
+    holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::VeinMaskEnabled,                        \
+    holovibes::settings::OtsuEnabled,                            \
+    holovibes::settings::TimeWindow,                             \
+    holovibes::settings::VesselnessSigma,                        \
+    holovibes::settings::OtsuKind,                               \
+    holovibes::settings::OtsuWindowSize,                         \
+    holovibes::settings::OtsuLocalThreshold,                     \
+    holovibes::settings::MinMaskArea
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -297,7 +312,7 @@ class Holovibes
 
     void stop_chart_record();
 
-    void start_information_display(const std::function<void()>& callback = []() {});
+    void start_information_display();
 
     void stop_information_display();
 
@@ -368,6 +383,8 @@ class Holovibes
     Holovibes()
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
+                                             settings::ImportType{ImportType::None},
+                                             settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
@@ -399,6 +416,7 @@ class Holovibes
                                              settings::OtsuLocalThreshold{0.15f},
                                              settings::BwareafiltEnabled{false},
                                              settings::BwareafiltN{15},
+                                             settings::RegistrationEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
@@ -451,7 +469,16 @@ class Holovibes
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
-                                             settings::TimeWindow{5}))
+                                             settings::DataType{RecordedDataType::RAW},
+                                             settings::TimeWindow{100},
+                                             settings::ArteryMaskEnabled{false},
+                                             settings::VeinMaskEnabled{false},
+                                             settings::OtsuEnabled{false},
+                                             settings::VesselnessSigma{2.0},
+                                             settings::OtsuKind{OtsuKind::Global},
+                                             settings::OtsuWindowSize{15},
+                                             settings::OtsuLocalThreshold{0.15f},
+                                             settings::MinMaskArea{10}))
     {
     }
 
