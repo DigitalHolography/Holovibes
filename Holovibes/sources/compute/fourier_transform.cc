@@ -245,8 +245,6 @@ void FourierTransform::insert_moments()
         {
             auto type = setting<settings::ImageType>();
 
-            bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -277,32 +275,31 @@ void FourierTransform::insert_moments()
                                    moments_env_.f_end,
                                    stream_);
 
-            float* freq = nullptr;
+            float* buff = nullptr;
             if (type == ImgType::Moments_0)
-                freq = moments_env_.f0_buffer.get();
+                buff = moments_env_.moment0_buffer.get();
 
             if (type == ImgType::Moments_1)
-                freq = moments_env_.f1_buffer.get();
+                buff = moments_env_.moment1_buffer.get();
 
             if (type == ImgType::Moments_2)
-                freq = moments_env_.f2_buffer.get();
+                buff = moments_env_.moment2_buffer.get();
 
-            if (freq != nullptr)
+            if (buff != nullptr)
             {
-                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
-                                       moments_env_.stft_res_buffer,
-                                       freq,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                                 buff,
+                                 fd_.get_frame_res() * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
             }
 
             // Setup of moment 0 flatfield
-            cudaXMemcpy(moments_env_.moment0ff_buffer.get(),
-                        moments_env_.moment0_buffer.get(),
-                        fd_.get_frame_res() * sizeof(float),
-                        cudaMemcpyDeviceToDevice);
+            cudaXMemcpyAsync(moments_env_.moment0ff_buffer.get(),
+                             moments_env_.moment0_buffer.get(),
+                             fd_.get_frame_res() * sizeof(float),
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
         });
 }
 
