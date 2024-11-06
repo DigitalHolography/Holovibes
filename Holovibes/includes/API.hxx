@@ -126,6 +126,7 @@ inline bool set_batch_size(uint value)
 
     if (value > get_input_buffer_size())
         value = get_input_buffer_size();
+
     uint time_stride = get_time_stride();
     if (time_stride < value)
     {
@@ -133,9 +134,13 @@ inline bool set_batch_size(uint value)
         time_stride = value;
         request_time_stride_update = true;
     }
+
     // Go to lower multiple
     if (time_stride % value != 0)
+    {
+        request_time_stride_update = true;
         set_time_stride(time_stride - time_stride % value);
+    }
 
     return request_time_stride_update;
 }
@@ -236,7 +241,7 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 /*! \} */
 
 /*!
- * \name Input file
+ * \name Input
  * \{
  */
 inline size_t get_input_file_start_index() { return GET_SETTING(InputFileStartIndex); }
@@ -250,6 +255,12 @@ inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, val
 
 inline uint get_input_fps() { return static_cast<uint>(GET_SETTING(InputFPS)); }
 inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
+
+inline ImportType get_import_type() { return GET_SETTING(ImportType); }
+inline void set_import_type(ImportType value) { UPDATE_SETTING(ImportType, value); }
+
+inline CameraKind get_camera_kind() { return GET_SETTING(CameraKind); }
+inline void set_camera_kind(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
 /*! \} */
 
 /*!
@@ -259,9 +270,6 @@ inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
 inline holovibes::Device get_record_queue_location() { return GET_SETTING(RecordQueueLocation); }
 
 inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
-
-inline std::optional<size_t> get_nb_frames_to_record() { return GET_SETTING(RecordFrameCount); }
-inline void set_nb_frames_to_record(std::optional<size_t> nb_frames) { UPDATE_SETTING(RecordFrameCount, nb_frames); }
 
 inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); }
 inline void set_record_file_path(std::string value) { UPDATE_SETTING(RecordFilePath, value); }
@@ -535,6 +543,8 @@ inline void set_filter2d_contrast(float min, float max) noexcept
  * \name FFT
  * \{
  */
+/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
+ * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
 inline void set_fft_shift_enabled(bool value)
 {
@@ -542,8 +552,24 @@ inline void set_fft_shift_enabled(bool value)
     pipe_refresh();
 }
 
+/*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
+/*! \} */
+
+/*!
+ * \name Registration
+ * \{
+ */
+
+/*! \brief Getter and Setter for the registration, triggered when the Registration button is clicked on the gui.
+ * (Setter refreshes the pipe) */
+inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
+inline void set_registration_enabled(bool value)
+{
+    UPDATE_SETTING(RegistrationEnabled, value);
+    pipe_refresh();
+}
 /*! \} */
 
 /*!

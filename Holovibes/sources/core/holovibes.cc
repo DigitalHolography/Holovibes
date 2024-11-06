@@ -198,7 +198,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
         api::set_pixel_size(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();
 
-        UserInterfaceDescriptor::instance().import_type_ = ImportType::Camera;
+        api::set_import_type(ImportType::Camera);
         init_input_queue(camera_fd, api::get_input_buffer_size());
 
         camera_read_worker_controller_.set_callback(callback);
@@ -239,7 +239,7 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
         return;
     }
 
-    api::set_nb_frames_to_record(get_setting<settings::RecordFrameCount>().value);
+    api::set_record_frame_count(get_setting<settings::RecordFrameCount>().value);
 
     // if the record is on the cpu
     if (api::get_record_on_gpu() == false)
@@ -270,9 +270,8 @@ void Holovibes::start_chart_record(const std::function<void()>& callback)
 
 void Holovibes::stop_chart_record() { chart_record_worker_controller_.stop(); }
 
-void Holovibes::start_information_display(const std::function<void()>& callback)
+void Holovibes::start_information_display()
 {
-    info_worker_controller_.set_callback(callback);
     info_worker_controller_.set_error_callback(error_callback_);
     info_worker_controller_.set_priority(THREAD_DISPLAY_PRIORITY);
     auto all_settings = std::tuple_cat(realtime_settings_.settings_);

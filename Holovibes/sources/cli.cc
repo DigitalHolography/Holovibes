@@ -82,6 +82,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
         LOG_INFO("24");
     }
     LOG_INFO("Moments record: {}", opts.moments_record);
+    LOG_INFO("Registration enabled: {}", opts.registration_enabled);
 }
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
@@ -134,23 +135,14 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         return 33;
     }
 
-    bool load = false;
-
-    if (opts.compute_settings_path)
+    // To load parameters, we now load before the footer and then the config file so that the config file overwrite the
+    // footer
+    if (!opts.compute_settings_path && !input_frame_file->get_has_footer())
     {
-        try
-        {
-            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
-        }
-        catch (std::exception& e)
-        {
-            LOG_INFO(e.what());
-            LOG_INFO("Error while loading compute settings, abort");
-            return 34;
-        }
-        load = true;
+        LOG_ERROR("No compute settings file provided and no footer found in input file");
+        return 35;
     }
-    else if (input_frame_file->get_has_footer())
+    if (input_frame_file->get_has_footer())
     {
         LOG_DEBUG("loading pixel size");
         // Pixel size is set with info section of input file we need to call import_compute_settings in order to load
@@ -163,15 +155,22 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
         catch (std::exception& e)
         {
             LOG_ERROR("{}", e.what());
-            LOG_ERROR("Error while loading compute settings, abort");
+            LOG_ERROR("Error while loading compute settings from footer, abort");
             return 34;
         }
-        load = true;
     }
-    if (!load)
+    if (opts.compute_settings_path)
     {
-        LOG_ERROR("No compute settings file provided and no footer found in input file");
-        return 35;
+        try
+        {
+            holovibes::api::load_compute_settings(opts.compute_settings_path.value());
+        }
+        catch (std::exception& e)
+        {
+            LOG_INFO(e.what());
+            LOG_INFO("Error while loading compute settings, abort");
+            return 34;
+        }
     }
 
     holovibes::api::set_frame_record_enabled(true);
@@ -311,10 +310,13 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     {
         holovibes.update_setting(holovibes::settings::Mp4Fps{opts.mp4_fps.value()});
     }
+    if (opts.registration_enabled)
+        holovibes.update_setting(holovibes::settings::RegistrationEnabled{opts.registration_enabled});
     // Change the fps according to the Mp4Fps value when having to convert in Mp4 format
     if (opts.output_path.value().ends_with(".mp4"))
     {
-        // Computing the fps before catching the images so that we can set the frame skip according to the fps wanted
+        // Computing the fps before catching the images so that we can set the frame skip according to the fps
+        // wanted
         double input_fps = static_cast<double>(holovibes::api::get_input_fps());
         double time_stride = static_cast<double>(holovibes::api::get_time_stride());
         double frame_skip = static_cast<double>(holovibes::api::get_nb_frame_skip());

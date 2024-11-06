@@ -6,6 +6,8 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <cufft.h>
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv

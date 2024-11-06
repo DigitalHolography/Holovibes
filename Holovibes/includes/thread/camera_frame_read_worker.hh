@@ -5,6 +5,7 @@
 #pragma once
 
 #include "frame_read_worker.hh"
+#include <atomic>
 
 // Fast forward declaration
 namespace camera
@@ -35,6 +36,7 @@ class CameraFrameReadWorker final : public FrameReadWorker
   private:
     /*! \brief The camera giving the images */
     std::shared_ptr<camera::ICamera> camera_;
+    std::shared_ptr<std::atomic<uint>> temperature_;
 
     void enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd, const camera::FrameDescriptor& camera_fd);
 };

@@ -1,10 +1,17 @@
 ## Changelog
 
-### X.X.X
+### 13.10.0
+
+- Add image registration. Used to stabilize the image to the center of the eye. A reference is taken when the user click on
+  `registration` check box in the frontend.
+
+### 13.9.0
 
 - New dark theme style
 - Add a boundary information above the focus
 - Information worker data are now displayed in a table
+- Add temperature for phantom cameras and alvium
+- Add the possibility to use compute settings which doesn't have all the fields
 
 ### 13.8.0
 

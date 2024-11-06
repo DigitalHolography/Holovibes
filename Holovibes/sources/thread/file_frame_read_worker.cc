@@ -141,14 +141,14 @@ void FileFrameReadWorker::insert_fast_update_map_entries()
     *entry1 = "File";
     *entry2 = input_descriptor_info;
 
-    current_fps_ = FastUpdatesMap::map<FpsType>.create_entry(FpsType::INPUT_FPS);
+    current_fps_ = FastUpdatesMap::map<IntType>.create_entry(IntType::INPUT_FPS);
 }
 
 void FileFrameReadWorker::remove_fast_update_map_entries()
 {
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::IMG_SOURCE);
     FastUpdatesMap::map<IndicationType>.remove_entry(IndicationType::INPUT_FORMAT);
-    FastUpdatesMap::map<FpsType>.remove_entry(FpsType::INPUT_FPS);
+    FastUpdatesMap::map<IntType>.remove_entry(IntType::INPUT_FPS);
     FastUpdatesMap::map<ProgressType>.remove_entry(ProgressType::FILE_READ);
 }
 

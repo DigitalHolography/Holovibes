@@ -1,5 +1,5 @@
 #include "fresnel_transform.cuh"
-#include "transforms.cuh"
+#include "masks.cuh"
 #include "unique_ptr.hh"
 #include "common.cuh"
 #include "cuda_memory.cuh"

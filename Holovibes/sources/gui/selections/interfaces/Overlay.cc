@@ -16,10 +16,13 @@ Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
     , elemIndex_(0)
     , verticesShader_(2)
     , colorShader_(3)
-    , alpha_(0.7f)
+    , alpha_(1.f)
+    , color_({1.f, 0.f, 0.f})
     , active_(true)
     , display_(false)
     , parent_(parent)
+    , scale_(1.f)
+    , translation_(0.f)
 {
     LOG_FUNC();
 }
@@ -86,6 +89,33 @@ void Overlay::initProgram()
     //     LOG_ERROR("Shader error : {}", Program_->log().toStdString());
     init();
     Program_->release();
+}
+
+void Overlay::initDraw()
+{
+    parent_->makeCurrent();
+
+    setBuffer();
+
+    Vao_.bind();
+
+    // Bind program and set uniform
+    Program_->bind();
+    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    Program_->setUniformValue(Program_->uniformLocation("scale"), scale_.x, scale_.y);
+    Program_->setUniformValue(Program_->uniformLocation("translation"), translation_.x, translation_.y);
+
+    glEnableVertexAttribArray(colorShader_);
+    glEnableVertexAttribArray(verticesShader_);
+}
+
+void Overlay::endDraw()
+{
+    glDisableVertexAttribArray(verticesShader_);
+    glDisableVertexAttribArray(colorShader_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    Program_->release();
+    Vao_.release();
 }
 
 units::PointWindow Overlay::getMousePos(const QPoint& pos)
