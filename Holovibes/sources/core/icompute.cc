@@ -28,12 +28,16 @@ void ICompute::fft_freqs()
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
     float d = setting<settings::InputFPS>() / time_transformation_size;
 
-    // initialize f0 (f0 = [1, ..., 1])
-    cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size * sizeof(float));
-
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
+    std::unique_ptr<float[]> f0(new float[time_transformation_size]);
     std::unique_ptr<float[]> f1(new float[time_transformation_size]);
     std::unique_ptr<float[]> f2(new float[time_transformation_size]);
+
+    // initialize f0 (f0 = [1, ..., 1])
+    for (uint i = 0; i < time_transformation_size; i++)
+        f0[i] = 1.f;
+
+    cudaXMemcpy(moments_env_.f0_buffer, f0.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f1
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even

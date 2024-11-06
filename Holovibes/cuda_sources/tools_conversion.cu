@@ -43,7 +43,8 @@ static __global__ void kernel_complex_to_modulus(
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;
 
-        output_frame[index] = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+        float tmp = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+        output_frame[index] = tmp * tmp;
     }
 }
 
