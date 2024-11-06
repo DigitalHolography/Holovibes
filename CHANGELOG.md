@@ -1,5 +1,9 @@
 ## Changelog
 
+### 14.XX.XX
+
+- Create a second ps1 for registration
+
 ### 13.10.0
 
 - Add image registration. Used to stabilize the image to the center of the eye. A reference is taken when the user click on
