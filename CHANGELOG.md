@@ -3,6 +3,15 @@
 ### 14.XX.XX
 
 - Create a second ps1 for registration
+- Enhance the registration process:
+  - The user can choose the radius of the circle where the cross-correlation is computed. A spinbox is added in the GUI.
+  - The reference image is taken from the accumulation queue after the first accumulation at each pipe refresh.
+  - The registration is now working in CLI mode.
+  - The registration is now in the compute settings. The registration zone (circle radius) is saved in the compute settings.
+- Refactorisation of fn_compute_vect:
+  - Do not inherit std::vector anymore.
+  - Associate each functions to a unique ID. This allows to track each functions and give more flexibility,
+    for example: removing a function from the vector.
 
 ### 13.10.0
 
