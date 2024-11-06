@@ -42,6 +42,9 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::OtsuKind,                               \
+    holovibes::settings::OtsuWindowSize,                         \
+    holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -76,8 +79,10 @@
     holovibes::settings::RecordMode,                             \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::ArteryMaskEnabled,                      \
+    holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::OtsuEnabled,                            \
-    holovibes::settings::VesselnessSigma
+    holovibes::settings::VesselnessSigma,                        \
+    holovibes::settings::MinMaskArea
 
 
 #define ONRESTART_SETTINGS                                       \

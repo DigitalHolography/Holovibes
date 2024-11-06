@@ -30,6 +30,7 @@ class AnalysisPanel : public Panel
     void on_notify() override;
 
   public slots:
+    void set_vein_mask(bool enabled);
 
     /*! \brief Change the value for the spin box of time window */
     void update_time_window();
@@ -40,6 +41,13 @@ class AnalysisPanel : public Panel
     /*! \brief Change the vesselness sigma value through slider, divide the integer [10, 500] value by 100 to normalize
      * in range [0.01, 5] */
     void update_vesselness_sigma_slider(int value);
+
+    void update_min_mask_area(int value);
+    void update_min_mask_area_slider(int value);
+
+    void set_otsu_kind(int index);
+    void set_otsu_window_size(int value);
+    void set_otsu_local_threshold(double value);
 
     // private:
 };

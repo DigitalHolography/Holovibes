@@ -21,11 +21,16 @@
 
 #define REALTIME_SETTINGS                          \
     holovibes::settings::ArteryMaskEnabled,        \
+    holovibes::settings::VeinMaskEnabled,          \
     holovibes::settings::OtsuEnabled,              \
+    holovibes::settings::OtsuKind,                 \
+    holovibes::settings::OtsuWindowSize,           \
+    holovibes::settings::OtsuLocalThreshold,       \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
-    holovibes::settings::VesselnessSigma           \
+    holovibes::settings::VesselnessSigma,          \
+    holovibes::settings::MinMaskArea
 
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -79,6 +84,9 @@ class Analysis
 
     /*! \brief Insert artery mask computing */
     void insert_show_artery();
+
+    /*! \brief TODO */
+    void insert_otsu();
 
     template <typename T>
     inline void update_setting(T setting)

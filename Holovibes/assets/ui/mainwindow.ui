@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1210</width>
-    <height>796</height>
+    <width>1526</width>
+    <height>810</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -51,12 +51,12 @@
      <enum>QLayout::SetNoConstraint</enum>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="centralHorizontalLayout" stretch="0,0,0,0,0,0,0">
       <property name="spacing">
        <number>3</number>
       </property>
       <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+       <enum>QLayout::SetMinimumSize</enum>
       </property>
       <property name="bottomMargin">
        <number>0</number>
@@ -122,7 +122,7 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0" columnstretch="0,0">
            <property name="verticalSpacing">
             <number>6</number>
            </property>
@@ -287,17 +287,17 @@
             </widget>
            </item>
            <item row="3" column="1">
-              <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="currentText">
-                <string/>
-               </property>
-              </widget>
+            <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -356,7 +356,7 @@
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="TimeTransformationComboBox">
-            <item>
+             <item>
               <property name="text">
                <string>None</string>
               </property>
@@ -470,6 +470,9 @@ It's a post-processing step to remove noise</string>
              <property name="toolTip">
               <string>The boundary value</string>
              </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
              <property name="showGroupSeparator" stdset="0">
               <bool>false</bool>
              </property>
@@ -481,9 +484,6 @@ It's a post-processing step to remove noise</string>
              </property>
              <property name="maximum">
               <double>1000000.000000000000000</double>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -518,7 +518,7 @@ It's a post-processing step to remove noise</string>
               <number>0</number>
              </property>
              <property name="minimum">
-              <double>0</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
@@ -557,43 +557,43 @@ It's a post-processing step to remove noise</string>
            <property name="checked">
             <bool>false</bool>
            </property>
-             <layout class="QHBoxLayout" name="kernelSelectLayout">
-              <item>
-               <widget class="QComboBox" name="KernelQuickSelectComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="DivideConvoCheckBox">
-                <property name="text">
-                 <string>Divide</string>
-                </property>
-               </widget>
+           <layout class="QHBoxLayout" name="kernelSelectLayout">
+            <item>
+             <widget class="QComboBox" name="KernelQuickSelectComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
          </item>
-                     <item row="2" column="0">
-             <spacer name="BottomViewSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+         <item>
+          <spacer name="BottomViewSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
@@ -1011,7 +1011,8 @@ It's a post-processing step to remove noise</string>
            <item row="2" column="0">
             <widget class="QLabel" name="PLabel">
              <property name="toolTip">
-              <string>The Time Transform FFT filter's start frequency.&#10;The range of frequencies kept is [z, z + width].</string>
+              <string>The Time Transform FFT filter's start frequency.
+The range of frequencies kept is [z, z + width].</string>
              </property>
              <property name="text">
               <string>z</string>
@@ -1063,7 +1064,8 @@ It's a post-processing step to remove noise</string>
            <item row="3" column="0">
             <widget class="QLabel" name="Q_Label">
              <property name="toolTip">
-              <string>The SVD/SSA filter's start frequency.&#10;The range of frequencies kept is [z2, z2 + width].</string>
+              <string>The SVD/SSA filter's start frequency.
+The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>z2</string>
@@ -1124,7 +1126,8 @@ It's a post-processing step to remove noise</string>
            <item row="3" column="2">
             <widget class="QLabel" name="QaccLabel">
              <property name="toolTip">
-              <string>Number of frequencies kept by the SVD/SSA algorithm.&#10;The range of frequencies kept is [z2, z2 + width].</string>
+              <string>Number of frequencies kept by the SVD/SSA algorithm.
+The range of frequencies kept is [z2, z2 + width].</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -1137,7 +1140,8 @@ It's a post-processing step to remove noise</string>
            <item row="2" column="2">
             <widget class="QLabel" name="PaccLabel">
              <property name="toolTip">
-              <string>Number of frequencies kept by the FFT in the time transformation algorithm.&#10;The range of frequencies kept is [z, z + width]</string>
+              <string>Number of frequencies kept by the FFT in the time transformation algorithm.
+The range of frequencies kept is [z, z + width]</string>
              </property>
              <property name="text">
               <string>Width</string>
@@ -1551,26 +1555,6 @@ It's a post-processing step to remove noise</string>
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QSpinBox" name="PRedSpinBox_Composite">
                 <property name="sizePolicy">
@@ -1612,6 +1596,26 @@ It's a post-processing step to remove noise</string>
                 </property>
                 <property name="value">
                  <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -2399,37 +2403,55 @@ It's a post-processing step to remove noise</string>
         <property name="flat">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_123">
-         <property name="bottomMargin">
-          <number>9</number>
-         </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-
-         <!-- Analysis Panel -->
-          <layout class="QHBoxLayout" name="AnalysisLayout">
-          <item>
-          <widget class="QSpinBox" name="TimeWindowSpinBox">
-            <property name="enabled">
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QLabel" name="TimeWindowLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Time window</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="TimeWindowSpinBox">
+             <property name="enabled">
               <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
               </sizepolicy>
-            </property>
-            <property name="toolTip">
+             </property>
+             <property name="toolTip">
               <string/>
-            </property>
-            <property name="minimum">
+             </property>
+             <property name="minimum">
               <number>1</number>
-            </property>
-            <property name="maximum">
-              <number>100000</number>
-            </property>
-          </widget>
-          </item>
-           <item>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="ArteryVeinGridLayout">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="ArteryCheckBox">
              <property name="enabled">
               <bool>true</bool>
@@ -2442,7 +2464,140 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="VeinCheckBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show Veins</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="VesselnessGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="VesselnessSigmaLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Vesselness</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="showGroupSeparator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>5.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.010000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="VesselnessSigmaSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>500</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="MinMaskAreaGridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="MinMaskAreaLabel">
+             <property name="toolTip">
+              <string>Number of images processed at once by the spatial transformation algorithm</string>
+             </property>
+             <property name="text">
+              <string>Min. area of Mask</string>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="MinMaskAreaSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QSlider" name="MinMaskAreaSlider">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="OtsuCheckBox">
              <property name="enabled">
               <bool>true</bool>
@@ -2455,10 +2610,74 @@ It's a post-processing step to remove noise</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-          <item>
-          <widget class="QDoubleSpinBox" name="VesselnessSigmaDoubleSpinBox">
+           <item row="0" column="1">
+            <widget class="QComboBox" name="OtsuKindComboBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <item>
+              <property name="text">
+               <string>Global</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Adaptive</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="OtsuWindowSizeLabel">
+             <property name="toolTip">
+              <string>Space transformation algorithm used</string>
+             </property>
+             <property name="text">
+              <string>Window Size</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="OtsuWindowSizeSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>15</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="OtsuLocalThresholdLabel">
+             <property name="toolTip">
+              <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
+             </property>
+             <property name="text">
+              <string>Local thresh. factor</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="OtsuLocalThresholdSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -2466,44 +2685,50 @@ It's a post-processing step to remove noise</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string></string>
+              <string>The boundary value</string>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
              </property>
              <property name="showGroupSeparator" stdset="0">
               <bool>false</bool>
              </property>
              <property name="decimals">
-              <number>2</number>
+              <number>3</number>
              </property>
              <property name="minimum">
-              <double>0.10000000000000</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>5.000000000000000</double>
+              <double>1.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>0.010000000000000</double>
              </property>
+             <property name="value">
+              <double>0.150000000000000</double>
+             </property>
             </widget>
-          </item>
-          <item>
-            <widget class="QSlider" name="VesselnessSigmaSlider">
-              <property name="styleSheet">
-                <string notr="true"/>
-              </property>
-              <property name="minimum">
-                <number>10</number>
-              </property>
-              <property name="maximum">
-                <number>500</number>
-              </property>
-              <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-              </property>
-            </widget>
-          </item>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="BottomAnalysisSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
-            
-           
        </widget>
       </item>
       <item>
@@ -3255,7 +3480,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1210</width>
+     <width>1526</width>
      <height>21</height>
     </rect>
    </property>
@@ -6000,12 +6225,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
-
-<!-- Analysis slots connections -->
   <connection>
    <sender>ArteryCheckBox</sender>
    <signal>clicked(bool)</signal>
-   <!-- TODO: change to AnalysisPanel and make it work -->
    <receiver>ViewPanel</receiver>
    <slot>set_artery_mask(bool)</slot>
    <hints>
@@ -6023,8 +6245,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>OtsuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
-   <!-- TODO: Titouan replace the slot function by your thing -->
-   <slot>set_artery_mask(bool)</slot>
+   <slot>set_otsu(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
@@ -6037,20 +6258,20 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-    <sender>VesselnessSigmaDoubleSpinBox</sender>
-    <signal>valueChanged(double)</signal>
-    <receiver>AnalysisPanel</receiver>
-    <slot>update_vesselness_sigma(double)</slot>
-    <hints>
-      <hint type="sourcelabel">
-      <x>175</x>
-      <y>336</y>
-      </hint>
-      <hint type="destinationlabel">
-      <x>0</x>
-      <y>202</y>
-      </hint>
-    </hints>
+   <sender>VesselnessSigmaDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_vesselness_sigma(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>202</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>VesselnessSigmaSlider</sender>
@@ -6068,8 +6289,102 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </hint>
    </hints>
   </connection>
-
-
+  <connection>
+   <sender>OtsuWindowSizeSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_otsu_window_size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OtsuLocalThresholdSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_otsu_local_threshold(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>926</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>OtsuKindComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_otsu_kind(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>261</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MinMaskAreaSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>update_min_mask_area_slider(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>869</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VeinCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>AnalysisPanel</receiver>
+   <slot>set_vein_mask(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>869</x>
+     <y>405</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(int)</slot>
@@ -6193,8 +6508,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>on_input_fps_change(int)</slot>
   <slot>open_light_ui()</slot>
   <slot>set_preset()</slot>
-
-  <!-- Analysis slots -->
   <slot>update_time_window(int)</slot>
   <slot>update_vesselness_sigma(double)</slot>
   <slot>update_vesselness_sigma_slider(int)</slot>

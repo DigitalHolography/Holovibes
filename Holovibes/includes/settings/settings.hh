@@ -16,6 +16,7 @@
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_otsu_kind.hh"
 #include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
@@ -88,7 +89,6 @@ DECLARE_SETTING(ChartDisplayEnabled, bool);
 DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
-
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
@@ -184,8 +184,14 @@ DECLARE_SETTING(Mp4Fps, uint)
 
 /*! \brief Analysis cache */
 DECLARE_SETTING(ArteryMaskEnabled, bool);
+DECLARE_SETTING(VeinMaskEnabled, bool);
 DECLARE_SETTING(OtsuEnabled, bool);
 DECLARE_SETTING(TimeWindow, int);
 DECLARE_SETTING(VesselnessSigma, double);
+DECLARE_SETTING(MinMaskArea, int);
+
+DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
+DECLARE_SETTING(OtsuWindowSize, int);
+DECLARE_SETTING(OtsuLocalThreshold, float);
 
 } // namespace holovibes::settings
