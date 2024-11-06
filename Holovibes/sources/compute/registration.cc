@@ -65,7 +65,7 @@ void Registration::image_preprocess(float* output, float* input, float* mean)
     apply_mask(output, gpu_circle_mask_, fd_.width * fd_.height, 1, stream_);
 }
 
-void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
+void Registration::set_gpu_reference_image()
 {
     if (setting<settings::RegistrationEnabled>())
     {
