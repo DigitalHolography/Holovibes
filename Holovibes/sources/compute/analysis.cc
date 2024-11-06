@@ -403,6 +403,9 @@ void Analysis::init()
     //                                cudaMemcpyDeviceToDevice,
     //                                stream_));
     // cudaXStreamSynchronize(stream_);
+    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+    data_csv_.resize(frame_res);
+    cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 }
 
 void Analysis::dispose()
@@ -452,15 +455,15 @@ void Analysis::insert_show_artery()
 
                 // DEBUGING: useful to compare result with a file NOT FOR RESULT ON THE SCREEN
                 // DEBUGING: we load a temporal mean from MatLab to make sure it's he next part which is bad
-                float* data = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/m0_ff_img.csv");
-                cudaXMemcpy(vesselness_mask_env_.image_with_mean_,
-                            data,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyHostToDevice);
+                // float* data = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+                // cudaXMemcpy(vesselness_mask_env_.image_with_mean_,
+                //             data,
+                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
+                //             cudaMemcpyHostToDevice);
 
                 // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
-                                  vesselness_mask_env_.image_with_mean_,
+                                  data_csv_, // vesselness_mask_env_.image_with_mean_,
                                   api::get_vesselness_sigma(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,

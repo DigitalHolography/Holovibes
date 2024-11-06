@@ -13,50 +13,6 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
-// MIGHT NEED TO BE DELETED
-// Useless for now !! Function to apply convolution with replicate padding
-void applyConvolutionWithReplicatePadding(const float* image, float* output, int imgWidth, int imgHeight,
-                                          const float* kernel, int kernelWidth, int kernelHeight,
-                                          bool divideConvolution = false) {
-    int padWidth = kernelWidth / 2;
-    int padHeight = kernelHeight / 2;
-
-    // Calculate the sum of the kernel for normalization
-    float kernelSum = 0.0f;
-    for (int i = 0; i < kernelHeight; ++i) {
-        for (int j = 0; j < kernelWidth; ++j) {
-            kernelSum += kernel[i * kernelWidth + j];
-        }
-    }
-
-    // Iterate over each pixel in the output image
-    for (int y = 0; y < imgHeight; ++y) {
-        for (int x = 0; x < imgWidth; ++x) {
-            float sum = 0.0f;
-
-            // Convolution operation with replicate padding
-            for (int ky = -padHeight; ky <= padHeight; ++ky) {
-                for (int kx = -padWidth; kx <= padWidth; ++kx) {
-                    int imgX = std::min(std::max(x + kx, 0), imgWidth - 1);
-                    int imgY = std::min(std::max(y + ky, 0), imgHeight - 1);
-                    int kernelIndex = (ky + padHeight) * kernelWidth + (kx + padWidth);
-                    int imageIndex = imgY * imgWidth + imgX;
-
-                    // Apply the kernel
-                    sum += image[imageIndex] * kernel[kernelIndex];
-                }
-            }
-
-            // If division is enabled, normalize the convolved value
-            if (divideConvolution && kernelSum != 0.0f) {
-                output[y * imgWidth + x] = sum / kernelSum;
-            } else {
-                output[y * imgWidth + x] = sum;
-            }
-        }
-    }
-}
-
 __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
      const int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -200,6 +156,15 @@ __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float
     }
 }
 
+void abs_lambda_division(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+    
+    kernel_abs_lambda_division<<<blocks, threads, 0, stream>>>(output, lambda_1, lambda_2, frame_res); 
+}
+
+
 __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2, size_t input_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -207,6 +172,13 @@ __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2
     {
         output[index] = sqrtf(powf(lambda_1[index], 2) + powf(lambda_2[index], 2));
     }
+}
+
+void normalize(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream) {
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(frame_res, threads);
+
+    kernel_normalize<<<blocks, threads, 0, stream>>>(output, lambda_1, lambda_2, frame_res);
 }
 
 __global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float c, float *c_temp)
@@ -221,11 +193,18 @@ __global__ void kernel_If(float* output, size_t input_size, float* R_blob, float
         float E = c_temp[index] / D;
         float F = 1 - expf(-E);
         output[index] = C * F;
-
-        //output[index] = expf(-(powf(R_blob[index], 2) / 2 * powf(beta, 2))) * (1 - expf(-(c_temp[index] / (2 * powf(*c, 2)))));
-        //output[index] = exp(-(pow(R_blob[index], 2) / 2 * pow(beta, 2))) * (1 - exp(-(c_temp[index] / (2 * pow(1, 2)))));
     }
 }
+
+void If(float* output, size_t input_size, float* R_blob, float beta, float c, float *c_temp, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(input_size, threads);
+
+    kernel_If<<<blocks, threads, 0, stream>>>(output, input_size, R_blob, beta, c, c_temp);
+}
+
+
 
 __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float* lambda_2)
 {
@@ -234,6 +213,27 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
     {
         output[index] *= (lambda_2[index] <= 0.f ? 1 : 0);
     }
+}
+
+void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(input_size, threads);
+
+    kernel_lambda_2_logical<<<blocks, threads, 0, stream>>>(output, input_size, lambda_2);
+}
+
+float* compute_I(float* input, float* g_mul, float A, uint frame_res, uint kernel_x_size, uint kernel_y_size, float* convolution_buffer, cuComplex* cuComplex_buffer,
+                        CufftHandle* convolution_plan, cudaStream_t stream) {
+    float* I;
+    cudaXMalloc(&I, frame_res * sizeof(float));
+    cudaXMemcpyAsync(I, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+
+    gaussian_imfilter_sep(I, g_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+
+    multiply_array_by_scalar(I, frame_res, A, stream);
+
+    return I;
 }
 
 // Debuging: return float* to print the result to the screen
@@ -257,140 +257,63 @@ void vesselness_filter(float* output,
 
     float A = std::pow(sigma, gamma);
 
+    float* Ixx = compute_I(input, g_xx_mul, A, frame_res, kernel_x_size, kernel_y_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
 
-    float* Ixx;
-    cudaXMalloc(&Ixx, frame_res * sizeof(float));
-    cudaXMemcpyAsync(Ixx, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXStreamSynchronize(stream);
+    float* Ixy = compute_I(input, g_xy_mul, A, frame_res, kernel_x_size, kernel_y_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
 
-    gaussian_imfilter_sep(Ixx, g_xx_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXStreamSynchronize(stream);
-
-    multiply_array_by_scalar(Ixx, frame_res, A, stream);
-    cudaXStreamSynchronize(stream);
+    float* Iyy = compute_I(input, g_yy_mul, A, frame_res, kernel_x_size, kernel_y_size, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
 
 
-    float* Ixy;
-    cudaXMalloc(&Ixy, frame_res * sizeof(float));
-    cudaXMemcpyAsync(Ixy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXStreamSynchronize(stream);
 
-    gaussian_imfilter_sep(Ixy, g_xy_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXStreamSynchronize(stream);
-
-    multiply_array_by_scalar(Ixy, frame_res, A, stream);
-    cudaXStreamSynchronize(stream);
-
-
-    // Iyx is the same as Ixy, we can simply copy it
-    float* Iyx;
-    cudaXMalloc(&Iyx, frame_res * sizeof(float));
-    cudaXMemcpyAsync(Iyx, Ixy, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXStreamSynchronize(stream);
-
-
-    float* Iyy;
-    cudaXMalloc(&Iyy, frame_res * sizeof(float));
-    cudaXMemcpyAsync(Iyy, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-    cudaXStreamSynchronize(stream);
-
-    gaussian_imfilter_sep(Iyy, g_yy_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
-    cudaXStreamSynchronize(stream);
-
-    multiply_array_by_scalar(Iyy, frame_res, A, stream);
-    cudaXStreamSynchronize(stream);
-
-
-    // Allocate memory on the GPU for the 2x2 submatrices
     float* H;
-    cudaMalloc(&H, frame_res * 4 * sizeof(float));
+    cudaMalloc(&H, frame_res * 3 * sizeof(float));
 
-     // Launch a kernel to prepare the 2x2 submatrices
+
     int blockSize = 256;
     int numBlocks = (frame_res + blockSize - 1) / blockSize;
-    prepareHessian<<<numBlocks, blockSize>>>(H, Ixx, Ixy, Iyx, Iyy, frame_res);
+    prepareHessian<<<numBlocks, blockSize, 0, stream>>>(H, Ixx, Ixy, Iyy, frame_res);
+    cudaXStreamSynchronize(stream);
+
 
     cudaXFree(Ixx);
     cudaXFree(Ixy);
-    cudaXFree(Iyx);
     cudaXFree(Iyy);
 
 
     float* lambda_1 = new float[frame_res];
-    // cudaXMalloc(&lambda_1, frame_res * sizeof(float));
-    // cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+    cudaXMalloc(&lambda_1, frame_res * sizeof(float));
+    cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+
     float* lambda_2 = new float[frame_res];
-    // cudaXMalloc(&lambda_2, frame_res * sizeof(float));
-    // cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
-    cudaXStreamSynchronize(stream);
+    cudaXMalloc(&lambda_2, frame_res * sizeof(float));
+    cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
 
-    float* H_cpy = new float[frame_res * 4];
-    cudaXMemcpy(H_cpy, H, sizeof(float) * 4 * frame_res, cudaMemcpyDeviceToHost);
-    for (int i = 0; i < frame_res; ++i)
-    {
-        float *h = H_cpy + 4 * i;
-        calculerValeursPropres(h[0], h[1], h[3], lambda_1, lambda_2, i);
-    }
-    // compute_sorted_eigenvalues_2x2(H, frame_res, lambda_1, lambda_2, stream);
-    // cudaXStreamSynchronize(stream);
-
-    float* d_lambda_1;
-    cudaXMalloc(&d_lambda_1, sizeof(float) * frame_res);
-    print_in_file(d_lambda_1, frame_res, "lambda_1", stream);
-
-    float* d_lambda_2;
-    cudaXMalloc(&d_lambda_2, sizeof(float) * frame_res);
-    print_in_file(d_lambda_2, frame_res, "lambda_2", stream);
-
-    // cudaXFree(H);
-
-    // float* R_blob;
-    // cudaXMalloc(&R_blob, frame_res * sizeof(float));
-    // threads = get_max_threads_1d();
-    // blocks = map_blocks_to_problem(frame_res, threads);
-    // kernel_abs_lambda_division<<<blocks, threads, 0, stream>>>(R_blob, lambda_1, lambda_2, frame_res);
-    // cudaXStreamSynchronize(stream);
+    compute_eigen_values(H, frame_res, lambda_1, lambda_2, stream);
 
 
-    // float *c_temp;
-    // cudaXMalloc(&c_temp, frame_res * sizeof(float));
-    // threads = get_max_threads_1d();
-    // blocks = map_blocks_to_problem(frame_res, threads);
-    // kernel_normalize<<<blocks, threads, 0, stream>>>(c_temp, lambda_1, lambda_2, frame_res);
-    // cudaXStreamSynchronize(stream);
+    cudaXFree(H);
 
+    float* R_blob;
+    cudaXMalloc(&R_blob, frame_res * sizeof(float));
+    abs_lambda_division(R_blob, lambda_1, lambda_2, frame_res, stream);
 
-    // int c_index;
-    // cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
-    // cudaXStreamSynchronize(stream);
-    // float c;
-    // cudaMemcpy(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost);
-    // std::cout << "c : " << c << std::endl;
+    float *c_temp;
+    cudaXMalloc(&c_temp, frame_res * sizeof(float));
+    normalize(c_temp, lambda_1, lambda_2, frame_res, stream);
 
-    // threads = get_max_threads_1d();
-    // blocks = map_blocks_to_problem(frame_res, threads);
-    // kernel_If<<<blocks, threads, 0, stream>>>(output, frame_res, R_blob, beta, c, c_temp);
-    // cudaXStreamSynchronize(stream);
+    int c_index;
+    cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
 
-    // test_filter = new float[frame_res];
-    // cudaXMemcpyAsync(test_filter,
-    //     output,
-    //     frame_res * sizeof(float),
-    //     cudaMemcpyDeviceToHost,
-    //     stream);
-    // write1DFloatArrayToFile(test_filter,
-    //     sqrt(frame_res),
-    //     sqrt(frame_res),
-    //     "test_filter_output.txt");
+    float c;
+    cudaMemcpy(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost);
 
-    // cudaXFree(R_blob);
-    // cudaXFree(c_temp);
-    // cudaXFree(lambda_1);
+    If(output, frame_res, R_blob, beta, c, c_temp, stream);
 
-    // threads = get_max_threads_1d();
-    // blocks = map_blocks_to_problem(frame_res, threads);
-    // kernel_lambda_2_logical<<<blocks, threads, 0, stream>>>(output, frame_res, lambda_2);
-    // cudaXStreamSynchronize(stream);
+    cudaXFree(R_blob);
+    cudaXFree(c_temp);
+    cudaXFree(lambda_1);
 
-    // cudaXFree(lambda_2);
+    lambda_2_logical(output, frame_res, lambda_2, stream);
+
+    cudaXFree(lambda_2);
 }

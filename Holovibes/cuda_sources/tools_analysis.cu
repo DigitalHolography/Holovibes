@@ -38,119 +38,50 @@ void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cu
 }
 
 // CUDA kernel to prepare H hessian matrices
-__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyx, const float* iyy, const int size)
+__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
     {
         // Prepare the 2x2 submatrix for point `index`
-        output[index * 4 + 0] = ixx[index];
-        output[index * 4 + 1] = ixy[index];
-        output[index * 4 + 2] = iyx[index];
-        output[index * 4 + 3] = iyy[index];
+        output[index * 3 + 0] = ixx[index];
+        output[index * 3 + 1] = ixy[index];
+        output[index * 3 + 2] = iyy[index];
     }
 }
 
-void compute_sorted_eigenvalues_2x2(float* H, int frame_res, float* lambda1, float* lambda2, cudaStream_t stream)
+__global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
 {
-    cusolverDnHandle_t cusolver_handle;
-    cusolverDnCreate(&cusolver_handle);
-    cusolverDnSetStream(cusolver_handle, stream);
-
-    int lwork; // Taille du tampon de travail
-    float* work_buffer; // Tampon de travail sur le GPU
-    int* dev_info; // Statut d'erreur pour chaque appel de cusolver
-    cudaXMalloc(&dev_info, sizeof(int));
-    int h_meig; // Nombre de valeurs propres trouvées
-    float *hessian_2x2 = H;
-
-    // Calculer la taille nécessaire du tampon de travail
-    cusolverStatus_t status_buffer = cusolverDnSsyevdx_bufferSize(
-            cusolver_handle,
-            CUSOLVER_EIG_MODE_VECTOR,
-            CUSOLVER_EIG_RANGE_ALL,
-            CUBLAS_FILL_MODE_LOWER,
-            2,                       // Dimension de la matrice
-            hessian_2x2,             // La matrice d'entrée
-            2,                       // Leading dimension de la matrice
-            -FLT_MAX, FLT_MAX,       // Plage complète de valeurs propres
-            1, 2,                    // Indices pour toute la plage
-            &h_meig,                 // Nombre de valeurs propres trouvées (sortie)
-            nullptr,                 // Vecteur des valeurs propres (non utilisé ici)
-            &lwork                   // Retourne la taille du tampon de travail ici
-        );
-
-    // Allouer le tampon de travail sur le GPU
-    cudaXMalloc((void**)&work_buffer, lwork * sizeof(float));
-
-    float* eigenvalues; // Pour stocker les valeurs propres
-    cudaXMalloc(&eigenvalues, sizeof(float) * 2);
-    for (int i = 0; i < frame_res; ++i)
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
     {
-        // Préparer la sous-matrice 2x2 pour le point `i`
-
-        hessian_2x2 = H + (4 * i);
-
-        if (status_buffer != CUSOLVER_STATUS_SUCCESS)
+        double a = H[index * 3], b = H[index * 3 + 1], d = H[index * 3 + 2];
+        double trace = a + d;
+        double determinant = a * d - b * b;
+        double discriminant = trace * trace - 4 * determinant;
+        if (discriminant >= 0)
         {
-            std::cerr << "Erreur lors de la récupération de la taille du tampon de travail pour le point " << i << std::endl;
-            continue;
+            double eig1 = (trace + std::sqrt(discriminant)) / 2;
+            double eig2 = (trace - std::sqrt(discriminant)) / 2;
+            if (std::abs(eig1) < std::abs(eig2))
+            {
+                lambda1[index] = eig1;
+                lambda2[index] = eig2;
+            }
+            else
+            {
+                lambda1[index] = eig2;
+                lambda2[index] = eig1;
+            }
         }
-
-        cusolverStatus_t status = cusolverDnSsyevdx(
-            cusolver_handle,
-            CUSOLVER_EIG_MODE_VECTOR,
-            CUSOLVER_EIG_RANGE_ALL,
-            CUBLAS_FILL_MODE_LOWER,
-            2,
-            hessian_2x2,               // Matrice d'entrée
-            2,                          // Leading dimension
-            -FLT_MAX, FLT_MAX,         // Plage complète de valeurs propres
-            1, 2,                       // Indices pour toute la plage
-            &h_meig,                    // Nombre de valeurs propres trouvées
-            eigenvalues,                // Vecteur pour stocker les valeurs propres
-            work_buffer,                // Tampon de travail
-            lwork,                      // Taille du tampon
-            dev_info                    // Statut d'erreur
-        );
-
-        // Libérer le tampon de travail pour ce point
     }
-
-    std::cout << "fini" << std::endl;
-
-    cudaXFree(eigenvalues);
-    cudaXFree(work_buffer);
-    cudaXFree(dev_info);
-    // Détruire le handle cusolver
-    cusolverDnDestroy(cusolver_handle);
 }
 
-// Fonction pour calculer les valeurs propres d'une matrice 2x2
-void calculerValeursPropres(float a, float b, float d, float* lambda1, float* lambda2, int ind)
+void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cudaStream_t stream)
 {
-    // Calcul de la trace et du déterminant
-    float trace = a + d;
-    float determinant = a * d - b * b;
-
-    // Calcul du discriminant
-    float discriminant = trace * trace - 4 * determinant;
-
-    // Vérification si les valeurs propres sont réelles
-    if (discriminant >= 0) {
-        float eig1 = (trace + std::sqrt(discriminant)) / 2;
-        float eig2 = (trace - std::sqrt(discriminant)) / 2;
-        // Vérification de la condition
-        if (std::abs(eig1) < std::abs(eig2)) {
-            lambda1[ind] = eig1;
-            lambda2[ind] = eig2;
-        } else {
-            lambda1[ind] = eig2;
-            lambda2[ind] = eig1;
-        }
-    } else {
-        std::cout << "Les valeurs propres ne sont pas réelles." << std::endl;
-    }
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_compute_eigen<<<blocks, threads, 0, stream>>>(H, size, lambda1, lambda2);
 }
 
 __global__ void kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y) 

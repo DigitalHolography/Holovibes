@@ -7,7 +7,7 @@
 #include "cuda_memory.cuh"
 #include "common.cuh"
 
-__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyx, const float* iyy, const int size);
+__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size);
 
 void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream);
 
@@ -25,4 +25,4 @@ void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::
 
 void print_in_file(float* input, uint size, std::string filename, cudaStream_t stream);
 
-void calculerValeursPropres(float a, float b, float d, float* lambda1, float* lambda2, int ind);
+void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cudaStream_t stream);
