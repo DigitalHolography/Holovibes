@@ -334,9 +334,14 @@ void Analysis::init()
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
+
     float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
     data_csv_.resize(frame_res);
     cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+
+    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
+    data_csv_avg_.resize(frame_res);
+    cudaXMemcpy(data_csv_avg_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 }
 
 void Analysis::dispose()

@@ -141,6 +141,9 @@ class Analysis
     // To delete
     cuda_tools::CudaUniquePtr<float> data_csv_;
 
+    // To delete
+    cuda_tools::CudaUniquePtr<float> data_csv_avg_;
+
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes::compute
