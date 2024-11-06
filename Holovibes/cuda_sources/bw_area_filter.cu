@@ -9,24 +9,13 @@ using uint = unsigned int;
 
 #define IS_BACKGROUND(VALUE) ((VALUE) == 1.0f)
 
-struct vector_t
-{
-    size_t* ptr_d;
-    size_t* size;
-};
-
-#define _MIN_(A, B) ((A) < (B) ? (A) : (B))
-
 __device__ void lock(size_t* mutex)
 {
     while (atomicCAS(mutex, 0, 1) != 0)
-        ; // Attente active jusqu'à ce que le verrou soit acquis
+        ;
 }
 
-__device__ void unlock(size_t* mutex)
-{
-    atomicExch(mutex, 0); // Libère le verrou
-}
+__device__ void unlock(size_t* mutex) { atomicExch(mutex, 0); }
 
 __device__ void get_linked_label(size_t* label, size_t* linked_d)
 {
@@ -37,8 +26,6 @@ __device__ void get_linked_label(size_t* label, size_t* linked_d)
     }
     linked_d[pred] = *label;
 }
-
-__device__ inline void add_label_link(vector_t& linked) { linked.ptr_d[*linked.size] = *linked.size++; }
 
 __global__ void first_pass_kernel1(const float* image_d,
                                    size_t* labels_d,
