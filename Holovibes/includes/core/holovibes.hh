@@ -93,7 +93,6 @@
     holovibes::settings::ZDistance,                              \
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
-    holovibes::settings::FlatFieldConvolutionMatrix,             \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
@@ -422,7 +421,6 @@ class Holovibes
                                              settings::ZDistance{0.0f},
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
-                                             settings::FlatFieldConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
                                              settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},

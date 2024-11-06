@@ -151,7 +151,6 @@ DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
-DECLARE_SETTING(FlatFieldConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);

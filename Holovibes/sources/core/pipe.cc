@@ -383,15 +383,7 @@ void Pipe::insert_moments()
         converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
 
         fourier_transforms_->insert_moments();
-
-        api::load_flatfield_convolution_matrix(); // Loading the (default) convolution matrix used for flat fielding
-        postprocess_->init_flatfield();           // Initialising flat field buffers
-                                                  // (and some used by both flat field and 'normal' convolution)
-        postprocess_->insert_flatfield_convolution(moments_env_.moment0ff_buffer.get(),
-                                                   buffers_.gpu_convolution_buffer.get());
     }
-    else if (!setting<settings::ConvolutionEnabled>())
-        postprocess_->dispose(); // Freeing unused convolution buffers (flatfield or normal)
 }
 
 void Pipe::insert_reset_batch_index()
@@ -573,7 +565,7 @@ void Pipe::insert_moments_record()
     if (setting<settings::FrameRecordEnabled>() && setting<settings::RecordMode>() == RecordMode::MOMENTS)
     {
         // if (Holovibes::instance().is_cli)
-        fn_compute_vect_.push_back([&]() { keep_contiguous(4); });
+        fn_compute_vect_.push_back([&]() { keep_contiguous(3); });
 
         fn_compute_vect_.conditional_push_back(
             [&]()
@@ -584,7 +576,6 @@ void Pipe::insert_moments_record()
                 record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
                 record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
                 record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
-                record_queue_.enqueue(moments_env_.moment0ff_buffer, stream_, kind);
             });
     }
 }

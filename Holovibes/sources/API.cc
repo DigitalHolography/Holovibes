@@ -1367,24 +1367,6 @@ void load_convolution_matrix(std::optional<std::string> filename)
     }
 }
 
-void load_flatfield_convolution_matrix()
-{
-    api::set_flatfield_convo_matrix({});
-
-    std::vector<float> convo_matrix = api::get_flatfield_convo_matrix();
-
-    try
-    {
-        load_convolution_matrix_file("gaussian_128_128_1.txt", convo_matrix);
-        api::set_flatfield_convo_matrix(convo_matrix);
-    }
-    catch (std::exception& e)
-    {
-        api::set_flatfield_convo_matrix({});
-        LOG_ERROR("Couldn't load flatfield convolution matrix : {}", e.what());
-    }
-}
-
 void enable_convolution(const std::string& filename)
 {
     load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));

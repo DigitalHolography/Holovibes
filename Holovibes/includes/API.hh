@@ -678,14 +678,6 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
  */
 void load_convolution_matrix(std::optional<std::string> filename);
 
-/**
- * \brief Loads a convolution matrix used to compute
- * the flat field of the moment of order 0.
- *
- * Matrix file: gaussian_128_128_1.txt
- */
-void load_flatfield_convolution_matrix();
-
 /*! \brief Enables convolution
  *
  * \param file the file containing the convolution's settings

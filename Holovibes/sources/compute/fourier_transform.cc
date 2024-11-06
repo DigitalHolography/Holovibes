@@ -245,8 +245,6 @@ void FourierTransform::insert_moments()
         {
             auto type = setting<settings::ImageType>();
 
-            bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -297,12 +295,6 @@ void FourierTransform::insert_moments()
                                        moments_env_.f_end,
                                        stream_);
             }
-
-            // Setup of moment 0 flatfield
-            cudaXMemcpy(moments_env_.moment0ff_buffer.get(),
-                        moments_env_.moment0_buffer.get(),
-                        fd_.get_frame_res() * sizeof(float),
-                        cudaMemcpyDeviceToDevice);
         });
 }
 
@@ -321,32 +313,23 @@ void FourierTransform::insert_split_moments()
             // If not, can't we just force set BatchSize to three ?
             for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
             {
-                if (i % 4 == 0)
+                if (i % 3 == 0)
                 {
                     // Image goes to moment 0
                     cudaXMemcpy(moments_env_.moment0_buffer + offset0, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset0 += image_resolution;
                 }
-                else if (i % 4 == 1)
+                else if (i % 3 == 1)
                 {
                     // Image goes to moment 1
                     cudaXMemcpy(moments_env_.moment1_buffer + offset1, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset1 += image_resolution;
                 }
-                else if (i % 4 == 2)
+                else
                 {
                     // Image goes to moment 2
                     cudaXMemcpy(moments_env_.moment2_buffer + offset2, src_buf, image_size, cudaMemcpyDeviceToDevice);
                     offset2 += image_resolution;
-                }
-                else
-                {
-                    // Image goes to moment 0 flatfield
-                    cudaXMemcpy(moments_env_.moment0ff_buffer + offset0ff,
-                                src_buf,
-                                image_size,
-                                cudaMemcpyDeviceToDevice);
-                    offset0ff += image_resolution;
                 }
                 src_buf += image_resolution;
             }

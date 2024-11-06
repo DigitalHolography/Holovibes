@@ -82,7 +82,6 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
             moments_env_.moment0_buffer.resize(frame_res);
             moments_env_.moment1_buffer.resize(frame_res);
             moments_env_.moment2_buffer.resize(frame_res);
-            moments_env_.moment0ff_buffer.resize(frame_res);
 
             moments_env_.stft_res_buffer.resize(frame_res * size);
             fft_freqs();
@@ -160,15 +159,15 @@ void ICompute::update_spatial_transformation_parameters()
     {
         auto frame_res = input_queue_fd.get_frame_res();
         auto batch_size = api::get_batch_size();
-        if (batch_size % 4 != 0)
+        if (batch_size % 3 != 0)
         {
-            LOG_WARN("Batch size ({}) is not a multiple of 4, moments will not be read correctly", batch_size);
-            batch_size += 4 - (batch_size % 4); // Setting LOCAL batch_size to the closest higher multiple of 4
+            LOG_WARN("Batch size ({}) is not a multiple of 3, moments will not be read correctly", batch_size);
+            batch_size += 3 - (batch_size % 3); // Setting LOCAL batch_size to the closest higher multiple of 3
             // This is done to have enough space in buffers when batch_size is not correct
             // (should be blocked by the API anyway)
         }
 
-        size_t size = frame_res * batch_size / 4; // Guaranteed to be a round result by ^^
+        size_t size = frame_res * batch_size / 3; // Guaranteed to be a round result by ^^
 
         // This buffer will contain the inputted moments,
         // dequeued batch by batch from the input queue.
@@ -177,7 +176,6 @@ void ICompute::update_spatial_transformation_parameters()
         moments_env_.moment0_buffer.resize(size);
         moments_env_.moment1_buffer.resize(size);
         moments_env_.moment2_buffer.resize(size);
-        moments_env_.moment0ff_buffer.resize(size);
     }
 
     long long int n[] = {input_queue_fd.height, input_queue_fd.width};

@@ -22,7 +22,6 @@
     holovibes::settings::ImageType,                     \
     holovibes::settings::RenormEnabled,                 \
     holovibes::settings::ConvolutionMatrix,             \
-    holovibes::settings::FlatFieldConvolutionMatrix,    \
     settings::ConvolutionEnabled,                       \
     settings::DivideConvolutionEnabled
 
@@ -58,7 +57,6 @@ class Postprocessing
                    const cudaStream_t& stream,
                    InitSettings settings)
         : gpu_kernel_buffer_()
-        , gpu_flatfield_kernel_buffer_()
         , cuComplex_buffer_()
         , hsv_arr_()
         , reduce_result_(1) // allocate an unique double
@@ -75,24 +73,8 @@ class Postprocessing
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
-    /*! \brief Initialize FLAT FIELD convolution similarly to regular convolution */
-    void init_flatfield();
-
     /*! \brief Free the ressources for the postprocessing */
     void dispose();
-
-    /**
-     * \brief Shortcut function to insert_convolution.
-     * This one inserts a function that skips settings check to
-     * directly apply (in place) a convolution kernel on the data.
-     *
-     * Note: the convolution will always be a 'divide' kind
-     * (i.e. the 'divide' parameter is always true)
-     *
-     * \param[in out] gpu_postprocess_frame The input data
-     * \param[in] gpu_convolution_buffer The convolution kernel
-     */
-    void insert_flatfield_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer);
 
     /*! \brief Insert the Convolution function. */
     void insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer);
@@ -138,7 +120,6 @@ class Postprocessing
     }
 
     cuda_tools::CudaUniquePtr<cuComplex> gpu_kernel_buffer_;
-    cuda_tools::CudaUniquePtr<cuComplex> gpu_flatfield_kernel_buffer_;
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
     cuda_tools::CudaUniquePtr<float> hsv_arr_;
 
