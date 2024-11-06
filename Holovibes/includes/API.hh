@@ -680,11 +680,31 @@ bool get_contrast_auto_refresh();
  */
 void disable_convolution();
 
+/**
+ * \brief Loads a convolution matrix from a file
+ *
+ * This function is a tool / util supposed to be called by other functions
+ *
+ * \param file The name of the file to load the matrix from. NOT A FULL PATH
+ * \param convo_matrix Where to store the read matrix
+ *
+ * \throws When the matrix cannot be loaded
+ */
+void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
+
 /*! \brief Loads convolution matrix from a given file
  *
  * \param file the file containing the convolution's settings
  */
 void load_convolution_matrix(std::optional<std::string> filename);
+
+/**
+ * \brief Loads a convolution matrix used to compute
+ * the flat field of the moment of order 0.
+ *
+ * Matrix file: gaussian_128_128_1.txt
+ */
+void load_flatfield_convolution_matrix();
 
 /*! \brief Enables convolution
  *

@@ -47,6 +47,41 @@ void Postprocessing::init()
     hsv_arr_.resize(frame_res * 3);
 }
 
+void Postprocessing::init_flatfield()
+{
+    LOG_FUNC();
+    const size_t frame_res = fd_.get_frame_res();
+
+    // No need for memset here since it will be completely overwritten by
+    // cuComplex values
+    buffers_.gpu_convolution_buffer.resize(frame_res);
+
+    // No need for memset here since it will be memset in the actual convolution
+    cuComplex_buffer_.resize(frame_res);
+
+    // Setting up flatfield kernel the same way as the normal kernel
+    gpu_flatfield_kernel_buffer_.resize(frame_res);
+    cudaXMemsetAsync(gpu_flatfield_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(gpu_flatfield_kernel_buffer_.get(),
+                                   sizeof(cuComplex),
+                                   setting<settings::FlatFieldConvolutionMatrix>().data(),
+                                   sizeof(float),
+                                   sizeof(float),
+                                   frame_res,
+                                   cudaMemcpyHostToDevice,
+                                   stream_));
+    constexpr uint batch_size = 1; // since only one frame.
+    // We compute the FFT of the kernel, once, here, instead of every time the
+    // convolution subprocess is called
+    shift_corners(gpu_flatfield_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
+    cufftSafeCall(cufftExecC2C(convolution_plan_,
+                               gpu_flatfield_kernel_buffer_.get(),
+                               gpu_flatfield_kernel_buffer_.get(),
+                               CUFFT_FORWARD));
+
+    hsv_arr_.resize(frame_res * 3);
+}
+
 void Postprocessing::dispose()
 {
     LOG_FUNC();
@@ -54,6 +89,7 @@ void Postprocessing::dispose()
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gpu_kernel_buffer_.reset(nullptr);
+    gpu_flatfield_kernel_buffer_.reset(nullptr);
     hsv_arr_.reset(nullptr);
 }
 
@@ -96,6 +132,22 @@ void Postprocessing::convolution_composite(float* gpu_postprocess_frame,
                        stream_);
 
     from_distinct_components_to_interweaved_components(gpu_postprocess_frame, hsv_arr_.get(), frame_res, stream_);
+}
+
+void Postprocessing::insert_flatfield_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer)
+{
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            convolution_kernel(gpu_postprocess_frame,
+                               gpu_convolution_buffer,
+                               cuComplex_buffer_.get(),
+                               &convolution_plan_,
+                               fd_.get_frame_res(),
+                               gpu_flatfield_kernel_buffer_.get(),
+                               true, // Divide is forced to true
+                               stream_);
+        });
 }
 
 void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer)

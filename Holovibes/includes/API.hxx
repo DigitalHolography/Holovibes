@@ -295,6 +295,9 @@ inline uint get_mp4_fps() { return GET_SETTING(Mp4Fps); }
 inline std::vector<float> get_convo_matrix() { return GET_SETTING(ConvolutionMatrix); };
 inline void set_convo_matrix(std::vector<float> value) { UPDATE_SETTING(ConvolutionMatrix, value); }
 
+inline std::vector<float> get_flatfield_convo_matrix() { return GET_SETTING(FlatFieldConvolutionMatrix); };
+inline void set_flatfield_convo_matrix(std::vector<float> value) { UPDATE_SETTING(FlatFieldConvolutionMatrix, value); }
+
 inline bool get_convolution_enabled() { return GET_SETTING(ConvolutionEnabled); }
 inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
 

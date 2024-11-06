@@ -375,8 +375,14 @@ void Pipe::insert_moments()
 
         fourier_transforms_->insert_moments();
 
-        postprocess_->insert_convolution(moments_env_.moment0ff_buffer.get(), buffers_.gpu_convolution_buffer.get());
+        api::load_flatfield_convolution_matrix(); // Loading the (default) convolution matrix used for flat fielding
+        postprocess_->init_flatfield();           // Initialising flat field buffers
+                                                  // (and some used by both flat field and 'normal' convolution)
+        postprocess_->insert_flatfield_convolution(moments_env_.moment0ff_buffer.get(),
+                                                   buffers_.gpu_convolution_buffer.get());
     }
+    else if (!setting<settings::ConvolutionEnabled>())
+        postprocess_->dispose(); // Freeing unused convolution buffers (flatfield or normal)
 }
 
 void Pipe::insert_reset_batch_index()

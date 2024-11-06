@@ -60,6 +60,7 @@
     holovibes::settings::ZDistance,                              \
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
+    holovibes::settings::FlatFieldConvolutionMatrix,             \
     holovibes::settings::DivideConvolutionEnabled,               \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
