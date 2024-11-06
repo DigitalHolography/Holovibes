@@ -6,6 +6,8 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <cufft.h>
+
 namespace holovibes
 {
 /*! \struct CoreBuffersEnv
@@ -232,10 +234,22 @@ struct VesselnessMaskEnv
 
     cuda_tools::CudaUniquePtr<cuComplex> temp_buffer_ = nullptr;
 
+    cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
+
+    cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
+
     /*! \brief Time window for mask */
     int time_window_;
 
     /*! \brief Get the number of image for the mean mask*/
     int number_image_mean_ = 0;
+
+    /*! \brief X size of kernel */
+    int kernel_x_size_ = 0;
+
+    /*! \brief Y size of kernel */
+    int kernel_y_size_ = 0;
 };
 } // namespace holovibes

@@ -67,21 +67,25 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
 {
     try
     {
-        // Updates the size of the GPU P acc buffer.
         auto frame_res = input_queue_.get_fd().get_frame_res();
+
+        // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
-        // Updates the buffers for the moments, which depends on time_transformation_size
-        moments_env_.f0_buffer.resize(size);
-        moments_env_.f1_buffer.resize(size);
-        moments_env_.f2_buffer.resize(size);
+        if (api::get_data_type() != RecordedDataType::MOMENTS)
+        {
+            // Updates the buffers for the moments, which depends on time_transformation_size
+            moments_env_.f0_buffer.resize(size);
+            moments_env_.f1_buffer.resize(size);
+            moments_env_.f2_buffer.resize(size);
 
-        moments_env_.moment0_buffer.resize(frame_res);
-        moments_env_.moment1_buffer.resize(frame_res);
-        moments_env_.moment2_buffer.resize(frame_res);
+            moments_env_.moment0_buffer.resize(frame_res);
+            moments_env_.moment1_buffer.resize(frame_res);
+            moments_env_.moment2_buffer.resize(frame_res);
 
-        moments_env_.stft_res_buffer.resize(frame_res * size);
-        fft_freqs();
+            moments_env_.stft_res_buffer.resize(frame_res * size);
+            fft_freqs();
+        }
 
         perform_time_transformation_setting_specific_tasks(size);
 
@@ -150,6 +154,29 @@ void ICompute::update_spatial_transformation_parameters()
     // We avoid the depth in the multiplication because the resize already take
     // it into account
     buffers_.gpu_spatial_transformation_buffer.resize(setting<settings::BatchSize>() * input_queue_fd.get_frame_res());
+
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        auto frame_res = input_queue_fd.get_frame_res();
+        auto batch_size = api::get_batch_size();
+        if (batch_size % 3 != 0)
+        {
+            LOG_WARN("Batch size ({}) is not a multiple of 3, moments will not be read correctly", batch_size);
+            batch_size += 3 - (batch_size % 3); // Setting LOCAL batch_size to the closest higher multiple of 3
+            // This is done to have enough space in buffers when batch_size is not correct
+            // (should be blocked by the API anyway)
+        }
+
+        size_t size = frame_res * batch_size / 3; // Guaranteed to be a round result by ^^
+
+        // This buffer will contain the inputted moments,
+        // dequeued batch by batch from the input queue.
+        moments_env_.stft_res_buffer.resize(frame_res * batch_size);
+
+        moments_env_.moment0_buffer.resize(size);
+        moments_env_.moment1_buffer.resize(size);
+        moments_env_.moment2_buffer.resize(size);
+    }
 
     long long int n[] = {input_queue_fd.height, input_queue_fd.width};
 
