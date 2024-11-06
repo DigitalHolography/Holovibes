@@ -1414,9 +1414,6 @@ The range of frequencies kept is [z, z + width]</string>
                   <property name="singleStep">
                   <double>0.050000000000000</double>
                   </property>
-                  <property name="value">
-                  <double>0.700000000000000</double>
-                  </property>
                   </widget>
                </item>
             </layout>

@@ -50,11 +50,11 @@ class FunctionVector
 
     /*! \brief Push back the function in the vector. Get a new unique ID associated to the function.
      *
-     *  \param[in] function The function to push.
+     *  \param[in] function The reference to the function to push.
      *
      *  \return The id of the function in the vector.
      */
-    ushort push_back(FnType function);
+    ushort push_back(const FnType& function);
 
     /*! \brief Push back the function in the vector depending on the condition.
      *
@@ -75,7 +75,7 @@ class FunctionVector
      *
      *  \param[in] id The unique id of the function.
      */
-    void remove(ushort id);
+    void remove(const ushort id);
 
     /*! \brief Remove a function of the vector by its ID. The function is only when `remove_condition` is true.
      *  Function is removed at the end of `fn_vect_` execution.
@@ -83,14 +83,14 @@ class FunctionVector
      *  \param[in] id The unique id of the function.
      *  \param[in] remove_condition The condition waited before removing the function from the vector.
      */
-    void conditionnal_remove(ushort id, ConditionType remove_condition);
+    void conditionnal_remove(const ushort id, const ConditionType& remove_condition);
 
     /*! \brief Erase a given function in the vector by its ID.
      *  Calls `erase` function from `fn_vect_`.
      *
      *  \param[in] id The id of the function to remove.
      */
-    void erase(ushort id);
+    void erase(const ushort id);
 
     /*! \brief Clear all the vector and reset the IDs. */
     void clear();

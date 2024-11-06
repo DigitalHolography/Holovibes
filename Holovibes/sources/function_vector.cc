@@ -10,9 +10,8 @@ FunctionVector::FunctionVector(ConditionType condition)
 void FunctionVector::call_all()
 {
     // Call all functions in the vector.
-    for (const auto& pair : fn_vect_)
+    for (const auto& [_, f] : fn_vect_)
     {
-        const FnType& f = pair.second;
         f();
     }
 
@@ -24,7 +23,7 @@ void FunctionVector::call_all()
     remove_vect_.clear();
 }
 
-ushort FunctionVector::push_back(FnType function)
+ushort FunctionVector::push_back(const FnType& function)
 {
     // Get a new unique ID for the function to push.
     ushort id = next_id_++;
@@ -46,9 +45,9 @@ ushort FunctionVector::conditional_push_back(const FnType& function)
     return id;
 }
 
-void FunctionVector::remove(ushort id) { this->remove_vect_.push_back(id); }
+void FunctionVector::remove(const ushort id) { this->remove_vect_.push_back(id); }
 
-void FunctionVector::conditionnal_remove(ushort id, ConditionType remove_condition)
+void FunctionVector::conditionnal_remove(const ushort id, const ConditionType& remove_condition)
 {
     ushort remove_id = next_id_++;
     fn_vect_.push_back({id,
@@ -64,7 +63,7 @@ void FunctionVector::conditionnal_remove(ushort id, ConditionType remove_conditi
                         }});
 }
 
-void FunctionVector::erase(ushort id)
+void FunctionVector::erase(const ushort id)
 {
     auto it = std::find_if(fn_vect_.begin(), fn_vect_.end(), [id](const auto& pair) { return pair.first == id; });
     if (it != fn_vect_.end())
