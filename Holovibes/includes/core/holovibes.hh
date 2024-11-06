@@ -64,14 +64,6 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::ArteryMaskEnabled,                      \
-    holovibes::settings::OtsuEnabled,                            \
-    holovibes::settings::OtsuKind,                               \
-    holovibes::settings::OtsuWindowSize,                         \
-    holovibes::settings::OtsuLocalThreshold,                     \
-    holovibes::settings::BwareafiltEnabled,                      \
-    holovibes::settings::BwareafiltN,                            \
-    holovibes::settings::TimeWindow,                             \
     holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
@@ -134,7 +126,9 @@
     holovibes::settings::OtsuKind,                               \
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
-    holovibes::settings::MinMaskArea
+    holovibes::settings::MinMaskArea,                            \
+    holovibes::settings::BwareafiltEnabled,                      \
+    holovibes::settings::BwareafiltN                            
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -409,13 +403,6 @@ class Holovibes
                                              settings::Filter2dEnabled{false},
                                              settings::Filter2dViewEnabled{false},
                                              settings::FftShiftEnabled{false},
-                                             settings::ArteryMaskEnabled{false},
-                                             settings::OtsuEnabled{false},
-                                             settings::OtsuKind{OtsuKind::Global},
-                                             settings::OtsuWindowSize{15},
-                                             settings::OtsuLocalThreshold{0.15f},
-                                             settings::BwareafiltEnabled{false},
-                                             settings::BwareafiltN{15},
                                              settings::RegistrationEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
@@ -478,7 +465,9 @@ class Holovibes
                                              settings::OtsuKind{OtsuKind::Global},
                                              settings::OtsuWindowSize{15},
                                              settings::OtsuLocalThreshold{0.15f},
-                                             settings::MinMaskArea{10}))
+                                             settings::MinMaskArea{10},
+                                             settings::BwareafiltEnabled{false},
+                                             settings::BwareafiltN{15}))
     {
     }
 

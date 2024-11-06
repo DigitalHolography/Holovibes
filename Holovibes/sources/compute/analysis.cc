@@ -194,12 +194,11 @@ void Analysis::init()
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
 
-
     size_t_buffer_1_.resize(frame_res);
     size_t_buffer_2_.resize(frame_res);
     size_t_buffer_3_.resize(frame_res);
     size_t_gpu_.resize(1);
-  
+
     shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(
         cufftExecC2C(convolution_plan_, gaussian_kernel_buffer_.get(), gaussian_kernel_buffer_.get(), CUFFT_FORWARD));
@@ -340,9 +339,9 @@ void Analysis::init()
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
-    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+    // float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
     data_csv_.resize(frame_res);
-    cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+    // cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 }
 
 void Analysis::dispose()
@@ -352,7 +351,7 @@ void Analysis::dispose()
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gaussian_kernel_buffer_.reset(nullptr);
-  
+
     size_t_buffer_1_.reset(nullptr);
     size_t_buffer_2_.reset(nullptr);
     size_t_buffer_3_.reset(nullptr);
