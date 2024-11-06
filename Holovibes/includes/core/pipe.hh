@@ -91,8 +91,12 @@ class Pipe : public ICompute
                                                                           moments_env_,
                                                                           stream_,
                                                                           settings);
-        registration_ =
-            std::make_unique<compute::Registration>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
+        registration_ = std::make_unique<compute::Registration>(fn_compute_vect_,
+                                                                buffers_,
+                                                                image_acc_env_,
+                                                                input.get_fd(),
+                                                                stream_,
+                                                                settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,

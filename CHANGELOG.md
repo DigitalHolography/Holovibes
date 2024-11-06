@@ -1,5 +1,13 @@
 ## Changelog
 
+### 14.0.0
+
+- Create a second ps1 for registration
+- Enhance the registration process:
+  - The user can choose the radius of the circle where the cross-correlation is computed. A spinbox is added in the GUI.
+  - The registration is now working in CLI mode.
+  - The registration is now in the compute settings. The registration zone (circle radius) is saved in the compute settings.
+
 ### 13.10.0
 
 - Add image registration. Used to stabilize the image to the center of the eye. A reference is taken when the user click on
