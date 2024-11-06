@@ -24,6 +24,9 @@ using holovibes::cuda_tools::CufftHandle;
 
 #include <iostream>
 #include <fstream>
+
+#define DIAPHRAGM_FACTOR 0.4f
+
 float* loadCSVtoFloatArray(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -405,10 +408,18 @@ void Analysis::insert_show_artery()
                                   cublas_handler_,
                                   stream_);
 
-                // // DEBUGING: print in a file the final output
+                apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
+                                     fd_.width / 2,
+                                     fd_.height / 2,
+                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     fd_.width,
+                                     fd_.height,
+                                     stream_);
+
+                // DEBUGING: print in a file the final output
                 // print_in_file(buffers_.gpu_postprocess_frame,
                 //               buffers_.gpu_postprocess_frame_size,
-                //               "filter_final_result",
+                //               "final_result",
                 //               stream_);
             }
         });
