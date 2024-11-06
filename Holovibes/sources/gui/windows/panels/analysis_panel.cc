@@ -57,7 +57,7 @@ void AnalysisPanel::on_notify()
 
     // Vesselness sigma
     ui_->VesselnessSigmaDoubleSpinBox->setValue(api::get_vesselness_sigma());
-    ui_->VesselnessSigmaSlider->setValue(api::get_vesselness_sigma());
+    ui_->VesselnessSigmaSlider->setValue((int)std::round(api::get_vesselness_sigma() * 100));
 
     // Min mask Area
     ui_->MinMaskAreaSpinBox->setValue(api::get_min_mask_area());
