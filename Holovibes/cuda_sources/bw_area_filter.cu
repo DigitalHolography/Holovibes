@@ -248,6 +248,9 @@ void get_connected_component(const float* image_d,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
+    cudaXMemset(labels_d, 0, size * sizeof(size_t));
+    cudaXMemset(labels_sizes_d, 0, size * sizeof(size_t));
+
     first_pass(image_d, labels_d, linked_d, labels_sizes_d, size_t_gpu_, width, height, stream);
 
     second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d, labels_sizes_d);

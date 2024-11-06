@@ -297,6 +297,9 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
+                size_t size = buffers_.gpu_postprocess_frame_size;
+
+                float* image_d = buffers_.gpu_postprocess_frame.get();
                 size_t* labels_d = size_t_buffer_1_.get();
                 size_t* labels_sizes_d = size_t_buffer_2_.get();
                 size_t* linked_d = size_t_buffer_3_.get();
@@ -305,12 +308,9 @@ void Analysis::insert_bwareafilt()
                 size_t n = setting<settings::BwareafiltN>();
                 size_t* labels_max_d = nullptr;
 
-                shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_);
+                shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
 
-                cudaXMemset(labels_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
-                cudaXMemset(labels_sizes_d, 0, buffers_.gpu_postprocess_frame_size * sizeof(size_t));
-
-                get_connected_component(buffers_.gpu_postprocess_frame,
+                get_connected_component(image_d,
                                         labels_d,
                                         labels_sizes_d,
                                         linked_d,
@@ -318,27 +318,18 @@ void Analysis::insert_bwareafilt()
                                         fd_.width,
                                         fd_.height,
                                         stream_);
-                nb_labels =
-                    get_nb_label(labels_sizes_d, buffers_.gpu_postprocess_frame_size, size_t_gpu_.get(), stream_);
+                nb_labels = get_nb_label(labels_sizes_d, size, size_t_gpu_.get(), stream_);
 
                 if (nb_labels < n)
                     n = nb_labels;
                 if (n)
                 {
                     cudaXMalloc(&labels_max_d, n * sizeof(size_t));
-                    get_n_max_index(labels_sizes_d, buffers_.gpu_postprocess_frame_size, labels_max_d, n, stream_);
+                    get_n_max_index(labels_sizes_d, size, labels_max_d, n, stream_);
 
-                    create_is_keep_in_label_size(labels_sizes_d,
-                                                 buffers_.gpu_postprocess_frame_size,
-                                                 labels_max_d,
-                                                 n,
-                                                 stream_);
+                    create_is_keep_in_label_size(labels_sizes_d, size, labels_max_d, n, stream_);
 
-                    area_filter(buffers_.gpu_postprocess_frame,
-                                labels_d,
-                                buffers_.gpu_postprocess_frame_size,
-                                labels_sizes_d,
-                                stream_);
+                    area_filter(image_d, labels_d, size, labels_sizes_d, stream_);
                     cudaXFree(labels_max_d);
                 }
             }
