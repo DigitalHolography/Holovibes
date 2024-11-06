@@ -1,12 +1,6 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
-$moments=0
-if ($args[0] -eq "-m")
-{
-    $moments=1
-}
-
 # Function to prompt the user to select a file, starting at the last used folder
 function Select-File([string]$description, [string]$filter) {
     Write-Host $description -ForegroundColor Green
@@ -24,42 +18,6 @@ function Select-File([string]$description, [string]$filter) {
     }
 }
 
-# Function to get a list of configuration files from the user
-function Get-ConfigFiles {
-    $configFiles = @()
-
-    # Prompt for the first configuration file
-    $configFilePath = Select-File -description "Select a configuration file (optional)" -filter "Config Files (*.json)|*.json|All Files (*.*)|*.*"
-
-    if ($configFilePath) {
-        # Add the first configuration file
-        $configFiles += $configFilePath
-        Write-Host "Added configuration file: $configFilePath" -ForegroundColor Green
-
-        # Ask if the user wants to add more files
-        do {
-            $addMore = Read-Host "Do you want to add another configuration file? (Y/N)"
-            if ($addMore -eq 'Y' -or $addMore -eq 'y') {
-                $configFilePath = Select-File -description "Select another configuration file (optional)" -filter "Config Files (*.json)|*.json|All Files (*.*)|*.*" -envVarName $configFileEnvVar
-                if ($configFilePath) {
-                    $configFiles += $configFilePath
-                    Write-Host "Added configuration file: $configFilePath" -ForegroundColor Green
-                }
-            }
-        } while ($addMore -eq 'Y' -or $addMore -eq 'y')
-    }
-    else {
-        Write-Host "No configuration files selected." -ForegroundColor Yellow
-    }
-
-    return $configFiles
-}
-
-
-# Function to get directory name from full file path
-function Get-DirectoryName([string]$filePath) {
-    return [System.IO.Path]::GetDirectoryName($filePath)
-}
 
 # Function to prompt the user to select a folder, starting at the last used folder
 function Select-Folder([string]$description) {
@@ -78,16 +36,27 @@ function Select-Folder([string]$description) {
 }
 
 
+
 # Prompt the user to select the folder containing .holo files
 $holoFolderPath = Select-Folder -description "Select the folder containing .holo files"
+
 # Check if the user selected a folder
 if (-not $holoFolderPath) {
     Write-Host "No folder was selected. Exiting script." -ForegroundColor Red
     exit
 }
 
-# Get the list of configuration files from the user (only if the first one was selected)
-$configFiles = Get-ConfigFiles
+$configFile1 = "AppData/preset/registration.json"
+$configFile2 = "Preset/registration.json"
+$configFiles = ""
+
+# Check if ../Holovibes.exe exists
+if (Test-Path $configFile1) {
+    $configFiles = $configFile1
+}
+else {
+    $configFiles = $configFile2
+}
 
 $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
@@ -96,7 +65,8 @@ $exePath = ""
 # Check if ../Holovibes.exe exists
 if (Test-Path $exePath1) {
     $exePath = $exePath1
-} else {
+}
+else {
     $exePath = $exePath2
 }
 # Set the frame skip to 16
@@ -106,15 +76,9 @@ $frameSkip = 16
 #    $frameSkip = "0"
 #}
 
+
 # Confirm action with the user
 Write-Host "You have selected the folder: $holoFolderPath" -ForegroundColor Cyan
-if ($configFiles.Count -gt 0) {
-    Write-Host "You have selected the following configuration files:" -ForegroundColor Cyan
-    $configFiles | ForEach-Object { Write-Host " - $_" -ForegroundColor Cyan }
-}
-else {
-    Write-Host "No configuration files selected, continuing without them." -ForegroundColor Yellow
-}
 Write-Host "Using Holovibes executable: $exePath" -ForegroundColor Cyan
 
 # Function to prompt the user to select an output extension
@@ -134,13 +98,10 @@ function Select-OutputExtension {
     }
 }
 
-$outputExtension = ".holo"
-if ($moments -eq 0)
-{
-    # Prompt the user to select the output file extension
-    $script:outputExtension = Select-OutputExtension
-    Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
-}
+
+$outputExtension = Select-OutputExtension
+Write-Host "Selected output extension: $outputExtension" -ForegroundColor Cyan
+
 
 # Get a list of all .holo files in the selected folder
 $holoFiles = Get-ChildItem -Path $holoFolderPath -Filter *.holo -Recurse
@@ -155,13 +116,9 @@ foreach ($file in $holoFiles) {
 
 # Get the total number of operations
 $total = 0
-if ($configFiles.Count -gt 0)
-{
-    $total = $configFiles.Count * ($counter - 1)
-}
-else {
-    $total = ($counter - 1)
-}
+
+$total = ($counter - 1)
+
 $counter = 1
 $number_pb = 0
 
@@ -178,31 +135,14 @@ function Execute-Holovibes {
     )
 
     $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
-
-    if ($moments -eq 1)
-    {
-        $args += " --moments_record"
-    }
-    else {
-        if ($outputExtension -eq ".mp4")
-        {
-            $args += " --mp4_fps 24"
-        } else {
-            $args += " --frame_skip $frameSkip"
-        }
-    }
-
-    if ($configFile) {
-        $args += " -c `"$configFile`""
-        Write-Host "Processing $(Split-Path -Leaf $inputFilePath) with config $configFile..." -ForegroundColor Yellow
-    } else {
-        Write-Host "Processing $(Split-Path -Leaf $inputFilePath) without configuration..." -ForegroundColor Yellow
-    }
+    $args += " -c `"$configFile`""
+    $args += " --frame_skip 8"
+    Write-Host "Processing $(Split-Path -Leaf $inputFilePath) with config $configFile..." -ForegroundColor Yellow
+   
     $args
     Write-Host "Processing holo files ($counter/$total)" -ForegroundColor Cyan
     $process = (Start-Process -FilePath $exePath -ArgumentList $args -NoNewWindow -PassThru -Wait)
-    if ($process.ExitCode -ne 0)
-    {
+    if ($process.ExitCode -ne 0) {
         Write-Host "Program exited with bad exit code" -ForegroundColor Red
         $script:number_pb += 1
     }
@@ -215,26 +155,16 @@ function Execute-Holovibes {
 foreach ($file in $holoFiles) {
     $inputFilePath = $file.FullName
     $outputFileName = "$($file.BaseName)_out$outputExtension"
-    if ($moments -eq 1)
-    {
-        $outputFileName = "$($file.BaseName)_moments$outputExtension"
-    }
     $outputFilePath = Join-Path $holoFolderPath $outputFileName
 
-    if ($configFiles.Count -gt 0) {
-        foreach ($configFile in $configFiles) {
-            Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip -configFile $configFile
-            $counter += 1
-        }
-    } else {
-        Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -frameSkip $frameSkip
-        $counter += 1
-    }
+    
+    Execute-Holovibes -exePath $exePath -inputFilePath $inputFilePath -outputFilePath $outputFilePath -configFile $configFiles
+    $counter += 1
+    
 }
 
 # Final message after all files have been processed
 Write-Host "All $total .holo files have been processed." -ForegroundColor Cyan
-if ($number_pb -gt 0)
-{
+if ($number_pb -gt 0) {
     Write-Host "$number_pb returned an error." -ForegroundColor Red
 }
