@@ -269,9 +269,7 @@ void vesselness_filter(float* output,
     cudaMalloc(&H, frame_res * 3 * sizeof(float));
 
 
-    int blockSize = 256;
-    int numBlocks = (frame_res + blockSize - 1) / blockSize;
-    prepareHessian<<<numBlocks, blockSize, 0, stream>>>(H, Ixx, Ixy, Iyy, frame_res);
+    prepare_hessian(H, Ixx, Ixy, Iyy, frame_res, stream);
     cudaXStreamSynchronize(stream);
 
 

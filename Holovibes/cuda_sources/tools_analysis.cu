@@ -8,7 +8,6 @@
 #include "logger.hh"
 #include "cuComplex.h"
 #include "cufft_handle.hh"
-#include "cusolverDn.h"
 
 namespace
 {
@@ -38,7 +37,7 @@ void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cu
 }
 
 // CUDA kernel to prepare H hessian matrices
-__global__ void prepareHessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
+__global__ void kernel_prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -48,6 +47,13 @@ __global__ void prepareHessian(float* output, const float* ixx, const float* ixy
         output[index * 3 + 1] = ixy[index];
         output[index * 3 + 2] = iyy[index];
     }
+}
+
+void prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream)
+{
+    int blockSize = 256;
+    int numBlocks = (size + blockSize - 1) / blockSize;
+    kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, ixx, ixy, iyy, size);
 }
 
 __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
@@ -97,21 +103,6 @@ __global__ void kernel_padding(float* output, float* input, int height, int widt
     }
 }
 
-// Useless
-void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream) 
-{
-    //float* padded_kernel = new float[new_width * new_height];
-    //std::memset(padded_kernel, 0, new_width * new_height * sizeof(float));
-
-    int start_x = (new_width - width) / 2;
-    int start_y = (new_height - height) / 2;
-
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(width * height, threads);
-    kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
-
-}
-
 void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
 {
     // Open the file in write mode
@@ -155,4 +146,42 @@ void print_in_file(float* input, uint size, std::string filename, cudaStream_t s
                             sqrt(size),
                             sqrt(size),
                             "test_" + filename + ".txt");
+}
+
+__global__ void
+kernel_apply_diaphragm_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int index = y * width + x;
+
+    if (x < width && y < height)
+    {
+        float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
+        float radius_squared = radius * radius;
+
+        // If the point is inside the circle set the value to 1.
+        if (distance_squared <= radius_squared)
+            output[index] = 0;
+    }
+}
+
+void apply_diaphragm_mask(float* output,
+                       const float center_X,
+                       const float center_Y,
+                       const float radius,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream)
+{
+    // Setting up the parallelisation.
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    kernel_apply_diaphragm_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
+
+    cudaXStreamSynchronize(stream);
+    cudaCheckError();
 }
