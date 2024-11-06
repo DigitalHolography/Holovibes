@@ -509,7 +509,7 @@ void ViewPanel::reticle_scale(double value)
 
 void ViewPanel::registration_zone(double value)
 {
-    if (!is_between(value, 0., 1.))
+    if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
         return;
 
     api::registration_zone(value);
