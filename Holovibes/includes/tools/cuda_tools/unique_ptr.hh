@@ -7,7 +7,6 @@
 #include <functional>
 #include <memory>
 #include <variant>
-
 #include <cstddef>
 
 #include "cuda_memory.cuh"

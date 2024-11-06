@@ -73,6 +73,11 @@ class ViewPanel : public Panel
      *
      */
     void set_artery_mask(bool value);
+    /*! \brief Enables or Disables registration mode on the main display window.
+     *
+     * \param value true: enable, false: disable
+     */
+    void set_registration(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove

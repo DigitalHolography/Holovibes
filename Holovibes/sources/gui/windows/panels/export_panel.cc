@@ -9,6 +9,7 @@
 #include "logger.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace api = ::holovibes::api;
 
@@ -73,14 +74,14 @@ void ExportPanel::on_notify()
     }
 
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
-    signalBtn->setStyleSheet((api::get_main_display() && signalBtn->isEnabled() &&
-                              api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
+    signalBtn->setStyleSheet((gui::get_main_display() && signalBtn->isEnabled() &&
+                              gui::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
                                  ? "QPushButton {color: #8E66D9;}"
                                  : "");
 
     QPushButton* noiseBtn = ui_->ChartNoisePushButton;
-    noiseBtn->setStyleSheet((api::get_main_display() && noiseBtn->isEnabled() &&
-                             api::get_main_display()->getKindOfOverlay() == KindOfOverlay::Noise)
+    noiseBtn->setStyleSheet((gui::get_main_display() && noiseBtn->isEnabled() &&
+                             gui::get_main_display()->getKindOfOverlay() == KindOfOverlay::Noise)
                                 ? "QPushButton {color: #00A4AB;}"
                                 : "");
 
@@ -199,13 +200,13 @@ void ExportPanel::set_record_mode(const QString& value)
 
         ui_->ChartPlotWidget->show();
 
-        if (api::get_main_display())
+        if (gui::get_main_display())
         {
-            api::get_main_display()->resetTransform();
+            gui::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().enable_all(Signal);
-            api::get_main_display()->getOverlayManager().enable_all(Noise);
-            api::get_main_display()->getOverlayManager().create_overlay<Signal>();
+            gui::get_main_display()->getOverlayManager().enable_all(Signal);
+            gui::get_main_display()->getOverlayManager().enable_all(Noise);
+            gui::get_main_display()->getOverlayManager().create_overlay<Signal>();
         }
     }
     else
@@ -236,12 +237,12 @@ void ExportPanel::set_record_mode(const QString& value)
 
         ui_->ChartPlotWidget->hide();
 
-        if (api::get_main_display())
+        if (gui::get_main_display())
         {
-            api::get_main_display()->resetTransform();
+            gui::get_main_display()->resetTransform();
 
-            api::get_main_display()->getOverlayManager().disable_all(Signal);
-            api::get_main_display()->getOverlayManager().disable_all(Noise);
+            gui::get_main_display()->getOverlayManager().disable_all(Signal);
+            gui::get_main_display()->getOverlayManager().disable_all(Noise);
         }
     }
 
@@ -279,7 +280,7 @@ void ExportPanel::start_record()
         return;
 
     // Start record
-    api::get_raw_window().reset(nullptr);
+    gui::get_raw_window().reset(nullptr);
     ui_->ViewPanel->update_raw_view(false);
     ui_->RawDisplayingCheckBox->setHidden(true);
 

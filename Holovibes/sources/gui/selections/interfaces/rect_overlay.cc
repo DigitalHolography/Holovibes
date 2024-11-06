@@ -15,16 +15,16 @@ void RectOverlay::init()
 
     Vao_.bind();
 
-    // Set vertices position
+    // Set vertices position (it's a rectangle that fill up the entiere window)
     const float vertices[] = {
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
-        0.f,
+        -1.f,
+        -1.f,
+        1.f,
+        -1.f,
+        1.f,
+        1.f,
+        -1.f,
+        1.f,
     };
     glGenBuffers(1, &verticesIndex_);
     glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
@@ -58,10 +58,11 @@ void RectOverlay::init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Set vertices order
-    const GLuint elements[] = {0, 1, 2, 2, 3, 0};
+    const GLuint elements[] = {0, 1, 1, 2, 2, 3, 3, 0};
     glGenBuffers(1, &elemIndex_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     Vao_.release();
 
@@ -70,48 +71,26 @@ void RectOverlay::init()
 
 void RectOverlay::draw()
 {
-    // trigger basicopenglwindow painwindow() dynamically
-    parent_->makeCurrent();
-    setBuffer();
-    Vao_.bind();
-    Program_->bind();
+    initDraw();
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-    glEnableVertexAttribArray(colorShader_);
-    glEnableVertexAttribArray(verticesShader_);
-    Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
+    glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    glDisableVertexAttribArray(verticesShader_);
-    glDisableVertexAttribArray(colorShader_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    Program_->release();
-    Vao_.release();
+    endDraw();
 }
 
 void RectOverlay::setBuffer()
 {
-    parent_->makeCurrent();
-    Program_->bind();
-
     // Normalizing the zone to (-1; 1)
     units::RectOpengl zone_gl = zone_;
 
-    const float subVertices[] = {zone_gl.x(),
-                                 zone_gl.y(),
-                                 zone_gl.right(),
-                                 zone_gl.y(),
-                                 zone_gl.right(),
-                                 zone_gl.bottom(),
-                                 zone_gl.x(),
-                                 zone_gl.bottom()};
+    // The translation is the center of the rectangle
+    translation_.x = (zone_gl.x() + zone_gl.right()) / 2;
+    translation_.y = (zone_gl.y() + zone_gl.bottom()) / 2;
 
-    // Updating the buffer at verticesIndex_ with new coordinates
-    glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(subVertices), subVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    Program_->release();
+    // The scale is the size of the rectangle divide by 2 (because if horizontal it will scale left and also right)
+    scale_.x = (zone_gl.right() - zone_gl.x()) / 2;
+    scale_.y = (zone_gl.bottom() - zone_gl.y()) / 2;
 }
 
 void RectOverlay::move(QMouseEvent* e)
@@ -131,21 +110,13 @@ void RectOverlay::checkCorners()
     auto parent_fd = parent_->getFd();
 
     if (zone_.dst().x() < 0)
-    {
         zone_.dstRef().x().set(0);
-    }
     else if (zone_.dst().x() > parent_fd.width)
-    {
         zone_.dstRef().x().set(parent_fd.width);
-    }
 
     if (zone_.dst().y() < 0)
-    {
         zone_.dstRef().y().set(0);
-    }
     else if (zone_.dst().y() > parent_fd.height)
-    {
         zone_.dstRef().y().set(parent_fd.height);
-    }
 }
 } // namespace holovibes::gui
