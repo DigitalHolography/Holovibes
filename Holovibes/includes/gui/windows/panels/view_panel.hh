@@ -166,7 +166,7 @@ class ViewPanel : public Panel
     /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
      *  \param[in] value The new zone value.
      */
-    void registration_zone(double value);
+    void update_registration_zone(double value);
 
   private:
     QShortcut* p_left_shortcut_;

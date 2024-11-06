@@ -507,12 +507,12 @@ void ViewPanel::reticle_scale(double value)
     api::reticle_scale(value);
 }
 
-void ViewPanel::registration_zone(double value)
+void ViewPanel::update_registration_zone(double value)
 {
     if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
         return;
 
-    api::registration_zone(value);
+    api::update_registration_zone(value);
 }
 
 } // namespace holovibes::gui

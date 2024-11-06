@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * \brief Define FunctionVector class.
+ */
+
 #pragma once
 #include "aliases.hh"
 namespace holovibes
@@ -85,15 +90,16 @@ class FunctionVector
      */
     void conditionnal_remove(const ushort id, const ConditionType& remove_condition);
 
+    /*! \brief Clear all the vector and reset the IDs. */
+    void clear();
+
+  protected:
     /*! \brief Erase a given function in the vector by its ID.
      *  Calls `erase` function from `fn_vect_`.
      *
      *  \param[in] id The id of the function to remove.
      */
     void erase(const ushort id);
-
-    /*! \brief Clear all the vector and reset the IDs. */
-    void clear();
 
   private:
     /*! \brief The condition used in `conditional_push_back` */

@@ -4690,7 +4690,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>RegistrationZoneSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>ViewPanel</receiver>
-   <slot>registration_zone(double)</slot>
+   <slot>update_registration_zone(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>387</x>
@@ -6011,7 +6011,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
-  <slot>registration_zone(double)</slot>
+  <slot>update_registration_zone(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
