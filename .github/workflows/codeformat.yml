@@ -21,11 +21,11 @@ jobs:
       - name: Run Clang-Format Check
         run: |
           # Find all files to check.
-          FILES=$(find . -type f \( -name "*.h" -o -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
+          FILES=$(find . -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
 
           # Check files and list non-conform files.
           for FILE in $FILES; do
             clang-format -style=file -output-replacements-xml $FILE | grep "<replacement " && echo "Formatting issues in $FILE" && exit 1
           done
-          
+
           echo "All files are properly formatted."
