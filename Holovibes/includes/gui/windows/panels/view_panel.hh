@@ -171,6 +171,11 @@ class ViewPanel : public Panel
      */
     void reticle_scale(double value);
 
+    /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+     *  \param[in] value The new zone value.
+     */
+    void update_registration_zone(double value);
+
   private:
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
