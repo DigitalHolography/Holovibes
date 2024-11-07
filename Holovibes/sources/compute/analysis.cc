@@ -343,11 +343,11 @@ void Analysis::init()
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
 
-    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Rakushka/Documents/Holovibes/data_n.csv");
     data_csv_.resize(frame_res);
     cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 
-    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
+    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Rakushka/Documents/Holovibes/f_AVG_mean.csv");
     data_csv_avg_.resize(frame_res);
     cudaXMemcpy(data_csv_avg_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 }
@@ -510,7 +510,7 @@ void Analysis::insert_bwareafilt()
                 size_t n = setting<settings::BwareafiltN>();
                 size_t* labels_max_d = nullptr;
 
-                shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
+                // shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
 
                 get_connected_component(image_d,
                                         labels_d,

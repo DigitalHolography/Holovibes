@@ -29,7 +29,8 @@ void get_connected_component(const float* image_d,
                              const size_t height,
                              const cudaStream_t stream);
 
-void get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_d, size_t n, const cudaStream_t stream);
+void get_n_max_index(
+    size_t* labels_sizes_d, size_t nb_label, size_t* labels_max_d, size_t n, const cudaStream_t stream);
 
 /**
  * \brief set to 0.0f pixels who is keep, 1.0f otherwise
@@ -43,7 +44,7 @@ void get_n_max_index(size_t* labels_size_d, size_t nb_label, size_t* labels_max_
 void area_filter(float* image_d, const size_t* label_d, size_t size, size_t* is_keep_d, const cudaStream_t stream);
 
 /**
- * \brief transforme labels_sizes_d to is_keep_d
+ * \brief transform labels_sizes_d to is_keep_d, we keep only labels from labels_max_d
  *
  * \param[out] labels_sizes_d the matrix use to store value (GPU Memory)
  * \param[in] nb_labels Number of labels
@@ -58,10 +59,10 @@ void create_is_keep_in_label_size(
  * \brief return the number of label
  *
  * \param[in] labels_sizes_d Matrix who store each label size (GPU Memory)
- * \param[in] size Number of labels
+ * \param[in] size size of labels_sizes_d
  * \param[in out] size_t_gpu Size_t on GPU Memory use to store the result from cuda kernel
  * \param[in] stream The CUDA stream on which to launch the operation
  *
  * \return number of label
  */
-int get_nb_label(size_t* labels_size_d, size_t size, size_t* size_t_gpu_, const cudaStream_t stream);
+int get_nb_label(size_t* labels_sizes_d, size_t size, size_t* size_t_gpu_, const cudaStream_t stream);
