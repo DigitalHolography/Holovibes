@@ -75,7 +75,7 @@ class HoloFile
     HoloFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~HoloFile() {};
+    virtual ~HoloFile(){};
 
     /*! \brief Default copy constructor */
     HoloFile(const HoloFile&) = default;

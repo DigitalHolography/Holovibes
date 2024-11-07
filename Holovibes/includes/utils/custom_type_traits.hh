@@ -46,7 +46,8 @@ using enable_if_any_of = std::enable_if_t<is_any_of<T, TYPES...>::value>;
  * @tparam T the type to check.
  */
 template <typename T>
-concept TupleLike = requires(T t) {
+concept TupleLike = requires(T t)
+{
     std::tuple_size<T>::value;
     std::get<0>(t);
 };
@@ -77,7 +78,8 @@ struct tuple_has_type<T, std::tuple<Types...>> : is_any_of<T, Types...>
  * @tparam Types The types that should be in the tuple.
  */
 template <typename T, typename... Types>
-concept TupleContainsTypes = requires(T t) {
+concept TupleContainsTypes = requires(T t)
+{
     // Check T is a tuple.
     std::tuple_size<T>::value;
 
