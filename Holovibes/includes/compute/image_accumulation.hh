@@ -55,7 +55,7 @@ class ImageAccumulation
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    ImageAccumulation(FunctionVector& fn_compute_vect,
+    ImageAccumulation(std::shared_ptr<FunctionVector> fn_compute_vect,
                       ImageAccEnv& image_acc_env,
                       const CoreBuffersEnv& buffers,
                       const camera::FrameDescriptor& fd,
@@ -151,7 +151,7 @@ class ImageAccumulation
 
   private:
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Image Accumulation environment */
     ImageAccEnv& image_acc_env_;
