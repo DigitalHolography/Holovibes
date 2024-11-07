@@ -2639,19 +2639,6 @@ The range of frequencies kept is [z, z + width]</string>
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="OtsuCheckBox">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Otsu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
             <widget class="QCheckBox" name="OtsuCheckBox">
