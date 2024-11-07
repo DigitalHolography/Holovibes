@@ -12,4 +12,3 @@ SortIncludes: false
 ColumnLimit: 120
 TabWidth: 4
 UseTab: Never
-NewlineAfterNamespace: true
