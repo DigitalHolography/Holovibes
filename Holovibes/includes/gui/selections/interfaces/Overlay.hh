@@ -64,19 +64,19 @@ class Overlay : protected QOpenGLFunctions
     virtual ~Overlay();
 
     /*! \brief Get the kind of overlay */
-    const KindOfOverlay getKind() const { return kOverlay_; }
+    const inline KindOfOverlay getKind() const { return kOverlay_; }
 
     /*! \brief Return if the overlay should be displayed */
-    const bool isDisplayed() const { return display_; }
+    const inline bool isDisplayed() const { return display_; }
 
     /*! \brief Return if the overlay have to be deleted */
-    const bool isActive() const { return active_; }
+    const inline bool isActive() const { return active_; }
 
     /*! \brief Get the time before the overlay will hide */
-    const QDateTime getTimeBeforeHide() const { return time_before_hide_; }
+    const inline QDateTime getTimeBeforeHide() const { return time_before_hide_; }
 
     /*! \brief Set the time before the overlay will hide */
-    void setTimeBeforeHide(QDateTime time) { time_before_hide_ = time; }
+    void inline setTimeBeforeHide(QDateTime time) { time_before_hide_ = time; }
 
     /*! \brief Disable this overlay */
     void disable();

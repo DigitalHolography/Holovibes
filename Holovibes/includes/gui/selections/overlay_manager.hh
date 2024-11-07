@@ -30,7 +30,11 @@ class OverlayManager
     template <KindOfOverlay ko>
     void enable(bool make_current = true, int ms = -1);
 
-    /*! \brief Disable all the overlay of kind ko */
+    /*! \brief Disable all the overlay of kind ko
+     *
+     * \param[in] ko The kind of overlay to disable.
+     * \return True if an overlay was found and disabled, false otherwise.
+     */
     bool disable(KindOfOverlay ko);
 
     /*! \brief Create the default overlay in the view if it doesn't exist. Zoom for Raw/Holo, Cross for Slices. */
@@ -49,7 +53,7 @@ class OverlayManager
     void draw();
 
     /*! \brief Get the kind of the current overlay. */
-    KindOfOverlay getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
+    inline KindOfOverlay getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
 
 #ifdef _DEBUG
     /*! \brief Prints every overlay in the vector. Debug purpose. */
