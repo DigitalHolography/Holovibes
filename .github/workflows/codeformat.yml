@@ -27,7 +27,7 @@ jobs:
           fi
 
           # Find all files to check.
-          FILES=$(find ./Holovibes -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
+          FILES=$(find ./Holovibes -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
 
           # Check files and list non-conform files.
           for FILE in $FILES; do
