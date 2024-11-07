@@ -26,8 +26,7 @@ void Rendering::insert_fft_shift()
     {
         if (setting<settings::ImageType>() == ImgType::Composite)
             fn_compute_vect_->conditional_push_back(
-                [=]()
-                {
+                [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
                                   1,
                                   fd_.width,
