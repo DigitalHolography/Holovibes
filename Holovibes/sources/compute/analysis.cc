@@ -447,6 +447,7 @@ void Analysis::insert_barycentres()
                                    f_avg_csv_,
                                    buffers_.gpu_postprocess_frame_size,
                                    stream_);
+
                 // convolution_kernel(vesselness_mask_env_.vascular_image_,
                 //                    buffers_.gpu_convolution_buffer,
                 //                    cuComplex_buffer_.get(),
@@ -459,6 +460,10 @@ void Analysis::insert_barycentres()
                 //           << " y = " << vesselness_mask_env_.barycentre_point_.second << std::endl;
                 // std::cout << "CRV : x = " << vesselness_mask_env_.CRV_point_.first
                 //           << " y = " << vesselness_mask_env_.CRV_point_.second << std::endl;
+
+                print_in_file(vascular_pulse_csv_, 506, "vascular_pulse_analysis", stream_);
+
+                compute_first_correlation(buffers_.gpu_postprocess_frame, vascular_pulse_csv_, 11727, 506, stream_);
 
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
                             vesselness_mask_env_.vascular_image_,
