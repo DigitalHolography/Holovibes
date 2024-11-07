@@ -151,13 +151,10 @@ class Analysis
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
-    /*! \brief TODO comment */
-    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_1_;
-    /*! \brief TODO comment */
-    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_2_;
-    /*! \brief TODO comment */
-    cuda_tools::CudaUniquePtr<size_t> size_t_buffer_3_;
-    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_3_;
+    cuda_tools::CudaUniquePtr<uint> uint_gpu_;
 };
 } // namespace holovibes::compute
 

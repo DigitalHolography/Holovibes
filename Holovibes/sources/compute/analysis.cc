@@ -197,10 +197,10 @@ void Analysis::init()
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
 
-    size_t_buffer_1_.resize(frame_res);
-    size_t_buffer_2_.resize(frame_res);
-    size_t_buffer_3_.resize(frame_res);
-    size_t_gpu_.resize(1);
+    uint_buffer_1_.resize(frame_res);
+    uint_buffer_2_.resize(frame_res);
+    uint_buffer_3_.resize(frame_res);
+    uint_gpu_.resize(1);
 
     shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(
@@ -360,10 +360,10 @@ void Analysis::dispose()
     cuComplex_buffer_.reset(nullptr);
     gaussian_kernel_buffer_.reset(nullptr);
 
-    size_t_buffer_1_.reset(nullptr);
-    size_t_buffer_2_.reset(nullptr);
-    size_t_buffer_3_.reset(nullptr);
-    size_t_gpu_.reset(nullptr);
+    uint_buffer_1_.reset(nullptr);
+    uint_buffer_2_.reset(nullptr);
+    uint_buffer_3_.reset(nullptr);
+    uint_gpu_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -502,13 +502,13 @@ void Analysis::insert_bwareafilt()
                 size_t size = buffers_.gpu_postprocess_frame_size;
 
                 float* image_d = buffers_.gpu_postprocess_frame.get();
-                size_t* labels_d = size_t_buffer_1_.get();
-                size_t* labels_sizes_d = size_t_buffer_2_.get();
-                size_t* linked_d = size_t_buffer_3_.get();
+                uint* labels_d = uint_buffer_1_.get();
+                uint* labels_sizes_d = uint_buffer_2_.get();
+                uint* linked_d = uint_buffer_3_.get();
 
-                size_t nb_labels;
-                size_t n = setting<settings::BwareafiltN>();
-                size_t* labels_max_d = nullptr;
+                uint nb_labels;
+                uint n = setting<settings::BwareafiltN>();
+                uint* labels_max_d = nullptr;
 
                 // shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
 
@@ -516,17 +516,17 @@ void Analysis::insert_bwareafilt()
                                         labels_d,
                                         labels_sizes_d,
                                         linked_d,
-                                        size_t_gpu_.get(),
+                                        uint_gpu_.get(),
                                         fd_.width,
                                         fd_.height,
                                         stream_);
-                nb_labels = get_nb_label(labels_sizes_d, size, size_t_gpu_.get(), stream_);
+                nb_labels = get_nb_label(labels_sizes_d, size, uint_gpu_.get(), stream_);
 
                 if (nb_labels < n)
                     n = nb_labels;
                 if (n)
                 {
-                    cudaXMalloc(&labels_max_d, n * sizeof(size_t));
+                    cudaXMalloc(&labels_max_d, n * sizeof(uint));
                     get_n_max_index(labels_sizes_d, size, labels_max_d, n, stream_);
 
                     create_is_keep_in_label_size(labels_sizes_d, size, labels_max_d, n, stream_);

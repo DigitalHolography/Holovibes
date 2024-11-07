@@ -6,6 +6,8 @@
 
 #include "frame_desc.hh"
 
+using uint = unsigned int;
+
 /**
  * \brief write a matrix with connected component (labels_d) and store the size of each component in an other matrix
  * (label_sizes_d), this function use TwoPass algorithm, and does not handle the border of the image
@@ -21,16 +23,15 @@
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void get_connected_component(const float* image_d,
-                             size_t* labels_d,
-                             size_t* labels_sizes_d,
-                             size_t* linked_d,
-                             size_t* size_t_gpu_,
+                             uint* labels_d,
+                             uint* labels_sizes_d,
+                             uint* linked_d,
+                             uint* size_t_gpu_,
                              const size_t width,
                              const size_t height,
                              const cudaStream_t stream);
 
-void get_n_max_index(
-    size_t* labels_sizes_d, size_t nb_label, size_t* labels_max_d, size_t n, const cudaStream_t stream);
+void get_n_max_index(uint* labels_sizes_d, size_t nb_label, uint* labels_max_d, size_t n, const cudaStream_t stream);
 
 /**
  * \brief set to 0.0f pixels who is keep, 1.0f otherwise
@@ -41,7 +42,7 @@ void get_n_max_index(
  * \param[in] is_keep_d Structure use to know if the label is keep in the output (GPU Memory)
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void area_filter(float* image_d, const size_t* label_d, size_t size, size_t* is_keep_d, const cudaStream_t stream);
+void area_filter(float* image_d, const uint* label_d, size_t size, uint* is_keep_d, const cudaStream_t stream);
 
 /**
  * \brief transform labels_sizes_d to is_keep_d, we keep only labels from labels_max_d
@@ -53,7 +54,7 @@ void area_filter(float* image_d, const size_t* label_d, size_t size, size_t* is_
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void create_is_keep_in_label_size(
-    size_t* labels_sizes_d, size_t nb_labels, size_t* labels_max_d, size_t n, const cudaStream_t stream);
+    uint* labels_sizes_d, size_t nb_labels, uint* labels_max_d, size_t n, const cudaStream_t stream);
 
 /**
  * \brief return the number of label
@@ -65,4 +66,4 @@ void create_is_keep_in_label_size(
  *
  * \return number of label
  */
-int get_nb_label(size_t* labels_sizes_d, size_t size, size_t* size_t_gpu_, const cudaStream_t stream);
+uint get_nb_label(uint* labels_sizes_d, size_t size, uint* size_t_gpu_, const cudaStream_t stream);
