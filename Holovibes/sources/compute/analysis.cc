@@ -512,11 +512,11 @@ void Analysis::insert_bwareafilt()
 
                 // shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
 
-                get_connected_component(image_d,
-                                        labels_d,
+                get_connected_component(labels_d,
                                         labels_sizes_d,
                                         linked_d,
                                         uint_gpu_.get(),
+                                        image_d,
                                         fd_.width,
                                         fd_.height,
                                         stream_);

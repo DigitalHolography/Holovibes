@@ -224,11 +224,11 @@ __global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, 
     }
 }
 
-void get_connected_component(const float* image_d,
-                             uint* labels_d,
+void get_connected_component(uint* labels_d,
                              uint* labels_sizes_d,
                              uint* linked_d,
                              uint* size_t_gpu_,
+                             const float* image_d,
                              const size_t width,
                              const size_t height,
                              const cudaStream_t stream)
