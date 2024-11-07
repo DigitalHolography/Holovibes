@@ -36,8 +36,8 @@ enum KindOfOverlay
 {
     Zoom,
     Reticle,
-    // Stabilization
-    Stabilization,
+    // Registration
+    Registration,
     // Chart
     Signal,
     Noise,
