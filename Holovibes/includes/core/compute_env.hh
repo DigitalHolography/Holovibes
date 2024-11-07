@@ -6,6 +6,7 @@
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
 
+#include <map>
 #include <cufft.h>
 
 namespace holovibes
@@ -226,14 +227,6 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
 
     /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
-    cuda_tools::CudaUniquePtr<cuComplex> g_xx_mul_comp_ = nullptr;
-
-    cuda_tools::CudaUniquePtr<cuComplex> g_xy_mul_comp_ = nullptr;
-
-    cuda_tools::CudaUniquePtr<cuComplex> g_yy_mul_comp_ = nullptr;
-
-    cuda_tools::CudaUniquePtr<cuComplex> temp_buffer_ = nullptr;
-
     cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
 
     cuda_tools::CudaUniquePtr<float> g_xy_mul_ = nullptr;
@@ -251,5 +244,8 @@ struct VesselnessMaskEnv
 
     /*! \brief Y size of kernel */
     int kernel_y_size_ = 0;
+
+    /*! \brief barycentre buffer */
+    cuda_tools::CudaUniquePtr<float> vascular_image_ = nullptr;
 };
 } // namespace holovibes

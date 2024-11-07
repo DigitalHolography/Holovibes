@@ -85,6 +85,9 @@ class Analysis
     /*! \brief Insert artery mask computing */
     void insert_show_artery();
 
+    /*! \brief Insert barycentres*/
+    void insert_barycentres();
+
     /*! \brief TODO */
     void insert_otsu();
 
@@ -142,7 +145,10 @@ class Analysis
     cuda_tools::CudaUniquePtr<float> data_csv_;
 
     // To delete
-    cuda_tools::CudaUniquePtr<float> data_csv_avg_;
+    cuda_tools::CudaUniquePtr<float> f_avg_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

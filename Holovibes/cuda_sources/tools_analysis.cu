@@ -136,6 +136,10 @@ void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::
 
 void print_in_file(float* input, uint size, std::string filename, cudaStream_t stream)
 {
+    if (input == nullptr)
+    {
+        return;
+    }
     float* result = new float[size];
     cudaXMemcpyAsync(result,
                         input,
@@ -181,6 +185,108 @@ void apply_diaphragm_mask(float* output,
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
     kernel_apply_diaphragm_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
+
+    cudaXStreamSynchronize(stream);
+    cudaCheckError();
+}
+
+__global__ void
+kernel_compute_circle_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int index = y * width + x;
+
+    if (x < width && y < height)
+    {
+        float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
+        float radius_squared = radius * radius;
+
+        // If the point is inside the circle set the value to 1.
+        if (distance_squared <= radius_squared)
+            output[index] = 1;
+        else
+            output[index] = 0;
+    }
+}
+
+void compute_circle_mask(float* output,
+                       const float center_X,
+                       const float center_Y,
+                       const float radius,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream)
+{
+    // Setting up the parallelisation.
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    kernel_compute_circle_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
+
+    cudaXStreamSynchronize(stream);
+    cudaCheckError();
+}
+
+__global__ void
+kernel_apply_mask_and(float* output, const float* input, short width, short height)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int index = y * width + x;
+
+    if (x < width && y < height)
+    {
+        output[y * width + x] *= input[y * width + x];
+    }
+}
+
+void apply_mask_and(float* output,
+                       const float* input,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream)
+{
+    // Setting up the parallelisation.
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    kernel_apply_mask_and<<<lblocks, lthreads, 0, stream>>>(output, input, width, height);
+
+    cudaXStreamSynchronize(stream);
+    cudaCheckError();
+}
+
+__global__ void
+kernel_apply_mask_or(float* output, const float* input, short width, short height)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    int index = y * width + x;
+
+    if (x < width && y < height)
+    {
+        output[y * width + x] = (input[y * width + x] != 0.f) ? 1.f : output[y * width + x];
+    }
+}
+
+void apply_mask_or(float* output,
+                       const float* input,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream)
+{
+    // Setting up the parallelisation.
+    uint threads_2d = get_max_threads_2d();
+    dim3 lthreads(threads_2d, threads_2d);
+    dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
+
+    kernel_apply_mask_or<<<lblocks, lthreads, 0, stream>>>(output, input, width, height);
 
     cudaXStreamSynchronize(stream);
     cudaCheckError();

@@ -12,6 +12,8 @@
 #include "matrix_operations.hh"
 #include "m0_treatments.cuh"
 #include "vesselness_filter.cuh"
+#include "barycentre.cuh"
+#include "vascular_pulse.cuh"
 #include "tools_analysis.cuh"
 #include "API.hh"
 #include "otsu.cuh"
@@ -27,6 +29,7 @@ using holovibes::cuda_tools::CufftHandle;
 
 #define DIAPHRAGM_FACTOR 0.4f
 
+#pragma region inutile
 float* loadCSVtoFloatArray(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -163,6 +166,7 @@ std::vector<float> load_convolution_matrix()
 }
 
 } // namespace
+#pragma endregion inutile
 
 void Analysis::init()
 {
@@ -340,8 +344,14 @@ void Analysis::init()
     cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 
     data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
-    data_csv_avg_.resize(frame_res);
-    cudaXMemcpy(data_csv_avg_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+    f_avg_csv_.resize(frame_res);
+    cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+
+    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
+    vascular_pulse_csv_.resize(506);
+    cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
+
+    vesselness_mask_env_.vascular_image_.resize(frame_res);
 }
 
 void Analysis::dispose()
@@ -360,7 +370,7 @@ void Analysis::insert_show_artery()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>() == true)
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
             {
                 // Compute the flat field corrected video
                 convolution_kernel(buffers_.gpu_postprocess_frame,
@@ -388,14 +398,6 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
-
-                // DEBUGING: useful to compare result with a file NOT FOR RESULT ON THE SCREEN
-                // DEBUGING: we load a temporal mean from MatLab to make sure it's he next part which is bad
-                // float* data = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
-                // cudaXMemcpy(vesselness_mask_env_.image_with_mean_,
-                //             data,
-                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //             cudaMemcpyHostToDevice);
 
                 // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
@@ -426,6 +428,42 @@ void Analysis::insert_show_artery()
                 //               buffers_.gpu_postprocess_frame_size,
                 //               "final_result",
                 //               stream_);
+            }
+        });
+}
+
+void Analysis::insert_barycentres()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
+            // Compute f_AVG_mean, which is the temporal average of M1 / M0
+            {
+                compute_barycentre(vesselness_mask_env_.vascular_image_,
+                                   data_csv_,
+                                   f_avg_csv_,
+                                   buffers_.gpu_postprocess_frame_size,
+                                   stream_);
+                // convolution_kernel(vesselness_mask_env_.vascular_image_,
+                //                    buffers_.gpu_convolution_buffer,
+                //                    cuComplex_buffer_.get(),
+                //                    &convolution_plan_,
+                //                    fd_.get_frame_res(),
+                //                    gaussian_kernel_buffer_.get(),
+                //                    false,
+                //                    stream_);
+                // std::cout << "barycentre : x = " << vesselness_mask_env_.barycentre_point_.first
+                //           << " y = " << vesselness_mask_env_.barycentre_point_.second << std::endl;
+                // std::cout << "CRV : x = " << vesselness_mask_env_.CRV_point_.first
+                //           << " y = " << vesselness_mask_env_.CRV_point_.second << std::endl;
+
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            vesselness_mask_env_.vascular_image_,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
             }
         });
 }

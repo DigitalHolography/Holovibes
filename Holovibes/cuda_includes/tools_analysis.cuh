@@ -22,3 +22,21 @@ void apply_diaphragm_mask(float* output,
 void print_in_file(float* input, uint size, std::string filename, cudaStream_t stream);
 
 void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cudaStream_t stream);
+
+void compute_circle_mask(float* output,
+                       const float center_X,
+                       const float center_Y,
+                       const float radius,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream);
+void apply_mask_and(float* output,
+                       const float* input,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream);
+void apply_mask_or(float* output,
+                       const float* input,
+                       const short width,
+                       const short height,
+                       const cudaStream_t stream);
