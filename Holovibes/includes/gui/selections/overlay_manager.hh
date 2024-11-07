@@ -49,7 +49,7 @@ class OverlayManager
     void draw();
 
     /*! \brief Get the kind of the current overlay. */
-    KindOfOverlay getKind() const;
+    KindOfOverlay getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
 
 #ifdef _DEBUG
     /*! \brief Prints every overlay in the vector. Debug purpose. */
@@ -70,6 +70,7 @@ class OverlayManager
     /*! \brief Deletes from the vector every disabled overlay. */
     void clean();
 
+  private:
     /*! \brief Containing every created overlay. */
     std::vector<std::shared_ptr<Overlay>> overlays_;
 

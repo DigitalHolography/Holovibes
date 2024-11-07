@@ -153,8 +153,6 @@ std::shared_ptr<Overlay> OverlayManager::create_overlay(KindOfOverlay ko)
     }
 }
 
-KindOfOverlay OverlayManager::getKind() const { return current_overlay_ ? current_overlay_->getKind() : Zoom; }
-
 #ifdef _DEBUG
 void OverlayManager::printVector()
 {

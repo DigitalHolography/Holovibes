@@ -5,7 +5,6 @@
 namespace holovibes::gui
 {
 
-/*! \brief Create an overlay depending on the value passed to the template. */
 template <KindOfOverlay ko>
 void OverlayManager::enable(bool make_current, int ms)
 {
