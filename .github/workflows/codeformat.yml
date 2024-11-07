@@ -25,6 +25,7 @@ jobs:
             echo "Error: .clang-format file not found!"
             exit 1
           fi
+          find . -type f -name ".clang-format"
           # Find all files to check.
           FILES=$(find ./Holovibes -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
 
