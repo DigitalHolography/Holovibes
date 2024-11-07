@@ -455,7 +455,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Cross>(false);
         set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
@@ -484,8 +484,7 @@ void cancel_time_transformation_cuts()
     if (UserInterfaceDescriptor::instance().mainDisplay)
     {
         UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Cross);
     }
 
     set_cuts_view_enabled(false);
@@ -1500,12 +1499,9 @@ void display_reticle(bool value)
     set_reticle_display_enabled(value);
 
     if (value)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
-    }
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false, 500);
     else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
 
     pipe_refresh();
 }
@@ -1513,6 +1509,8 @@ void display_reticle(bool value)
 void reticle_scale(float value)
 {
     set_reticle_scale(value);
+    if (get_reticle_display_enabled() && UserInterfaceDescriptor::instance().mainDisplay)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false, 500);
     pipe_refresh();
 }
 
@@ -1520,14 +1518,11 @@ void reticle_scale(float value)
 
 #pragma region Chart
 
-void active_noise_zone()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
-}
+void active_noise_zone() { UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Noise>(); }
 
 void active_signal_zone()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Signal>();
 }
 
 void start_chart_display()

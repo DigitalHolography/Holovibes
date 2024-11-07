@@ -20,6 +20,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
+#include <QDateTime>
 
 #include "frame_desc.hh"
 #include "rect.hh"
@@ -62,16 +63,21 @@ class Overlay : protected QOpenGLFunctions
     Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
     virtual ~Overlay();
 
-    /*! \brief Get the zone selected */
-    const units::RectFd& getZone() const;
-
     /*! \brief Get the kind of overlay */
-    const KindOfOverlay getKind() const;
+    const KindOfOverlay getKind() const { return kOverlay_; }
 
     /*! \brief Return if the overlay should be displayed */
-    const bool isDisplayed() const;
+    const bool isDisplayed() const { return display_; }
+
     /*! \brief Return if the overlay have to be deleted */
-    const bool isActive() const;
+    const bool isActive() const { return active_; }
+
+    /*! \brief Get the time before the overlay will hide */
+    const QDateTime getTimeBeforeHide() const { return time_before_hide_; }
+
+    /*! \brief Set the time before the overlay will hide */
+    void setTimeBeforeHide(QDateTime time) { time_before_hide_ = time; }
+
     /*! \brief Disable this overlay */
     void disable();
     /*! \brief Enable this overlay */
@@ -135,6 +141,9 @@ class Overlay : protected QOpenGLFunctions
     Color color_;
     /*! \brief Transparency of the overlay, between 0 and 1 */
     float alpha_;
+
+    /*! \brief The time in ms when the overlay will dissappear */
+    QDateTime time_before_hide_;
 
     /*! \brief If the overlay is activated or not.
      *
