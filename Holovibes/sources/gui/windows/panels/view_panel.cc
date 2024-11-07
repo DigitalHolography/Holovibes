@@ -314,6 +314,9 @@ void ViewPanel::set_registration(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (!value)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Registration);
+
     if (!api::get_fft_shift_enabled())
     {
         set_fft_shift(value);
@@ -511,6 +514,8 @@ void ViewPanel::update_registration_zone(double value)
 {
     if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
         return;
+
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
 
     api::update_registration_zone(value);
 }

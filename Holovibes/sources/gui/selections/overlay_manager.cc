@@ -1,7 +1,7 @@
 #include "API.hh"
 #include "overlay_manager.hh"
 #include "zoom_overlay.hh"
-#include "stabilization_overlay.hh"
+#include "registration_overlay.hh"
 #include "noise_overlay.hh"
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
@@ -132,8 +132,8 @@ std::shared_ptr<Overlay> OverlayManager::create_overlay(KindOfOverlay ko)
     {
     case Zoom:
         return std::make_shared<ZoomOverlay>(parent_);
-    case Stabilization:
-        return std::make_shared<StabilizationOverlay>(parent_);
+    case Registration:
+        return std::make_shared<RegistrationOverlay>(parent_);
     case Noise:
         return std::make_shared<NoiseOverlay>(parent_);
     case Signal:
