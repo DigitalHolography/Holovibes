@@ -184,8 +184,6 @@ void first_pass(const float* image_d,
                 const size_t height,
                 const cudaStream_t stream)
 {
-    cudaXMemset(size_t_gpu_, 0, sizeof(int));
-
     size_t size = width * height;
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size / 2, threads);
