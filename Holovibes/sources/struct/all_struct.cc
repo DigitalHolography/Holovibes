@@ -35,11 +35,16 @@ void Reticle::Update()
     this->scale = GET_SETTING(ReticleScale);
 }
 
+void Registration::Update()
+{
+    this->registration_enabled = GET_SETTING(RegistrationEnabled);
+    this->registration_zone = GET_SETTING(RegistrationZone);
+}
+
 void Views::Update()
 {
     this->image_type = GET_SETTING(ImageType);
     this->fft_shift = GET_SETTING(FftShiftEnabled);
-    this->registration = GET_SETTING(RegistrationEnabled);
     this->x = GET_SETTING(X);
     this->y = GET_SETTING(Y);
     this->z = GET_SETTING(P);
@@ -47,6 +52,7 @@ void Views::Update()
     this->window.Update();
     this->renorm = GET_SETTING(RenormEnabled);
     this->reticle.Update();
+    this->registration.Update();
 }
 
 void Rendering::Convolution::Update()
@@ -197,11 +203,16 @@ void Reticle::Load()
     UPDATE_SETTING(ReticleScale, this->scale);
 }
 
+void Registration::Load()
+{
+    UPDATE_SETTING(RegistrationEnabled, this->registration_enabled);
+    UPDATE_SETTING(RegistrationZone, this->registration_zone);
+}
+
 void Views::Load()
 {
     UPDATE_SETTING(ImageType, this->image_type);
     UPDATE_SETTING(FftShiftEnabled, this->fft_shift);
-    UPDATE_SETTING(RegistrationEnabled, this->registration);
     UPDATE_SETTING(X, this->x);
     UPDATE_SETTING(Y, this->y);
     UPDATE_SETTING(P, this->z);
@@ -209,6 +220,7 @@ void Views::Load()
     this->window.Load();
     UPDATE_SETTING(RenormEnabled, this->renorm);
     this->reticle.Load();
+    this->registration.Load();
 }
 
 void Rendering::Convolution::Load()
@@ -368,10 +380,17 @@ void Reticle::Assert() const
         throw std::exception("Reticle scale is 0 or negative");
 }
 
+void Registration::Assert() const
+{
+    if (this->registration_zone <= 0)
+        throw std::exception("Reticle scale is 0 or negative");
+}
+
 void Views::Assert() const
 {
     this->window.Assert();
     this->reticle.Assert();
+    this->registration.Assert();
 }
 
 } // namespace holovibes

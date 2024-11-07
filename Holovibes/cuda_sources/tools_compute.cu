@@ -96,4 +96,3 @@ void tensor_multiply_vector(float* output,
     kernel_tensor_multiply_vector<<<blocks, threads, 0, stream>>>(output, tensor, vector, frame_res, f_start, f_end);
     cudaCheckError();
 }
-
