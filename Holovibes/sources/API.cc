@@ -396,8 +396,11 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+void update_batch_size(uint batch_size)
 {
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        batch_size = 1;
+
     if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 

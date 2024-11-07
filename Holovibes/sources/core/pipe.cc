@@ -270,9 +270,12 @@ void Pipe::refresh()
 
     if (api::get_data_type() == RecordedDataType::MOMENTS)
     {
-        converts_->insert_float_dequeue(input_queue_, moments_env_.stft_res_buffer.get());
+        // Dequeuing the 3 moments in a row
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
 
-        fourier_transforms_->insert_split_moments();
+        // fourier_transforms_->insert_split_moments();
 
         fourier_transforms_->insert_moments_to_output();
 

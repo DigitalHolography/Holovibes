@@ -52,7 +52,8 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ &&
+                                      api::get_data_type() != RecordedDataType::MOMENTS);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 

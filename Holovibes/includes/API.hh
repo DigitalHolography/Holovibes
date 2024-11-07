@@ -857,7 +857,7 @@ void update_time_stride(const uint time_stride);
  *
  * \param batch_size the new value
  */
-void update_batch_size(const uint batch_size);
+void update_batch_size(uint batch_size);
 
 /*! \brief Modifies view image type
  * Changes the setting and requests a pipe refresh
