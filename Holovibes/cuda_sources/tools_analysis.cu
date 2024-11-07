@@ -162,7 +162,7 @@ kernel_apply_diaphragm_mask(float* output, short width, short height, float cent
         float radius_squared = radius * radius;
 
         // If the point is inside the circle set the value to 1.
-        if (distance_squared <= radius_squared)
+        if (distance_squared > radius_squared)
             output[index] = 0;
     }
 }

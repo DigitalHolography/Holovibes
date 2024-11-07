@@ -26,6 +26,9 @@ using holovibes::cuda_tools::CufftHandle;
 
 #include <iostream>
 #include <fstream>
+
+#define DIAPHRAGM_FACTOR 0.4f
+
 float* loadCSVtoFloatArray(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -339,9 +342,14 @@ void Analysis::init()
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
-    // float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+
+    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
     data_csv_.resize(frame_res);
-    // cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+    cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+
+    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
+    data_csv_avg_.resize(frame_res);
+    cudaXMemcpy(data_csv_avg_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
 }
 
 void Analysis::dispose()
@@ -418,10 +426,18 @@ void Analysis::insert_show_artery()
                                   cublas_handler_,
                                   stream_);
 
-                // // DEBUGING: print in a file the final output
+                apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
+                                     fd_.width / 2,
+                                     fd_.height / 2,
+                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     fd_.width,
+                                     fd_.height,
+                                     stream_);
+
+                // DEBUGING: print in a file the final output
                 // print_in_file(buffers_.gpu_postprocess_frame,
                 //               buffers_.gpu_postprocess_frame_size,
-                //               "filter_final_result",
+                //               "final_result",
                 //               stream_);
             }
         });
