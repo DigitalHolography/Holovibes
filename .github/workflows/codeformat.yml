@@ -20,6 +20,11 @@ jobs:
 
       - name: Run Clang-Format Check
         run: |
+
+          if [ ! -f .clang-format ]; then
+            echo "Error: .clang-format file not found!"
+            exit 1
+          fi
           # Find all files to check.
           FILES=$(find . -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.cuhxx" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
 
