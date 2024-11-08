@@ -84,9 +84,6 @@ struct MomentsEnv
 
     /*! \brief Temporary buffer that contains a batch of time transformation size frames
      *  It will contains the complex modulus of result of the time transformation
-     *
-     * When in RecordedDataType of moments, this buffer is used as a temporary transfer buffer.
-     * Moments are transferred into it from the input queue and are then split to their respective storage.
      */
     cuda_tools::CudaUniquePtr<float> stft_res_buffer = nullptr;
 

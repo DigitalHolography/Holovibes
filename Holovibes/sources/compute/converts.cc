@@ -410,8 +410,7 @@ void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
     // Task to convert input queue to input buffer
     auto conversion_task = [this, &input_queue, move_floats, output]()
     {
-        // Since we empty the inqueue at the beginning of the record if the queue has overriden, we need to wait for the
-        // next batch. We wait 0 ms to avoid blocking the thread.
+        // To keep the same behaviour as the function above
         while (input_queue.size_ == 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(0));
@@ -419,6 +418,6 @@ void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
         input_queue.dequeue(output, fd_.depth, move_floats);
     };
 
-    fn_compute_vect_.push_back(conversion_task);
+    fn_compute_vect_->push_back(conversion_task);
 }
 } // namespace holovibes::compute

@@ -272,14 +272,14 @@ void Pipe::refresh()
     {
         // Dequeuing the 3 moments in a row
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
+        // insert_wait_frames();
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
+        // insert_wait_frames();
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
 
-        // fourier_transforms_->insert_split_moments();
+        update_batch_index();
 
         fourier_transforms_->insert_moments_to_output();
-
-        update_batch_index();
     }
     else
     {
@@ -393,6 +393,8 @@ void Pipe::insert_moments()
         converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
 
         fourier_transforms_->insert_moments();
+
+        fourier_transforms_->insert_moments_to_output();
     }
 }
 

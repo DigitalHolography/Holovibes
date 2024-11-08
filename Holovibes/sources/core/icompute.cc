@@ -83,10 +83,6 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
             moments_env_.f1_buffer.resize(size);
             moments_env_.f2_buffer.resize(size);
 
-            moments_env_.moment0_buffer.resize(frame_res);
-            moments_env_.moment1_buffer.resize(frame_res);
-            moments_env_.moment2_buffer.resize(frame_res);
-
             moments_env_.stft_res_buffer.resize(frame_res * size);
             fft_freqs();
         }
@@ -179,23 +175,14 @@ void ICompute::update_spatial_transformation_parameters()
 
 void ICompute::allocate_moments_buffers()
 {
-    if (api::get_data_type() == RecordedDataType::MOMENTS)
-    {
-        auto frame_res = input_queue_.get_fd().get_frame_res();
-        auto batch_size = api::get_batch_size();
+    auto frame_res = input_queue_.get_fd().get_frame_res();
 
-        size_t size = frame_res * batch_size; // Batch size should be 1, but just in case.
+    size_t size = frame_res; // Batch size should always be be 1 here.
+    // If it isn't, it is a bug.
 
-        moments_env_.moment0_buffer.resize(size);
-        moments_env_.moment1_buffer.resize(size);
-        moments_env_.moment2_buffer.resize(size);
-    }
-    else
-    {
-        moments_env_.moment0_buffer.reset(nullptr);
-        moments_env_.moment1_buffer.reset(nullptr);
-        moments_env_.moment2_buffer.reset(nullptr);
-    }
+    moments_env_.moment0_buffer.resize(size);
+    moments_env_.moment1_buffer.resize(size);
+    moments_env_.moment2_buffer.resize(size);
 }
 
 void ICompute::init_cuts()
