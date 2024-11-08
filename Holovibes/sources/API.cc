@@ -68,9 +68,10 @@ void close_windows()
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
+    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
 
-    if (UserInterfaceDescriptor::instance().lens_window)
-        set_lens_view(false, 0);
+    if (api::get_lens_view_enabled())
+        set_lens_view(false);
     if (UserInterfaceDescriptor::instance().raw_window)
         set_raw_view(false, 0);
 
@@ -86,8 +87,6 @@ void camera_none()
     close_windows();
     close_critical_compute();
 
-    if (get_compute_mode() == Computation::Hologram)
-        Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
     set_camera_kind(CameraKind::NONE);
@@ -359,89 +358,44 @@ void update_time_stride(const uint time_stride)
     get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
-bool set_3d_cuts_view(uint time_transformation_size)
+bool set_3d_cuts_view(bool checked)
 {
     if (api::get_import_type() == ImportType::None)
         return false;
 
-    time_transformation_size = std::max(256u, std::min(512u, time_transformation_size));
-
-    try
+    if (checked)
     {
-        get_compute_pipe()->request(ICS::TimeTransformationCuts);
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                       QPoint(0, UserInterfaceDescriptor::instance().mainDisplay->height() + 42);
-        QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                       QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
+        try
+        {
+            get_compute_pipe()->request(ICS::TimeTransformationCuts);
+            while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
+                continue;
 
-        while (get_compute_pipe()->is_requested(ICS::UpdateTimeTransformationSize))
+            pipe_refresh();
+
+            LOG_ERROR("API 3D cuts view enabled: {}", checked);
+
+            return true;
+        }
+        catch (const std::logic_error& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+        }
+    }
+    else
+    {
+        set_yz_enabled(false);
+        set_xz_enabled(false);
+        set_cuts_view_enabled(false);
+
+        get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
+        while (get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
             continue;
-        while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
-            continue;
-
-        UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
-            xzPos,
-            QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
-            get_compute_pipe()->get_stft_slice_queue(0).get(),
-            gui::KindOfView::SliceXZ));
-        UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
-
-        UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
-            yzPos,
-            QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
-            get_compute_pipe()->get_stft_slice_queue(1).get(),
-            gui::KindOfView::SliceYZ));
-        UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
-
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
-
-        set_cuts_view_enabled(true);
-        set_yz_enabled(true);
-        set_xz_enabled(true);
-
-        auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
-        if (holo)
-            holo->update_slice_transforms();
-
-        set_auto_contrast_cuts();
-        pipe_refresh();
 
         return true;
     }
-    catch (const std::logic_error& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
 
     return false;
-}
-
-void cancel_time_transformation_cuts()
-{
-    if (!get_cuts_view_enabled() || api::get_import_type() == ImportType::None)
-        return;
-
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
-    }
-
-    set_yz_enabled(false);
-    set_xz_enabled(false);
-    set_cuts_view_enabled(false);
-
-    get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
 #pragma endregion
@@ -477,7 +431,7 @@ void set_filter2d(bool checked)
     set_auto_contrast_all();
 }
 
-void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
+void set_filter2d_view(bool checked)
 {
     if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
@@ -489,29 +443,12 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         while (pipe->is_requested(ICS::Filter2DView))
             continue;
 
-        const camera::FrameDescriptor& fd = get_fd();
-        ushort filter2d_window_width = fd.width;
-        ushort filter2d_window_height = fd.height;
-        get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().filter2d_window.reset(
-            new gui::Filter2DWindow(pos,
-                                    QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
-
         set_filter2d_log_enabled(true);
         pipe->request_autocontrast(WindowKind::Filter2D);
         pipe_refresh();
     }
     else
     {
-        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
         pipe->request(ICS::DisableFilter2DView);
         while (pipe->is_requested(ICS::DisableFilter2DView))
             continue;
@@ -537,52 +474,19 @@ void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled,
 
 void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
 
-void set_lens_view(bool checked, uint auxiliary_window_max_size)
+void set_lens_view(bool checked)
 {
     if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
 
     set_lens_view_enabled(checked);
 
-    auto pipe = get_compute_pipe();
-
-    if (checked)
+    if (!checked)
     {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-
-            const ::camera::FrameDescriptor& fd = get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
-
-            UserInterfaceDescriptor::instance().lens_window.reset(
-                new gui::RawWindow(pos,
-                                   QSize(lens_window_width, lens_window_height),
-                                   pipe->get_lens_queue().get(),
-                                   0.f,
-                                   gui::KindOfView::Lens));
-
-            UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR("Catch {}", e.what());
-        }
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-
+        auto pipe = get_compute_pipe();
         pipe->request(ICS::DisableLensView);
         while (pipe->is_requested(ICS::DisableLensView))
             continue;
-
-        pipe_refresh();
     }
 }
 
@@ -889,10 +793,10 @@ void close_critical_compute()
         disable_convolution();
 
     if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts();
+        set_3d_cuts_view(false);
 
     if (get_filter2d_view_enabled())
-        set_filter2d_view(false, 0);
+        set_filter2d_view(false);
 
     Holovibes::instance().stop_compute();
 }

@@ -173,9 +173,6 @@ void set_image_mode(Computation mode, uint window_max_size);
  */
 void refresh_view_mode(ushort window_size, ImgType img_type);
 
-/*! \brief Removes time transformation from computation */
-void cancel_time_transformation_cuts();
-
 /*! \brief Checks preconditions to start recording
  *
  * \return success if all preconditions are met
@@ -775,8 +772,11 @@ void start_chart_display();
  */
 void stop_chart_display();
 
-/*! \brief Adds or removes lens view */
-void set_lens_view(bool checked, uint auxiliary_window_max_size);
+/*! \brief Adds or removes lens view.
+ *
+ * \param checked true: enable, false: disable
+ */
+void set_lens_view(bool checked);
 
 void set_chart_display_enabled(bool value);
 
@@ -802,9 +802,9 @@ void set_filter2d(bool checked);
 
 /*! \brief Adds filter2d view
  *
- * \param auxiliary_window_max_size
+ * \param check true: enable, false: disable
  */
-void set_filter2d_view(bool check, uint auxiliary_window_max_size);
+void set_filter2d_view(bool check);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
@@ -817,7 +817,7 @@ void toggle_renormalize(bool value);
  * \return true on success
  * \return false on failure
  */
-bool set_3d_cuts_view(uint time_transformation_size);
+bool set_3d_cuts_view(bool checked);
 
 /*! \brief Modifies time transformation stride size from ui value
  *

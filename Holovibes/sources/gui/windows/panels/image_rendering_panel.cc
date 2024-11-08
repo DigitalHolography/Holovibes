@@ -10,6 +10,7 @@
 #include "tools.hh"
 #include "frame_desc.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 #include <map>
 
@@ -203,7 +204,8 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    api::set_filter2d_view(checked);
+    gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
 }
 

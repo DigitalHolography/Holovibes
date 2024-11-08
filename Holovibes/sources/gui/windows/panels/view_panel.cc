@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -246,23 +247,28 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (checked)
+    if (checked && api::set_3d_cuts_view(checked))
     {
         const ushort nImg = std::min(api::get_time_transformation_size(), time_transformation_cuts_window_max_size);
-        if (api::set_3d_cuts_view(nImg))
-        {
-            parent_->notify(); // Make the x and y parameters visible
-            return;
-        }
+        gui::set_3d_cuts_view(checked, 0);
+        parent_->notify(); // Make the x and y parameters visible
     }
 
-    api::cancel_time_transformation_cuts();
-    parent_->notify(); // Hide x and y
+    if (!checked)
+    {
+        gui::set_3d_cuts_view(checked, 0);
+        api::set_3d_cuts_view(checked);
+        parent_->notify(); // Make the x and y parameters visible
+    }
 }
 
 void ViewPanel::set_fft_shift(const bool value) { api::set_fft_shift_enabled(value); }
 
-void ViewPanel::update_lens_view(bool checked) { api::set_lens_view(checked, parent_->auxiliary_window_max_size); }
+void ViewPanel::update_lens_view(bool checked)
+{
+    api::set_lens_view(checked);
+    gui::set_lens_view(checked, parent_->auxiliary_window_max_size);
+}
 
 void ViewPanel::update_raw_view(bool checked) { api::set_raw_view(checked, parent_->auxiliary_window_max_size); }
 
