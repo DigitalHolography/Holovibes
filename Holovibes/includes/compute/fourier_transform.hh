@@ -71,7 +71,7 @@ class FourierTransform
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FourierTransform(FunctionVector& fn_compute_vect,
+    FourierTransform(std::shared_ptr<FunctionVector> fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
@@ -213,7 +213,7 @@ class FourierTransform
     cuda_tools::CudaUniquePtr<cuComplex> cusolver_work_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */

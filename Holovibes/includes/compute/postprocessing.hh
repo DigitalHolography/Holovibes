@@ -51,7 +51,7 @@ class Postprocessing
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Postprocessing(FunctionVector& fn_compute_vect,
+    Postprocessing(std::shared_ptr<FunctionVector> fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
@@ -127,7 +127,7 @@ class Postprocessing
     cuda_tools::CudaUniquePtr<double> reduce_result_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     CoreBuffersEnv& buffers_;

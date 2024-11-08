@@ -66,7 +66,7 @@ class Registration
      *  \param[in] settings The global settings context.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Registration(FunctionVector& fn_compute_vect,
+    Registration(std::shared_ptr<FunctionVector> fn_compute_vect,
                  const CoreBuffersEnv& buffers,
                  const ImageAccEnv& image_acc_env,
                  const camera::FrameDescriptor& fd,
@@ -142,7 +142,7 @@ class Registration
     void image_preprocess(float* output, float* input, float* mean);
 
     /*! \brief Vector function in which we insert the processing. */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers used in pipe. */
     const CoreBuffersEnv& buffers_;

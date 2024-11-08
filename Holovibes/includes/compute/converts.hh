@@ -59,7 +59,7 @@ class Converts
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Converts(FunctionVector& fn_compute_vect,
+    Converts(std::shared_ptr<FunctionVector> fn_compute_vect,
              const CoreBuffersEnv& buffers,
              const TimeTransformationEnv& time_transformation_env,
              cuda_tools::CufftHandle& plan_unwrap_2d,
@@ -157,7 +157,7 @@ class Converts
     unsigned short pmax_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
