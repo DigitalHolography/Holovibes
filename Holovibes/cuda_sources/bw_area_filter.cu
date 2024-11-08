@@ -46,7 +46,6 @@ __global__ void first_pass_kernel1(const float* image_d,
 
 __device__ void check_and_update_link(uint* labels_d,
                                       uint* linked_d,
-                                      uint* labels_sizes_d,
                                       const size_t idx,
                                       uint* neighbors,
                                       const uint nb_neighbors,
@@ -88,7 +87,6 @@ __device__ void check_and_update_link(uint* labels_d,
 __global__ void first_pass_kernel2(const float* image_d,
                                    uint* labels_d,
                                    uint* linked_d,
-                                   uint* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
                                    uint* mutex)
@@ -109,14 +107,13 @@ __global__ void first_pass_kernel2(const float* image_d,
             if (labels_d[jdx])
                 neighbors[nb_neighbors++] = jdx;
         }
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
+        check_and_update_link(labels_d, linked_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
 __global__ void first_pass_kernel3(const float* image_d,
                                    uint* labels_d,
                                    uint* linked_d,
-                                   uint* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
                                    uint* mutex)
@@ -137,14 +134,13 @@ __global__ void first_pass_kernel3(const float* image_d,
             if (labels_d[jdx])
                 neighbors[nb_neighbors++] = jdx;
         }
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
+        check_and_update_link(labels_d, linked_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
 __global__ void first_pass_kernel4(const float* image_d,
                                    uint* labels_d,
                                    uint* linked_d,
-                                   uint* labels_sizes_d,
                                    const size_t width,
                                    const size_t height,
                                    uint* mutex)
@@ -169,14 +165,13 @@ __global__ void first_pass_kernel4(const float* image_d,
                 neighbors[nb_neighbors++] = jdx;
         }
 
-        check_and_update_link(labels_d, linked_d, labels_sizes_d, idx, neighbors, nb_neighbors, mutex);
+        check_and_update_link(labels_d, linked_d, idx, neighbors, nb_neighbors, mutex);
     }
 }
 
 void first_pass(const float* image_d,
                 uint* labels_d,
                 uint* linked_d,
-                uint* labels_sizes_d,
                 uint* size_t_gpu_,
                 const size_t width,
                 const size_t height,
@@ -188,31 +183,28 @@ void first_pass(const float* image_d,
     cudaXMemset(linked_d, 0, sizeof(uint));
     cudaXMemset(size_t_gpu_, 0, sizeof(uint));
 
-    first_pass_kernel1<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, labels_sizes_d, width, height);
+    first_pass_kernel1<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d,  width, height);
     first_pass_kernel2<<<blocks, threads, 0, stream>>>(image_d,
                                                        labels_d,
                                                        linked_d,
-                                                       labels_sizes_d,
                                                        width,
                                                        height,
                                                        size_t_gpu_);
     first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d,
                                                        labels_d,
                                                        linked_d,
-                                                       labels_sizes_d,
                                                        width,
                                                        height,
                                                        size_t_gpu_);
     first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d,
                                                        labels_d,
                                                        linked_d,
-                                                       labels_sizes_d,
                                                        width,
                                                        height,
                                                        size_t_gpu_);
 }
 
-__global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, uint* labels_sizes_d)
+__global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, float* labels_sizes_d)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size && labels_d[idx] != 0)
@@ -225,7 +217,7 @@ __global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, 
 }
 
 void get_connected_component(uint* labels_d,
-                             uint* labels_sizes_d,
+                             float* labels_sizes_d,
                              uint* linked_d,
                              uint* size_t_gpu_,
                              const float* image_d,
@@ -238,99 +230,23 @@ void get_connected_component(uint* labels_d,
     uint blocks = map_blocks_to_problem(size, threads);
 
     cudaXMemset(labels_d, 0, size * sizeof(uint));
-    cudaXMemset(labels_sizes_d, 0, size * sizeof(uint));
+    cudaXMemset(labels_sizes_d, 0.0f, size * sizeof(float));
 
     first_pass(image_d, labels_d, linked_d, labels_sizes_d, size_t_gpu_, width, height, stream);
 
     second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d, labels_sizes_d);
 }
 
-__device__ void swap(uint* T, size_t i, size_t j)
-{
-    size_t tmp = T[i];
-    T[i] = T[j];
-    T[j] = tmp;
-}
-
-__global__ void _get_n_max_index(uint* labels_size_d, size_t nb_label, uint* labels_max_d, size_t n)
-{
-    for (size_t i = 0; i < n; i++)
-    {
-        size_t j = i;
-        labels_max_d[j] = j;
-        while (j > 0 && labels_size_d[labels_max_d[j - 1]] > labels_size_d[labels_max_d[j]])
-        {
-            swap(labels_max_d, j, j - 1);
-            j--;
-        }
-    }
-    for (size_t i = n; i < nb_label; i++)
-    {
-        if (labels_size_d[i] > labels_size_d[labels_max_d[0]])
-        {
-            labels_max_d[0] = i;
-            size_t j = 1;
-            while (j < n && labels_size_d[labels_max_d[j - 1]] > labels_size_d[labels_max_d[j]])
-            {
-                swap(labels_max_d, j, j - 1);
-                j++;
-            }
-        }
-    }
-}
-
-void get_n_max_index(uint* labels_sizes_d, size_t nb_label, uint* labels_max_d, size_t n, const cudaStream_t stream)
-{
-    _get_n_max_index<<<1, 1, 0, stream>>>(labels_sizes_d, nb_label, labels_max_d, n);
-}
-
-__global__ void get_nb_label_kernel(uint* labels_sizes_d, size_t size, uint* res)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < size && labels_sizes_d[idx] != 0)
-        atomicAdd(res, 1);
-}
-
-uint get_nb_label(uint* labels_sizes_d, size_t size, uint* size_t_gpu_, const cudaStream_t stream)
-{
-    uint res;
-    cudaXMemset(size_t_gpu_, 0, sizeof(uint));
-
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    get_nb_label_kernel<<<blocks, threads, 0, stream>>>(labels_sizes_d, size, size_t_gpu_);
-    cudaDeviceSynchronize();
-
-    cudaXMemcpy(&res, size_t_gpu_, sizeof(uint), cudaMemcpyDeviceToHost);
-
-    return res;
-}
-
-__global__ void area_filter_kernel(float* image_d, const uint* label_d, size_t size, uint* is_keep_d)
+__global__ void area_filter_kernel(float* image_d, const uint* label_d, size_t size, uint label_to_keep)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-        image_d[idx] = is_keep_d[label_d[idx]] ? 1.0f : 0.0f;
+        image_d[idx] = (label_d[idx] == label_to_keep) ? 1.0f : 0.0f;
 }
 
-void area_filter(float* image_d, const uint* label_d, size_t size, uint* is_keep_d, const cudaStream_t stream)
+void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to_keep, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    area_filter_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, size, is_keep_d);
-}
-
-__global__ void
-create_is_keep_in_label_size_kernel(uint* labels_sizes_d, size_t nb_labels, uint* labels_max_d, size_t n)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n)
-        labels_sizes_d[labels_max_d[idx]] = 1;
-}
-
-void create_is_keep_in_label_size(
-    uint* labels_sizes_d, size_t nb_labels, uint* labels_max_d, size_t n, const cudaStream_t stream)
-{
-    cudaXMemsetAsync(labels_sizes_d, 0, nb_labels * sizeof(uint), stream);
-    create_is_keep_in_label_size_kernel<<<1, n, 0, stream>>>(labels_sizes_d, nb_labels, labels_max_d, n);
+    area_filter_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, size, label_to_keep);
 }
