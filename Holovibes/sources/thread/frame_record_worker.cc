@@ -43,14 +43,13 @@ size_t FrameRecordWorker::compute_fps_average() const
     return ret;
 }
 
-std::string append_date_to_filepath(std::string record_file_path)
+std::string prepend_R_to_filename(std::string record_file_path)
 {
     //? Do we move this to the export panel, and consider the date to be set when the path is set/on startup ?
     std::filesystem::path filePath(record_file_path);
-    std::string date = Chrono::get_current_date();
     std::string filename = filePath.filename().string();
     std::string path = filePath.parent_path().string();
-    std::filesystem::path newFilePath = path + "/" + date + "_" + filename;
+    std::filesystem::path newFilePath = path + "/" + "R_" + filename;
     return newFilePath.string();
 }
 
@@ -93,7 +92,7 @@ void FrameRecordWorker::run()
 
     try
     {
-        std::string record_file_path = append_date_to_filepath(setting<settings::RecordFilePath>());
+        std::string record_file_path = prepend_R_to_filename(setting<settings::RecordFilePath>());
 
         output_frame_file = io_files::OutputFrameFileFactory::create(record_file_path,
                                                                      record_queue_.load()->get_fd(),
