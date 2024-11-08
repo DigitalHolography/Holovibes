@@ -9,6 +9,50 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
+float* load_CSV_to_float_array(const std::string& filename)
+{
+    std::ifstream file(filename);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filename << std::endl;
+        return nullptr;
+    }
+
+    std::vector<float> values;
+    std::string line;
+
+    // Lire le fichier ligne par ligne
+    while (std::getline(file, line))
+    {
+        std::stringstream ss(line);
+        std::string value;
+        // Lire chaque valeur séparée par des virgules (ou espaces, selon le fichier)
+        while (std::getline(ss, value, ','))
+        {
+            try
+            {
+                values.push_back(std::stof(value)); // Convertir la valeur en float et l'ajouter au vecteur
+            }
+            catch (const std::invalid_argument&)
+            {
+                std::cerr << "Erreur de conversion de valeur : " << value << std::endl;
+            }
+        }
+    }
+
+    file.close();
+
+    // Copier les valeurs dans un tableau float*
+    float* dataArray = new float[values.size()];
+    for (int i = 0; i < values.size(); ++i)
+    {
+        dataArray[i] = values[i];
+    }
+
+    return dataArray;
+}
+
 namespace
 {
 template <typename T>
@@ -103,7 +147,7 @@ __global__ void kernel_padding(float* output, float* input, int height, int widt
     }
 }
 
-void write1DFloatArrayToFile(const float* array, int rows, int cols, const std::string& filename)
+void write_1D_float_array_to_file(const float* array, int rows, int cols, const std::string& filename)
 {
     // Open the file in write mode
     std::ofstream outFile(filename);
@@ -146,7 +190,7 @@ void print_in_file(float* input, uint size, std::string filename, cudaStream_t s
                         size * sizeof(float),
                         cudaMemcpyDeviceToHost,
                         stream);
-    write1DFloatArrayToFile(result,
+    write_1D_float_array_to_file(result,
                             sqrt(size),
                             sqrt(size),
                             "test_" + filename + ".txt");
@@ -271,7 +315,7 @@ kernel_apply_mask_or(float* output, const float* input, short width, short heigh
 
     if (x < width && y < height)
     {
-        output[y * width + x] = (input[y * width + x] != 0.f) ? 1.f : output[y * width + x];
+        output[index] = (input[index] != 0.f) ? 1.f : output[index];
     }
 }
 

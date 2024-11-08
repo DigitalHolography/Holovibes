@@ -1,11 +1,13 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief Utils functions for Analysis functions
  */
 #pragma once
 
 #include "cuda_memory.cuh"
 #include "common.cuh"
+
+float* load_CSV_to_float_array(const std::string& filename);
 
 void prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream);
 

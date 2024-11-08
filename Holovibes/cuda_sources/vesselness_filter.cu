@@ -29,14 +29,35 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream)
     kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);   
 }
 
+#if 0
 __device__ float comp_hermite_iter(int n, float x)
+{
+    if (n == 0) return 1.0f;
+    if (n == 1) return 2.0f * x;
+
+    float H_prev2 = 1.0f;
+    float H_prev1 = 2.0f * x;
+    float H_current = 0.0f;
+
+    for (int i = 2; i <= n; ++i)
+    {
+        H_current = 2.0f * x * H_prev1 - 2.0f * (i - 1) * H_prev2;
+        H_prev2 = H_prev1;
+        H_prev1 = H_current;
+    }
+
+    return H_current;
+}
+#endif
+
+__device__ float comp_hermite(int n, float x)
 {
     if (n == 0)
         return 1.0f;
     if (n == 1)
         return 2.0f * x;
     if (n > 1)
-        return (2.0f * x * comp_hermite_iter(n - 1, x)) - (2.0f * (n - 1) * comp_hermite_iter(n - 2, x));
+        return (2.0f * x * comp_hermite(n - 1, x)) - (2.0f * (n - 1) * comp_hermite(n - 2, x));
     return 0.0f;
 }
 
@@ -48,7 +69,7 @@ __device__ float comp_gaussian(float x, float sigma)
 __device__ float device_comp_dgaussian(float x, float sigma, int n)
 {
     float A = pow((-1 / (sigma * sqrt((float)2))), n);
-    float B = comp_hermite_iter(n, x / (sigma * sqrt((float)2)));
+    float B = comp_hermite(n, x / (sigma * sqrt((float)2)));
     float C = comp_gaussian(x, sigma);
     return A * B * C;
 }
