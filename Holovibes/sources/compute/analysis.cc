@@ -24,62 +24,14 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-#include <iostream>
-#include <fstream>
-
 #define DIAPHRAGM_FACTOR 0.4f
-
-#pragma region inutile
-float* loadCSVtoFloatArray(const std::string& filename)
-{
-    std::ifstream file(filename);
-
-    if (!file.is_open())
-    {
-        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filename << std::endl;
-        return nullptr;
-    }
-
-    std::vector<float> values;
-    std::string line;
-
-    // Lire le fichier ligne par ligne
-    while (std::getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string value;
-        // Lire chaque valeur séparée par des virgules (ou espaces, selon le fichier)
-        while (std::getline(ss, value, ','))
-        {
-            try
-            {
-                values.push_back(std::stof(value)); // Convertir la valeur en float et l'ajouter au vecteur
-            }
-            catch (const std::invalid_argument&)
-            {
-                std::cerr << "Erreur de conversion de valeur : " << value << std::endl;
-            }
-        }
-    }
-
-    file.close();
-
-    // Copier les valeurs dans un tableau float*
-    float* dataArray = new float[values.size()];
-    for (int i = 0; i < values.size(); ++i)
-    {
-        dataArray[i] = values[i];
-    }
-
-    return dataArray;
-}
 
 namespace holovibes::compute
 {
-
+#pragma region tools
 namespace
 {
-std::vector<float> load_convolution_matrix()
+std::vector<float> load_gaussian_128_convolution_matrix()
 {
     // There is no file None.txt for convolution
     std::vector<float> convo_matrix = {};
@@ -166,7 +118,7 @@ std::vector<float> load_convolution_matrix()
 }
 
 } // namespace
-#pragma endregion inutile
+#pragma endregion tools
 
 void Analysis::init()
 {
@@ -180,12 +132,12 @@ void Analysis::init()
     // No need for memset here since it will be memset in the actual convolution
     cuComplex_buffer_.resize(frame_res);
 
-    std::vector<float> gaussian_kernel = load_convolution_matrix();
-
     // Prepare gaussian blur kernel
-    gaussian_kernel_buffer_.resize(frame_res);
-    cudaXMemsetAsync(gaussian_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
-    cudaSafeCall(cudaMemcpy2DAsync(gaussian_kernel_buffer_.get(),
+    std::vector<float> gaussian_kernel = load_gaussian_128_convolution_matrix();
+
+    gaussian_128_kernel_buffer_.resize(frame_res);
+    cudaXMemsetAsync(gaussian_128_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(gaussian_128_kernel_buffer_.get(),
                                    sizeof(cuComplex),
                                    gaussian_kernel.data(),
                                    sizeof(float),
@@ -198,11 +150,13 @@ void Analysis::init()
     constexpr uint batch_size = 1; // since only one frame.
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
-    shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
-    cufftSafeCall(
-        cufftExecC2C(convolution_plan_, gaussian_kernel_buffer_.get(), gaussian_kernel_buffer_.get(), CUFFT_FORWARD));
+    shift_corners(gaussian_128_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
+    cufftSafeCall(cufftExecC2C(convolution_plan_,
+                               gaussian_128_kernel_buffer_.get(),
+                               gaussian_128_kernel_buffer_.get(),
+                               CUFFT_FORWARD));
 
-    // Allocate vesselness buffers
+    // (Re)Allocate vesselness buffers, can handle frame size change
     vesselness_mask_env_.time_window_ = api::get_time_window();
     vesselness_mask_env_.number_image_mean_ = 0;
 
@@ -212,6 +166,9 @@ void Analysis::init()
     vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
     vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size);
 
+    vesselness_mask_env_.vascular_image_.resize(frame_res);
+
+    // Compute gaussian deriviatives kernels according to simga
     float sigma = api::get_vesselness_sigma();
 
     int gamma = 1;
@@ -224,7 +181,7 @@ void Analysis::init()
     vesselness_mask_env_.kernel_x_size_ = x_size;
     vesselness_mask_env_.kernel_y_size_ = y_size;
 
-    // Initialize normalized lists, ex for x_size = 3 : [-1, 0, 1]
+    // Initialize normalized centered at 0 lists, ex for x_size = 3 : [-1, 0, 1]
     float* x;
     cudaXMalloc(&x, x_size * sizeof(float));
     normalized_list(x, x_lim, x_size, stream_);
@@ -338,20 +295,6 @@ void Analysis::init()
 
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
-
-    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
-    data_csv_.resize(frame_res);
-    cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-
-    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
-    f_avg_csv_.resize(frame_res);
-    cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-
-    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
-    vascular_pulse_csv_.resize(506);
-    cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
-
-    vesselness_mask_env_.vascular_image_.resize(frame_res);
 }
 
 void Analysis::dispose()
@@ -360,7 +303,7 @@ void Analysis::dispose()
 
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
-    gaussian_kernel_buffer_.reset(nullptr);
+    gaussian_128_kernel_buffer_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -378,7 +321,7 @@ void Analysis::insert_show_artery()
                                    cuComplex_buffer_.get(),
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
-                                   gaussian_kernel_buffer_.get(),
+                                   gaussian_128_kernel_buffer_.get(),
                                    true,
                                    stream_);
 
