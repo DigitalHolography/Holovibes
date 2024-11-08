@@ -43,7 +43,7 @@ float compute_mean(float* vascular_pulse, size_t size)
     return sum / size;
 }
 
-__global__ void kernel_substract_constant(float* output, float* input, int value, size_t size)
+__global__ void kernel_substract_constant(float* output, float* input, float value, size_t size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -52,7 +52,7 @@ __global__ void kernel_substract_constant(float* output, float* input, int value
     }
 }
 
-void substract_constant(float* output, float* input, int value, size_t size, cudaStream_t stream)
+void substract_constant(float* output, float* input, float value, size_t size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -60,22 +60,20 @@ void substract_constant(float* output, float* input, int value, size_t size, cud
 }
 
 
-void compute_first_correlation(float* output, float* vascular_pulse, int nnz_mask_vesslness_clean, size_t size, cudaStream_t stream)
+void compute_first_correlation(float* output, float* vascular_pulse, int nnz_mask_vesslness_clean, size_t size, cudaStream_t stream)    // Size here is future time window
 {
-    print_in_file(vascular_pulse, size, "vascular_pulse_in_func", stream);
-
-    divide_constant(vascular_pulse, nnz_mask_vesslness_clean, size, stream);
+    float* vascular_pulse_copy;
+    cudaXMalloc(&vascular_pulse_copy, sizeof(float) * size);
+    cudaXMemcpyAsync(vascular_pulse_copy, vascular_pulse, sizeof(float) * size, cudaMemcpyDeviceToDevice, stream);
     
+    divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, size, stream);
+
     float* vascular_pulse_centered;
     cudaXMalloc(&vascular_pulse_centered, 506 * sizeof(float)); // need to be remove by time window (it's because csv)
 
-
-    float vascular_mean = compute_mean(vascular_pulse, size);
-    substract_constant(vascular_pulse_centered, vascular_pulse, vascular_mean, size, stream);
-
-
-    print_in_file(vascular_pulse_centered, size, "vascular_pulse_centered", stream);
-
+    float vascular_mean = compute_mean(vascular_pulse_copy, size);
+    substract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, size, stream);
 
     cudaXFree(vascular_pulse_centered);
+    cudaXFree(vascular_pulse_copy);
 }

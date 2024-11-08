@@ -247,5 +247,8 @@ struct VesselnessMaskEnv
 
     /*! \brief barycentre buffer */
     cuda_tools::CudaUniquePtr<float> vascular_image_ = nullptr;
+
+    /*! \brief Gaussian kernel for vascular image */
+    cuda_tools::CudaUniquePtr<cuComplex> vascular_kernel_ = nullptr;
 };
 } // namespace holovibes

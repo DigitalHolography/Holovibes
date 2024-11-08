@@ -13,86 +13,7 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 
-__global__ void kernel_normalized_list(float* output, int lim, int size)
-{
-     const int index = blockIdx.x * blockDim.x + threadIdx.x;
-     if (index < size)
-     {
-        output[index] = (int)index - lim;
-     }
-}
-
-void normalized_list(float* output, int lim, int size, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);   
-}
-
-#if 0
-__device__ float comp_hermite_iter(int n, float x)
-{
-    if (n == 0) return 1.0f;
-    if (n == 1) return 2.0f * x;
-
-    float H_prev2 = 1.0f;
-    float H_prev1 = 2.0f * x;
-    float H_current = 0.0f;
-
-    for (int i = 2; i <= n; ++i)
-    {
-        H_current = 2.0f * x * H_prev1 - 2.0f * (i - 1) * H_prev2;
-        H_prev2 = H_prev1;
-        H_prev1 = H_current;
-    }
-
-    return H_current;
-}
-#endif
-
-__device__ float comp_hermite(int n, float x)
-{
-    if (n == 0)
-        return 1.0f;
-    if (n == 1)
-        return 2.0f * x;
-    if (n > 1)
-        return (2.0f * x * comp_hermite(n - 1, x)) - (2.0f * (n - 1) * comp_hermite(n - 2, x));
-    return 0.0f;
-}
-
-__device__ float comp_gaussian(float x, float sigma)
-{
-    return 1 / (sigma * (sqrt(2 * M_PI))) * exp((-1 * x * x) / (2 * sigma * sigma));
-}
-
-__device__ float device_comp_dgaussian(float x, float sigma, int n)
-{
-    float A = pow((-1 / (sigma * sqrt((float)2))), n);
-    float B = comp_hermite(n, x / (sigma * sqrt((float)2)));
-    float C = comp_gaussian(x, sigma);
-    return A * B * C;
-}
-
-__global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < input_size)
-    {
-        output[index] = device_comp_dgaussian(input[index], sigma, n);
-    }
-}
-
-
-void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(input_size, threads);
-    kernel_comp_dgaussian<<<blocks, threads, 0, stream>>>(output, input, input_size, sigma, n);   
-}
-
-
-__global__ void convolutionKernel(const float* image, const float* kernel, float* output, 
+__global__ void convolution_kernel(const float* image, const float* kernel, float* output, 
                                   int width, int height, int kWidth, int kHeight) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -138,7 +59,7 @@ void applyConvolution(float* image, const float* kernel,
                   (height + blockSize.y - 1) / blockSize.y);
 
     // Lancer le kernel
-    convolutionKernel<<<gridSize, blockSize, 0, stream>>>(image, kernel, d_output, width, height, kWidth, kHeight);
+    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(image, kernel, d_output, width, height, kWidth, kHeight);
 
     // Copier le résultat du GPU vers le CPU
     cudaMemcpy(image, d_output, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
@@ -153,9 +74,6 @@ void gaussian_imfilter_sep(float* input_output,
                             int kernel_x_size,
                             int kernel_y_size,
                             const size_t frame_res,
-                            float* convolution_buffer,
-                            cuComplex* cuComplex_buffer,
-                            CufftHandle* convolution_plan, 
                             cudaStream_t stream)
 {
     // This convolution method gives correct values compared to matlab
@@ -250,7 +168,7 @@ float* compute_I(float* input, float* g_mul, float A, uint frame_res, uint kerne
     cudaXMalloc(&I, frame_res * sizeof(float));
     cudaXMemcpyAsync(I, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
-    gaussian_imfilter_sep(I, g_mul, kernel_x_size, kernel_y_size, frame_res, convolution_buffer, cuComplex_buffer, convolution_plan, stream);
+    gaussian_imfilter_sep(I, g_mul, kernel_x_size, kernel_y_size, frame_res, stream);
 
     multiply_array_by_scalar(I, frame_res, A, stream);
 

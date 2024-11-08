@@ -84,20 +84,26 @@ class Analysis
         float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
         data_csv_.resize(frame_res);
         cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
         f_avg_csv_.resize(frame_res);
         cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
         cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
-    /*! \brief Free the ressources for the postprocessing */
+    /*! \brief Free the ressources for the analysis */
     void dispose();
 
     /*! \brief Insert artery mask computing */
