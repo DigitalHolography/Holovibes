@@ -235,6 +235,7 @@ void get_connected_component(uint* labels_d,
     first_pass(image_d, labels_d, linked_d, labels_sizes_d, size_t_gpu_, width, height, stream);
 
     second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d, labels_sizes_d);
+    cudaDeviceSynchronize();
 }
 
 __global__ void area_filter_kernel(float* image_d, const uint* label_d, size_t size, uint label_to_keep)

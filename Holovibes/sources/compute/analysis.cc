@@ -514,6 +514,7 @@ void Analysis::insert_bwareafilt()
                                         fd_.width,
                                         fd_.height,
                                         stream_);
+                
 
                 int maxI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
