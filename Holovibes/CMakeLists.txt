@@ -46,15 +46,23 @@ set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
 
 file(GLOB_RECURSE SOURCES sources/*.cc)
 # Remove main.cc from the common static lib, necessary to handle GTest
-list(REMOVE_ITEM SOURCES sources/main.cc)  
+list(FILTER SOURCES EXCLUDE REGEX "main.cc$")
 
 file(GLOB_RECURSE HEADERS includes/*.hh)
 file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
 file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
 #file(GLOB_RECURSE TESTS_SOURCES tests/*.cc)
 set(TESTS_SOURCES
-    #tests/test_analysis.cc  
+    tests/test_analysis.cc
+    #tests/test_batch_input_queue.cc
+    tests/test_chart.cc
     tests/test_reduce.cc  
+    tests/test_example.cc
+    tests/test_fast_updates_holder.cc
+    tests/test_map.cc
+    #tests/test_queue.cc
+    tests/test_reduce.cc
+    #tests/test_subsample_frame.cc
 )
 
 # ---------------------------------------------------------------------
@@ -124,6 +132,7 @@ if(COMMAND target_precompile_headers)
 endif()
 
 # Quick fix: https://stackoverflow.com/questions/44746308/how-to-make-include-directories-added-with-autouic-available-to-downstream-targe
+# Without this other targets won't have access to .h generated from QT .ui
 add_custom_command(TARGET "Holovibes_lib" POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_BINARY_DIR}/Holovibes_lib_autogen/include/"

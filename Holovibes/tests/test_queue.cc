@@ -40,7 +40,7 @@ static std::ostream& operator<<(std::ostream& os, holovibes::Queue& q)
 
 TEST(QueueTest, SimpleInstantiatingTest)
 {
-    camera::FrameDescriptor fd = {64, 64, 1, camera::Endianness::BigEndian};
+    camera::FrameDescriptor fd = {64, 64, camera::PixelDepth::Bits8, camera::Endianness::BigEndian};
     holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED);
     // WARNING: Set false because the queue is used in a CLI mode
     ASSERT_EQ(0.0, 0.0);
@@ -48,13 +48,13 @@ TEST(QueueTest, SimpleInstantiatingTest)
 
 TEST(ZeroQueueInstantiation, ZeroQueue)
 {
-    camera::FrameDescriptor fd = {4, 4, sizeof(char), camera::Endianness::BigEndian};
+    camera::FrameDescriptor fd = {4, 4, camera::PixelDepth::Bits32, camera::Endianness::BigEndian};
     ASSERT_THROW(holovibes::Queue q(fd, 0, holovibes::QueueType::UNDEFINED), std::logic_error);
 }
 
 TEST(QueueEmpty, QueueIsFullTest)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    camera::FrameDescriptor fd = {64, 64, camera::PixelDepth::Bits32, camera::Endianness::BigEndian};
     holovibes::Queue q(fd, 5, holovibes::QueueType::UNDEFINED);
 
     ASSERT_FALSE(q.is_full());
@@ -62,7 +62,7 @@ TEST(QueueEmpty, QueueIsFullTest)
 
 TEST(QueueNotFull, QueueIsFullTest)
 {
-    camera::FrameDescriptor fd = {64, 64, sizeof(char), camera::Endianness::BigEndian};
+    camera::FrameDescriptor fd = {64, 64, camera::PixelDepth::Bits32, camera::Endianness::BigEndian};
     holovibes::Queue q(fd, 2, holovibes::QueueType::UNDEFINED);
     char* new_elt = new char[fd.get_frame_res()];
 
