@@ -1,5 +1,5 @@
 # Where to look for .ui files.
-set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}")
 
 SET(CUDA_EXTERNAL_INCLUDES
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
@@ -44,15 +44,23 @@ set(INTERNAL_INCLUDES
 
 set(VIMBAX_SDK "C:/Program Files/Allied Vision/Vimba X")
 
-# ---------------------------------------------------------------------
-# The executable
-# ---------------------------------------------------------------------
 file(GLOB_RECURSE SOURCES sources/*.cc)
+# Remove main.cc from the common static lib, necessary to handle GTest
+list(REMOVE_ITEM SOURCES sources/main.cc)  
+
 file(GLOB_RECURSE HEADERS includes/*.hh)
 file(GLOB_RECURSE CUDA_SOURCES cuda_sources/*.cu)
 file(GLOB_RECURSE CUDA_HEADERS cuda_includes/*.cuh)
+#file(GLOB_RECURSE TESTS_SOURCES tests/*.cc)
+set(TESTS_SOURCES
+    #tests/test_analysis.cc  
+    tests/test_reduce.cc  
+)
 
-qt_add_executable(Holovibes
+# ---------------------------------------------------------------------
+# Holovibes_lib static library for common sources
+# ---------------------------------------------------------------------
+add_library(Holovibes_lib STATIC
     ${SOURCES}
     ${HEADERS}
     ${CUDA_SOURCES}
@@ -61,21 +69,21 @@ qt_add_executable(Holovibes
     assets/ui/advancedsettingswindow.ui
     assets/ui/plotwindow.ui
     assets/ui/lightui.ui
-    assets/icons/Holovibes.ico
-    assets/icons/holovibes.rc
-    assets/style/style.css
 )
 
-qt_add_resources(Holovibes "HolovibesRessources"
-    PREFIX "/"
-    FILES
-    assets/icons/Holovibes.ico
-    assets/icons/holovibes_logo.png
-    assets/style/drop_down.png
-    assets/style/style.css
+set_target_properties(Holovibes_lib PROPERTIES
+    CUDA_ARCHITECTURES "61;75;86;89"
+    CUDA_STANDARD 17
+    AUTOUIC_SEARCH_PATHS "assets/ui"
 )
 
-target_link_libraries(Holovibes PRIVATE
+target_include_directories(Holovibes_lib PRIVATE
+    ${EXTERNAL_INCLUDES}
+    ${INTERNAL_INCLUDES}
+    ${CUDA_EXTERNAL_INCLUDES}
+)
+
+target_link_libraries(Holovibes_lib PRIVATE
     spdlog::spdlog_header_only
     Boost::program_options
     Qt6::OpenGL
@@ -90,6 +98,75 @@ target_link_libraries(Holovibes PRIVATE
     cublas
     cusolver
     nvml
+)
+
+target_compile_options(Holovibes_lib PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:
+    --extended-lambda
+    -Xcudafe --diag_suppress=field_without_dll_interface
+    -diag-suppress 27
+    >
+    $<$<COMPILE_LANGUAGE:CXX>:
+    /W3
+    /wd4005
+    /wd4003
+    >
+)
+
+target_compile_definitions(Holovibes_lib PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:.
+    _CRT_SECURE_NO_WARNINGS
+    >
+)
+
+if(COMMAND target_precompile_headers)
+    target_precompile_headers(Holovibes_lib PUBLIC "includes/stdafx.hh")
+endif()
+
+# Quick fix: https://stackoverflow.com/questions/44746308/how-to-make-include-directories-added-with-autouic-available-to-downstream-targe
+add_custom_command(TARGET "Holovibes_lib" POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_BINARY_DIR}/Holovibes_lib_autogen/include/"
+        "${CMAKE_CURRENT_BINARY_DIR}/Holovibes_autogen/include/"
+)
+
+# ---------------------------------------------------------------------
+# The main Holovibes executable
+# ---------------------------------------------------------------------
+
+qt_add_executable(Holovibes
+    sources/main.cc
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes.rc
+    assets/style/style.css
+)
+
+# Link to the shared library and Qt resources
+target_link_libraries(Holovibes PRIVATE 
+    Holovibes_lib
+    spdlog::spdlog_header_only
+    Boost::program_options
+    Qt6::OpenGL
+    Qt6::OpenGLWidgets
+    Qt6::Charts
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    opencv_videoio
+    opengl::opengl
+    cufft
+    cublas
+    cusolver
+    nvml
+)
+
+qt_add_resources(Holovibes "HolovibesResources"
+    PREFIX "/"
+    FILES
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes_logo.png
+    assets/style/drop_down.png
+    assets/style/style.css
 )
 
 target_include_directories(Holovibes PRIVATE
@@ -123,9 +200,94 @@ target_compile_definitions(Holovibes PRIVATE
     >
 )
 
-if(COMMAND target_precompile_headers)
-    target_precompile_headers(Holovibes PUBLIC "includes/stdafx.hh")
-endif()
+# if(COMMAND target_precompile_headers)
+#     target_precompile_headers(Holovibes PUBLIC "includes/stdafx.hh")
+# endif()
+
+# ---------------------------------------------------------------------
+# The unit tests executable Holovibes_tests
+# ---------------------------------------------------------------------
+
+# Enable testing with CTest
+enable_testing()
+
+qt_add_executable(Holovibes_tests
+    ${TESTS_SOURCES}  # Define specific test files as needed
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes.rc
+    assets/style/style.css
+)
+
+qt_add_resources(Holovibes_tests "HolovibesRessources"
+    PREFIX "/"
+    FILES
+    assets/icons/Holovibes.ico
+    assets/icons/holovibes_logo.png
+    assets/style/drop_down.png
+    assets/style/style.css
+)
+
+target_link_libraries(Holovibes_tests PRIVATE
+    Holovibes_lib
+    spdlog::spdlog_header_only
+    Boost::program_options
+    Qt6::OpenGL
+    Qt6::OpenGLWidgets
+    Qt6::Charts
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    opencv_videoio
+    opengl::opengl
+    cufft
+    cublas
+    cusolver
+    nvml
+    GTest::GTest
+    GTest::Main
+)
+
+target_include_directories(Holovibes_tests PRIVATE
+    ${EXTERNAL_INCLUDES}
+    ${INTERNAL_INCLUDES}
+    ${CUDA_EXTERNAL_INCLUDES}
+)
+
+set_target_properties(Holovibes_tests PROPERTIES
+    CUDA_ARCHITECTURES "61;75;86;89"
+    CUDA_STANDARD 17
+    AUTOUIC_SEARCH_PATHS "assets/ui"
+)
+
+
+target_compile_options(Holovibes_tests PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:
+    --extended-lambda
+    -Xcudafe --diag_suppress=field_without_dll_interface
+    -diag-suppress 27
+    >
+    $<$<COMPILE_LANGUAGE:CXX>:
+    /W3
+    /wd4005
+    /wd4003
+    >
+)
+
+target_compile_definitions(Holovibes_tests PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:.
+    _CRT_SECURE_NO_WARNINGS
+    >
+)
+
+# if(COMMAND target_precompile_headers)
+#     target_precompile_headers(Holovibes_tests PUBLIC "includes/stdafx.hh")
+# endif()
+
+# Ensure GoogleTest module is included to use gtest_discover_tests
+include(GoogleTest)
+
+# Add the tests to CTest
+gtest_discover_tests(Holovibes_tests)
 
 # ---------------------------------------------------------------------
 # Post build: Copy necessary files to output dir
