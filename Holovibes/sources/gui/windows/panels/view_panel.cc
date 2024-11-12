@@ -247,17 +247,10 @@ void ViewPanel::set_unwrapping_2d(const bool value)
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (checked && api::set_3d_cuts_view(checked))
+    if (api::set_3d_cuts_view(checked))
     {
         const ushort nImg = std::min(api::get_time_transformation_size(), time_transformation_cuts_window_max_size);
         gui::set_3d_cuts_view(checked, 0);
-        parent_->notify(); // Make the x and y parameters visible
-    }
-
-    if (!checked)
-    {
-        gui::set_3d_cuts_view(checked, 0);
-        api::set_3d_cuts_view(checked);
         parent_->notify(); // Make the x and y parameters visible
     }
 }

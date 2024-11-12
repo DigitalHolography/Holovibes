@@ -76,7 +76,15 @@ bool Pipe::make_requests()
         clear_request(ICS::DisableFilter2DView);
     }
 
-    HANDLE_REQUEST(ICS::DeleteTimeTransformationCuts, "Delete time transformation cuts", dispose_cuts());
+    if (is_requested(ICS::DeleteTimeTransformationCuts))
+    {
+        LOG_DEBUG("Delete time transformation cuts");
+
+        dispose_cuts();
+        image_accumulation_->dispose_cuts_queue();
+
+        clear_request(ICS::DeleteTimeTransformationCuts);
+    }
 
     if (is_requested(ICS::DisableChartDisplay))
     {
@@ -157,7 +165,15 @@ bool Pipe::make_requests()
         clear_request(ICS::UpdateBatchSize);
     }
 
-    HANDLE_REQUEST(ICS::TimeTransformationCuts, "Time transformation cuts", init_cuts());
+    if (is_requested(ICS::TimeTransformationCuts))
+    {
+        LOG_DEBUG("Time transformation cuts");
+
+        init_cuts();
+        image_accumulation_->init_cuts_queue();
+
+        clear_request(ICS::TimeTransformationCuts);
+    }
 
     image_accumulation_->init(); // done only if requested
 

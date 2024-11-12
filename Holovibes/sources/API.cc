@@ -371,9 +371,12 @@ bool set_3d_cuts_view(bool checked)
             while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
                 continue;
 
-            pipe_refresh();
+            set_yz_enabled(true);
+            set_xz_enabled(true);
+            set_cuts_view_enabled(true);
+            set_auto_contrast_cuts();
 
-            LOG_ERROR("API 3D cuts view enabled: {}", checked);
+            pipe_refresh();
 
             return true;
         }

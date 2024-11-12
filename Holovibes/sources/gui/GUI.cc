@@ -65,8 +65,6 @@ void set_3d_cuts_view(bool checked, uint window_size)
         QPoint xzPos = UI.mainDisplay->framePosition() + QPoint(0, UI.mainDisplay->height() + 42);
         QPoint yzPos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 20, 0);
 
-        LOG_ERROR("window_size: {}", window_size);
-
         UI.sliceXZ.reset(new gui::SliceWindow(xzPos,
                                               QSize(UI.mainDisplay->width(), window_size),
                                               api::get_compute_pipe()->get_stft_slice_queue(0).get(),
@@ -85,17 +83,9 @@ void set_3d_cuts_view(bool checked, uint window_size)
 
         UI.mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
 
-        api::set_cuts_view_enabled(true);
-        api::set_yz_enabled(true);
-        api::set_xz_enabled(true);
-
-        api::set_auto_contrast_cuts();
-
         auto holo = dynamic_cast<gui::HoloWindow*>(UI.mainDisplay.get());
         if (holo)
             holo->update_slice_transforms();
-
-        api::pipe_refresh();
     }
     else
     {
@@ -109,8 +99,6 @@ void set_3d_cuts_view(bool checked, uint window_size)
             UI.mainDisplay->getOverlayManager().disable_all(gui::Cross);
         }
     }
-
-    LOG_ERROR("3D cuts view enabled: {}", checked);
 }
 
 void set_composite_area() { UI.mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>(); }

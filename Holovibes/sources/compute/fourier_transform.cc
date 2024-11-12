@@ -63,7 +63,8 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
         insert_fresnel_transform();
     else if (space_transformation == SpaceTransformation::ANGULARSP)
         insert_angular_spectrum(filter2d_enabled);
-    if (space_transformation == SpaceTransformation::FRESNELTR || space_transformation == SpaceTransformation::ANGULARSP)
+    if (space_transformation == SpaceTransformation::FRESNELTR ||
+        space_transformation == SpaceTransformation::ANGULARSP)
         fn_compute_vect_.push_back([=]() { enqueue_lens(space_transformation); });
 }
 
@@ -93,13 +94,13 @@ void FourierTransform::insert_fresnel_transform()
     const float z = setting<settings::ZDistance>();
 
     fresnel_transform_lens(gpu_lens_.get(),
-                          lens_side_size_,
-                          fd_.height,
-                          fd_.width,
-                          setting<settings::Lambda>(),
-                          z,
-                          setting<settings::PixelSize>(),
-                          stream_);
+                           lens_side_size_,
+                           fd_.height,
+                           fd_.width,
+                           setting<settings::Lambda>(),
+                           z,
+                           setting<settings::PixelSize>(),
+                           stream_);
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 

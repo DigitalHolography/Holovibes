@@ -188,8 +188,6 @@ void ICompute::init_cuts()
 
     buffers_.gpu_output_frame_xz.resize(fd_xz.get_frame_res());
     buffers_.gpu_output_frame_yz.resize(fd_yz.get_frame_res());
-
-    LOG_ERROR("Cuts initialized");
 }
 
 void ICompute::dispose_cuts()
@@ -205,8 +203,6 @@ void ICompute::dispose_cuts()
 
     time_transformation_env_.gpu_output_queue_xz.reset(nullptr);
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
-
-    LOG_ERROR("Cuts disposed");
 }
 
 void ICompute::request_autocontrast(WindowKind kind)
