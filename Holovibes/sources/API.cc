@@ -70,11 +70,6 @@ void close_windows()
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
     UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-    if (api::get_lens_view_enabled())
-        set_lens_view(false);
-    if (api::get_raw_view_enabled())
-        set_raw_view(false);
 }
 
 #pragma endregion
@@ -167,16 +162,6 @@ void configure_camera()
 
 #pragma region Image Mode
 
-void init_image_mode(QPoint& position, QSize& size)
-{
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        position = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
-        size = UserInterfaceDescriptor::instance().mainDisplay->size();
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
-}
-
 void create_pipe()
 {
     LOG_FUNC();
@@ -232,7 +217,7 @@ bool is_light_ui_mode()
     return json_get_or_default(j_us, false, "light_ui");
 }
 
-void set_image_mode(Computation mode, uint window_max_size)
+void set_computation_mode(Computation mode, uint window_max_size)
 {
     close_windows();
     close_critical_compute();
@@ -240,13 +225,13 @@ void set_image_mode(Computation mode, uint window_max_size)
     set_compute_mode(mode);
     create_pipe();
 
-    create_window(mode, window_max_size);
-
     if (mode == Computation::Hologram)
     {
         api::change_window(static_cast<int>(WindowKind::XYview));
         api::set_contrast_mode(true);
     }
+
+    create_window(mode, window_max_size);
 }
 
 void create_window(Computation window_kind, ushort window_size)
@@ -258,7 +243,13 @@ void create_window(Computation window_kind, ushort window_size)
 
     QPoint pos = getSavedHoloWindowPos();
     QSize size = getSavedHoloWindowSize(width, height);
-    init_image_mode(pos, size);
+
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+    {
+        pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
+        size = UserInterfaceDescriptor::instance().mainDisplay->size();
+        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+    }
 
     if (window_kind == Computation::Raw)
     {
@@ -299,7 +290,7 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
     }
 
     set_img_type(img_type);
-    set_image_mode(Computation::Hologram, window_size);
+    set_computation_mode(Computation::Hologram, window_size);
 
     UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
     UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
@@ -769,11 +760,17 @@ void close_critical_compute()
     if (get_convolution_enabled())
         disable_convolution();
 
-    if (api::get_cuts_view_enabled())
+    if (get_cuts_view_enabled())
         set_3d_cuts_view(false);
 
     if (get_filter2d_view_enabled())
         set_filter2d_view(false);
+
+    if (get_lens_view_enabled())
+        set_lens_view(false);
+
+    if (get_raw_view_enabled())
+        set_raw_view(false);
 
     Holovibes::instance().stop_compute();
 }
@@ -1397,16 +1394,6 @@ void update_registration_zone(float value)
 
 #pragma region Chart
 
-void active_noise_zone()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
-}
-
-void active_signal_zone()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
-}
-
 void set_chart_display(bool checked)
 {
     if (get_chart_display_enabled() == checked)
@@ -1438,7 +1425,7 @@ void set_record_buffer_size(uint value)
     {
         UPDATE_SETTING(RecordBufferSize, value);
 
-        if (Holovibes::instance().is_recording())
+        if (is_recording())
             stop_record();
 
         Holovibes::instance().init_record_queue();
@@ -1453,7 +1440,7 @@ void set_record_queue_location(Device device)
     {
         UPDATE_SETTING(RecordQueueLocation, device);
 
-        if (Holovibes::instance().is_recording())
+        if (is_recording())
             stop_record();
 
         Holovibes::instance().init_record_queue();
@@ -1491,7 +1478,7 @@ void set_record_mode(const std::string& text)
         try
         {
             auto pipe = get_compute_pipe();
-            if (Holovibes::instance().is_recording())
+            if (is_recording())
                 stop_record();
 
             Holovibes::instance().init_record_queue();
@@ -1504,6 +1491,8 @@ void set_record_mode(const std::string& text)
         }
     }
 }
+
+bool is_recording() { return Holovibes::instance().is_recording(); }
 
 bool start_record_preconditions()
 {
@@ -1557,7 +1546,7 @@ void set_record_device(const Device device)
         else
             import_start();
 
-        set_image_mode(get_compute_mode(), 1);
+        set_computation_mode(get_compute_mode(), 1);
     }
 }
 
@@ -1597,7 +1586,6 @@ void stop_record()
 
 void record_finished()
 {
-    UserInterfaceDescriptor::instance().is_recording_ = false;
     // if the record was on the cpu, we have to put the queues on gpu again
     if (api::get_record_on_gpu() == false)
         api::set_record_device(Device::GPU);

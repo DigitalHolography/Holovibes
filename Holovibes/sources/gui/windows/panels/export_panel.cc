@@ -287,7 +287,6 @@ void ExportPanel::start_record()
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    UserInterfaceDescriptor::instance().is_recording_ = true;
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
@@ -310,7 +309,7 @@ void ExportPanel::start_record()
                 record_finished(record_mode);
                 // if the record was in cpu mode, open the previous compute mode at the end of the record
                 if (!gpu_record)
-                    ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(compute_mode));
+                    ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(compute_mode));
             });
     };
 
@@ -319,13 +318,13 @@ void ExportPanel::start_record()
 
 void ExportPanel::activeSignalZone()
 {
-    api::active_signal_zone();
+    gui::active_signal_zone();
     parent_->notify();
 }
 
 void ExportPanel::activeNoiseZone()
 {
-    api::active_noise_zone();
+    gui::active_noise_zone();
     parent_->notify();
 }
 

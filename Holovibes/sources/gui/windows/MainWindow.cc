@@ -164,7 +164,7 @@ MainWindow::MainWindow(QWidget* parent)
     load_gui();
 
     if (api::get_import_type() != ImportType::None)
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -588,7 +588,7 @@ void MainWindow::change_camera(CameraKind c)
     if (api::change_camera(c))
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
     }
 

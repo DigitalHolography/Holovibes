@@ -163,8 +163,8 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
-/*! \brief Sets the image mode to Raw or Holographic*/
-void set_image_mode(Computation mode, uint window_max_size);
+/*! \brief Sets the computation mode to Raw or Holographic*/
+void set_computation_mode(Computation mode, uint window_max_size);
 
 /*! \brief Restarts everything to change the view mode
  *
@@ -215,6 +215,12 @@ void set_record_mode(const std::string& text);
 void set_record_on_gpu(bool value);
 
 bool get_record_on_gpu();
+
+/*! \brief Return whether we are recording or not
+ *
+ * \return true if recording, else false
+ */
+bool is_recording();
 
 /*!
  * \brief Set the record queue location, between gpu and cpu
@@ -750,16 +756,6 @@ void update_registration_zone(float value);
  */
 void record_finished();
 
-/*! \brief Creates Noise overlay
- *
- */
-void active_noise_zone();
-
-/*! \brief Creates Signal overlay
- *
- */
-void active_signal_zone();
-
 /*! \brief Start or stop the chart display
  *
  * \param checked true: enable, false: disable
@@ -839,13 +835,6 @@ void set_view_mode(const ImgType type);
 
 /*! \brief Configures the camera */
 void configure_camera();
-
-/*! \brief Gets data from the current main display
- *
- * \param position the position to fill
- * \param size the size to fill
- */
-void init_image_mode(QPoint& position, QSize& size);
 
 /*! \brief Saves the current state of holovibes
  *

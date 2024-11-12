@@ -31,7 +31,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
-           Holovibes::instance().is_recording())
+           api::is_recording())
         continue;
 }
 

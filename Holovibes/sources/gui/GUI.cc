@@ -140,6 +140,10 @@ void set_3d_cuts_view(bool checked, uint window_size)
 
 void set_composite_area() { UI.mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>(); }
 
+void active_noise_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gui::Noise>(); }
+
+void active_signal_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gui::Signal>(); }
+
 void open_advanced_settings(QMainWindow* parent)
 {
     UI.is_advanced_settings_displayed = true;

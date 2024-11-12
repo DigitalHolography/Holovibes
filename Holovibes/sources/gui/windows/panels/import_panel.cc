@@ -166,7 +166,7 @@ void ImportPanel::import_stop()
 void ImportPanel::import_start()
 {
     if (api::import_start())
-        parent_->ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
     else
         UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 }

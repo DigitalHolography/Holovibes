@@ -56,8 +56,6 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::PlotWindow> plot_window_ = nullptr;
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
-    bool is_recording_ = false;
-
     bool is_advanced_settings_displayed = false;
     bool has_been_updated = false;
 

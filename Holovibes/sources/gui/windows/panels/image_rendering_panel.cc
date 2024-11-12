@@ -53,7 +53,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_);
+    ui_->BatchSizeSpinBox->setEnabled(!api::is_recording());
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -129,14 +129,14 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_image_mode(int mode)
+void ImageRenderingPanel::set_computation_mode(int mode)
 {
     if (api::get_import_type() == ImportType::None)
         return;
 
     Computation comp_mode = static_cast<Computation>(mode);
 
-    api::set_image_mode(comp_mode, parent_->window_max_size);
+    api::set_computation_mode(comp_mode, parent_->window_max_size);
 
     if (comp_mode == Computation::Hologram)
     {

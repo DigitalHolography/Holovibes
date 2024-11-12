@@ -17,8 +17,6 @@ namespace holovibes::gui
 /*
 void close_windows();
 
-void init_image_mode(QPoint& position, QSize& size);
-
 void set_raw_mode(uint window_max_size);
 void create_holo_window(ushort window_size);
 
@@ -27,9 +25,6 @@ void create_holo_window(ushort window_size);
 
 // View if useful since there is set_view_mode
 void refresh_view_mode(ushort window_size, ImgType img_type);
-
-void active_noise_zone();
-void active_signal_zone();
 
 void rotateTexture();
 void flipTexture();
@@ -75,6 +70,12 @@ void set_3d_cuts_view(bool checked, uint window_size);
 
 /*! \brief Make the ui composite overlay visible */
 void set_composite_area();
+
+/*! \brief Creates Noise overlay */
+void active_noise_zone();
+
+/*! \brief Creates Signal overlay */
+void active_signal_zone();
 
 /*! \brief Opens additional settings window
  *
