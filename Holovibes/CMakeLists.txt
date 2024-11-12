@@ -38,6 +38,7 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
     includes/tools/logger/
+    includes/tools/misc/
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )

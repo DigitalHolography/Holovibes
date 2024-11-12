@@ -17,6 +17,7 @@
 #include "barycentre.cuh"
 #include <cmath>
 
+#define CIRCLE_MASK_RADIUS 0.07
 
 __global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size)
 {
@@ -62,7 +63,7 @@ void compute_barycentre_circle_mask(float* output,
     compute_circle_mask(output,
         index_max % (int) std::floor(std::sqrt(size)),
         std::floor(index_max / std::sqrt(size)),
-        0.1 * (std::sqrt(size) + std::sqrt(size)) / 2,
+        CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
         std::sqrt(size),
         std::sqrt(size),
         stream
@@ -74,7 +75,7 @@ void compute_barycentre_circle_mask(float* output,
     compute_circle_mask(circle_mask_min,
         index_min % (int) std::floor(std::sqrt(size)),
         std::floor(index_min / std::sqrt(size)),
-        0.1 * (std::sqrt(size) + std::sqrt(size)) / 2,
+        CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
         std::sqrt(size),
         std::sqrt(size),
         stream

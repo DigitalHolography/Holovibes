@@ -544,3 +544,59 @@ float* compute_kernel(float sigma)
 
     return kernel;
 }
+
+__global__ void kernel_compute_kernel(float* output, int kernel_size, float sigma, float* d_sum)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= kernel_size || y >= kernel_size)
+        return;
+
+    float half_size = (kernel_size - 1.0f) / 2.0f;
+    float i = y - half_size;
+    float j = x - half_size;
+    float value = expf(-(i * i + j * j) / (2 * sigma * sigma));
+
+    output[y * kernel_size + x] = value;
+
+    // Atomic add to accumulate the total sum (for normalization)
+    atomicAdd(d_sum, value);
+}
+
+__global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= kernel_size || y >= kernel_size)
+        return;
+
+    // Normalize each element by the computed sum in d_sum
+    input_output[y * kernel_size + x] /= *d_sum;
+}
+
+void compute_kernel_cuda(float* output, float sigma)
+{
+    float* d_sum;
+    float initial_sum = 0.0f;
+    int kernel_size = 2 * std::ceil(2 * sigma) + 1;
+
+    // Allocate memory for sum on the device and initialize to 0
+    cudaXMalloc(&d_sum, sizeof(float));
+    cudaXMemcpy(d_sum, &initial_sum, sizeof(float), cudaMemcpyHostToDevice);
+
+    // Define grid and block sizes
+    dim3 blockSize(16, 16);
+    dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, 
+                  (kernel_size + blockSize.y - 1) / blockSize.y);
+
+    // Launch the kernel to compute the Gaussian values
+    kernel_compute_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);
+
+    // Normalize the kernel using the computed sum directly on the GPU
+    kernel_normalize_array<<<gridSize, blockSize>>>(output, kernel_size, d_sum);
+
+    // Free device memory for sum
+    cudaXFree(d_sum);
+}

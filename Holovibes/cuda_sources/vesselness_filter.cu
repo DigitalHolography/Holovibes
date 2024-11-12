@@ -66,10 +66,10 @@ __global__ void convolution_kernel(const float* image, const float* kernel, floa
 
 void apply_convolution(float* image,
                        const float* kernel,
-                       int width,
-                       int height,
-                       int kWidth,
-                       int kHeight,
+                       size_t width,
+                       size_t height,
+                       size_t kWidth,
+                       size_t kHeight,
                        cudaStream_t stream,
                        ConvolutionPaddingType padding_type,
                        int padding_scalar)

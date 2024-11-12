@@ -10,7 +10,7 @@
 #include "map.cuh"
 #include "holovibes.hh"
 #include "matrix_operations.hh"
-#include "m0_treatments.cuh"
+#include "moments_treatments.cuh"
 #include "vesselness_filter.cuh"
 #include "barycentre.cuh"
 #include "vascular_pulse.cuh"
@@ -161,8 +161,7 @@ void Analysis::init()
     vesselness_mask_env_.number_image_mean_ = 0;
 
     vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
-    vesselness_mask_env_.buffer_m0_ff_img_.resize(buffers_.gpu_postprocess_frame_size *
-                                                  vesselness_mask_env_.time_window_);
+    vesselness_mask_env_.m0_ff_video_.resize(buffers_.gpu_postprocess_frame_size * vesselness_mask_env_.time_window_);
     vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
     vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size);
 
@@ -296,10 +295,21 @@ void Analysis::init()
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
 
-    // Compute vascular gaussian deriviative kernel
-    int w = 2 * std::ceil(2 * 0.02 * fd_.width) + 1;
-    int h = 2 * std::ceil(2 * 0.02 * fd_.width) + 1;
-    vesselness_mask_env_.vascular_kernel_.reset(compute_kernel(w));
+    // calculer notre kernel
+    float sigma_2 = 0.02 * fd_.width;
+    vesselness_mask_env_.vascular_kernel_size_ = 2 * std::ceil(2 * sigma_2) + 1;
+
+    // float* k = compute_kernel(sigma_2);
+
+    // float* d_k;
+    // cudaXMalloc(&d_k, sizeof(float) * kernel_size * kernel_size);
+    // cudaXMemcpy(d_k, k, sizeof(float) * kernel_size * kernel_size, cudaMemcpyHostToDevice);
+    // delete[] k;
+
+    vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
+                                                 vesselness_mask_env_.vascular_kernel_size_);
+    compute_kernel_cuda(vesselness_mask_env_.vascular_kernel_, sigma_2);
+
     // print_in_file_cpu(vesselness_mask_env_.vascular_kernel_, 2, 2, "vascular_kernel");
 
     // // Pad it with zero to equal frame size
@@ -348,7 +358,7 @@ void Analysis::insert_show_artery()
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
             {
 
-                // Compute the flat field corrected video
+                // Compute the flat field corrected image for each frame of the video
                 convolution_kernel(buffers_.gpu_postprocess_frame,
                                    buffers_.gpu_convolution_buffer,
                                    cuComplex_buffer_.get(),
@@ -362,7 +372,7 @@ void Analysis::insert_show_artery()
                 temporal_mean(vesselness_mask_env_.image_with_mean_,
                               buffers_.gpu_postprocess_frame,
                               &vesselness_mask_env_.number_image_mean_,
-                              vesselness_mask_env_.buffer_m0_ff_img_,
+                              vesselness_mask_env_.m0_ff_video_,
                               vesselness_mask_env_.m0_ff_sum_image_,
                               vesselness_mask_env_.time_window_,
                               buffers_.gpu_postprocess_frame_size,
@@ -425,25 +435,16 @@ void Analysis::insert_barycentres()
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
 
-                // calculer notre kernel
-                float* k = compute_kernel(2);
-
-                float* d_k;
-                cudaXMalloc(&d_k, sizeof(float) * 9 * 9);
-                cudaXMemcpy(d_k, k, sizeof(float) * 9 * 9, cudaMemcpyHostToDevice);
-                delete[] k;
-
                 // appliquer le flou
                 apply_convolution(vesselness_mask_env_.vascular_image_,
-                                  d_k,
+                                  vesselness_mask_env_.vascular_kernel_,
                                   fd_.width,
                                   fd_.height,
-                                  9,
-                                  9,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_mask_env_.vascular_kernel_size_,
                                   stream_,
                                   ConvolutionPaddingType::SCALAR,
                                   0);
-                cudaXFree(d_k);
 
                 float* circle_mask;
                 cudaXMalloc(&circle_mask, sizeof(float) * fd_.width * fd_.height);
@@ -452,15 +453,20 @@ void Analysis::insert_barycentres()
                                                buffers_.gpu_postprocess_frame_size,
                                                stream_);
 
-                print_in_file_gpu(circle_mask, fd_.height, fd_.width, "circle_mask", stream_);
+                // TODO: change hard coded values from maskvesselnessclean
+                compute_first_correlation(buffers_.gpu_postprocess_frame,
+                                          vesselness_mask_env_.image_centered_,
+                                          vascular_pulse_csv_,
+                                          11862,
+                                          506,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
 
-                // compute_first_correlation(buffers_.gpu_postprocess_frame, vascular_pulse_csv_, 11862, 506, stream_);
-
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            circle_mask,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToDevice);
-                cudaXFree(circle_mask);
+                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                //             circle_mask,
+                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
+                //             cudaMemcpyDeviceToDevice);
+                // cudaXFree(circle_mask);
             }
         });
 }

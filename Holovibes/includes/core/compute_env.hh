@@ -214,11 +214,23 @@ struct ImageAccEnv
  */
 struct VesselnessMaskEnv
 {
-    /*! \brief Get the mean image */
-    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
+    /*!
+     * \brief Circular buffer that holds the moment_0 values of the last 'time_window_' frames.
+     *
+     * The buffer is of a fixed size, equal to 'time_window_'. When a new frame is processed,
+     * its moment_0 value is added to the buffer, and if the buffer is full, the oldest value
+     * is overwritten. This allows us to keep track of the moment_0 values for the last 'time_window_'
+     * frames, which are used for calculations in subsequent processing steps.
+     */
+    cuda_tools::CudaUniquePtr<float> m0_ff_video_ = nullptr;
 
-    /*! \brief Buffer of size 'time_window_' TODO refaire ca to compute the mean of m0 imgs */
-    cuda_tools::CudaUniquePtr<float> buffer_m0_ff_img_ = nullptr;
+    /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
+     *
+     * This buffer is used to store the sum of pixel values over a sliding time window. This allows us to efficiently
+     * calculate the mean pixel value over the time window by subtracting the value of the oldest frame and adding the
+     * value of the newest frame.
+     */
+    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
 
     /*! \brief image with mean calculated for a time window*/
     cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
@@ -249,6 +261,9 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> vascular_image_ = nullptr;
 
     /*! \brief Gaussian kernel for vascular image */
-    std::unique_ptr<float> vascular_kernel_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_kernel_ = nullptr;
+
+    /*! \brief Size of side of vascular kernel */
+    size_t vascular_kernel_size_ = 0;
 };
 } // namespace holovibes

@@ -53,8 +53,8 @@ void apply_mask_or(float* output,
 
 float* compute_gauss_deriviatives_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream);
 
-void apply_convolution(float* image, const float* kernel, int width, int height, int kWidth, int kHeight, cudaStream_t stream);
-
 void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream);
 
 float* compute_kernel(float sigma);
+
+void compute_kernel_cuda(float* output, float sigma);
