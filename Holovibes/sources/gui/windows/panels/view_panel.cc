@@ -39,26 +39,6 @@ ViewPanel::~ViewPanel()
     delete p_right_shortcut_;
 }
 
-// TODO: use parameters instead of directly the GSH
-void ViewPanel::view_callback(WindowKind, ViewWindow)
-{
-    const bool is_raw = api::get_compute_mode() == Computation::Raw;
-
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
-    ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
-
-    // Window selection
-    QComboBox* window_selection = ui_->WindowSelectionComboBox;
-    window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
-}
-
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
@@ -198,9 +178,7 @@ void ViewPanel::on_notify()
         max_height = api::get_input_queue_fd_height() - 1;
     }
     else
-    {
         api::set_x_y(0, 0);
-    }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
@@ -222,8 +200,6 @@ void ViewPanel::on_notify()
     ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
-
-    // Filter2D
 }
 
 void ViewPanel::load_gui(const json& j_us)
@@ -260,21 +236,14 @@ void ViewPanel::update_3d_cuts_view(bool checked)
     }
 }
 
-void ViewPanel::set_fft_shift(const bool value) { api::set_fft_shift_enabled(value); }
-
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
+void ViewPanel::set_fft_shift(const bool value)
+{
+    api::set_fft_shift_enabled(value);
+    parent_->notify();
+}
 
 void ViewPanel::set_registration(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_fft_shift_enabled())
-    {
-        set_fft_shift(value);
-        ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
-    }
-
     api::set_registration_enabled(value);
     parent_->notify();
 }
@@ -371,11 +340,5 @@ void ViewPanel::display_reticle(bool value)
 
 void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
 
-void ViewPanel::update_registration_zone(double value)
-{
-    if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
-        return;
-
-    api::update_registration_zone(value);
-}
+void ViewPanel::update_registration_zone(double value) { api::update_registration_zone(value); }
 } // namespace holovibes::gui

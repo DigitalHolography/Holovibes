@@ -27,7 +27,6 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
-    void view_callback(WindowKind kind, ViewWindow window);
     void on_notify() override;
 
     void load_gui(const json& j_us) override;

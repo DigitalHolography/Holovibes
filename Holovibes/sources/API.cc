@@ -1411,6 +1411,9 @@ void reticle_scale(float value)
 
 void update_registration_zone(float value)
 {
+    if (!is_between(value, 0.f, 1.f) || api::get_import_type() == ImportType::None)
+        return;
+
     set_registration_zone(value);
     api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
     pipe_refresh();
