@@ -198,13 +198,6 @@ void set_record_device(const Device device);
  */
 void stop_record();
 
-/*! \brief Gets the destination of the output file
- *
- * \param std_filepath the output filepath FIXME: shouldn't be stored in the wild.
- * \return const std::string the extension of the output file
- */
-const std::string browse_record_output_file(std::string& std_filepath);
-
 /*! \brief Set the record mode object, and trigger the allocation of the pipe
  *
  * \param text the catched mode
@@ -787,8 +780,11 @@ void set_chart_display_enabled(bool value);
 
 void set_filter2d_view_enabled(bool value);
 
-/*! \brief Adds or removes raw view */
-void set_raw_view(bool checked, uint auxiliary_window_max_size);
+/*! \brief Adds or removes raw view
+
+ * \param checked true: enable, false: disable
+ */
+void set_raw_view(bool checked);
 
 /*! \brief Changes the time transformation size from ui value
  *

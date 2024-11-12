@@ -20,7 +20,6 @@ void close_windows();
 void init_image_mode(QPoint& position, QSize& size);
 
 void set_raw_mode(uint window_max_size);
-void set_raw_view(bool checked, uint auxiliary_window_max_size);
 void create_holo_window(ushort window_size);
 
 // Refacto set_image_mode to create the pipe and then another GUI set_image_mode
@@ -39,8 +38,6 @@ void flipTexture();
 
 void display_reticle(bool value);
 
-std::string getNameFromFilename(const std::string& filename);
-const std::string browse_record_output_file(std::string& std_filepath);
 void record_finished(); // Record finished UID
 */
 
@@ -58,6 +55,13 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size);
  */
 void set_lens_view(bool checked, uint auxiliary_window_max_size);
 
+/*! \brief Open or close the raw view
+ *
+ * \param checked true: open, false: close
+ * \param auxiliary_window_max_size the maximum size of the window
+ */
+void set_raw_view(bool checked, uint auxiliary_window_max_size);
+
 /*! \brief Open or close the 3D cuts view
  *
  * \param checked true: open, false: close
@@ -73,6 +77,13 @@ void set_composite_area();
  * \param parent then window that will embed the specific panel
  */
 void open_advanced_settings(QMainWindow* parent = nullptr);
+
+/*! \brief Gets the destination of the output file
+ *
+ * \param std_filepath the output filepath.
+ * \return const std::string the extension of the output file
+ */
+const std::string browse_record_output_file(std::string& std_filepath);
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display();
 

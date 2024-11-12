@@ -254,7 +254,11 @@ void ViewPanel::update_lens_view(bool checked)
     gui::set_lens_view(checked, parent_->auxiliary_window_max_size);
 }
 
-void ViewPanel::update_raw_view(bool checked) { api::set_raw_view(checked, parent_->auxiliary_window_max_size); }
+void ViewPanel::update_raw_view(bool checked)
+{
+    api::set_raw_view(checked);
+    gui::set_raw_view(checked, parent_->auxiliary_window_max_size);
+}
 
 void ViewPanel::set_x_y()
 {

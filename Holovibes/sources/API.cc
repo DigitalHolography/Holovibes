@@ -5,7 +5,6 @@
 #include "logger.hh"
 #include "tools.hh"
 
-#include <regex>
 #include <string>
 #include <unordered_map>
 
@@ -70,10 +69,13 @@ void close_windows()
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
 
+    if (UserInterfaceDescriptor::instance().raw_window.get() != nullptr)
+        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+
     if (api::get_lens_view_enabled())
         set_lens_view(false);
-    if (UserInterfaceDescriptor::instance().raw_window)
-        set_raw_view(false, 0);
+    if (api::get_raw_view_enabled())
+        set_raw_view(false);
 
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
@@ -493,7 +495,7 @@ void set_lens_view(bool checked)
     }
 }
 
-void set_raw_view(bool checked, uint auxiliary_window_max_size)
+void set_raw_view(bool checked)
 {
     if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
@@ -507,34 +509,11 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
     auto pipe = get_compute_pipe();
     set_raw_view_enabled(checked);
 
-    if (checked)
-    {
-        pipe->request(ICS::RawView);
-        while (pipe->is_requested(ICS::RawView))
-            continue;
+    auto request = checked ? ICS::RawView : ICS::DisableRawView;
 
-        const ::camera::FrameDescriptor& fd = get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().raw_window.reset(
-            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-        pipe->request(ICS::DisableRawView);
-        while (pipe->is_requested(ICS::DisableRawView))
-            continue;
-    }
+    pipe->request(request);
+    while (pipe->is_requested(request))
+        continue;
 
     pipe_refresh();
 }
@@ -1470,40 +1449,6 @@ void stop_chart_display()
 #pragma endregion
 
 #pragma region Record
-
-/**
- * @brief Extract the name from the filename
- *
- * @param filePath the file name
- * @return std::string the name extracted from the filename
- */
-std::string getNameFromFilename(const std::string& filename)
-{
-    std::regex filenamePattern{R"(^\d{6}_(.*?)_?\d*$)"};
-    std::smatch matches;
-    if (std::regex_search(filename, matches, filenamePattern))
-        return matches[1].str();
-    else
-        return filename; // Returning the original filename if no match is found
-}
-
-const std::string browse_record_output_file(std::string& std_filepath)
-{
-    // Let std::filesystem handle path normalization and system compatibility
-    std::filesystem::path normalizedPath(std_filepath);
-
-    // Using std::filesystem to derive parent path, extension, and stem directly
-    std::string parentPath = normalizedPath.parent_path().string();
-    std::string fileExt = normalizedPath.extension().string();
-    std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
-
-    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
-    std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
-    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
-    UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
-
-    return fileExt;
-}
 
 void set_record_buffer_size(uint value)
 {

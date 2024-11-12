@@ -2,6 +2,9 @@
 #include "user_interface_descriptor.hh"
 #include "API.hh"
 
+#include <regex>
+#include <string>
+
 #define UI UserInterfaceDescriptor::instance()
 
 namespace holovibes::gui
@@ -52,6 +55,28 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
     }
     else
         UI.lens_window.reset(nullptr);
+}
+
+void set_raw_view(bool checked, uint auxiliary_window_max_size)
+{
+    if (checked)
+    {
+        const ::camera::FrameDescriptor& fd = api::get_fd();
+        ushort raw_window_width = fd.width;
+        ushort raw_window_height = fd.height;
+        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
+
+        // set positions of new windows according to the position of the main GL
+        // window and Lens window
+        QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
+        UI.raw_window.reset(new gui::RawWindow(pos,
+                                               QSize(raw_window_width, raw_window_height),
+                                               api::get_compute_pipe()->get_raw_view_queue().get()));
+
+        UI.raw_window->setTitle("Raw view");
+    }
+    else
+        UI.raw_window.reset(nullptr);
 }
 
 void set_3d_cuts_view(bool checked, uint window_size)
@@ -107,6 +132,40 @@ void open_advanced_settings(QMainWindow* parent)
 {
     UI.is_advanced_settings_displayed = true;
     UI.advanced_settings_window_ = std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
+}
+
+/**
+ * @brief Extract the name from the filename
+ *
+ * @param filePath the file name
+ * @return std::string the name extracted from the filename
+ */
+std::string getNameFromFilename(const std::string& filename)
+{
+    std::regex filenamePattern{R"(^\d{6}_(.*?)_?\d*$)"};
+    std::smatch matches;
+    if (std::regex_search(filename, matches, filenamePattern))
+        return matches[1].str();
+    else
+        return filename; // Returning the original filename if no match is found
+}
+
+const std::string browse_record_output_file(std::string& std_filepath)
+{
+    // Let std::filesystem handle path normalization and system compatibility
+    std::filesystem::path normalizedPath(std_filepath);
+
+    // Using std::filesystem to derive parent path, extension, and stem directly
+    std::string parentPath = normalizedPath.parent_path().string();
+    std::string fileExt = normalizedPath.extension().string();
+    std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
+
+    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
+    std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
+    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
+    UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
+
+    return fileExt;
 }
 
 std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display() { return UI.mainDisplay; }
