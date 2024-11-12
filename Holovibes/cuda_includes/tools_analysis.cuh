@@ -10,7 +10,9 @@
 
 float* load_CSV_to_float_array(const std::string& filename);
 
-void print_in_file(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
+void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
+
+void print_in_file_cpu(float* input, uint rows, uint col, std::string filename);
 
 void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
@@ -49,6 +51,10 @@ void apply_mask_or(float* output,
                        const short height,
                        const cudaStream_t stream);
 
-float* compute_gaussian_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream);
+float* compute_gauss_deriviatives_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream);
+
+void apply_convolution(float* image, const float* kernel, int width, int height, int kWidth, int kHeight, cudaStream_t stream);
 
 void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream);
+
+float* compute_kernel(float sigma);

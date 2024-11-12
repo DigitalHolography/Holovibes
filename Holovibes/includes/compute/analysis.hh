@@ -82,8 +82,8 @@ class Analysis
         const size_t frame_res = fd_.get_frame_res();
 
         float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
-        data_csv_.resize(frame_res);
-        cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        m0_ff_img_csv_.resize(frame_res);
+        cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
@@ -166,7 +166,7 @@ class Analysis
     const cudaStream_t& stream_;
 
     // To delete
-    cuda_tools::CudaUniquePtr<float> data_csv_;
+    cuda_tools::CudaUniquePtr<float> m0_ff_img_csv_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> f_avg_csv_;

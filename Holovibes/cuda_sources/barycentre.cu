@@ -51,20 +51,15 @@ int find_min_thrust(float* input, size_t size)
 
 
 
-void compute_barycentre(float* output,
-                        float* temporal_mean_img,
-                        float* temporal_mean_video,
-                        size_t size,
-                        cudaStream_t stream)
+void compute_barycentre_circle_mask(float* output,
+                                    float* input,
+                                    size_t size,
+                                    cudaStream_t stream)
 {
-    compute_multiplication(output, temporal_mean_img, temporal_mean_video, size, stream);
+    int index_max = find_max_thrust(input, size);
+    int index_min = find_min_thrust(input, size);
 
-    int index_max = find_max_thrust(output, size);
-    int index_min = find_min_thrust(output, size);
-
-    float* cercleMask;
-    cudaXMalloc(&cercleMask, sizeof(float) * size);
-    compute_circle_mask(cercleMask,
+    compute_circle_mask(output,
         index_max % (int) std::floor(std::sqrt(size)),
         std::floor(index_max / std::sqrt(size)),
         0.1 * (std::sqrt(size) + std::sqrt(size)) / 2,
@@ -72,9 +67,11 @@ void compute_barycentre(float* output,
         std::sqrt(size),
         stream
     );
-    float* cercleMask2;
-    cudaXMalloc(&cercleMask2, sizeof(float) * size);
-    compute_circle_mask(cercleMask2,
+
+    // circle_mask_min is CRV
+    float* circle_mask_min;
+    cudaXMalloc(&circle_mask_min, sizeof(float) * size);
+    compute_circle_mask(circle_mask_min,
         index_min % (int) std::floor(std::sqrt(size)),
         std::floor(index_min / std::sqrt(size)),
         0.1 * (std::sqrt(size) + std::sqrt(size)) / 2,
@@ -82,9 +79,8 @@ void compute_barycentre(float* output,
         std::sqrt(size),
         stream
     );
-    apply_mask_or(cercleMask, cercleMask2, std::sqrt(size), std::sqrt(size), stream);
-    cudaXFree(cercleMask2);
-    cudaXFree(cercleMask);
-    //cudaXMemcpy(output, cercleMask, size * sizeof(float), cudaMemcpyDeviceToDevice);
 
+    apply_mask_or(output, circle_mask_min, std::sqrt(size), std::sqrt(size), stream);
+    cudaXStreamSynchronize(stream);
+    cudaXFree(circle_mask_min);
 }

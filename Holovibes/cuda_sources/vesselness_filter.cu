@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "convolution.cuh"
+#include "vesselness_filter.cuh"
 #include "tools_conversion.cuh"
 #include "tools_analysis.cuh"
 #include "unique_ptr.hh"
@@ -14,7 +15,8 @@
 #include "cufft_handle.hh"
 
 __global__ void convolution_kernel(const float* image, const float* kernel, float* output, 
-                                  int width, int height, int kWidth, int kHeight) {
+                                  int width, int height, int kWidth, int kHeight, ConvolutionPaddingType padding_type, int padding_scalar = 0)
+{
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -25,19 +27,35 @@ __global__ void convolution_kernel(const float* image, const float* kernel, floa
     int kHalfHeight = kHeight / 2;
 
     // Apply the convolution with replicate boundary behavior
-    for (int ky = -kHalfHeight; ky <= kHalfHeight; ++ky) {
-        for (int kx = -kHalfWidth; kx <= kHalfWidth; ++kx) {
+    for (int ky = -kHalfHeight; ky <= kHalfHeight; ++ky)
+    {
+        for (int kx = -kHalfWidth; kx <= kHalfWidth; ++kx)
+        {
             // Calculate the coordinates for the image
             int ix = x + kx;
             int iy = y + ky;
 
-            // Replicate boundary behavior
-            if (ix < 0) ix = 0;
-            if (ix >= width) ix = width - 1;
-            if (iy < 0) iy = 0;
-            if (iy >= height) iy = height - 1;
+            float imageValue;
+            // Appliquer le type de padding
+            if (padding_type == ConvolutionPaddingType::REPLICATE)
+            {
+                // Comportement de réplication des bords
+                if (ix < 0) ix = 0;
+                if (ix >= width) ix = width - 1;
+                if (iy < 0) iy = 0;
+                if (iy >= height) iy = height - 1;
 
-            float imageValue = image[iy * width + ix];
+                imageValue = image[iy * width + ix];
+            }
+            else if (padding_type == ConvolutionPaddingType::SCALAR)
+            {
+                // Utiliser la valeur du padding scalar
+                if (ix < 0 || ix >= width || iy < 0 || iy >= height)
+                    imageValue = padding_scalar;
+                else
+                    imageValue = image[iy * width + ix];
+            }
+
             float kernelValue = kernel[(ky + kHalfHeight) * kWidth + (kx + kHalfWidth)];
             result += imageValue * kernelValue;
         }
@@ -46,8 +64,15 @@ __global__ void convolution_kernel(const float* image, const float* kernel, floa
     output[y * width + x] = result;
 }
 
-void applyConvolution(float* image, const float* kernel, 
-                      int width, int height, int kWidth, int kHeight, cudaStream_t stream)
+void apply_convolution(float* image,
+                       const float* kernel,
+                       int width,
+                       int height,
+                       int kWidth,
+                       int kHeight,
+                       cudaStream_t stream,
+                       ConvolutionPaddingType padding_type,
+                       int padding_scalar)
 {
     float * d_output;
     cudaMalloc(&d_output, width * height * sizeof(float));
@@ -59,7 +84,7 @@ void applyConvolution(float* image, const float* kernel,
                   (height + blockSize.y - 1) / blockSize.y);
 
     // Lancer le kernel
-    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(image, kernel, d_output, width, height, kWidth, kHeight);
+    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(image, kernel, d_output, width, height, kWidth, kHeight, padding_type, padding_scalar);
 
     // Copier le résultat du GPU vers le CPU
     cudaMemcpy(image, d_output, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
@@ -77,13 +102,14 @@ void gaussian_imfilter_sep(float* input_output,
                             cudaStream_t stream)
 {
     // This convolution method gives correct values compared to matlab
-    applyConvolution(input_output,
+    apply_convolution(input_output,
                      gpu_kernel_buffer, 
                      std::sqrt(frame_res),
                      std::sqrt(frame_res),
                      kernel_x_size,
                      kernel_y_size,
-                     stream);
+                     stream,
+                     ConvolutionPaddingType::REPLICATE);
 }
 
 __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float* lambda_2, size_t input_size)

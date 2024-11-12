@@ -144,7 +144,7 @@ void convolution_kernel_add_padding(float* output, float* kernel, const int widt
 
 }
 
-void print_in_file(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
 {
     if (input == nullptr)
     {
@@ -158,6 +158,18 @@ void print_in_file(float* input, uint rows, uint col, std::string filename, cuda
                         stream);
     cudaXStreamSynchronize(stream);
     write_1D_float_array_to_file(result,
+                            rows,
+                            col,
+                            "test_" + filename + ".txt");
+}
+
+void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
+{
+    if (input == nullptr)
+    {
+        return;
+    }
+    write_1D_float_array_to_file(input,
                             rows,
                             col,
                             "test_" + filename + ".txt");
@@ -443,7 +455,7 @@ void apply_mask_or(float* output,
     cudaCheckError();
 }
 
-float* compute_gaussian_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
+float* compute_gauss_deriviatives_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
 {
     // Initialize normalized centered at 0 lists, ex for kernel_width = 3 : [-1, 0, 1]
     float* x;
@@ -496,10 +508,39 @@ float* compute_gaussian_kernel(int kernel_width, int kernel_height, float sigma,
 
     cudaXStreamSynchronize(stream);
     cudaXFree(kernel_result);
-    kernel_result = result_transpose;
 
+    cudaXFree(x);
+    cudaXFree(y);
     cudaXFree(kernel_y);
     cudaXFree(kernel_x);
 
-    return kernel_result;
+    return result_transpose;
+}
+
+float* compute_kernel(float sigma)
+{
+    int kernel_size = 2 * std::ceil(2 * sigma) + 1;
+    float* kernel = new float[kernel_size * kernel_size];
+    float half_size = (kernel_size - 1.0f) / 2.0f;
+    float sum = 0.0f;
+
+    int y = 0;
+    for (float i = -half_size; i <= half_size; ++i) {
+        int x = 0;
+        for (float j = -half_size; j <= half_size; ++j) {
+            float value = std::exp(-(i * i + j * j) / (2 * sigma * sigma));
+
+            kernel[x * kernel_size + y] = value;
+
+            sum += value;
+            x++;
+        }
+        y++;
+    }
+
+    for (int i = 0; i < kernel_size * kernel_size; ++i) {
+        kernel[i] /= sum;
+    }
+
+    return kernel;
 }

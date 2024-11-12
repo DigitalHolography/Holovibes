@@ -69,7 +69,7 @@ void compute_first_correlation(float* output, float* vascular_pulse, int nnz_mas
     divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, size, stream);
 
     float* vascular_pulse_centered;
-    cudaXMalloc(&vascular_pulse_centered, 506 * sizeof(float)); // need to be remove by time window (it's because csv)
+    cudaXMalloc(&vascular_pulse_centered, 506 * sizeof(float)); // need to be replaced with time window (it's because csv)
 
     float vascular_mean = compute_mean(vascular_pulse_copy, size);
     substract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, size, stream);
