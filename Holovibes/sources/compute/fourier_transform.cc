@@ -284,30 +284,21 @@ void FourierTransform::insert_moments_to_output()
         {
             size_t image_resolution = fd_.get_frame_res();
             size_t image_size = image_resolution * sizeof(float);
+
+            float* moment = nullptr;
+
             if (setting<settings::ImageType>() == ImgType::Moments_0)
-            {
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
-                                 moments_env_.moment0_buffer.get(),
-                                 image_size,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
-            }
+                moment = moments_env_.moment0_buffer;
             else if (setting<settings::ImageType>() == ImgType::Moments_1)
-            {
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
-                                 moments_env_.moment1_buffer.get(),
-                                 image_size,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
-            }
+                moment = moments_env_.moment1_buffer;
             else if (setting<settings::ImageType>() == ImgType::Moments_2)
-            {
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
-                                 moments_env_.moment2_buffer.get(),
-                                 image_size,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
-            }
+                moment = moments_env_.moment2_buffer;
+
+            cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
+                             moment,
+                             image_size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
         });
 }
 
