@@ -331,10 +331,9 @@ void ExportPanel::activeNoiseZone()
 
 void ExportPanel::start_chart_display()
 {
-    if (api::get_chart_display_enabled())
-        return;
+    api::set_chart_display(true);
+    gui::set_chart_display(true);
 
-    api::start_chart_display();
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
             SIGNAL(closed()),
             this,
@@ -346,10 +345,8 @@ void ExportPanel::start_chart_display()
 
 void ExportPanel::stop_chart_display()
 {
-    if (!api::get_chart_display_enabled())
-        return;
-
-    api::stop_chart_display();
+    api::set_chart_display(false);
+    gui::set_chart_display(false);
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }

@@ -79,6 +79,18 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
         UI.raw_window.reset(nullptr);
 }
 
+void set_chart_display(bool checked)
+{
+    if (checked)
+    {
+        UI.plot_window_.reset(new gui::PlotWindow(*api::get_compute_pipe()->get_chart_display_queue().get(),
+                                                  UI.auto_scale_point_threshold_,
+                                                  "Chart"));
+    }
+    else
+        UI.plot_window_.reset(nullptr);
+}
+
 void set_3d_cuts_view(bool checked, uint window_size)
 {
     if (checked)

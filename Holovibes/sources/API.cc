@@ -68,16 +68,13 @@ void close_windows()
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
     UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-
-    if (UserInterfaceDescriptor::instance().raw_window.get() != nullptr)
-        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 
     if (api::get_lens_view_enabled())
         set_lens_view(false);
     if (api::get_raw_view_enabled())
         set_raw_view(false);
-
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 #pragma endregion
@@ -592,8 +589,6 @@ void set_p_index(uint value)
 
 void set_p_accu_level(uint p_value)
 {
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
     SET_SETTING(P, width, p_value);
     pipe_refresh();
 }
@@ -1412,38 +1407,24 @@ void active_signal_zone()
     UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
 }
 
-void start_chart_display()
+void set_chart_display(bool checked)
 {
-    auto pipe = get_compute_pipe();
-    pipe->request(ICS::ChartDisplay);
+    if (get_chart_display_enabled() == checked)
+        return;
 
-    // Wait for the chart display to be enabled for notify
-    while (pipe->is_requested(ICS::ChartDisplay))
-        continue;
-
-    UserInterfaceDescriptor::instance().plot_window_ =
-        std::make_unique<gui::PlotWindow>(*get_compute_pipe()->get_chart_display_queue(),
-                                          UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
-                                          "Chart");
-}
-
-void stop_chart_display()
-{
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request(ICS::DisableChartDisplay);
+        auto request = checked ? ICS::ChartDisplay : ICS::DisableChartDisplay;
 
-        // Wait for the chart display to be disabled for notify
-        while (pipe->is_requested(ICS::DisableChartDisplay))
+        pipe->request(request);
+        while (pipe->is_requested(request))
             continue;
     }
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
     }
-
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 #pragma endregion

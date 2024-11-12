@@ -28,8 +28,6 @@ void create_holo_window(ushort window_size);
 // View if useful since there is set_view_mode
 void refresh_view_mode(ushort window_size, ImgType img_type);
 
-void start_chart_display();
-
 void active_noise_zone();
 void active_signal_zone();
 
@@ -61,6 +59,12 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size);
  * \param auxiliary_window_max_size the maximum size of the window
  */
 void set_raw_view(bool checked, uint auxiliary_window_max_size);
+
+/*! \brief Open or close the plot window for the chart display
+ *
+ * \param checked true: enable, false: disable
+ */
+void set_chart_display(bool checked);
 
 /*! \brief Open or close the 3D cuts view
  *

@@ -760,15 +760,11 @@ void active_noise_zone();
  */
 void active_signal_zone();
 
-/*! \brief Opens Chart window
+/*! \brief Start or stop the chart display
  *
+ * \param checked true: enable, false: disable
  */
-void start_chart_display();
-
-/*! \brief Closes Chart window
- *
- */
-void stop_chart_display();
+void set_chart_display(bool checked);
 
 /*! \brief Adds or removes lens view.
  *
