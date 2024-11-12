@@ -142,7 +142,7 @@ class Overlay : protected QOpenGLFunctions
     /*! \brief Transparency of the overlay, between 0 and 1 */
     float alpha_;
 
-    /*! \brief The time in ms when the overlay will dissappear */
+    /*! \brief The time in ms when the overlay will disappear */
     QDateTime time_before_hide_;
 
     /*! \brief If the overlay is activated or not.

@@ -1499,7 +1499,7 @@ void display_reticle(bool value)
     set_reticle_display_enabled(value);
 
     if (value)
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false, 500);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
     else
         UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
 
@@ -1509,8 +1509,6 @@ void display_reticle(bool value)
 void reticle_scale(float value)
 {
     set_reticle_scale(value);
-    if (get_reticle_display_enabled() && UserInterfaceDescriptor::instance().mainDisplay)
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false, 500);
     pipe_refresh();
 }
 

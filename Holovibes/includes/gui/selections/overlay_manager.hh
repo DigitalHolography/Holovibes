@@ -25,7 +25,7 @@ class OverlayManager
     /*! \brief Create an overlay if it does not exist already, activate it and make it visible.
      *
      * \param[in] make_current If true, the overlay will be set as the current overlay.
-     * \param[in] ms The time in ms before the overlay will disappear.
+     * \param[in] ms The time in ms before the overlay will disappear. Default -1 means it will never disappear.
      */
     template <KindOfOverlay ko>
     void enable(bool make_current = true, int ms = -1);
