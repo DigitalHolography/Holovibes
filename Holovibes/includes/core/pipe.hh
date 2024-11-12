@@ -17,6 +17,7 @@
 #include "postprocessing.hh"
 #include "function_vector.hh"
 #include "logger.hh"
+#include "registration.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -73,7 +74,7 @@ class Pipe : public ICompute
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
-        fn_compute_vect_ = FunctionVector(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -90,6 +91,12 @@ class Pipe : public ICompute
                                                                           moments_env_,
                                                                           stream_,
                                                                           settings);
+        registration_ = std::make_unique<compute::Registration>(fn_compute_vect_,
+                                                                buffers_,
+                                                                image_acc_env_,
+                                                                input.get_fd(),
+                                                                stream_,
+                                                                settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
@@ -163,6 +170,9 @@ class Pipe : public ICompute
 
         if constexpr (has_setting_v<T, compute::FourierTransform>)
             fourier_transforms_->update_setting(setting);
+
+        if constexpr (has_setting_v<T, compute::Registration>)
+            registration_->update_setting(setting);
 
         if constexpr (has_setting_v<T, compute::Converts>)
             converts_->update_setting(setting);
@@ -265,13 +275,14 @@ class Pipe : public ICompute
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
-    FunctionVector fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \name Compute objects
      * \{
      */
     std::unique_ptr<compute::ImageAccumulation> image_accumulation_;
     std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+    std::unique_ptr<compute::Registration> registration_;
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;

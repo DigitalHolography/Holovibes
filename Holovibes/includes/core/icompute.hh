@@ -42,10 +42,12 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -207,6 +209,7 @@ class ICompute
         DeleteTimeTransformationCuts,
         UpdateBatchSize,
         UpdateTimeStride,
+        UpdateRegistrationZone,
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,

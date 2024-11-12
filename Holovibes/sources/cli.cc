@@ -312,7 +312,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Change the fps according to the Mp4Fps value when having to convert in Mp4 format
     if (opts.output_path.value().ends_with(".mp4"))
     {
-        // Computing the fps before catching the images so that we can set the frame skip according to the fps wanted
+        // Computing the fps before catching the images so that we can set the frame skip according to the fps
+        // wanted
         double input_fps = static_cast<double>(holovibes::api::get_input_fps());
         double time_stride = static_cast<double>(holovibes::api::get_time_stride());
         double frame_skip = static_cast<double>(holovibes::api::get_nb_frame_skip());

@@ -55,6 +55,11 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_fft_shift(bool value);
+    /*! \brief Enables or Disables registration mode on the main display window.
+     *
+     * \param value true: enable, false: disable
+     */
+    void set_registration(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove
@@ -152,6 +157,11 @@ class ViewPanel : public Panel
      * \param value The new reticle scale
      */
     void reticle_scale(double value);
+
+    /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+     *  \param[in] value The new zone value.
+     */
+    void update_registration_zone(double value);
 
   private:
     QShortcut* p_left_shortcut_;

@@ -16,15 +16,6 @@
 __global__ void
 kernel_complex_divide(cuComplex* image, const uint frame_res, const float divider, const uint batch_size);
 
-/*! \brief  Multiply the pixels value of 2 complexe input images
- *
- * The images to multiply should have the same size.
- * The result is given in output.
- * Output should have the same size of inputs.
- */
-__global__ void
-kernel_multiply_frames_complex(cuComplex* output, const cuComplex* input1, const cuComplex* input2, const uint size);
-
 /*! \brief  divide pixels value of numerator float input images by denominator
  *
  * The images to divide should have the same size.
@@ -33,15 +24,6 @@ kernel_multiply_frames_complex(cuComplex* output, const cuComplex* input1, const
  */
 __global__ void
 kernel_divide_frames_float(float* output, const float* numerator, const float* denominator, const uint size);
-
-/*! \brief  Multiply the pixels value of 2 complexe input images
- *
- * The images to multiply should have the same size.
- * The result is given in output.
- * Output should have the same size of inputs.
- */
-void multiply_frames_complex(
-    cuComplex* output, const cuComplex* input1, const cuComplex* input2, const uint size, const cudaStream_t stream);
 
 /*! \brief normalize input according to a renormalize constant
  *

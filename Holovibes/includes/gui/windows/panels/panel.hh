@@ -36,13 +36,13 @@ class Panel : public QGroupBox
     /*! \brief Panel destructor */
     ~Panel();
 
-    virtual void on_notify() {};
+    virtual void on_notify(){};
 
     // #TODO Put this into constructors when .ui files exist for every panel
-    virtual void init() {};
+    virtual void init(){};
 
-    virtual void load_gui(const json& j_us) {};
-    virtual void save_gui(json& j_us) {};
+    virtual void load_gui(const json& j_us){};
+    virtual void save_gui(json& j_us){};
 
     /*! \brief Changes Box value without triggering any signal
      *
