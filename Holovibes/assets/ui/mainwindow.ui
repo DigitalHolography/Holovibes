@@ -6020,7 +6020,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
-  <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>

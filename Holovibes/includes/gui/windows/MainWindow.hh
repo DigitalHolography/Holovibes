@@ -95,7 +95,6 @@ class MainWindow : public QMainWindow
     void write_compute_settings();
     void open_advanced_settings();
     void reset_settings();
-    void close_advanced_settings();
 
     void configure_camera();
     void camera_none();

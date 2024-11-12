@@ -144,10 +144,10 @@ void active_noise_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gu
 
 void active_signal_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gui::Signal>(); }
 
-void open_advanced_settings(QMainWindow* parent)
+void open_advanced_settings(QMainWindow* parent, std::function<void()> callback)
 {
-    UI.is_advanced_settings_displayed = true;
-    UI.advanced_settings_window_ = std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
+    UI.advanced_settings_window_ = std::make_unique<gui::AdvancedSettingsWindow>(parent);
+    UI.advanced_settings_window_->set_callback(callback);
 }
 
 /**

@@ -710,22 +710,21 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 /* ------------ */
 #pragma region Advanced
 
-void MainWindow::close_advanced_settings()
+void MainWindow::open_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().has_been_updated)
-    {
-        // If the settings have been updated, they must be not considered updated after closing the window.
-        UserInterfaceDescriptor::instance().has_been_updated = false;
+    if (UserInterfaceDescriptor::instance().advanced_settings_window_)
+        return;
 
-        ImportType it = api::get_import_type();
+    gui::open_advanced_settings(this,
+                                [=]()
+                                {
+                                    ImportType it = api::get_import_type();
 
-        if (it == ImportType::File)
-            ui_->ImportPanel->import_start();
-        else if (it == ImportType::Camera)
-            change_camera(api::get_camera_kind());
-    }
-
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+                                    if (it == ImportType::File)
+                                        ui_->ImportPanel->import_start();
+                                    else if (it == ImportType::Camera)
+                                        change_camera(api::get_camera_kind());
+                                });
 }
 
 void MainWindow::reset_settings()
@@ -760,20 +759,6 @@ void MainWindow::reset_settings()
         close();
         break;
     }
-}
-
-void MainWindow::open_advanced_settings()
-{
-    if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
-        return;
-
-    gui::open_advanced_settings(this);
-
-    connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
-            SIGNAL(closed()),
-            this,
-            SLOT(close_advanced_settings()),
-            Qt::UniqueConnection);
 }
 
 #pragma endregion

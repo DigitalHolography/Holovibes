@@ -39,6 +39,12 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
+    /*! \brief Set the callback function called when user click on the Save button
+     *
+     * \param callback the function to call
+     */
+    void set_callback(std::function<void()> callback) { callback_ = callback; }
+
   private:
     /*!
      * \brief Change the correspondant folder lineEdit
@@ -52,6 +58,9 @@ class AdvancedSettingsWindow : public QMainWindow
 
   private:
     Ui::AdvancedSettingsWindow ui;
+
+    /*! \brief Callback function called when user click on the Save button */
+    std::function<void()> callback_ = []() {};
 
   public slots:
     /*! \brief emit signal closed on window is closed */
