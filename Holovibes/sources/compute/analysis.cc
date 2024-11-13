@@ -197,10 +197,13 @@ void Analysis::init()
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
 
-    uint_buffer_1_.resize(frame_res);
-    uint_buffer_2_.resize(frame_res);
-    float_buffer_.resize(frame_res);
-    uint_gpu_.resize(1);
+    int err = 0;
+    err += !uint_buffer_1_.resize(frame_res);
+    err += !uint_buffer_2_.resize(frame_res);
+    err += !float_buffer_.resize(frame_res);
+    err += !uint_gpu_.resize(1);
+    if (err != 0)
+        throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
     shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(

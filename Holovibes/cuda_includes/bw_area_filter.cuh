@@ -32,7 +32,8 @@ void get_connected_component(uint* labels_d,
                              const cudaStream_t stream);
 
 /**
- * \brief set to 0.0f pixels who is keep, 1.0f otherwise
+ * \brief Sets to 0.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to 1.0f.
+ * Hence only pixels with the selected label are retained
  *
  * \param[in out] image_d The image to process (GPU Memory)
  * \param[in] label_d The matrix who store label of each pixel (GPU Memory)

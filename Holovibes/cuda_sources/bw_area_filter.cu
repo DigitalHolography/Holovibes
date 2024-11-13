@@ -15,14 +15,15 @@ __device__ void lock(uint* mutex)
 
 __device__ void unlock(uint* mutex) { atomicExch(mutex, 0); }
 
-__device__ void get_linked_label(uint* label, uint* linked_d)
+__device__ uint get_linked_label(uint label, uint* linked_d)
 {
-    size_t pred = *label;
-    while (*label != linked_d[*label])
+    size_t pred = label;
+    while (label != linked_d[label])
     {
-        *label = linked_d[*label];
+        label = linked_d[label];
     }
-    linked_d[pred] = *label;
+    linked_d[pred] = label;
+    return label;
 }
 
 __global__ void
@@ -54,9 +55,7 @@ __device__ void check_and_update_link(
         lock(mutex);
         for (size_t i = 0; i < nb_neighbors; i++)
         {
-            uint tmp = labels_d[neighbors[i]];
-            get_linked_label(&tmp, linked_d);
-            neighbors[i] = tmp;
+            neighbors[i] = get_linked_label(labels_d[neighbors[i]], linked_d);
         }
 
         int min_l = 0;
@@ -149,6 +148,25 @@ __global__ void first_pass_kernel4(
     }
 }
 
+/*!
+ * 1 Iterate through each element of the data
+ * 2 If the element is not the background
+ *      1 Get the neighboring elements of the current element
+ *      2 If there are no neighbors, uniquely label the current element and continue
+ *      3 Otherwise, find the neighbor with a label and assign it to the current element
+ *      4 Store the equivalence between neighboring labels
+ *
+ *  in linear computation we iterate by column, then by row (Raster Scanning)
+ *  but in parallel computation we need to be carefule with memory and i use a methode for checking neighbors who are
+ *  already compute so i divide the image in 'pixel' of 4 square pixel :
+ *
+ *  |1|2|
+ *  |3|4|
+ *
+ *  I run a kernel for each pixel 1 and each pixel 2, and then 3, and for finish pixel 4
+ *  each of this kernel is naming first_pass_kernel[1-4]()
+ *  and i need also to update some linke of label (equivalence) so i use an homemade cuda mutex for this *
+ * */
 void first_pass(const float* image_d,
                 uint* labels_d,
                 uint* linked_d,
@@ -167,15 +185,25 @@ void first_pass(const float* image_d,
     first_pass_kernel2<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, width, height, size_t_gpu_);
     first_pass_kernel3<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, width, height, size_t_gpu_);
     first_pass_kernel4<<<blocks, threads, 0, stream>>>(image_d, labels_d, linked_d, width, height, size_t_gpu_);
+    cudaCheckError();
 }
 
+/*!
+ * \brief
+ * 1 Iterate through each element of the data
+ * 2 If the element is not the background
+ *   1 Relabel the element with the equivalent label
+ *
+ * I use this seconde pass to get the size of each label,
+ * the label size count can be in the first pass (i try but does not work)
+ * and the second pass is useless if we get the equivalence label during area_filter
+ */
 __global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, float* labels_sizes_d)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size && labels_d[idx] != 0)
     {
-        uint l = labels_d[idx];
-        get_linked_label(&l, linked_d);
+        uint l = get_linked_label(labels_d[idx], linked_d);
         labels_d[idx] = l;
         atomicAdd(labels_sizes_d + l, 1.0f);
     }
@@ -200,6 +228,7 @@ void get_connected_component(uint* labels_d,
     first_pass(image_d, labels_d, linked_d, size_t_gpu_, width, height, stream);
 
     second_pass_kernel<<<blocks, threads, 0, stream>>>(labels_d, size, linked_d, labels_sizes_d);
+    cudaCheckError();
     cudaDeviceSynchronize();
 }
 
@@ -215,4 +244,5 @@ void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     area_filter_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, size, label_to_keep);
+    cudaCheckError();
 }
