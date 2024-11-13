@@ -311,8 +311,9 @@ void Pipe::refresh()
     }
     analysis_->insert_show_artery();
     analysis_->insert_otsu();
+    analysis_->insert_barycentres();
     analysis_->insert_bwareafilt();
-
+  
     insert_filter2d_view();
 
     // Postprocessing'

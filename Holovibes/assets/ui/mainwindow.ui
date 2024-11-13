@@ -2419,7 +2419,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="0" column="0">
             <widget class="QLabel" name="TimeWindowLabel">
              <property name="toolTip">
-              <string>Number of images processed at once by the spatial transformation algorithm</string>
+              <string/>
              </property>
              <property name="text">
               <string>Time window</string>
@@ -2494,7 +2494,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="0" column="0">
             <widget class="QLabel" name="VesselnessSigmaLabel">
              <property name="toolTip">
-              <string>Number of images processed at once by the spatial transformation algorithm</string>
+              <string/>
              </property>
              <property name="text">
               <string>Vesselness</string>
@@ -2558,7 +2558,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="0" column="0">
             <widget class="QLabel" name="MinMaskAreaLabel">
              <property name="toolTip">
-              <string>Number of images processed at once by the spatial transformation algorithm</string>
+              <string/>
              </property>
              <property name="text">
               <string>Min. area of Mask</string>
@@ -2629,11 +2629,16 @@ The range of frequencies kept is [z, z + width]</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="toolTip">
+              <string>Enables binarisation of the image using the Otsu algorithm.
+- Global: basic algorithm, uses the same threshold for the whole image
+- Adaptive: is more precise and uniform using local thresholds</string>
+             </property>
              <property name="styleSheet">
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>Otsu</string>
+              <string>Binarisation</string>
              </property>
             </widget>
            </item>
@@ -2663,7 +2668,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="1" column="0">
             <widget class="QLabel" name="OtsuWindowSizeLabel">
              <property name="toolTip">
-              <string>Space transformation algorithm used</string>
+              <string/>
              </property>
              <property name="text">
               <string>Window Size</string>
@@ -2692,8 +2697,7 @@ The range of frequencies kept is [z, z + width]</string>
            <item row="2" column="0">
             <widget class="QLabel" name="OtsuLocalThresholdLabel">
              <property name="toolTip">
-              <string>Number of images averaged together to generate a single output image.
-It's a post-processing step to remove noise</string>
+              <string/>
              </property>
              <property name="text">
               <string>Local thresh. factor</string>

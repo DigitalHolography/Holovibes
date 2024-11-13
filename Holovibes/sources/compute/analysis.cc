@@ -10,8 +10,10 @@
 #include "map.cuh"
 #include "holovibes.hh"
 #include "matrix_operations.hh"
-#include "m0_treatments.cuh"
+#include "moments_treatments.cuh"
 #include "vesselness_filter.cuh"
+#include "barycentre.cuh"
+#include "vascular_pulse.cuh"
 #include "tools_analysis.cuh"
 #include "API.hh"
 #include "otsu.cuh"
@@ -24,61 +26,14 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-#include <iostream>
-#include <fstream>
-
 #define DIAPHRAGM_FACTOR 0.4f
-
-float* loadCSVtoFloatArray(const std::string& filename)
-{
-    std::ifstream file(filename);
-
-    if (!file.is_open())
-    {
-        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filename << std::endl;
-        return nullptr;
-    }
-
-    std::vector<float> values;
-    std::string line;
-
-    // Lire le fichier ligne par ligne
-    while (std::getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string value;
-        // Lire chaque valeur séparée par des virgules (ou espaces, selon le fichier)
-        while (std::getline(ss, value, ','))
-        {
-            try
-            {
-                values.push_back(std::stof(value)); // Convertir la valeur en float et l'ajouter au vecteur
-            }
-            catch (const std::invalid_argument&)
-            {
-                std::cerr << "Erreur de conversion de valeur : " << value << std::endl;
-            }
-        }
-    }
-
-    file.close();
-
-    // Copier les valeurs dans un tableau float*
-    float* dataArray = new float[values.size()];
-    for (int i = 0; i < values.size(); ++i)
-    {
-        dataArray[i] = values[i];
-    }
-
-    return dataArray;
-}
 
 namespace holovibes::compute
 {
-
+#pragma region tools
 namespace
 {
-std::vector<float> load_convolution_matrix()
+std::vector<float> load_gaussian_128_convolution_matrix()
 {
     // There is no file None.txt for convolution
     std::vector<float> convo_matrix = {};
@@ -165,6 +120,7 @@ std::vector<float> load_convolution_matrix()
 }
 
 } // namespace
+#pragma endregion tools
 
 void Analysis::init()
 {
@@ -178,12 +134,12 @@ void Analysis::init()
     // No need for memset here since it will be memset in the actual convolution
     cuComplex_buffer_.resize(frame_res);
 
-    std::vector<float> gaussian_kernel = load_convolution_matrix();
-
     // Prepare gaussian blur kernel
-    gaussian_kernel_buffer_.resize(frame_res);
-    cudaXMemsetAsync(gaussian_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
-    cudaSafeCall(cudaMemcpy2DAsync(gaussian_kernel_buffer_.get(),
+    std::vector<float> gaussian_kernel = load_gaussian_128_convolution_matrix();
+
+    gaussian_128_kernel_buffer_.resize(frame_res);
+    cudaXMemsetAsync(gaussian_128_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
+    cudaSafeCall(cudaMemcpy2DAsync(gaussian_128_kernel_buffer_.get(),
                                    sizeof(cuComplex),
                                    gaussian_kernel.data(),
                                    sizeof(float),
@@ -204,21 +160,25 @@ void Analysis::init()
     err += !uint_gpu_.resize(1);
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
+  
+    shift_corners(gaussian_128_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
+    cufftSafeCall(cufftExecC2C(convolution_plan_,
+                               gaussian_128_kernel_buffer_.get(),
+                               gaussian_128_kernel_buffer_.get(),
+                               CUFFT_FORWARD));
 
-    shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
-    cufftSafeCall(
-        cufftExecC2C(convolution_plan_, gaussian_kernel_buffer_.get(), gaussian_kernel_buffer_.get(), CUFFT_FORWARD));
-
-    // Allocate vesselness buffers
+    // (Re)Allocate vesselness buffers, can handle frame size change
     vesselness_mask_env_.time_window_ = api::get_time_window();
     vesselness_mask_env_.number_image_mean_ = 0;
 
     vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
-    vesselness_mask_env_.buffer_m0_ff_img_.resize(buffers_.gpu_postprocess_frame_size *
-                                                  vesselness_mask_env_.time_window_);
+    vesselness_mask_env_.m0_ff_video_.resize(buffers_.gpu_postprocess_frame_size * vesselness_mask_env_.time_window_);
     vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
     vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size);
 
+    vesselness_mask_env_.vascular_image_.resize(frame_res);
+
+    // Compute gaussian deriviatives kernels according to simga
     float sigma = api::get_vesselness_sigma();
 
     int gamma = 1;
@@ -231,7 +191,7 @@ void Analysis::init()
     vesselness_mask_env_.kernel_x_size_ = x_size;
     vesselness_mask_env_.kernel_y_size_ = y_size;
 
-    // Initialize normalized lists, ex for x_size = 3 : [-1, 0, 1]
+    // Initialize normalized centered at 0 lists, ex for x_size = 3 : [-1, 0, 1]
     float* x;
     cudaXMalloc(&x, x_size * sizeof(float));
     normalized_list(x, x_lim, x_size, stream_);
@@ -268,13 +228,13 @@ void Analysis::init()
                                CUBLAS_OP_T,
                                CUBLAS_OP_N,
                                x_size,
-                               y_size, // Dimensions de B
+                               y_size,
                                &alpha,
                                vesselness_mask_env_.g_xx_mul_,
-                               y_size, // Source (A), pas de ligne de A
+                               y_size,
                                &beta,
                                nullptr,
-                               y_size, // B est nul, donc on utilise 0
+                               y_size,
                                result_transpose,
                                x_size));
 
@@ -346,13 +306,48 @@ void Analysis::init()
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
 
-    float* data_csv_cpu = loadCSVtoFloatArray("C:/Users/Rakushka/Documents/Holovibes/data_n.csv");
-    data_csv_.resize(frame_res);
-    cudaXMemcpy(data_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+    // calculer notre kernel
+    float sigma_2 = 0.02 * fd_.width;
+    vesselness_mask_env_.vascular_kernel_size_ = 2 * std::ceil(2 * sigma_2) + 1;
 
-    data_csv_cpu = loadCSVtoFloatArray("C:/Users/Rakushka/Documents/Holovibes/f_AVG_mean.csv");
-    data_csv_avg_.resize(frame_res);
-    cudaXMemcpy(data_csv_avg_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+    // float* k = compute_kernel(sigma_2);
+
+    // float* d_k;
+    // cudaXMalloc(&d_k, sizeof(float) * kernel_size * kernel_size);
+    // cudaXMemcpy(d_k, k, sizeof(float) * kernel_size * kernel_size, cudaMemcpyHostToDevice);
+    // delete[] k;
+
+    vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
+                                                 vesselness_mask_env_.vascular_kernel_size_);
+    compute_kernel_cuda(vesselness_mask_env_.vascular_kernel_, sigma_2);
+
+    // print_in_file_cpu(vesselness_mask_env_.vascular_kernel_, 2, 2, "vascular_kernel");
+
+    // // Pad it with zero to equal frame size
+    // float* vascular_kernel_padded;
+    // cudaXMalloc(&vascular_kernel_padded, sizeof(float) * fd_.height * fd_.width);
+    // convolution_kernel_add_padding(vascular_kernel_padded, vascular_kernel_float, w, h, fd_.width, fd_.height,
+    // stream_);
+
+    // cudaXFree(vascular_kernel_float);
+
+    // // Convert from float to cuComplex for FFT
+    // vesselness_mask_env_.vascular_kernel_.resize(frame_res);
+    // cudaXMemsetAsync(vesselness_mask_env_.vascular_kernel_, 0, frame_res * sizeof(cuComplex), stream_);
+    // cudaSafeCall(cudaMemcpy2DAsync(vesselness_mask_env_.vascular_kernel_,
+    //                                sizeof(cuComplex),
+    //                                vascular_kernel_padded,
+    //                                sizeof(float),
+    //                                sizeof(float),
+    //                                frame_res,
+    //                                cudaMemcpyDeviceToDevice,
+    //                                stream_));
+    // cudaXStreamSynchronize(stream_);
+    // shift_corners(vesselness_mask_env_.vascular_kernel_, batch_size, fd_.width, fd_.height, stream_);
+    // cufftSafeCall(cufftExecC2C(convolution_plan_,
+    //                            vesselness_mask_env_.vascular_kernel_,
+    //                            vesselness_mask_env_.vascular_kernel_,
+    //                            CUFFT_FORWARD));
 }
 
 void Analysis::dispose()
@@ -361,12 +356,13 @@ void Analysis::dispose()
 
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
-    gaussian_kernel_buffer_.reset(nullptr);
-
+    gaussian_128_kernel_buffer_.reset(nullptr);
+  
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
     float_buffer_.reset(nullptr);
     uint_gpu_.reset(nullptr);
+  
 }
 
 void Analysis::insert_show_artery()
@@ -376,15 +372,16 @@ void Analysis::insert_show_artery()
     fn_compute_vect_.conditional_push_back(
         [=]()
         {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>() == true)
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
             {
-                // Compute the flat field corrected video
+
+                // Compute the flat field corrected image for each frame of the video
                 convolution_kernel(buffers_.gpu_postprocess_frame,
                                    buffers_.gpu_convolution_buffer,
                                    cuComplex_buffer_.get(),
                                    &convolution_plan_,
                                    fd_.get_frame_res(),
-                                   gaussian_kernel_buffer_.get(),
+                                   gaussian_128_kernel_buffer_.get(),
                                    true,
                                    stream_);
 
@@ -392,7 +389,7 @@ void Analysis::insert_show_artery()
                 temporal_mean(vesselness_mask_env_.image_with_mean_,
                               buffers_.gpu_postprocess_frame,
                               &vesselness_mask_env_.number_image_mean_,
-                              vesselness_mask_env_.buffer_m0_ff_img_,
+                              vesselness_mask_env_.m0_ff_video_,
                               vesselness_mask_env_.m0_ff_sum_image_,
                               vesselness_mask_env_.time_window_,
                               buffers_.gpu_postprocess_frame_size,
@@ -405,17 +402,9 @@ void Analysis::insert_show_artery()
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
 
-                // DEBUGING: useful to compare result with a file NOT FOR RESULT ON THE SCREEN
-                // DEBUGING: we load a temporal mean from MatLab to make sure it's he next part which is bad
-                // float* data = loadCSVtoFloatArray("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
-                // cudaXMemcpy(vesselness_mask_env_.image_with_mean_,
-                //             data,
-                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //             cudaMemcpyHostToDevice);
-
                 // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
-                                  data_csv_, // vesselness_mask_env_.image_with_mean_,
+                                  m0_ff_img_csv_, // vesselness_mask_env_.image_with_mean_,
                                   api::get_vesselness_sigma(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,
@@ -442,6 +431,59 @@ void Analysis::insert_show_artery()
                 //               buffers_.gpu_postprocess_frame_size,
                 //               "final_result",
                 //               stream_);
+            }
+        });
+}
+
+void Analysis::insert_barycentres()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_.conditional_push_back(
+        [=]()
+        {
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
+            // Compute f_AVG_mean, which is the temporal average of M1 / M0
+            {
+
+                compute_multiplication(vesselness_mask_env_.vascular_image_,
+                                       m0_ff_img_csv_,
+                                       f_avg_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+
+                // appliquer le flou
+                apply_convolution(vesselness_mask_env_.vascular_image_,
+                                  vesselness_mask_env_.vascular_kernel_,
+                                  fd_.width,
+                                  fd_.height,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  stream_,
+                                  ConvolutionPaddingType::SCALAR,
+                                  0);
+
+                float* circle_mask;
+                cudaXMalloc(&circle_mask, sizeof(float) * fd_.width * fd_.height);
+                compute_barycentre_circle_mask(circle_mask,
+                                               vesselness_mask_env_.vascular_image_,
+                                               buffers_.gpu_postprocess_frame_size,
+                                               stream_);
+
+                // TODO: change hard coded values from maskvesselnessclean
+                compute_first_correlation(buffers_.gpu_postprocess_frame,
+                                          vesselness_mask_env_.image_centered_,
+                                          vascular_pulse_csv_,
+                                          11862,
+                                          506,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
+
+                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                //             circle_mask,
+                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
+                //             cudaMemcpyDeviceToDevice);
+                // cudaXFree(circle_mask);
             }
         });
 }

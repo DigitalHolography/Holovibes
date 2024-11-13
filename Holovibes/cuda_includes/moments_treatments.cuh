@@ -7,6 +7,10 @@
 #include "cuComplex.h"
 #include "composite_struct.hh"
 
+void add_frame_to_sum(int frame_size, float* oldest_frame, float* sum_images_, cudaStream_t stream);
+
+void subtract_frame_from_sum(int frame_size, float* new_frame, float* sum_images_, cudaStream_t stream);
+
 void temporal_mean(float* output,
                    float* input,
                    int* current_image,

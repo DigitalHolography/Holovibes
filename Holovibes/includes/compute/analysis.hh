@@ -1,4 +1,4 @@
-/*! \file
+/*! \file analysis.hh
  *
  * \brief Implementation of postprocessing features on complex buffers.
  */
@@ -12,6 +12,7 @@
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
 #include "logger.hh"
+#include "tools_analysis.cuh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -50,7 +51,7 @@ namespace holovibes::compute
 {
 /*! \class Analysis
  *
- * \brief #TODO Add a description for this class
+ * \brief Class containing pipe methods for moments analysis
  */
 class Analysis
 {
@@ -63,7 +64,7 @@ class Analysis
              VesselnessMaskEnv& vesselness_mask_env,
              const cudaStream_t& stream,
              InitSettings settings)
-        : gaussian_kernel_buffer_()
+        : gaussian_128_kernel_buffer_()
         , cuComplex_buffer_()
         , fn_compute_vect_(fn_compute_vect)
         , buffers_(buffers)
@@ -73,18 +74,44 @@ class Analysis
         , stream_(stream)
         , realtime_settings_(settings)
     {
+        // Create for Analysis its own cublas handler associated to its personal cuda stream
         [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
         cublasSetStream(cublas_handler_, stream_);
+
+        // TODO: remove this when done
+        // Load valid moment test data for debugging purpose
+        const size_t frame_res = fd_.get_frame_res();
+
+        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+        m0_ff_img_csv_.resize(frame_res);
+        cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
+
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
+        f_avg_csv_.resize(frame_res);
+        cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
+
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
+        vascular_pulse_csv_.resize(506);
+        cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
-    /*! \brief Free the ressources for the postprocessing */
+    /*! \brief Free the ressources for the analysis */
     void dispose();
 
     /*! \brief Insert artery mask computing */
     void insert_show_artery();
+
+    /*! \brief Insert barycentres*/
+    void insert_barycentres();
 
     /*! \brief TODO */
     void insert_otsu();
@@ -115,8 +142,8 @@ class Analysis
         }
     }
 
-    /*! \brief Buffer used for gaussian blur convolution kernel */
-    cuda_tools::CudaUniquePtr<cuComplex> gaussian_kernel_buffer_;
+    /*! \brief Buffer used for gaussian blur 128x128 convolution kernel */
+    cuda_tools::CudaUniquePtr<cuComplex> gaussian_128_kernel_buffer_;
 
     /*! \brief TODO comment */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
@@ -143,10 +170,13 @@ class Analysis
     const cudaStream_t& stream_;
 
     // To delete
-    cuda_tools::CudaUniquePtr<float> data_csv_;
+    cuda_tools::CudaUniquePtr<float> m0_ff_img_csv_;
 
     // To delete
-    cuda_tools::CudaUniquePtr<float> data_csv_avg_;
+    cuda_tools::CudaUniquePtr<float> f_avg_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 

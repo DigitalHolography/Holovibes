@@ -10,17 +10,11 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-void applyConvolutionWithReplicatePadding(const float* image,
-                                          float* output,
-                                          int imgWidth,
-                                          int imgHeight,
-                                          const float* kernel,
-                                          int kernelWidth,
-                                          int kernelHeight);
-
-void normalized_list(float* output, int lim, int size, cudaStream_t stream);
-
-void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
+enum ConvolutionPaddingType
+{
+    REPLICATE = 0,
+    SCALAR,
+};
 
 void vesselness_filter(float* output,
                        float* input,
@@ -36,3 +30,13 @@ void vesselness_filter(float* output,
                        CufftHandle* convolution_plan,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream);
+
+void apply_convolution(float* image,
+                       const float* kernel,
+                       size_t width,
+                       size_t height,
+                       size_t kWidth,
+                       size_t kHeight,
+                       cudaStream_t stream,
+                       ConvolutionPaddingType padding_type,
+                       int padding_scalar = 0);
