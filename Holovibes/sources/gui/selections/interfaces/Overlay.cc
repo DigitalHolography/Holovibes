@@ -35,14 +35,6 @@ Overlay::~Overlay()
     glDeleteBuffers(1, &colorIndex_);
 }
 
-const units::RectFd& Overlay::getZone() const { return zone_; }
-
-const KindOfOverlay Overlay::getKind() const { return kOverlay_; }
-
-const bool Overlay::isDisplayed() const { return display_; }
-
-const bool Overlay::isActive() const { return active_; }
-
 void Overlay::onSetCurrent()
 {
     // Do nothing
