@@ -377,16 +377,6 @@ void Analysis::insert_show_artery()
                                    true,
                                    stream_);
 
-                // Compute an image with the temporal mean of the video
-                // temporal_mean(vesselness_mask_env_.image_with_mean_,
-                //               buffers_.gpu_postprocess_frame,
-                //               &vesselness_mask_env_.number_image_mean_,
-                //               vesselness_mask_env_.m0_ff_video_,
-                //               vesselness_mask_env_.m0_ff_sum_image_,
-                //               vesselness_mask_env_.time_window_,
-                //               buffers_.gpu_postprocess_frame_size,
-                //               stream_);
-
                 vesselness_mask_env_.m0_ff_video_cb_->add_new_frame(buffers_.gpu_postprocess_frame);
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_image();
 
@@ -394,6 +384,7 @@ void Analysis::insert_show_artery()
                 image_centering(vesselness_mask_env_.image_centered_,
                                 buffers_.gpu_postprocess_frame,
                                 vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                // m0_ff_img_csv_,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
                 vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
@@ -401,7 +392,7 @@ void Analysis::insert_show_artery()
                 // Compute the first vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
                                   vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                  // m0_ff_img_csv_, // vesselness_mask_env_.image_with_mean_,
+                                  // m0_ff_img_csv_,
                                   api::get_vesselness_sigma(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,
@@ -430,12 +421,12 @@ void Analysis::insert_barycentres()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
-        [=]()
-        {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
-            // Compute f_AVG_mean, which is the temporal average of M1 / M0
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
             {
+                // Compute f_AVG_mean, which is the temporal average of M1 / M0
 
                 compute_multiplication(vesselness_mask_env_.vascular_image_,
                                        m0_ff_img_csv_,
@@ -475,20 +466,20 @@ void Analysis::insert_barycentres()
                 //             buffers_.gpu_postprocess_frame_size * sizeof(float),
                 //             cudaMemcpyDeviceToDevice);
                 // cudaXFree(circle_mask);
-            }
-        });
+            });
+    }
 }
 
 void Analysis::insert_otsu()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
-        [=]()
-        {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)
-            {
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)
+    {
 
+        fn_compute_vect_->conditional_push_back(
+            [=]()
+            {
                 cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
                 int maxI = -1;
                 int minI = -1;
@@ -522,8 +513,8 @@ void Analysis::insert_otsu()
                 }
                 else
                     compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
-            }
-        });
+            });
+    }
 }
 
 } // namespace holovibes::compute

@@ -10,6 +10,8 @@ CircularVideoBuffer::CircularVideoBuffer(const size_t frame_res, const size_t bu
     data_.resize(buffer_capacity * frame_res);
     // Allocate the sum image buffer
     sum_image_.resize(frame_res);
+    cudaXMemset(sum_image_, 0, frame_res * sizeof(float));
+
     start_index_ = 0;
     end_index_ = 0;
     buffer_capacity_ = buffer_capacity;

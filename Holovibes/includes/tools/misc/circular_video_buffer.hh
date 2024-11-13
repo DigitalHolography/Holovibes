@@ -36,8 +36,6 @@ class CircularVideoBuffer
 
     bool is_full();
 
-    // TODO: function to subtract / add an image to each frames of the buffer (centered)
-
   private:
     /*! \brief Video of the last 'time_window_' frames */
     cuda_tools::UniquePtr<float> data_{};
