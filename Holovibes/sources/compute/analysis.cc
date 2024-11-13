@@ -130,6 +130,9 @@ void Analysis::init()
     vesselness_mask_env_.m0_ff_video_cb_ =
         std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
 
+    vesselness_mask_env_.m0_ff_centered_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);
@@ -362,6 +365,7 @@ void Analysis::insert_show_artery()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
             {
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
                 // Compute the flat field corrected image for each frame of the video
                 convolution_kernel(buffers_.gpu_postprocess_frame,
@@ -388,16 +392,16 @@ void Analysis::insert_show_artery()
 
                 // Compute the centered image from the temporal mean of the video
                 image_centering(vesselness_mask_env_.image_centered_,
-                                // vesselness_mask_env_.image_with_mean_,
-                                vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
                                 buffers_.gpu_postprocess_frame,
+                                vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
-                // vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
+                vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
 
-                // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
+                // Compute the first vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
-                                  m0_ff_img_csv_, // vesselness_mask_env_.image_with_mean_,
+                                  vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                  // m0_ff_img_csv_, // vesselness_mask_env_.image_with_mean_,
                                   api::get_vesselness_sigma(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,
@@ -418,12 +422,6 @@ void Analysis::insert_show_artery()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-
-                // DEBUGING: print in a file the final output
-                // print_in_file(buffers_.gpu_postprocess_frame,
-                //               buffers_.gpu_postprocess_frame_size,
-                //               "final_result",
-                //               stream_);
             }
         });
 }

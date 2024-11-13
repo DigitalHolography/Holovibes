@@ -122,7 +122,7 @@ __global__ void kernel_image_centering(float* output, const float* m0_video_fram
         output[index] = m0_video_frame[index] - m0_img[index];
 }
 
-void image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size, const cudaStream_t stream)
+void image_centering(float* output, const float* m0_img, const float* m0_video_frame, const uint frame_size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);

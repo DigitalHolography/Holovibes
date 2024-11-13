@@ -26,4 +26,4 @@ void temporal_mean(float* output,
                    const cudaStream_t stream);
 
 void image_centering(
-    float* output, const float* m0_video, const float* m0_img, const uint frame_size, const cudaStream_t stream);
+    float* output, const float* m0_img, const float* m0_video, const uint frame_size, const cudaStream_t stream);

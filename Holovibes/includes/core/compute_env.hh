@@ -225,6 +225,7 @@ struct VesselnessMaskEnv
      */
     cuda_tools::CudaUniquePtr<float> m0_ff_video_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
+    std::unique_ptr<CircularVideoBuffer> m0_ff_centered_video_cb_ = nullptr;
 
     /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
      *
