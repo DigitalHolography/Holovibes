@@ -169,10 +169,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("raw_view_requested");
 
         auto fd = input_queue_.get_fd();
-        gpu_raw_view_queue_.reset(new Queue(fd,
-                                            static_cast<unsigned int>(setting<settings::OutputBufferSize>()),
-                                            QueueType::UNDEFINED,
-                                            setting<settings::RawViewQueueLocation>()));
+        gpu_raw_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
         api::set_raw_view_enabled(true);
         clear_request(ICS::RawView);
     }
@@ -380,7 +377,7 @@ void Pipe::insert_wait_frames()
 
 void Pipe::insert_moments()
 {
-    bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
+    bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS && setting<settings::FrameRecordEnabled>();
     ImgType type = setting<settings::ImageType>();
 
     if (recording || type == ImgType::Moments_0 || type == ImgType::Moments_1 || type == ImgType::Moments_2)
@@ -523,14 +520,7 @@ void Pipe::insert_raw_view()
         {
             // Copy a batch of frame from the input queue to the raw view
             // queue
-            cudaMemcpyKind memcpy_kind;
-            if (setting<settings::InputQueueLocation>() == Device::GPU)
-                memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>();
-            else
-                memcpy_kind =
-                    get_memcpy_kind<settings::RawViewQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyHostToHost);
-
-            input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
+            input_queue_.copy_multiple(*get_raw_view_queue(), cudaMemcpyDeviceToDevice);
         });
 }
 
@@ -558,14 +548,10 @@ void Pipe::insert_raw_record()
                     NotifierManager::notify<bool>("acquisition_finished", true);
                     return;
                 }
-                cudaMemcpyKind memcpy_kind;
-                if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
-                else
-                    memcpy_kind =
-                        get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
-                input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
+                input_queue_.copy_multiple(record_queue_,
+                                           setting<settings::BatchSize>(),
+                                           get_memcpy_kind<settings::RecordQueueLocation>());
 
                 inserted += setting<settings::BatchSize>();
             });
@@ -582,8 +568,7 @@ void Pipe::insert_moments_record()
         fn_compute_vect_->conditional_push_back(
             [&]()
             {
-                auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                    : cudaMemcpyDeviceToHost;
+                cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
 
                 record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
                 record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);

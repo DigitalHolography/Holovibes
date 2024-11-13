@@ -1662,13 +1662,9 @@ void set_record_mode(const std::string& text)
     }
 
     set_record_mode(it->second);
-    RecordMode record_mode = api::get_record_mode();
-
-    if (record_mode != RecordMode::RAW)
-        api::set_record_on_gpu(true);
 
     // Attempt to initialize compute pipe for non-CHART record modes
-    if (record_mode != RecordMode::CHART)
+    if (get_record_mode() != RecordMode::CHART)
     {
         try
         {
@@ -1702,45 +1698,6 @@ bool start_record_preconditions()
     }
 
     return true;
-}
-
-void set_record_device(const Device device)
-{
-    if (get_compute_mode() == Computation::Hologram)
-        Holovibes::instance().stop_compute();
-
-    if (get_raw_view_queue_location() != device)
-        set_raw_view_queue_location(device);
-
-    // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
-    if (get_record_queue_location() != device && device == Device::CPU)
-        set_record_queue_location(device);
-
-    if (get_input_queue_location() != device)
-    {
-        ImportType it = get_import_type();
-
-        auto c = CameraKind::NONE;
-        if (it == ImportType::Camera)
-        {
-            c = get_camera_kind();
-            camera_none();
-        }
-        else if (it == ImportType::File)
-            import_stop();
-
-        set_input_queue_location(device);
-
-        if (device == Device::CPU)
-            set_compute_mode(Computation::Raw);
-
-        if (it == ImportType::Camera)
-            change_camera(c);
-        else
-            import_start();
-
-        set_image_mode(get_compute_mode(), 1);
-    }
 }
 
 void start_record(std::function<void()> callback)
@@ -1777,13 +1734,7 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-void record_finished()
-{
-    UserInterfaceDescriptor::instance().is_recording_ = false;
-    // if the record was on the cpu, we have to put the queues on gpu again
-    if (api::get_record_on_gpu() == false)
-        api::set_record_device(Device::GPU);
-}
+void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
 
 #pragma endregion
 

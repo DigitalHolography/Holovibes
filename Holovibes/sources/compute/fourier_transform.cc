@@ -294,11 +294,14 @@ void FourierTransform::insert_moments_to_output()
             else if (setting<settings::ImageType>() == ImgType::Moments_2)
                 moment = moments_env_.moment2_buffer;
 
-            cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
-                             moment,
-                             image_size,
-                             cudaMemcpyDeviceToDevice,
-                             stream_);
+            if (moment)
+            {
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
+                                 moment,
+                                 image_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+            }
         });
 }
 
