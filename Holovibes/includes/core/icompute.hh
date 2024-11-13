@@ -46,8 +46,7 @@
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::BwareafiltEnabled,                      \
-    holovibes::settings::BwareafiltN,                            \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \

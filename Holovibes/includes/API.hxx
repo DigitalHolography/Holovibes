@@ -624,8 +624,6 @@ inline void set_bwareafilt_enabled(bool value)
     UPDATE_SETTING(BwareafiltEnabled, value);
     pipe_refresh();
 }
-inline int get_bwareafilt_n() { return GET_SETTING(BwareafiltN); }
-inline void set_bwareafilt_n(int value) { UPDATE_SETTING(BwareafiltN, value); }
 
 /*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }

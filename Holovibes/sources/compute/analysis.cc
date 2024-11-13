@@ -199,7 +199,7 @@ void Analysis::init()
 
     uint_buffer_1_.resize(frame_res);
     uint_buffer_2_.resize(frame_res);
-    uint_buffer_3_.resize(frame_res);
+    float_buffer_.resize(frame_res);
     uint_gpu_.resize(1);
 
     shift_corners(gaussian_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
@@ -362,7 +362,7 @@ void Analysis::dispose()
 
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
-    uint_buffer_3_.reset(nullptr);
+    float_buffer_.reset(nullptr);
     uint_gpu_.reset(nullptr);
 }
 
@@ -499,18 +499,12 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
-                size_t size = buffers_.gpu_postprocess_frame_size;
-
                 float* image_d = buffers_.gpu_postprocess_frame.get();
                 uint* labels_d = uint_buffer_1_.get();
-                uint* labels_sizes_d = uint_buffer_2_.get();
-                uint* linked_d = uint_buffer_3_.get();
+                uint* linked_d = uint_buffer_2_.get();
+                float* labels_sizes_d = float_buffer_.get();
 
-                uint nb_labels;
-                uint n = setting<settings::BwareafiltN>();
-                uint* labels_max_d = nullptr;
-
-                // shift_corners(image_d, 1, fd_.width, fd_.height, stream_);
+                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
 
                 get_connected_component(labels_d,
                                         labels_sizes_d,
@@ -520,20 +514,11 @@ void Analysis::insert_bwareafilt()
                                         fd_.width,
                                         fd_.height,
                                         stream_);
-                nb_labels = get_nb_label(labels_sizes_d, size, uint_gpu_.get(), stream_);
 
-                if (nb_labels < n)
-                    n = nb_labels;
-                if (n)
-                {
-                    cudaXMalloc(&labels_max_d, n * sizeof(uint));
-                    get_n_max_index(labels_sizes_d, size, labels_max_d, n, stream_);
-
-                    create_is_keep_in_label_size(labels_sizes_d, size, labels_max_d, n, stream_);
-
-                    area_filter(image_d, labels_d, size, labels_sizes_d, stream_);
-                    cudaXFree(labels_max_d);
-                }
+                int maxI = -1;
+                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
+                if (maxI - 1 > 0)
+                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
             }
         });
 }

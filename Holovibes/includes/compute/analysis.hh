@@ -27,7 +27,6 @@
     holovibes::settings::OtsuWindowSize,           \
     holovibes::settings::OtsuLocalThreshold,       \
     holovibes::settings::BwareafiltEnabled,        \
-    holovibes::settings::BwareafiltN,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
@@ -153,7 +152,7 @@ class Analysis
 
     cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
     cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
-    cuda_tools::CudaUniquePtr<uint> uint_buffer_3_;
+    cuda_tools::CudaUniquePtr<float> float_buffer_;
     cuda_tools::CudaUniquePtr<uint> uint_gpu_;
 };
 } // namespace holovibes::compute
