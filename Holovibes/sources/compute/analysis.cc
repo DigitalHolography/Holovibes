@@ -383,16 +383,16 @@ void Analysis::insert_show_artery()
                 // Compute the centered image from the temporal mean of the video
                 image_centering(vesselness_mask_env_.image_centered_,
                                 buffers_.gpu_postprocess_frame,
-                                vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                // m0_ff_img_csv_,
+                                // vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                m0_ff_img_csv_,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
                 vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
 
                 // Compute the first vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
-                                  vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                  // m0_ff_img_csv_,
+                                  // vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                  m0_ff_img_csv_,
                                   api::get_vesselness_sigma(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,
@@ -447,25 +447,59 @@ void Analysis::insert_barycentres()
 
                 float* circle_mask;
                 cudaXMalloc(&circle_mask, sizeof(float) * fd_.width * fd_.height);
+                int CRV_index = compute_barycentre_circle_mask(circle_mask,
+                                                               vesselness_mask_env_.vascular_image_,
+                                                               buffers_.gpu_postprocess_frame_size,
+                                                               stream_);
+
+                // TODO: change hard coded values from maskvesselnessclean
+                // La fonction sert a rien car on importe le csv de R_VascularPulse
+                // Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
+                // Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
+                //
+                // compute_first_correlation(buffers_.gpu_postprocess_frame,
+                //                           vesselness_mask_env_.image_centered_,
+                //                           vascular_pulse_csv_,
+                //                           11862,
+                //                           506,
+                //                           buffers_.gpu_postprocess_frame_size,
+                //                           stream_);
+                // this part may be deleted as it is never used for the rest of the code
+                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                                       m0_ff_img_csv_,
+                                       f_avg_csv_,
+                                       R_VascularPulse_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+                apply_convolution(vesselness_mask_env_.vascular_image_,
+                                  vesselness_mask_env_.vascular_kernel_,
+                                  fd_.width,
+                                  fd_.height,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  stream_,
+                                  ConvolutionPaddingType::SCALAR,
+                                  0);
+                apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
+                                     fd_.width / 2,
+                                     fd_.height / 2,
+                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     fd_.width,
+                                     fd_.height,
+                                     stream_);
+
                 compute_barycentre_circle_mask(circle_mask,
                                                vesselness_mask_env_.vascular_image_,
                                                buffers_.gpu_postprocess_frame_size,
-                                               stream_);
+                                               stream_,
+                                               CRV_index);
+                print_in_file_gpu(circle_mask, 512, 512, "circlemask", stream_);
 
-                // TODO: change hard coded values from maskvesselnessclean
-                compute_first_correlation(buffers_.gpu_postprocess_frame,
-                                          vesselness_mask_env_.image_centered_,
-                                          vascular_pulse_csv_,
-                                          11862,
-                                          506,
-                                          buffers_.gpu_postprocess_frame_size,
-                                          stream_);
-
-                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                //             circle_mask,
-                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //             cudaMemcpyDeviceToDevice);
-                // cudaXFree(circle_mask);
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            circle_mask,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
+                cudaXFree(circle_mask);
             });
     }
 }

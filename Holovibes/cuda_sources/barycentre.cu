@@ -49,20 +49,21 @@ int find_min_thrust(float* input, size_t size)
     thrust::device_ptr<float> min_ptr = thrust::min_element(dev_ptr, dev_ptr + size);
     return min_ptr - dev_ptr;
 }
+ 
 
-
-
-void compute_barycentre_circle_mask(float* output,
+int compute_barycentre_circle_mask(float* output,
                                     float* input,
                                     size_t size,
-                                    cudaStream_t stream)
+                                    cudaStream_t stream, 
+                                    int CRV_index)
 {
-    int index_max = find_max_thrust(input, size);
-    int index_min = find_min_thrust(input, size);
+    int barycentre_index = find_max_thrust(input, size);
+    if (CRV_index == -1)
+        CRV_index = find_min_thrust(input, size); 
 
     compute_circle_mask(output,
-        index_max % (int) std::floor(std::sqrt(size)),
-        std::floor(index_max / std::sqrt(size)),
+        barycentre_index % (int) std::floor(std::sqrt(size)),
+        std::floor(barycentre_index / std::sqrt(size)),
         CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
         std::sqrt(size),
         std::sqrt(size),
@@ -73,8 +74,8 @@ void compute_barycentre_circle_mask(float* output,
     float* circle_mask_min;
     cudaXMalloc(&circle_mask_min, sizeof(float) * size);
     compute_circle_mask(circle_mask_min,
-        index_min % (int) std::floor(std::sqrt(size)),
-        std::floor(index_min / std::sqrt(size)),
+        CRV_index % (int) std::floor(std::sqrt(size)),
+        std::floor(CRV_index / std::sqrt(size)),
         CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
         std::sqrt(size),
         std::sqrt(size),
@@ -84,4 +85,6 @@ void compute_barycentre_circle_mask(float* output,
     apply_mask_or(output, circle_mask_min, std::sqrt(size), std::sqrt(size), stream);
     cudaXStreamSynchronize(stream);
     cudaXFree(circle_mask_min);
+
+    return CRV_index;
 }

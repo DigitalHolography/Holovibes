@@ -98,6 +98,12 @@ class Analysis
         cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
+
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/R_VascularPulse.csv");
+        R_VascularPulse_csv_.resize(frame_res);
+        cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
@@ -170,6 +176,9 @@ class Analysis
 
     // To delete
     cuda_tools::CudaUniquePtr<float> f_avg_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> R_VascularPulse_csv_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;
