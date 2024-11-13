@@ -46,14 +46,14 @@ void subtract_frame_from_sum(const float* const new_frame, const size_t size, fl
     kernel_subtract_frame_from_sum<<<blocks, threads, 0, stream>>>(new_frame, size, sum_image);
 }
 
-__global__ void kernel_compute_mean(float* output, float* input, const int time_window, const size_t frame_size)
+__global__ void kernel_compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)
         output[index] = input[index] / time_window;
 }
 
-void compute_mean(float* output, float* input, const int time_window, const size_t frame_size, cudaStream_t stream)
+void compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);
@@ -115,17 +115,17 @@ void temporal_mean(float* output,
 
 }
 
-__global__ void kernel_image_centering(float* output, const float* m0_video, const float* m0_img, const uint frame_size)
+__global__ void kernel_image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)
-        output[index] = m0_video[index] - m0_img[index];
+        output[index] = m0_video_frame[index] - m0_img[index];
 }
 
-void image_centering(float* output, const float* m0_video, const float* m0_img, const uint frame_size, const cudaStream_t stream)
+void image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_img, frame_size);
+    kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video_frame, m0_img, frame_size);
     cudaXStreamSynchronize(stream);
 }

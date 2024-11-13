@@ -18,6 +18,7 @@
 #include "API.hh"
 #include "otsu.cuh"
 #include "cublas_handle.hh"
+#include "circular_video_buffer.hh"
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -373,21 +374,26 @@ void Analysis::insert_show_artery()
                                    stream_);
 
                 // Compute an image with the temporal mean of the video
-                temporal_mean(vesselness_mask_env_.image_with_mean_,
-                              buffers_.gpu_postprocess_frame,
-                              &vesselness_mask_env_.number_image_mean_,
-                              vesselness_mask_env_.m0_ff_video_,
-                              vesselness_mask_env_.m0_ff_sum_image_,
-                              vesselness_mask_env_.time_window_,
-                              buffers_.gpu_postprocess_frame_size,
-                              stream_);
+                // temporal_mean(vesselness_mask_env_.image_with_mean_,
+                //               buffers_.gpu_postprocess_frame,
+                //               &vesselness_mask_env_.number_image_mean_,
+                //               vesselness_mask_env_.m0_ff_video_,
+                //               vesselness_mask_env_.m0_ff_sum_image_,
+                //               vesselness_mask_env_.time_window_,
+                //               buffers_.gpu_postprocess_frame_size,
+                //               stream_);
+
+                vesselness_mask_env_.m0_ff_video_cb_->add_new_frame(buffers_.gpu_postprocess_frame);
+                vesselness_mask_env_.m0_ff_video_cb_->compute_mean_image();
 
                 // Compute the centered image from the temporal mean of the video
                 image_centering(vesselness_mask_env_.image_centered_,
-                                vesselness_mask_env_.image_with_mean_,
+                                // vesselness_mask_env_.image_with_mean_,
+                                vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
                                 buffers_.gpu_postprocess_frame,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
+                // vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
 
                 // Compute the firsy vesselness mask with represent all veisels (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,

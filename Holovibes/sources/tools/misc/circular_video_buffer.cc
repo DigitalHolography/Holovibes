@@ -5,62 +5,59 @@
 namespace holovibes
 {
 CircularVideoBuffer::CircularVideoBuffer(const size_t frame_res, const size_t buffer_capacity, cudaStream_t stream)
-    : start_index_(0)
-    , last_frame_index_(0)
-    , nb_frames_(0)
-    , buffer_capacity_(buffer_capacity)
-    , frame_res_(frame_res)
-    , frame_size_(frame_res * sizeof(float))
-    , stream_(stream)
 {
-    float *data, *sum;
     // Allocate the internal GPU memory buffer
-    cudaXMalloc(&data, buffer_capacity * frame_res_ * sizeof(float));
+    data_.resize(buffer_capacity * frame_res);
     // Allocate the sum image buffer
-    cudaXMalloc(&sum, frame_res * sizeof(float));
-
-    data_.reset(data);
-    sum_image_.reset(sum);
+    sum_image_.resize(frame_res);
+    start_index_ = 0;
+    end_index_ = 0;
+    buffer_capacity_ = buffer_capacity;
+    nb_frames_ = 0;
+    frame_res_ = frame_res;
+    frame_size_ = frame_res * sizeof(float);
+    stream_ = stream;
 }
 
 CircularVideoBuffer::~CircularVideoBuffer()
 {
-    data_.reset(nullptr);
-    sum_image_.reset(nullptr);
-    mean_image_.reset(nullptr);
+    data_.reset();
+    sum_image_.reset();
+    mean_image_.reset();
 }
 
 float* CircularVideoBuffer::get_first_frame()
 {
     if (!nb_frames_)
         return nullptr;
-    return data_ + start_index_ * frame_size_;
+    return data_ + start_index_ * frame_res_;
 }
 
 float* CircularVideoBuffer::get_last_frame()
 {
     if (!nb_frames_)
         return nullptr;
-    return data_ + last_frame_index_ * frame_size_;
+
+    if (end_index_ == 0)
+        return data_ + (buffer_capacity_ - 1) * frame_res_;
+
+    return data_ + (end_index_ - 1) * frame_res_;
 }
 
 void CircularVideoBuffer::compute_mean_image()
 {
     // Allocate if first time
     if (!mean_image_)
-    {
-        float* data;
-        cudaXMalloc(&data, frame_size_);
-        mean_image_.reset(data);
-    }
-
+        mean_image_.resize(frame_size_);
     compute_mean(mean_image_, sum_image_, nb_frames_, frame_res_, stream_);
 }
 
+float* CircularVideoBuffer::get_mean_image() { return mean_image_.get(); }
+
 void CircularVideoBuffer::add_new_frame(const float* const new_frame)
 {
-    last_frame_index_ = (last_frame_index_ + 1) % buffer_capacity_;
-    float* new_frame_position = data_.get() + last_frame_index_ * frame_res_;
+    float* new_frame_position = data_.get() + end_index_ * frame_res_;
+    end_index_ = (end_index_ + 1) % buffer_capacity_;
 
     // Check if we need to remove the oldest frame to make room for new frame
     if (nb_frames_ == buffer_capacity_)
