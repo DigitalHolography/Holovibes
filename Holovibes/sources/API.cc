@@ -121,6 +121,8 @@ bool change_camera(CameraKind c)
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
 
+        set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
+
         try
         {
             Holovibes::instance().start_camera_frame_read(c);
@@ -394,8 +396,11 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+void update_batch_size(uint batch_size)
 {
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        batch_size = 1;
+
     if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
@@ -1267,6 +1272,80 @@ float get_truncate_contrast_min(const int precision)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
+void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
+{
+    auto& holo = Holovibes::instance();
+
+    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+    std::string path = path_file.string();
+
+    std::vector<float> matrix;
+    uint matrix_width = 0;
+    uint matrix_height = 0;
+    uint matrix_z = 1;
+
+    // Doing this the C way because it's faster
+    FILE* c_file;
+    fopen_s(&c_file, path.c_str(), "r");
+
+    if (c_file == nullptr)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid file path");
+    }
+
+    // Read kernel dimensions
+    if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid kernel dimensions");
+    }
+
+    size_t matrix_size = matrix_width * matrix_height * matrix_z;
+    matrix.resize(matrix_size);
+
+    // Read kernel values
+    for (size_t i = 0; i < matrix_size; ++i)
+    {
+        if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Missing values");
+        }
+    }
+
+    fclose(c_file);
+
+    // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+    const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+    const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+    const uint size = output_width * output_height;
+
+    // The convo matrix is centered and padded with 0 since the kernel is
+    // usally smaller than the output Example: kernel size is (2, 2) and
+    // output size is (4, 4) The kernel is represented by 'x' and
+    //  | 0 | 0 | 0 | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | 0 | 0 | 0 |
+    const uint first_col = (output_width / 2) - (matrix_width / 2);
+    const uint last_col = (output_width / 2) + (matrix_width / 2);
+    const uint first_row = (output_height / 2) - (matrix_height / 2);
+    const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+    convo_matrix.resize(size, 0.0f);
+
+    uint kernel_indice = 0;
+    for (uint i = first_row; i < last_row; i++)
+    {
+        for (uint j = first_col; j < last_col; j++)
+        {
+            (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+            kernel_indice++;
+        }
+    }
+}
+
 void load_convolution_matrix(std::optional<std::string> filename)
 {
     api::set_convolution_enabled(true);
@@ -1277,78 +1356,10 @@ void load_convolution_matrix(std::optional<std::string> filename)
         return;
     std::vector<float> convo_matrix = api::get_convo_matrix();
     const std::string& file = filename.value();
-    auto& holo = Holovibes::instance();
 
     try
     {
-        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
-        std::string path = path_file.string();
-
-        std::vector<float> matrix;
-        uint matrix_width = 0;
-        uint matrix_height = 0;
-        uint matrix_z = 1;
-
-        // Doing this the C way because it's faster
-        FILE* c_file;
-        fopen_s(&c_file, path.c_str(), "r");
-
-        if (c_file == nullptr)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid file path");
-        }
-
-        // Read kernel dimensions
-        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid kernel dimensions");
-        }
-
-        size_t matrix_size = matrix_width * matrix_height * matrix_z;
-        matrix.resize(matrix_size);
-
-        // Read kernel values
-        for (size_t i = 0; i < matrix_size; ++i)
-        {
-            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-            {
-                fclose(c_file);
-                throw std::runtime_error("Missing values");
-            }
-        }
-
-        fclose(c_file);
-
-        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
-        const uint size = output_width * output_height;
-
-        // The convo matrix is centered and padded with 0 since the kernel is
-        // usally smaller than the output Example: kernel size is (2, 2) and
-        // output size is (4, 4) The kernel is represented by 'x' and
-        //  | 0 | 0 | 0 | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | 0 | 0 | 0 |
-        const uint first_col = (output_width / 2) - (matrix_width / 2);
-        const uint last_col = (output_width / 2) + (matrix_width / 2);
-        const uint first_row = (output_height / 2) - (matrix_height / 2);
-        const uint last_row = (output_height / 2) + (matrix_height / 2);
-
-        convo_matrix.resize(size, 0.0f);
-
-        uint kernel_indice = 0;
-        for (uint i = first_row; i < last_row; i++)
-        {
-            for (uint j = first_col; j < last_col; j++)
-            {
-                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
-                kernel_indice++;
-            }
-        }
+        load_convolution_matrix_file(file, convo_matrix);
         api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)

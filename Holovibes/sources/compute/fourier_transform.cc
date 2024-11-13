@@ -245,60 +245,60 @@ void FourierTransform::insert_moments()
         {
             auto type = setting<settings::ImageType>();
 
-            bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
-            if (recording)
-            {
-                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 0 (all equal to 1)
-                tensor_multiply_vector(moments_env_.moment0_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f0_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 0 (all equal to 1)
+            tensor_multiply_vector(moments_env_.moment0_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f0_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
-                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 1
-                tensor_multiply_vector(moments_env_.moment1_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f1_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 1
+            tensor_multiply_vector(moments_env_.moment1_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f1_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
-                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 2
-                tensor_multiply_vector(moments_env_.moment2_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f2_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
+            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 2
+            tensor_multiply_vector(moments_env_.moment2_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f2_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
+        });
+}
 
-            float* freq = nullptr;
-            if (type == ImgType::Moments_0)
-                freq = moments_env_.f0_buffer.get();
+void FourierTransform::insert_moments_to_output()
+{
+    fn_compute_vect_->conditional_push_back(
+        [this]()
+        {
+            size_t image_resolution = fd_.get_frame_res();
+            size_t image_size = image_resolution * sizeof(float);
 
-            if (type == ImgType::Moments_1)
-                freq = moments_env_.f1_buffer.get();
+            float* moment = nullptr;
 
-            if (type == ImgType::Moments_2)
-                freq = moments_env_.f2_buffer.get();
+            if (setting<settings::ImageType>() == ImgType::Moments_0)
+                moment = moments_env_.moment0_buffer;
+            else if (setting<settings::ImageType>() == ImgType::Moments_1)
+                moment = moments_env_.moment1_buffer;
+            else if (setting<settings::ImageType>() == ImgType::Moments_2)
+                moment = moments_env_.moment2_buffer;
 
-            if (freq != nullptr)
-            {
-                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
-                                       moments_env_.stft_res_buffer,
-                                       freq,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
+            cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
+                             moment,
+                             image_size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
         });
 }
 

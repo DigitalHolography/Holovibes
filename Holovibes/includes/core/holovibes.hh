@@ -27,6 +27,7 @@
 #include "enum_record_mode.hh"
 #include "enum_import_type.hh"
 #include "enum_device.hh"
+#include "enum_recorded_data_type.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -116,7 +117,8 @@
     holovibes::settings::BenchmarkMode,                             \
     holovibes::settings::RecordOnGPU,                               \
     holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps
+    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -445,7 +447,8 @@ class Holovibes
                                              settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
-                                             settings::Mp4Fps{24}))
+                                             settings::Mp4Fps{24},
+                                             settings::DataType{RecordedDataType::RAW}))
     {
     }
 

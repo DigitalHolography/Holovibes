@@ -367,7 +367,7 @@ void Converts::insert_filter2d_ushort()
 
 void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
 {
-    LOG_FUNC(fd_.depth);
+    LOG_FUNC();
 
     // Conversion function from input queue to input buffer
     auto convert_to_complex = [](const void* const src,
@@ -389,6 +389,33 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
         }
         void* output = buffers_.gpu_spatial_transformation_buffer.get();
         input_queue.dequeue(output, fd_.depth, convert_to_complex);
+    };
+
+    fn_compute_vect_->push_back(conversion_task);
+}
+
+void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
+{
+    LOG_FUNC();
+
+    // Conversion function from input queue to input buffer
+    auto move_floats = [](const void* const src,
+                          void* const dest,
+                          uint batch_size,
+                          size_t frame_res,
+                          camera::PixelDepth depth,
+                          cudaStream_t stream)
+    { input_queue_to_input_buffer_floats(dest, src, frame_res, batch_size, depth, stream); };
+
+    // Task to convert input queue to input buffer
+    auto conversion_task = [this, &input_queue, move_floats, output]()
+    {
+        // To keep the same behaviour as the function above
+        while (input_queue.size_ == 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(0));
+        }
+        input_queue.dequeue(output, fd_.depth, move_floats);
     };
 
     fn_compute_vect_->push_back(conversion_task);

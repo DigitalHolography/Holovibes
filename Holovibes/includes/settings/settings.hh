@@ -18,6 +18,7 @@
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
@@ -185,6 +186,8 @@ DECLARE_SETTING(ZFFTShift, bool);
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
-DECLARE_SETTING(FrameSkip, uint)
-DECLARE_SETTING(Mp4Fps, uint)
+DECLARE_SETTING(FrameSkip, uint);
+DECLARE_SETTING(Mp4Fps, uint);
+
+DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings
