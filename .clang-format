@@ -10,3 +10,5 @@ AlwaysBreakTemplateDeclarations: Yes
 BreakConstructorInitializers: BeforeComma
 SortIncludes: false
 ColumnLimit: 120
+TabWidth: 4
+UseTab: Never

@@ -71,7 +71,7 @@ class FourierTransform
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    FourierTransform(FunctionVector& fn_compute_vect,
+    FourierTransform(std::shared_ptr<FunctionVector> fn_compute_vect,
                      const CoreBuffersEnv& buffers,
                      const camera::FrameDescriptor& fd,
                      cuda_tools::CufftHandle& spatial_transformation_plan,
@@ -114,19 +114,9 @@ class FourierTransform
     void insert_moments();
 
     /**
-     * \brief Split the three moments from moments_env_.stft_res_buffer
-     * which has dequeued input moments, to the three moment buffers in moments_env_.
-     *
-     * Only executes when the input data is of moments type.
-     *
-     */
-    void insert_split_moments();
-
-    /**
      * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
      * if the corresponding image type is selected.
      *
-     * \note This function probably only exists for test purposes.
      */
     void insert_moments_to_output();
 
@@ -213,7 +203,7 @@ class FourierTransform
     cuda_tools::CudaUniquePtr<cuComplex> cusolver_work_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Describes the frame size */

@@ -65,14 +65,14 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
         insert_angular_spectrum(filter2d_enabled);
     if (space_transformation == SpaceTransformation::FRESNELTR ||
         space_transformation == SpaceTransformation::ANGULARSP)
-        fn_compute_vect_.push_back([=]() { enqueue_lens(space_transformation); });
+        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
 }
 
 void FourierTransform::insert_filter2d()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             filter2D(buffers_.gpu_spatial_transformation_buffer,
@@ -104,7 +104,7 @@ void FourierTransform::insert_fresnel_transform()
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
-    fn_compute_vect_.push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             fresnel_transform(static_cast<cuComplex*>(input_output),
@@ -139,7 +139,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
 
     void* input_output = buffers_.gpu_spatial_transformation_buffer.get();
 
-    fn_compute_vect_.push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             angular_spectrum(static_cast<cuComplex*>(input_output),
@@ -207,7 +207,7 @@ void FourierTransform::insert_time_transform()
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
-        fn_compute_vect_.conditional_push_back(
+        fn_compute_vect_->conditional_push_back(
             [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
@@ -227,7 +227,7 @@ void FourierTransform::insert_stft()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             stft(time_transformation_env_.gpu_p_acc_buffer,
@@ -240,134 +240,65 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             auto type = setting<settings::ImageType>();
 
-            bool recording = setting<settings::RecordMode>() == RecordMode::MOMENTS;
-            if (recording)
-            {
-                // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 0 (all equal to 1)
-                tensor_multiply_vector(moments_env_.moment0_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f0_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+            // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 0 (all equal to 1)
+            tensor_multiply_vector(moments_env_.moment0_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f0_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
-                // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 1
-                tensor_multiply_vector(moments_env_.moment1_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f1_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
+            // compute the moment of order 1, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 1
+            tensor_multiply_vector(moments_env_.moment1_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f1_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
 
-                // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
-                // frequencies at order 2
-                tensor_multiply_vector(moments_env_.moment2_buffer,
-                                       moments_env_.stft_res_buffer,
-                                       moments_env_.f2_buffer,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
-
-            float* freq = nullptr;
-            if (type == ImgType::Moments_0)
-                freq = moments_env_.f0_buffer.get();
-
-            if (type == ImgType::Moments_1)
-                freq = moments_env_.f1_buffer.get();
-
-            if (type == ImgType::Moments_2)
-                freq = moments_env_.f2_buffer.get();
-
-            if (freq != nullptr)
-            {
-                tensor_multiply_vector(buffers_.gpu_postprocess_frame,
-                                       moments_env_.stft_res_buffer,
-                                       freq,
-                                       fd_.get_frame_res(),
-                                       moments_env_.f_start,
-                                       moments_env_.f_end,
-                                       stream_);
-            }
-        });
-}
-
-void FourierTransform::insert_split_moments()
-{
-    fn_compute_vect_.push_back(
-        [this]()
-        {
-            size_t offset0 = 0, offset1 = 0, offset2 = 0;
-            float* src_buf = moments_env_.stft_res_buffer.get();
-            size_t image_resolution = fd_.get_frame_res();
-            size_t image_size = image_resolution * sizeof(float);
-
-            // For each image of the batch, it is placed in its corresponding buffer.
-            // QUESTION Do all moment images need to go in the buffers ?
-            // If not, can't we just force set BatchSize to three ?
-            for (size_t i = 0; i < setting<settings::BatchSize>(); i++)
-            {
-                if (i % 3 == 0)
-                {
-                    // Image goes to moment 0
-                    cudaXMemcpy(moments_env_.moment0_buffer + offset0, src_buf, image_size, cudaMemcpyDeviceToDevice);
-                    offset0 += image_resolution;
-                }
-                else if (i % 3 == 1)
-                {
-                    // Image goes to moment 1
-                    cudaXMemcpy(moments_env_.moment1_buffer + offset1, src_buf, image_size, cudaMemcpyDeviceToDevice);
-                    offset1 += image_resolution;
-                }
-                else
-                {
-                    // Image goes to moment 2
-                    cudaXMemcpy(moments_env_.moment2_buffer + offset2, src_buf, image_size, cudaMemcpyDeviceToDevice);
-                    offset2 += image_resolution;
-                }
-                src_buf += image_resolution;
-            }
+            // compute the moment of order 2, corresponding to the sequence of frames multiplied by the
+            // frequencies at order 2
+            tensor_multiply_vector(moments_env_.moment2_buffer,
+                                   moments_env_.stft_res_buffer,
+                                   moments_env_.f2_buffer,
+                                   fd_.get_frame_res(),
+                                   moments_env_.f_start,
+                                   moments_env_.f_end,
+                                   stream_);
         });
 }
 
 void FourierTransform::insert_moments_to_output()
 {
-    fn_compute_vect_.push_back(
+    fn_compute_vect_->conditional_push_back(
         [this]()
         {
             size_t image_resolution = fd_.get_frame_res();
             size_t image_size = image_resolution * sizeof(float);
+
+            float* moment = nullptr;
+
             if (setting<settings::ImageType>() == ImgType::Moments_0)
-            {
-                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
-                            moments_env_.moment0_buffer.get(),
-                            image_size,
-                            cudaMemcpyDeviceToDevice);
-            }
+                moment = moments_env_.moment0_buffer;
             else if (setting<settings::ImageType>() == ImgType::Moments_1)
-            {
-                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
-                            moments_env_.moment1_buffer.get(),
-                            image_size,
-                            cudaMemcpyDeviceToDevice);
-            }
+                moment = moments_env_.moment1_buffer;
             else if (setting<settings::ImageType>() == ImgType::Moments_2)
-            {
-                cudaXMemcpy(buffers_.gpu_postprocess_frame.get(),
-                            moments_env_.moment2_buffer.get(),
-                            image_size,
-                            cudaMemcpyDeviceToDevice);
-            }
+                moment = moments_env_.moment2_buffer;
+
+            cudaXMemcpyAsync(buffers_.gpu_postprocess_frame.get(),
+                             moment,
+                             image_size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
         });
 }
 
@@ -379,7 +310,7 @@ void FourierTransform::insert_pca()
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -422,7 +353,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
     static cuda_tools::CudaUniquePtr<cuComplex> tmp_matrix = nullptr;
     tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -481,7 +412,7 @@ void FourierTransform::insert_store_p_frame()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             const int frame_res = static_cast<int>(fd_.get_frame_res());
@@ -503,7 +434,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             if (setting<settings::CutsViewEnabled>())

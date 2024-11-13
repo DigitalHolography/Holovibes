@@ -43,7 +43,10 @@ static __global__ void kernel_complex_to_modulus(
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;
 
-        output_frame[index] = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+        const float real = current_p_frame[index].x;
+        const float im = current_p_frame[index].y;
+
+        output_frame[index] = real * real + im * im;
     }
 }
 
@@ -167,21 +170,6 @@ void input_queue_to_input_buffer(void* const output,
     cudaCheckError();
 }
 
-template <typename OTYPE, typename ITYPE>
-static __global__ void kernel_input_queue_to_input_buffer_floats(OTYPE* output,
-                                                                 const ITYPE* const input,
-                                                                 const uint frame_res,
-                                                                 const int batch_size)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < frame_res)
-    {
-        for (int i = 0; i < batch_size; i++)
-            output[index + i * frame_res] = input[index + i * frame_res];
-    }
-}
-
 void input_queue_to_input_buffer_floats(void* const output,
                                         const void* const input,
                                         const size_t frame_res,
@@ -189,33 +177,7 @@ void input_queue_to_input_buffer_floats(void* const output,
                                         const camera::PixelDepth depth,
                                         const cudaStream_t stream)
 {
-    const uint threads = get_max_threads_1d();
-    const uint blocks = map_blocks_to_problem(frame_res, threads);
-
-    switch (depth)
-    {
-    case camera::PixelDepth::Bits8:
-        kernel_input_queue_to_input_buffer_floats<float, uchar>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
-                                             reinterpret_cast<const uchar* const>(input),
-                                             frame_res,
-                                             batch_size);
-        break;
-    case camera::PixelDepth::Bits16:
-        kernel_input_queue_to_input_buffer_floats<float, ushort>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
-                                             reinterpret_cast<const ushort* const>(input),
-                                             frame_res,
-                                             batch_size);
-        break;
-    case camera::PixelDepth::Bits32:
-        kernel_input_queue_to_input_buffer_floats<float, float>
-            <<<blocks, threads, 0, stream>>>(reinterpret_cast<float* const>(output),
-                                             reinterpret_cast<const float* const>(input),
-                                             frame_res,
-                                             batch_size);
-        break;
-    }
+    cudaXMemcpyAsync(output, input, frame_res * batch_size * depth, cudaMemcpyDeviceToDevice, stream);
     cudaCheckError();
 }
 

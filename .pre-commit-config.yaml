@@ -1,8 +1,10 @@
 repos:
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.3.5
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v14.0.0
     hooks:
       - id: clang-format
-        args: [-i]
-        files: \.(cc|hh|hxx|cu|cuh|cuhxx)$
-        exclude: ^(libs/|build/|docs/|bin/|tests/)
+        files: \.(cc|hh|cu|cuh|hxx|cuhxx)$
+        args:
+          - -style=file
+          - -i
+        additional_dependencies: []

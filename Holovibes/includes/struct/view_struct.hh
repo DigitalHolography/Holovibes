@@ -160,6 +160,26 @@ struct Reticle
     SETTING_RELATED_FUNCTIONS();
 };
 
+/*! \class Registration
+ *
+ * \brief Class that represents the Registration
+ */
+struct Registration
+{
+    bool registration_enabled = false;
+    float registration_zone = 0.7f;
+
+    /*! \brief Will be expanded into `to_json` and `from_json` functions. */
+    SERIALIZE_JSON_STRUCT(Registration, registration_enabled, registration_zone);
+
+    /*!
+     * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly
+     * synchronize variables of Reticle with the one in GSH, update variables of GSH
+     * with the one of Reticle and assert that the Reticle variables are valid
+     */
+    SETTING_RELATED_FUNCTIONS();
+};
+
 /*! \class View
  *
  * \brief Class that represents the view cache
@@ -168,7 +188,6 @@ struct Views
 {
     ImgType image_type = ImgType::Modulus;
     bool fft_shift = false;
-    bool registration = false;
     ViewXY x;
     ViewXY y;
     ViewPQ z;
@@ -176,9 +195,10 @@ struct Views
     Windows window;
     bool renorm = false;
     Reticle reticle;
+    Registration registration;
 
     /*! \brief Will be expanded into `to_json` and `from_json` functions. */
-    SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, registration, x, y, z, z2, window, renorm, reticle);
+    SERIALIZE_JSON_STRUCT(Views, image_type, fft_shift, x, y, z, z2, window, renorm, reticle, registration);
 
     /*!
      * \brief Will be expanded into `Load`, `Update` and `Assert` functions that respectivly

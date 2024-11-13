@@ -662,6 +662,18 @@ bool get_contrast_auto_refresh();
  */
 void disable_convolution();
 
+/**
+ * \brief Loads a convolution matrix from a file
+ *
+ * This function is a tool / util supposed to be called by other functions
+ *
+ * \param file The name of the file to load the matrix from. NOT A FULL PATH
+ * \param convo_matrix Where to store the read matrix
+ *
+ * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+ */
+void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
+
 /*! \brief Loads convolution matrix from a given file
  *
  * \param file the file containing the convolution's settings
@@ -762,6 +774,11 @@ void display_reticle(bool value);
  */
 void reticle_scale(float value);
 
+/*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+ *  \param[in] value The new zone value.
+ */
+void update_registration_zone(float value);
+
 /*! \brief Restores attributs when recording ends
  *
  */
@@ -842,7 +859,7 @@ void update_time_stride(const uint time_stride);
  *
  * \param batch_size the new value
  */
-void update_batch_size(const uint batch_size);
+void update_batch_size(uint batch_size);
 
 /*! \brief Modifies view image type
  * Changes the setting and requests a pipe refresh

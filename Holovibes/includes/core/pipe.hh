@@ -75,7 +75,7 @@ class Pipe : public ICompute
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
-        fn_compute_vect_ = FunctionVector(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -92,8 +92,12 @@ class Pipe : public ICompute
                                                                           moments_env_,
                                                                           stream_,
                                                                           settings);
-        registration_ =
-            std::make_unique<compute::Registration>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
+        registration_ = std::make_unique<compute::Registration>(fn_compute_vect_,
+                                                                buffers_,
+                                                                image_acc_env_,
+                                                                input.get_fd(),
+                                                                stream_,
+                                                                settings);
 
         rendering_ = std::make_unique<compute::Rendering>(fn_compute_vect_,
                                                           buffers_,
@@ -284,7 +288,7 @@ class Pipe : public ICompute
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
-    FunctionVector fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \name Compute objects
      * \{
