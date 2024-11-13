@@ -517,8 +517,8 @@ void Analysis::insert_bwareafilt()
 
                 int maxI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
-                if (maxI > 0)
-                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI, stream_);
+                if (maxI - 1 > 0)
+                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
             }
         });
 }

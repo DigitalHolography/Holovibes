@@ -177,7 +177,7 @@ __global__ void second_pass_kernel(uint* labels_d, size_t size, uint* linked_d, 
         uint l = labels_d[idx];
         get_linked_label(&l, linked_d);
         labels_d[idx] = l;
-        atomicAdd(labels_sizes_d + l, 1);
+        atomicAdd(labels_sizes_d + l, 1.0f);
     }
 }
 
@@ -195,7 +195,7 @@ void get_connected_component(uint* labels_d,
     uint blocks = map_blocks_to_problem(size, threads);
 
     cudaXMemset(labels_d, 0, size * sizeof(uint));
-    cudaXMemset(labels_sizes_d, 0.0f, size * sizeof(float));
+    cudaXMemset(labels_sizes_d, 0, size * sizeof(float));
 
     first_pass(image_d, labels_d, linked_d, size_t_gpu_, width, height, stream);
 
