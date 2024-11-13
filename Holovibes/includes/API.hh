@@ -668,7 +668,7 @@ void disable_convolution();
  * \param file The name of the file to load the matrix from. NOT A FULL PATH
  * \param convo_matrix Where to store the read matrix
  *
- * \throws When the matrix cannot be loaded
+ * \throw std::runtime_error runtime_error When the matrix cannot be loaded
  */
 void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
 

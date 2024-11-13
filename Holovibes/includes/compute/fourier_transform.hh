@@ -117,7 +117,6 @@ class FourierTransform
      * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
      * if the corresponding image type is selected.
      *
-     * \note This function probably only exists for test purposes.
      */
     void insert_moments_to_output();
 

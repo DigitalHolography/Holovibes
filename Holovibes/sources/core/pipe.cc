@@ -272,9 +272,9 @@ void Pipe::refresh()
     {
         // Dequeuing the 3 moments in a row
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
-        // insert_wait_frames();
+
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
-        // insert_wait_frames();
+
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
 
         update_batch_index();

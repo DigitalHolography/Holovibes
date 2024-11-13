@@ -367,7 +367,7 @@ void Converts::insert_filter2d_ushort()
 
 void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
 {
-    LOG_FUNC(fd_.depth);
+    LOG_FUNC();
 
     // Conversion function from input queue to input buffer
     auto convert_to_complex = [](const void* const src,
@@ -396,7 +396,7 @@ void Converts::insert_complex_conversion(BatchInputQueue& input_queue)
 
 void Converts::insert_float_dequeue(BatchInputQueue& input_queue, void* output)
 {
-    LOG_FUNC(fd_.depth);
+    LOG_FUNC();
 
     // Conversion function from input queue to input buffer
     auto move_floats = [](const void* const src,
