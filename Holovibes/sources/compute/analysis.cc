@@ -360,10 +360,10 @@ void Analysis::insert_show_artery()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
-        [=]()
-        {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
             {
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
@@ -422,15 +422,15 @@ void Analysis::insert_show_artery()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-            }
-        });
+            });
+    }
 }
 
 void Analysis::insert_barycentres()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
@@ -483,7 +483,7 @@ void Analysis::insert_otsu()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)

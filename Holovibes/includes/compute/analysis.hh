@@ -57,7 +57,7 @@ class Analysis
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Analysis(FunctionVector& fn_compute_vect,
+    Analysis(std::shared_ptr<FunctionVector> fn_compute_vect,
              CoreBuffersEnv& buffers,
              const camera::FrameDescriptor& input_fd,
              VesselnessMaskEnv& vesselness_mask_env,
@@ -145,7 +145,7 @@ class Analysis
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     CoreBuffersEnv& buffers_;
