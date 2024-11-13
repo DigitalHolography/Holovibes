@@ -157,10 +157,9 @@ void Analysis::init()
     err += !uint_buffer_1_.resize(frame_res);
     err += !uint_buffer_2_.resize(frame_res);
     err += !float_buffer_.resize(frame_res);
-    err += !uint_gpu_.resize(1);
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
-  
+
     shift_corners(gaussian_128_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(cufftExecC2C(convolution_plan_,
                                gaussian_128_kernel_buffer_.get(),
@@ -357,12 +356,10 @@ void Analysis::dispose()
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gaussian_128_kernel_buffer_.reset(nullptr);
-  
+
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
     float_buffer_.reset(nullptr);
-    uint_gpu_.reset(nullptr);
-  
 }
 
 void Analysis::insert_show_artery()
@@ -551,14 +548,7 @@ void Analysis::insert_bwareafilt()
 
                 cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
 
-                get_connected_component(labels_d,
-                                        labels_sizes_d,
-                                        linked_d,
-                                        uint_gpu_.get(),
-                                        image_d,
-                                        fd_.width,
-                                        fd_.height,
-                                        stream_);
+                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
 
                 int maxI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
