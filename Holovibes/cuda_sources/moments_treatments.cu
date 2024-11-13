@@ -18,46 +18,47 @@
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
 
-__global__ void kernel_add_frame_to_sum(const float* new_frame, float* sum_images, size_t frame_size)
+__global__ void kernel_add_frame_to_sum(const float* const new_frame, const size_t frame_size, float* const sum_image)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < frame_size)
-        sum_images[idx] += new_frame[idx];
+        sum_image[idx] += new_frame[idx];
 }
 
-void add_frame_to_sum(int frame_size, float* oldest_frame, float* sum_images, cudaStream_t stream)
+void add_frame_to_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_add_frame_to_sum<<<blocks, threads, 0, stream>>>(oldest_frame, sum_images, frame_size);
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_add_frame_to_sum<<<blocks, threads, 0, stream>>>(new_frame, size, sum_image);
 }
 
-__global__ void kernel_subtract_frame_from_sum(const float* old_frame, float* sum_images, size_t frame_size)
+__global__ void kernel_subtract_frame_from_sum(const float* old_frame, const size_t frame_size, float* const sum_image)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < frame_size)
-        sum_images[idx] -= old_frame[idx];
+        sum_image[idx] -= old_frame[idx];
 }
 
-void subtract_frame_from_sum(int frame_size, float* new_frame, float* sum_images, cudaStream_t stream)
+void subtract_frame_from_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_subtract_frame_from_sum<<<blocks, threads, 0, stream>>>(new_frame, size, sum_image);
+}
+
+__global__ void kernel_compute_mean(float* output, float* input, const int time_window, const size_t frame_size)
+{
+    const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < frame_size)
+        output[index] = input[index] / time_window;
+}
+
+void compute_mean(float* output, float* input, const int time_window, const size_t frame_size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_subtract_frame_from_sum<<<blocks, threads, 0, stream>>>(new_frame, sum_images, frame_size);
+    kernel_compute_mean<<<blocks, threads, 0, stream>>>(output, input, time_window, frame_size);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 __global__ void kernel_subtract_first_image(float* output, float* input, const int current_image, const int time_window, const uint frame_size)
 {
@@ -71,13 +72,6 @@ __global__ void kernel_add_img_to_sum(float* output, float* input, const uint fr
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)
         output[index] += input[index];
-}
-
-__global__ void kernel_compute_mean(float* output, float* input, const int time_window, const uint frame_size)
-{
-    const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < frame_size)
-        output[index] = input[index] / time_window;
 }
 
 void temporal_mean(float* output,
@@ -121,7 +115,7 @@ void temporal_mean(float* output,
 
 }
 
-__global__ void kernel_centering(float* output, const float* m0_video, const float* m0_img, const uint frame_size)
+__global__ void kernel_image_centering(float* output, const float* m0_video, const float* m0_img, const uint frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)
@@ -132,6 +126,6 @@ void image_centering(float* output, const float* m0_video, const float* m0_img, 
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_img, frame_size);
+    kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_img, frame_size);
     cudaXStreamSynchronize(stream);
 }

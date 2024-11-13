@@ -125,6 +125,10 @@ void Analysis::init()
     LOG_FUNC();
     const size_t frame_res = fd_.get_frame_res();
 
+    // Init CircularVideoBuffer
+    vesselness_mask_env_.m0_ff_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);

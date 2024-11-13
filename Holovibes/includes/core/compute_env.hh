@@ -5,6 +5,7 @@
 #include "cufft_handle.hh"
 #include "chart_point.hh"
 #include "concurrent_deque.hh"
+#include "circular_video_buffer.hh"
 
 #include <map>
 #include <cufft.h>
@@ -223,6 +224,7 @@ struct VesselnessMaskEnv
      * frames, which are used for calculations in subsequent processing steps.
      */
     cuda_tools::CudaUniquePtr<float> m0_ff_video_ = nullptr;
+    std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
 
     /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
      *
