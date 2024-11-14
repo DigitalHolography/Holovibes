@@ -318,16 +318,16 @@ void InformationWorker::display_gui_information()
 
     for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
     {
-        if (key == QueueType::UNDEFINED)
+        if (key == QueueType::UNDEFINED || api::get_import_type() == ImportType::None)
             continue;
         auto currentLoad = std::get<0>(*value).load();
         auto maxLoad = std::get<1>(*value).load();
 
         to_display << "<tr style=\"color:";
-        if (queue_type_to_string_.at(key) == "Output Queue")
+        if (key == QueueType::OUTPUT_QUEUE)
             to_display << "white";
         else if (key == QueueType::INPUT_QUEUE)
-            to_display << get_load_color_custom(currentLoad, maxLoad, 0.3, 0.8);
+            to_display << get_load_color_custom(currentLoad, maxLoad, 0.3f, 0.8f);
         else
             to_display << get_load_color(currentLoad, maxLoad);
 
