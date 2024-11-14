@@ -13,16 +13,14 @@ ZoomOverlay::ZoomOverlay(BasicOpenGLWindow* parent)
 
 void ZoomOverlay::release(ushort frameSide)
 {
+    display_ = false;
+
     if (zone_.topLeft() == zone_.bottomRight())
-    {
-        disable();
         return;
-    }
 
     // handle Zoom
     RawWindow* window = dynamic_cast<RawWindow*>(parent_);
     if (window)
         window->zoomInRect(zone_);
-    disable();
 }
 } // namespace holovibes::gui

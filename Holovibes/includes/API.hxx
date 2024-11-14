@@ -2,6 +2,7 @@
 
 #include "API.hh"
 #include "enum_record_mode.hh"
+#include "enum_recorded_data_type.hh"
 
 namespace holovibes::api
 {
@@ -96,6 +97,9 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
 
 inline ImgType get_img_type() { return GET_SETTING(ImageType); }
 inline void set_img_type(ImgType type) { UPDATE_SETTING(ImageType, type); }
+
+inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
+inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
 
 inline uint get_input_buffer_size() { return static_cast<uint>(GET_SETTING(InputBufferSize)); }
 inline void set_input_buffer_size(uint value) { UPDATE_SETTING(InputBufferSize, value); }

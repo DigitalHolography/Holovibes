@@ -28,12 +28,16 @@ void ICompute::fft_freqs()
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
     float d = setting<settings::InputFPS>() / time_transformation_size;
 
-    // initialize f0 (f0 = [1, ..., 1])
-    cudaMemset(moments_env_.f0_buffer, 1, time_transformation_size * sizeof(float));
-
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
+    std::unique_ptr<float[]> f0(new float[time_transformation_size]);
     std::unique_ptr<float[]> f1(new float[time_transformation_size]);
     std::unique_ptr<float[]> f2(new float[time_transformation_size]);
+
+    // initialize f0 (f0 = [1, ..., 1])
+    for (uint i = 0; i < time_transformation_size; i++)
+        f0[i] = 1.f;
+
+    cudaXMemcpy(moments_env_.f0_buffer, f0.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f1
     // f1 = [0, 1, ...,   n/2-1,     -n/2, ..., -1] * fs / n   if n is even
@@ -67,21 +71,21 @@ bool ICompute::update_time_transformation_size(const unsigned short size)
 {
     try
     {
-        // Updates the size of the GPU P acc buffer.
         auto frame_res = input_queue_.get_fd().get_frame_res();
+
+        // Updates the size of the GPU P acc buffer.
         time_transformation_env_.gpu_p_acc_buffer.resize(frame_res * size);
 
-        // Updates the buffers for the moments, which depends on time_transformation_size
-        moments_env_.f0_buffer.resize(size);
-        moments_env_.f1_buffer.resize(size);
-        moments_env_.f2_buffer.resize(size);
+        if (api::get_data_type() != RecordedDataType::MOMENTS)
+        {
+            // Updates the buffers for the moments, which depends on time_transformation_size
+            moments_env_.f0_buffer.resize(size);
+            moments_env_.f1_buffer.resize(size);
+            moments_env_.f2_buffer.resize(size);
 
-        moments_env_.moment0_buffer.resize(frame_res);
-        moments_env_.moment1_buffer.resize(frame_res);
-        moments_env_.moment2_buffer.resize(frame_res);
-
-        moments_env_.stft_res_buffer.resize(frame_res * size);
-        fft_freqs();
+            moments_env_.stft_res_buffer.resize(frame_res * size);
+            fft_freqs();
+        }
 
         perform_time_transformation_setting_specific_tasks(size);
 
@@ -167,6 +171,18 @@ void ICompute::update_spatial_transformation_parameters()
         CUDA_C_32F,                     // Output type
         setting<settings::BatchSize>(), // Batch size
         CUDA_C_32F);                    // Computation type
+}
+
+void ICompute::allocate_moments_buffers()
+{
+    auto frame_res = input_queue_.get_fd().get_frame_res();
+
+    size_t size = frame_res; // Batch size should always be be 1 here.
+    // If it isn't, it is a bug.
+
+    moments_env_.moment0_buffer.resize(size);
+    moments_env_.moment1_buffer.resize(size);
+    moments_env_.moment2_buffer.resize(size);
 }
 
 void ICompute::init_cuts()

@@ -118,7 +118,7 @@ void set_3d_cuts_view(bool checked, uint window_size)
         UI.sliceYZ->setAngle(api::get_yz_rotation());
         UI.sliceYZ->setFlip(api::get_yz_horizontal_flip());
 
-        UI.mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+        UI.mainDisplay->getOverlayManager().enable<gui::Cross>();
 
         auto holo = dynamic_cast<gui::HoloWindow*>(UI.mainDisplay.get());
         if (holo)
@@ -132,17 +132,17 @@ void set_3d_cuts_view(bool checked, uint window_size)
         if (UI.mainDisplay)
         {
             UI.mainDisplay->setCursor(Qt::ArrowCursor);
-            UI.mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-            UI.mainDisplay->getOverlayManager().disable_all(gui::Cross);
+            UI.mainDisplay->getOverlayManager().disable(gui::SliceCross);
+            UI.mainDisplay->getOverlayManager().disable(gui::Cross);
         }
     }
 }
 
-void set_composite_area() { UI.mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>(); }
+void set_composite_area() { UI.mainDisplay->getOverlayManager().enable<gui::CompositeArea>(); }
 
-void active_noise_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gui::Noise>(); }
+void active_noise_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Noise>(); }
 
-void active_signal_zone() { UI.mainDisplay->getOverlayManager().create_overlay<gui::Signal>(); }
+void active_signal_zone() { UI.mainDisplay->getOverlayManager().enable<gui::Signal>(); }
 
 void open_advanced_settings(QMainWindow* parent, std::function<void()> callback)
 {

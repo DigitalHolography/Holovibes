@@ -87,6 +87,17 @@ class Converts
     /*! \brief Insert the conversion Uint(8/16/32) => Complex frame by frame */
     void insert_complex_conversion(BatchInputQueue& input);
 
+    /**
+     * \brief Insert a dequeue from input_queue to output.
+     *
+     * Note: the data manipulated should be of depth 4 (floats)
+     * on both sides.
+     *
+     * \param input_queue[in out] The input queue to dequeue from
+     * \param output[out] The buffer where to store the data.
+     */
+    void insert_float_dequeue(BatchInputQueue& input_queue, void* output);
+
     /*! \brief Insert the conversion Complex => Modulus on a batch of time transformation size frames. */
     void insert_to_modulus_moments(float* output);
 

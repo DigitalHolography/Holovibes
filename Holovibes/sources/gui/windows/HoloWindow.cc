@@ -39,6 +39,7 @@ void HoloWindow::initShaders()
         QOpenGLShader::Fragment,
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
+
     overlay_manager_.create_default();
 }
 

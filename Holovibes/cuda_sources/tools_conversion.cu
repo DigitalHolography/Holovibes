@@ -43,8 +43,10 @@ static __global__ void kernel_complex_to_modulus(
         const cuComplex* current_p_frame = input + i * frame_res;
         float* output_frame = output + i * frame_res;
 
-        output_frame[index] = hypotf(current_p_frame[index].x, current_p_frame[index].y);
-        // Maybe squared
+        const float real = current_p_frame[index].x;
+        const float im = current_p_frame[index].y;
+
+        output_frame[index] = real * real + im * im;
     }
 }
 
@@ -165,6 +167,17 @@ void input_queue_to_input_buffer(void* const output,
                                              batch_size);
         break;
     }
+    cudaCheckError();
+}
+
+void input_queue_to_input_buffer_floats(void* const output,
+                                        const void* const input,
+                                        const size_t frame_res,
+                                        const int batch_size,
+                                        const camera::PixelDepth depth,
+                                        const cudaStream_t stream)
+{
+    cudaXMemcpyAsync(output, input, frame_res * batch_size * depth, cudaMemcpyDeviceToDevice, stream);
     cudaCheckError();
 }
 

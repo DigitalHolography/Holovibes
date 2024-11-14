@@ -282,40 +282,56 @@ void Pipe::refresh()
         return;
     }
 
-    insert_raw_view();
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        // Dequeuing the 3 moments in a row
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
 
-    converts_->insert_complex_conversion(input_queue_);
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
 
-    // Spatial transform
-    fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
-                                    input_queue_.get_fd().width,
-                                    input_queue_.get_fd().height);
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
 
-    // Move frames from gpu_space_transformation_buffer to
-    // gpu_time_transformation_queue (with respect to
-    // time_stride)
-    insert_transfer_for_time_transformation();
+        update_batch_index();
 
-    update_batch_index();
+        fourier_transforms_->insert_moments_to_output();
+    }
+    else
+    {
+        insert_raw_view();
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        converts_->insert_complex_conversion(input_queue_);
 
-    // time transform
-    fourier_transforms_->insert_time_transform();
-    fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
-                                                              buffers_.gpu_postprocess_frame_xz.get(),
-                                                              buffers_.gpu_postprocess_frame_yz.get());
-    insert_cuts_record();
+        // Spatial transform
+        fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
+                                        input_queue_.get_fd().width,
+                                        input_queue_.get_fd().height);
 
-    // Used for phase increase
-    fourier_transforms_->insert_store_p_frame();
+        // Move frames from gpu_space_transformation_buffer to
+        // gpu_time_transformation_queue (with respect to
+        // time_stride)
+        insert_transfer_for_time_transformation();
 
-    converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
+        update_batch_index();
 
-    insert_moments();
-    insert_moments_record();
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // time transform
+        fourier_transforms_->insert_time_transform();
+        fourier_transforms_->insert_time_transformation_cuts_view(input_queue_.get_fd(),
+                                                                  buffers_.gpu_postprocess_frame_xz.get(),
+                                                                  buffers_.gpu_postprocess_frame_yz.get());
+        insert_cuts_record();
+
+        // Used for phase increase
+        fourier_transforms_->insert_store_p_frame();
+
+        converts_->insert_to_float(is_requested(ICS::Unwrap2D), buffers_.gpu_postprocess_frame.get());
+
+        insert_moments();
+        insert_moments_record();
+    }
 
     insert_filter2d_view();
 
@@ -391,6 +407,8 @@ void Pipe::insert_moments()
         converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
 
         fourier_transforms_->insert_moments();
+
+        fourier_transforms_->insert_moments_to_output();
     }
 }
 

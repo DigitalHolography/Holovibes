@@ -42,7 +42,7 @@ void SliceWindow::initShaders()
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
     if (api::get_img_type() == ImgType::Composite)
-        overlay_manager_.create_overlay<Rainbow>();
+        overlay_manager_.enable<Rainbow>();
     else
         overlay_manager_.create_default();
 }
