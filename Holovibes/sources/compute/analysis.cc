@@ -466,6 +466,16 @@ void Analysis::insert_barycentres()
                                                                buffers_.gpu_postprocess_frame_size,
                                                                stream_);
 
+                apply_mask_or(mask_vesselness_csv_, circle_mask, fd_.width, fd_.height, stream_);
+                bwareafilt(mask_vesselness_csv_,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_,
+                           uint_buffer_2_,
+                           float_buffer_,
+                           cublas_handler_,
+                           stream_);
+
                 // TODO: change hard coded values from maskvesselnessclean
                 // La fonction sert a rien car on importe le csv de R_VascularPulse
                 // Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
@@ -479,38 +489,37 @@ void Analysis::insert_barycentres()
                 //                           buffers_.gpu_postprocess_frame_size,
                 //                           stream_);
                 // this part may be deleted as it is never used for the rest of the code
-                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-                                       m0_ff_img_csv_,
-                                       f_avg_csv_,
-                                       R_VascularPulse_csv_,
-                                       buffers_.gpu_postprocess_frame_size,
-                                       stream_);
-                apply_convolution(vesselness_mask_env_.vascular_image_,
-                                  vesselness_mask_env_.vascular_kernel_,
-                                  fd_.width,
-                                  fd_.height,
-                                  vesselness_mask_env_.vascular_kernel_size_,
-                                  vesselness_mask_env_.vascular_kernel_size_,
-                                  stream_,
-                                  ConvolutionPaddingType::SCALAR,
-                                  0);
-                apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
-                                     fd_.width / 2,
-                                     fd_.height / 2,
-                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
-                                     fd_.width,
-                                     fd_.height,
-                                     stream_);
+                // multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                //                        m0_ff_img_csv_,
+                //                        f_avg_csv_,
+                //                        R_VascularPulse_csv_,
+                //                        buffers_.gpu_postprocess_frame_size,
+                //                        stream_);
+                // apply_convolution(vesselness_mask_env_.vascular_image_,
+                //                   vesselness_mask_env_.vascular_kernel_,
+                //                   fd_.width,
+                //                   fd_.height,
+                //                   vesselness_mask_env_.vascular_kernel_size_,
+                //                   vesselness_mask_env_.vascular_kernel_size_,
+                //                   stream_,
+                //                   ConvolutionPaddingType::SCALAR,
+                //                   0);
+                // apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
+                //                      fd_.width / 2,
+                //                      fd_.height / 2,
+                //                      DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                //                      fd_.width,
+                //                      fd_.height,
+                //                      stream_);
 
-                compute_barycentre_circle_mask(circle_mask,
-                                               vesselness_mask_env_.vascular_image_,
-                                               buffers_.gpu_postprocess_frame_size,
-                                               stream_,
-                                               CRV_index);
-                print_in_file_gpu(circle_mask, 512, 512, "circlemask", stream_);
+                // compute_barycentre_circle_mask(circle_mask,
+                //                                vesselness_mask_env_.vascular_image_,
+                //                                buffers_.gpu_postprocess_frame_size,
+                //                                stream_,
+                //                                CRV_index);
 
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            circle_mask,
+                            mask_vesselness_csv_,
                             buffers_.gpu_postprocess_frame_size * sizeof(float),
                             cudaMemcpyDeviceToDevice);
                 cudaXFree(circle_mask);

@@ -182,3 +182,13 @@ void area_open(
     area_open_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, labels_sizes_d, size, p);
     cudaCheckError();
 }
+
+void bwareafilt(float* input_output, size_t width, size_t height, uint* labels_d, uint* linked_d, float* labels_sizes_d, cublasHandle_t& handle, cudaStream_t stream)
+{
+    get_connected_component(labels_d, labels_sizes_d, linked_d, input_output, width, height, stream);
+
+    int maxI = -1;
+    cublasIsamax(handle, width * height, labels_sizes_d, 1, &maxI);
+    if (maxI - 1 > 0)
+        area_filter(input_output, labels_d, width * height, maxI - 1, stream);
+}

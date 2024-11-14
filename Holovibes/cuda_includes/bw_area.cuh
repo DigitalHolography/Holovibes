@@ -5,6 +5,8 @@
 #pragma once
 
 #include "frame_desc.hh"
+#include "unique_ptr.hh"
+#include "common.cuh"
 
 using uint = unsigned int;
 
@@ -54,3 +56,5 @@ void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to
  */
 void area_open(
     float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p, const cudaStream_t stream);
+
+void bwareafilt(float* input_output, size_t width, size_t height, uint* labels_d, uint* linked_d, float* labels_sizes_d, cublasHandle_t& handle, cudaStream_t stream);
