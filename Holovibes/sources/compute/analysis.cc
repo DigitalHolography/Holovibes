@@ -165,6 +165,9 @@ void Analysis::init()
     err += !uint_buffer_1_.resize(frame_res);
     err += !uint_buffer_2_.resize(frame_res);
     err += !float_buffer_.resize(frame_res);
+
+    err += !otsu_histo_buffer_.resize(256);
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
@@ -368,6 +371,8 @@ void Analysis::dispose()
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
     float_buffer_.reset(nullptr);
+
+    otsu_histo_buffer_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -543,10 +548,11 @@ void Analysis::insert_otsu()
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
 
-                    float* d_output;
-                    cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
+                    float* d_output = float_buffer_.get();
+                    // cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
                     compute_binarise_otsu_bradley(buffers_.gpu_postprocess_frame,
                                                   d_output,
+                                                  otsu_histo_buffer_.get(),
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
@@ -557,10 +563,15 @@ void Analysis::insert_otsu()
                                 d_output,
                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
                                 cudaMemcpyDeviceToDevice);
-                    cudaFree(d_output);
+                    // cudaFree(d_output);
                 }
                 else
-                    compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+
+                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                          otsu_histo_buffer_.get(),
+                                          fd_.width,
+                                          fd_.height,
+                                          stream_);
             });
     }
 }
