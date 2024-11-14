@@ -242,32 +242,35 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (autocontrast_request &&
-            (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full()))
+        if (autocontrast_request && image_acc_env_.gpu_accumulation_xy_queue &&
+            image_acc_env_.gpu_accumulation_xy_queue->is_full())
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
+
             autocontrast_request = false;
         }
-        if (autocontrast_slice_xz_request &&
-            (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full()))
+        if (autocontrast_slice_xz_request && image_acc_env_.gpu_accumulation_xz_queue &&
+            image_acc_env_.gpu_accumulation_xz_queue->is_full())
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
                                 setting<settings::TimeTransformationSize>(),
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::XZview);
+
             autocontrast_slice_xz_request = false;
         }
-        if (autocontrast_slice_yz_request &&
-            (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full()))
+        if (autocontrast_slice_yz_request && image_acc_env_.gpu_accumulation_yz_queue &&
+            image_acc_env_.gpu_accumulation_yz_queue->is_full())
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),
                                 fd_.height,
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::YZview);
+
             autocontrast_slice_yz_request = false;
         }
         if (autocontrast_filter2d_request)

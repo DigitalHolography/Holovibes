@@ -164,6 +164,8 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::ClearImgAccu, "Clear image accu", image_accumulation_->clear());
 
+    image_accumulation_->clear();
+
     if (is_requested(ICS::RawView))
     {
         LOG_DEBUG("raw_view_requested");
