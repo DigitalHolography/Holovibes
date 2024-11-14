@@ -1,6 +1,6 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
-
+Write-Host (Get-Location)
 $moments=0
 if ($args[0] -eq "-m")
 {
@@ -93,7 +93,7 @@ $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
 $exePath = ""
 
-# Check if ../Holovibes.exe exists
+# Check if Holovibes.exe exists
 if (Test-Path $exePath1) {
     $exePath = $exePath1
 } else {
@@ -101,10 +101,10 @@ if (Test-Path $exePath1) {
 }
 # Set the frame skip to 16
 $frameSkip = 16
-#$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
-#if (-not ($frameSkip -match '^\d+$')) {
-#    $frameSkip = "0"
-#}
+$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional, default 16)"
+if (-not ($frameSkip -match '^\d+$')) {
+    $frameSkip = 16
+}
 
 # Confirm action with the user
 Write-Host "You have selected the folder: $holoFolderPath" -ForegroundColor Cyan
