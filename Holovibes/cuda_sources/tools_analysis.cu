@@ -41,7 +41,7 @@ void matrix_multiply(const float* A,
                                C,
                                B_width));
 }
-}
+} // namespace
 
 float* load_CSV_to_float_array(const std::string& filename)
 {
@@ -87,7 +87,6 @@ float* load_CSV_to_float_array(const std::string& filename)
     return dataArray;
 }
 
-
 void write_1D_float_array_to_file(const float* array, int rows, int cols, const std::string& filename)
 {
     // Open the file in write mode
@@ -119,21 +118,27 @@ void write_1D_float_array_to_file(const float* array, int rows, int cols, const 
     std::cout << "1D array written to the file " << filename << std::endl;
 }
 
-__global__ void kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y) 
+__global__ void
+kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     int y = idx / width;
     int x = idx % width;
 
-    if (y < height && x < width) 
+    if (y < height && x < width)
     {
         output[(start_y + y) * new_width + (start_x + x)] = input[y * width + x];
     }
 }
 
-
-void convolution_kernel_add_padding(float* output, float* kernel, const int width, const int height, const int new_width, const int new_height, cudaStream_t stream) 
+void convolution_kernel_add_padding(float* output,
+                                    float* kernel,
+                                    const int width,
+                                    const int height,
+                                    const int new_width,
+                                    const int new_height,
+                                    cudaStream_t stream)
 {
     int start_x = (new_width - width) / 2;
     int start_y = (new_height - height) / 2;
@@ -141,7 +146,6 @@ void convolution_kernel_add_padding(float* output, float* kernel, const int widt
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(width * height, threads);
     kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
-
 }
 
 void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
@@ -151,16 +155,9 @@ void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, 
         return;
     }
     float* result = new float[rows * col];
-    cudaXMemcpyAsync(result,
-                        input,
-                        rows * col * sizeof(float),
-                        cudaMemcpyDeviceToHost,
-                        stream);
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(float), cudaMemcpyDeviceToHost, stream);
     cudaXStreamSynchronize(stream);
-    write_1D_float_array_to_file(result,
-                            rows,
-                            col,
-                            "test_" + filename + ".txt");
+    write_1D_float_array_to_file(result, rows, col, "test_" + filename + ".txt");
 }
 
 void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
@@ -169,26 +166,23 @@ void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
     {
         return;
     }
-    write_1D_float_array_to_file(input,
-                            rows,
-                            col,
-                            "test_" + filename + ".txt");
+    write_1D_float_array_to_file(input, rows, col, "test_" + filename + ".txt");
 }
 
 __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
-     const int index = blockIdx.x * blockDim.x + threadIdx.x;
-     if (index < size)
-     {
+    const int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+    {
         output[index] = (int)index - lim;
-     }
+    }
 }
 
 void normalized_list(float* output, int lim, int size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);   
+    kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);
 }
 
 __device__ float comp_hermite(int n, float x)
@@ -224,12 +218,11 @@ __global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_
     }
 }
 
-
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(input_size, threads);
-    kernel_comp_dgaussian<<<blocks, threads, 0, stream>>>(output, input, input_size, sigma, n);   
+    kernel_comp_dgaussian<<<blocks, threads, 0, stream>>>(output, input, input_size, sigma, n);
 }
 
 namespace
@@ -252,7 +245,7 @@ void multiply_array_by_scalar_caller(T* input_output, size_t size, T scalar, cud
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_multiply_array_by_scalar<<<blocks, threads, 0, stream>>>(input_output, size, scalar);
 }
-}
+} // namespace
 
 void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream)
 {
@@ -260,7 +253,8 @@ void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cu
 }
 
 // CUDA kernel to prepare H hessian matrices
-__global__ void kernel_prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
+__global__ void
+kernel_prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -272,7 +266,8 @@ __global__ void kernel_prepare_hessian(float* output, const float* ixx, const fl
     }
 }
 
-void prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream)
+void prepare_hessian(
+    float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream)
 {
     int blockSize = 256;
     int numBlocks = (size + blockSize - 1) / blockSize;
@@ -313,8 +308,6 @@ void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cu
     kernel_compute_eigen<<<blocks, threads, 0, stream>>>(H, size, lambda1, lambda2);
 }
 
-
-
 __global__ void
 kernel_apply_diaphragm_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
@@ -335,12 +328,12 @@ kernel_apply_diaphragm_mask(float* output, short width, short height, float cent
 }
 
 void apply_diaphragm_mask(float* output,
-                       const float center_X,
-                       const float center_Y,
-                       const float radius,
-                       const short width,
-                       const short height,
-                       const cudaStream_t stream)
+                          const float center_X,
+                          const float center_Y,
+                          const float radius,
+                          const short width,
+                          const short height,
+                          const cudaStream_t stream)
 {
     // Setting up the parallelisation.
     uint threads_2d = get_max_threads_2d();
@@ -375,12 +368,12 @@ kernel_compute_circle_mask(float* output, short width, short height, float cente
 }
 
 void compute_circle_mask(float* output,
-                       const float center_X,
-                       const float center_Y,
-                       const float radius,
-                       const short width,
-                       const short height,
-                       const cudaStream_t stream)
+                         const float center_X,
+                         const float center_Y,
+                         const float radius,
+                         const short width,
+                         const short height,
+                         const cudaStream_t stream)
 {
     // Setting up the parallelisation.
     uint threads_2d = get_max_threads_2d();
@@ -393,8 +386,7 @@ void compute_circle_mask(float* output,
     cudaCheckError();
 }
 
-__global__ void
-kernel_apply_mask_and(float* output, const float* input, short width, short height)
+__global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -407,11 +399,7 @@ kernel_apply_mask_and(float* output, const float* input, short width, short heig
     }
 }
 
-void apply_mask_and(float* output,
-                       const float* input,
-                       const short width,
-                       const short height,
-                       const cudaStream_t stream)
+void apply_mask_and(float* output, const float* input, const short width, const short height, const cudaStream_t stream)
 {
     // Setting up the parallelisation.
     uint threads_2d = get_max_threads_2d();
@@ -424,8 +412,7 @@ void apply_mask_and(float* output,
     cudaCheckError();
 }
 
-__global__ void
-kernel_apply_mask_or(float* output, const float* input, short width, short height)
+__global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -438,11 +425,7 @@ kernel_apply_mask_or(float* output, const float* input, short width, short heigh
     }
 }
 
-void apply_mask_or(float* output,
-                       const float* input,
-                       const short width,
-                       const short height,
-                       const cudaStream_t stream)
+void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream)
 {
     // Setting up the parallelisation.
     uint threads_2d = get_max_threads_2d();
@@ -455,7 +438,8 @@ void apply_mask_or(float* output,
     cudaCheckError();
 }
 
-float* compute_gauss_deriviatives_kernel(int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
+float* compute_gauss_deriviatives_kernel(
+    int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
 {
     // Initialize normalized centered at 0 lists, ex for kernel_width = 3 : [-1, 0, 1]
     float* x;
@@ -480,14 +464,14 @@ float* compute_gauss_deriviatives_kernel(int kernel_width, int kernel_height, fl
     float* kernel_result;
     cudaXMalloc(&kernel_result, sizeof(float) * kernel_width * kernel_height);
     matrix_multiply(kernel_y,
-                           kernel_x,
-                           kernel_height,
-                           kernel_width,
-                           1,
-                           kernel_result,
-                           cublas_handler_,
-                           CUBLAS_OP_N,
-                           CUBLAS_OP_N);
+                    kernel_x,
+                    kernel_height,
+                    kernel_width,
+                    1,
+                    kernel_result,
+                    cublas_handler_,
+                    CUBLAS_OP_N,
+                    CUBLAS_OP_N);
     const float alpha = 1.0f;
     const float beta = 0.0f;
     float* result_transpose;
@@ -525,9 +509,11 @@ float* compute_kernel(float sigma)
     float sum = 0.0f;
 
     int y = 0;
-    for (float i = -half_size; i <= half_size; ++i) {
+    for (float i = -half_size; i <= half_size; ++i)
+    {
         int x = 0;
-        for (float j = -half_size; j <= half_size; ++j) {
+        for (float j = -half_size; j <= half_size; ++j)
+        {
             float value = std::exp(-(i * i + j * j) / (2 * sigma * sigma));
 
             kernel[x * kernel_size + y] = value;
@@ -538,7 +524,8 @@ float* compute_kernel(float sigma)
         y++;
     }
 
-    for (int i = 0; i < kernel_size * kernel_size; ++i) {
+    for (int i = 0; i < kernel_size * kernel_size; ++i)
+    {
         kernel[i] /= sum;
     }
 
@@ -588,8 +575,7 @@ void compute_kernel_cuda(float* output, float sigma)
 
     // Define grid and block sizes
     dim3 blockSize(16, 16);
-    dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, 
-                  (kernel_size + blockSize.y - 1) / blockSize.y);
+    dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, (kernel_size + blockSize.y - 1) / blockSize.y);
 
     // Launch the kernel to compute the Gaussian values
     kernel_compute_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);

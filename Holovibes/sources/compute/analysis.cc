@@ -18,10 +18,12 @@
 #include "API.hh"
 #include "otsu.cuh"
 #include "cublas_handle.hh"
+#include "bw_area_filter.cuh"
 #include "circular_video_buffer.hh"
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <algorithm>
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -158,6 +160,14 @@ void Analysis::init()
     constexpr uint batch_size = 1; // since only one frame.
     // We compute the FFT of the kernel, once, here, instead of every time the
     // convolution subprocess is called
+
+    int err = 0;
+    err += !uint_buffer_1_.resize(frame_res);
+    err += !uint_buffer_2_.resize(frame_res);
+    err += !float_buffer_.resize(frame_res);
+    if (err != 0)
+        throw std::exception(cudaGetErrorString(cudaGetLastError()));
+
     shift_corners(gaussian_128_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(cufftExecC2C(convolution_plan_,
                                gaussian_128_kernel_buffer_.get(),
@@ -354,6 +364,10 @@ void Analysis::dispose()
     buffers_.gpu_convolution_buffer.reset(nullptr);
     cuComplex_buffer_.reset(nullptr);
     gaussian_128_kernel_buffer_.reset(nullptr);
+
+    uint_buffer_1_.reset(nullptr);
+    uint_buffer_2_.reset(nullptr);
+    float_buffer_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -549,6 +563,32 @@ void Analysis::insert_otsu()
                     compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
             });
     }
+}
+
+void Analysis::insert_bwareafilt()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_->conditional_push_back(
+        [=]()
+        {
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
+            {
+                float* image_d = buffers_.gpu_postprocess_frame.get();
+                uint* labels_d = uint_buffer_1_.get();
+                uint* linked_d = uint_buffer_2_.get();
+                float* labels_sizes_d = float_buffer_.get();
+
+                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
+
+                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+
+                int maxI = -1;
+                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
+                if (maxI - 1 > 0)
+                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
+            }
+        });
 }
 
 } // namespace holovibes::compute

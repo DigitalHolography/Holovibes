@@ -127,7 +127,8 @@
     holovibes::settings::OtsuKind,                               \
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
-    holovibes::settings::MinMaskArea
+    holovibes::settings::MinMaskArea,                            \
+    holovibes::settings::BwareafiltEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -466,7 +467,8 @@ class Holovibes
                                              settings::OtsuKind{OtsuKind::Global},
                                              settings::OtsuWindowSize{15},
                                              settings::OtsuLocalThreshold{0.15f},
-                                             settings::MinMaskArea{10}))
+                                             settings::MinMaskArea{10},
+                                             settings::BwareafiltEnabled{false}))
     {
     }
 

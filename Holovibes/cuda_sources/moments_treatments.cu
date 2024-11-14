@@ -39,7 +39,10 @@ __global__ void kernel_subtract_frame_from_sum(const float* old_frame, const siz
         sum_image[idx] -= old_frame[idx];
 }
 
-void subtract_frame_from_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream)
+void subtract_frame_from_sum(const float* const new_frame,
+                             const size_t size,
+                             float* const sum_image,
+                             cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -60,14 +63,16 @@ void compute_mean(float* output, float* input, const size_t time_window, const s
     kernel_compute_mean<<<blocks, threads, 0, stream>>>(output, input, time_window, frame_size);
 }
 
-__global__ void kernel_image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size)
+__global__ void
+kernel_image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < frame_size)
         output[index] = m0_video_frame[index] - m0_img[index];
 }
 
-void image_centering(float* output, const float* m0_img, const float* m0_video_frame, const uint frame_size, const cudaStream_t stream)
+void image_centering(
+    float* output, const float* m0_img, const float* m0_video_frame, const uint frame_size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_size, threads);

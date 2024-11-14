@@ -117,4 +117,5 @@ void AnalysisPanel::set_otsu_window_size(int value) { api::set_otsu_window_size(
 
 void AnalysisPanel::set_otsu_local_threshold(double value) { api::set_otsu_local_threshold((float)value); }
 
+void AnalysisPanel::set_bw_area_filter(bool enabled) { api::set_bwareafilt_enabled(enabled); }
 } // namespace holovibes::gui
