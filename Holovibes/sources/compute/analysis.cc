@@ -432,6 +432,7 @@ void Analysis::insert_show_artery()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
+                // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "otsu_normalized", stream_);
             });
     }
 }
@@ -539,15 +540,14 @@ void Analysis::insert_otsu()
                 // cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
                 // cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
 
-                float h_min = 0.0f;
-                float h_max = 1.0f;
+                // float h_min = 0.0f;
+                // float h_max = 1.0f;
                 // cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float),
                 // cudaMemcpyDeviceToHost); cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1),
                 // sizeof(float), cudaMemcpyDeviceToHost);
 
-                normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
-
-                // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
+                // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size,
+                // stream_);
 
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
