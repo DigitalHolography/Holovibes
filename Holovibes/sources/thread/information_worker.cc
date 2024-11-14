@@ -15,8 +15,8 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-#define RED_COLORATION_RATIO 0.8
-#define ORANGE_COLORATION_RATIO 0.3
+#define RED_COLORATION_RATIO 0.9f
+#define ORANGE_COLORATION_RATIO 0.7f
 
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
@@ -204,14 +204,24 @@ int get_gpu_load(nvmlUtilization_t* gpuLoad)
     return nvmlShutdown();
 }
 
-const std::string get_load_color(float load, float max_load)
+const std::string get_load_color_custom(float load, float max_load, float orange_ratio, float red_ratio)
 {
     const float ratio = (load / max_load);
-    if (ratio < ORANGE_COLORATION_RATIO)
+    if (ratio < orange_ratio)
         return "white";
-    if (ratio < RED_COLORATION_RATIO)
+    if (ratio < red_ratio)
         return "orange";
     return "red";
+}
+
+const std::string get_load_color(float load, float max_load)
+{
+    return get_load_color_custom(load, max_load, ORANGE_COLORATION_RATIO, RED_COLORATION_RATIO);
+}
+
+const std::string get_percentage_color_custom(float percentage, float orange_ratio, float red_ratio)
+{
+    return get_load_color_custom(percentage, 100, orange_ratio, red_ratio);
 }
 
 const std::string get_percentage_color(float percentage) { return get_load_color(percentage, 100); }
@@ -316,6 +326,8 @@ void InformationWorker::display_gui_information()
         to_display << "<tr style=\"color:";
         if (queue_type_to_string_.at(key) == "Output Queue")
             to_display << "white";
+        else if (key == QueueType::INPUT_QUEUE)
+            to_display << get_load_color_custom(currentLoad, maxLoad, 0.3, 0.8);
         else
             to_display << get_load_color(currentLoad, maxLoad);
 
