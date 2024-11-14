@@ -117,6 +117,13 @@ class Analysis
             cudaXMemcpy(mask_vesselness_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
+
+        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
+        mask_vesselness_clean_csv_.resize(frame_res);
+        if (data_csv_cpu)
+            cudaXMemcpy(mask_vesselness_clean_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
@@ -204,6 +211,9 @@ class Analysis
 
     // To delete
     cuda_tools::CudaUniquePtr<float> mask_vesselness_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_csv_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 

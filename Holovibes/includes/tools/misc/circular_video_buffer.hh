@@ -28,9 +28,15 @@ class CircularVideoBuffer
 
     float* get_last_frame();
 
+    /*! \brief Mean on dimension 3 */
     void compute_mean_image();
 
+    /*! \brief Mean on dimensions 1 and 2 */
+    void compute_mean_video(float scalar_to_multiply = 1);
+
     float* get_mean_image();
+
+    float* get_mean_video();
 
     void add_new_frame(const float* const new_frame);
 
@@ -63,6 +69,10 @@ class CircularVideoBuffer
 
     /*! \brief Image with each pixel value equal to the mean of each value at the same pixel in the buffer */
     cuda_tools::UniquePtr<float> mean_image_{};
+
+    /*! \brief Video with each frame being a 1x1 pixel with value equal to the mean of pixel in its corresponding frame
+     */
+    cuda_tools::UniquePtr<float> mean_1_2_video_{};
 
     /*! \brief Cuda stream used for async computations */
     cudaStream_t stream_;

@@ -1,6 +1,7 @@
 #include "circular_video_buffer.hh"
 #include "cuda_memory.cuh"
 #include "moments_treatments.cuh"
+#include "tools_analysis.cuh"
 
 namespace holovibes
 {
@@ -54,7 +55,17 @@ void CircularVideoBuffer::compute_mean_image()
     compute_mean(mean_image_, sum_image_, nb_frames_, frame_res_, stream_);
 }
 
+void CircularVideoBuffer::compute_mean_video(float scalar_to_multiply)
+{
+    if (!mean_1_2_video_)
+        mean_1_2_video_.resize(buffer_capacity_);
+    compute_mean_1_2(mean_1_2_video_, data_, frame_res_, nb_frames_, stream_);
+    multiply_array_by_scalar(mean_1_2_video_, nb_frames_, scalar_to_multiply, stream_);
+}
+
 float* CircularVideoBuffer::get_mean_image() { return mean_image_.get(); }
+
+float* CircularVideoBuffer::get_mean_video() { return mean_1_2_video_.get(); }
 
 void CircularVideoBuffer::add_new_frame(const float* const new_frame)
 {

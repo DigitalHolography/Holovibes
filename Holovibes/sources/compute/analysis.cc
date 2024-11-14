@@ -135,6 +135,9 @@ void Analysis::init()
     vesselness_mask_env_.m0_ff_centered_video_cb_ =
         std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
 
+    vesselness_mask_env_.vascular_pulse_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);
@@ -466,8 +469,17 @@ void Analysis::insert_barycentres()
                                                                buffers_.gpu_postprocess_frame_size,
                                                                stream_);
 
-                apply_mask_or(mask_vesselness_csv_, circle_mask, fd_.width, fd_.height, stream_);
-                bwareafilt(mask_vesselness_csv_,
+                float* bwareafilt_result;
+                cudaXMalloc(&bwareafilt_result, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cudaXMemcpy(bwareafilt_result,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+
+                apply_mask_or(bwareafilt_result, circle_mask, fd_.width, fd_.height, stream_);
+                cudaXFree(circle_mask);
+
+                bwareafilt(bwareafilt_result,
                            fd_.width,
                            fd_.height,
                            uint_buffer_1_,
@@ -476,16 +488,40 @@ void Analysis::insert_barycentres()
                            cublas_handler_,
                            stream_);
 
+                float* mask_vesselness_clean;
+                cudaXMalloc(&mask_vesselness_clean, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cudaXMemcpy(mask_vesselness_clean,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+
+                apply_mask_and(mask_vesselness_clean, bwareafilt_result, fd_.width, fd_.height, stream_);
+                cudaXFree(bwareafilt_result);
+
+                float* tmp_mult;
+                cudaXMalloc(&tmp_mult, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                compute_multiplication(tmp_mult,
+                                       buffers_.gpu_postprocess_frame,
+                                       mask_vesselness_clean_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+                vesselness_mask_env_.vascular_pulse_video_cb_->add_new_frame(tmp_mult);
+                cudaXFree(tmp_mult);
+
+                vesselness_mask_env_.vascular_pulse_video_cb_->compute_mean_video(13893);
+                print_in_file_gpu(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
+                                  vesselness_mask_env_.time_window_,
+                                  1,
+                                  "vascular_pulse",
+                                  stream_);
                 // TODO: change hard coded values from maskvesselnessclean
                 // La fonction sert a rien car on importe le csv de R_VascularPulse
                 // Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
                 // Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
-                //
                 // compute_first_correlation(buffers_.gpu_postprocess_frame,
                 //                           vesselness_mask_env_.image_centered_,
-                //                           vascular_pulse_csv_,
-                //                           11862,
-                //                           506,
+                //                           vesselness_mask_env.vascular_pulse_video_cb_->get_mean_video(),
+                //                           vesselness_mask_env.time_window_,
                 //                           buffers_.gpu_postprocess_frame_size,
                 //                           stream_);
                 // this part may be deleted as it is never used for the rest of the code
@@ -519,10 +555,10 @@ void Analysis::insert_barycentres()
                 //                                CRV_index);
 
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            mask_vesselness_csv_,
+                            mask_vesselness_clean,
                             buffers_.gpu_postprocess_frame_size * sizeof(float),
                             cudaMemcpyDeviceToDevice);
-                cudaXFree(circle_mask);
+                cudaXFree(mask_vesselness_clean);
             });
     }
 }

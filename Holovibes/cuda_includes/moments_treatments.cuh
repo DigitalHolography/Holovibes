@@ -16,5 +16,8 @@ void subtract_frame_from_sum(const float* const new_frame,
 
 void compute_mean(float* output, float* input, const size_t time_window, const size_t frame_size, cudaStream_t stream);
 
+void compute_mean_1_2(
+    float* const output, const float* const input, const size_t frame_size, const size_t frame_nb, cudaStream_t stream);
+
 void image_centering(
     float* output, const float* m0_img, const float* m0_video, const uint frame_size, const cudaStream_t stream);
