@@ -313,7 +313,8 @@ void Pipe::refresh()
     analysis_->insert_otsu();
     analysis_->insert_barycentres();
     analysis_->insert_bwareafilt();
-  
+    analysis_->insert_bwareaopen();
+
     insert_filter2d_view();
 
     // Postprocessing'
@@ -363,13 +364,11 @@ void Pipe::refresh()
 
 void Pipe::insert_wait_frames()
 {
-    fn_compute_vect_.push_back(
-        [&input_queue_ = input_queue_]()
-        {
-            // Wait while the input queue is enough filled
-            while (input_queue_.is_empty())
-                continue;
-        });
+    fn_compute_vect_.push_back([&input_queue_ = input_queue_]() {
+        // Wait while the input queue is enough filled
+        while (input_queue_.is_empty())
+            continue;
+    });
 }
 
 void Pipe::insert_moments()
@@ -397,26 +396,20 @@ void Pipe::insert_reset_batch_index()
 
 void Pipe::insert_transfer_for_time_transformation()
 {
-    fn_compute_vect_.push_back(
-        [this]()
-        {
-            time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
-                buffers_.gpu_spatial_transformation_buffer.get(),
-                setting<settings::BatchSize>(),
-                stream_);
-        });
+    fn_compute_vect_.push_back([this]() {
+        time_transformation_env_.gpu_time_transformation_queue->enqueue_multiple(
+            buffers_.gpu_spatial_transformation_buffer.get(),
+            setting<settings::BatchSize>(),
+            stream_);
+    });
 }
 
 void Pipe::update_batch_index()
 {
-    fn_compute_vect_.push_back(
-        [this]()
-        {
-            batch_env_.batch_index += setting<settings::BatchSize>();
-            CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
-                  "batch_index = {}",
-                  batch_env_.batch_index);
-        });
+    fn_compute_vect_.push_back([this]() {
+        batch_env_.batch_index += setting<settings::BatchSize>();
+        CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(), "batch_index = {}", batch_env_.batch_index);
+    });
 }
 
 void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const std::string& error)
@@ -427,78 +420,72 @@ void Pipe::safe_enqueue_output(Queue& output_queue, unsigned short* frame, const
 
 void Pipe::insert_dequeue_input()
 {
-    fn_compute_vect_.push_back(
-        [this]()
-        {
-            (*processed_output_fps_) += setting<settings::BatchSize>();
+    fn_compute_vect_.push_back([this]() {
+        (*processed_output_fps_) += setting<settings::BatchSize>();
 
-            // FIXME: It seems this enqueue is useless because the RawWindow use
-            // the gpu input queue for display
-            /* safe_enqueue_output(
-            **    gpu_output_queue_,
-            **    static_cast<unsigned short*>(input_queue_.get_start()),
-            **    "Can't enqueue the input frame in gpu_output_queue");
-            */
+        // FIXME: It seems this enqueue is useless because the RawWindow use
+        // the gpu input queue for display
+        /* safe_enqueue_output(
+        **    gpu_output_queue_,
+        **    static_cast<unsigned short*>(input_queue_.get_start()),
+        **    "Can't enqueue the input frame in gpu_output_queue");
+        */
 
-            // Dequeue a batch
-            input_queue_.dequeue();
-        });
+        // Dequeue a batch
+        input_queue_.dequeue();
+    });
 }
 
 void Pipe::insert_output_enqueue_hologram_mode()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
-        [this]()
+    fn_compute_vect_.conditional_push_back([this]() {
+        (*processed_output_fps_)++;
+
+        safe_enqueue_output(gpu_output_queue_,
+                            buffers_.gpu_output_frame.get(),
+                            "Can't enqueue the output frame in gpu_output_queue");
+
+        // Always enqueue the cuts if enabled
+        if (api::get_cuts_view_enabled())
         {
-            (*processed_output_fps_)++;
+            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
+                                buffers_.gpu_output_frame_xz.get(),
+                                "Can't enqueue the output xz frame in output xz queue");
 
-            safe_enqueue_output(gpu_output_queue_,
-                                buffers_.gpu_output_frame.get(),
-                                "Can't enqueue the output frame in gpu_output_queue");
+            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
+                                buffers_.gpu_output_frame_yz.get(),
+                                "Can't enqueue the output yz frame in output yz queue");
+        }
 
-            // Always enqueue the cuts if enabled
-            if (api::get_cuts_view_enabled())
-            {
-                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
-                                    buffers_.gpu_output_frame_xz.get(),
-                                    "Can't enqueue the output xz frame in output xz queue");
-
-                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
-                                    buffers_.gpu_output_frame_yz.get(),
-                                    "Can't enqueue the output yz frame in output yz queue");
-            }
-
-            if (api::get_filter2d_view_enabled())
-            {
-                safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
-                                    buffers_.gpu_filter2d_frame.get(),
-                                    "Can't enqueue the output frame in "
-                                    "gpu_filter2d_view_queue");
-            }
-        });
+        if (api::get_filter2d_view_enabled())
+        {
+            safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
+                                buffers_.gpu_filter2d_frame.get(),
+                                "Can't enqueue the output frame in "
+                                "gpu_filter2d_view_queue");
+        }
+    });
 }
 
 void Pipe::insert_filter2d_view()
 {
     if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
     {
-        fn_compute_vect_.conditional_push_back(
-            [this]()
-            {
-                int width = gpu_output_queue_.get_fd().width;
-                int height = gpu_output_queue_.get_fd().height;
+        fn_compute_vect_.conditional_push_back([this]() {
+            int width = gpu_output_queue_.get_fd().width;
+            int height = gpu_output_queue_.get_fd().height;
 
-                shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
+            shift_corners(buffers_.gpu_complex_filter2d_frame.get(), 1, width, height, stream_);
 
-                complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
-                                   buffers_.gpu_complex_filter2d_frame.get(),
-                                   0,
-                                   0,
-                                   buffers_.gpu_postprocess_frame_size,
-                                   stream_);
-            });
+            complex_to_modulus(buffers_.gpu_float_filter2d_frame.get(),
+                               buffers_.gpu_complex_filter2d_frame.get(),
+                               0,
+                               0,
+                               buffers_.gpu_postprocess_frame_size,
+                               stream_);
+        });
     }
 }
 
@@ -510,20 +497,17 @@ void Pipe::insert_raw_view()
     // FIXME: Copy multiple copies a batch of frames
     // The view use get last image which will always the
     // last image of the batch.
-    fn_compute_vect_.push_back(
-        [this]()
-        {
-            // Copy a batch of frame from the input queue to the raw view
-            // queue
-            cudaMemcpyKind memcpy_kind;
-            if (setting<settings::InputQueueLocation>() == Device::GPU)
-                memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>();
-            else
-                memcpy_kind =
-                    get_memcpy_kind<settings::RawViewQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyHostToHost);
+    fn_compute_vect_.push_back([this]() {
+        // Copy a batch of frame from the input queue to the raw view
+        // queue
+        cudaMemcpyKind memcpy_kind;
+        if (setting<settings::InputQueueLocation>() == Device::GPU)
+            memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>();
+        else
+            memcpy_kind = get_memcpy_kind<settings::RawViewQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyHostToHost);
 
-            input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
-        });
+        input_queue_.copy_multiple(*get_raw_view_queue(), memcpy_kind);
+    });
 }
 
 void Pipe::insert_raw_record()
@@ -540,27 +524,25 @@ void Pipe::insert_raw_record()
         // if (Holovibes::instance().is_cli)
         fn_compute_vect_.push_back([&]() { keep_contiguous(setting<settings::BatchSize>()); });
 
-        fn_compute_vect_.push_back(
-            [&]()
+        fn_compute_vect_.push_back([&]() {
+            // If the number of frames to record is reached, stop
+            if (setting<settings::RecordFrameCount>() != std::nullopt &&
+                inserted >= setting<settings::RecordFrameCount>().value())
             {
-                // If the number of frames to record is reached, stop
-                if (setting<settings::RecordFrameCount>() != std::nullopt &&
-                    inserted >= setting<settings::RecordFrameCount>().value())
-                {
-                    NotifierManager::notify<bool>("acquisition_finished", true);
-                    return;
-                }
-                cudaMemcpyKind memcpy_kind;
-                if (setting<settings::InputQueueLocation>() == Device::GPU)
-                    memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
-                else
-                    memcpy_kind =
-                        get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
+                NotifierManager::notify<bool>("acquisition_finished", true);
+                return;
+            }
+            cudaMemcpyKind memcpy_kind;
+            if (setting<settings::InputQueueLocation>() == Device::GPU)
+                memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
+            else
+                memcpy_kind =
+                    get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
-                input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
+            input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
-                inserted += setting<settings::BatchSize>();
-            });
+            inserted += setting<settings::BatchSize>();
+        });
     }
 }
 
@@ -571,16 +553,14 @@ void Pipe::insert_moments_record()
         // if (Holovibes::instance().is_cli)
         fn_compute_vect_.push_back([&]() { keep_contiguous(3); });
 
-        fn_compute_vect_.conditional_push_back(
-            [&]()
-            {
-                auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
-                                                                                    : cudaMemcpyDeviceToHost;
+        fn_compute_vect_.conditional_push_back([&]() {
+            auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
+                                                                                : cudaMemcpyDeviceToHost;
 
-                record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
-                record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
-                record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
-            });
+            record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
+            record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
+            record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+        });
     }
 }
 
@@ -591,18 +571,16 @@ void Pipe::insert_hologram_record()
         // if (Holovibes::instance().is_cli)
         fn_compute_vect_.push_back([this]() { keep_contiguous(1); });
 
-        fn_compute_vect_.conditional_push_back(
-            [this]()
-            {
-                if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
-                    record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
-                                                     stream_,
-                                                     get_memcpy_kind<settings::RecordQueueLocation>());
-                else
-                    record_queue_.enqueue(buffers_.gpu_output_frame.get(),
-                                          stream_,
-                                          get_memcpy_kind<settings::RecordQueueLocation>());
-            });
+        fn_compute_vect_.conditional_push_back([this]() {
+            if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode
+                record_queue_.enqueue_from_48bit(buffers_.gpu_output_frame.get(),
+                                                 stream_,
+                                                 get_memcpy_kind<settings::RecordQueueLocation>());
+            else
+                record_queue_.enqueue(buffers_.gpu_output_frame.get(),
+                                      stream_,
+                                      get_memcpy_kind<settings::RecordQueueLocation>());
+        });
     }
 }
 
@@ -618,9 +596,9 @@ void Pipe::insert_cuts_record()
 
     if (buffer != nullptr)
     {
-        fn_compute_vect_.push_back(
-            [this, &buffer = buffer]()
-            { record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>()); });
+        fn_compute_vect_.push_back([this, &buffer = buffer]() {
+            record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>());
+        });
     }
 }
 

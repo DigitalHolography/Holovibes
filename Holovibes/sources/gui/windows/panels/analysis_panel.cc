@@ -62,6 +62,10 @@ void AnalysisPanel::on_notify()
     // Min mask Area
     ui_->MinMaskAreaSpinBox->setValue(api::get_min_mask_area());
     ui_->MinMaskAreaSlider->setValue(api::get_min_mask_area());
+
+    // BW area
+    ui_->BwAreaFilterCheckbox->setChecked(api::get_bwareafilt_enabled());
+    ui_->BwAreaOpenCheckbox->setChecked(api::get_bwareaopen_enabled());
 }
 
 void AnalysisPanel::set_vein_mask(bool enabled) { api::set_vein_mask_enabled(enabled); }
@@ -117,7 +121,19 @@ void AnalysisPanel::set_otsu_window_size(int value) { api::set_otsu_window_size(
 
 void AnalysisPanel::set_otsu_local_threshold(double value) { api::set_otsu_local_threshold((float)value); }
 
-void AnalysisPanel::set_bw_area_filter(bool enabled) { api::set_bwareafilt_enabled(enabled); }
+void AnalysisPanel::set_bw_area_filter(bool enabled)
+{
+    api::set_bwareaopen_enabled(false);
+    api::set_bwareafilt_enabled(enabled);
 
-void AnalysisPanel::set_bw_area_open(bool enabled) { api::set_bwareaopen_enabled(enabled); }
+    this->on_notify(); // Only analysis panel because this only changes the analysis panel
+}
+
+void AnalysisPanel::set_bw_area_open(bool enabled)
+{
+    api::set_bwareafilt_enabled(false);
+    api::set_bwareaopen_enabled(enabled);
+
+    this->on_notify(); // Same thing here
+}
 } // namespace holovibes::gui
