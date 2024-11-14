@@ -127,7 +127,8 @@
     holovibes::settings::OtsuWindowSize,                         \
     holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::MinMaskArea,                            \
-    holovibes::settings::BwareafiltEnabled
+    holovibes::settings::BwareafiltEnabled,                      \
+    holovibes::settings::BwareaopenEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -281,7 +282,8 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(
+        CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *
@@ -465,7 +467,8 @@ class Holovibes
                                              settings::OtsuWindowSize{15},
                                              settings::OtsuLocalThreshold{0.15f},
                                              settings::MinMaskArea{10},
-                                             settings::BwareafiltEnabled{false}))
+                                             settings::BwareafiltEnabled{false},
+                                             settings::BwareaopenEnabled{false}))
     {
     }
 
