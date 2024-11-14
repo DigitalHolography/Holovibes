@@ -119,6 +119,9 @@ class Analysis
     /*! \brief Insert bw area filter compution (keep the biggest connected component from binarised image) */
     void insert_bwareafilt();
 
+    /*! \brief Insert bw area open compution (keep connected component bigger than a parameter from binarised image) */
+    void insert_bwareaopen();
+
     template <typename T>
     inline void update_setting(T setting)
     {
