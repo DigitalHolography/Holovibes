@@ -256,8 +256,7 @@ void ViewPanel::update_3d_cuts_view(bool checked)
 {
     if (api::set_3d_cuts_view(checked))
     {
-        const ushort nImg = std::min(api::get_time_transformation_size(), time_transformation_cuts_window_max_size);
-        gui::set_3d_cuts_view(checked, 0);
+        gui::set_3d_cuts_view(checked, time_transformation_cuts_window_max_size);
         parent_->notify(); // Make the x and y parameters visible
     }
 }
@@ -371,8 +370,10 @@ void ViewPanel::display_reticle(bool value)
 void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
 
 void ViewPanel::update_registration_zone(double value)
-{ 
+{
     api::update_registration_zone(value);
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
+
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
 }
 } // namespace holovibes::gui

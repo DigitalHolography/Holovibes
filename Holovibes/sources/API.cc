@@ -353,12 +353,12 @@ void update_time_stride(const uint time_stride)
     get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
-bool set_3d_cuts_view(bool checked)
+bool set_3d_cuts_view(bool enabled)
 {
     if (api::get_import_type() == ImportType::None)
         return false;
 
-    if (checked)
+    if (enabled)
     {
         try
         {
@@ -429,13 +429,13 @@ void set_filter2d(bool checked)
     set_auto_contrast_all();
 }
 
-void set_filter2d_view(bool checked)
+void set_filter2d_view(bool enabled)
 {
     if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
-    if (checked)
+    if (enabled)
     {
         pipe->request(ICS::Filter2DView);
         while (pipe->is_requested(ICS::Filter2DView))
@@ -472,14 +472,14 @@ void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled,
 
 void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
 
-void set_lens_view(bool checked)
+void set_lens_view(bool enabled)
 {
     if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
 
-    set_lens_view_enabled(checked);
+    set_lens_view_enabled(enabled);
 
-    if (!checked)
+    if (!enabled)
     {
         auto pipe = get_compute_pipe();
         pipe->request(ICS::DisableLensView);
@@ -488,21 +488,21 @@ void set_lens_view(bool checked)
     }
 }
 
-void set_raw_view(bool checked)
+void set_raw_view(bool enabled)
 {
     if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
         return;
 
-    if (checked && get_batch_size() > get_output_buffer_size())
+    if (enabled && get_batch_size() > get_output_buffer_size())
     {
         LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
         return;
     }
 
     auto pipe = get_compute_pipe();
-    set_raw_view_enabled(checked);
+    set_raw_view_enabled(enabled);
 
-    auto request = checked ? ICS::RawView : ICS::DisableRawView;
+    auto request = enabled ? ICS::RawView : ICS::DisableRawView;
 
     pipe->request(request);
     while (pipe->is_requested(request))
@@ -1402,15 +1402,15 @@ void update_registration_zone(float value)
 
 #pragma region Chart
 
-void set_chart_display(bool checked)
+void set_chart_display(bool enabled)
 {
-    if (get_chart_display_enabled() == checked)
+    if (get_chart_display_enabled() == enabled)
         return;
 
     try
     {
         auto pipe = get_compute_pipe();
-        auto request = checked ? ICS::ChartDisplay : ICS::DisableChartDisplay;
+        auto request = enabled ? ICS::ChartDisplay : ICS::DisableChartDisplay;
 
         pipe->request(request);
         while (pipe->is_requested(request))

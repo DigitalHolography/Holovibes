@@ -36,37 +36,37 @@ void record_finished(); // Record finished UID
 
 /*! \brief Open or close the filter2D view
  *
- * \param checked true: open, false: close
- * \param auxiliary_window_max_size the maximum size of the window
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
  */
-void set_filter2d_view(bool checked, uint auxiliary_window_max_size);
+void set_filter2d_view(bool enabled, uint auxiliary_window_max_size);
 
 /*! \brief Open or close the lens view
  *
- * \param checked true: open, false: close
- * \param auxiliary_window_max_size the maximum size of the window
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
  */
-void set_lens_view(bool checked, uint auxiliary_window_max_size);
+void set_lens_view(bool enabled, uint auxiliary_window_max_size);
 
 /*! \brief Open or close the raw view
  *
- * \param checked true: open, false: close
- * \param auxiliary_window_max_size the maximum size of the window
+ * \param[in] enabled true: open, false: close
+ * \param[in] auxiliary_window_max_size the maximum size of the window
  */
-void set_raw_view(bool checked, uint auxiliary_window_max_size);
+void set_raw_view(bool enabled, uint auxiliary_window_max_size);
 
 /*! \brief Open or close the plot window for the chart display
  *
- * \param checked true: enable, false: disable
+ * \param[in] enabled true: enable, false: disable
  */
-void set_chart_display(bool checked);
+void set_chart_display(bool enabled);
 
 /*! \brief Open or close the 3D cuts view
  *
- * \param checked true: open, false: close
- * \param window_size the size of the slice window
+ * \param[in] enabled true: open, false: close
+ * \param[in] window_size the size of the slice window
  */
-void set_3d_cuts_view(bool checked, uint window_size);
+void set_3d_cuts_view(bool enabled, uint max_window_size);
 
 /*! \brief Make the ui composite overlay visible */
 void set_composite_area();
@@ -79,15 +79,15 @@ void active_signal_zone();
 
 /*! \brief Opens additional settings window
  *
- * \param parent then window that will embed the specific panel
- * \param callback the function to call when the advanced settings are closed on clicking on the save button
+ * \param[in] parent then window that will embed the specific panel
+ * \param[in] callback the function to call when the advanced settings are closed on clicking on the save button
  */
 void open_advanced_settings(
     QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
 
 /*! \brief Gets the destination of the output file
  *
- * \param std_filepath the output filepath.
+ * \param[in] std_filepath the output filepath.
  * \return const std::string the extension of the output file
  */
 const std::string browse_record_output_file(std::string& std_filepath);

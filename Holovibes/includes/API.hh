@@ -770,15 +770,15 @@ void record_finished();
 
 /*! \brief Start or stop the chart display
  *
- * \param checked true: enable, false: disable
+ * \param[in] enabled true: enable, false: disable
  */
-void set_chart_display(bool checked);
+void set_chart_display(bool enabled);
 
 /*! \brief Adds or removes lens view.
  *
- * \param checked true: enable, false: disable
+ * \param[in] enabled true: enable, false: disable
  */
-void set_lens_view(bool checked);
+void set_lens_view(bool enabled);
 
 void set_chart_display_enabled(bool value);
 
@@ -786,9 +786,9 @@ void set_filter2d_view_enabled(bool value);
 
 /*! \brief Adds or removes raw view
 
- * \param checked true: enable, false: disable
+ * \param[in] enabled true: enable, false: disable
  */
-void set_raw_view(bool checked);
+void set_raw_view(bool enabled);
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -807,9 +807,9 @@ void set_filter2d(bool checked);
 
 /*! \brief Adds filter2d view
  *
- * \param check true: enable, false: disable
+ * \param[in] enabled true: enable, false: disable
  */
-void set_filter2d_view(bool check);
+void set_filter2d_view(bool enabled);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
@@ -819,10 +819,10 @@ void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
- * \return true on success
- * \return false on failure
+ * \param enabled true: enable, false: disable
+ * \return true if correctlly set
  */
-bool set_3d_cuts_view(bool checked);
+bool set_3d_cuts_view(bool enabled);
 
 /*! \brief Modifies time transformation stride size from ui value
  *

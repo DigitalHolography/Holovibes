@@ -10,9 +10,9 @@
 namespace holovibes::gui
 {
 
-void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
+void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
 {
-    if (checked)
+    if (enabled)
     {
         const camera::FrameDescriptor& fd = api::get_fd();
         ushort filter2d_window_width = fd.width;
@@ -32,9 +32,9 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UI.filter2d_window.reset(nullptr);
 }
 
-void set_lens_view(bool checked, uint auxiliary_window_max_size)
+void set_lens_view(bool enabled, uint auxiliary_window_max_size)
 {
-    if (checked)
+    if (enabled)
     {
         // set positions of new windows according to the position of the
         // main GL window
@@ -57,9 +57,9 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
         UI.lens_window.reset(nullptr);
 }
 
-void set_raw_view(bool checked, uint auxiliary_window_max_size)
+void set_raw_view(bool enabled, uint auxiliary_window_max_size)
 {
-    if (checked)
+    if (enabled)
     {
         const ::camera::FrameDescriptor& fd = api::get_fd();
         ushort raw_window_width = fd.width;
@@ -79,9 +79,9 @@ void set_raw_view(bool checked, uint auxiliary_window_max_size)
         UI.raw_window.reset(nullptr);
 }
 
-void set_chart_display(bool checked)
+void set_chart_display(bool enabled)
 {
-    if (checked)
+    if (enabled)
     {
         UI.plot_window_.reset(new gui::PlotWindow(*api::get_compute_pipe()->get_chart_display_queue().get(),
                                                   UI.auto_scale_point_threshold_,
@@ -91,11 +91,11 @@ void set_chart_display(bool checked)
         UI.plot_window_.reset(nullptr);
 }
 
-void set_3d_cuts_view(bool checked, uint window_size)
+void set_3d_cuts_view(bool enabled, uint max_window_size)
 {
-    if (checked)
+    if (enabled)
     {
-        window_size = std::max(256u, std::min(512u, window_size));
+        const uint window_size = std::max(256u, std::min(max_window_size, api::get_time_transformation_size()));
 
         // set positions of new windows according to the position of the
         // main GL window
