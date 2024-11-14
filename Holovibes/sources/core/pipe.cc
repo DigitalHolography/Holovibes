@@ -467,30 +467,30 @@ void Pipe::insert_output_enqueue_hologram_mode()
         {
             (*processed_output_fps_)++;
 
-        safe_enqueue_output(gpu_output_queue_,
-                            buffers_.gpu_output_frame.get(),
-                            "Can't enqueue the output frame in gpu_output_queue");
+            safe_enqueue_output(gpu_output_queue_,
+                                buffers_.gpu_output_frame.get(),
+                                "Can't enqueue the output frame in gpu_output_queue");
 
-        // Always enqueue the cuts if enabled
-        if (api::get_cuts_view_enabled())
-        {
-            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
-                                buffers_.gpu_output_frame_xz.get(),
-                                "Can't enqueue the output xz frame in output xz queue");
+            // Always enqueue the cuts if enabled
+            if (api::get_cuts_view_enabled())
+            {
+                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
+                                    buffers_.gpu_output_frame_xz.get(),
+                                    "Can't enqueue the output xz frame in output xz queue");
 
-            safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
-                                buffers_.gpu_output_frame_yz.get(),
-                                "Can't enqueue the output yz frame in output yz queue");
-        }
+                safe_enqueue_output(*time_transformation_env_.gpu_output_queue_yz.get(),
+                                    buffers_.gpu_output_frame_yz.get(),
+                                    "Can't enqueue the output yz frame in output yz queue");
+            }
 
-        if (api::get_filter2d_view_enabled())
-        {
-            safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
-                                buffers_.gpu_filter2d_frame.get(),
-                                "Can't enqueue the output frame in "
-                                "gpu_filter2d_view_queue");
-        }
-    });
+            if (api::get_filter2d_view_enabled())
+            {
+                safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
+                                    buffers_.gpu_filter2d_frame.get(),
+                                    "Can't enqueue the output frame in "
+                                    "gpu_filter2d_view_queue");
+            }
+        });
 }
 
 void Pipe::insert_filter2d_view()
@@ -556,20 +556,24 @@ void Pipe::insert_raw_record()
         fn_compute_vect_->push_back(
             [&]()
             {
-                NotifierManager::notify<bool>("acquisition_finished", true);
-                return;
-            }
-            cudaMemcpyKind memcpy_kind;
-            if (setting<settings::InputQueueLocation>() == Device::GPU)
-                memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
-            else
-                memcpy_kind =
-                    get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
+                // If the number of frames to record is reached, stop
+                if (setting<settings::RecordFrameCount>() != std::nullopt &&
+                    inserted >= setting<settings::RecordFrameCount>().value())
+                {
+                    NotifierManager::notify<bool>("acquisition_finished", true);
+                    return;
+                }
+                cudaMemcpyKind memcpy_kind;
+                if (setting<settings::InputQueueLocation>() == Device::GPU)
+                    memcpy_kind = get_memcpy_kind<settings::RecordQueueLocation>();
+                else
+                    memcpy_kind =
+                        get_memcpy_kind<settings::RecordQueueLocation>(cudaMemcpyHostToDevice, cudaMemcpyDeviceToHost);
 
-            input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
+                input_queue_.copy_multiple(record_queue_, setting<settings::BatchSize>(), memcpy_kind);
 
-            inserted += setting<settings::BatchSize>();
-        });
+                inserted += setting<settings::BatchSize>();
+            });
     }
 }
 
@@ -586,10 +590,10 @@ void Pipe::insert_moments_record()
                 auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
                                                                                     : cudaMemcpyDeviceToHost;
 
-            record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
-            record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
-        });
+                record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
+                record_queue_.enqueue(moments_env_.moment1_buffer, stream_, kind);
+                record_queue_.enqueue(moments_env_.moment2_buffer, stream_, kind);
+            });
     }
 }
 

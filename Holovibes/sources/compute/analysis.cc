@@ -595,7 +595,7 @@ void Analysis::insert_bwareaopen()
 {
     LOG_FUNC();
 
-    fn_compute_vect_.conditional_push_back(
+    fn_compute_vect_->conditional_push_back(
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
