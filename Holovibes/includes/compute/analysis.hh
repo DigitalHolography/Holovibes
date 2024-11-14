@@ -100,7 +100,7 @@ class Analysis
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/R_VascularPulse.csv");
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/R_VascularPulse.csv");
         R_VascularPulse_csv_.resize(frame_res);
         cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
