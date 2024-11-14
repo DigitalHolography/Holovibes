@@ -221,24 +221,6 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-void ICompute::request_autocontrast()
-{
-    if (setting<settings::XY>().contrast.enabled && setting<settings::XY>().contrast.auto_refresh)
-        set_requested(ICS::Autocontrast, true);
-
-    if (setting<settings::XZ>().contrast.enabled && setting<settings::XZ>().contrast.auto_refresh &&
-        setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceXZ, true);
-
-    if (setting<settings::YZ>().contrast.enabled && setting<settings::YZ>().contrast.auto_refresh &&
-        setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceYZ, true);
-
-    if (setting<settings::Filter2d>().contrast.enabled && setting<settings::Filter2d>().contrast.auto_refresh &&
-        setting<settings::Filter2dEnabled>())
-        set_requested(ICS::AutocontrastFilter2D, true);
-}
-
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)
 {
     chart_record_requested_ = nb_chart_points_to_record;

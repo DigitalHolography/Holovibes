@@ -101,10 +101,7 @@ class Rendering
     /*! \brief insert the functions relative to the log10. */
     void insert_log();
     /*! \brief insert the functions relative to the contrast. */
-    void insert_contrast(std::atomic<bool>& autocontrast_request,
-                         std::atomic<bool>& autocontrast_slice_xz_request,
-                         std::atomic<bool>& autocontrast_slice_yz_request,
-                         std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_contrast();
 
     template <typename T>
     inline void update_setting(T setting)
@@ -131,10 +128,10 @@ class Rendering
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */
-    void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                     std::atomic<bool>& autocontrast_slice_xz_request,
-                                     std::atomic<bool>& autocontrast_slice_yz_request,
-                                     std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_compute_autocontrast();
+
+    /*! \brief Check whether autocontrast should be applied or not for each view */
+    void request_autocontrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
@@ -180,6 +177,11 @@ class Rendering
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+
+    bool autocontrast_xy_ = false;
+    bool autocontrast_xz_ = false;
+    bool autocontrast_yz_ = false;
+    bool autocontrast_filter2d_ = false;
 };
 } // namespace holovibes::compute
 
