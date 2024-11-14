@@ -15,6 +15,9 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
+#define RED_COLORATION_RATIO 0.8
+#define ORANGE_COLORATION_RATIO 0.3
+
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
     {IndicationType::INPUT_FORMAT, "Input Format"},
@@ -201,6 +204,18 @@ int get_gpu_load(nvmlUtilization_t* gpuLoad)
     return nvmlShutdown();
 }
 
+const std::string get_load_color(float load, float max_load)
+{
+    const float ratio = (load / max_load);
+    if (ratio < ORANGE_COLORATION_RATIO)
+        return "white";
+    if (ratio < RED_COLORATION_RATIO)
+        return "orange";
+    return "red";
+}
+
+const std::string get_percentage_color(float percentage) { return get_load_color(percentage, 100); }
+
 std::string gpu_load()
 {
     nvmlUtilization_t gpuLoad;
@@ -215,14 +230,7 @@ std::string gpu_load()
 
     // Print GPU load
     auto load = gpuLoad.gpu;
-    ss << "<td style=\"color:";
-    if (load < 80)
-        ss << "white";
-    else if (load < 90)
-        ss << "orange";
-    else
-        ss << "red";
-    ss << ";\">" << load << "%</td>";
+    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
 }
@@ -249,16 +257,9 @@ std::string gpu_memory_controller_load()
         return ss.str();
     }
 
-    // Print GPU load
+    // Print GPU memory load
     auto load = gpuLoad.memory;
-    ss << "<td style=\"color:";
-    if (load < 80)
-        ss << "white";
-    else if (load < 90)
-        ss << "orange";
-    else
-        ss << "red";
-    ss << ";\">" << load << "%</td>";
+    ss << "<td style=\"color:" << get_percentage_color(load) << ";\">" << load << "%</td>";
 
     return ss.str();
 }
@@ -279,16 +280,9 @@ std::string gpu_memory()
     ss << "<td>VRAM</td>";
     size_t free, total;
     cudaMemGetInfo(&free, &total);
-    // if free < 0.1 * total then red
-    ss << "<td style=\"color:";
-    if (free < 0.1 * total)
-        ss << "red";
-    else if (free < 0.25 * total)
-        ss << "orange";
-    else
-        ss << "white";
 
-    ss << ";\">" << engineering_notation(free, 3) << "B free/" << engineering_notation(total, 3) << "B</td>";
+    ss << "<td style=\"color:" << get_load_color(total - free, total) << ";\">" << engineering_notation(free, 3)
+       << "B free/" << engineering_notation(total, 3) << "B</td>";
 
     return ss.str();
 }
@@ -302,14 +296,15 @@ void InformationWorker::display_gui_information()
 
     to_display << "<table>";
 
-    if (fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
-    {
-        to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
-                   << "°C</td></tr>";
-    }
-
     for (auto const& [key, value] : FastUpdatesMap::map<IndicationType>)
+    {
         to_display << "<tr><td>" << indication_type_to_string_.at(key) << "</td><td>" << *value << "</td></tr>";
+        if (key == IndicationType::IMG_SOURCE && fps_map.contains(IntType::TEMPERATURE) && temperature_ != 0)
+        {
+            to_display << "<tr><td>" << fps_type_to_string_.at(IntType::TEMPERATURE) << "</td><td>" << temperature_
+                       << "°C</td></tr>";
+        }
+    }
 
     for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
     {
@@ -319,12 +314,10 @@ void InformationWorker::display_gui_information()
         auto maxLoad = std::get<1>(*value).load();
 
         to_display << "<tr style=\"color:";
-        if (queue_type_to_string_.at(key) == "Output Queue" || currentLoad < maxLoad * 0.8)
+        if (queue_type_to_string_.at(key) == "Output Queue")
             to_display << "white";
-        else if (currentLoad < maxLoad * 0.9)
-            to_display << "orange";
         else
-            to_display << "red";
+            to_display << get_load_color(currentLoad, maxLoad);
 
         to_display << ";\">";
 
