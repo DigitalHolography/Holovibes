@@ -28,6 +28,7 @@
     holovibes::settings::OtsuWindowSize,           \
     holovibes::settings::OtsuLocalThreshold,       \
     holovibes::settings::BwareafiltEnabled,        \
+    holovibes::settings::BwareaopenEnabled,        \
     holovibes::settings::ConvolutionMatrix,        \
     holovibes::settings::ImageType,                \
     holovibes::settings::TimeWindow,               \
