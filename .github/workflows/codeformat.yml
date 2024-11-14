@@ -28,12 +28,13 @@ jobs:
 
           # Find all files to check.
           FILES=$(find ./Holovibes -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
+          FAILED=0
           # Check files and list non-conform files.
           for FILE in $FILES; do
-            clang-format -style=file -assume-filename=.clang-format -output-replacements-xml $FILE | grep "<replacement " && echo "Formatting issues in $FILE" && failed=1
+            clang-format -style=file -assume-filename=.clang-format -output-replacements-xml $FILE | grep "<replacement " && echo "Formatting issues in $FILE" && FAILED=1
           done
 
-          if [ -v $failed ]; then
+          if [ $FAILED -eq 1 ]; then
             exit 1
           fi
 
