@@ -1383,17 +1383,40 @@ The range of frequencies kept is [z, z + width]</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1" colspan="2">
-            <widget class="QCheckBox" name="RegistrationCheckBox">
-             <property name="toolTip">
-              <string>Stabilize the image</string>
-             </property>
-             <property name="text">
-              <string>Registration</string>
-             </property>
-            </widget>
-           </item>
           </layout>
+         </item>
+         <item row="16" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_registration">
+               <item>
+               <widget class="QCheckBox" name="RegistrationCheckBox">
+               <property name="toolTip">
+               <string>Stabilize the image</string>
+               </property>
+               <property name="text">
+               <string>Registration</string>
+               </property>
+               </widget>
+               </item>
+               <item>
+                  <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
+                  <property name="enabled">
+                     <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                     <string>The radius of the circle to compute the Registration.</string>
+                  </property>
+                  <property name="minimum">
+                  <double>0.100000000000000</double>
+                  </property>
+                  <property name="maximum">
+                  <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                  <double>0.050000000000000</double>
+                  </property>
+                  </widget>
+               </item>
+            </layout>
          </item>
          <item row="15" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -5070,6 +5093,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
+   <sender>RegistrationZoneSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>ViewPanel</receiver>
+   <slot>update_registration_zone(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>439</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>horizontalSlider_saturation_threshold_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>CompositePanel</receiver>
@@ -6587,6 +6626,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>display_reticle(bool)</slot>
   <slot>reticle_scale(double)</slot>
+  <slot>update_registration_zone(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
   <slot>set_record_mode(QString)</slot>
   <slot>set_nb_frames_mode(bool)</slot>

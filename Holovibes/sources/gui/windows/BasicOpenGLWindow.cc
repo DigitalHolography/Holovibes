@@ -206,8 +206,6 @@ void BasicOpenGLWindow::setTransform()
     }
 }
 
-void BasicOpenGLWindow::resetSelection() { overlay_manager_.reset(); }
-
 bool BasicOpenGLWindow::eventFilter(QObject* obj, QEvent* event)
 {
     if (event->type() == QEvent::Close)

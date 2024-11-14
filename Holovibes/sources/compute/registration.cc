@@ -13,7 +13,7 @@ void Registration::insert_registration()
 
     if (setting<settings::FftShiftEnabled>() && setting<settings::RegistrationEnabled>())
     {
-        fn_compute_vect_.conditional_push_back(
+        fn_compute_vect_->conditional_push_back(
             [=]()
             {
                 // Preprocessing the current image before the cross-correlation with the reference image.
@@ -65,17 +65,31 @@ void Registration::image_preprocess(float* output, float* input, float* mean)
     apply_mask(output, gpu_circle_mask_, fd_.width * fd_.height, 1, stream_);
 }
 
-void Registration::set_gpu_reference_image(float* new_gpu_reference_image_)
+void Registration::set_gpu_reference_image()
 {
     if (setting<settings::RegistrationEnabled>())
     {
-        cudaXMemcpyAsync(gpu_reference_image_,
-                         new_gpu_reference_image_,
-                         fd_.width * fd_.height * sizeof(float),
-                         cudaMemcpyDeviceToDevice,
-                         stream_);
+        ushort func_id = fn_compute_vect_->conditional_push_back(
+            [=]
+            {
+                cudaXMemcpyAsync(gpu_reference_image_,
+                                 buffers_.gpu_postprocess_frame,
+                                 fd_.width * fd_.height * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
 
-        image_preprocess(gpu_reference_image_, gpu_reference_image_, &reference_image_mean_);
+                image_preprocess(gpu_reference_image_, gpu_reference_image_, &reference_image_mean_);
+            });
+
+        // After the `gpu_accumulation_xy_queue` buffer is full, we have a reference image on a fully accumulated image.
+        // Then we can remove this function from the `fn_compute_vect_`, since we consider having a good enough
+        // reference.
+        fn_compute_vect_->conditionnal_remove(func_id,
+                                              [this]
+                                              {
+                                                  return !image_acc_env_.gpu_accumulation_xy_queue.get() ||
+                                                         image_acc_env_.gpu_accumulation_xy_queue.get()->is_full();
+                                              });
     }
 }
 
@@ -84,7 +98,6 @@ void Registration::updade_cirular_mask()
     // Get the center and radius of the circle.
     float center_X = fd_.width / 2.0f;
     float center_Y = fd_.height / 2.0f;
-    float radius =
-        std::min(fd_.width, fd_.height) / 3.0f; // 3.0f could be change to get a different size for the circle.
+    float radius = std::min(fd_.width, fd_.height) * setting<settings::RegistrationZone>();
     get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
 }

@@ -17,7 +17,7 @@ class AviFile
     AviFile() = default;
 
     /*! \brief Abstract destructor to make class abstract */
-    virtual ~AviFile() {};
+    virtual ~AviFile(){};
 
     /*! \brief Default copy constructor */
     AviFile(const AviFile&) = default;

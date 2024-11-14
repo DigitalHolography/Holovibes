@@ -102,6 +102,8 @@ void ViewPanel::on_notify()
 
     ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
     ui_->RegistrationCheckBox->setEnabled(true);
+    ui_->RegistrationZoneSpinBox->setEnabled(api::get_registration_enabled());
+    ui_->RegistrationZoneSpinBox->setValue(api::get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
@@ -324,6 +326,12 @@ void ViewPanel::set_fft_shift(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (api::get_registration_enabled())
+    {
+        set_registration(value);
+        ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
+    }
+
     api::set_fft_shift_enabled(value);
 }
 
@@ -332,7 +340,17 @@ void ViewPanel::set_registration(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
+    if (!value)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Registration);
+
+    if (!api::get_fft_shift_enabled())
+    {
+        set_fft_shift(value);
+        ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
+    }
+
     api::set_registration_enabled(value);
+    parent_->notify();
 }
 
 void ViewPanel::set_artery_mask(bool value) { api::set_artery_mask_enabled(value); }
@@ -525,4 +543,15 @@ void ViewPanel::reticle_scale(double value)
 
     api::reticle_scale(value);
 }
+
+void ViewPanel::update_registration_zone(double value)
+{
+    if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
+        return;
+
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
+
+    api::update_registration_zone(value);
+}
+
 } // namespace holovibes::gui

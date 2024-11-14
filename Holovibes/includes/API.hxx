@@ -196,6 +196,9 @@ inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTIN
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
 
+inline float get_registration_zone() { return GET_SETTING(RegistrationZone); }
+inline void set_registration_zone(float value) { UPDATE_SETTING(RegistrationZone, value); }
+
 inline bool get_is_computation_stopped() { return GET_SETTING(IsComputationStopped); }
 inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputationStopped, value); }
 
