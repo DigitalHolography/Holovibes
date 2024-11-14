@@ -19,7 +19,7 @@ __global__ void _normalise(float* d_input, float min, float max, int size)
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < size)
-        d_input[tid] = d_input[tid] * (NUM_BINS - 1);
+        d_input[tid] = (int)(((d_input[tid] - min) / (max - min)) * NUM_BINS);
 }
 
 void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)

@@ -426,8 +426,8 @@ void Analysis::insert_show_artery()
                                   stream_);
 
                 apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
-                                     fd_.width / 2,
-                                     fd_.height / 2,
+                                     fd_.width / 2 - 1,
+                                     fd_.height / 2 - 1,
                                      DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
                                      fd_.width,
                                      fd_.height,
@@ -546,6 +546,8 @@ void Analysis::insert_otsu()
                 // sizeof(float), cudaMemcpyDeviceToHost);
 
                 normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
+
+                // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
 
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
