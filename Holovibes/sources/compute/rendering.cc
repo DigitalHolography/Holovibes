@@ -227,6 +227,27 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
+/*! \brief Tell if the contrast should be applied
+ *
+ * \param request The request for autocontrast
+ * \param queue The accumulation queue
+ * \return true if the contrast should be applied
+ */
+inline bool apply_contrast(bool request, const std::unique_ptr<Queue>& queue)
+{
+    if (!request)
+        return false;
+
+    // Apply contrast if there is no queue = accumulation set to 1
+    if (!queue)
+        return true;
+
+    // Else there are frames in the accumulutation queue. We calculate autocontrast on the first frame to calibrate the
+    // contrast and apply it one more time when the queue is full to fine tune it.
+    // It's done to reduce the blinking effect when the contrast is applied.
+    return queue->is_full() || queue->get_size() == 1;
+}
+
 void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
                                             std::atomic<bool>& autocontrast_slice_xz_request,
                                             std::atomic<bool>& autocontrast_slice_yz_request,
@@ -242,20 +263,18 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (autocontrast_request && image_acc_env_.gpu_accumulation_xy_queue &&
-            image_acc_env_.gpu_accumulation_xy_queue->is_full())
+        if (apply_contrast(autocontrast_request, image_acc_env_.gpu_accumulation_xy_queue))
         {
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
-            // LOG_ERROR("Contrast computed");
-            // LOG_ERROR("Contrast computed zzzz");
 
-            autocontrast_request = false;
+            // Disable autocontrast if the queue is full or if there is no accumulation
+            if (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full())
+                autocontrast_request = false;
         }
 
-        if (autocontrast_slice_xz_request && image_acc_env_.gpu_accumulation_xz_queue &&
-            image_acc_env_.gpu_accumulation_xz_queue->is_full())
+        if (apply_contrast(autocontrast_slice_xz_request, image_acc_env_.gpu_accumulation_xz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
@@ -263,12 +282,12 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::XZview);
 
-            // LOG_ERROR("Contrast XZ computed");
-            autocontrast_slice_xz_request = false;
+            // Disable autocontrast if the queue is full or if there is no accumulation
+            if (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full())
+                autocontrast_slice_xz_request = false;
         }
 
-        if (autocontrast_slice_yz_request && image_acc_env_.gpu_accumulation_yz_queue &&
-            image_acc_env_.gpu_accumulation_yz_queue->is_full())
+        if (apply_contrast(autocontrast_slice_yz_request, image_acc_env_.gpu_accumulation_yz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),
@@ -276,9 +295,9 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::YZview);
 
-            // LOG_ERROR("Contrast YZ computed");
-
-            autocontrast_slice_yz_request = false;
+            // Disable autocontrast if the queue is full or if there is no accumulation
+            if (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full())
+                autocontrast_slice_yz_request = false;
         }
 
         if (autocontrast_filter2d_request)
@@ -288,8 +307,6 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 fd_.height,
                                 0,
                                 WindowKind::Filter2D);
-
-            // LOG_ERROR("Contrast Filter2D computed");
 
             autocontrast_filter2d_request = false;
         }
