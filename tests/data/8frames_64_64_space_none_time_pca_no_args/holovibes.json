@@ -97,8 +97,7 @@
             "width": 0,
             "start": 0
         },
-        "image_type": "MODULUS",
-        "registration": false
+        "image_type": "MODULUS"
     },
     "color_composite_image": {
         "hsv": {

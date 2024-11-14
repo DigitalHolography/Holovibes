@@ -187,7 +187,6 @@
         "z2": {
             "start": 0,
             "width": 0
-        },
-        "registration": false
+        }
     }
 }

@@ -50,7 +50,7 @@ def process_directory(
 # Example usage:
 directory_path = "."  # Change this to the directory where your JSON files are located
 new_key_values = {
-    ("view", "registration"): False,
+    ("view", "registration"): None,
 }
 
 holo_header_version = 3
