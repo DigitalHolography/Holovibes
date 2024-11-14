@@ -236,9 +236,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
     // Recording progress (used by the progress bar)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
-    // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !holovibes::api::get_xy_contrast_auto_refresh();
-
     while (holovibes::api::get_frame_record_enabled())
     {
         if (holovibes::FastUpdatesMap::map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -250,16 +247,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
             {
                 // Change the speed of the progress bar according to the nb of frames skip
                 progress_bar(progress->first, progress->second, 40);
-
-                // Very dirty hack
-                // Request auto contrast once we have accumualated enough images
-                // Otherwise the autocontrast is computed at the beginning and we
-                // end up with black images ...
-                if (progress->first >= holovibes::api::get_xy_accumulation_level() && !requested_autocontrast)
-                {
-                    holovibes.get_compute_pipe()->request_autocontrast();
-                    requested_autocontrast = true;
-                }
             }
         }
         // Don't make the current thread loop too fast
