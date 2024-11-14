@@ -221,18 +221,21 @@ void ICompute::dispose_cuts()
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
 }
 
-void ICompute::request_autocontrast(WindowKind kind)
+void ICompute::request_autocontrast()
 {
-    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
+    if (setting<settings::XY>().contrast.enabled && setting<settings::XY>().contrast.auto_refresh)
         set_requested(ICS::Autocontrast, true);
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
+
+    if (setting<settings::XZ>().contrast.enabled && setting<settings::XZ>().contrast.auto_refresh &&
+        setting<settings::CutsViewEnabled>())
         set_requested(ICS::AutocontrastSliceXZ, true);
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
+
+    if (setting<settings::YZ>().contrast.enabled && setting<settings::YZ>().contrast.auto_refresh &&
+        setting<settings::CutsViewEnabled>())
         set_requested(ICS::AutocontrastSliceYZ, true);
-    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
-             setting<settings::Filter2dEnabled>())
+
+    if (setting<settings::Filter2d>().contrast.enabled && setting<settings::Filter2d>().contrast.auto_refresh &&
+        setting<settings::Filter2dEnabled>())
         set_requested(ICS::AutocontrastFilter2D, true);
 }
 

@@ -161,9 +161,6 @@ bool Pipe::make_requests()
     HANDLE_REQUEST(ICS::TimeTransformationCuts, "Time transformation cuts", init_cuts());
 
     image_accumulation_->init(); // done only if requested
-
-    HANDLE_REQUEST(ICS::ClearImgAccu, "Clear image accu", image_accumulation_->clear());
-
     image_accumulation_->clear();
 
     if (is_requested(ICS::RawView))
@@ -341,7 +338,8 @@ void Pipe::refresh()
     rendering_->insert_chart();
     rendering_->insert_log();
 
-    insert_request_autocontrast();
+    // Request for autocontrast on pipe refresh
+    request_autocontrast();
     rendering_->insert_contrast(is_requested(ICS::Autocontrast),
                                 is_requested(ICS::AutocontrastSliceXZ),
                                 is_requested(ICS::AutocontrastSliceYZ),
@@ -632,12 +630,6 @@ void Pipe::insert_cuts_record()
             [this, &buffer = buffer]()
             { record_queue_.enqueue(buffer, stream_, get_memcpy_kind<settings::RecordQueueLocation>()); });
     }
-}
-
-void Pipe::insert_request_autocontrast()
-{
-    if (api::get_contrast_enabled() && api::get_contrast_auto_refresh())
-        request_autocontrast(setting<settings::CurrentWindow>());
 }
 
 void Pipe::exec()

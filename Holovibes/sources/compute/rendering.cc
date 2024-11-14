@@ -248,9 +248,12 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
             // FIXME Handle composite size, adapt width and height (frames_res =
             // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
+            // LOG_ERROR("Contrast computed");
+            // LOG_ERROR("Contrast computed zzzz");
 
             autocontrast_request = false;
         }
+
         if (autocontrast_slice_xz_request && image_acc_env_.gpu_accumulation_xz_queue &&
             image_acc_env_.gpu_accumulation_xz_queue->is_full())
         {
@@ -260,8 +263,10 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::XZview);
 
+            // LOG_ERROR("Contrast XZ computed");
             autocontrast_slice_xz_request = false;
         }
+
         if (autocontrast_slice_yz_request && image_acc_env_.gpu_accumulation_yz_queue &&
             image_acc_env_.gpu_accumulation_yz_queue->is_full())
         {
@@ -271,8 +276,11 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 static_cast<uint>(setting<settings::CutsContrastPOffset>()),
                                 WindowKind::YZview);
 
+            // LOG_ERROR("Contrast YZ computed");
+
             autocontrast_slice_yz_request = false;
         }
+
         if (autocontrast_filter2d_request)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
@@ -280,6 +288,9 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 fd_.height,
                                 0,
                                 WindowKind::Filter2D);
+
+            // LOG_ERROR("Contrast Filter2D computed");
+
             autocontrast_filter2d_request = false;
         }
     };

@@ -42,7 +42,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -215,7 +215,6 @@ class ICompute
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
@@ -257,7 +256,7 @@ class ICompute
 
     void request_refresh();
 
-    void request_autocontrast(WindowKind kind);
+    void request_autocontrast();
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
