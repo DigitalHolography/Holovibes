@@ -289,7 +289,6 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     if (setting<settings::LoadFileInGPU>())
         return;
 
-    if (setting<settings::LoadFileInGPU>() == false)
-        input_queue_.load()->sync_current_batch();
+    input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker
