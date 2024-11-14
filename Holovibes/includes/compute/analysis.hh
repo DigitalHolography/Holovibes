@@ -113,10 +113,10 @@ class Analysis
     /*! \brief Insert barycentres*/
     void insert_barycentres();
 
-    /*! \brief TODO */
+    /*! \brief Insert otsu computation (binarisation) */
     void insert_otsu();
 
-    /*! \brief TODO */
+    /*! \brief Insert bw area filter compution (keep the biggest connected component from binarised image) */
     void insert_bwareafilt();
 
     template <typename T>
