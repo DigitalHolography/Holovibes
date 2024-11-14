@@ -9,13 +9,16 @@
 #include <string>
 #include <optional>
 #include "enum/enum_record_mode.hh"
+#include "enum/enum_import_type.hh"
 #include "struct/view_struct.hh"
 #include "struct/composite_struct.hh"
 #include "enum/enum_window_kind.hh"
+#include "enum/enum_camera_kind.hh"
 #include "enum/enum_space_transformation.hh"
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
@@ -38,6 +41,9 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+
+DECLARE_SETTING(ImportType, holovibes::ImportType);
+DECLARE_SETTING(CameraKind, holovibes::CameraKind);
 
 /*!
  * \brief The setting that specifies if we load input file entirely in GPU
@@ -88,10 +94,12 @@ DECLARE_SETTING(ChartDisplayEnabled, bool);
 DECLARE_SETTING(Filter2dEnabled, bool);
 DECLARE_SETTING(Filter2dViewEnabled, bool);
 DECLARE_SETTING(FftShiftEnabled, bool);
+DECLARE_SETTING(RegistrationEnabled, bool);
 DECLARE_SETTING(RawViewEnabled, bool);
 DECLARE_SETTING(CutsViewEnabled, bool);
 DECLARE_SETTING(RenormEnabled, bool);
 DECLARE_SETTING(ReticleScale, float);
+DECLARE_SETTING(RegistrationZone, float);
 DECLARE_SETTING(ReticleDisplayEnabled, bool);
 
 /*! \name Filter2D Cache */
@@ -178,6 +186,8 @@ DECLARE_SETTING(ZFFTShift, bool);
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
-DECLARE_SETTING(FrameSkip, uint)
-DECLARE_SETTING(Mp4Fps, uint)
+DECLARE_SETTING(FrameSkip, uint);
+DECLARE_SETTING(Mp4Fps, uint);
+
+DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings

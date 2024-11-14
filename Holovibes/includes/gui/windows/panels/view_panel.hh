@@ -38,6 +38,14 @@ class ViewPanel : public Panel
     /*! \brief Adds auto contrast to the pipe over cut views */
     void set_auto_contrast_cuts();
 
+    /**
+     * \brief Changes the image type in the UI and hides irrelevant options.
+     * Notably, when the input data is moments, only moments views are available.
+     *
+     * \param img_type The image type to set.
+     */
+    void update_img_type(int img_type);
+
   public slots:
     /*! \brief Modifies view image type
      *
@@ -60,6 +68,11 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_fft_shift(bool value);
+    /*! \brief Enables or Disables registration mode on the main display window.
+     *
+     * \param value true: enable, false: disable
+     */
+    void set_registration(bool value);
     /*! \brief Adds or removes lens view
      *
      * \param value true: add, false: remove
@@ -157,6 +170,11 @@ class ViewPanel : public Panel
      * \param value The new reticle scale
      */
     void reticle_scale(double value);
+
+    /*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
+     *  \param[in] value The new zone value.
+     */
+    void update_registration_zone(double value);
 
   private:
     QShortcut* p_left_shortcut_;

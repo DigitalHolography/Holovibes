@@ -1,5 +1,5 @@
 #include "fresnel_transform.cuh"
-#include "transforms.cuh"
+#include "masks.cuh"
 #include "unique_ptr.hh"
 #include "common.cuh"
 #include "cuda_memory.cuh"
@@ -10,13 +10,13 @@
 using camera::FrameDescriptor;
 
 void fresnel_transform_lens(cuComplex* lens,
-               const uint lens_side_size,
-               const uint frame_height,
-               const uint frame_width,
-               const float lambda,
-               const float z,
-               const float pixel_size,
-               const cudaStream_t stream)
+                            const uint lens_side_size,
+                            const uint frame_height,
+                            const uint frame_width,
+                            const float lambda,
+                            const float z,
+                            const float pixel_size,
+                            const cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(lens_side_size * lens_side_size, threads);
@@ -61,12 +61,12 @@ void fresnel_transform_lens(cuComplex* lens,
 }
 
 void fresnel_transform(cuComplex* input,
-           cuComplex* output,
-           const uint batch_size,
-           const cuComplex* lens,
-           const cufftHandle plan2D,
-           const size_t frame_resolution,
-           const cudaStream_t stream)
+                       cuComplex* output,
+                       const uint batch_size,
+                       const cuComplex* lens,
+                       const cufftHandle plan2D,
+                       const size_t frame_resolution,
+                       const cudaStream_t stream)
 {
     apply_mask(input, lens, output, frame_resolution, batch_size, stream);
 

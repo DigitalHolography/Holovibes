@@ -37,7 +37,7 @@ void enable_pipe_refresh()
 
 void pipe_refresh()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     try
@@ -51,8 +51,6 @@ void pipe_refresh()
     }
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
-
-bool is_input_queue() { return get_input_queue() != nullptr; }
 
 static bool is_current_window_xyz_type()
 {
@@ -82,9 +80,7 @@ void close_windows()
 
 #pragma region Close Compute
 
-void camera_none() { camera_none_without_json(); }
-
-void camera_none_without_json()
+void camera_none()
 {
     close_windows();
     close_critical_compute();
@@ -93,10 +89,9 @@ void camera_none_without_json()
         Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    set_camera_kind(CameraKind::NONE);
     set_is_computation_stopped(true);
-
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
+    set_import_type(ImportType::None);
 }
 
 #pragma endregion
@@ -125,7 +120,8 @@ bool change_camera(CameraKind c)
     {
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
-        Holovibes::instance().stop_frame_read();
+
+        set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
 
         try
         {
@@ -142,9 +138,8 @@ bool change_camera(CameraKind c)
             return false;
         }
 
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-        UserInterfaceDescriptor::instance().kCamera = c;
-
+        set_camera_kind(c);
+        set_import_type(ImportType::Camera);
         set_is_computation_stopped(false);
 
         std::ofstream output_file(path);
@@ -401,9 +396,12 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+void update_batch_size(uint batch_size)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None || get_batch_size() == batch_size)
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        batch_size = 1;
+
+    if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
     if (set_batch_size(batch_size))
@@ -417,8 +415,7 @@ void update_batch_size(const uint batch_size)
 
 void update_time_stride(const uint time_stride)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (time_stride == get_time_stride())
@@ -463,7 +460,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Cross>(false);
         set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
@@ -492,8 +489,7 @@ void cancel_time_transformation_cuts()
     if (UserInterfaceDescriptor::instance().mainDisplay)
     {
         UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Cross);
     }
 
     set_cuts_view_enabled(false);
@@ -510,7 +506,7 @@ void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
 
-    if (UserInterfaceDescriptor::instance().import_type_ != ImportType::None)
+    if (get_import_type() != ImportType::None)
         get_compute_pipe()->request(ICS::ClearImgAccu);
 
     pipe_refresh();
@@ -532,8 +528,7 @@ void set_filter2d(bool checked)
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -574,8 +569,7 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
 
 void update_time_transformation_size(uint time_transformation_size)
 {
-    if (api::get_compute_mode() == Computation::Raw ||
-        UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (time_transformation_size == api::get_time_transformation_size())
@@ -712,7 +706,7 @@ void set_y_cuts(uint value)
 
 void set_x_y(uint x, uint y)
 {
-    if (get_compute_mode() == Computation::Raw || UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     if (x < get_fd().width)
@@ -919,11 +913,6 @@ ViewWindow get_current_window()
         return get_filter2d();
 }
 
-void set_composite_area()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>();
-}
-
 void close_critical_compute()
 {
     if (get_convolution_enabled())
@@ -1038,7 +1027,7 @@ bool set_auto_contrast()
 
 void set_auto_contrast_all()
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None)
+    if (get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
@@ -1283,6 +1272,80 @@ float get_truncate_contrast_min(const int precision)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
+void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
+{
+    auto& holo = Holovibes::instance();
+
+    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+    std::string path = path_file.string();
+
+    std::vector<float> matrix;
+    uint matrix_width = 0;
+    uint matrix_height = 0;
+    uint matrix_z = 1;
+
+    // Doing this the C way because it's faster
+    FILE* c_file;
+    fopen_s(&c_file, path.c_str(), "r");
+
+    if (c_file == nullptr)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid file path");
+    }
+
+    // Read kernel dimensions
+    if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid kernel dimensions");
+    }
+
+    size_t matrix_size = matrix_width * matrix_height * matrix_z;
+    matrix.resize(matrix_size);
+
+    // Read kernel values
+    for (size_t i = 0; i < matrix_size; ++i)
+    {
+        if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Missing values");
+        }
+    }
+
+    fclose(c_file);
+
+    // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+    const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+    const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+    const uint size = output_width * output_height;
+
+    // The convo matrix is centered and padded with 0 since the kernel is
+    // usally smaller than the output Example: kernel size is (2, 2) and
+    // output size is (4, 4) The kernel is represented by 'x' and
+    //  | 0 | 0 | 0 | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | 0 | 0 | 0 |
+    const uint first_col = (output_width / 2) - (matrix_width / 2);
+    const uint last_col = (output_width / 2) + (matrix_width / 2);
+    const uint first_row = (output_height / 2) - (matrix_height / 2);
+    const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+    convo_matrix.resize(size, 0.0f);
+
+    uint kernel_indice = 0;
+    for (uint i = first_row; i < last_row; i++)
+    {
+        for (uint j = first_col; j < last_col; j++)
+        {
+            (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+            kernel_indice++;
+        }
+    }
+}
+
 void load_convolution_matrix(std::optional<std::string> filename)
 {
     api::set_convolution_enabled(true);
@@ -1293,78 +1356,10 @@ void load_convolution_matrix(std::optional<std::string> filename)
         return;
     std::vector<float> convo_matrix = api::get_convo_matrix();
     const std::string& file = filename.value();
-    auto& holo = Holovibes::instance();
 
     try
     {
-        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
-        std::string path = path_file.string();
-
-        std::vector<float> matrix;
-        uint matrix_width = 0;
-        uint matrix_height = 0;
-        uint matrix_z = 1;
-
-        // Doing this the C way because it's faster
-        FILE* c_file;
-        fopen_s(&c_file, path.c_str(), "r");
-
-        if (c_file == nullptr)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid file path");
-        }
-
-        // Read kernel dimensions
-        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid kernel dimensions");
-        }
-
-        size_t matrix_size = matrix_width * matrix_height * matrix_z;
-        matrix.resize(matrix_size);
-
-        // Read kernel values
-        for (size_t i = 0; i < matrix_size; ++i)
-        {
-            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-            {
-                fclose(c_file);
-                throw std::runtime_error("Missing values");
-            }
-        }
-
-        fclose(c_file);
-
-        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
-        const uint size = output_width * output_height;
-
-        // The convo matrix is centered and padded with 0 since the kernel is
-        // usally smaller than the output Example: kernel size is (2, 2) and
-        // output size is (4, 4) The kernel is represented by 'x' and
-        //  | 0 | 0 | 0 | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | 0 | 0 | 0 |
-        const uint first_col = (output_width / 2) - (matrix_width / 2);
-        const uint last_col = (output_width / 2) + (matrix_width / 2);
-        const uint first_row = (output_height / 2) - (matrix_height / 2);
-        const uint last_row = (output_height / 2) + (matrix_height / 2);
-
-        convo_matrix.resize(size, 0.0f);
-
-        uint kernel_indice = 0;
-        for (uint i = first_row; i < last_row; i++)
-        {
-            for (uint j = first_col; j < last_col; j++)
-            {
-                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
-                kernel_indice++;
-            }
-        }
+        load_convolution_matrix_file(file, convo_matrix);
         api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
@@ -1419,8 +1414,8 @@ void disable_convolution()
 
 void set_divide_convolution(const bool value)
 {
-    if (UserInterfaceDescriptor::instance().import_type_ == ImportType::None ||
-        get_divide_convolution_enabled() == value || !get_convolution_enabled())
+    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+        !get_convolution_enabled())
         return;
 
     set_divide_convolution_enabled(value);
@@ -1515,12 +1510,9 @@ void display_reticle(bool value)
     set_reticle_display_enabled(value);
 
     if (value)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
-    }
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
     else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
 
     pipe_refresh();
 }
@@ -1531,18 +1523,22 @@ void reticle_scale(float value)
     pipe_refresh();
 }
 
+void update_registration_zone(float value)
+{
+    set_registration_zone(value);
+    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    pipe_refresh();
+}
+
 #pragma endregion
 
 #pragma region Chart
 
-void active_noise_zone()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
-}
+void active_noise_zone() { UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Noise>(); }
 
 void active_signal_zone()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Signal>();
 }
 
 void start_chart_display()
@@ -1699,9 +1695,8 @@ bool start_record_preconditions()
     if (!nb_frame_checked)
         nb_frames_to_record = std::nullopt;
 
-    if (UserInterfaceDescriptor::instance().record_mode_ == RecordMode::CHART && nb_frames_to_record == std::nullopt)
+    if (get_record_mode() == RecordMode::CHART && nb_frames_to_record == std::nullopt)
     {
-
         LOG_ERROR("Number of frames must be activated");
         return false;
     }
@@ -1723,12 +1718,12 @@ void set_record_device(const Device device)
 
     if (get_input_queue_location() != device)
     {
-        ImportType it = UserInterfaceDescriptor::instance().import_type_;
+        ImportType it = get_import_type();
 
         auto c = CameraKind::NONE;
         if (it == ImportType::Camera)
         {
-            c = UserInterfaceDescriptor::instance().kCamera;
+            c = get_camera_kind();
             camera_none();
         }
         else if (it == ImportType::File)
@@ -1796,28 +1791,35 @@ void record_finished()
 
 void import_stop()
 {
+    if (api::get_import_type() == ImportType::None)
+        return;
+
     LOG_FUNC();
 
     close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
-
     Holovibes::instance().start_information_display();
 
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::None;
-
     set_is_computation_stopped(true);
+    set_import_type(ImportType::None);
 }
 
 bool import_start()
 {
     LOG_FUNC();
 
-    set_is_computation_stopped(false);
+    // Check if computation is currently running
+    if (!api::get_is_computation_stopped())
+        import_stop();
 
     // Because we are in file mode
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
+    camera_none();
+    set_is_computation_stopped(false);
+
+    // if the file is to be imported in GPU, we should load the buffer preset for such case
+    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
 
     try
     {
@@ -1828,14 +1830,12 @@ bool import_start()
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
-        UserInterfaceDescriptor::instance().is_enabled_camera_ = false;
         Holovibes::instance().stop_compute();
         Holovibes::instance().stop_frame_read();
         return false;
     }
 
-    UserInterfaceDescriptor::instance().is_enabled_camera_ = true;
-    UserInterfaceDescriptor::instance().import_type_ = ImportType::File;
+    set_import_type(ImportType::File);
 
     return true;
 }
@@ -1865,44 +1865,10 @@ void set_input_file_end_index(size_t value)
 
 #pragma endregion
 
-#pragma region Advanced Settings
-void open_advanced_settings(QMainWindow* parent)
-{
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = true;
-    UserInterfaceDescriptor::instance().advanced_settings_window_ =
-        std::make_unique<::holovibes::gui::AdvancedSettingsWindow>(parent);
-}
-
-#pragma endregion
-
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }
 
 #pragma endregion
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_main_display()
-{
-    return UserInterfaceDescriptor::instance().mainDisplay;
-}
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_xz() { return UserInterfaceDescriptor::instance().sliceXZ; }
-
-std::unique_ptr<::holovibes::gui::SliceWindow>& get_slice_yz() { return UserInterfaceDescriptor::instance().sliceYZ; }
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_lens_window()
-{
-    return UserInterfaceDescriptor::instance().lens_window;
-}
-
-std::unique_ptr<::holovibes::gui::RawWindow>& get_raw_window()
-{
-    return UserInterfaceDescriptor::instance().raw_window;
-}
-
-std::unique_ptr<::holovibes::gui::Filter2DWindow>& get_filter2d_window()
-{
-    return UserInterfaceDescriptor::instance().filter2d_window;
-}
 
 } // namespace holovibes::api

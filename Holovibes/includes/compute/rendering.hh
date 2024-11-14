@@ -11,8 +11,10 @@
 #include "queue.hh"
 #include "rect.hh"
 #include "shift_corners.cuh"
+#include "apply_mask.cuh"
 #include "logger.hh"
-
+#include "convolution.cuh"
+#include <cufft.h>
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
 
@@ -67,7 +69,7 @@ class Rendering
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Rendering(FunctionVector& fn_compute_vect,
+    Rendering(std::shared_ptr<FunctionVector> fn_compute_vect,
               const CoreBuffersEnv& buffers,
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
@@ -158,7 +160,7 @@ class Rendering
     }
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Chart variables */

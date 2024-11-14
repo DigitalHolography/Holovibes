@@ -10,6 +10,7 @@
 #include "MainWindow.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 namespace holovibes::gui
 {
@@ -41,7 +42,7 @@ void SliceWindow::initShaders()
         create_absolute_qt_path(RELATIVE_PATH(__SHADER_FOLDER_PATH__ / "fragment.tex.glsl").string()));
     Program->link();
     if (api::get_img_type() == ImgType::Composite)
-        overlay_manager_.create_overlay<Rainbow>();
+        overlay_manager_.enable<Rainbow>();
     else
         overlay_manager_.create_default();
 }
@@ -191,8 +192,8 @@ void SliceWindow::mouseReleaseEvent(QMouseEvent* e)
     if (e->button() == Qt::RightButton)
     {
         resetTransform();
-        if (holovibes::api::get_main_display())
-            holovibes::api::get_main_display()->resetTransform();
+        if (gui::get_main_display())
+            gui::get_main_display()->resetTransform();
     }
 }
 

@@ -42,10 +42,12 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -94,7 +96,8 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::FilterEnabled,                          \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -135,6 +138,7 @@ class ICompute
         plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
+        allocate_moments_buffers();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -207,6 +211,7 @@ class ICompute
         DeleteTimeTransformationCuts,
         UpdateBatchSize,
         UpdateTimeStride,
+        UpdateRegistrationZone,
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
@@ -313,6 +318,14 @@ class ICompute
      * \{
      */
     void update_spatial_transformation_parameters();
+
+    /**
+     * \brief Resizes the moments buffers (in moments_env_) when a moments file is read.
+     *
+     * Each buffer (moments0_buffer, ...) stores one single moment frame.
+     *
+     */
+    void allocate_moments_buffers();
 
     void init_cuts();
 

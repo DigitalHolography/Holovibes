@@ -1,0 +1,37 @@
+name: Code-Format Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - dev
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang-Format
+        run: sudo apt-get install -y clang-format
+
+      - name: Run Clang-Format Check
+        run: |
+
+          if [ ! -f .clang-format ]; then
+            echo "Error: .clang-format file not found!"
+            exit 1
+          fi
+
+          # Find all files to check.
+          FILES=$(find ./Holovibes -type f \( -name "*.hh" -o -name "*.cc" -o -name "*.cu" -o -name "*.cuh" -o -name "*.hxx" \) ! -name "*.cpp" ! -name "*.hpp")
+
+          # Check files and list non-conform files.
+          for FILE in $FILES; do
+            clang-format -style=file -assume-filename=.clang-format -output-replacements-xml $FILE | grep "<replacement " && echo "Formatting issues in $FILE" && exit 1
+          done
+
+          echo "All files are properly formatted."

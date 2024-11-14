@@ -9,7 +9,7 @@
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
  *
  * The output pointer can be another complex buffer or the same as input buffer.
- * 
+ *
  * \param lens The lens applied to the image
  * \param lens_side_size The size of the lens' both sides, as it is a square
  * \param frame_height Height of each frame
@@ -20,18 +20,18 @@
  * \param stream The input (and output) stream ; the data
  */
 void angular_spectrum_lens(cuComplex* lens,
-               const uint lens_side_size,
-               const uint frame_height,
-               const uint frame_width,
-               const float lambda,
-               const float z,
-               const float pixel_size,
-               const cudaStream_t stream);
+                           const uint lens_side_size,
+                           const uint frame_height,
+                           const uint frame_width,
+                           const float lambda,
+                           const float z,
+                           const float pixel_size,
+                           const cudaStream_t stream);
 
 /*! \brief takes input complex buffer and computes a p frame that is stored at output pointer.
  *
  * The output pointer can be another complex buffer or the same as input buffer.
- * 
+ *
  * \param input Input data
  * \param output Output data
  * \param batch_size The number of images in a single batch
@@ -41,11 +41,11 @@ void angular_spectrum_lens(cuComplex* lens,
  * \param stream The operation stream
  */
 void angular_spectrum(cuComplex* input,
-           cuComplex* output,
-           const uint batch_size,
-           const cuComplex* lens,
-           cuComplex* mask_output,
-           bool store_frame,
-           const cufftHandle plan2d,
-           const camera::FrameDescriptor& fd,
-           const cudaStream_t stream);
+                      cuComplex* output,
+                      const uint batch_size,
+                      const cuComplex* lens,
+                      cuComplex* mask_output,
+                      bool store_frame,
+                      const cufftHandle plan2d,
+                      const camera::FrameDescriptor& fd,
+                      const cudaStream_t stream);

@@ -2,6 +2,7 @@
 
 #include "API.hh"
 #include "enum_record_mode.hh"
+#include "enum_recorded_data_type.hh"
 
 namespace holovibes::api
 {
@@ -96,6 +97,9 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
 
 inline ImgType get_img_type() { return GET_SETTING(ImageType); }
 inline void set_img_type(ImgType type) { UPDATE_SETTING(ImageType, type); }
+
+inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
+inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
 
 inline uint get_input_buffer_size() { return static_cast<uint>(GET_SETTING(InputBufferSize)); }
 inline void set_input_buffer_size(uint value) { UPDATE_SETTING(InputBufferSize, value); }
@@ -192,6 +196,9 @@ inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTIN
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
 
+inline float get_registration_zone() { return GET_SETTING(RegistrationZone); }
+inline void set_registration_zone(float value) { UPDATE_SETTING(RegistrationZone, value); }
+
 inline bool get_is_computation_stopped() { return GET_SETTING(IsComputationStopped); }
 inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputationStopped, value); }
 
@@ -237,7 +244,7 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 /*! \} */
 
 /*!
- * \name Input file
+ * \name Input
  * \{
  */
 inline size_t get_input_file_start_index() { return GET_SETTING(InputFileStartIndex); }
@@ -251,6 +258,12 @@ inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, val
 
 inline uint get_input_fps() { return static_cast<uint>(GET_SETTING(InputFPS)); }
 inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
+
+inline ImportType get_import_type() { return GET_SETTING(ImportType); }
+inline void set_import_type(ImportType value) { UPDATE_SETTING(ImportType, value); }
+
+inline CameraKind get_camera_kind() { return GET_SETTING(CameraKind); }
+inline void set_camera_kind(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
 /*! \} */
 
 /*!
@@ -530,6 +543,8 @@ inline void set_filter2d_contrast(float min, float max) noexcept
  * \name FFT
  * \{
  */
+/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
+ * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
 inline void set_fft_shift_enabled(bool value)
 {
@@ -537,8 +552,24 @@ inline void set_fft_shift_enabled(bool value)
     pipe_refresh();
 }
 
+/*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
+/*! \} */
+
+/*!
+ * \name Registration
+ * \{
+ */
+
+/*! \brief Getter and Setter for the registration, triggered when the Registration button is clicked on the gui.
+ * (Setter refreshes the pipe) */
+inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
+inline void set_registration_enabled(bool value)
+{
+    UPDATE_SETTING(RegistrationEnabled, value);
+    pipe_refresh();
+}
 /*! \} */
 
 /*!

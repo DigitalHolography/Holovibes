@@ -25,7 +25,9 @@
 // Enum
 #include "enum_camera_kind.hh"
 #include "enum_record_mode.hh"
+#include "enum_import_type.hh"
 #include "enum_device.hh"
+#include "enum_recorded_data_type.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -36,6 +38,8 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
+    holovibes::settings::ImportType,                             \
+    holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
     holovibes::settings::LoadFileInGPU,                          \
     holovibes::settings::InputFileStartIndex,                    \
@@ -60,10 +64,12 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
+    holovibes::settings::RegistrationEnabled,                   \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
     holovibes::settings::ReticleScale,                           \
+    holovibes::settings::RegistrationZone,                       \
     holovibes::settings::ReticleDisplayEnabled,                  \
     holovibes::settings::Filter2dN1,                             \
     holovibes::settings::Filter2dN2,                             \
@@ -111,7 +117,8 @@
     holovibes::settings::BenchmarkMode,                             \
     holovibes::settings::RecordOnGPU,                               \
     holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps
+    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -265,7 +272,8 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(
+        CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *
@@ -360,6 +368,8 @@ class Holovibes
     Holovibes()
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
+                                             settings::ImportType{ImportType::None},
+                                             settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
                                              settings::InputFileStartIndex{0},
@@ -384,10 +394,12 @@ class Holovibes
                                              settings::Filter2dEnabled{false},
                                              settings::Filter2dViewEnabled{false},
                                              settings::FftShiftEnabled{false},
+                                             settings::RegistrationEnabled{false},
                                              settings::RawViewEnabled{false},
                                              settings::CutsViewEnabled{false},
                                              settings::RenormEnabled{true},
                                              settings::ReticleScale{0.5f},
+                                             settings::RegistrationZone{0.7f},
                                              settings::ReticleDisplayEnabled{false},
                                              settings::Filter2dN1{0},
                                              settings::Filter2dN2{1},
@@ -435,7 +447,8 @@ class Holovibes
                                              settings::BenchmarkMode{false},
                                              settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
-                                             settings::Mp4Fps{24}))
+                                             settings::Mp4Fps{24},
+                                             settings::DataType{RecordedDataType::RAW}))
     {
     }
 
