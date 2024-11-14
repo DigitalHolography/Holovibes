@@ -50,6 +50,7 @@ class AnalysisPanel : public Panel
     void set_otsu_local_threshold(double value);
 
     void set_bw_area_filter(bool enabled);
+    void set_bw_area_open(bool enabled);
     // private:
 };
 } // namespace holovibes::gui

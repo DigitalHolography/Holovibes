@@ -18,7 +18,7 @@
 #include "API.hh"
 #include "otsu.cuh"
 #include "cublas_handle.hh"
-#include "bw_area_filter.cuh"
+#include "bw_area.cuh"
 #include "circular_video_buffer.hh"
 
 #include <cuda_runtime.h>
@@ -587,6 +587,29 @@ void Analysis::insert_bwareafilt()
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
                 if (maxI - 1 > 0)
                     area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
+            }
+        });
+}
+
+void Analysis::insert_bwareaopen()
+{
+    LOG_FUNC();
+
+    fn_compute_vect_->conditional_push_back(
+        [=]()
+        {
+            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
+            {
+                float* image_d = buffers_.gpu_postprocess_frame.get();
+                uint* labels_d = uint_buffer_1_.get();
+                uint* linked_d = uint_buffer_2_.get();
+                float* labels_sizes_d = float_buffer_.get();
+
+                uint p = setting<settings::MinMaskArea>();
+
+                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+                if (p != 0)
+                    area_open(image_d, labels_d, labels_sizes_d, buffers_.gpu_postprocess_frame_size, p, stream_);
             }
         });
 }

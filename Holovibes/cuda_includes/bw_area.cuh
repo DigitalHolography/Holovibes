@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief function use for black and white area filter algo
+ * \brief function use for black and white area filter and open algo
  */
 #pragma once
 
@@ -30,7 +30,7 @@ void get_connected_component(uint* labels_d,
                              const cudaStream_t stream);
 
 /**
- * \brief Sets to 0.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to 1.0f.
+ * \brief Sets to 1.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to 0.0f.
  * Hence only pixels with the selected label are retained
  *
  * \param[in out] image_d The image to process (GPU Memory)
@@ -40,3 +40,17 @@ void get_connected_component(uint* labels_d,
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to_keep, const cudaStream_t stream);
+
+/*!
+ * \brief  Sets to 1.0f each pixel that we want to keep from connected component who are bigger than p. Otherwise the
+ * pixels are set to 0.0f. Hence only pixels with the selected label are retained
+ *
+ * \param[in out] image_d The image to process (GPU Memory)
+ * \param[in] label_d The matrix who store label of each pixel (GPU Memory)
+ * \param[in] labels_sizes_d The matrix who store the size of eche labeled connected component (GPU Memory)
+ * \param[in] size Size of the frame
+ * \param[in] p The threshold of the size we want to keep
+ * \param[in] stream The CUDA stream on which to launch the operation
+ */
+void area_open(
+    float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p, const cudaStream_t stream);

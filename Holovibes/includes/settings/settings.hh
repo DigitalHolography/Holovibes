@@ -195,6 +195,7 @@ DECLARE_SETTING(TimeWindow, int);
 DECLARE_SETTING(VesselnessSigma, double);
 DECLARE_SETTING(MinMaskArea, int);
 DECLARE_SETTING(BwareafiltEnabled, bool);
+DECLARE_SETTING(BwareaopenEnabled, bool);
 
 DECLARE_SETTING(OtsuKind, holovibes::OtsuKind);
 DECLARE_SETTING(OtsuWindowSize, int);

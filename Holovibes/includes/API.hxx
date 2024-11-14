@@ -628,6 +628,17 @@ inline void set_bwareafilt_enabled(bool value)
     pipe_refresh();
 }
 
+/*!
+ * \name Bwareafilt
+ *
+ */
+inline bool get_bwareaopen_enabled() { return GET_SETTING(BwareaopenEnabled); }
+inline void set_bwareaopen_enabled(bool value)
+{
+    UPDATE_SETTING(BwareaopenEnabled, value);
+    pipe_refresh();
+}
+
 /*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
 inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
 inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }

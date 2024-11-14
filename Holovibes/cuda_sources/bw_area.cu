@@ -1,4 +1,4 @@
-#include "bw_area_filter.cuh"
+#include "bw_area.cuh"
 #include "common.cuh"
 #include "cuComplex.h"
 #include "cuda_runtime.h"
@@ -164,5 +164,21 @@ void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     area_filter_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, size, label_to_keep);
+    cudaCheckError();
+}
+
+__global__ void area_open_kernel(float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size)
+        image_d[idx] = (labels_sizes_d[label_d[idx]] >= p) ? 1.0f : 0.0f;
+}
+
+void area_open(
+    float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    area_open_kernel<<<blocks, threads, 0, stream>>>(image_d, label_d, labels_sizes_d, size, p);
     cudaCheckError();
 }

@@ -322,6 +322,7 @@ void Pipe::refresh()
     analysis_->insert_otsu();
     analysis_->insert_barycentres();
     analysis_->insert_bwareafilt();
+    analysis_->insert_bwareaopen();
 
     insert_filter2d_view();
 
