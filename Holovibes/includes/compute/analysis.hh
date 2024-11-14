@@ -58,7 +58,7 @@ class Analysis
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Analysis(FunctionVector& fn_compute_vect,
+    Analysis(std::shared_ptr<FunctionVector> fn_compute_vect,
              CoreBuffersEnv& buffers,
              const camera::FrameDescriptor& input_fd,
              VesselnessMaskEnv& vesselness_mask_env,
@@ -97,6 +97,12 @@ class Analysis
         data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
         cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
+
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/R_VascularPulse.csv");
+        R_VascularPulse_csv_.resize(frame_res);
+        cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
     }
@@ -149,7 +155,7 @@ class Analysis
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     CoreBuffersEnv& buffers_;
@@ -174,6 +180,9 @@ class Analysis
 
     // To delete
     cuda_tools::CudaUniquePtr<float> f_avg_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> R_VascularPulse_csv_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;

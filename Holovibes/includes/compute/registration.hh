@@ -14,7 +14,6 @@
  */
 #pragma once
 
-#include <cufft.h>
 #include <algorithm>
 #include "function_vector.hh"
 #include "logger.hh"
@@ -30,9 +29,10 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
+#define REALTIME_SETTINGS                         \
     holovibes::settings::RegistrationEnabled,     \
-    holovibes::settings::FftShiftEnabled
+    holovibes::settings::FftShiftEnabled,         \
+    holovibes::settings::RegistrationZone
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -60,22 +60,26 @@ class Registration
      *
      *  \param[in] fn_compute_vect The vector of functions of the pipe, used to push the functions.
      *  \param[in] buffers The buffers used by the pipe, mainly used here to get `gpu_postprocess_frame`.
+     *  \param[in] image_acc_env The image accumulation env, used to get `gpu_accumulation_xy_queue`.
      *  \param[in] fd The frame descriptor to get width and height.
      *  \param[in] stream The current CUDA context stream.
      *  \param[in] settings The global settings context.
      */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Registration(FunctionVector& fn_compute_vect,
+    Registration(std::shared_ptr<FunctionVector> fn_compute_vect,
                  const CoreBuffersEnv& buffers,
+                 const ImageAccEnv& image_acc_env,
                  const camera::FrameDescriptor& fd,
                  const cudaStream_t& stream,
                  InitSettings settings)
         : fn_compute_vect_(fn_compute_vect)
+        , image_acc_env_(image_acc_env)
         , buffers_(buffers)
         , fd_(fd)
         , stream_(stream)
         , realtime_settings_(settings)
-
+        , plan_2d_(fd_.width, fd_.height, CUFFT_R2C)
+        , plan_2dinv_(fd_.width, fd_.height, CUFFT_C2R)
     {
         int err = !gpu_circle_mask_.resize(buffers_.gpu_postprocess_frame_size);
         err += !gpu_reference_image_.resize(buffers_.gpu_postprocess_frame_size);
@@ -85,33 +89,24 @@ class Registration
         err += !d_freq_1_.resize(freq_size_);
         err += !d_freq_2_.resize(freq_size_);
 
-        cufftSafeCall(cufftPlan2d(&plan_2d_, fd_.width, fd_.height, CUFFT_R2C));
-        cufftSafeCall(cufftPlan2d(&plan_2dinv_, fd_.width, fd_.height, CUFFT_C2R));
-        // plan_2d_.plan(fd_.width, fd_.height, CUFFT_C2R);
-        // plan_2dinv_.plan(fd_.width, fd_.height, CUFFT_C2R);
         if (err != 0)
             throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
         updade_cirular_mask();
     }
 
-    /*! \brief Destructor. Release the cufft plans. */
-    ~Registration()
-    {
-        cufftSafeCall(cufftDestroy(plan_2d_));
-        cufftSafeCall(cufftDestroy(plan_2dinv_));
-    }
+    /*! \brief Destructor. */
+    ~Registration() = default;
 
-    /*! \brief Insert the functions to compute the registration. The process is descripted in the head of this file. */
+    /*! \brief Insert the functions to compute the registration. The process is descripted in the head of this file.
+     */
     void insert_registration();
 
-    /*! \brief Setter for the reference image. The `new_gpu_reference_image_` is rescaled by the mean and the
-     *  `gpu_circle_mask_` is applied. Then is is stored in `gpu_reference_image_`. This process is done so the
-     *  image is ready for use in xcorr2.
-     *
-     *  \param[in] new_gpu_reference_image_ The new image to set.
+    /*! \brief Setter for the reference image. The new reference image is taken from `buffers_.gpu_postprocess_frame`
+     *  and rescaled by the mean and the `gpu_circle_mask_` is applied.
+     *  This process is done so the image is ready for use in xcorr2.
      */
-    void set_gpu_reference_image(float* new_gpu_reference_image_);
+    void set_gpu_reference_image();
 
     /*! \brief Recompute the circular mask with the new radius on update. Function is also called in constructor. */
     void updade_cirular_mask();
@@ -147,10 +142,14 @@ class Registration
     void image_preprocess(float* output, float* input, float* mean);
 
     /*! \brief Vector function in which we insert the processing. */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers used in pipe. */
     const CoreBuffersEnv& buffers_;
+
+    /*! \brief Image Accumulation environment. This env is used to know if we have accumulated enought images before
+     *  taking the reference image to compute cross-correlation.*/
+    const ImageAccEnv& image_acc_env_;
 
     /*! \brief Describes the frame size. */
     const camera::FrameDescriptor& fd_;
@@ -181,7 +180,6 @@ class Registration
     /*! \brief Buffer to store the mask after its computation. Filled with 1 inside the circle and 0 outside.
      *  The radius is to be set by the user and the mask buffer is filled in the `updade_cirular_mask`. Hence we do not
      *  call the CUDA kernel at each image but only at initialization and when the radius is modified.
-     *  TODO : When user modify  , reset the mask.
      */
     cuda_tools::CudaUniquePtr<float> gpu_circle_mask_ = nullptr;
 
@@ -204,14 +202,11 @@ class Registration
      */
     cuda_tools::CudaUniquePtr<cufftComplex> d_freq_2_ = nullptr;
 
-    // cuda_tools::CufftHandle plan_2d_;
-    // cuda_tools::CufftHandle plan_2dinv_;
-
     /*! \brief Cufft plan used for R2C cufft in the xcorr2 function */
-    cufftHandle plan_2d_;
+    cuda_tools::CufftHandle plan_2d_;
 
     /*! \brief Cufft plan used for C2R cufft in the xcorr2 function */
-    cufftHandle plan_2dinv_;
+    cuda_tools::CufftHandle plan_2dinv_;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

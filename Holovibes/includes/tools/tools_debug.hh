@@ -9,7 +9,7 @@ namespace holovibes
 
 /*!
  * \brief      Print on stdout an array stored in the GPU memory
- * 
+ *
  * The array is printed on a single line and values are separated by spaces.
  *
  * \param      d_data   The array to print
@@ -23,7 +23,7 @@ void device_print(T* d_data, size_t offset, size_t nb_elts);
 
 /*!
  * \brief      Print on stdout an array of complex stored in the GPU memory
- * 
+ *
  * The array is printed on a single line and values are separated by pipe (|).
  * Each complex are written with the real part followed by a space and the imaginiray part.
  *

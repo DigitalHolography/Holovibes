@@ -45,7 +45,6 @@ class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 
     const KindOfView getKindOfView() const;
     const KindOfOverlay getKindOfOverlay() const;
-    void resetSelection();
 
     const camera::FrameDescriptor& getFd() const;
     OverlayManager& getOverlayManager();

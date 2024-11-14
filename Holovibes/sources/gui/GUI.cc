@@ -6,7 +6,7 @@
 namespace holovibes::gui
 {
 
-void set_composite_area() { UI.mainDisplay->getOverlayManager().create_overlay<gui::CompositeArea>(); }
+void set_composite_area() { UI.mainDisplay->getOverlayManager().enable<gui::CompositeArea>(); }
 
 void open_advanced_settings(QMainWindow* parent)
 {

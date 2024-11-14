@@ -109,12 +109,12 @@ void ushort_to_uchar(uchar* output, const ushort* input, const size_t size, cons
  * be casted anyway (switch depth void* cast) So we chose to use template inside
  * the cu/cuh to factorize code but keep the void* between the cc and cu
  *
- * \param output The gpu input buffer.
- * \param input The input queue.
- * \param frame_res The total size of a frame (width * height).
- * \param batch_size The size of the batch to transfer.
- * \param depth The pixel depth.
- * \param stream The CUDA stream on which to launch the operation.
+ * \param output[out] The gpu input buffer.
+ * \param input[in] The input queue.
+ * \param frame_res[in] The total size of a frame (width * height).
+ * \param batch_size[in] The size of the batch to transfer.
+ * \param depth[in] The pixel depth.
+ * \param stream[in] The CUDA stream on which to launch the operation.
  */
 void input_queue_to_input_buffer(void* const output,
                                  const void* const input,

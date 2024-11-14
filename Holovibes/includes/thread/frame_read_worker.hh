@@ -25,7 +25,7 @@ class FrameReadWorker : public Worker
      */
     FrameReadWorker(std::atomic<std::shared_ptr<Queue>>& input_queue);
 
-    virtual ~FrameReadWorker() {};
+    virtual ~FrameReadWorker(){};
 
   protected:
     void compute_fps();

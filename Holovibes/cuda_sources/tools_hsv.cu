@@ -98,11 +98,7 @@ void rotate_hsv_to_contiguous_z(float* output,
     const uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(total_size, threads);
 
-    kernel_rotate_hsv_to_contiguous_z<<<blocks, threads, 0, stream>>>(output,
-                                                                      input,
-                                                                      frame_res,
-                                                                      width,
-                                                                      range);
+    kernel_rotate_hsv_to_contiguous_z<<<blocks, threads, 0, stream>>>(output, input, frame_res, width, range);
     cudaCheckError();
 }
 
