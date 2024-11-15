@@ -2,7 +2,7 @@
 
 ### 14.0.1
 
-- remove the second .ps1 script
+- Remove the second .ps1 script
 - Autocontrast works more consistently; thus removed the 'apply' button from the UI
 
 ### 14.0.0
