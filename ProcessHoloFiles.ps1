@@ -1,6 +1,6 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
-Write-Host (Get-Location)
+
 if ($args[0] -eq "-m")
 {
     $moments=1
