@@ -112,10 +112,7 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::RawViewQueueLocation,                      \
-    holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU,                               \
     holovibes::settings::FrameSkip,                                 \
     holovibes::settings::Mp4Fps,                                    \
     holovibes::settings::DataType
@@ -442,10 +439,7 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
-                                             settings::RawViewQueueLocation{Device::GPU},
-                                             settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
                                              settings::DataType{RecordedDataType::RAW}))

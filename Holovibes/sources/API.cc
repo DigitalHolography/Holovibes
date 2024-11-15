@@ -296,7 +296,6 @@ void create_holo_window(ushort window_size)
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue().get(),
-                                get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
@@ -377,14 +376,6 @@ void set_view_mode(const ImgType type)
         auto pipe = get_compute_pipe();
 
         api::set_img_type(type);
-
-        // Force XYview autocontrast
-        pipe->request_autocontrast(WindowKind::XYview);
-
-        // Force cuts views autocontrast if needed
-        if (api::get_cuts_view_enabled())
-            api::set_auto_contrast_cuts();
-
         pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
@@ -505,10 +496,6 @@ void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<
 void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
-
-    if (get_import_type() != ImportType::None)
-        get_compute_pipe()->request(ICS::ClearImgAccu);
-
     pipe_refresh();
 }
 
@@ -523,7 +510,7 @@ void handle_update_exception()
 void set_filter2d(bool checked)
 {
     set_filter2d_enabled(checked);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
@@ -555,7 +542,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         set_filter2d_log_enabled(true);
-        pipe->request_autocontrast(WindowKind::Filter2D);
         pipe_refresh();
     }
     else
@@ -1000,49 +986,6 @@ void set_contrast_mode(bool value)
     pipe_refresh();
 }
 
-void set_auto_contrast_cuts()
-{
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XZview);
-    pipe->request_autocontrast(WindowKind::YZview);
-}
-
-bool set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return false;
-
-    try
-    {
-        get_compute_pipe()->request_autocontrast(get_current_window_type());
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
-
-    return false;
-}
-
-void set_auto_contrast_all()
-{
-    if (get_import_type() == ImportType::None)
-        return;
-
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XYview);
-    if (api::get_cuts_view_enabled())
-    {
-        pipe->request_autocontrast(WindowKind::XZview);
-        pipe->request_autocontrast(WindowKind::YZview);
-    }
-    if (get_filter2d_view_enabled())
-        pipe->request_autocontrast(WindowKind::Filter2D);
-
-    pipe_refresh();
-}
-
 void set_contrast_min(float value)
 {
     if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
@@ -1139,8 +1082,6 @@ void set_log_scale(const bool value)
         api::set_filter2d_log_enabled(value);
     else
         set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
-    if (value && api::get_contrast_enabled())
-        set_auto_contrast();
 
     pipe_refresh();
 }
@@ -1662,13 +1603,9 @@ void set_record_mode(const std::string& text)
     }
 
     set_record_mode(it->second);
-    RecordMode record_mode = api::get_record_mode();
-
-    if (record_mode != RecordMode::RAW)
-        api::set_record_on_gpu(true);
 
     // Attempt to initialize compute pipe for non-CHART record modes
-    if (record_mode != RecordMode::CHART)
+    if (get_record_mode() != RecordMode::CHART)
     {
         try
         {
@@ -1702,45 +1639,6 @@ bool start_record_preconditions()
     }
 
     return true;
-}
-
-void set_record_device(const Device device)
-{
-    if (get_compute_mode() == Computation::Hologram)
-        Holovibes::instance().stop_compute();
-
-    if (get_raw_view_queue_location() != device)
-        set_raw_view_queue_location(device);
-
-    // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
-    if (get_record_queue_location() != device && device == Device::CPU)
-        set_record_queue_location(device);
-
-    if (get_input_queue_location() != device)
-    {
-        ImportType it = get_import_type();
-
-        auto c = CameraKind::NONE;
-        if (it == ImportType::Camera)
-        {
-            c = get_camera_kind();
-            camera_none();
-        }
-        else if (it == ImportType::File)
-            import_stop();
-
-        set_input_queue_location(device);
-
-        if (device == Device::CPU)
-            set_compute_mode(Computation::Raw);
-
-        if (it == ImportType::Camera)
-            change_camera(c);
-        else
-            import_start();
-
-        set_image_mode(get_compute_mode(), 1);
-    }
 }
 
 void start_record(std::function<void()> callback)
@@ -1777,13 +1675,7 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-void record_finished()
-{
-    UserInterfaceDescriptor::instance().is_recording_ = false;
-    // if the record was on the cpu, we have to put the queues on gpu again
-    if (api::get_record_on_gpu() == false)
-        api::set_record_device(Device::GPU);
-}
+void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
 
 #pragma endregion
 

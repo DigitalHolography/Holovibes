@@ -204,8 +204,6 @@ bool start_record_preconditions();
  */
 void start_record(std::function<void()> callback);
 
-void set_record_device(const Device device);
-
 /*! \brief Stops recording
  *
  * \note This functions calls the notification `record_stop` when this is done.
@@ -225,17 +223,6 @@ const std::string browse_record_output_file(std::string& std_filepath);
  * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
  */
 void set_record_mode(const std::string& text);
-
-/*! \brief Choose if the record will be done using the GPU or the CPU. If the GPU is selected, the input queue will be
- * on the GPU, meaning that Hologramm image mode and record mode will be enabled. If the CPU is selected, the input
- * queue will be on the CPU, meaning that only Raw image mode and record mode will be enabled. The record queue will
- * always be on the CPU in CPU mode, but it can be either on GPU or CPU in GPU mode. In order for the user to vizualise
- * the hologramm up until the record, the displacement of the input queue from the GPU to the CPU is done only when the
- * record is requested ; see set_record_device() function.
- */
-void set_record_on_gpu(bool value);
-
-bool get_record_on_gpu();
 
 /*!
  * \brief Set the record queue location, between gpu and cpu
@@ -489,21 +476,6 @@ void rotateTexture();
  *
  */
 void flipTexture();
-
-/*! \brief Adds auto contrast to the pipe over cut views
- *
- */
-void set_auto_contrast_cuts();
-
-/*! \brief Adds auto contrast to the current window
- *
- * \return true on success
- * \return false on failure
- */
-bool set_auto_contrast();
-
-/*! \brief Set the auto contrast to all windows */
-void set_auto_contrast_all();
 
 /*! \brief Get the rounded value of max contrast for the given WindowKind
  *

@@ -43,12 +43,9 @@ void Holovibes::init_input_queue(const unsigned int input_queue_size)
 void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsigned int input_queue_size)
 {
     if (!input_queue_.load())
-        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size,
-                                                         api::get_batch_size(),
-                                                         fd,
-                                                         api::get_input_queue_location());
+        input_queue_ = std::make_shared<BatchInputQueue>(input_queue_size, api::get_batch_size(), fd);
     else
-        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), api::get_input_queue_location());
+        input_queue_.load()->rebuild(fd, input_queue_size, api::get_batch_size(), Device::GPU);
     LOG_DEBUG("Input queue allocated");
 }
 
@@ -240,10 +237,6 @@ void Holovibes::start_frame_record(const std::function<void()>& callback)
     }
 
     api::set_record_frame_count(get_setting<settings::RecordFrameCount>().value);
-
-    // if the record is on the cpu
-    if (api::get_record_on_gpu() == false)
-        api::set_record_device(Device::CPU);
 
     if (!record_queue_.load())
         init_record_queue();
