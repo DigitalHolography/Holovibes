@@ -1,6 +1,7 @@
 # Import the necessary assembly for file dialog
 Add-Type -AssemblyName System.Windows.Forms
 
+$moments=0
 if ($args[0] -eq "-m")
 {
     $moments=1
