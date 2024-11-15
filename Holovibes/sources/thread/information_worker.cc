@@ -15,8 +15,11 @@ namespace holovibes::worker
 {
 using MutexGuard = std::lock_guard<std::mutex>;
 
-#define RED_COLORATION_RATIO 0.8
-#define ORANGE_COLORATION_RATIO 0.3
+#define RED_COLORATION_RATIO 0.9f
+#define ORANGE_COLORATION_RATIO 0.7f
+
+#define INPUT_Q_RED_COLORATION_RATIO 0.8f
+#define INPUT_Q_ORANGE_COLORATION_RATIO 0.3f
 
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
@@ -204,12 +207,15 @@ int get_gpu_load(nvmlUtilization_t* gpuLoad)
     return nvmlShutdown();
 }
 
-const std::string get_load_color(float load, float max_load)
+const std::string get_load_color(float load,
+                                 float max_load,
+                                 float orange_ratio = ORANGE_COLORATION_RATIO,
+                                 float red_ratio = RED_COLORATION_RATIO)
 {
     const float ratio = (load / max_load);
-    if (ratio < ORANGE_COLORATION_RATIO)
+    if (ratio < orange_ratio)
         return "white";
-    if (ratio < RED_COLORATION_RATIO)
+    if (ratio < red_ratio)
         return "orange";
     return "red";
 }
@@ -306,24 +312,32 @@ void InformationWorker::display_gui_information()
         }
     }
 
-    for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
+    if (api::get_import_type() != ImportType::None)
     {
-        if (key == QueueType::UNDEFINED)
-            continue;
-        auto currentLoad = std::get<0>(*value).load();
-        auto maxLoad = std::get<1>(*value).load();
+        for (auto const& [key, value] : FastUpdatesMap::map<QueueType>)
+        {
+            if (key == QueueType::UNDEFINED)
+                continue;
+            auto currentLoad = std::get<0>(*value).load();
+            auto maxLoad = std::get<1>(*value).load();
 
-        to_display << "<tr style=\"color:";
-        if (queue_type_to_string_.at(key) == "Output Queue")
-            to_display << "white";
-        else
-            to_display << get_load_color(currentLoad, maxLoad);
+            to_display << "<tr style=\"color:";
+            if (key == QueueType::OUTPUT_QUEUE)
+                to_display << "white";
+            else if (key == QueueType::INPUT_QUEUE)
+                to_display << get_load_color(currentLoad,
+                                             maxLoad,
+                                             INPUT_Q_ORANGE_COLORATION_RATIO,
+                                             INPUT_Q_RED_COLORATION_RATIO);
+            else
+                to_display << get_load_color(currentLoad, maxLoad);
 
-        to_display << ";\">";
+            to_display << ";\">";
 
-        to_display << "<td>" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
-                   << queue_type_to_string_.at(key) << "</td>";
-        to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
+            to_display << "<td>" << (std::get<2>(*value).load() == Device::GPU ? "GPU " : "CPU ")
+                       << queue_type_to_string_.at(key) << "</td>";
+            to_display << "<td>" << currentLoad << "/" << maxLoad << "</td></tr>";
+        }
     }
 
     if (fps_map.contains(IntType::INPUT_FPS))
