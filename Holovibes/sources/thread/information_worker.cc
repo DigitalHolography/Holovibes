@@ -18,6 +18,9 @@ using MutexGuard = std::lock_guard<std::mutex>;
 #define RED_COLORATION_RATIO 0.9f
 #define ORANGE_COLORATION_RATIO 0.7f
 
+#define INPUT_Q_RED_COLORATION_RATIO 0.8f
+#define INPUT_Q_ORANGE_COLORATION_RATIO 0.3f
+
 const std::unordered_map<IndicationType, std::string> InformationWorker::indication_type_to_string_ = {
     {IndicationType::IMG_SOURCE, "Image Source"},
     {IndicationType::INPUT_FORMAT, "Input Format"},
@@ -322,7 +325,10 @@ void InformationWorker::display_gui_information()
             if (key == QueueType::OUTPUT_QUEUE)
                 to_display << "white";
             else if (key == QueueType::INPUT_QUEUE)
-                to_display << get_load_color(currentLoad, maxLoad, 0.3f, 0.8f);
+                to_display << get_load_color(currentLoad,
+                                             maxLoad,
+                                             INPUT_Q_ORANGE_COLORATION_RATIO,
+                                             INPUT_Q_RED_COLORATION_RATIO);
             else
                 to_display << get_load_color(currentLoad, maxLoad);
 
