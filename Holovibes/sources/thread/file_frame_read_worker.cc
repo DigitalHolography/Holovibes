@@ -284,7 +284,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
     // enqueue the gpu_file_frame_buffer_ before storing next read frames in it.
     //
-    // With load_file_in_gpu_ == true, all the file in in the buffer,
+    // With load_file_in_gpu_ == true, all the file is in the buffer,
     // so we don't have to sync
     if (setting<settings::LoadFileInGPU>())
         return;
