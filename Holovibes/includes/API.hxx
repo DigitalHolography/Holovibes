@@ -474,14 +474,14 @@ inline int get_filter2d_n1() { return GET_SETTING(Filter2dN1); }
 inline void set_filter2d_n1(int value)
 {
     UPDATE_SETTING(Filter2dN1, value);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 inline int get_filter2d_n2() { return GET_SETTING(Filter2dN2); }
 inline void set_filter2d_n2(int value)
 {
     UPDATE_SETTING(Filter2dN2, value);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }

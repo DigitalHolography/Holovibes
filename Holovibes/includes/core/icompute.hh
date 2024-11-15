@@ -42,7 +42,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -186,16 +186,7 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
-
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         UpdateTimeTransformationAlgorithm,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -215,7 +206,6 @@ class ICompute
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
@@ -256,8 +246,6 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 
     void request_refresh();
-
-    void request_autocontrast(WindowKind kind);
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
