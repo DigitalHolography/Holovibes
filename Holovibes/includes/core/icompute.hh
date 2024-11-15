@@ -42,7 +42,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -85,9 +85,7 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
-    holovibes::settings::RecordQueueLocation,                    \
-    holovibes::settings::RawViewQueueLocation,                   \
-    holovibes::settings::InputQueueLocation
+    holovibes::settings::RecordQueueLocation
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -96,7 +94,8 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled
+    holovibes::settings::FilterEnabled,                          \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -137,6 +136,7 @@ class ICompute
         plan_unwrap_2d_.plan(fd.width, fd.height, CUFFT_C2C);
 
         update_spatial_transformation_parameters();
+        allocate_moments_buffers();
 
         time_transformation_env_.stft_plan
             .planMany(1, inembed, inembed, zone_size, 1, inembed, zone_size, 1, CUFFT_C2C, zone_size);
@@ -184,16 +184,7 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
-
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         UpdateTimeTransformationAlgorithm,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -213,7 +204,6 @@ class ICompute
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
@@ -254,8 +244,6 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 
     void request_refresh();
-
-    void request_autocontrast(WindowKind kind);
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
@@ -316,6 +304,14 @@ class ICompute
      * \{
      */
     void update_spatial_transformation_parameters();
+
+    /**
+     * \brief Resizes the moments buffers (in moments_env_) when a moments file is read.
+     *
+     * Each buffer (moments0_buffer, ...) stores one single moment frame.
+     *
+     */
+    void allocate_moments_buffers();
 
     void init_cuts();
 

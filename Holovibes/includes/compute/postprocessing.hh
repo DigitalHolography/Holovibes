@@ -18,11 +18,11 @@
 #pragma region Settings configuration
 // clang-format off
 
-#define REALTIME_SETTINGS                          \
-    holovibes::settings::ImageType,                \
-    holovibes::settings::RenormEnabled,            \
-    holovibes::settings::ConvolutionMatrix,        \
-    settings::ConvolutionEnabled,                  \
+#define REALTIME_SETTINGS                               \
+    holovibes::settings::ImageType,                     \
+    holovibes::settings::RenormEnabled,                 \
+    holovibes::settings::ConvolutionMatrix,             \
+    settings::ConvolutionEnabled,                       \
     settings::DivideConvolutionEnabled
 
 
@@ -51,7 +51,7 @@ class Postprocessing
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Postprocessing(FunctionVector& fn_compute_vect,
+    Postprocessing(std::shared_ptr<FunctionVector> fn_compute_vect,
                    CoreBuffersEnv& buffers,
                    const camera::FrameDescriptor& input_fd,
                    const cudaStream_t& stream,
@@ -76,7 +76,7 @@ class Postprocessing
     /*! \brief Free the ressources for the postprocessing */
     void dispose();
 
-    /*! \brief Insert the Convolution function. TODO: Check if it works. */
+    /*! \brief Insert the Convolution function. */
     void insert_convolution(float* gpu_postprocess_frame, float* gpu_convolution_buffer);
 
     /*! \brief Insert the normalization function. */
@@ -127,7 +127,7 @@ class Postprocessing
     cuda_tools::CudaUniquePtr<double> reduce_result_;
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \brief Main buffers */
     CoreBuffersEnv& buffers_;

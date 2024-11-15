@@ -27,6 +27,7 @@
 #include "enum_record_mode.hh"
 #include "enum_import_type.hh"
 #include "enum_device.hh"
+#include "enum_recorded_data_type.hh"
 
 #include <spdlog/spdlog.h>
 #include <string>
@@ -111,12 +112,10 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::RawViewQueueLocation,                      \
-    holovibes::settings::InputQueueLocation,                        \
     holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU,                               \
     holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps
+    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS
 
@@ -270,7 +269,8 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(
+        CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *
@@ -439,12 +439,10 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
-                                             settings::RawViewQueueLocation{Device::GPU},
-                                             settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
-                                             settings::Mp4Fps{24}))
+                                             settings::Mp4Fps{24},
+                                             settings::DataType{RecordedDataType::RAW}))
     {
     }
 

@@ -160,6 +160,8 @@ void InputHoloFile::import_compute_settings()
         this->load_footer();
     }
 
+    api::set_data_type(RecordedDataType::RAW);
+
     // perform convertion of holo file footer if needed
     if (holo_file_header_.version < 3)
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V2);
@@ -167,8 +169,10 @@ void InputHoloFile::import_compute_settings()
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V3);
     else if (holo_file_header_.version == 4)
         ComputeSettings::convert_json(meta_data_, ComputeSettingsVersion::V4);
-    else if (holo_file_header_.version == 5)
-        ;
+    else if (holo_file_header_.version == 5 || holo_file_header_.version == 6)
+        ; // Version 6 was skipped because of a versioning error, it is considered the same as 5
+    else if (holo_file_header_.version == 7) // Version that adds data type in the header
+        api::set_data_type(static_cast<RecordedDataType>(holo_file_header_.data_type));
     else
         LOG_ERROR("HOLO file version not supported!");
 
@@ -190,6 +194,13 @@ void InputHoloFile::import_compute_settings()
     // update GSH with the footer values
     raw_footer_.Assert();
     raw_footer_.Load();
+
+    // When reading moments, the batch size is force set to one.
+    // This is because moments don't need to and shouldn't be batched;
+    // every single frame is necessary
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+        UPDATE_SETTING(BatchSize, 1); // Cannot call API function,
+                                      // as it would do nothing because ImportType is not set
 }
 
 void InputHoloFile::import_info() const

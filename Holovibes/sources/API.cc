@@ -121,6 +121,8 @@ bool change_camera(CameraKind c)
         if (get_compute_mode() == Computation::Raw)
             Holovibes::instance().stop_compute();
 
+        set_data_type(RecordedDataType::RAW); // The data gotten from a camera is raw
+
         try
         {
             Holovibes::instance().start_camera_frame_read(c);
@@ -294,7 +296,6 @@ void create_holo_window(ushort window_size)
             new gui::HoloWindow(pos,
                                 size,
                                 get_gpu_output_queue().get(),
-                                get_compute_pipe(),
                                 UserInterfaceDescriptor::instance().sliceXZ,
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
@@ -375,14 +376,6 @@ void set_view_mode(const ImgType type)
         auto pipe = get_compute_pipe();
 
         api::set_img_type(type);
-
-        // Force XYview autocontrast
-        pipe->request_autocontrast(WindowKind::XYview);
-
-        // Force cuts views autocontrast if needed
-        if (api::get_cuts_view_enabled())
-            api::set_auto_contrast_cuts();
-
         pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
@@ -394,8 +387,11 @@ void set_view_mode(const ImgType type)
 
 #pragma region Batch
 
-void update_batch_size(const uint batch_size)
+void update_batch_size(uint batch_size)
 {
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        batch_size = 1;
+
     if (get_import_type() == ImportType::None || get_batch_size() == batch_size)
         return;
 
@@ -455,7 +451,7 @@ bool set_3d_cuts_view(uint time_transformation_size)
         UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
         UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
 
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Cross>();
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Cross>(false);
         set_cuts_view_enabled(true);
         auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
         if (holo)
@@ -484,8 +480,7 @@ void cancel_time_transformation_cuts()
     if (UserInterfaceDescriptor::instance().mainDisplay)
     {
         UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::SliceCross);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Cross);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Cross);
     }
 
     set_cuts_view_enabled(false);
@@ -501,10 +496,6 @@ void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<
 void toggle_renormalize(bool value)
 {
     set_renorm_enabled(value);
-
-    if (get_import_type() != ImportType::None)
-        get_compute_pipe()->request(ICS::ClearImgAccu);
-
     pipe_refresh();
 }
 
@@ -519,7 +510,7 @@ void handle_update_exception()
 void set_filter2d(bool checked)
 {
     set_filter2d_enabled(checked);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
@@ -551,7 +542,6 @@ void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
         UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         set_filter2d_log_enabled(true);
-        pipe->request_autocontrast(WindowKind::Filter2D);
         pipe_refresh();
     }
     else
@@ -996,49 +986,6 @@ void set_contrast_mode(bool value)
     pipe_refresh();
 }
 
-void set_auto_contrast_cuts()
-{
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XZview);
-    pipe->request_autocontrast(WindowKind::YZview);
-}
-
-bool set_auto_contrast()
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return false;
-
-    try
-    {
-        get_compute_pipe()->request_autocontrast(get_current_window_type());
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
-
-    return false;
-}
-
-void set_auto_contrast_all()
-{
-    if (get_import_type() == ImportType::None)
-        return;
-
-    auto pipe = get_compute_pipe();
-    pipe->request_autocontrast(WindowKind::XYview);
-    if (api::get_cuts_view_enabled())
-    {
-        pipe->request_autocontrast(WindowKind::XZview);
-        pipe->request_autocontrast(WindowKind::YZview);
-    }
-    if (get_filter2d_view_enabled())
-        pipe->request_autocontrast(WindowKind::Filter2D);
-
-    pipe_refresh();
-}
-
 void set_contrast_min(float value)
 {
     if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
@@ -1135,8 +1082,6 @@ void set_log_scale(const bool value)
         api::set_filter2d_log_enabled(value);
     else
         set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
-    if (value && api::get_contrast_enabled())
-        set_auto_contrast();
 
     pipe_refresh();
 }
@@ -1268,6 +1213,80 @@ float get_truncate_contrast_min(const int precision)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
+void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
+{
+    auto& holo = Holovibes::instance();
+
+    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+    std::string path = path_file.string();
+
+    std::vector<float> matrix;
+    uint matrix_width = 0;
+    uint matrix_height = 0;
+    uint matrix_z = 1;
+
+    // Doing this the C way because it's faster
+    FILE* c_file;
+    fopen_s(&c_file, path.c_str(), "r");
+
+    if (c_file == nullptr)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid file path");
+    }
+
+    // Read kernel dimensions
+    if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
+    {
+        fclose(c_file);
+        throw std::runtime_error("Invalid kernel dimensions");
+    }
+
+    size_t matrix_size = matrix_width * matrix_height * matrix_z;
+    matrix.resize(matrix_size);
+
+    // Read kernel values
+    for (size_t i = 0; i < matrix_size; ++i)
+    {
+        if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
+        {
+            fclose(c_file);
+            throw std::runtime_error("Missing values");
+        }
+    }
+
+    fclose(c_file);
+
+    // Reshape the vector as a (nx,ny) rectangle, keeping z depth
+    const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
+    const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
+    const uint size = output_width * output_height;
+
+    // The convo matrix is centered and padded with 0 since the kernel is
+    // usally smaller than the output Example: kernel size is (2, 2) and
+    // output size is (4, 4) The kernel is represented by 'x' and
+    //  | 0 | 0 | 0 | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | x | x | 0 |
+    //  | 0 | 0 | 0 | 0 |
+    const uint first_col = (output_width / 2) - (matrix_width / 2);
+    const uint last_col = (output_width / 2) + (matrix_width / 2);
+    const uint first_row = (output_height / 2) - (matrix_height / 2);
+    const uint last_row = (output_height / 2) + (matrix_height / 2);
+
+    convo_matrix.resize(size, 0.0f);
+
+    uint kernel_indice = 0;
+    for (uint i = first_row; i < last_row; i++)
+    {
+        for (uint j = first_col; j < last_col; j++)
+        {
+            (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
+            kernel_indice++;
+        }
+    }
+}
+
 void load_convolution_matrix(std::optional<std::string> filename)
 {
     api::set_convolution_enabled(true);
@@ -1278,78 +1297,10 @@ void load_convolution_matrix(std::optional<std::string> filename)
         return;
     std::vector<float> convo_matrix = api::get_convo_matrix();
     const std::string& file = filename.value();
-    auto& holo = Holovibes::instance();
 
     try
     {
-        auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
-        std::string path = path_file.string();
-
-        std::vector<float> matrix;
-        uint matrix_width = 0;
-        uint matrix_height = 0;
-        uint matrix_z = 1;
-
-        // Doing this the C way because it's faster
-        FILE* c_file;
-        fopen_s(&c_file, path.c_str(), "r");
-
-        if (c_file == nullptr)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid file path");
-        }
-
-        // Read kernel dimensions
-        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid kernel dimensions");
-        }
-
-        size_t matrix_size = matrix_width * matrix_height * matrix_z;
-        matrix.resize(matrix_size);
-
-        // Read kernel values
-        for (size_t i = 0; i < matrix_size; ++i)
-        {
-            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-            {
-                fclose(c_file);
-                throw std::runtime_error("Missing values");
-            }
-        }
-
-        fclose(c_file);
-
-        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
-        const uint size = output_width * output_height;
-
-        // The convo matrix is centered and padded with 0 since the kernel is
-        // usally smaller than the output Example: kernel size is (2, 2) and
-        // output size is (4, 4) The kernel is represented by 'x' and
-        //  | 0 | 0 | 0 | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | 0 | 0 | 0 |
-        const uint first_col = (output_width / 2) - (matrix_width / 2);
-        const uint last_col = (output_width / 2) + (matrix_width / 2);
-        const uint first_row = (output_height / 2) - (matrix_height / 2);
-        const uint last_row = (output_height / 2) + (matrix_height / 2);
-
-        convo_matrix.resize(size, 0.0f);
-
-        uint kernel_indice = 0;
-        for (uint i = first_row; i < last_row; i++)
-        {
-            for (uint j = first_col; j < last_col; j++)
-            {
-                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
-                kernel_indice++;
-            }
-        }
+        load_convolution_matrix_file(file, convo_matrix);
         api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
@@ -1500,12 +1451,9 @@ void display_reticle(bool value)
     set_reticle_display_enabled(value);
 
     if (value)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Reticle>();
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_default();
-    }
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
     else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable_all(gui::Reticle);
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
 
     pipe_refresh();
 }
@@ -1527,14 +1475,11 @@ void update_registration_zone(float value)
 
 #pragma region Chart
 
-void active_noise_zone()
-{
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Noise>();
-}
+void active_noise_zone() { UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Noise>(); }
 
 void active_signal_zone()
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().create_overlay<gui::Signal>();
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Signal>();
 }
 
 void start_chart_display()
@@ -1658,13 +1603,9 @@ void set_record_mode(const std::string& text)
     }
 
     set_record_mode(it->second);
-    RecordMode record_mode = api::get_record_mode();
-
-    if (record_mode != RecordMode::RAW)
-        api::set_record_on_gpu(true);
 
     // Attempt to initialize compute pipe for non-CHART record modes
-    if (record_mode != RecordMode::CHART)
+    if (get_record_mode() != RecordMode::CHART)
     {
         try
         {
@@ -1698,45 +1639,6 @@ bool start_record_preconditions()
     }
 
     return true;
-}
-
-void set_record_device(const Device device)
-{
-    if (get_compute_mode() == Computation::Hologram)
-        Holovibes::instance().stop_compute();
-
-    if (get_raw_view_queue_location() != device)
-        set_raw_view_queue_location(device);
-
-    // We only move the queue from gpu to cpu, since by default the record queue is on the cpu
-    if (get_record_queue_location() != device && device == Device::CPU)
-        set_record_queue_location(device);
-
-    if (get_input_queue_location() != device)
-    {
-        ImportType it = get_import_type();
-
-        auto c = CameraKind::NONE;
-        if (it == ImportType::Camera)
-        {
-            c = get_camera_kind();
-            camera_none();
-        }
-        else if (it == ImportType::File)
-            import_stop();
-
-        set_input_queue_location(device);
-
-        if (device == Device::CPU)
-            set_compute_mode(Computation::Raw);
-
-        if (it == ImportType::Camera)
-            change_camera(c);
-        else
-            import_start();
-
-        set_image_mode(get_compute_mode(), 1);
-    }
 }
 
 void start_record(std::function<void()> callback)
@@ -1773,13 +1675,7 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-void record_finished()
-{
-    UserInterfaceDescriptor::instance().is_recording_ = false;
-    // if the record was on the cpu, we have to put the queues on gpu again
-    if (api::get_record_on_gpu() == false)
-        api::set_record_device(Device::GPU);
-}
+void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
 
 #pragma endregion
 

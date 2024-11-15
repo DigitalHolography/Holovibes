@@ -69,7 +69,7 @@ class Rendering
   public:
     /*! \brief Constructor */
     template <TupleContainsTypes<ALL_SETTINGS> InitSettings>
-    Rendering(FunctionVector& fn_compute_vect,
+    Rendering(std::shared_ptr<FunctionVector> fn_compute_vect,
               const CoreBuffersEnv& buffers,
               ChartEnv& chart_env,
               const ImageAccEnv& image_acc_env,
@@ -101,10 +101,7 @@ class Rendering
     /*! \brief insert the functions relative to the log10. */
     void insert_log();
     /*! \brief insert the functions relative to the contrast. */
-    void insert_contrast(std::atomic<bool>& autocontrast_request,
-                         std::atomic<bool>& autocontrast_slice_xz_request,
-                         std::atomic<bool>& autocontrast_slice_yz_request,
-                         std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_contrast();
 
     template <typename T>
     inline void update_setting(T setting)
@@ -131,16 +128,37 @@ class Rendering
     void insert_filter2d_view_log();
 
     /*! \brief insert the autocontrast computation */
-    void insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                     std::atomic<bool>& autocontrast_slice_xz_request,
-                                     std::atomic<bool>& autocontrast_slice_yz_request,
-                                     std::atomic<bool>& autocontrast_filter2d_request);
+    void insert_compute_autocontrast();
+
+    /*! \brief Check whether autocontrast should be applied or not for each view */
+    void request_autocontrast();
 
     /*! \brief insert the constrast on a view */
     void insert_apply_contrast(WindowKind view);
 
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
+
+    /*! \brief Tell if the contrast should be applied
+     *
+     * \param request[in] The request for autocontrast
+     * \param queue[in] The accumulation queue
+     * \return true if the contrast should be applied
+     */
+    inline bool should_apply_contrast(bool request, const std::unique_ptr<Queue>& queue)
+    {
+        if (!request)
+            return false;
+
+        // Apply contrast if there is no queue = accumulation set to 1
+        if (!queue)
+            return true;
+
+        // Else there are frames in the accumulutation queue. We calculate autocontrast on the first frame to calibrate
+        // the contrast and apply it one more time when the queue is full to fine tune it. It's done to reduce the
+        // blinking effect when the contrast is applied.
+        return queue->is_full() || queue->get_size() == 1;
+    }
 
     /**
      * @brief Helper function to get a settings value.
@@ -160,7 +178,7 @@ class Rendering
     }
 
     /*! \brief Vector function in which we insert the processing */
-    FunctionVector& fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
     /*! \brief Main buffers */
     const CoreBuffersEnv& buffers_;
     /*! \brief Chart variables */
@@ -180,6 +198,11 @@ class Rendering
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
     DelayedSettingsContainer<ONRESTART_SETTINGS> onrestart_settings_;
+
+    bool autocontrast_xy_ = false;
+    bool autocontrast_xz_ = false;
+    bool autocontrast_yz_ = false;
+    bool autocontrast_filter2d_ = false;
 };
 } // namespace holovibes::compute
 

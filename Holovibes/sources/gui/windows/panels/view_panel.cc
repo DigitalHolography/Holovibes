@@ -58,11 +58,37 @@ void ViewPanel::view_callback(WindowKind, ViewWindow)
     window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 }
 
+void ViewPanel::update_img_type(int img_type)
+{
+    ui_->ViewModeComboBox->setCurrentIndex(img_type);
+
+    const int mom0 = static_cast<int>(ImgType::Moments_0);
+    const int mom2 = static_cast<int>(ImgType::Moments_2);
+    auto viewbox_view = qobject_cast<QListView*>(ui_->ViewModeComboBox->view());
+
+    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+        {
+            if (i < mom0 || i > mom2)
+                viewbox_view->setRowHidden(i, true); // Hide non-moments display options
+        }
+
+        if (img_type < mom0 || img_type > mom2)
+            ui_->ViewModeComboBox->setCurrentIndex(mom0);
+    }
+    else
+    {
+        for (int i = 0; i < ui_->ViewModeComboBox->count(); i++)
+            viewbox_view->setRowHidden(i, false); // Set all display options to be visible again
+    }
+}
+
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
-    ui_->ViewModeComboBox->setCurrentIndex(static_cast<int>(api::get_img_type()));
+    update_img_type(static_cast<int>(api::get_img_type()));
 
     ui_->PhaseUnwrap2DCheckBox->setVisible(api::get_img_type() == ImgType::PhaseIncrease ||
                                            api::get_img_type() == ImgType::Argument);
@@ -271,10 +297,7 @@ void ViewPanel::update_3d_cuts_view(bool checked)
         const bool res = api::set_3d_cuts_view(time_transformation_size);
 
         if (res)
-        {
-            set_auto_contrast_cuts();
             parent_->notify();
-        }
         else
             cancel_time_transformation_cuts();
     }
@@ -292,8 +315,6 @@ void ViewPanel::cancel_time_transformation_cuts()
     api::cancel_time_transformation_cuts();
     parent_->notify();
 }
-
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
@@ -313,6 +334,9 @@ void ViewPanel::set_registration(bool value)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
+
+    if (!value)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Registration);
 
     if (!api::get_fft_shift_enabled())
     {
@@ -396,8 +420,6 @@ void ViewPanel::increment_p()
     }
 
     set_p(api::get_p_index() + 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -414,8 +436,6 @@ void ViewPanel::decrement_p()
     }
 
     set_p(api::get_p_index() - 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -477,8 +497,6 @@ void ViewPanel::set_contrast_mode(bool value)
     parent_->notify();
 }
 
-void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
-
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {
     api::set_contrast_auto_refresh(value);
@@ -511,6 +529,8 @@ void ViewPanel::update_registration_zone(double value)
 {
     if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
         return;
+
+    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
 
     api::update_registration_zone(value);
 }

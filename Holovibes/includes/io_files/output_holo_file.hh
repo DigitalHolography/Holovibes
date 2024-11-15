@@ -6,6 +6,7 @@
 
 #include "output_frame_file.hh"
 #include "holo_file.hh"
+#include "enum_recorded_data_type.hh"
 
 namespace holovibes::io_files
 {
@@ -69,6 +70,9 @@ class OutputHoloFile : public OutputFrameFile, public HoloFile
      * \param img_nb The number of frames in the file
      * \throw FileException if an error occurred while opening the file
      */
-    OutputHoloFile(const std::string& file_path, const camera::FrameDescriptor& fd, uint64_t img_nb);
+    OutputHoloFile(const std::string& file_path,
+                   const camera::FrameDescriptor& fd,
+                   uint64_t img_nb,
+                   RecordedDataType data_type);
 };
 } // namespace holovibes::io_files

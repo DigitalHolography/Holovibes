@@ -18,6 +18,7 @@
 #include "enum/enum_time_transformation.hh"
 #include "enum/enum_computation.hh"
 #include "enum/enum_device.hh"
+#include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
@@ -131,14 +132,12 @@ DECLARE_SETTING(ChartRecordEnabled, bool);
 /*! \name Advanced Cache */
 DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
-DECLARE_SETTING(InputQueueLocation, holovibes::Device);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
 DECLARE_SETTING(RawBitshift, size_t);
 DECLARE_SETTING(ContrastUpperThreshold, float);
 DECLARE_SETTING(RenormConstant, unsigned);
 DECLARE_SETTING(CutsContrastPOffset, size_t);
-DECLARE_SETTING(RecordOnGPU, bool);
 DECLARE_SETTING(BenchmarkMode, bool);
 
 /*! \name ComputeCache */
@@ -183,8 +182,9 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV);
 DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
-DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
-DECLARE_SETTING(FrameSkip, uint)
-DECLARE_SETTING(Mp4Fps, uint)
+DECLARE_SETTING(FrameSkip, uint);
+DECLARE_SETTING(Mp4Fps, uint);
+
+DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings

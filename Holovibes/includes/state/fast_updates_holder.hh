@@ -98,9 +98,9 @@ class FastUpdatesHolder
 };
 
 /*! \class FastUpdatesMap
-*
-* \brief Container of all the FastUpdatesHolder map used by the application.
-*/
+ *
+ * \brief Container of all the FastUpdatesHolder map used by the application.
+ */
 struct FastUpdatesMap
 {
     // inline prevents MSVC from brain-dying, dunno why

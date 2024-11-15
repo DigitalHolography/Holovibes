@@ -74,7 +74,7 @@ class Pipe : public ICompute
     {
         ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
 
-        fn_compute_vect_ = FunctionVector(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>(batch_condition);
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -221,9 +221,6 @@ class Pipe : public ICompute
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
 
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
-    void insert_request_autocontrast();
-
     void insert_raw_view();
 
     void insert_raw_record();
@@ -275,7 +272,7 @@ class Pipe : public ICompute
 
   private:
     /*! \brief Vector of functions that will be executed in the exec() function. */
-    FunctionVector fn_compute_vect_;
+    std::shared_ptr<FunctionVector> fn_compute_vect_;
 
     /*! \name Compute objects
      * \{

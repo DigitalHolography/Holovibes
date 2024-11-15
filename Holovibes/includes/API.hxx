@@ -2,6 +2,7 @@
 
 #include "API.hh"
 #include "enum_record_mode.hh"
+#include "enum_recorded_data_type.hh"
 
 namespace holovibes::api
 {
@@ -97,6 +98,9 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
 inline ImgType get_img_type() { return GET_SETTING(ImageType); }
 inline void set_img_type(ImgType type) { UPDATE_SETTING(ImageType, type); }
 
+inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
+inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
+
 inline uint get_input_buffer_size() { return static_cast<uint>(GET_SETTING(InputBufferSize)); }
 inline void set_input_buffer_size(uint value) { UPDATE_SETTING(InputBufferSize, value); }
 
@@ -156,9 +160,6 @@ inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConst
 inline float get_display_rate() { return GET_SETTING(DisplayRate); }
 inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); }
 
-inline holovibes::Device get_input_queue_location() { return GET_SETTING(InputQueueLocation); }
-inline void set_input_queue_location(holovibes::Device value) { UPDATE_SETTING(InputQueueLocation, value); }
-
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
@@ -185,9 +186,6 @@ inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::ins
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
 inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
-
-inline holovibes::Device get_raw_view_queue_location() { return GET_SETTING(RawViewQueueLocation); }
-inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTING(RawViewQueueLocation, value); }
 
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
@@ -278,9 +276,6 @@ inline void set_record_frame_count(std::optional<size_t> value) { UPDATE_SETTING
 
 inline RecordMode get_record_mode() { return GET_SETTING(RecordMode); }
 inline void set_record_mode(RecordMode value) { UPDATE_SETTING(RecordMode, value); }
-
-inline bool get_record_on_gpu() { return GET_SETTING(RecordOnGPU); }
-inline void set_record_on_gpu(bool value) { UPDATE_SETTING(RecordOnGPU, value); }
 
 inline size_t get_record_frame_skip() { return GET_SETTING(RecordFrameSkip); }
 inline void set_record_frame_skip(size_t value) { UPDATE_SETTING(RecordFrameSkip, value); }
@@ -470,14 +465,14 @@ inline int get_filter2d_n1() { return GET_SETTING(Filter2dN1); }
 inline void set_filter2d_n1(int value)
 {
     UPDATE_SETTING(Filter2dN1, value);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 inline int get_filter2d_n2() { return GET_SETTING(Filter2dN2); }
 inline void set_filter2d_n2(int value)
 {
     UPDATE_SETTING(Filter2dN2, value);
-    set_auto_contrast_all();
+    pipe_refresh();
 }
 
 inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }

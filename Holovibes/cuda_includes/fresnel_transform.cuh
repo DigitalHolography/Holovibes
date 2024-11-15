@@ -18,13 +18,13 @@
  * \param stream The input (and output) stream ; the data
  */
 void fresnel_transform_lens(cuComplex* lens,
-               const uint lens_side_size,
-               const uint frame_height,
-               const uint frame_width,
-               const float lambda,
-               const float z,
-               const float pixel_size,
-               const cudaStream_t stream);
+                            const uint lens_side_size,
+                            const uint frame_height,
+                            const uint frame_width,
+                            const float lambda,
+                            const float z,
+                            const float pixel_size,
+                            const cudaStream_t stream);
 
 /*! \brief Apply a lens and call a Fresnel transform on the image
  *
@@ -37,9 +37,9 @@ void fresnel_transform_lens(cuComplex* lens,
  * \param stream The operation stream
  */
 void fresnel_transform(cuComplex* input,
-           cuComplex* output,
-           const uint batch_size,
-           const cuComplex* lens,
-           const cufftHandle plan2D,
-           const size_t frame_resolution,
-           const cudaStream_t stream);
+                       cuComplex* output,
+                       const uint batch_size,
+                       const cuComplex* lens,
+                       const cufftHandle plan2D,
+                       const size_t frame_resolution,
+                       const cudaStream_t stream);

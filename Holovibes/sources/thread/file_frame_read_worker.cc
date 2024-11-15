@@ -201,7 +201,7 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
         frames_read = input_file_->read_frames(cpu_frame_buffer_, frames_to_read, &flag_packed);
         size_t frames_total_size = frames_read * frame_size_;
 
-        if (flag_packed != 8 && flag_packed != 16)
+        if (flag_packed % 8 != 0) // Irregular encoding (not aligned on bytes)
         {
             const camera::FrameDescriptor& fd = input_file_->get_frame_descriptor();
             size_t packed_frame_size = fd.width * fd.height * (flag_packed / 8.f);
@@ -227,6 +227,8 @@ size_t FileFrameReadWorker::read_copy_file(size_t frames_to_read)
                                        (unsigned char*)gpu_packed_buffer_,
                                        packed_frame_size,
                                        stream_);
+                else
+                    throw io_files::FileException("Image encoding format not supported: {} bits", flag_packed);
             }
         }
         else
@@ -270,10 +272,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         if (stop_requested_)
             break;
 
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
-                                     api::get_input_queue_location() == holovibes::Device::GPU
-                                         ? cudaMemcpyDeviceToDevice
-                                         : cudaMemcpyDeviceToHost);
+        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
 
         current_nb_frames_read_++;
         processed_frames_++;
@@ -285,13 +284,11 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
     // enqueue the gpu_file_frame_buffer_ before storing next read frames in it.
     //
-    // With load_file_in_gpu_ == true, all the file in in the buffer,
+    // With load_file_in_gpu_ == true, all the file is in the buffer,
     // so we don't have to sync
-    //
-    // If the input queue is not on the GPU no sync is needed
-    if (setting<settings::LoadFileInGPU>() == false &&
-        (api::get_input_queue_location() ==
-         holovibes::Device::GPU)) // onrestart_settings_.get<settings::LoadFileInGPU>().value == false)
-        input_queue_.load()->sync_current_batch();
+    if (setting<settings::LoadFileInGPU>())
+        return;
+
+    input_queue_.load()->sync_current_batch();
 }
 } // namespace holovibes::worker
