@@ -1,5 +1,10 @@
 ## Changelog
 
+### 14.0.1
+
+- remove the second .ps1 script
+
+
 ### 14.0.0
 
 - Create a second ps1 for registration

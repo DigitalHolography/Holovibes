@@ -298,6 +298,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled() && !opts.record_raw)
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
+    if (opts.fps)
+        holovibes.update_setting(holovibes::settings::InputFPS{opts.fps.value()});
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
