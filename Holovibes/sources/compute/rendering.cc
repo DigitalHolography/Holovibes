@@ -227,27 +227,6 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
-/*! \brief Tell if the contrast should be applied
- *
- * \param request The request for autocontrast
- * \param queue The accumulation queue
- * \return true if the contrast should be applied
- */
-inline bool apply_contrast(bool request, const std::unique_ptr<Queue>& queue)
-{
-    if (!request)
-        return false;
-
-    // Apply contrast if there is no queue = accumulation set to 1
-    if (!queue)
-        return true;
-
-    // Else there are frames in the accumulutation queue. We calculate autocontrast on the first frame to calibrate the
-    // contrast and apply it one more time when the queue is full to fine tune it.
-    // It's done to reduce the blinking effect when the contrast is applied.
-    return queue->is_full() || queue->get_size() == 1;
-}
-
 void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
                                             std::atomic<bool>& autocontrast_slice_xz_request,
                                             std::atomic<bool>& autocontrast_slice_yz_request,
@@ -263,10 +242,8 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (apply_contrast(autocontrast_request, image_acc_env_.gpu_accumulation_xy_queue))
+        if (should_apply_contrast(autocontrast_request, image_acc_env_.gpu_accumulation_xy_queue))
         {
-            // FIXME Handle composite size, adapt width and height (frames_res =
-            // buffers_.gpu_postprocess_frame_size)
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
 
             // Disable autocontrast if the queue is full or if there is no accumulation
@@ -274,7 +251,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                 autocontrast_request = false;
         }
 
-        if (apply_contrast(autocontrast_slice_xz_request, image_acc_env_.gpu_accumulation_xz_queue))
+        if (should_apply_contrast(autocontrast_slice_xz_request, image_acc_env_.gpu_accumulation_xz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
@@ -287,7 +264,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                 autocontrast_slice_xz_request = false;
         }
 
-        if (apply_contrast(autocontrast_slice_yz_request, image_acc_env_.gpu_accumulation_yz_queue))
+        if (should_apply_contrast(autocontrast_slice_yz_request, image_acc_env_.gpu_accumulation_yz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),

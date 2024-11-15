@@ -142,6 +142,27 @@ class Rendering
     /*! \brief Calls autocontrast and set the correct contrast variables */
     void autocontrast_caller(float* input, const uint width, const uint height, const uint offset, WindowKind view);
 
+    /*! \brief Tell if the contrast should be applied
+     *
+     * \param request[in] The request for autocontrast
+     * \param queue[in] The accumulation queue
+     * \return true if the contrast should be applied
+     */
+    inline bool should_apply_contrast(bool request, const std::unique_ptr<Queue>& queue)
+    {
+        if (!request)
+            return false;
+
+        // Apply contrast if there is no queue = accumulation set to 1
+        if (!queue)
+            return true;
+
+        // Else there are frames in the accumulutation queue. We calculate autocontrast on the first frame to calibrate
+        // the contrast and apply it one more time when the queue is full to fine tune it. It's done to reduce the
+        // blinking effect when the contrast is applied.
+        return queue->is_full() || queue->get_size() == 1;
+    }
+
     /**
      * @brief Helper function to get a settings value.
      */

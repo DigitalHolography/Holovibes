@@ -1,5 +1,8 @@
 ## Changelog
 
+### 14.0.1
+- Autocontrast works more consistently; thus removed the 'apply' button from the UI
+
 ### 14.0.0
 
 - Create a second ps1 for registration
