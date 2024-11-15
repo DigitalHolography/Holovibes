@@ -85,18 +85,27 @@ void Rendering::insert_log()
         insert_filter2d_view_log();
 }
 
-void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request,
-                                std::atomic<bool>& autocontrast_slice_xz_request,
-                                std::atomic<bool>& autocontrast_slice_yz_request,
-                                std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::request_autocontrast()
+{
+    autocontrast_xy_ = setting<settings::XY>().contrast.enabled && setting<settings::XY>().contrast.auto_refresh;
+    autocontrast_xz_ = setting<settings::XZ>().contrast.enabled && setting<settings::XZ>().contrast.auto_refresh &&
+                       setting<settings::CutsViewEnabled>();
+    autocontrast_yz_ = setting<settings::YZ>().contrast.enabled && setting<settings::YZ>().contrast.auto_refresh &&
+                       setting<settings::CutsViewEnabled>();
+    autocontrast_filter2d_ = setting<settings::Filter2d>().contrast.enabled &&
+                             setting<settings::Filter2d>().contrast.auto_refresh &&
+                             setting<settings::Filter2dViewEnabled>();
+}
+
+void Rendering::insert_contrast()
 {
     LOG_FUNC();
 
+    // Check if autocontrast is requiered for each view
+    request_autocontrast();
+
     // Compute min and max pixel values if requested
-    insert_compute_autocontrast(autocontrast_request,
-                                autocontrast_slice_xz_request,
-                                autocontrast_slice_yz_request,
-                                autocontrast_filter2d_request);
+    insert_compute_autocontrast();
 
     // Apply contrast on the main view
     if (setting<settings::XY>().contrast.enabled)
@@ -227,10 +236,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
         });
 }
 
-void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_request,
-                                            std::atomic<bool>& autocontrast_slice_xz_request,
-                                            std::atomic<bool>& autocontrast_slice_yz_request,
-                                            std::atomic<bool>& autocontrast_filter2d_request)
+void Rendering::insert_compute_autocontrast()
 {
     LOG_FUNC();
 
@@ -242,16 +248,16 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
         if (!time_transformation_env_.gpu_time_transformation_queue->is_full())
             return;
 
-        if (should_apply_contrast(autocontrast_request, image_acc_env_.gpu_accumulation_xy_queue))
+        if (should_apply_contrast(autocontrast_xy_, image_acc_env_.gpu_accumulation_xy_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame.get(), fd_.width, fd_.height, 0, WindowKind::XYview);
 
             // Disable autocontrast if the queue is full or if there is no accumulation
             if (!image_acc_env_.gpu_accumulation_xy_queue || image_acc_env_.gpu_accumulation_xy_queue->is_full())
-                autocontrast_request = false;
+                autocontrast_xy_ = false;
         }
 
-        if (should_apply_contrast(autocontrast_slice_xz_request, image_acc_env_.gpu_accumulation_xz_queue))
+        if (should_apply_contrast(autocontrast_xz_, image_acc_env_.gpu_accumulation_xz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_xz.get(),
                                 fd_.width,
@@ -261,10 +267,10 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
 
             // Disable autocontrast if the queue is full or if there is no accumulation
             if (!image_acc_env_.gpu_accumulation_xz_queue || image_acc_env_.gpu_accumulation_xz_queue->is_full())
-                autocontrast_slice_xz_request = false;
+                autocontrast_xz_ = false;
         }
 
-        if (should_apply_contrast(autocontrast_slice_yz_request, image_acc_env_.gpu_accumulation_yz_queue))
+        if (should_apply_contrast(autocontrast_yz_, image_acc_env_.gpu_accumulation_yz_queue))
         {
             autocontrast_caller(buffers_.gpu_postprocess_frame_yz.get(),
                                 setting<settings::TimeTransformationSize>(),
@@ -274,10 +280,10 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
 
             // Disable autocontrast if the queue is full or if there is no accumulation
             if (!image_acc_env_.gpu_accumulation_yz_queue || image_acc_env_.gpu_accumulation_yz_queue->is_full())
-                autocontrast_slice_yz_request = false;
+                autocontrast_yz_ = false;
         }
 
-        if (autocontrast_filter2d_request)
+        if (autocontrast_filter2d_)
         {
             autocontrast_caller(buffers_.gpu_float_filter2d_frame.get(),
                                 fd_.width,
@@ -285,7 +291,7 @@ void Rendering::insert_compute_autocontrast(std::atomic<bool>& autocontrast_requ
                                 0,
                                 WindowKind::Filter2D);
 
-            autocontrast_filter2d_request = false;
+            autocontrast_filter2d_ = false;
         }
     };
 

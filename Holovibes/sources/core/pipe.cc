@@ -337,13 +337,7 @@ void Pipe::refresh()
 
     rendering_->insert_chart();
     rendering_->insert_log();
-
-    // Request for autocontrast on pipe refresh
-    request_autocontrast();
-    rendering_->insert_contrast(is_requested(ICS::Autocontrast),
-                                is_requested(ICS::AutocontrastSliceXZ),
-                                is_requested(ICS::AutocontrastSliceYZ),
-                                is_requested(ICS::AutocontrastFilter2D));
+    rendering_->insert_contrast();
 
     // converts_->insert_cuts_final();
 
