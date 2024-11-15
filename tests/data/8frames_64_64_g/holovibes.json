@@ -179,7 +179,7 @@
         "lambda": 8.519999710188131e-07,
         "batch_size": 1,
         "image_mode": "HOLOGRAM",
-        "space_transformation": "FFT2",
+        "space_transformation": "ANGULARSP",
         "time_transformation": "NONE",
         "time_transformation_size": 1,
         "time_transformation_stride": 1,
