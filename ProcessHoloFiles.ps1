@@ -93,7 +93,7 @@ $exePath1 = "Holovibes.exe"
 $exePath2 = "build/bin/Holovibes.exe"
 $exePath = ""
 
-# Check if ../Holovibes.exe exists
+# Check if Holovibes.exe exists
 if (Test-Path $exePath1) {
     $exePath = $exePath1
 } else {
@@ -101,10 +101,15 @@ if (Test-Path $exePath1) {
 }
 # Set the frame skip to 16
 $frameSkip = 16
-#$frameSkip = Read-Host -Prompt "Enter the frame skip you want (optional)"
-#if (-not ($frameSkip -match '^\d+$')) {
-#    $frameSkip = "0"
-#}
+$frameSkip = Read-Host -Prompt "Enter frame skip (optional, default 16)"
+if (-not ($frameSkip -match '^\d+$')) {
+    $frameSkip = 16
+}
+
+$input_fps = Read-Host -Prompt "Enter input fps (optional, default camera fps)"
+if (-not ($input_fps -match '^\d+$')) {
+    $input_fps = -1
+}
 
 # Confirm action with the user
 Write-Host "You have selected the folder: $holoFolderPath" -ForegroundColor Cyan
@@ -178,7 +183,10 @@ function Execute-Holovibes {
     )
 
     $args = "-i `"$inputFilePath`" -o `"$outputFilePath`""
-
+    if ($script:input_fps -ne -1)
+    {
+        $args += " -f $script:input_fps"
+    }
     if ($moments -eq 1)
     {
         $args += " --moments_record"
