@@ -30,7 +30,6 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 void AdvancedSettingsWindow::set_ui_values()
 {
     api::set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
-    api::set_record_on_gpu(!ui.RecordDeviceCheckbox->isChecked());
 
     api::set_file_buffer_size(static_cast<int>(ui.FileBSSpinBox->value()));
     api::set_input_buffer_size(static_cast<int>(ui.InputBSSpinBox->value()));
@@ -94,8 +93,6 @@ void AdvancedSettingsWindow::set_current_values()
     ui.CutsContrastSpinBox->setValue(api::get_cuts_contrast_p_offset());
 
     ui.RecordQueueLocationCheckBox->setChecked(api::get_record_queue_location() == Device::GPU);
-    ui.RecordQueueLocationCheckBox->setEnabled(api::get_input_queue_location() == Device::GPU);
-    ui.RecordDeviceCheckbox->setChecked(!api::get_record_on_gpu());
 
     ui.OutputNameLineEdit->setText(UserInterfaceDescriptor::instance().output_filename_.c_str());
     ui.InputFolderPathLineEdit->setText(UserInterfaceDescriptor::instance().record_output_directory_.c_str());

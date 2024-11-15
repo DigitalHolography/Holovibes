@@ -160,9 +160,6 @@ inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConst
 inline float get_display_rate() { return GET_SETTING(DisplayRate); }
 inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); }
 
-inline holovibes::Device get_input_queue_location() { return GET_SETTING(InputQueueLocation); }
-inline void set_input_queue_location(holovibes::Device value) { UPDATE_SETTING(InputQueueLocation, value); }
-
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
@@ -189,9 +186,6 @@ inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::ins
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
 inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
-
-inline holovibes::Device get_raw_view_queue_location() { return GET_SETTING(RawViewQueueLocation); }
-inline void set_raw_view_queue_location(holovibes::Device value) { UPDATE_SETTING(RawViewQueueLocation, value); }
 
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
@@ -282,9 +276,6 @@ inline void set_record_frame_count(std::optional<size_t> value) { UPDATE_SETTING
 
 inline RecordMode get_record_mode() { return GET_SETTING(RecordMode); }
 inline void set_record_mode(RecordMode value) { UPDATE_SETTING(RecordMode, value); }
-
-inline bool get_record_on_gpu() { return GET_SETTING(RecordOnGPU); }
-inline void set_record_on_gpu(bool value) { UPDATE_SETTING(RecordOnGPU, value); }
 
 inline size_t get_record_frame_skip() { return GET_SETTING(RecordFrameSkip); }
 inline void set_record_frame_skip(size_t value) { UPDATE_SETTING(RecordFrameSkip, value); }
