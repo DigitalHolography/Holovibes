@@ -318,6 +318,8 @@ void Pipe::refresh()
         insert_moments();
         insert_moments_record();
     }
+
+    // Analysis
     analysis_->insert_first_analysis_masks();
     analysis_->insert_artery_mask();
     analysis_->insert_vein_mask();
