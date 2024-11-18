@@ -385,8 +385,6 @@ void Analysis::insert_first_analysis_masks()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
-
                 // Compute the flat field corrected image for each frame of the video
                 convolution_kernel(buffers_.gpu_postprocess_frame,
                                    buffers_.gpu_convolution_buffer,
@@ -608,6 +606,7 @@ void Analysis::insert_artery_mask()
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_);
                 cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
 }
@@ -627,6 +626,7 @@ void Analysis::insert_vein_mask()
                                         buffers_.gpu_postprocess_frame_size,
                                         stream_);
                 cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
 }
@@ -646,6 +646,7 @@ void Analysis::insert_vesselness()
                             buffers_.gpu_postprocess_frame_size * sizeof(float),
                             cudaMemcpyDeviceToDevice);
                 cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
 }
