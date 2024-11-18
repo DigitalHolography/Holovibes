@@ -84,29 +84,29 @@ void compute_first_correlation(float* output,
                                cudaStream_t stream) // Size here is future time window
 {
 
-    // float* vascular_pulse_copy;
-    // cudaXMalloc(&vascular_pulse_copy, sizeof(float) * length_video);
-    // cudaXMemcpyAsync(vascular_pulse_copy,
-    //                  vascular_pulse,
-    //                  sizeof(float) * length_video,
-    //                  cudaMemcpyDeviceToDevice,
-    //                  stream);
+    float* vascular_pulse_copy;
+    cudaXMalloc(&vascular_pulse_copy, sizeof(float) * length_video);
+    cudaXMemcpyAsync(vascular_pulse_copy,
+                     vascular_pulse,
+                     sizeof(float) * length_video,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
-    // divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, length_video, stream);
+    divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, length_video, stream);
 
 
-//     float* vascular_pulse_centered;
-//     cudaXMalloc(&vascular_pulse_centered,
-//                 506 * sizeof(float)); // need to be replaced with time window (it's because csv)
+    float* vascular_pulse_centered;
+    cudaXMalloc(&vascular_pulse_centered,
+                506 * sizeof(float)); // need to be replaced with time window (it's because csv)
 
-//     float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
-//     subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
+    float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
+    subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
 
-//     float* R_VascularPulse;
-//     cudaXMalloc(&R_VascularPulse, image_size * sizeof(float));
+    float* R_VascularPulse;
+    cudaXMalloc(&R_VascularPulse, image_size * sizeof(float));
 
-//     // TODO: la suite (le calcul de R_vascularPulse)
+    // TODO: la suite (le calcul de R_vascularPulse)
 
-//     cudaXFree(vascular_pulse_centered);
-//     cudaXFree(vascular_pulse_copy);
+    cudaXFree(vascular_pulse_centered);
+    cudaXFree(vascular_pulse_copy);
 }
