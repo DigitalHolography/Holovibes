@@ -318,12 +318,10 @@ void Pipe::refresh()
         insert_moments();
         insert_moments_record();
     }
-    analysis_->insert_show_artery();
-    analysis_->insert_otsu();
-    analysis_->insert_barycentres();
-    analysis_->insert_bwareafilt();
-    analysis_->insert_bwareaopen();
-
+    analysis_->insert_first_analysis_masks();
+    analysis_->insert_artery_mask();
+    analysis_->insert_vein_mask();
+    analysis_->insert_vesselness();
     insert_filter2d_view();
 
     // Postprocessing'

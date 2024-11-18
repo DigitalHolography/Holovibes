@@ -20,6 +20,7 @@
 #include "cublas_handle.hh"
 #include "bw_area.cuh"
 #include "circular_video_buffer.hh"
+#include "segment_vessels.cuh"
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
@@ -374,11 +375,12 @@ void Analysis::dispose()
     float_buffer_.reset(nullptr);
 }
 
-void Analysis::insert_show_artery()
+void Analysis::insert_first_analysis_masks()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 &&
+        (setting<settings::ArteryMaskEnabled>() || setting<settings::VeinMaskEnabled>()))
     {
         fn_compute_vect_->conditional_push_back(
             [=]()
@@ -452,19 +454,6 @@ void Analysis::insert_show_artery()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-            });
-    }
-}
-
-void Analysis::insert_barycentres()
-{
-    LOG_FUNC();
-
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>())
-    {
-        fn_compute_vect_->conditional_push_back(
-            [=]()
-            {
                 // Compute f_AVG_mean, which is the temporal average of M1 / M0
                 if (FROM_CSV)
                     compute_multiplication(vesselness_mask_env_.vascular_image_,
@@ -585,13 +574,78 @@ void Analysis::insert_barycentres()
                                                stream_,
                                                CRV_index);
                 // print_in_file_gpu(circle_mask, 512, 512, "circle_mask", stream_);
+                cudaXMalloc(&(vesselness_mask_env_.quantizedVesselCorrelation_),
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
+                                R_VascularPulse_csv_,
+                                mask_vesselness_clean_csv_,
+                                buffers_.gpu_postprocess_frame_size,
+                                stream_);
 
-                cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            circle_mask,
-                            buffers_.gpu_postprocess_frame_size * sizeof(float),
-                            cudaMemcpyDeviceToDevice);
+                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                //             quantizedVesselCorrelation,
+                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
+                //             cudaMemcpyDeviceToDevice);
                 cudaXFree(mask_vesselness_clean);
                 cudaXFree(circle_mask);
+                // print_in_file_gpu(quantizedVesselCorrelation, 512, 512, "quantizedVesselCorrelation", stream_);
+            });
+    }
+}
+
+void Analysis::insert_artery_mask()
+{
+    LOG_FUNC();
+
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>() &&
+        !setting<settings::VeinMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
+            {
+                compute_first_mask_artery(buffers_.gpu_postprocess_frame,
+                                          vesselness_mask_env_.quantizedVesselCorrelation_,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
+                cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
+            });
+    }
+}
+
+void Analysis::insert_vein_mask()
+{
+    LOG_FUNC();
+
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
+        !setting<settings::ArteryMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
+            {
+                compute_first_mask_vein(buffers_.gpu_postprocess_frame,
+                                        vesselness_mask_env_.quantizedVesselCorrelation_,
+                                        buffers_.gpu_postprocess_frame_size,
+                                        stream_);
+                cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
+            });
+    }
+}
+
+void Analysis::insert_vesselness()
+{
+    LOG_FUNC();
+
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
+        setting<settings::ArteryMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
+            {
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            vesselness_mask_env_.quantizedVesselCorrelation_,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
+                cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
             });
     }
 }

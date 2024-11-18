@@ -249,6 +249,8 @@ struct VesselnessMaskEnv
 
     cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
 
+    float* quantizedVesselCorrelation_ = nullptr;
+
     /*! \brief Time window for mask */
     int time_window_;
 

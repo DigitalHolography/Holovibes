@@ -132,11 +132,17 @@ class Analysis
     /*! \brief Free the ressources for the analysis */
     void dispose();
 
-    /*! \brief Insert artery mask computing */
-    void insert_show_artery();
+    /*! \brief Insert mask computing */
+    void insert_first_analysis_masks();
 
-    /*! \brief Insert barycentres*/
-    void insert_barycentres();
+    /*! \brief Insert artery mask*/
+    void insert_artery_mask();
+
+    /*! \brief Insert vein mask*/
+    void insert_vein_mask();
+
+    /*! \brief Insert both masks*/
+    void insert_vesselness();
 
     /*! \brief Insert otsu computation (binarisation) */
     void insert_otsu();
