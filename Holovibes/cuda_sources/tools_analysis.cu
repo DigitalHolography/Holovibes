@@ -10,38 +10,7 @@
 #include "cuComplex.h"
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
-
-// TODO: fix the matrix_operations include (wtf)
-namespace
-{
-constexpr float alpha = 1.0f;
-constexpr float beta = 0.0f;
-void matrix_multiply(const float* A,
-                     const float* B,
-                     int A_height,
-                     int B_width,
-                     int A_width_B_height,
-                     float* C,
-                     const cublasHandle_t& handle,
-                     cublasOperation_t op_A,
-                     cublasOperation_t op_B)
-{
-    cublasSafeCall(cublasSgemm(handle,
-                               op_A,
-                               op_B,
-                               A_height,
-                               B_width,
-                               A_width_B_height,
-                               &alpha,
-                               A,
-                               A_height,
-                               B,
-                               A_width_B_height,
-                               &beta,
-                               C,
-                               B_width));
-}
-} // namespace
+#include "matrix_operations.hh"
 
 float* load_CSV_to_float_array(const std::filesystem::path& path)
 {
@@ -464,7 +433,7 @@ float* compute_gauss_deriviatives_kernel(
 
     float* kernel_result;
     cudaXMalloc(&kernel_result, sizeof(float) * kernel_width * kernel_height);
-    matrix_multiply(kernel_y,
+    holovibes::compute::matrix_multiply(kernel_y,
                     kernel_x,
                     kernel_height,
                     kernel_width,
