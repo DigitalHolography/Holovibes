@@ -93,11 +93,6 @@ class ExportPanel : public Panel
     void update_record_file_path();
 
     /**
-     * @brief Handles the update of the record mode setting combo box.
-     */
-    void update_record_mode();
-
-    /**
      * @brief Handles the update of the record file extension setting combo box.
      */
     void update_record_file_extension(const QString& value);

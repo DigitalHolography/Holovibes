@@ -217,10 +217,15 @@ void stop_record();
  */
 const std::string browse_record_output_file(std::string& std_filepath);
 
-/*! \brief Set the record mode object, and trigger the allocation of the pipe
+/*! \brief Change the record mode in the settings
  *
- * \param text the catched mode
- * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
+ * \param value The new record mode to be set to
+ */
+void set_record_mode(RecordMode value);
+
+/*! \brief Changes the record mode, but taking a string as the argument.
+ *
+ * \param text The STRING form of the new record mode
  */
 void set_record_mode(const std::string& text);
 

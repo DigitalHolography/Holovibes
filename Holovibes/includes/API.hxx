@@ -275,7 +275,7 @@ inline std::optional<size_t> get_record_frame_count() { return GET_SETTING(Recor
 inline void set_record_frame_count(std::optional<size_t> value) { UPDATE_SETTING(RecordFrameCount, value); }
 
 inline RecordMode get_record_mode() { return GET_SETTING(RecordMode); }
-inline void set_record_mode(RecordMode value) { UPDATE_SETTING(RecordMode, value); }
+inline void set_record_mode_setting(RecordMode value) { UPDATE_SETTING(RecordMode, value); }
 
 inline size_t get_record_frame_skip() { return GET_SETTING(RecordFrameSkip); }
 inline void set_record_frame_skip(size_t value) { UPDATE_SETTING(RecordFrameSkip, value); }

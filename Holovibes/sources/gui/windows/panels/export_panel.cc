@@ -45,6 +45,59 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
 
 void ExportPanel::on_notify()
 {
+    if (api::get_record_mode() == RecordMode::CHART)
+    {
+        ui_->RecordExtComboBox->clear();
+        ui_->RecordExtComboBox->insertItem(0, ".csv");
+        ui_->RecordExtComboBox->insertItem(1, ".txt");
+
+        ui_->ChartPlotWidget->show();
+
+        if (gui::get_main_display())
+        {
+            gui::get_main_display()->resetTransform();
+
+            gui::get_main_display()->getOverlayManager().enable<Noise>();
+            gui::get_main_display()->getOverlayManager().enable<Signal>();
+        }
+    }
+    else
+    {
+        if (api::get_record_mode() == RecordMode::RAW)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+        }
+        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+            ui_->RecordExtComboBox->insertItem(1, ".avi");
+            ui_->RecordExtComboBox->insertItem(2, ".mp4");
+        }
+        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".mp4");
+            ui_->RecordExtComboBox->insertItem(1, ".avi");
+        }
+        else if (api::get_record_mode() == RecordMode::MOMENTS)
+        {
+            ui_->RecordExtComboBox->clear();
+            ui_->RecordExtComboBox->insertItem(0, ".holo");
+        }
+
+        ui_->ChartPlotWidget->hide();
+
+        if (gui::get_main_display())
+        {
+            gui::get_main_display()->resetTransform();
+
+            gui::get_main_display()->getOverlayManager().disable(Signal);
+            gui::get_main_display()->getOverlayManager().disable(Noise);
+        }
+    }
+
     if (api::get_compute_mode() == Computation::Raw)
     {
         ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
@@ -186,64 +239,9 @@ void ExportPanel::set_record_mode(const QString& value)
     if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    stop_record();
-
     const std::string text = value.toStdString();
 
     api::set_record_mode(text);
-
-    if (api::get_record_mode() == RecordMode::CHART)
-    {
-        ui_->RecordExtComboBox->clear();
-        ui_->RecordExtComboBox->insertItem(0, ".csv");
-        ui_->RecordExtComboBox->insertItem(1, ".txt");
-
-        ui_->ChartPlotWidget->show();
-
-        if (gui::get_main_display())
-        {
-            gui::get_main_display()->resetTransform();
-
-            gui::get_main_display()->getOverlayManager().enable<Noise>();
-            gui::get_main_display()->getOverlayManager().enable<Signal>();
-        }
-    }
-    else
-    {
-        if (api::get_record_mode() == RecordMode::RAW)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-            ui_->RecordExtComboBox->insertItem(2, ".mp4");
-        }
-        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".mp4");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-        }
-        else if (api::get_record_mode() == RecordMode::MOMENTS)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-
-        ui_->ChartPlotWidget->hide();
-
-        if (gui::get_main_display())
-        {
-            gui::get_main_display()->resetTransform();
-
-            gui::get_main_display()->getOverlayManager().disable(Signal);
-            gui::get_main_display()->getOverlayManager().disable(Noise);
-        }
-    }
 
     parent_->notify();
 }
@@ -360,34 +358,7 @@ void ExportPanel::update_record_file_path()
 void ExportPanel::set_record_image_mode()
 {
     ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
-    api::set_record_mode(RecordMode::HOLOGRAM);
-}
-
-void ExportPanel::update_record_mode()
-{
-    set_record_mode(ui_->RecordImageModeComboBox->currentText());
-
-    std::string record_mode_str = ui_->RecordImageModeComboBox->currentText().toStdString();
-    RecordMode record_mode = RecordMode::NONE;
-    if (record_mode_str == "Chart")
-        record_mode = RecordMode::CHART;
-    else if (record_mode_str == "Processed Image")
-        record_mode = RecordMode::HOLOGRAM;
-    else if (record_mode_str == "Raw Image")
-        record_mode = RecordMode::RAW;
-    else if (record_mode_str == "3D Cuts XZ")
-        record_mode = RecordMode::CUTS_XZ;
-    else if (record_mode_str == "3D Cuts YZ")
-        record_mode = RecordMode::CUTS_YZ;
-    else if (record_mode_str == "Moments")
-        record_mode = RecordMode::MOMENTS;
-    else
-    {
-        LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
-        exit(4);
-    }
-
-    api::set_record_mode(record_mode);
+    api::set_record_mode_setting(RecordMode::HOLOGRAM);
 }
 
 /**
