@@ -17,7 +17,6 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-    , import_start_subscriber_("import_start", [this](bool success) { set_record_image_mode(); })
     , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
     , set_output_file_path_subscriber_("set_output_file_name",
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
@@ -343,12 +342,6 @@ void ExportPanel::update_record_file_path()
 {
     api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
                               ui_->RecordExtComboBox->currentText().toStdString());
-}
-
-void ExportPanel::set_record_image_mode()
-{
-    ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
-    api::set_record_mode(RecordMode::HOLOGRAM);
 }
 
 /**

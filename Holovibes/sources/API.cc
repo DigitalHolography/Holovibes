@@ -1725,10 +1725,8 @@ bool import_start()
     set_is_computation_stopped(false);
 
     // if the file is to be imported in GPU, we should load the buffer preset for such case
-    // if (api::get_load_file_in_gpu())
-    //     NotifierManager::notify<bool>("set_preset_file_gpu", true);
-
-    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
+    if (api::get_load_file_in_gpu())
+        NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     try
     {
@@ -1745,6 +1743,7 @@ bool import_start()
     }
 
     set_import_type(ImportType::File);
+    set_record_mode(RecordMode::HOLOGRAM);
 
     return true;
 }

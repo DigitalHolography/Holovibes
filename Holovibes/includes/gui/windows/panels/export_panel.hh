@@ -34,8 +34,6 @@ class ExportPanel : public Panel
     void init_light_ui();
     void set_output_file_name(std::string std_filepath);
 
-    void set_record_image_mode();
-
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -94,7 +92,6 @@ class ExportPanel : public Panel
 
   private:
     int record_frame_step_ = 512;
-    Subscriber<bool> import_start_subscriber_;
     Subscriber<bool> start_record_subscriber_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;
