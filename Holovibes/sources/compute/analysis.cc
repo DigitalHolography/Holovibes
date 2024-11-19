@@ -462,6 +462,8 @@ void Analysis::insert_first_analysis_masks()
                                           stream_);
 
                 // TODO: compute R_VascularPulse
+                // R_VascularPulse = mean(M0_ff_video_centered .* vascularPulse_centered, 3) ./
+                // (std((M0_ff_video_centered), [], 3) * std(vascularPulse_centered, [], 3));
 
                 // // this part may be deleted as it is never used for the rest of the code
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
