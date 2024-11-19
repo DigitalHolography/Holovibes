@@ -42,15 +42,17 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
     NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
 }
 
+int ExportPanel::ext_id(const QString s) { return ui_->RecordExtComboBox->findText(s); }
+
 void ExportPanel::on_notify()
 {
-    // 0 = .holo, 1 = .mp4, 2 = .avi, 3 = .csv, 4 = .txt
-    static const std::map<RecordMode, std::vector<int>> extension_index_map = {{RecordMode::RAW, {0}},
-                                                                               {RecordMode::CHART, {3, 4}},
-                                                                               {RecordMode::HOLOGRAM, {0, 1, 2}},
-                                                                               {RecordMode::MOMENTS, {0}},
-                                                                               {RecordMode::CUTS_XZ, {1, 2}},
-                                                                               {RecordMode::CUTS_YZ, {1, 2}}};
+    static const std::map<RecordMode, std::vector<int>> extension_index_map = {
+        {RecordMode::RAW, {ext_id(".holo")}},
+        {RecordMode::CHART, {ext_id(".csv"), ext_id(".txt")}},
+        {RecordMode::HOLOGRAM, {ext_id(".holo"), ext_id(".mp4"), ext_id(".avi")}},
+        {RecordMode::MOMENTS, {ext_id(".holo")}},
+        {RecordMode::CUTS_XZ, {ext_id(".mp4"), ext_id(".avi")}},
+        {RecordMode::CUTS_YZ, {ext_id(".mp4"), ext_id(".avi")}}};
 
     // File extension
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
