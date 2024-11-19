@@ -144,6 +144,9 @@ class Analysis
     /*! \brief Insert both masks*/
     void insert_vesselness();
 
+    /*! \brief Insert choroid mask */
+    void insert_choroid_mask();
+
     /*! \brief Insert otsu computation (binarisation) */
     void insert_otsu();
 

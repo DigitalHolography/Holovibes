@@ -13,3 +13,5 @@ void segment_vessels(
 void compute_first_mask_artery(float* output, float* input, uint size, cudaStream_t stream);
 
 void compute_first_mask_vein(float* output, float* input, uint size, cudaStream_t stream);
+
+void negation(float* input_output, uint size, cudaStream_t stream);

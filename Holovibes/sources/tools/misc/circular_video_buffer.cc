@@ -49,7 +49,7 @@ float* CircularVideoBuffer::get_last_frame()
 
 void CircularVideoBuffer::compute_mean_image()
 {
-    // Allocate if first time
+    // Allocate mean_image_ buffer if first time called
     if (!mean_image_)
         mean_image_.resize(frame_size_);
     compute_mean(mean_image_, sum_image_, nb_frames_, frame_res_, stream_);

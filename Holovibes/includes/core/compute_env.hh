@@ -223,7 +223,6 @@ struct VesselnessMaskEnv
      * is overwritten. This allows us to keep track of the moment_0 values for the last 'time_window_'
      * frames, which are used for calculations in subsequent processing steps.
      */
-    cuda_tools::CudaUniquePtr<float> m0_ff_video_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> m0_ff_centered_video_cb_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> vascular_pulse_video_cb_ = nullptr;

@@ -396,7 +396,7 @@ __global__ void kernel_apply_mask_and(float* output, const float* input, short w
 
     if (x < width && y < height)
     {
-        output[y * width + x] *= input[y * width + x];
+        output[index] *= input[index];
     }
 }
 
@@ -533,7 +533,7 @@ float* compute_kernel(float sigma)
     return kernel;
 }
 
-__global__ void kernel_compute_kernel(float* output, int kernel_size, float sigma, float* d_sum)
+__global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -564,7 +564,7 @@ __global__ void kernel_normalize_array(float* input_output, int kernel_size, flo
     input_output[y * kernel_size + x] /= *d_sum;
 }
 
-void compute_kernel_cuda(float* output, float sigma)
+void compute_gauss_kernel(float* output, float sigma)
 {
     float* d_sum;
     float initial_sum = 0.0f;
@@ -579,7 +579,7 @@ void compute_kernel_cuda(float* output, float sigma)
     dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, (kernel_size + blockSize.y - 1) / blockSize.y);
 
     // Launch the kernel to compute the Gaussian values
-    kernel_compute_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);
+    kernel_compute_gauss_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);
 
     // Normalize the kernel using the computed sum directly on the GPU
     kernel_normalize_array<<<gridSize, blockSize>>>(output, kernel_size, d_sum);

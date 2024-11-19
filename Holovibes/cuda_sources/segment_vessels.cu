@@ -34,6 +34,23 @@ void minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean
     kernel_minus_negation_times_2<<<blocks, threads, 0, stream>>>(R_vascular_pulse, mask_vesselnessClean, size);
 }
 
+
+__global__ void kernel_negation(float* input_output, uint size)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size)
+    {
+        input_output[idx] = !input_output[idx];
+    }
+}
+
+void negation(float* input_output, uint size, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_negation<<<blocks, threads, 0, stream>>>(input_output, size);
+}
+
 __global__ void kernel_quantize(float* output, float* input, float* thresholds, int length_input, int lenght_threshold)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;

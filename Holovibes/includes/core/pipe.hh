@@ -208,9 +208,10 @@ class Pipe : public ICompute
     {
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
+        // analysis_->pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
-        // TODO: clean this init
-        analysis_->init();
+        // TODO: this init should not be there, also handle pipe_refresh_apply_updates like above
+        // analysis_->init();
     }
 
     /*! \name Insert computation functions in the pipe

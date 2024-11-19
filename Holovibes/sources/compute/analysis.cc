@@ -184,14 +184,13 @@ void Analysis::init()
     vesselness_mask_env_.number_image_mean_ = 0;
 
     vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
-    vesselness_mask_env_.m0_ff_video_.resize(buffers_.gpu_postprocess_frame_size * vesselness_mask_env_.time_window_);
     vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
     vesselness_mask_env_.image_centered_.resize(buffers_.gpu_postprocess_frame_size);
 
     vesselness_mask_env_.vascular_image_.resize(frame_res);
 
     // Compute gaussian deriviatives kernels according to simga
-    float sigma = api::get_vesselness_sigma();
+    float sigma = setting<settings::VesselnessSigma>();
 
     int gamma = 1;
     int A = std::pow(sigma, gamma);
@@ -331,9 +330,7 @@ void Analysis::init()
 
     vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
                                                  vesselness_mask_env_.vascular_kernel_size_);
-    compute_kernel_cuda(vesselness_mask_env_.vascular_kernel_, sigma_2);
-
-    // print_in_file_cpu(vesselness_mask_env_.vascular_kernel_, 2, 2, "vascular_kernel");
+    compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, sigma_2);
 
     // // Pad it with zero to equal frame size
     // float* vascular_kernel_padded;
@@ -367,12 +364,17 @@ void Analysis::dispose()
     LOG_FUNC();
 
     buffers_.gpu_convolution_buffer.reset(nullptr);
-    cuComplex_buffer_.reset(nullptr);
-    gaussian_128_kernel_buffer_.reset(nullptr);
 
-    uint_buffer_1_.reset(nullptr);
-    uint_buffer_2_.reset(nullptr);
-    float_buffer_.reset(nullptr);
+    gaussian_128_kernel_buffer_.reset();
+    cuComplex_buffer_.reset();
+
+    vesselness_mask_env_.g_xx_mul_.reset();
+    vesselness_mask_env_.g_xy_mul_.reset();
+    vesselness_mask_env_.g_yy_mul_.reset();
+
+    uint_buffer_1_.reset();
+    uint_buffer_2_.reset();
+    float_buffer_.reset();
 }
 
 void Analysis::insert_first_analysis_masks()
@@ -398,52 +400,54 @@ void Analysis::insert_first_analysis_masks()
                 vesselness_mask_env_.m0_ff_video_cb_->add_new_frame(buffers_.gpu_postprocess_frame);
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_image();
 
-                // Compute the centered image from the temporal mean of the video
-                if (FROM_CSV)
-                    image_centering(vesselness_mask_env_.image_centered_,
-                                    buffers_.gpu_postprocess_frame,
-                                    m0_ff_img_csv_,
-                                    buffers_.gpu_postprocess_frame_size,
-                                    stream_);
-                else
-                    image_centering(vesselness_mask_env_.image_centered_,
-                                    buffers_.gpu_postprocess_frame,
-                                    vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                    buffers_.gpu_postprocess_frame_size,
-                                    stream_);
+// Compute the centered image from the temporal mean of the video
+#if FROM_CSV
+                image_centering(vesselness_mask_env_.image_centered_,
+                                buffers_.gpu_postprocess_frame,
+                                m0_ff_img_csv_,
+                                buffers_.gpu_postprocess_frame_size,
+                                stream_);
+#else
+                image_centering(vesselness_mask_env_.image_centered_,
+                                buffers_.gpu_postprocess_frame,
+                                vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                buffers_.gpu_postprocess_frame_size,
+                                stream_);
+#endif
                 vesselness_mask_env_.m0_ff_centered_video_cb_->add_new_frame(vesselness_mask_env_.image_centered_);
 
-                // Compute the first vesselness mask with represent all veisels (arteries and veins)
-                if (FROM_CSV)
-                    vesselness_filter(buffers_.gpu_postprocess_frame,
-                                      m0_ff_img_csv_,
-                                      api::get_vesselness_sigma(),
-                                      vesselness_mask_env_.g_xx_mul_,
-                                      vesselness_mask_env_.g_xy_mul_,
-                                      vesselness_mask_env_.g_yy_mul_,
-                                      vesselness_mask_env_.kernel_x_size_,
-                                      vesselness_mask_env_.kernel_y_size_,
-                                      buffers_.gpu_postprocess_frame_size,
-                                      buffers_.gpu_convolution_buffer,
-                                      cuComplex_buffer_,
-                                      &convolution_plan_,
-                                      cublas_handler_,
-                                      stream_);
-                else
-                    vesselness_filter(buffers_.gpu_postprocess_frame,
-                                      vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                      api::get_vesselness_sigma(),
-                                      vesselness_mask_env_.g_xx_mul_,
-                                      vesselness_mask_env_.g_xy_mul_,
-                                      vesselness_mask_env_.g_yy_mul_,
-                                      vesselness_mask_env_.kernel_x_size_,
-                                      vesselness_mask_env_.kernel_y_size_,
-                                      buffers_.gpu_postprocess_frame_size,
-                                      buffers_.gpu_convolution_buffer,
-                                      cuComplex_buffer_,
-                                      &convolution_plan_,
-                                      cublas_handler_,
-                                      stream_);
+            // Compute the first vesselness mask which represents both vessels types (arteries and veins)
+#if FROM_CSV
+                vesselness_filter(buffers_.gpu_postprocess_frame,
+                                  m0_ff_img_csv_,
+                                  setting<settings::VesselnessSigma>(),
+                                  vesselness_mask_env_.g_xx_mul_,
+                                  vesselness_mask_env_.g_xy_mul_,
+                                  vesselness_mask_env_.g_yy_mul_,
+                                  vesselness_mask_env_.kernel_x_size_,
+                                  vesselness_mask_env_.kernel_y_size_,
+                                  buffers_.gpu_postprocess_frame_size,
+                                  buffers_.gpu_convolution_buffer,
+                                  cuComplex_buffer_,
+                                  &convolution_plan_,
+                                  cublas_handler_,
+                                  stream_);
+#else
+                vesselness_filter(buffers_.gpu_postprocess_frame,
+                                  vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                  setting<settings::VesselnessSigma>(),
+                                  vesselness_mask_env_.g_xx_mul_,
+                                  vesselness_mask_env_.g_xy_mul_,
+                                  vesselness_mask_env_.g_yy_mul_,
+                                  vesselness_mask_env_.kernel_x_size_,
+                                  vesselness_mask_env_.kernel_y_size_,
+                                  buffers_.gpu_postprocess_frame_size,
+                                  buffers_.gpu_convolution_buffer,
+                                  cuComplex_buffer_,
+                                  &convolution_plan_,
+                                  cublas_handler_,
+                                  stream_);
+#endif
 
                 apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
                                      fd_.width / 2 - 1,
@@ -452,13 +456,14 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-                // Compute f_AVG_mean, which is the temporal average of M1 / M0
-                if (FROM_CSV)
-                    compute_multiplication(vesselness_mask_env_.vascular_image_,
-                                           m0_ff_img_csv_,
-                                           f_avg_csv_,
-                                           buffers_.gpu_postprocess_frame_size,
-                                           stream_);
+            // Compute f_AVG_mean, which is the temporal average of M1 / M0
+#if FROM_CSV
+                compute_multiplication(vesselness_mask_env_.vascular_image_,
+                                       m0_ff_img_csv_,
+                                       f_avg_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+#endif
 
                 // appliquer le flou
                 apply_convolution(vesselness_mask_env_.vascular_image_,
@@ -480,11 +485,12 @@ void Analysis::insert_first_analysis_masks()
 
                 float* bwareafilt_result;
                 cudaXMalloc(&bwareafilt_result, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-                if (FROM_CSV)
-                    cudaXMemcpy(bwareafilt_result,
-                                mask_vesselness_csv_,
-                                sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                                cudaMemcpyDeviceToDevice);
+#if FROM_CSV
+                cudaXMemcpy(bwareafilt_result,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+#endif
 
                 apply_mask_or(bwareafilt_result, circle_mask, fd_.width, fd_.height, stream_);
 
@@ -499,55 +505,58 @@ void Analysis::insert_first_analysis_masks()
 
                 float* mask_vesselness_clean;
                 cudaXMalloc(&mask_vesselness_clean, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-                if (FROM_CSV)
-                    cudaXMemcpy(mask_vesselness_clean,
-                                mask_vesselness_csv_,
-                                sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                                cudaMemcpyDeviceToDevice);
+#if FROM_CSV
+                cudaXMemcpy(mask_vesselness_clean,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+#endif
 
                 apply_mask_and(mask_vesselness_clean, bwareafilt_result, fd_.width, fd_.height, stream_);
                 cudaXFree(bwareafilt_result);
 
                 float* tmp_mult;
                 cudaXMalloc(&tmp_mult, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-                if (FROM_CSV)
-                    compute_multiplication(tmp_mult,
-                                           buffers_.gpu_postprocess_frame,
-                                           mask_vesselness_clean_csv_,
-                                           buffers_.gpu_postprocess_frame_size,
-                                           stream_);
+
+#if FROM_CSV
+                compute_multiplication(tmp_mult,
+                                       buffers_.gpu_postprocess_frame,
+                                       mask_vesselness_clean_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+#endif
                 vesselness_mask_env_.vascular_pulse_video_cb_->add_new_frame(tmp_mult);
                 cudaXFree(tmp_mult);
 
                 vesselness_mask_env_.vascular_pulse_video_cb_->compute_mean_video(13893);
-                // print_in_file_gpu(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
-                //                   vesselness_mask_env_.time_window_,
-                //                   1,
-                //                   "vascular_pulse",
-                //                   stream_);
+// print_in_file_gpu(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
+//                   vesselness_mask_env_.time_window_,
+//                   1,
+//                   "vascular_pulse",
+//                   stream_);
 
-                // TODO: change hard coded values from maskvesselnessclean
-                // La fonction sert a rien car on importe le csv de R_VascularPulse
-                // Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
-                // Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
-                if (FROM_CSV)
-                    compute_first_correlation(
-                        buffers_.gpu_postprocess_frame,
-                        vesselness_mask_env_.image_centered_,
-                        vascular_pulse_csv_, // vesselness_mask_env.vascular_pulse_video_cb_->get_mean_video(),
-                        11727,
-                        506, // vesselness_mask_env_.time_window_,
-                        buffers_.gpu_postprocess_frame_size,
-                        stream_);
+// TODO: change hard coded values from maskvesselnessclean
+// La fonction sert a rien car on importe le csv de R_VascularPulse
+// Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
+// Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
+#if FROM_CSV
+                compute_first_correlation(
+                    buffers_.gpu_postprocess_frame,
+                    vesselness_mask_env_.image_centered_,
+                    vascular_pulse_csv_, // vesselness_mask_env.vascular_pulse_video_cb_->get_mean_video(),
+                    11727,
+                    506, // vesselness_mask_env_.time_window_,
+                    buffers_.gpu_postprocess_frame_size,
+                    stream_);
 
                 // // this part may be deleted as it is never used for the rest of the code
-                if (FROM_CSV)
-                    multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-                                           m0_ff_img_csv_,
-                                           f_avg_csv_,
-                                           R_VascularPulse_csv_,
-                                           buffers_.gpu_postprocess_frame_size,
-                                           stream_);
+                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                                       m0_ff_img_csv_,
+                                       f_avg_csv_,
+                                       R_VascularPulse_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+#endif
 
                 apply_convolution(vesselness_mask_env_.vascular_image_,
                                   vesselness_mask_env_.vascular_kernel_,
@@ -571,22 +580,21 @@ void Analysis::insert_first_analysis_masks()
                                                buffers_.gpu_postprocess_frame_size,
                                                stream_,
                                                CRV_index);
-                // print_in_file_gpu(circle_mask, 512, 512, "circle_mask", stream_);
+
                 cudaXMalloc(&(vesselness_mask_env_.quantizedVesselCorrelation_),
                             sizeof(float) * buffers_.gpu_postprocess_frame_size);
+#if FROM_CSV
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 R_VascularPulse_csv_,
                                 mask_vesselness_clean_csv_,
                                 buffers_.gpu_postprocess_frame_size,
                                 stream_);
+#else
+            // TODO
+#endif
 
-                // cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                //             quantizedVesselCorrelation,
-                //             buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //             cudaMemcpyDeviceToDevice);
                 cudaXFree(mask_vesselness_clean);
                 cudaXFree(circle_mask);
-                // print_in_file_gpu(quantizedVesselCorrelation, 512, 512, "quantizedVesselCorrelation", stream_);
             });
     }
 }
@@ -647,6 +655,56 @@ void Analysis::insert_vesselness()
                             cudaMemcpyDeviceToDevice);
                 cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+            });
+    }
+}
+
+void Analysis::insert_choroid_mask()
+{
+    LOG_FUNC();
+
+    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
+        setting<settings::ArteryMaskEnabled>())
+    {
+        fn_compute_vect_->conditional_push_back(
+            [=]()
+            {
+                float* first_mask_choroid;
+                cudaXMalloc(&first_mask_choroid, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cudaXMemcpy(first_mask_choroid,
+                            mask_vesselness_clean_csv_,
+                            buffers_.gpu_postprocess_frame_size * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
+
+                negation(first_mask_choroid, buffers_.gpu_postprocess_frame_size, stream_);
+
+                apply_mask_and(first_mask_choroid, mask_vesselness_csv_, fd_.width, fd_.height, stream_);
+
+                compute_first_mask_artery(buffers_.gpu_postprocess_frame,
+                                          vesselness_mask_env_.quantizedVesselCorrelation_,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
+
+                negation(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame_size, stream_);
+
+                apply_mask_and(first_mask_choroid, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+
+                compute_first_mask_vein(buffers_.gpu_postprocess_frame,
+                                        vesselness_mask_env_.quantizedVesselCorrelation_,
+                                        buffers_.gpu_postprocess_frame_size,
+                                        stream_);
+
+                negation(buffers_.gpu_postprocess_frame, buffers_.gpu_postprocess_frame_size, stream_);
+
+                apply_mask_and(first_mask_choroid, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+
+                cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                            first_mask_choroid,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+
+                cudaXFree(first_mask_choroid);
             });
     }
 }
