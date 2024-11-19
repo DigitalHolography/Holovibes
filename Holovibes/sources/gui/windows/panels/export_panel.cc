@@ -98,33 +98,25 @@ void ExportPanel::on_notify()
         }
     }
 
-    if (api::get_compute_mode() == Computation::Raw)
-    {
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
-    }
-    else // Hologram mode
-    {
-        if (ui_->RecordImageModeComboBox->findText("Processed Image") == -1)
-            ui_->RecordImageModeComboBox->insertItem(1, "Processed Image");
-        if (ui_->RecordImageModeComboBox->findText("Chart") == -1)
-            ui_->RecordImageModeComboBox->insertItem(2, "Chart");
-    }
+    auto img_mode_view = qobject_cast<QListView*>(ui_->RecordImageModeComboBox->view());
 
-    if (ui_->TimeTransformationCutsCheckBox->isChecked())
-    {
-        // Only one check is needed
-        if (ui_->RecordImageModeComboBox->findText("3D Cuts XZ") == -1)
-        {
-            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts XZ");
-            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts YZ");
-        }
-    }
-    else
-    {
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"));
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"));
-    }
+    static std::map<RecordMode, QString> record_mode_map = {{RecordMode::RAW, "Raw Image"},
+                                                            {RecordMode::HOLOGRAM, "Processed Image"},
+                                                            {RecordMode::MOMENTS, "Moments"},
+                                                            {RecordMode::CHART, "Chart"},
+                                                            {RecordMode::CUTS_XZ, "3D Cuts XZ"},
+                                                            {RecordMode::CUTS_YZ, "3D Cuts YZ"}};
+    ui_->RecordImageModeComboBox->setCurrentIndex(
+        ui_->RecordImageModeComboBox->findText(record_mode_map[api::get_record_mode()]));
+
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Processed Image"), is_raw);
+    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Moments"), is_raw);
+    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Chart"), is_raw);
+
+    const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
+    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"), hide_cuts);
+    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"), hide_cuts);
 
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((gui::get_main_display() && signalBtn->isEnabled() &&

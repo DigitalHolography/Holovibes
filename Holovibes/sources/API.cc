@@ -258,6 +258,9 @@ void set_raw_mode(uint window_max_size)
     QSize size = getSavedHoloWindowSize(width, height);
     init_image_mode(pos, size);
 
+    // Force set record mode to raw because it cannot be anything else
+    set_record_mode(RecordMode::RAW);
+
     set_compute_mode(Computation::Raw);
 
     create_pipe();
@@ -473,6 +476,10 @@ void cancel_time_transformation_cuts()
 {
     if (!get_cuts_view_enabled())
         return;
+
+    // Change the record mode if it ever was cuts
+    if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
+        set_record_mode(RecordMode::HOLOGRAM);
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);

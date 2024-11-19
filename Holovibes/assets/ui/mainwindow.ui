@@ -2760,6 +2760,16 @@ The range of frequencies kept is [z, z + width]</string>
                   <string>Moments</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts XZ</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts YZ</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
