@@ -221,7 +221,7 @@ const std::string browse_record_output_file(std::string& std_filepath);
  *
  * \param value The new record mode to be set to
  */
-void set_record_mode(RecordMode value);
+void set_record_mode_enum(RecordMode value);
 
 /*! \brief Changes the record mode, but taking a string as the argument.
  *

@@ -348,7 +348,7 @@ void ExportPanel::update_record_file_path()
 void ExportPanel::set_record_image_mode()
 {
     ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
-    api::set_record_mode_setting(RecordMode::HOLOGRAM);
+    api::set_record_mode(RecordMode::HOLOGRAM);
 }
 
 /**

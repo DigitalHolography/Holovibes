@@ -259,7 +259,7 @@ void set_raw_mode(uint window_max_size)
     init_image_mode(pos, size);
 
     // Force set record mode to raw because it cannot be anything else
-    set_record_mode(RecordMode::RAW);
+    set_record_mode_enum(RecordMode::RAW);
 
     set_compute_mode(Computation::Raw);
 
@@ -479,7 +479,7 @@ void cancel_time_transformation_cuts()
 
     // Change the record mode if it ever was cuts
     if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
-        set_record_mode(RecordMode::HOLOGRAM);
+        set_record_mode_enum(RecordMode::HOLOGRAM);
 
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
@@ -1590,11 +1590,11 @@ void set_record_queue_location(Device device)
     }
 }
 
-void set_record_mode(RecordMode value)
+void set_record_mode_enum(RecordMode value)
 {
     stop_record();
 
-    set_record_mode_setting(value);
+    set_record_mode(value);
 
     // Attempt to initialize compute pipe for non-CHART record modes
     if (get_record_mode() != RecordMode::CHART)
@@ -1635,7 +1635,7 @@ void set_record_mode(const std::string& text)
         throw std::runtime_error("Record mode not handled");
     }
 
-    set_record_mode(it->second);
+    set_record_mode_enum(it->second);
 }
 
 bool start_record_preconditions()
