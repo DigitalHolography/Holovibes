@@ -1,9 +1,5 @@
 #include "map.cuh"
 
-#include "tools.hh"
-#include "common.cuh"
-#include "reduce.cuh"
-
 void map_log10(float* const output, const float* const input, const size_t size, const cudaStream_t stream)
 {
     static const auto log10 = [] __device__(const float input_pixel) { return log10f(input_pixel); };
