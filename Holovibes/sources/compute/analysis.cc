@@ -29,7 +29,7 @@
 using holovibes::cuda_tools::CufftHandle;
 
 #define DIAPHRAGM_FACTOR 0.4f
-#define FROM_CSV true
+#define FROM_CSV false
 
 namespace holovibes::compute
 {
@@ -277,7 +277,7 @@ void Analysis::insert_first_analysis_masks()
                 vesselness_mask_env_.m0_ff_video_cb_->add_new_frame(buffers_.gpu_postprocess_frame);
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_image();
 
-// Compute the centered image from the temporal mean of the video
+            // Compute the centered image from the temporal mean of the video
 #if FROM_CSV
                 image_centering(vesselness_mask_env_.image_centered_,
                                 buffers_.gpu_postprocess_frame,
@@ -333,6 +333,10 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
+
+#if !FROM_CSV
+                compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+#endif
             // Compute f_AVG_mean, which is the temporal average of M1 / M0
 #if FROM_CSV
                 compute_multiplication(vesselness_mask_env_.vascular_image_,
@@ -340,9 +344,15 @@ void Analysis::insert_first_analysis_masks()
                                        f_avg_csv_,
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
+#else
+                compute_multiplication(vesselness_mask_env_.vascular_image_,
+                                       vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                       f_avg_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
 #endif
 
-                // appliquer le flou
+                // Apply gaussian blur
                 apply_convolution(vesselness_mask_env_.vascular_image_,
                                   vesselness_mask_env_.vascular_kernel_,
                                   fd_.width,
@@ -362,12 +372,15 @@ void Analysis::insert_first_analysis_masks()
 
                 float* bwareafilt_result;
                 cudaXMalloc(&bwareafilt_result, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-#if FROM_CSV
+
                 cudaXMemcpy(bwareafilt_result,
+#if FROM_CSV
                             mask_vesselness_csv_,
+#else
+                            buffers_.gpu_postprocess_frame,
+#endif
                             sizeof(float) * buffers_.gpu_postprocess_frame_size,
                             cudaMemcpyDeviceToDevice);
-#endif
 
                 apply_mask_or(bwareafilt_result, circle_mask, fd_.width, fd_.height, stream_);
 
@@ -382,12 +395,16 @@ void Analysis::insert_first_analysis_masks()
 
                 float* mask_vesselness_clean;
                 cudaXMalloc(&mask_vesselness_clean, sizeof(float) * buffers_.gpu_postprocess_frame_size);
-#if FROM_CSV
+
                 cudaXMemcpy(mask_vesselness_clean,
+#if FROM_CSV
+
                             mask_vesselness_csv_,
+#else
+                            buffers_.gpu_postprocess_frame,
+#endif
                             sizeof(float) * buffers_.gpu_postprocess_frame_size,
                             cudaMemcpyDeviceToDevice);
-#endif
 
                 apply_mask_and(mask_vesselness_clean, bwareafilt_result, fd_.width, fd_.height, stream_);
                 cudaXFree(bwareafilt_result);
@@ -395,27 +412,29 @@ void Analysis::insert_first_analysis_masks()
                 float* tmp_mult;
                 cudaXMalloc(&tmp_mult, sizeof(float) * buffers_.gpu_postprocess_frame_size);
 
-#if FROM_CSV
                 compute_multiplication(tmp_mult,
                                        buffers_.gpu_postprocess_frame,
+#if FROM_CSV
                                        mask_vesselness_clean_csv_,
+#else
+                                       mask_vesselness_clean,
+#endif
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
-#endif
+
+#if !FROM_CSV
                 vesselness_mask_env_.vascular_pulse_video_cb_->add_new_frame(tmp_mult);
+
+#endif
                 cudaXFree(tmp_mult);
+                vesselness_mask_env_.vascular_pulse_video_cb_->compute_mean_video();
 
-                vesselness_mask_env_.vascular_pulse_video_cb_->compute_mean_video(13893);
-// print_in_file_gpu(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
-//                   vesselness_mask_env_.time_window_,
-//                   1,
-//                   "vascular_pulse",
-//                   stream_);
+                int nnz = count_non_zero(mask_vesselness_clean, fd_.height, fd_.width, stream_);
+                divide_constant(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
+                                nnz,
+                                vesselness_mask_env_.vascular_pulse_video_cb_->get_frame_count(),
+                                stream_);
 
-// TODO: change hard coded values from maskvesselnessclean
-// La fonction sert a rien car on importe le csv de R_VascularPulse
-// Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
-// Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
 #if FROM_CSV
                 compute_first_correlation(
                     buffers_.gpu_postprocess_frame,
@@ -425,6 +444,24 @@ void Analysis::insert_first_analysis_masks()
                     506, // vesselness_mask_env_.time_window_,
                     buffers_.gpu_postprocess_frame_size,
                     stream_);
+
+                // // this part may be deleted as it is never used for the rest of the code
+                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                                       m0_ff_img_csv_,
+                                       f_avg_csv_,
+                                       R_VascularPulse_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+#else
+                compute_first_correlation(buffers_.gpu_postprocess_frame,
+                                          vesselness_mask_env_.image_centered_,
+                                          vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
+                                          nnz,
+                                          vesselness_mask_env_.time_window_,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
+
+                // TODO: compute R_VascularPulse
 
                 // // this part may be deleted as it is never used for the rest of the code
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,

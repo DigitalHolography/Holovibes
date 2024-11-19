@@ -32,7 +32,7 @@ class CircularVideoBuffer
     void compute_mean_image();
 
     /*! \brief Mean on dimensions 1 and 2 */
-    void compute_mean_video(float scalar_to_multiply = 1);
+    void compute_mean_video();
 
     float* get_mean_image();
 
@@ -41,6 +41,8 @@ class CircularVideoBuffer
     void add_new_frame(const float* const new_frame);
 
     bool is_full();
+
+    size_t get_frame_count();
 
   private:
     /*! \brief Video of the last 'time_window_' frames */

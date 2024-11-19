@@ -556,3 +556,63 @@ void compute_gauss_kernel(float* output, float sigma)
     // Free device memory for sum
     cudaXFree(d_sum);
 }
+
+__global__ void kernel_count_non_zero(const float* const input, int* const count, int rows, int cols) 
+{
+    // Shared memory for partial counts
+    __shared__ int partial_sum[256];
+    int thread_id = threadIdx.x;
+    int index = blockIdx.x * blockDim.x + thread_id;
+    partial_sum[thread_id] = 0;
+
+    // Check bounds and compute non-zero counts
+    if (index < rows * cols && input[index] != 0) 
+        partial_sum[thread_id] = 1;
+    __syncthreads();
+
+    // Reduce within the block
+    for (int stride = blockDim.x / 2; stride > 0; stride /= 2) 
+    {
+        if (thread_id < stride) 
+            partial_sum[thread_id] += partial_sum[thread_id + stride];
+        __syncthreads();
+    }
+
+    // Add partial result to global count
+    if (thread_id == 0) 
+        atomicAdd(count, partial_sum[0]);
+}
+
+int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream) 
+{
+    int* device_count;
+    float* device_input;
+    int size = rows * cols;
+    int result;
+
+    // Allocate memory on device
+    cudaXMalloc((void**)&device_input, size * sizeof(float));
+    cudaXMalloc((void**)&device_count, sizeof(int));
+
+    // Copy input matrix to device
+    cudaXMemcpy(device_input, input, size * sizeof(float), cudaMemcpyHostToDevice);
+
+    // Initialize count to 0
+    cudaXMemset(device_count, 0, sizeof(int));
+
+    // Configure kernel
+    dim3 threads_per_block(256);
+    dim3 blocks_per_grid((size + 255) / 256);
+
+    // Launch kernel
+    kernel_count_non_zero<<<blocks_per_grid, threads_per_block, 0, stream>>>(device_input, device_count, rows, cols);
+
+    // Copy result back to host
+    cudaXMemcpy(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Free device memory
+    cudaXFree(device_input);
+    cudaXFree(device_count);
+
+    return result;
+}

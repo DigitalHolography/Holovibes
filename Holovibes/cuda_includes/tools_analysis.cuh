@@ -58,3 +58,5 @@ void convolution_kernel_add_padding(float* output,
 float* compute_kernel(float sigma);
 
 void compute_gauss_kernel(float* output, float sigma);
+
+int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream);

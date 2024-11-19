@@ -55,12 +55,11 @@ void CircularVideoBuffer::compute_mean_image()
     compute_mean(mean_image_, sum_image_, nb_frames_, frame_res_, stream_);
 }
 
-void CircularVideoBuffer::compute_mean_video(float scalar_to_multiply)
+void CircularVideoBuffer::compute_mean_video()
 {
     if (!mean_1_2_video_)
         mean_1_2_video_.resize(buffer_capacity_);
     compute_mean_1_2(mean_1_2_video_, data_, frame_res_, nb_frames_, stream_);
-    multiply_array_by_scalar(mean_1_2_video_, nb_frames_, scalar_to_multiply, stream_);
 }
 
 float* CircularVideoBuffer::get_mean_image() { return mean_image_.get(); }
@@ -91,5 +90,7 @@ void CircularVideoBuffer::add_new_frame(const float* const new_frame)
 }
 
 bool CircularVideoBuffer::is_full() { return nb_frames_ == buffer_capacity_; }
+
+size_t CircularVideoBuffer::get_frame_count() { return nb_frames_; }
 
 } // namespace holovibes

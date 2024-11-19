@@ -21,9 +21,7 @@ __global__ void kernel_divide_constant(float* vascular_pulse, int value, size_t 
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-    {
         vascular_pulse[index] /= value;
-    }
 }
 
 void divide_constant(float* vascular_pulse, int value, size_t size, cudaStream_t stream)
@@ -46,9 +44,7 @@ __global__ void kernel_subtract_constant(float* output, float* input, float valu
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-    {
         output[index] = input[index] - value;
-    }
 }
 
 void subtract_constant(float* output, float* input, float value, size_t size, cudaStream_t stream)
@@ -62,9 +58,7 @@ __global__ void kernel_multiply_three_vectors(float* output, float* input1, floa
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-    {
         output[index] = input1[index] * input2[index] * input3[index];
-    }
 }
 
 void multiply_three_vectors(
