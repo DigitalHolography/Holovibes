@@ -1276,7 +1276,7 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
 {
     auto& holo = Holovibes::instance();
 
-    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file;
     std::string path = path_file.string();
 
     std::vector<float> matrix;

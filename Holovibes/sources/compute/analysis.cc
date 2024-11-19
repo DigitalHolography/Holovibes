@@ -149,6 +149,7 @@ void Analysis::init()
 
     // Prepare gaussian blur kernel
     std::vector<float> gaussian_kernel = load_gaussian_128_convolution_matrix();
+    // load_convolution_matrix_file("gaussian_128_128_1.txt", gaussian_kernel);
 
     gaussian_128_kernel_buffer_.resize(frame_res);
     cudaXMemsetAsync(gaussian_128_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
@@ -705,6 +706,7 @@ void Analysis::insert_choroid_mask()
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
                 cudaXFree(first_mask_choroid);
+                cudaXFree(vesselness_mask_env_.quantizedVesselCorrelation_);
             });
     }
 }
