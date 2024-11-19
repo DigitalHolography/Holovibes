@@ -33,97 +33,6 @@ using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes::compute
 {
-#pragma region tools
-namespace
-{
-std::vector<float> load_gaussian_128_convolution_matrix()
-{
-    // There is no file None.txt for convolution
-    std::vector<float> convo_matrix = {};
-    const std::string& file = "gaussian_128_128_1.txt";
-    auto& holo = holovibes::Holovibes::instance();
-
-    try
-    {
-        auto path_file = GET_EXE_DIR / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
-        std::string path = path_file.string();
-
-        std::vector<float> matrix;
-        uint matrix_width = 0;
-        uint matrix_height = 0;
-        uint matrix_z = 1;
-
-        // Doing this the C way because it's faster
-        FILE* c_file;
-        fopen_s(&c_file, path.c_str(), "r");
-
-        if (c_file == nullptr)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid file path");
-        }
-
-        // Read kernel dimensions
-        if (fscanf_s(c_file, "%u %u %u;", &matrix_width, &matrix_height, &matrix_z) != 3)
-        {
-            fclose(c_file);
-            throw std::runtime_error("Invalid kernel dimensions");
-        }
-
-        size_t matrix_size = matrix_width * matrix_height * matrix_z;
-        matrix.resize(matrix_size);
-
-        // Read kernel values
-        for (size_t i = 0; i < matrix_size; ++i)
-        {
-            if (fscanf_s(c_file, "%f", &matrix[i]) != 1)
-            {
-                fclose(c_file);
-                throw std::runtime_error("Missing values");
-            }
-        }
-
-        fclose(c_file);
-
-        // Reshape the vector as a (nx,ny) rectangle, keeping z depth
-        const uint output_width = holo.get_gpu_output_queue()->get_fd().width;
-        const uint output_height = holo.get_gpu_output_queue()->get_fd().height;
-        const uint size = output_width * output_height;
-
-        // The convo matrix is centered and padded with 0 since the kernel is
-        // usally smaller than the output Example: kernel size is (2, 2) and
-        // output size is (4, 4) The kernel is represented by 'x' and
-        //  | 0 | 0 | 0 | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | x | x | 0 |
-        //  | 0 | 0 | 0 | 0 |
-        const uint first_col = (output_width / 2) - (matrix_width / 2);
-        const uint last_col = (output_width / 2) + (matrix_width / 2);
-        const uint first_row = (output_height / 2) - (matrix_height / 2);
-        const uint last_row = (output_height / 2) + (matrix_height / 2);
-
-        convo_matrix.resize(size, 0.0f);
-
-        uint kernel_indice = 0;
-        for (uint i = first_row; i < last_row; i++)
-        {
-            for (uint j = first_col; j < last_col; j++)
-            {
-                (convo_matrix)[i * output_width + j] = matrix[kernel_indice];
-                kernel_indice++;
-            }
-        }
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
-        return {};
-    };
-    return convo_matrix;
-}
-
-} // namespace
-#pragma endregion tools
 
 void Analysis::init()
 {
@@ -148,8 +57,8 @@ void Analysis::init()
     cuComplex_buffer_.resize(frame_res);
 
     // Prepare gaussian blur kernel
-    std::vector<float> gaussian_kernel = load_gaussian_128_convolution_matrix();
-    // load_convolution_matrix_file("gaussian_128_128_1.txt", gaussian_kernel);
+    std::vector<float> gaussian_kernel;
+    api::load_convolution_matrix_file("gaussian_128_128_1.txt", gaussian_kernel);
 
     gaussian_128_kernel_buffer_.resize(frame_res);
     cudaXMemsetAsync(gaussian_128_kernel_buffer_.get(), 0, frame_res * sizeof(cuComplex), stream_);
@@ -318,46 +227,13 @@ void Analysis::init()
     cudaXFree(g_yy_qy);
     cudaXFree(g_yy_px);
 
-    // calculer notre kernel
+    // Compute Gaussian kernel for vascular pulse
     float sigma_2 = 0.02 * fd_.width;
     vesselness_mask_env_.vascular_kernel_size_ = 2 * std::ceil(2 * sigma_2) + 1;
-
-    // float* k = compute_kernel(sigma_2);
-
-    // float* d_k;
-    // cudaXMalloc(&d_k, sizeof(float) * kernel_size * kernel_size);
-    // cudaXMemcpy(d_k, k, sizeof(float) * kernel_size * kernel_size, cudaMemcpyHostToDevice);
-    // delete[] k;
 
     vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
                                                  vesselness_mask_env_.vascular_kernel_size_);
     compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, sigma_2);
-
-    // // Pad it with zero to equal frame size
-    // float* vascular_kernel_padded;
-    // cudaXMalloc(&vascular_kernel_padded, sizeof(float) * fd_.height * fd_.width);
-    // convolution_kernel_add_padding(vascular_kernel_padded, vascular_kernel_float, w, h, fd_.width, fd_.height,
-    // stream_);
-
-    // cudaXFree(vascular_kernel_float);
-
-    // // Convert from float to cuComplex for FFT
-    // vesselness_mask_env_.vascular_kernel_.resize(frame_res);
-    // cudaXMemsetAsync(vesselness_mask_env_.vascular_kernel_, 0, frame_res * sizeof(cuComplex), stream_);
-    // cudaSafeCall(cudaMemcpy2DAsync(vesselness_mask_env_.vascular_kernel_,
-    //                                sizeof(cuComplex),
-    //                                vascular_kernel_padded,
-    //                                sizeof(float),
-    //                                sizeof(float),
-    //                                frame_res,
-    //                                cudaMemcpyDeviceToDevice,
-    //                                stream_));
-    // cudaXStreamSynchronize(stream_);
-    // shift_corners(vesselness_mask_env_.vascular_kernel_, batch_size, fd_.width, fd_.height, stream_);
-    // cufftSafeCall(cufftExecC2C(convolution_plan_,
-    //                            vesselness_mask_env_.vascular_kernel_,
-    //                            vesselness_mask_env_.vascular_kernel_,
-    //                            CUFFT_FORWARD));
 }
 
 void Analysis::dispose()
