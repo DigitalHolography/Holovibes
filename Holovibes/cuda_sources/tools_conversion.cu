@@ -417,26 +417,24 @@ void uchar_to_shifted_uchar(uchar* output, const uchar* input, const size_t size
 
 __global__ void kernel_accumulate_images(float* output,
                                          const float* input,
-                                         const size_t end,
+                                         const size_t start,
                                          const size_t max_elmt,
                                          const size_t nb_elmt,
                                          const size_t nb_pixel)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    long int pos = end; // end is excluded
+    long int pos = start;
 
     if (index < nb_pixel)
     {
         float val = 0;
-        for (size_t i = 0; i < nb_elmt; i++)
+        for (size_t i = 0; i < nb_elmt; ++i)
         {
-            // get last index when pos is out of range
-            // reminder: the given input is from ciruclar queue
-            pos--;
-            if (pos < 0)
-                pos = max_elmt - 1;
-
             val += input[index + pos * nb_pixel];
+
+            // get first index when pos is out of range
+            // reminder: the given input is from ciruclar queue
+            pos = (pos + 1) % max_elmt;
         }
         output[index] = val / nb_elmt;
     }

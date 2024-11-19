@@ -31,6 +31,3 @@ using FnVector = std::vector<std::pair<ushort, FnType>>;
 using FnDeque = std::deque<FnType>;
 
 using Color = std::array<float, 3>;
-
-class ICompute;
-using SharedPipe = std::shared_ptr<ICompute>;

@@ -905,22 +905,6 @@ It's a post-processing step to remove noise</string>
                   <number>8</number>
                  </property>
                  <item>
-                  <widget class="QPushButton" name="AutoContrastPushButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Apply</string>
-                   </property>
-                   <property name="flat">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
                    <property name="text">
                     <string>Auto</string>
@@ -4815,22 +4799,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>AutoContrastPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_auto_contrast()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -5911,7 +5879,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_z_distance_slider(int)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
-  <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
   <slot>set_contrast_invert(bool)</slot>

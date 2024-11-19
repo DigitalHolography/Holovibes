@@ -43,7 +43,6 @@ void ImageRenderingPanel::on_notify()
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
-    ui_->ImageModeComboBox->setEnabled((api::get_input_queue_location() == holovibes::Device::GPU));
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 

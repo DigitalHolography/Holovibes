@@ -345,8 +345,6 @@ void ViewPanel::set_contrast_mode(bool value)
     parent_->notify();
 }
 
-void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
-
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {
     api::set_contrast_auto_refresh(value);

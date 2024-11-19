@@ -58,13 +58,7 @@ void CameraFrameReadWorker::run()
 void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor& captured_fd,
                                          const camera::FrameDescriptor& camera_fd)
 {
-    cudaMemcpyKind copy_kind;
-    bool input_queue_on_gpu = api::get_input_queue_location() == holovibes::Device::GPU;
-    if (input_queue_on_gpu) // if the input queue is on gpu
-        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
-    else // if it is on CPU
-        copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToHost : cudaMemcpyHostToHost;
-
+    cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
     for (unsigned i = 0; i < captured_fd.count1; ++i)
     {
         auto ptr = (uint8_t*)(captured_fd.region1) + i * camera_fd.get_frame_size();
@@ -81,8 +75,7 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     compute_fps();
     *temperature_ = camera_->get_temperature();
 
-    if (input_queue_on_gpu)
-        input_queue_.load()->sync_current_batch();
+    input_queue_.load()->sync_current_batch();
 }
 
 } // namespace holovibes::worker

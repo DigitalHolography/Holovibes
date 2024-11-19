@@ -32,7 +32,6 @@ class ViewPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*!
      * \brief Changes the image type in the UI and hides irrelevant options.
      * Notably, when the input data is moments, only moments views are available.
      *
@@ -122,8 +121,6 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
-    /*! \brief Enalbles auto-contrast */
-    void set_auto_contrast();
 
     /*! \brief Enables or Disables auto refresh contrast
      *
