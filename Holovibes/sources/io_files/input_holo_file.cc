@@ -191,8 +191,7 @@ void InputHoloFile::import_compute_settings()
         from_json(full_meta_data_, raw_footer_);
 
         auto info_json = meta_data_["info"];
-        if (info_json.contains("camera_fps"))
-            api::set_camera_fps(info_json["camera_fps"]);
+        api::set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
     }
 
     // update GSH with the footer values
