@@ -2907,6 +2907,26 @@ The range of frequencies kept is [z, z + width]</string>
                      <string>.holo</string>
                     </property>
                    </item>
+                   <item>
+                    <property name="text">
+                     <string>.mp4</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.avi</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.csv</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.txt</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item>

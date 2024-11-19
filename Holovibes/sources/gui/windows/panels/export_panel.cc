@@ -45,12 +45,30 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
 
 void ExportPanel::on_notify()
 {
+    // 0 = .holo, 1 = .mp4, 2 = .avi, 3 = .csv, 4 = .txt
+    static const std::map<RecordMode, std::vector<int>> extension_index_map = {{RecordMode::RAW, {0}},
+                                                                               {RecordMode::CHART, {3, 4}},
+                                                                               {RecordMode::HOLOGRAM, {0, 1, 2}},
+                                                                               {RecordMode::MOMENTS, {0}},
+                                                                               {RecordMode::CUTS_XZ, {1, 2}},
+                                                                               {RecordMode::CUTS_YZ, {1, 2}}};
+
+    // File extension
+    auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
+    auto extension_indexes =
+        extension_index_map.at(api::get_record_mode()); // The indexes compatible with the current record mode
+    for (int i = 0; i < ui_->RecordExtComboBox->count(); i++)
+    {
+        bool do_hide = std::find(extension_indexes.begin(), extension_indexes.end(), i) == extension_indexes.end();
+        file_ext_view->setRowHidden(i, do_hide); // Hiding the incompatible extensions
+
+        // Changing the current extension if it is not compatible with the current record mode
+        if (i == ui_->RecordExtComboBox->currentIndex() && do_hide)
+            ui_->RecordExtComboBox->setCurrentIndex(extension_indexes[0]);
+    }
+
     if (api::get_record_mode() == RecordMode::CHART)
     {
-        ui_->RecordExtComboBox->clear();
-        ui_->RecordExtComboBox->insertItem(0, ".csv");
-        ui_->RecordExtComboBox->insertItem(1, ".txt");
-
         ui_->ChartPlotWidget->show();
 
         if (gui::get_main_display())
@@ -63,30 +81,6 @@ void ExportPanel::on_notify()
     }
     else
     {
-        if (api::get_record_mode() == RecordMode::RAW)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-            ui_->RecordExtComboBox->insertItem(2, ".mp4");
-        }
-        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".mp4");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-        }
-        else if (api::get_record_mode() == RecordMode::MOMENTS)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-
         ui_->ChartPlotWidget->hide();
 
         if (gui::get_main_display())
@@ -98,6 +92,7 @@ void ExportPanel::on_notify()
         }
     }
 
+    // Record type
     auto img_mode_view = qobject_cast<QListView*>(ui_->RecordImageModeComboBox->view());
 
     static std::map<RecordMode, QString> record_mode_map = {{RecordMode::RAW, "Raw Image"},
@@ -109,15 +104,18 @@ void ExportPanel::on_notify()
     ui_->RecordImageModeComboBox->setCurrentIndex(
         ui_->RecordImageModeComboBox->findText(record_mode_map[api::get_record_mode()]));
 
+    // Hiding most of the options when in raw mode
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
     img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Processed Image"), is_raw);
     img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Moments"), is_raw);
     img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Chart"), is_raw);
 
+    // When set to raw, the 3D cuts are automatically disabled, so this works as a valid toggle for raw mode too
     const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
     img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"), hide_cuts);
     img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"), hide_cuts);
 
+    // Chart buttons
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((gui::get_main_display() && signalBtn->isEnabled() &&
                               gui::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
@@ -130,6 +128,7 @@ void ExportPanel::on_notify()
                                 ? "QPushButton {color: #00A4AB;}"
                                 : "");
 
+    // File path
     QLineEdit* path_line_edit = ui_->OutputFilePathLineEdit;
     path_line_edit->clear();
 
@@ -141,6 +140,7 @@ void ExportPanel::on_notify()
 
     actualise_record_output_file_ui(record_output_path);
 
+    // Number of frames
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
