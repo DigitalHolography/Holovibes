@@ -83,11 +83,6 @@ class ExportPanel : public Panel
     void update_record_frame_count_enabled();
 
     /**
-     * @brief Handles the update of the record frame count setting spinbox.
-     */
-    void update_record_frame_count();
-
-    /**
      * @brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
