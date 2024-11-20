@@ -123,6 +123,7 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+    path_line_edit->setToolTip(record_output_path.c_str());
 
     actualise_record_output_file_ui(record_output_path);
 
