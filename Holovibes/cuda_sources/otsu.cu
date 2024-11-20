@@ -11,24 +11,24 @@ __global__ void histogram_kernel(float* image, uint* hist, int imgSize)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < imgSize)
-        atomicAdd(&hist[(int)(image[idx])], 1);
+        atomicAdd(&hist[(unsigned char)(image[idx] * NUM_BINS)], 1);
 }
 
-__global__ void _normalise(float* d_input, float min, float max, int size)
-{
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+// __global__ void _normalise(float* d_input, float min, float max, int size)
+// {
+//     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < size)
-        d_input[tid] = (int)(((d_input[tid] - min) / (max - min)) * NUM_BINS);
+if (tid < size)
+    d_input[tid] = d_input[tid] * (NUM_BINS - 1);
 }
 
-void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-    _normalise<<<blocks, threads, 0, stream>>>(d_input, min, max, size);
-    cudaDeviceSynchronize();
-}
+// void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
+// {
+//     uint threads = get_max_threads_1d();
+//     uint blocks = map_blocks_to_problem(size, threads);
+//     _normalise<<<blocks, threads, 0, stream>>>(d_input, min, max, size);
+//     cudaDeviceSynchronize();
+// }
 
 __global__ void global_threshold_kernel(float* input, int size, float globalThreshold)
 {
@@ -90,11 +90,6 @@ float otsu_threshold(float* d_image, uint* histo_buffer_d, int size, const cudaS
     cudaMemcpy(h_hist, histo_buffer_d, NUM_BINS * sizeof(uint), cudaMemcpyDeviceToHost);
 
     // Compute optimal threshold
-
-    for (int i = 0; i < NUM_BINS; i++)
-        std::cout << h_hist[i] << " ";
-    std::cout << std::endl;
-
     int total = size;
     float sum = 0, sumB = 0, varMax = 0;
     int wB = 0, wF = 0;
@@ -122,7 +117,7 @@ float otsu_threshold(float* d_image, uint* histo_buffer_d, int size, const cudaS
             threshold = t;
         }
     }
-    return threshold; /// NUM_BINS;
+    return threshold / NUM_BINS;
 }
 
 void compute_binarise_otsu(
