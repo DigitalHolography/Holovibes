@@ -53,7 +53,7 @@ __global__ void bradley_threshold_kernel(const float* image,
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x < width || y < height)
+    if (x < width && y < height)
     {
         int halfWindow = windowSize / 2;
         int startX = max(x - halfWindow, 0);
