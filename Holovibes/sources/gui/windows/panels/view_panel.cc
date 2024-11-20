@@ -87,6 +87,7 @@ void ViewPanel::update_img_type(int img_type)
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_data_moments = api::get_data_type() == RecordedDataType::MOMENTS;
 
     update_img_type(static_cast<int>(api::get_img_type()));
 
@@ -107,7 +108,7 @@ void ViewPanel::on_notify()
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
 
-    ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
+    ui_->RawDisplayingCheckBox->setEnabled(!is_raw && !is_data_moments);
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
 
     // Contrast
@@ -368,6 +369,8 @@ void ViewPanel::update_raw_view(bool checked)
     }
 
     api::set_raw_view(checked, parent_->auxiliary_window_max_size);
+
+    parent_->notify();
 }
 
 void ViewPanel::set_x_y()

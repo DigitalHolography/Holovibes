@@ -237,6 +237,10 @@ bool is_light_ui_mode()
 
 void set_image_mode(Computation mode, uint window_max_size)
 {
+    // When reading moments, the computation mode cannot be raw (the image would be nonsense)
+    if (get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
+        return;
+
     if (mode == Computation::Raw)
     {
         set_raw_mode(window_max_size);
@@ -623,7 +627,8 @@ void set_lens_view(bool checked, uint auxiliary_window_max_size)
 
 void set_raw_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    // Cases when we do not want to modify it
+    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     auto pipe = get_compute_pipe();
@@ -847,7 +852,7 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
-    if (get_compute_mode() == Computation::Raw)
+    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     // Avoid 0 for cuda kernel
@@ -860,7 +865,8 @@ void set_z_distance(float value)
 
 void set_space_transformation(const SpaceTransformation value)
 {
-    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value ||
+        get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     UPDATE_SETTING(SpaceTransformation, value);
@@ -869,7 +875,8 @@ void set_space_transformation(const SpaceTransformation value)
 
 void set_time_transformation(const TimeTransformation value)
 {
-    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value ||
+        get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     UPDATE_SETTING(TimeTransformation, value);
