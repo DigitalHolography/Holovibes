@@ -186,21 +186,21 @@ void compute_first_correlation(float* output,
 
     float* vascular_pulse_centered;
     cudaXMalloc(&vascular_pulse_centered,
-                506 * sizeof(float)); // need to be replaced with time window (it's because csv)
+                length_video * sizeof(float)); // need to be replaced with time window (it's because csv)
 
     float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
     subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
 
     // TODO: la suite (le calcul de R_vascularPulse)
-    computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, 506, stream);
+    computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
     
     float *std_M0_ff_video_centered;
     cudaXMalloc(&std_M0_ff_video_centered, sizeof(float) * 512 * 512);
-    compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, 506, stream);
+    compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, length_video, stream);
 
     float *std_vascular_pulse_centered;
     cudaXMalloc(&std_vascular_pulse_centered, sizeof(float));
-    compute_std(vascular_pulse_centered, std_vascular_pulse_centered, 1, 506, stream);
+    compute_std(vascular_pulse_centered, std_vascular_pulse_centered, 1, length_video, stream);
 
     multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered, 512 * 512, stream);
 

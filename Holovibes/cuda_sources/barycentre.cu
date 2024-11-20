@@ -19,23 +19,62 @@
 
 #define CIRCLE_MASK_RADIUS 0.07
 
-__global__ void kernel_compute_multiplication_inplace(float* input_output, float* B, size_t size, uint depth)
+// __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
+// {
+//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (index < depth)
+//     {
+//         output[index] = 0;
+//         for (uint i = 0; i < size; i++)
+//             output[index] += A[i + index * size] * B[i];
+//         output[index] /= size;
+//     }
+// }
+
+// void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
+// {
+//     uint threads = get_max_threads_1d();
+//     uint blocks = map_blocks_to_problem(depth, threads);
+
+//     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
+// }
+
+__global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
+    
+    if (index < depth * size)
     {
-        for (uint i = 0; i < depth; i++)
-            input_output[i * size + index] *= B[index];
+        const uint depth_index = index / size;
+        const uint size_index = index % size;
+
+        // Utilisation d'un atomicAdd pour accumuler les résultats
+        atomicAdd(&output[depth_index], A[size_index + depth_index * size] * B[size_index]);
     }
 }
 
-void compute_multiplication_inplace(float* output, float* B, size_t size, uint depth, cudaStream_t stream)
+__global__ void kernel_divide(float* output, size_t depth, size_t size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < depth)
+    {
+        output[index] /= size;
+    }
+}
+
+void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
+    uint blocks = map_blocks_to_problem(depth * size, threads);
+    kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
 
-    kernel_compute_multiplication_inplace<<<blocks, threads, 0, stream>>>(output, B, size, depth);
+    // Division par size après la fin du calcul pour chaque depth_index
+    cudaDeviceSynchronize();  // Synchroniser pour s'assurer que le kernel est terminé
+    threads = get_max_threads_1d();
+    blocks = map_blocks_to_problem(depth, threads);
+    kernel_divide<<<blocks, threads, 0, stream>>>(output, depth, size);
 }
+
 
 __global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size, uint depth)
 {

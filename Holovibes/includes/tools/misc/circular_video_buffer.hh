@@ -50,6 +50,8 @@ class CircularVideoBuffer
 
     float* get_data_ptr();
 
+    float* multiply_data_by_frame(float* frame);
+
   private:
     /*! \brief Video of the last 'time_window_' frames */
     cuda_tools::UniquePtr<float> data_{};

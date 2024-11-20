@@ -2,6 +2,7 @@
 #include "cuda_memory.cuh"
 #include "moments_treatments.cuh"
 #include "tools_analysis.cuh"
+#include "barycentre.cuh"
 
 namespace holovibes
 {
@@ -138,5 +139,14 @@ bool CircularVideoBuffer::is_full() { return nb_frames_ == buffer_capacity_; }
 size_t CircularVideoBuffer::get_frame_count() { return nb_frames_; }
 
 float* CircularVideoBuffer::get_data_ptr() { return data_.get(); }
+
+float* CircularVideoBuffer::multiply_data_by_frame(float* frame)
+{
+    float* result;
+    cudaXMalloc(&result, nb_frames_ * sizeof(float));
+    cudaXMemset(result, 0, sizeof(float) * nb_frames_);
+    compute_multiplication_mean(result, data_.get(), frame, frame_res_, nb_frames_, stream_);
+    return result;
+}
 
 } // namespace holovibes
