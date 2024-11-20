@@ -30,7 +30,7 @@ ExportPanel::~ExportPanel() {}
 void ExportPanel::init()
 {
     ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
+    set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
 }
 
 /*
@@ -42,22 +42,14 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
     NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
 }
 
-int ExportPanel::ext_id(const QString s) { return ui_->RecordExtComboBox->findText(s); }
-
 void ExportPanel::on_notify()
 {
-    static const std::map<RecordMode, std::vector<int>> extension_index_map = {
-        {RecordMode::RAW, {ext_id(".holo")}},
-        {RecordMode::CHART, {ext_id(".csv"), ext_id(".txt")}},
-        {RecordMode::HOLOGRAM, {ext_id(".holo"), ext_id(".mp4"), ext_id(".avi")}},
-        {RecordMode::MOMENTS, {ext_id(".holo")}},
-        {RecordMode::CUTS_XZ, {ext_id(".mp4"), ext_id(".avi")}},
-        {RecordMode::CUTS_YZ, {ext_id(".mp4"), ext_id(".avi")}}};
+    // TODO
 
     // File extension
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
     auto extension_indexes =
-        extension_index_map.at(api::get_record_mode()); // The indexes compatible with the current record mode
+        api::get_supported_formats(api::get_record_mode()); // The indexes compatible with the current record mode
     for (int i = 0; i < ui_->RecordExtComboBox->count(); i++)
     {
         bool do_hide = std::find(extension_indexes.begin(), extension_indexes.end(), i) == extension_indexes.end();
@@ -96,25 +88,18 @@ void ExportPanel::on_notify()
     // Record type
     auto img_mode_view = qobject_cast<QListView*>(ui_->RecordImageModeComboBox->view());
 
-    static std::map<RecordMode, QString> record_mode_map = {{RecordMode::RAW, "Raw Image"},
-                                                            {RecordMode::HOLOGRAM, "Processed Image"},
-                                                            {RecordMode::MOMENTS, "Moments"},
-                                                            {RecordMode::CHART, "Chart"},
-                                                            {RecordMode::CUTS_XZ, "3D Cuts XZ"},
-                                                            {RecordMode::CUTS_YZ, "3D Cuts YZ"}};
-    ui_->RecordImageModeComboBox->setCurrentIndex(
-        ui_->RecordImageModeComboBox->findText(record_mode_map[api::get_record_mode()]));
+    ui_->RecordImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_record_mode()));
 
     // Hiding most of the options when in raw mode
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
-    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Processed Image"), is_raw);
-    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Moments"), is_raw);
-    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("Chart"), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::HOLOGRAM), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CHART), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw);
 
     // When set to raw, the 3D cuts are automatically disabled, so this works as a valid toggle for raw mode too
     const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
-    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"), hide_cuts);
-    img_mode_view->setRowHidden(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_XZ), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_YZ), hide_cuts);
 
     // Chart buttons
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
@@ -227,14 +212,12 @@ void ExportPanel::set_output_file_name(std::string std_filepath)
 
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
 
-void ExportPanel::set_record_mode(const QString& value)
+void ExportPanel::set_record_mode(int index)
 {
     if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    const std::string text = value.toStdString();
-
-    api::set_record_mode(text);
+    api::set_record_mode(static_cast<RecordMode>(index));
 
     parent_->notify();
 }

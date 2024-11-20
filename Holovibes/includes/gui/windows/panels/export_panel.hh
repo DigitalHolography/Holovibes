@@ -34,15 +34,6 @@ class ExportPanel : public Panel
     void init_light_ui();
     void set_output_file_name(std::string std_filepath);
 
-    /*!
-     * \brief Finds the index of an extension based on the UI list
-     * It does take into account hidden extensions
-     *
-     * \param s    The extension to find, written as it is shown in the UI
-     * \return int The index of the extension in the UI list
-     */
-    int ext_id(const QString s);
-
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -56,9 +47,9 @@ class ExportPanel : public Panel
 
     /*! \brief Modifies the record mode
      *
-     * \param value The new record mode
+     * \param index The new record mode's index in the UI. As it is the same as the enum, it is directly casted.
      */
-    void set_record_mode(const QString& value);
+    void set_record_mode(int index);
 
     /*! \brief Stops the record */
     void stop_record();

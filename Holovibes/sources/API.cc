@@ -1616,26 +1616,18 @@ void set_record_mode_enum(RecordMode value)
     }
 }
 
-void set_record_mode(const std::string& text)
+std::vector<OutputFormat> get_supported_formats(RecordMode mode)
 {
-    LOG_FUNC(text);
+    static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
+        {RecordMode::RAW, {OutputFormat::HOLO}},
+        {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
+        {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
 
-    // Mapping from string to RecordMode
-    static const std::unordered_map<std::string, RecordMode> recordModeMap = {{"Chart", RecordMode::CHART},
-                                                                              {"Processed Image", RecordMode::HOLOGRAM},
-                                                                              {"Raw Image", RecordMode::RAW},
-                                                                              {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
-                                                                              {"Moments", RecordMode::MOMENTS}};
-
-    auto it = recordModeMap.find(text);
-    if (it == recordModeMap.end())
-    {
-        LOG_ERROR("Unknown record mode {}", text);
-        throw std::runtime_error("Record mode not handled");
-    }
-
-    set_record_mode_enum(it->second);
+    return extension_index_map.at(mode);
 }
 
 bool start_record_preconditions()

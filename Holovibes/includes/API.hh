@@ -223,11 +223,13 @@ const std::string browse_record_output_file(std::string& std_filepath);
  */
 void set_record_mode_enum(RecordMode value);
 
-/*! \brief Changes the record mode, but taking a string as the argument.
+/*!
+ * \brief Gets the available extension for the given record mode
  *
- * \param text The STRING form of the new record mode
+ * \param mode The record mode for which to get the available extensions
+ * \return std::vector<OutputFormat> The available file extensions as an enum.
  */
-void set_record_mode(const std::string& text);
+std::vector<OutputFormat> get_supported_formats(RecordMode mode);
 
 /*!
  * \brief Set the record queue location, between gpu and cpu
