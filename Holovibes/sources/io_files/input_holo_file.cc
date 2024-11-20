@@ -185,10 +185,13 @@ void InputHoloFile::import_compute_settings()
         auto full_meta_data_ = json::parse("{}");
         raw_footer_.Update();
         to_json(full_meta_data_, raw_footer_);
-        full_meta_data_["compute_settings"] = full_meta_data_;
-        rec_fill_default_json(full_meta_data_, meta_data_);
+        // full_meta_data_["compute_settings"] = full_meta_data_;
+        rec_fill_default_json(full_meta_data_, meta_data_["compute_settings"]);
 
-        from_json(full_meta_data_["compute_settings"], raw_footer_);
+        from_json(full_meta_data_, raw_footer_);
+
+        auto info_json = meta_data_["info"];
+        api::set_camera_fps(info_json.contains("camera_fps") ? info_json["camera_fps"] : info_json["input_fps"]);
     }
 
     // update GSH with the footer values

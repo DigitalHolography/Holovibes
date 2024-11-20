@@ -185,6 +185,7 @@ DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);
+DECLARE_SETTING(CameraFps, uint);
 
 DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings
