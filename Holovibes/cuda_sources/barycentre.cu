@@ -19,21 +19,40 @@
 
 #define CIRCLE_MASK_RADIUS 0.07
 
-__global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size)
+__global__ void kernel_compute_multiplication_inplace(float* input_output, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
     {
-        output[index] = A[index] * B[index];
+        for (uint i = 0; i < depth; i++)
+            input_output[i * size + index] *= B[index];
     }
 }
 
-void compute_multiplication(float* output, float* A, float* B, size_t size, cudaStream_t stream)
+void compute_multiplication_inplace(float* output, float* B, size_t size, uint depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
 
-    kernel_compute_multiplication<<<blocks, threads, 0, stream>>>(output, A, B, size);
+    kernel_compute_multiplication_inplace<<<blocks, threads, 0, stream>>>(output, B, size, depth);
+}
+
+__global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size, uint depth)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+    {
+        for (uint i = 0; i < depth; i++)
+            output[i * size + index] = A[i * size + index] * B[index];
+    }
+}
+
+void compute_multiplication(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    kernel_compute_multiplication<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
 }
 
 int find_max_thrust(float* input, size_t size)

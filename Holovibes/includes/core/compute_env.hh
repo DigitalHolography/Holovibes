@@ -224,7 +224,7 @@ struct VesselnessMaskEnv
      * frames, which are used for calculations in subsequent processing steps.
      */
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
-    std::unique_ptr<CircularVideoBuffer> m0_ff_centered_video_cb_ = nullptr;
+    std::unique_ptr<CircularVideoBuffer> f_avg_video_cb_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> vascular_pulse_video_cb_ = nullptr;
 
     /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
@@ -239,7 +239,7 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
 
     /*! \brief image with mean and centered calculated for a time window*/
-    cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> m0_ff_video_centered_ = nullptr;
 
     /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
     cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;

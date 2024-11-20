@@ -11,6 +11,10 @@
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
 #include "matrix_operations.hh"
+#include <thrust/device_ptr.h>
+#include <thrust/extrema.h>
+#include <fstream>
+
 
 float* load_CSV_to_float_array(const std::filesystem::path& path)
 {
@@ -76,9 +80,7 @@ void write_1D_float_array_to_file(const float* array, int rows, int cols, const 
         {
             outFile << array[i * cols + j]; // Calculate index in row-major order
             if (j < cols - 1)
-            {
                 outFile << " "; // Separate values in a row by a space
-            }
         }
         outFile << std::endl; // New line after each row
     }
@@ -97,9 +99,7 @@ kernel_padding(float* output, float* input, int height, int width, int new_width
     int x = idx % width;
 
     if (y < height && x < width)
-    {
         output[(start_y + y) * new_width + (start_x + x)] = input[y * width + x];
-    }
 }
 
 void convolution_kernel_add_padding(float* output,
@@ -121,9 +121,7 @@ void convolution_kernel_add_padding(float* output,
 void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
 {
     if (input == nullptr)
-    {
         return;
-    }
     float* result = new float[rows * col];
     cudaXMemcpyAsync(result, input, rows * col * sizeof(float), cudaMemcpyDeviceToHost, stream);
     cudaXStreamSynchronize(stream);
@@ -133,9 +131,7 @@ void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, 
 void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
 {
     if (input == nullptr)
-    {
         return;
-    }
     write_1D_float_array_to_file(input, rows, col, "test_" + filename + ".txt");
 }
 
@@ -143,9 +139,7 @@ __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
     const int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-    {
         output[index] = (int)index - lim;
-    }
 }
 
 void normalized_list(float* output, int lim, int size, cudaStream_t stream)
@@ -183,9 +177,7 @@ __global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-    {
         output[index] = device_comp_dgaussian(input[index], sigma, n);
-    }
 }
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream)
@@ -203,9 +195,7 @@ __global__ void kernel_multiply_array_by_scalar(T* input_output, size_t size, co
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < size)
-    {
         input_output[index] *= scalar;
-    }
 }
 
 template <typename T>
@@ -364,9 +354,7 @@ __global__ void kernel_apply_mask_and(float* output, const float* input, short w
     int index = y * width + x;
 
     if (x < width && y < height)
-    {
         output[index] *= input[index];
-    }
 }
 
 void apply_mask_and(float* output, const float* input, const short width, const short height, const cudaStream_t stream)
@@ -390,9 +378,7 @@ __global__ void kernel_apply_mask_or(float* output, const float* input, short wi
     int index = y * width + x;
 
     if (x < width && y < height)
-    {
         output[index] = (input[index] != 0.f) ? 1.f : output[index];
-    }
 }
 
 void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream)
@@ -615,4 +601,103 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
     cudaXFree(device_count);
 
     return result;
+}
+
+__global__ void
+kernel_divide_frames_float_inplace(float* const input_output, const float* const denominator, const uint size)
+{
+    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size)
+    {
+        const float new_x = input_output[index] / denominator[index];
+        input_output[index] = new_x;
+    }
+}
+
+void divide_frames_inplace(float* const input_output, const float* const denominator, const uint size, cudaStream_t stream)
+{
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(size, threads);
+    kernel_divide_frames_float_inplace<<<blocks, threads, 0, stream>>>(input_output, denominator, size);
+}
+
+namespace
+{
+int find_max_thrust(float* input, size_t size)
+{
+    thrust::device_ptr<float> dev_ptr(input);
+    thrust::device_ptr<float> max_ptr = thrust::max_element(dev_ptr, dev_ptr + size);
+    return max_ptr - dev_ptr;
+}
+
+int find_min_thrust(float* input, size_t size)
+{
+    thrust::device_ptr<float> dev_ptr(input);
+    thrust::device_ptr<float> min_ptr = thrust::min_element(dev_ptr, dev_ptr + size);
+    return min_ptr - dev_ptr;
+}
+} // namespace
+
+// Kernel to normalize an array between a given range
+__global__ void kernel_normalize_array(float* input_output, size_t size, float min_range, float max_range, float min_val, float max_val)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < size)
+    {
+        // Normalize to [0, 1], then scale to [min_range, max_range]
+        input_output[idx] = roundf(((input_output[idx] - min_val) / (max_val - min_val)) * (max_range - min_range) + min_range);
+    }
+}
+
+// Host function to normalize a device-only array
+void normalize_array(float* input_output, size_t size, float min_range, float max_range, cudaStream_t stream)
+{
+    // Step 1: Use Thrust to find min and max values on the device
+    int min_idx = find_min_thrust(input_output, size);
+    int max_idx = find_max_thrust(input_output, size);
+
+    // Copy min and max values from device memory to host
+    float min_val, max_val;
+    cudaXMemcpy(&min_val, input_output + min_idx, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(&max_val, input_output + max_idx, sizeof(float), cudaMemcpyDeviceToHost);
+
+    // Step 2: Launch kernel to normalize
+    const uint threads = get_max_threads_1d();
+    const uint blocks = map_blocks_to_problem(size, threads);
+    kernel_normalize_array<<<blocks, threads, 0, stream>>>(input_output, size, min_range, max_range, min_val, max_val);
+}
+
+
+void load_bin_video_file(const std::filesystem::path& path, float* output)
+{
+    const int width = 512;
+    const int height = 512;
+    const int frames = 506;
+    const int total_size = width * height * frames;
+
+    // Allouer un tableau pour stocker les données
+    float* video_data = new float[total_size];
+
+    // Ouvrir le fichier binaire en mode lecture
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+    {
+        std::cerr << "Erreur : Impossible d'ouvrir le fichier video.bin" << std::endl;
+        return;
+    }
+
+    // Lire les données dans le tableau
+    file.read(reinterpret_cast<char*>(video_data), total_size * sizeof(float));
+    if (!file)
+    {
+        std::cerr << "Erreur : Lecture du fichier incomplète" << std::endl;
+        delete[] video_data;
+        return;
+    }
+
+    file.close();
+
+    cudaXMemcpy(output, video_data, sizeof(float) * total_size, cudaMemcpyHostToDevice);
+    delete[] video_data;
 }

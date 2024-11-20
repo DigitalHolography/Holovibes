@@ -24,6 +24,10 @@ class CircularVideoBuffer
 
     ~CircularVideoBuffer();
 
+    CircularVideoBuffer(CircularVideoBuffer& ref);
+
+    CircularVideoBuffer& operator=(CircularVideoBuffer& ref);
+
     float* get_first_frame();
 
     float* get_last_frame();
@@ -43,6 +47,8 @@ class CircularVideoBuffer
     bool is_full();
 
     size_t get_frame_count();
+
+    float* get_data_ptr();
 
   private:
     /*! \brief Video of the last 'time_window_' frames */

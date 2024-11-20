@@ -29,6 +29,50 @@ CircularVideoBuffer::~CircularVideoBuffer()
     mean_image_.reset();
 }
 
+CircularVideoBuffer::CircularVideoBuffer(CircularVideoBuffer& ref)
+{
+    // Allocate the internal GPU memory buffer
+    data_.resize(ref.buffer_capacity_ * ref.frame_res_);
+
+    // Allocate the sum image buffer
+    sum_image_.resize(ref.frame_res_);
+    cudaXMemset(sum_image_, 0, ref.frame_res_ * sizeof(float));
+
+    cudaXMemcpyAsync(data_.get(),
+                     ref.data_.get(),
+                     ref.frame_size_ * ref.nb_frames_,
+                     cudaMemcpyDeviceToDevice,
+                     ref.stream_);
+
+    start_index_ = ref.start_index_;
+    end_index_ = ref.end_index_;
+    buffer_capacity_ = ref.buffer_capacity_;
+    nb_frames_ = ref.nb_frames_;
+    frame_res_ = ref.frame_res_;
+    frame_size_ = ref.frame_size_;
+    stream_ = ref.stream_;
+}
+
+CircularVideoBuffer& CircularVideoBuffer::operator=(CircularVideoBuffer& ref)
+{
+    cudaXMemcpyAsync(this->data_, ref.data_, ref.frame_size_ * ref.nb_frames_, cudaMemcpyDeviceToDevice, ref.stream_);
+
+    cudaXMemcpyAsync(this->sum_image_,
+                     ref.sum_image_,
+                     ref.frame_size_ * ref.nb_frames_,
+                     cudaMemcpyDeviceToDevice,
+                     ref.stream_);
+
+    this->start_index_ = ref.start_index_;
+    this->end_index_ = ref.end_index_;
+    this->buffer_capacity_ = ref.buffer_capacity_;
+    this->nb_frames_ = ref.nb_frames_;
+    this->frame_res_ = ref.frame_res_;
+    this->frame_size_ = ref.frame_size_;
+    this->stream_ = ref.stream_;
+    return *this;
+}
+
 float* CircularVideoBuffer::get_first_frame()
 {
     if (!nb_frames_)
@@ -92,5 +136,7 @@ void CircularVideoBuffer::add_new_frame(const float* const new_frame)
 bool CircularVideoBuffer::is_full() { return nb_frames_ == buffer_capacity_; }
 
 size_t CircularVideoBuffer::get_frame_count() { return nb_frames_; }
+
+float* CircularVideoBuffer::get_data_ptr() { return data_.get(); }
 
 } // namespace holovibes

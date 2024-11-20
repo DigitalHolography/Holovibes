@@ -60,3 +60,9 @@ float* compute_kernel(float sigma);
 void compute_gauss_kernel(float* output, float sigma);
 
 int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream);
+
+void divide_frames_inplace(float* const input_output, const float* const denominator, const uint size, cudaStream_t stream);
+
+void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);
+
+void load_bin_video_file(const std::filesystem::path& path, float* output);

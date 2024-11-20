@@ -123,6 +123,7 @@ class Pipe : public ICompute
                                                         buffers_,
                                                         input.get_fd(),
                                                         vesselness_mask_env_,
+                                                        moments_env_,
                                                         stream_,
                                                         settings);
 

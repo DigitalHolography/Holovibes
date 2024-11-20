@@ -107,18 +107,20 @@ void compute_mean_1_2(float* const output, const float* const input, const size_
 }
 
 __global__ void
-kernel_image_centering(float* output, const float* m0_video_frame, const float* m0_img, const uint frame_size)
+kernel_image_centering(float* output, const float* m0_video, const float* m0_mean, const uint frame_size)
 {
     const size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < frame_size)
-        output[index] = m0_video_frame[index] - m0_img[index];
+    if (index < frame_size * 506)
+    {
+        output[index] = m0_video[index] - m0_mean[index % 506];
+    }
 }
 
 void image_centering(
-    float* output, const float* m0_img, const float* m0_video_frame, const uint frame_size, const cudaStream_t stream)
+    float* output, const float* m0_video, const float* m0_mean, const uint frame_size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(frame_size, threads);
-    kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video_frame, m0_img, frame_size);
+    uint blocks = map_blocks_to_problem(frame_size * 506, threads);
+    kernel_image_centering<<<blocks, threads, 0, stream>>>(output, m0_video, m0_mean, frame_size);
     cudaXStreamSynchronize(stream);
 }
