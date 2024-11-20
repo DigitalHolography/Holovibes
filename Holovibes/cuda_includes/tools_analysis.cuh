@@ -8,7 +8,7 @@
 #include "common.cuh"
 #include "cublas_handle.hh"
 
-float* load_CSV_to_float_array(const std::filesystem::path& path);
+float* load_CSV_to_float_array(const std::string& filename);
 
 void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
 

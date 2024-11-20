@@ -43,9 +43,8 @@ void matrix_multiply(const float* A,
 }
 } // namespace
 
-float* load_CSV_to_float_array(const std::filesystem::path& path)
+float* load_CSV_to_float_array(const std::string& filename)
 {
-    std::string filename = path.string();
     std::ifstream file(filename);
 
     if (!file.is_open())

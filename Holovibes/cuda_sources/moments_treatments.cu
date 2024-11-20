@@ -63,13 +63,15 @@ void compute_mean(float* output, float* input, const size_t time_window, const s
     kernel_compute_mean<<<blocks, threads, 0, stream>>>(output, input, time_window, frame_size);
 }
 
-__global__ void kernel_compute_mean_1_2(float* const output, const float* const input, const int frame_size, const int frame_nb_)
+__global__ void
+kernel_compute_mean_1_2(float* const output, const float* const input, const int frame_size, const int frame_nb_)
 {
     extern __shared__ float shared_data[];
 
     // Each block processes one image, each thread processes one element
     int image_index = blockIdx.x;
-    if (image_index >= frame_nb_) return;  
+    if (image_index >= frame_nb_)
+        return;
 
     int tid = threadIdx.x;
 
@@ -98,7 +100,8 @@ __global__ void kernel_compute_mean_1_2(float* const output, const float* const 
         output[image_index] = shared_data[0] / frame_size;
 }
 
-void compute_mean_1_2(float* const output, const float* const input, const size_t frame_size, const size_t frame_nb, cudaStream_t stream)
+void compute_mean_1_2(
+    float* const output, const float* const input, const size_t frame_size, const size_t frame_nb, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(frame_nb, threads);

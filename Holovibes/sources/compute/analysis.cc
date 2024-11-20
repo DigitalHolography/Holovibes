@@ -169,6 +169,9 @@ void Analysis::init()
     err += !uint_buffer_2_.resize(frame_res);
     err += !size_t_gpu_.resize(1);
     err += !float_buffer_.resize(frame_res);
+
+    err += !otsu_histo_buffer_.resize(256);
+
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
@@ -373,6 +376,8 @@ void Analysis::dispose()
     uint_buffer_2_.reset(nullptr);
     size_t_gpu_.reset(nullptr);
     float_buffer_.reset(nullptr);
+
+    otsu_histo_buffer_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -575,29 +580,13 @@ void Analysis::insert_otsu()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                // cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-                // int maxI = -1;
-                // int minI = -1;
-                // cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
-                // cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
-
-                // float h_min, h_max;
-                // cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float),
-                // cudaMemcpyDeviceToHost); cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1),
-                // sizeof(float), cudaMemcpyDeviceToHost);
-
-                // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size,
-                // stream_);
-
-                // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
-
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
 
-                    float* d_output;
-                    cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
-                    compute_binarise_otsu_bradley(buffers_.gpu_postprocess_frame,
-                                                  d_output,
+                    float* d_output = float_buffer_.get();
+                    compute_binarise_otsu_bradley(d_output,
+                                                  otsu_histo_buffer_.get(),
+                                                  buffers_.gpu_postprocess_frame,
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
@@ -608,10 +597,13 @@ void Analysis::insert_otsu()
                                 d_output,
                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
                                 cudaMemcpyDeviceToDevice);
-                    cudaFree(d_output);
                 }
                 else
-                    compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                          otsu_histo_buffer_.get(),
+                                          fd_.width,
+                                          fd_.height,
+                                          stream_);
             });
     }
 }
