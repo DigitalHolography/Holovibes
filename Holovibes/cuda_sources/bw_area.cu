@@ -100,7 +100,7 @@ void get_connected_component(uint* labels_d,
 
         propagate_labels_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
         cudaCheckError();
-        cudaDeviceSynchronize();
+        cudaXStreamSynchronize(stream);
         cudaXMemcpy(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost);
 
         if (change_h)
@@ -110,7 +110,7 @@ void get_connected_component(uint* labels_d,
         }
 
     } while (change_h);
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 }
 
 __global__ void get_labels_sizes_kernel(float* labels_sizes, uint* L, const size_t size)
@@ -130,7 +130,7 @@ void get_labels_sizes(float* labels_sizes, uint* labels_d, const size_t size, co
     get_labels_sizes_kernel<<<blocks, threads, 0, stream>>>(labels_sizes, labels_d, size);
 
     cudaCheckError();
-    cudaDeviceSynchronize();
+    cudaXStreamSynchronize(stream);
 }
 
 __global__ void area_filter_kernel(float* image_d, const uint* label_d, size_t size, uint label_to_keep)
