@@ -595,7 +595,6 @@ void Analysis::insert_otsu()
                 // stream_);
 
                 // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
-
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
 

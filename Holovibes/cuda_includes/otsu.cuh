@@ -1,6 +1,6 @@
 /*! \file
  *
- * \brief #TODO Add a description for this file
+ * \brief function for otsu comput
  */
 #pragma once
 
@@ -27,8 +27,8 @@ void compute_binarise_otsu(
  * \param[out] histo_buffer_d gpu buffer for histogram
  * \param[in] width Width of the frame
  * \param[in] height Height of the frame
- * \param[in] window_size //TODO
- * \param[in] local_threshold_factor //TODO
+ * \param[in] window_size size of the windows
+ * \param[in] local_threshold_factor local threshold factor
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void compute_binarise_otsu_bradley(float* d_image,
@@ -39,16 +39,6 @@ void compute_binarise_otsu_bradley(float* d_image,
                                    const int window_size,
                                    const float local_threshold_factor,
                                    const cudaStream_t stream);
-
-// /*! \brief Normalistation of \d_image
-//  *
-//  * \param[in out] d_image Data should be contiguous
-//  * \param[in] min Minimal value of \d_image
-//  * \param[in] max Maximal value of \d_image
-//  * \param[in] size Size of the frame
-//  * \param[in] stream The CUDA stream on which to launch the operation
-//  */
-// void normalise(float* d_image, float min, float max, const size_t size, const cudaStream_t stream);
 
 /*!
  * \brief get otsu threshold

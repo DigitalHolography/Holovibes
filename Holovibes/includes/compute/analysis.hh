@@ -83,43 +83,43 @@ class Analysis
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
 
-        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
+        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/data_n.csv");
         m0_ff_img_csv_.resize(frame_res);
         cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/f_AVG_mean.csv");
         f_avg_csv_.resize(frame_res);
         cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
         cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/R_VascularPulse.csv");
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/R_VascularPulse.csv");
         R_VascularPulse_csv_.resize(frame_res);
         cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
-        mask_vesselness_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpy(mask_vesselness_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        // data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
+        // mask_vesselness_csv_.resize(frame_res);
+        // if (data_csv_cpu)
+        //     cudaXMemcpy(mask_vesselness_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        // cudaXStreamSynchronize(stream_);
+        // delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
-        mask_vesselness_clean_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpy(mask_vesselness_clean_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        // data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
+        // mask_vesselness_clean_csv_.resize(frame_res);
+        // if (data_csv_cpu)
+        //     cudaXMemcpy(mask_vesselness_clean_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        // cudaXStreamSynchronize(stream_);
+        // delete[] data_csv_cpu;
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
