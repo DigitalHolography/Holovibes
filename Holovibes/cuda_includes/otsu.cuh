@@ -40,15 +40,15 @@ void compute_binarise_otsu_bradley(float* d_image,
                                    const float local_threshold_factor,
                                    const cudaStream_t stream);
 
-/*! \brief Normalistation of \d_image
- *
- * \param[in out] d_image Data should be contiguous
- * \param[in] min Minimal value of \d_image
- * \param[in] max Maximal value of \d_image
- * \param[in] size Size of the frame
- * \param[in] stream The CUDA stream on which to launch the operation
- */
-void normalise(float* d_image, float min, float max, const size_t size, const cudaStream_t stream);
+// /*! \brief Normalistation of \d_image
+//  *
+//  * \param[in out] d_image Data should be contiguous
+//  * \param[in] min Minimal value of \d_image
+//  * \param[in] max Maximal value of \d_image
+//  * \param[in] size Size of the frame
+//  * \param[in] stream The CUDA stream on which to launch the operation
+//  */
+// void normalise(float* d_image, float min, float max, const size_t size, const cudaStream_t stream);
 
 /*!
  * \brief get otsu threshold

@@ -18,9 +18,9 @@ __global__ void histogram_kernel(float* image, uint* hist, int imgSize)
 // {
 //     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-if (tid < size)
-    d_input[tid] = d_input[tid] * (NUM_BINS - 1);
-}
+// if (tid < size)
+//     d_input[tid] = d_input[tid] * (NUM_BINS - 1);
+// }
 
 // void normalise(float* d_input, float min, float max, const size_t size, const cudaStream_t stream)
 // {

@@ -533,17 +533,19 @@ void Analysis::insert_otsu()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-                int maxI = -1;
-                int minI = -1;
-                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
-                cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
+                // cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
+                // int maxI = -1;
+                // int minI = -1;
+                // cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
+                // cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
 
-                float h_min, h_max;
-                cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
-                cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+                // float h_min, h_max;
+                // cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float),
+                // cudaMemcpyDeviceToHost); cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1),
+                // sizeof(float), cudaMemcpyDeviceToHost);
 
-                normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream_);
+                // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size,
+                // stream_);
 
                 // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
 
@@ -566,7 +568,6 @@ void Analysis::insert_otsu()
                                 cudaMemcpyDeviceToDevice);
                 }
                 else
-
                     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                           otsu_histo_buffer_.get(),
                                           fd_.width,

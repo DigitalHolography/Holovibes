@@ -83,31 +83,27 @@ class Analysis
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
 
-        float* data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../data_n.csv"));
+        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/data_n.csv");
         m0_ff_img_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../f_AVG_mean.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/f_AVG_mean.csv");
         f_avg_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../vascularPulse.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
-        if (data_csv_cpu)
-            cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../R_VascularPulse.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Karachayevsk/Documents/Holovibes/R_VascularPulse.csv");
         R_VascularPulse_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
     }
