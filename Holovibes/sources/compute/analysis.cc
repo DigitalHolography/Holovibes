@@ -135,6 +135,9 @@ void Analysis::init()
     vesselness_mask_env_.m0_ff_centered_video_cb_ =
         std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
 
+    vesselness_mask_env_.vascular_pulse_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);
@@ -164,6 +167,7 @@ void Analysis::init()
     int err = 0;
     err += !uint_buffer_1_.resize(frame_res);
     err += !uint_buffer_2_.resize(frame_res);
+    err += !size_t_gpu_.resize(1);
     err += !float_buffer_.resize(frame_res);
 
     err += !otsu_histo_buffer_.resize(256);
@@ -370,6 +374,7 @@ void Analysis::dispose()
 
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
+    size_t_gpu_.reset(nullptr);
     float_buffer_.reset(nullptr);
 
     otsu_histo_buffer_.reset(nullptr);
@@ -471,54 +476,96 @@ void Analysis::insert_barycentres()
                                                                buffers_.gpu_postprocess_frame_size,
                                                                stream_);
 
+                float* bwareafilt_result;
+                cudaXMalloc(&bwareafilt_result, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cudaXMemcpy(bwareafilt_result,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+
+                apply_mask_or(bwareafilt_result, circle_mask, fd_.width, fd_.height, stream_);
+                cudaXFree(circle_mask);
+
+                bwareafilt(bwareafilt_result,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_,
+                           nullptr, // TODO
+                           float_buffer_,
+                           cublas_handler_,
+                           stream_);
+
+                float* mask_vesselness_clean;
+                cudaXMalloc(&mask_vesselness_clean, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                cudaXMemcpy(mask_vesselness_clean,
+                            mask_vesselness_csv_,
+                            sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                            cudaMemcpyDeviceToDevice);
+
+                apply_mask_and(mask_vesselness_clean, bwareafilt_result, fd_.width, fd_.height, stream_);
+                cudaXFree(bwareafilt_result);
+
+                float* tmp_mult;
+                cudaXMalloc(&tmp_mult, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                compute_multiplication(tmp_mult,
+                                       buffers_.gpu_postprocess_frame,
+                                       mask_vesselness_clean_csv_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
+                vesselness_mask_env_.vascular_pulse_video_cb_->add_new_frame(tmp_mult);
+                cudaXFree(tmp_mult);
+
+                vesselness_mask_env_.vascular_pulse_video_cb_->compute_mean_video(13893);
+                print_in_file_gpu(vesselness_mask_env_.vascular_pulse_video_cb_->get_mean_video(),
+                                  vesselness_mask_env_.time_window_,
+                                  1,
+                                  "vascular_pulse",
+                                  stream_);
                 // TODO: change hard coded values from maskvesselnessclean
                 // La fonction sert a rien car on importe le csv de R_VascularPulse
                 // Son but est de sortir R_VascularPulse, pour l'instant elle ne marche pas, faut la finir
                 // Elle est censé faire les etape du matlab depuis l etape "1/ 3) Compute first correlation"
-                //
                 // compute_first_correlation(buffers_.gpu_postprocess_frame,
                 //                           vesselness_mask_env_.image_centered_,
-                //                           vascular_pulse_csv_,
-                //                           11862,
-                //                           506,
+                //                           vesselness_mask_env.vascular_pulse_video_cb_->get_mean_video(),
+                //                           vesselness_mask_env.time_window_,
                 //                           buffers_.gpu_postprocess_frame_size,
                 //                           stream_);
                 // this part may be deleted as it is never used for the rest of the code
-                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-                                       m0_ff_img_csv_,
-                                       f_avg_csv_,
-                                       R_VascularPulse_csv_,
-                                       buffers_.gpu_postprocess_frame_size,
-                                       stream_);
-                apply_convolution(vesselness_mask_env_.vascular_image_,
-                                  vesselness_mask_env_.vascular_kernel_,
-                                  fd_.width,
-                                  fd_.height,
-                                  vesselness_mask_env_.vascular_kernel_size_,
-                                  vesselness_mask_env_.vascular_kernel_size_,
-                                  stream_,
-                                  ConvolutionPaddingType::SCALAR,
-                                  0);
-                apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
-                                     fd_.width / 2,
-                                     fd_.height / 2,
-                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
-                                     fd_.width,
-                                     fd_.height,
-                                     stream_);
+                // multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                //                        m0_ff_img_csv_,
+                //                        f_avg_csv_,
+                //                        R_VascularPulse_csv_,
+                //                        buffers_.gpu_postprocess_frame_size,
+                //                        stream_);
+                // apply_convolution(vesselness_mask_env_.vascular_image_,
+                //                   vesselness_mask_env_.vascular_kernel_,
+                //                   fd_.width,
+                //                   fd_.height,
+                //                   vesselness_mask_env_.vascular_kernel_size_,
+                //                   vesselness_mask_env_.vascular_kernel_size_,
+                //                   stream_,
+                //                   ConvolutionPaddingType::SCALAR,
+                //                   0);
+                // apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
+                //                      fd_.width / 2,
+                //                      fd_.height / 2,
+                //                      DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                //                      fd_.width,
+                //                      fd_.height,
+                //                      stream_);
 
-                compute_barycentre_circle_mask(circle_mask,
-                                               vesselness_mask_env_.vascular_image_,
-                                               buffers_.gpu_postprocess_frame_size,
-                                               stream_,
-                                               CRV_index);
-                print_in_file_gpu(circle_mask, 512, 512, "circlemask", stream_);
+                // compute_barycentre_circle_mask(circle_mask,
+                //                                vesselness_mask_env_.vascular_image_,
+                //                                buffers_.gpu_postprocess_frame_size,
+                //                                stream_,
+                //                                CRV_index);
 
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                            circle_mask,
+                            mask_vesselness_clean,
                             buffers_.gpu_postprocess_frame_size * sizeof(float),
                             cudaMemcpyDeviceToDevice);
-                cudaXFree(circle_mask);
+                cudaXFree(mask_vesselness_clean);
             });
     }
 }
@@ -589,11 +636,14 @@ void Analysis::insert_bwareafilt()
                 float* image_d = buffers_.gpu_postprocess_frame.get();
                 uint* labels_d = uint_buffer_1_.get();
                 uint* linked_d = uint_buffer_2_.get();
+                size_t* change_d = size_t_gpu_.get();
                 float* labels_sizes_d = float_buffer_.get();
 
                 cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
 
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
+
+                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
 
                 int maxI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
@@ -616,10 +666,13 @@ void Analysis::insert_bwareaopen()
                 uint* labels_d = uint_buffer_1_.get();
                 uint* linked_d = uint_buffer_2_.get();
                 float* labels_sizes_d = float_buffer_.get();
+                size_t* change_d = size_t_gpu_.get();
 
                 uint p = setting<settings::MinMaskArea>();
 
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
+
+                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
                 if (p != 0)
                     area_open(image_d, labels_d, labels_sizes_d, buffers_.gpu_postprocess_frame_size, p, stream_);
             }

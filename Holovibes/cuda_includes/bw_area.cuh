@@ -5,6 +5,8 @@
 #pragma once
 
 #include "frame_desc.hh"
+#include "unique_ptr.hh"
+#include "common.cuh"
 
 using uint = unsigned int;
 
@@ -13,25 +15,34 @@ using uint = unsigned int;
  * (label_sizes_d), this function use TwoPass algorithm, and does not handle the border of the image
  *
  * \param[out] labels_d  The matrix use to store label of each pixel (GPU Memory)
- * \param[out] labels_sizes_d the matrix use to store size of each label (GPU Memory)
- * \param[out] linked_d the matrix use to store linked of each label to an other label (GPU Memory), no need to use it
- * after this function
  * \param[in] image_d The image to process (GPU Memory)
  * \param[in] width Width of the frame
  * \param[in] height Height of the frame
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void get_connected_component(uint* labels_d,
-                             float* labels_sizes_d,
                              uint* linked_d,
                              const float* image_d,
                              const size_t width,
                              const size_t height,
+                             size_t* change_d,
                              const cudaStream_t stream);
 
+/*!
+ * \brief Get the labels size object TODO
+ *
+ * \param labels_sizes
+ * \param labels_d
+ * \param image_d
+ * \param width
+ * \param height
+ * \param stream
+ */
+void get_labels_sizes(float* labels_sizes, uint* labels_d, const size_t size, const cudaStream_t stream);
+
 /**
- * \brief Sets to 1.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to 0.0f.
- * Hence only pixels with the selected label are retained
+ * \brief Sets to 1.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to
+ * 0.0f. Hence only pixels with the selected label are retained
  *
  * \param[in out] image_d The image to process (GPU Memory)
  * \param[in] label_d The matrix who store label of each pixel (GPU Memory)
@@ -54,3 +65,12 @@ void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to
  */
 void area_open(
     float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p, const cudaStream_t stream);
+
+void bwareafilt(float* input_output,
+                size_t width,
+                size_t height,
+                uint* labels_d,
+                uint* linked_d,
+                float* labels_sizes_d,
+                cublasHandle_t& handle,
+                cudaStream_t stream);
