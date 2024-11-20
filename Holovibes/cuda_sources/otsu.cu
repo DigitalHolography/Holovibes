@@ -9,7 +9,7 @@ using uint = unsigned int;
 #define NUM_BINS 256
 
 // Check if optimizable in future with `reduce.cuh` functions.
-__global__ void histogram_kernel(float* image, uint* hist, int imgSize)
+__global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
 {
     extern __shared__ uint shared_hist[]; // Shared memory for histogram bins
 
@@ -42,8 +42,8 @@ __global__ void global_threshold_kernel(float* input, int size, float globalThre
         input[idx] = (input[idx] > globalThreshold) * 1.0f;
 }
 
-__global__ void bradley_threshold_kernel(const float* image,
-                                         float* output,
+__global__ void bradley_threshold_kernel(float* output,
+                                         const float* input,
                                          int width,
                                          int height,
                                          int windowSize,
@@ -68,14 +68,14 @@ __global__ void bradley_threshold_kernel(const float* image,
         {
             for (int j = startY; j <= endY; j++)
             {
-                localSum += image[j * width + i];
+                localSum += input[j * width + i];
                 count++;
             }
         }
 
         float localMean = localSum / count;
         float localThreshold = localMean * (1 - localThresholdFactor * globalThreshold);
-        output[y * width + x] = (image[y * width + x] > localThreshold) ? 1.0f : 0.0f;
+        output[y * width + x] = (input[y * width + x] > localThreshold) * 1.0f;
     }
 }
 
@@ -143,9 +143,9 @@ __global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_ou
         *threshold_out = threshold_shared / NUM_BINS;
 }
 
-float otsu_threshold(float* d_image, uint* histo_buffer_d, int size, const cudaStream_t stream)
+float otsu_threshold(const float* d_image, uint* histo_buffer_d, int size, const cudaStream_t stream)
 {
-    uint threads = NUM_BINS; // 256;
+    uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
 
     // Step 1: Initialize histogram
@@ -167,22 +167,22 @@ float otsu_threshold(float* d_image, uint* histo_buffer_d, int size, const cudaS
 }
 
 void compute_binarise_otsu(
-    float* d_image, uint* histo_buffer_d, const size_t width, const size_t height, const cudaStream_t stream)
+    float* input_output, uint* histo_buffer_d, const size_t width, const size_t height, const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(d_image, histo_buffer_d, img_size, stream);
+    float global_threshold = otsu_threshold(input_output, histo_buffer_d, img_size, stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
 
-    global_threshold_kernel<<<blocks, threads, 0, stream>>>(d_image, img_size, global_threshold);
+    global_threshold_kernel<<<blocks, threads, 0, stream>>>(input_output, img_size, global_threshold);
     cudaXStreamSynchronize(stream);
 }
 
-void compute_binarise_otsu_bradley(float* d_image,
-                                   float*& d_output,
+void compute_binarise_otsu_bradley(float* d_output,
                                    uint* histo_buffer_d,
+                                   const float* d_input,
                                    const size_t width,
                                    const size_t height,
                                    const int window_size,
@@ -191,14 +191,14 @@ void compute_binarise_otsu_bradley(float* d_image,
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(d_image, histo_buffer_d, img_size, stream);
+    float global_threshold = otsu_threshold(d_input, histo_buffer_d, img_size, stream);
 
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
-    bradley_threshold_kernel<<<lblocks, lthreads, 0, stream>>>(d_image,
-                                                               d_output,
+    bradley_threshold_kernel<<<lblocks, lthreads, 0, stream>>>(d_output,
+                                                               d_input,
                                                                width,
                                                                height,
                                                                window_size,

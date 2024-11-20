@@ -584,9 +584,9 @@ void Analysis::insert_otsu()
                 {
 
                     float* d_output = float_buffer_.get();
-                    compute_binarise_otsu_bradley(buffers_.gpu_postprocess_frame,
-                                                  d_output,
+                    compute_binarise_otsu_bradley(d_output,
                                                   otsu_histo_buffer_.get(),
+                                                  buffers_.gpu_postprocess_frame,
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
