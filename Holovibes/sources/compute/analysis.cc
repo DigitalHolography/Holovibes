@@ -167,6 +167,7 @@ void Analysis::init()
     int err = 0;
     err += !uint_buffer_1_.resize(frame_res);
     err += !uint_buffer_2_.resize(frame_res);
+    err += !size_t_gpu_.resize(1);
     err += !float_buffer_.resize(frame_res);
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -370,6 +371,7 @@ void Analysis::dispose()
 
     uint_buffer_1_.reset(nullptr);
     uint_buffer_2_.reset(nullptr);
+    size_t_gpu_.reset(nullptr);
     float_buffer_.reset(nullptr);
 }
 
@@ -483,7 +485,7 @@ void Analysis::insert_barycentres()
                            fd_.width,
                            fd_.height,
                            uint_buffer_1_,
-                           uint_buffer_2_,
+                           nullptr, // TODO
                            float_buffer_,
                            cublas_handler_,
                            stream_);
@@ -626,11 +628,14 @@ void Analysis::insert_bwareafilt()
                 float* image_d = buffers_.gpu_postprocess_frame.get();
                 uint* labels_d = uint_buffer_1_.get();
                 uint* linked_d = uint_buffer_2_.get();
+                size_t* change_d = size_t_gpu_.get();
                 float* labels_sizes_d = float_buffer_.get();
 
                 cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
 
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
+
+                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
 
                 int maxI = -1;
                 cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
@@ -653,10 +658,13 @@ void Analysis::insert_bwareaopen()
                 uint* labels_d = uint_buffer_1_.get();
                 uint* linked_d = uint_buffer_2_.get();
                 float* labels_sizes_d = float_buffer_.get();
+                size_t* change_d = size_t_gpu_.get();
 
                 uint p = setting<settings::MinMaskArea>();
 
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
+                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
+
+                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
                 if (p != 0)
                     area_open(image_d, labels_d, labels_sizes_d, buffers_.gpu_postprocess_frame_size, p, stream_);
             }

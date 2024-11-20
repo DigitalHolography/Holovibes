@@ -219,6 +219,7 @@ class Analysis
 
     cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
     cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
     cuda_tools::CudaUniquePtr<float> float_buffer_;
 };
 } // namespace holovibes::compute
