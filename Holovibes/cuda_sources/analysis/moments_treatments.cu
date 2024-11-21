@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-
-#include "tools_hsv.cuh"
-#include "convolution.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "percentile.cuh"
 #include "cuda_memory.cuh"
-#include "shift_corners.cuh"
-#include "map.cuh"
-#include "reduce.cuh"
-#include "unique_ptr.hh"
-#include "logger.hh"
 
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>

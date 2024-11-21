@@ -4,8 +4,7 @@
  */
 #pragma once
 
-#include "cuda_memory.cuh"
-#include "common.cuh"
+#include <cuda_runtime.h>
 
 void compute_first_correlation(float* output,
                                float* M0_ff_video_centered,

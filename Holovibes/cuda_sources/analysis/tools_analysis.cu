@@ -1,19 +1,8 @@
 
 #include "cuda_memory.cuh"
-#include "common.cuh"
-#include "tools_analysis.cuh"
-#include "convolution.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "logger.hh"
-#include "cuComplex.h"
-#include "cufft_handle.hh"
-#include "cublas_handle.hh"
 #include "matrix_operations.hh"
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
-#include <fstream>
 
 __global__ void
 kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y)

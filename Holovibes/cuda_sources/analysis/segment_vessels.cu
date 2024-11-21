@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-
-#include "tools_hsv.cuh"
-#include "convolution.cuh"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-#include "percentile.cuh"
 #include "cuda_memory.cuh"
-#include "shift_corners.cuh"
-#include "map.cuh"
-#include "reduce.cuh"
-#include "unique_ptr.hh"
-#include "logger.hh"
 
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
@@ -22,9 +7,7 @@ __global__ void kernel_minus_negation_times_2(float* R_vascular_pulse, float* ma
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-    {
         R_vascular_pulse[idx] = R_vascular_pulse[idx] - !mask_vesselnessClean[idx] * 2;
-    }
 }
 
 void minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean, uint size, cudaStream_t stream)
@@ -39,9 +22,7 @@ __global__ void kernel_negation(float* input_output, uint size)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-    {
         input_output[idx] = !input_output[idx];
-    }
 }
 
 void negation(float* input_output, uint size, cudaStream_t stream)
@@ -66,13 +47,9 @@ __global__ void kernel_quantize(float* output, float* input, float* thresholds, 
         for (int t = 0; t < lenght_threshold; ++t)
         {
             if (value > thresholds[t])
-            {
                 quantized_level = t + 2;
-            }
             else
-            {
                 break;
-            }
         }
 
         // Stocker le résultat
@@ -92,7 +69,6 @@ void imquantize(
 void segment_vessels(
     float* output, float* R_VascularPulse, float* mask_vesselness_clean, uint size, cudaStream_t stream)
 {
-    int numClassesVessels = 5;
     float firstThresholds[4] = {-1.0f, -0.145349865260771f, 0.225070673825605f, 0.58226190794461f};
     float* firstThresholdsGPU;
     cudaXMalloc(&firstThresholdsGPU, sizeof(float) * 4);
@@ -111,9 +87,7 @@ __global__ void kernel_is_both_value(float* output, float* input, uint size, flo
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < size)
-    {
         output[idx] = input[idx] == value1 || input[idx] == value2;
-    }
 }
 
 void is_both_value(float* output, float* input, uint size, float value1, float value2, cudaStream_t stream)

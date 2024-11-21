@@ -15,6 +15,7 @@ set(EXTERNAL_INCLUDES
 
 set(INTERNAL_INCLUDES
     cuda_includes/
+    cuda_includes/analysis/
     includes/
     includes/state/
     includes/analysis/

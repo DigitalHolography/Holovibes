@@ -4,8 +4,9 @@
  */
 #pragma once
 
-#include "cuComplex.h"
-#include "composite_struct.hh"
+#include <cuda_runtime.h>
+
+typedef unsigned int uint;
 
 void segment_vessels(
     float* output, float* R_VascularPulse, float* mask_vesselness_clean, uint size, cudaStream_t stream);

@@ -1,13 +1,6 @@
-#include "analysis.hh"
-#include "icompute.hh"
-
 #include "convolution.cuh"
-#include "tools.cuh"
-#include "tools_compute.cuh"
-#include "contrast_correction.cuh"
 #include "cuda_memory.cuh"
 #include "shift_corners.cuh"
-#include "map.cuh"
 #include "holovibes.hh"
 #include "matrix_operations.hh"
 #include "moments_treatments.cuh"
@@ -22,12 +15,6 @@
 #include "circular_video_buffer.hh"
 #include "segment_vessels.cuh"
 #include "tools_debug.hh"
-
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
-#include <algorithm>
-
-using holovibes::cuda_tools::CufftHandle;
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define FROM_CSV false

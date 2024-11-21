@@ -1,5 +1,3 @@
-#include "common.cuh"
-#include "tools_debug.hh"
 #include "cuda_memory.cuh"
 
 namespace

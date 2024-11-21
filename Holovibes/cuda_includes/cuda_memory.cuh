@@ -58,6 +58,19 @@ void cudaXMallocHost(T** devPtr, size_t size);
 template <typename T>
 void cudaXMallocManaged(T** devPtr, size_t size);
 
+/*! \brief Wrapper around cudaMallocAsync to handle errors
+ *
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ * \param stream Stream identifier.
+ *
+ */
+template <typename T>
+void cudaXMallocAsync(T** devPtr, size_t size);
+
 /*! \brief Wrapper around cudaMalloc for fast debugging
  *
  * \param devPtr The device pointer to allocate.
@@ -84,6 +97,16 @@ cudaError_t cudaXRMallocHost(T** devPtr, size_t size);
  */
 template <typename T>
 cudaError_t cudaXRMallocManaged(T** devPtr, size_t size);
+
+/*! \brief Wrapper around cudaXRMallocAsync for fast debugging
+ *
+ * \param devPtr The device pointer to allocate.
+ * \param size Size in byte to allocate.
+ * \param stream Stream identifier.
+ *
+ */
+template <typename T>
+cudaError_t cudaXRMallocAsync(T** devPtr, size_t size, const cudaStream_t stream);
 
 /*! \brief Wrapper around cudaMemcpy to handle errors
  *
@@ -149,6 +172,16 @@ void cudaXFree(void* devPtr);
  * \param devPtr Device pointer to memory to free
  */
 void cudaXFreeHost(void* devPtr);
+
+/*! \brief Wrapper around cudaFreeAsync to handle errors
+ *
+ * This function uses the error handling from common.cuh (cudaSafeCall)
+ * A program built in error WILL abort in case of error
+ *
+ * \param devPtr Device pointer to memory to free
+ * \param stream Stream identifier.
+ */
+void cudaXFreeAsync(void* devPtr, cudaStream_t stream);
 
 /*! \brief Wrapper around cudaStreamSynchronize to handle errors
  *

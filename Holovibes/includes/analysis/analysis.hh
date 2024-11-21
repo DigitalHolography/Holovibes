@@ -4,14 +4,10 @@
  */
 #pragma once
 
-#include <vector>
-
-#include "function_vector.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
-#include "logger.hh"
 #include "tools_debug.hh"
 
 #include "settings/settings.hh"

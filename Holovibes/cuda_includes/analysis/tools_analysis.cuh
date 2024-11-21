@@ -4,9 +4,10 @@
  */
 #pragma once
 
-#include "cuda_memory.cuh"
-#include "common.cuh"
-#include "cublas_handle.hh"
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+
+typedef unsigned int uint;
 
 void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
@@ -36,6 +37,7 @@ void compute_circle_mask(float* output,
                          const cudaStream_t stream);
 void apply_mask_and(
     float* output, const float* input, const short width, const short height, const cudaStream_t stream);
+    
 void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream);
 
 float* compute_gauss_deriviatives_kernel(

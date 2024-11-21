@@ -4,11 +4,10 @@
  */
 #pragma once
 
-#include "unique_ptr.hh"
-#include "common.cuh"
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+#include "cuComplex.h"
 #include "cufft_handle.hh"
-
-using holovibes::cuda_tools::CufftHandle;
 
 enum ConvolutionPaddingType
 {
@@ -27,7 +26,7 @@ void vesselness_filter(float* output,
                        int frame_res,
                        float* convolution_buffer,
                        cuComplex* cuComplex_buffer,
-                       CufftHandle* convolution_plan,
+                       holovibes::cuda_tools::CufftHandle* convolution_plan,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream);
 

@@ -4,8 +4,7 @@
  */
 #pragma once
 
-#include "cuComplex.h"
-#include "composite_struct.hh"
+#include <cuda_runtime.h>
 
 void add_frame_to_sum(const float* const new_frame, const size_t size, float* const sum_image, cudaStream_t stream);
 

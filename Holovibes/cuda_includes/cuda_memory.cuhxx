@@ -21,6 +21,12 @@ void cudaXMallocManaged(T** devPtr, size_t size)
 }
 
 template <typename T>
+void cudaXMallocAsync(T** devPtr, size_t size, const cudaStream_t stream)
+{
+    cudaSafeCall(cudaXRMallocAsync(devPtr, size, stream));
+}
+
+template <typename T>
 cudaError_t cudaXRMalloc(T** devPtr, size_t size)
 {
     LOG_DEBUG("Allocate {:.3f} Gib on Device", static_cast<float>(size) / (1024 * 1024 * 1024));
@@ -42,6 +48,13 @@ cudaError_t cudaXRMallocManaged(T** devPtr, size_t size)
 }
 
 template <typename T>
+cudaError_t cudaXRMallocAsync(T** devPtr, size_t size, const cudaStream_t stream)
+{
+    LOG_DEBUG("Allocate {:.3f} Gib on Device w/ Async", static_cast<float>(size) / (1024 * 1024 * 1024));
+    return cudaMallocAsync(devPtr, size, stream);
+}
+
+template <typename T>
 inline size_t cudaGetAllocatedSize(T* devPtr)
 {
     CUdeviceptr pbase;
@@ -53,6 +66,8 @@ inline size_t cudaGetAllocatedSize(T* devPtr)
 inline void cudaXFree(void* devPtr) { cudaSafeCall(cudaFree(devPtr)); }
 
 inline void cudaXFreeHost(void* devPtr) { cudaSafeCall(cudaFreeHost(devPtr)); }
+
+inline void cudaXFreeAsync(void* devPtr, cudaStream_t stream) { cudaSafeCall(cudaFreeAsync(devPtr, stream)); }
 
 inline void cudaXMemcpy(void* output, const void* input, size_t count, cudaMemcpyKind kind)
 {

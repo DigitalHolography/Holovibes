@@ -183,7 +183,14 @@ void area_open(
     cudaCheckError();
 }
 
-void bwareafilt(float* input_output, size_t width, size_t height, uint* labels_d, uint* linked_d, float* labels_sizes_d, cublasHandle_t& handle, cudaStream_t stream)
+void bwareafilt(float* input_output,
+                size_t width,
+                size_t height,
+                uint* labels_d,
+                uint* linked_d,
+                float* labels_sizes_d,
+                cublasHandle_t& handle,
+                cudaStream_t stream)
 {
     get_connected_component(labels_d, labels_sizes_d, linked_d, input_output, width, height, stream);
 

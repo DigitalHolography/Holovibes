@@ -1,18 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-
-#include "convolution.cuh"
 #include "vesselness_filter.cuh"
-#include "tools_conversion.cuh"
-#include "tools_analysis.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
+
 #include "cuda_memory.cuh"
-#include "logger.hh"
-#include "cuComplex.h"
-#include "cufft_handle.hh"
+#include "tools_analysis.cuh"
+
+using holovibes::cuda_tools::CufftHandle;
 
 __global__ void convolution_kernel(const float* image,
                                    const float* kernel,
