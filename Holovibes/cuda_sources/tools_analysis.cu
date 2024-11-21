@@ -669,7 +669,7 @@ void normalize_array(float* input_output, size_t size, float min_range, float ma
 }
 
 
-void load_bin_video_file(const std::filesystem::path& path, float* output)
+void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream)
 {
     const int width = 512;
     const int height = 512;
@@ -698,6 +698,6 @@ void load_bin_video_file(const std::filesystem::path& path, float* output)
 
     file.close();
 
-    cudaXMemcpy(output, video_data, sizeof(float) * total_size, cudaMemcpyHostToDevice);
+    cudaXMemcpyAsync(output, video_data, sizeof(float) * total_size, cudaMemcpyHostToDevice, stream);
     delete[] video_data;
 }

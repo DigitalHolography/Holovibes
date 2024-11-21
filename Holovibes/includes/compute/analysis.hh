@@ -89,65 +89,64 @@ class Analysis
         float* data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../data_n.csv"));
         m0_ff_img_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../f_AVG_mean.csv"));
         f_avg_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../vascularPulse.csv"));
         vascular_pulse_csv_.resize(506);
         if (data_csv_cpu)
-            cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice, stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../R_VascularPulse.csv"));
         R_VascularPulse_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(R_VascularPulse_csv_,
+                             data_csv_cpu,
+                             frame_res * sizeof(float),
+                             cudaMemcpyHostToDevice,
+                             stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
         mask_vesselness_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(mask_vesselness_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(mask_vesselness_csv_,
+                             data_csv_cpu,
+                             frame_res * sizeof(float),
+                             cudaMemcpyHostToDevice,
+                             stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
         mask_vesselness_clean_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(mask_vesselness_clean_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(mask_vesselness_clean_csv_,
+                             data_csv_cpu,
+                             frame_res * sizeof(float),
+                             cudaMemcpyHostToDevice,
+                             stream_);
+        delete[] data_csv_cpu;
 
         data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../bwareafilt.csv"));
         bwareafilt_csv_.resize(frame_res);
         if (data_csv_cpu)
-            cudaXMemcpy(bwareafilt_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        if (data_csv_cpu)
-            delete[] data_csv_cpu;
+            cudaXMemcpyAsync(bwareafilt_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
+        delete[] data_csv_cpu;
 
         m0_bin_video_.resize(512 * 512 * 506);
-        load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_);
-        cudaXStreamSynchronize(stream_);
+        load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);
 
         m1_bin_video_.resize(512 * 512 * 506);
-        load_bin_video_file(RELATIVE_PATH("../../Obj_M1_data_video_permuted.bin"), m1_bin_video_);
+        load_bin_video_file(RELATIVE_PATH("../../Obj_M1_data_video_permuted.bin"), m1_bin_video_, stream_);
+
+        // Ensure everything is correctly loaded by the end of the constructor
         cudaXStreamSynchronize(stream_);
     }
 

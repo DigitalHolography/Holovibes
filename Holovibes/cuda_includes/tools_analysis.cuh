@@ -65,4 +65,4 @@ void divide_frames_inplace(float* const input_output, const float* const denomin
 
 void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);
 
-void load_bin_video_file(const std::filesystem::path& path, float* output);
+void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream);
