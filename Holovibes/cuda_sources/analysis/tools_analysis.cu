@@ -326,14 +326,14 @@ float* compute_gauss_deriviatives_kernel(
     float* kernel_result;
     cudaXMalloc(&kernel_result, sizeof(float) * kernel_width * kernel_height);
     holovibes::compute::matrix_multiply(kernel_y,
-                    kernel_x,
-                    kernel_height,
-                    kernel_width,
-                    1,
-                    kernel_result,
-                    cublas_handler_,
-                    CUBLAS_OP_N,
-                    CUBLAS_OP_N);
+                                        kernel_x,
+                                        kernel_height,
+                                        kernel_width,
+                                        1,
+                                        kernel_result,
+                                        cublas_handler_,
+                                        CUBLAS_OP_N,
+                                        CUBLAS_OP_N);
     const float alpha = 1.0f;
     const float beta = 0.0f;
     float* result_transpose;
@@ -352,6 +352,8 @@ float* compute_gauss_deriviatives_kernel(
                                result_transpose,
                                kernel_width));
 
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(kernel_result);
 
     cudaXFree(x);
@@ -424,7 +426,7 @@ __global__ void kernel_normalize_array(float* input_output, int kernel_size, flo
     input_output[y * kernel_size + x] /= *d_sum;
 }
 
-void compute_gauss_kernel(float* output, float sigma)
+void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream)
 {
     float* d_sum;
     float initial_sum = 0.0f;
@@ -432,25 +434,27 @@ void compute_gauss_kernel(float* output, float sigma)
 
     // Allocate memory for sum on the device and initialize to 0
     cudaXMalloc(&d_sum, sizeof(float));
-    cudaXMemcpy(d_sum, &initial_sum, sizeof(float), cudaMemcpyHostToDevice);
+    cudaXMemcpyAsync(d_sum, &initial_sum, sizeof(float), cudaMemcpyHostToDevice, stream);
 
     // Define grid and block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((kernel_size + blockSize.x - 1) / blockSize.x, (kernel_size + blockSize.y - 1) / blockSize.y);
 
     // Launch the kernel to compute the Gaussian values
-    kernel_compute_gauss_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);
+    kernel_compute_gauss_kernel<<<gridSize, blockSize, 0, stream>>>(output, kernel_size, sigma, d_sum);
     cudaCheckError();
 
     // Normalize the kernel using the computed sum directly on the GPU
-    kernel_normalize_array<<<gridSize, blockSize>>>(output, kernel_size, d_sum);
+    kernel_normalize_array<<<gridSize, blockSize, 0, stream>>>(output, kernel_size, d_sum);
     cudaCheckError();
 
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     // Free device memory for sum
     cudaXFree(d_sum);
 }
 
-__global__ void kernel_count_non_zero(const float* const input, int* const count, int rows, int cols) 
+__global__ void kernel_count_non_zero(const float* const input, int* const count, int rows, int cols)
 {
     // Shared memory for partial counts
     __shared__ int partial_sum[256];
@@ -459,24 +463,24 @@ __global__ void kernel_count_non_zero(const float* const input, int* const count
     partial_sum[thread_id] = 0;
 
     // Check bounds and compute non-zero counts
-    if (index < rows * cols && input[index] != 0) 
+    if (index < rows * cols && input[index] != 0)
         partial_sum[thread_id] = 1;
     __syncthreads();
 
     // Reduce within the block
-    for (int stride = blockDim.x / 2; stride > 0; stride /= 2) 
+    for (int stride = blockDim.x / 2; stride > 0; stride /= 2)
     {
-        if (thread_id < stride) 
+        if (thread_id < stride)
             partial_sum[thread_id] += partial_sum[thread_id + stride];
         __syncthreads();
     }
 
     // Add partial result to global count
-    if (thread_id == 0) 
+    if (thread_id == 0)
         atomicAdd(count, partial_sum[0]);
 }
 
-int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream) 
+int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream)
 {
     int* device_count;
     float* device_input;
@@ -488,10 +492,10 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
     cudaXMalloc((void**)&device_count, sizeof(int));
 
     // Copy input matrix to device
-    cudaXMemcpy(device_input, input, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaXMemcpyAsync(device_input, input, size * sizeof(float), cudaMemcpyHostToDevice, stream);
 
     // Initialize count to 0
-    cudaXMemset(device_count, 0, sizeof(int));
+    cudaXMemsetAsync(device_count, 0, sizeof(int), stream);
 
     // Configure kernel
     dim3 threads_per_block(256);
@@ -502,9 +506,10 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
     cudaCheckError();
 
     // Copy result back to host
-    cudaXMemcpy(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost, stream);
 
-    // Free device memory
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(device_input);
     cudaXFree(device_count);
 
@@ -522,7 +527,10 @@ kernel_divide_frames_float_inplace(float* const input_output, const float* const
     }
 }
 
-void divide_frames_inplace(float* const input_output, const float* const denominator, const uint size, cudaStream_t stream)
+void divide_frames_inplace(float* const input_output,
+                           const float* const denominator,
+                           const uint size,
+                           cudaStream_t stream)
 {
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
@@ -548,14 +556,16 @@ int find_min_thrust(float* input, size_t size)
 } // namespace
 
 // Kernel to normalize an array between a given range
-__global__ void kernel_normalize_array(float* input_output, size_t size, float min_range, float max_range, float min_val, float max_val)
+__global__ void
+kernel_normalize_array(float* input_output, size_t size, float min_range, float max_range, float min_val, float max_val)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < size)
     {
         // Normalize to [0, 1], then scale to [min_range, max_range]
-        input_output[idx] = roundf(((input_output[idx] - min_val) / (max_val - min_val)) * (max_range - min_range) + min_range);
+        input_output[idx] =
+            roundf(((input_output[idx] - min_val) / (max_val - min_val)) * (max_range - min_range) + min_range);
     }
 }
 

@@ -1,7 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
 
@@ -17,7 +13,7 @@
 #include "barycentre.cuh"
 #include <cmath>
 
-#define CIRCLE_MASK_RADIUS 0.07
+#define CIRCLE_MASK_RADIUS 0.07f
 
 // __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 // {
@@ -37,18 +33,18 @@
 //     uint blocks = map_blocks_to_problem(depth, threads);
 
 //     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
+//     cudaCheckError();
 // }
 
 __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    
+
     if (index < depth * size)
     {
         const uint depth_index = index / size;
         const uint size_index = index % size;
 
-        // Utilisation d'un atomicAdd pour accumuler les résultats
         atomicAdd(&output[depth_index], A[size_index + depth_index * size] * B[size_index]);
     }
 }
@@ -57,9 +53,7 @@ __global__ void kernel_divide(float* output, size_t depth, size_t size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < depth)
-    {
         output[index] /= size;
-    }
 }
 
 void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
@@ -67,14 +61,13 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(depth * size, threads);
     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
+    cudaCheckError();
 
-    // Division par size après la fin du calcul pour chaque depth_index
-    cudaDeviceSynchronize();  // Synchroniser pour s'assurer que le kernel est terminé
     threads = get_max_threads_1d();
     blocks = map_blocks_to_problem(depth, threads);
     kernel_divide<<<blocks, threads, 0, stream>>>(output, depth, size);
+    cudaCheckError();
 }
-
 
 __global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size, uint depth)
 {
@@ -92,6 +85,7 @@ void compute_multiplication(float* output, float* A, float* B, size_t size, uint
     uint blocks = map_blocks_to_problem(size, threads);
 
     kernel_compute_multiplication<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
+    cudaCheckError();
 }
 
 int find_max_thrust(float* input, size_t size)
@@ -134,6 +128,8 @@ int compute_barycentre_circle_mask(float* output, float* input, size_t size, cud
                         stream);
 
     apply_mask_or(output, circle_mask_min, std::sqrt(size), std::sqrt(size), stream);
+
+    // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);
     cudaXFree(circle_mask_min);
 

@@ -102,19 +102,20 @@ void multiply_three_vectors(
     cudaCheckError();
 }
 
-__global__ void kernel_computeMean(
-    const float* M0, const float* vascularPulse, float* result, 
-    int rows, int cols, int depth
-) {
+__global__ void
+kernel_computeMean(const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth)
+{
     // Calcul des indices globaux
     int x = blockIdx.x * blockDim.x + threadIdx.x; // index de ligne
     int y = blockIdx.y * blockDim.y + threadIdx.y; // index de colonne
 
-    if (x < rows && y < cols) {
+    if (x < rows && y < cols)
+    {
         float sum = 0.0f;
 
         // Somme sur la 3ème dimension
-        for (int z = 0; z < depth; ++z) {
+        for (int z = 0; z < depth; ++z)
+        {
             int index3D = x * cols + y + z * rows * cols;
             sum += M0[index3D] * vascularPulse[z];
         }
@@ -124,32 +125,35 @@ __global__ void kernel_computeMean(
     }
 }
 
-void computeMean(const float* M0, const float* vascularPulse, float* result, 
-    int rows, int cols, int depth, cudaStream_t stream)
+void computeMean(
+    const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth, cudaStream_t stream)
 {
     dim3 blockSize(16, 16);
-    dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, 
-                  (cols + blockSize.y - 1) / blockSize.y);
+    dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, (cols + blockSize.y - 1) / blockSize.y);
 
     kernel_computeMean<<<gridSize, blockSize, 0, stream>>>(M0, vascularPulse, result, rows, cols, depth);
     cudaCheckError();
 }
 
-__global__ void kernel_compute_std(const float* input, float* output, int size, int depth) {
+__global__ void kernel_compute_std(const float* input, float* output, int size, int depth)
+{
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (idx < size) {
+    if (idx < size)
+    {
         float mean = 0.0f;
         float variance = 0.0f;
 
         // Compute mean along the third dimension
-        for (int k = 0; k < depth; ++k) {
+        for (int k = 0; k < depth; ++k)
+        {
             mean += input[idx + depth * k];
         }
         mean /= depth;
 
         // Compute variance along the third dimension
-        for (int k = 0; k < depth; ++k) {
+        for (int k = 0; k < depth; ++k)
+        {
             float diff = input[idx + depth * k] - mean;
             variance += diff * diff;
         }
@@ -167,8 +171,6 @@ void compute_std(const float* input, float* output, int size, int depth, cudaStr
     kernel_compute_std<<<blocks, threads, 0, stream>>>(input, output, size, depth);
     cudaCheckError();
 }
-
-
 
 void compute_first_correlation(float* output,
                                float* M0_ff_video_centered,
@@ -189,7 +191,6 @@ void compute_first_correlation(float* output,
 
     divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, length_video, stream);
 
-
     float* vascular_pulse_centered;
     cudaXMalloc(&vascular_pulse_centered,
                 length_video * sizeof(float)); // need to be replaced with time window (it's because csv)
@@ -199,19 +200,21 @@ void compute_first_correlation(float* output,
 
     // TODO: la suite (le calcul de R_vascularPulse)
     computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
-    
-    float *std_M0_ff_video_centered;
+
+    float* std_M0_ff_video_centered;
     cudaXMalloc(&std_M0_ff_video_centered, sizeof(float) * 512 * 512);
     compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, length_video, stream);
 
-    float *std_vascular_pulse_centered;
+    float* std_vascular_pulse_centered;
     cudaXMalloc(&std_vascular_pulse_centered, sizeof(float));
     compute_std(vascular_pulse_centered, std_vascular_pulse_centered, 1, length_video, stream);
 
     multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered, 512 * 512, stream);
 
     divide(output, std_M0_ff_video_centered, 512 * 512, stream);
-    
+
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(std_M0_ff_video_centered);
     cudaXFree(std_vascular_pulse_centered);
     cudaXFree(vascular_pulse_centered);

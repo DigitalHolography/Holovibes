@@ -87,7 +87,7 @@ void apply_convolution(float* image,
                        int padding_scalar)
 {
     float* d_output;
-    cudaMalloc(&d_output, width * height * sizeof(float));
+    cudaXMalloc(&d_output, width * height * sizeof(float));
 
     // Définir la taille des blocs et de la grille
     dim3 blockSize(16, 16);
@@ -103,12 +103,13 @@ void apply_convolution(float* image,
                                                            kHeight,
                                                            padding_type,
                                                            padding_scalar);
+    cudaCheckError();
 
     // Copier le résultat du GPU vers le CPU
-    cudaMemcpy(image, d_output, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaXMemcpy(image, d_output, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
 
     // Libérer la mémoire sur le GPU
-    cudaFree(d_output);
+    cudaXFree(d_output);
 }
 
 void gaussian_imfilter_sep(float* input_output,
@@ -133,9 +134,7 @@ __global__ void kernel_abs_lambda_division(float* output, float* lambda_1, float
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-    {
         output[index] = abs(lambda_1[index]) / abs(lambda_2[index]);
-    }
 }
 
 void abs_lambda_division(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream)
@@ -144,15 +143,14 @@ void abs_lambda_division(float* output, float* lambda_1, float* lambda_2, uint f
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
     kernel_abs_lambda_division<<<blocks, threads, 0, stream>>>(output, lambda_1, lambda_2, frame_res);
+    cudaCheckError();
 }
 
 __global__ void kernel_normalize(float* output, float* lambda_1, float* lambda_2, size_t input_size)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-    {
         output[index] = sqrtf(powf(lambda_1[index], 2) + powf(lambda_2[index], 2));
-    }
 }
 
 void normalize(float* output, float* lambda_1, float* lambda_2, uint frame_res, cudaStream_t stream)
@@ -161,6 +159,7 @@ void normalize(float* output, float* lambda_1, float* lambda_2, uint frame_res, 
     uint blocks = map_blocks_to_problem(frame_res, threads);
 
     kernel_normalize<<<blocks, threads, 0, stream>>>(output, lambda_1, lambda_2, frame_res);
+    cudaCheckError();
 }
 
 __global__ void kernel_If(float* output, size_t input_size, float* R_blob, float beta, float c, float* c_temp)
@@ -184,15 +183,14 @@ void If(float* output, size_t input_size, float* R_blob, float beta, float c, fl
     uint blocks = map_blocks_to_problem(input_size, threads);
 
     kernel_If<<<blocks, threads, 0, stream>>>(output, input_size, R_blob, beta, c, c_temp);
+    cudaCheckError();
 }
 
 __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float* lambda_2)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-    {
         output[index] *= (lambda_2[index] <= 0.f ? 1 : 0);
-    }
 }
 
 void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStream_t stream)
@@ -201,6 +199,7 @@ void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStr
     uint blocks = map_blocks_to_problem(input_size, threads);
 
     kernel_lambda_2_logical<<<blocks, threads, 0, stream>>>(output, input_size, lambda_2);
+    cudaCheckError();
 }
 
 float* compute_I(float* input,
@@ -280,25 +279,28 @@ void vesselness_filter(float* output,
                            stream);
 
     float* H;
-    cudaMalloc(&H, frame_res * 3 * sizeof(float));
+    cudaXMalloc(&H, frame_res * 3 * sizeof(float));
 
     prepare_hessian(H, Ixx, Ixy, Iyy, frame_res, stream);
-    cudaXStreamSynchronize(stream);
 
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(Ixx);
     cudaXFree(Ixy);
     cudaXFree(Iyy);
 
     float* lambda_1 = new float[frame_res];
     cudaXMalloc(&lambda_1, frame_res * sizeof(float));
-    cudaXMemset(lambda_1, 0, frame_res * sizeof(float));
+    cudaXMemsetAsync(lambda_1, 0, frame_res * sizeof(float), stream);
 
     float* lambda_2 = new float[frame_res];
     cudaXMalloc(&lambda_2, frame_res * sizeof(float));
-    cudaXMemset(lambda_2, 0, frame_res * sizeof(float));
+    cudaXMemsetAsync(lambda_2, 0, frame_res * sizeof(float), stream);
 
     compute_eigen_values(H, frame_res, lambda_1, lambda_2, stream);
 
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(H);
 
     float* R_blob;
@@ -313,10 +315,12 @@ void vesselness_filter(float* output,
     cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
 
     float c;
-    cudaMemcpy(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost, stream);
 
     If(output, frame_res, R_blob, beta, c, c_temp, stream);
 
+    // Need to synchronize to avoid freeing too soon
+    cudaXStreamSynchronize(stream);
     cudaXFree(R_blob);
     cudaXFree(c_temp);
     cudaXFree(lambda_1);

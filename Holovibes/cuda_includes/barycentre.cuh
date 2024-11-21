@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "cuda_memory.cuh"
 #include "common.cuh"
 
 void compute_multiplication(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream);

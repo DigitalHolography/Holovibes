@@ -246,7 +246,7 @@ void Analysis::init()
 
     vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
                                                  vesselness_mask_env_.vascular_kernel_size_);
-    compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, sigma_2);
+    compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, sigma_2, stream_);
 }
 
 void Analysis::dispose()
