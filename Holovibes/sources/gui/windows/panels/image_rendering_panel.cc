@@ -51,15 +51,18 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
+    const bool is_batch_size_enabled =
+        !UserInterfaceDescriptor::instance().is_recording_ && api::get_data_type() != RecordedDataType::MOMENTS;
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ &&
-                                      api::get_data_type() != RecordedDataType::MOMENTS);
+    ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
+    ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
+    ui_->SpaceTransformationLabel->setEnabled(!is_raw && is_data_not_moments);
     ui_->SpaceTransformationComboBox->setEnabled(!is_raw && is_data_not_moments);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
+    ui_->TimeTransformationLabel->setEnabled(!is_raw && is_data_not_moments);
     ui_->TimeTransformationComboBox->setEnabled(!is_raw && is_data_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
 
@@ -70,14 +73,17 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     // Z (focus)
-    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaLabel->setEnabled(!is_raw && is_data_not_moments);
+    ui_->LambdaSpinBox->setEnabled(!is_raw && is_data_not_moments);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
+    ui_->ZLabel->setEnabled(!is_raw && is_data_not_moments);
     ui_->ZDoubleSpinBox->setEnabled(!is_raw && is_data_not_moments);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->ZSlider->setEnabled(!is_raw && is_data_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary() * 1000);
     ui_->BoundaryDoubleSpinBox->setEnabled(is_data_not_moments); // Is not editable but is not needed anyway
+    ui_->BoundaryLabel->setEnabled(is_data_not_moments);
 
     // Filter2D
     bool filter2D_enabled = !is_raw && api::get_filter2d_enabled();

@@ -381,8 +381,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
-              <string>Number of images averaged together to generate a single output image.
-It's a post-processing step to remove noise</string>
+              <string>The size of the time transformation</string>
              </property>
              <property name="text">
               <string>Nb. img</string>
@@ -449,7 +448,7 @@ It's a post-processing step to remove noise</string>
            <item row="5" column="0">
             <widget class="QLabel" name="BoundaryLabel">
              <property name="toolTip">
-              <string>The boundary</string>
+              <string>The maximum value of the focus</string>
              </property>
              <property name="text">
               <string>Boundary (mm)</string>
@@ -712,6 +711,9 @@ It's a post-processing step to remove noise</string>
                 <property name="text">
                  <string>h. flip 0</string>
                 </property>
+                <property name="toolTip">
+                 <string>Flips the image horizontally</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -737,6 +739,10 @@ It's a post-processing step to remove noise</string>
                 <property name="text">
                  <string>Rotate   0</string>
                 </property>
+                <property name="toolTip">
+                 <string>Rotates the imageby 90° angles.
+The rotation steps counterclockwise</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -748,7 +754,7 @@ It's a post-processing step to remove noise</string>
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>set log filter for output</string>
+                 <string>Set log filter for output</string>
                 </property>
                 <property name="text">
                  <string>Log</string>
@@ -762,7 +768,8 @@ It's a post-processing step to remove noise</string>
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
                 <property name="toolTip">
-                 <string>Number of images averaged together to generate a single output image. It's a post-processing step to remove noise</string>
+                 <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
                 </property>
                 <property name="text">
                  <string>Output Image Acc.</string>
@@ -933,7 +940,7 @@ It's a post-processing step to remove noise</string>
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0">
+          <layout class="QGridLayout" name="XYZGridLayout" columnstretch="0,0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
@@ -1122,7 +1129,7 @@ The range of frequencies kept is [z2, z2 + width].</string>
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLabel" name="PaccLabel">
+            <widget class="QLabel" name="PAccLabel">
              <property name="toolTip">
               <string>Number of frequencies kept by the FFT in the time transformation algorithm.
 The range of frequencies kept is [z, z + width]</string>
@@ -1387,7 +1394,7 @@ The range of frequencies kept is [z, z + width]</string>
                      <bool>false</bool>
                   </property>
                   <property name="toolTip">
-                     <string>The radius of the circle to compute the Registration.</string>
+                     <string>The radius of the circle to compute the Registration</string>
                   </property>
                   <property name="minimum">
                   <double>0.100000000000000</double>
@@ -2734,6 +2741,9 @@ The range of frequencies kept is [z, z + width]</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="toolTip">
+                 <string>Defines what to record</string>
+                </property>
                 <property name="minimumSize">
                  <size>
                   <width>126</width>
@@ -2891,6 +2901,9 @@ The range of frequencies kept is [z, z + width]</string>
                      <width>50</width>
                      <height>16777215</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>The extension of the file; also defines the format of the recording</string>
                    </property>
                    <item>
                     <property name="text">

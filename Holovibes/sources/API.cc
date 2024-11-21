@@ -578,7 +578,8 @@ void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled,
 
 void set_lens_view(bool checked, uint auxiliary_window_max_size)
 {
-    if (get_compute_mode() == Computation::Raw)
+    // Cases when we do not want to modify it
+    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS && checked)
         return;
 
     set_lens_view_enabled(checked);
@@ -1760,6 +1761,17 @@ void set_input_file_end_index(size_t value)
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
         set_input_file_start_index(value - 1);
+}
+
+void loaded_moments_data()
+{
+    set_batch_size(1);  // Cannot call the api.cc function because some parameters are not defined yet.
+    set_time_stride(1); // The user can change the time stride, but setting it to 1
+                        // allows moments to be read in the correct order
+    close_windows();    // Set lens and raw view to false
+
+    // There are plenty of settings not used in data type moments but not modified here;
+    // it's because these settings' value have no influence at that point (ex: space/time transforms).
 }
 
 #pragma endregion

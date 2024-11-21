@@ -91,6 +91,13 @@ void set_input_file_start_index(size_t value);
  */
 void set_input_file_end_index(size_t value);
 
+/*!
+ * \brief Disables / edits numerous settings when reading a moments file
+ * Most of the settings are just booleans set to false (ex: lens view)
+ *
+ */
+void loaded_moments_data();
+
 /*! \brief Switchs operating camera to none
  *
  */
