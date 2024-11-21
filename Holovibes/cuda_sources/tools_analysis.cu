@@ -15,81 +15,6 @@
 #include <thrust/extrema.h>
 #include <fstream>
 
-
-float* load_CSV_to_float_array(const std::filesystem::path& path)
-{
-    std::string filename = path.string();
-    std::ifstream file(filename);
-
-    if (!file.is_open())
-    {
-        std::cerr << "Erreur : impossible d'ouvrir le fichier " << filename << std::endl;
-        return nullptr;
-    }
-
-    std::vector<float> values;
-    std::string line;
-
-    // Lire le fichier ligne par ligne
-    while (std::getline(file, line))
-    {
-        std::stringstream ss(line);
-        std::string value;
-        // Lire chaque valeur séparée par des virgules (ou espaces, selon le fichier)
-        while (std::getline(ss, value, ','))
-        {
-            try
-            {
-                values.push_back(std::stof(value)); // Convertir la valeur en float et l'ajouter au vecteur
-            }
-            catch (const std::invalid_argument&)
-            {
-                std::cerr << "Erreur de conversion de valeur : " << value << std::endl;
-            }
-        }
-    }
-
-    file.close();
-
-    // Copier les valeurs dans un tableau float*
-    float* dataArray = new float[values.size()];
-    for (int i = 0; i < values.size(); ++i)
-    {
-        dataArray[i] = values[i];
-    }
-
-    return dataArray;
-}
-
-void write_1D_float_array_to_file(const float* array, int rows, int cols, const std::string& filename)
-{
-    // Open the file in write mode
-    std::ofstream outFile(filename);
-
-    // Check if the file was opened successfully
-    if (!outFile)
-    {
-        std::cerr << "Error: Unable to open the file " << filename << std::endl;
-        return;
-    }
-
-    // Write the 1D array in row-major order to the file
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j = 0; j < cols; ++j)
-        {
-            outFile << array[i * cols + j]; // Calculate index in row-major order
-            if (j < cols - 1)
-                outFile << " "; // Separate values in a row by a space
-        }
-        outFile << std::endl; // New line after each row
-    }
-
-    // Close the file
-    outFile.close();
-    std::cout << "1D array written to the file " << filename << std::endl;
-}
-
 __global__ void
 kernel_padding(float* output, float* input, int height, int width, int new_width, int start_x, int start_y)
 {
@@ -116,23 +41,7 @@ void convolution_kernel_add_padding(float* output,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(width * height, threads);
     kernel_padding<<<blocks, threads, 0, stream>>>(output, kernel, height, width, new_width, start_x, start_y);
-}
-
-void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
-{
-    if (input == nullptr)
-        return;
-    float* result = new float[rows * col];
-    cudaXMemcpyAsync(result, input, rows * col * sizeof(float), cudaMemcpyDeviceToHost, stream);
-    cudaXStreamSynchronize(stream);
-    write_1D_float_array_to_file(result, rows, col, "test_" + filename + ".txt");
-}
-
-void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
-{
-    if (input == nullptr)
-        return;
-    write_1D_float_array_to_file(input, rows, col, "test_" + filename + ".txt");
+    cudaCheckError();
 }
 
 __global__ void kernel_normalized_list(float* output, int lim, int size)
@@ -147,6 +56,7 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream)
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_normalized_list<<<blocks, threads, 0, stream>>>(output, lim, size);
+    cudaCheckError();
 }
 
 __device__ float comp_hermite(int n, float x)
@@ -185,6 +95,7 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(input_size, threads);
     kernel_comp_dgaussian<<<blocks, threads, 0, stream>>>(output, input, input_size, sigma, n);
+    cudaCheckError();
 }
 
 namespace
@@ -204,6 +115,7 @@ void multiply_array_by_scalar_caller(T* input_output, size_t size, T scalar, cud
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_multiply_array_by_scalar<<<blocks, threads, 0, stream>>>(input_output, size, scalar);
+    cudaCheckError();
 }
 } // namespace
 
@@ -232,6 +144,7 @@ void prepare_hessian(
     int blockSize = 256;
     int numBlocks = (size + blockSize - 1) / blockSize;
     kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, ixx, ixy, iyy, size);
+    cudaCheckError();
 }
 
 __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
@@ -266,6 +179,7 @@ void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cu
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_compute_eigen<<<blocks, threads, 0, stream>>>(H, size, lambda1, lambda2);
+    cudaCheckError();
 }
 
 __global__ void
@@ -301,8 +215,6 @@ void apply_diaphragm_mask(float* output,
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
     kernel_apply_diaphragm_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
-
-    cudaXStreamSynchronize(stream);
     cudaCheckError();
 }
 
@@ -341,8 +253,6 @@ void compute_circle_mask(float* output,
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
     kernel_compute_circle_mask<<<lblocks, lthreads, 0, stream>>>(output, width, height, center_X, center_Y, radius);
-
-    cudaXStreamSynchronize(stream);
     cudaCheckError();
 }
 
@@ -365,8 +275,6 @@ void apply_mask_and(float* output, const float* input, const short width, const 
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
     kernel_apply_mask_and<<<lblocks, lthreads, 0, stream>>>(output, input, width, height);
-
-    cudaXStreamSynchronize(stream);
     cudaCheckError();
 }
 
@@ -389,8 +297,6 @@ void apply_mask_or(float* output, const float* input, const short width, const s
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
     kernel_apply_mask_or<<<lblocks, lthreads, 0, stream>>>(output, input, width, height);
-
-    cudaXStreamSynchronize(stream);
     cudaCheckError();
 }
 
@@ -446,7 +352,6 @@ float* compute_gauss_deriviatives_kernel(
                                result_transpose,
                                kernel_width));
 
-    cudaXStreamSynchronize(stream);
     cudaXFree(kernel_result);
 
     cudaXFree(x);
@@ -535,9 +440,11 @@ void compute_gauss_kernel(float* output, float sigma)
 
     // Launch the kernel to compute the Gaussian values
     kernel_compute_gauss_kernel<<<gridSize, blockSize>>>(output, kernel_size, sigma, d_sum);
+    cudaCheckError();
 
     // Normalize the kernel using the computed sum directly on the GPU
     kernel_normalize_array<<<gridSize, blockSize>>>(output, kernel_size, d_sum);
+    cudaCheckError();
 
     // Free device memory for sum
     cudaXFree(d_sum);
@@ -592,6 +499,7 @@ int count_non_zero(const float* const input, const int rows, const int cols, cud
 
     // Launch kernel
     kernel_count_non_zero<<<blocks_per_grid, threads_per_block, 0, stream>>>(device_input, device_count, rows, cols);
+    cudaCheckError();
 
     // Copy result back to host
     cudaXMemcpy(&result, device_count, sizeof(int), cudaMemcpyDeviceToHost);
@@ -619,6 +527,7 @@ void divide_frames_inplace(float* const input_output, const float* const denomin
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
     kernel_divide_frames_float_inplace<<<blocks, threads, 0, stream>>>(input_output, denominator, size);
+    cudaCheckError();
 }
 
 namespace
@@ -666,38 +575,5 @@ void normalize_array(float* input_output, size_t size, float min_range, float ma
     const uint threads = get_max_threads_1d();
     const uint blocks = map_blocks_to_problem(size, threads);
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(input_output, size, min_range, max_range, min_val, max_val);
-}
-
-
-void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream)
-{
-    const int width = 512;
-    const int height = 512;
-    const int frames = 506;
-    const int total_size = width * height * frames;
-
-    // Allouer un tableau pour stocker les données
-    float* video_data = new float[total_size];
-
-    // Ouvrir le fichier binaire en mode lecture
-    std::ifstream file(path, std::ios::binary);
-    if (!file)
-    {
-        std::cerr << "Erreur : Impossible d'ouvrir le fichier video.bin" << std::endl;
-        return;
-    }
-
-    // Lire les données dans le tableau
-    file.read(reinterpret_cast<char*>(video_data), total_size * sizeof(float));
-    if (!file)
-    {
-        std::cerr << "Erreur : Lecture du fichier incomplète" << std::endl;
-        delete[] video_data;
-        return;
-    }
-
-    file.close();
-
-    cudaXMemcpyAsync(output, video_data, sizeof(float) * total_size, cudaMemcpyHostToDevice, stream);
-    delete[] video_data;
+    cudaCheckError();
 }

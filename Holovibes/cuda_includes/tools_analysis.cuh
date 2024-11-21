@@ -8,12 +8,6 @@
 #include "common.cuh"
 #include "cublas_handle.hh"
 
-float* load_CSV_to_float_array(const std::filesystem::path& path);
-
-void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
-
-void print_in_file_cpu(float* input, uint rows, uint col, std::string filename);
-
 void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
@@ -61,8 +55,9 @@ void compute_gauss_kernel(float* output, float sigma);
 
 int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream);
 
-void divide_frames_inplace(float* const input_output, const float* const denominator, const uint size, cudaStream_t stream);
+void divide_frames_inplace(float* const input_output,
+                           const float* const denominator,
+                           const uint size,
+                           cudaStream_t stream);
 
 void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);
-
-void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream);
