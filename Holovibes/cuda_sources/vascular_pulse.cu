@@ -29,6 +29,7 @@ void divide_constant(float* vascular_pulse, int value, size_t size, cudaStream_t
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_divide_constant<<<blocks, threads, 0, stream>>>(vascular_pulse, value, size);
+    cudaCheckError();
 }
 
 __global__ void kernel_divide(float* vascular_pulse, float* value, size_t size)
@@ -43,6 +44,7 @@ void divide(float* vascular_pulse, float* value, size_t size, cudaStream_t strea
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_divide<<<blocks, threads, 0, stream>>>(vascular_pulse, value, size);
+    cudaCheckError();
 }
 
 __global__ void kernel_multiply_constant(float* vascular_pulse, float* value, size_t size)
@@ -57,6 +59,7 @@ void multiply_constant(float* vascular_pulse, float* value, size_t size, cudaStr
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_multiply_constant<<<blocks, threads, 0, stream>>>(vascular_pulse, value, size);
+    cudaCheckError();
 }
 
 float compute_mean(float* vascular_pulse, size_t size)
@@ -80,6 +83,7 @@ void subtract_constant(float* output, float* input, float value, size_t size, cu
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_subtract_constant<<<blocks, threads, 0, stream>>>(output, input, value, size);
+    cudaCheckError();
 }
 
 __global__ void kernel_multiply_three_vectors(float* output, float* input1, float* input2, float* input3, size_t size)
@@ -95,6 +99,7 @@ void multiply_three_vectors(
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_multiply_three_vectors<<<blocks, threads, 0, stream>>>(output, input1, input2, input3, size);
+    cudaCheckError();
 }
 
 __global__ void kernel_computeMean(
@@ -126,8 +131,8 @@ void computeMean(const float* M0, const float* vascularPulse, float* result,
     dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, 
                   (cols + blockSize.y - 1) / blockSize.y);
 
-    // Lancer le kernel
     kernel_computeMean<<<gridSize, blockSize, 0, stream>>>(M0, vascularPulse, result, rows, cols, depth);
+    cudaCheckError();
 }
 
 __global__ void kernel_compute_std(const float* input, float* output, int size, int depth) {
@@ -160,6 +165,7 @@ void compute_std(const float* input, float* output, int size, int depth, cudaStr
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_compute_std<<<blocks, threads, 0, stream>>>(input, output, size, depth);
+    cudaCheckError();
 }
 
 

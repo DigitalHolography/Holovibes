@@ -568,8 +568,8 @@ void normalize_array(float* input_output, size_t size, float min_range, float ma
 
     // Copy min and max values from device memory to host
     float min_val, max_val;
-    cudaXMemcpy(&min_val, input_output + min_idx, sizeof(float), cudaMemcpyDeviceToHost);
-    cudaXMemcpy(&max_val, input_output + max_idx, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpyAsync(&min_val, input_output + min_idx, sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(&max_val, input_output + max_idx, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
     // Step 2: Launch kernel to normalize
     const uint threads = get_max_threads_1d();
