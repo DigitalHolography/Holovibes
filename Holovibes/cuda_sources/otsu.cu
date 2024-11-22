@@ -148,13 +148,9 @@ float otsu_threshold(const float* d_image, uint* histo_buffer_d, int size, const
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
 
-    // Step 1: Initialize histogram
-    cudaMemset(histo_buffer_d, 0, NUM_BINS * sizeof(uint));
-    // Step 2: Compute histogram
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(d_image, histo_buffer_d, size);
 
-    // Step 3: Compute Otsu threshold
     float* d_threshold;
     cudaMalloc(&d_threshold, sizeof(float));
     otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, d_threshold);

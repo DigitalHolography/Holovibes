@@ -490,8 +490,9 @@ void Analysis::insert_barycentres()
                            fd_.width,
                            fd_.height,
                            uint_buffer_1_,
-                           nullptr, // TODO
+                           uint_buffer_2_,
                            float_buffer_,
+                           size_t_gpu_,
                            cublas_handler_,
                            stream_);
 
@@ -617,22 +618,15 @@ void Analysis::insert_bwareafilt()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
             {
-                float* image_d = buffers_.gpu_postprocess_frame.get();
-                uint* labels_d = uint_buffer_1_.get();
-                uint* linked_d = uint_buffer_2_.get();
-                size_t* change_d = size_t_gpu_.get();
-                float* labels_sizes_d = float_buffer_.get();
-
-                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-
-                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
-
-                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
-
-                int maxI = -1;
-                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
-                if (maxI - 1 > 0)
-                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
+                bwareafilt(buffers_.gpu_postprocess_frame.get(),
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           cuda_tools::CublasHandle::instance(),
+                           stream_);
             }
         });
 }
@@ -646,19 +640,15 @@ void Analysis::insert_bwareaopen()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
             {
-                float* image_d = buffers_.gpu_postprocess_frame.get();
-                uint* labels_d = uint_buffer_1_.get();
-                uint* linked_d = uint_buffer_2_.get();
-                float* labels_sizes_d = float_buffer_.get();
-                size_t* change_d = size_t_gpu_.get();
-
-                uint p = setting<settings::MinMaskArea>();
-
-                get_connected_component(labels_d, linked_d, image_d, fd_.width, fd_.height, change_d, stream_);
-
-                get_labels_sizes(labels_sizes_d, labels_d, buffers_.gpu_postprocess_frame_size, stream_);
-                if (p != 0)
-                    area_open(image_d, labels_d, labels_sizes_d, buffers_.gpu_postprocess_frame_size, p, stream_);
+                bwareaopen(buffers_.gpu_postprocess_frame.get(),
+                           setting<settings::MinMaskArea>(),
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           stream_);
             }
         });
 }

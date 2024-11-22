@@ -28,49 +28,82 @@ void get_connected_component(uint* labels_d,
                              size_t* change_d,
                              const cudaStream_t stream);
 
-/*!
- * \brief Get the labels size object TODO
- *
- * \param labels_sizes
- * \param labels_d
- * \param image_d
- * \param width
- * \param height
- * \param stream
- */
-void get_labels_sizes(float* labels_sizes, uint* labels_d, const size_t size, const cudaStream_t stream);
-
 /**
  * \brief Sets to 1.0f each pixel that we want to keep from the selected label. Otherwise the pixels are set to
  * 0.0f. Hence only pixels with the selected label are retained
  *
- * \param[in out] image_d The image to process (GPU Memory)
+ * \param[in out] input_output The image to process (GPU Memory)
  * \param[in] label_d The matrix who store label of each pixel (GPU Memory)
  * \param[in] size Size of the frame
  * \param[in] label_to_keep Label to keep
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void area_filter(float* image_d, const uint* label_d, size_t size, uint label_to_keep, const cudaStream_t stream);
+void area_filter(float* input_output, const uint* label_d, size_t size, uint label_to_keep, const cudaStream_t stream);
 
 /*!
  * \brief  Sets to 1.0f each pixel that we want to keep from connected component who are bigger than p. Otherwise the
  * pixels are set to 0.0f. Hence only pixels with the selected label are retained
  *
- * \param[in out] image_d The image to process (GPU Memory)
+ * \param[in out] input_output The image to process (GPU Memory)
  * \param[in] label_d The matrix who store label of each pixel (GPU Memory)
  * \param[in] labels_sizes_d The matrix who store the size of eche labeled connected component (GPU Memory)
  * \param[in] size Size of the frame
  * \param[in] p The threshold of the size we want to keep
  * \param[in] stream The CUDA stream on which to launch the operation
  */
-void area_open(
-    float* image_d, const uint* label_d, const float* labels_sizes_d, size_t size, uint p, const cudaStream_t stream);
+void area_open(float* input_output,
+               const uint* label_d,
+               const float* labels_sizes_d,
+               size_t size,
+               uint p,
+               const cudaStream_t stream);
 
+/*!
+ * \brief compute black and white area filter, find the largest connected component from a binarised image and remove
+ * all the other, for this we use the ccl (connected component labeling) union find Kuroma algorithm
+ *
+ * \param input_output image to process
+ * \param width width of the image
+ * \param height height of the image
+ * \param labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
+ * \param linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
+ * \param labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in memory,
+ * float is for use cublas max searsh
+ * \param change_d GPU size_t use to inside of cll algo
+ * \param handle cublas singleton
+ * \param stream The CUDA stream on which to launch the operation
+ */
 void bwareafilt(float* input_output,
                 size_t width,
                 size_t height,
                 uint* labels_d,
                 uint* linked_d,
                 float* labels_sizes_d,
+                size_t* change_d,
                 cublasHandle_t& handle,
+                cudaStream_t stream);
+
+/*!
+ * \brief compute black and white area open, find the size of each connected component and remove all connected
+ * component smaller than n, for this we use the ccl (connected component labeling) union find Kuroma algorithm
+ *
+ * \param input_output image to process
+ * \param n threashold size for connected component we want to keep
+ * \param width width of the image
+ * \param height height of the image
+ * \param labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
+ * \param linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
+ * \param labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in memory,
+ * float is for use cublas max searsh
+ * \param change_d GPU size_t use to inside of cll algo
+ * \param stream The CUDA stream on which to launch the operation
+ */
+void bwareaopen(float* input_output,
+                uint n,
+                size_t width,
+                size_t height,
+                uint* labels_d,
+                uint* linked_d,
+                float* labels_sizes_d,
+                size_t* change_d,
                 cudaStream_t stream);
