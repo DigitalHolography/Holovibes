@@ -5756,38 +5756,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportStartIndexSpinBox</sender>
-   <signal>valueChanged()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_input_file_start_index()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportEndIndexSpinBox</sender>
-   <signal>valueChanged()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_input_file_end_index()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImportInputFpsSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>ImportPanel</receiver>

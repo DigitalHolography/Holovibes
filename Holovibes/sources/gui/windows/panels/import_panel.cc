@@ -23,7 +23,16 @@ ImportPanel::ImportPanel(QWidget* parent)
 
 ImportPanel::~ImportPanel() {}
 
-void ImportPanel::on_notify() { ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped()); }
+void ImportPanel::on_notify()
+{
+    ui_->InputBrowseToolButton->setEnabled(api::get_is_computation_stopped());
+
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api::get_input_file_start_index()));
+    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api::get_input_file_end_index()));
+    const char step = api::get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
+    ui_->ImportStartIndexSpinBox->setSingleStep(step);
+    ui_->ImportEndIndexSpinBox->setSingleStep(step);
+}
 
 void ImportPanel::load_gui(const json& j_us)
 {
@@ -129,8 +138,6 @@ void ImportPanel::import_file(const QString& filename)
         api::set_input_buffer_size(input_buffer_size);
         api::set_record_buffer_size(record_buffer_size);
 
-        parent_->notify();
-
         // Gather data from the newly opened file
         size_t nb_frames = input_file->get_total_nb_frames();
         UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
@@ -142,10 +149,16 @@ void ImportPanel::import_file(const QString& filename)
         // The start index cannot exceed the end index
         ui_->ImportStartIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
         ui_->ImportEndIndexSpinBox->setMaximum(static_cast<int>(nb_frames));
-        ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(nb_frames));
+
+        // Changing the settings is straight-up better than changing the UI
+        // This whole logic will need to go in the API at one point
+        api::set_input_file_start_index(1);
+        api::set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);
+
+        parent_->notify();
     }
     else
         set_start_stop_buttons(false);
