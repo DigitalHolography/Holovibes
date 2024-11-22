@@ -562,6 +562,13 @@ void Pipe::insert_moments_record()
         fn_compute_vect_->conditional_push_back(
             [&]()
             {
+                if (setting<settings::RegistrationEnabled>())
+                {
+                    registration_->shift_image(moments_env_.moment0_buffer);
+                    registration_->shift_image(moments_env_.moment1_buffer);
+                    registration_->shift_image(moments_env_.moment2_buffer);
+                }
+
                 cudaMemcpyKind kind = get_memcpy_kind<settings::RecordQueueLocation>();
 
                 record_queue_.enqueue(moments_env_.moment0_buffer, stream_, kind);
