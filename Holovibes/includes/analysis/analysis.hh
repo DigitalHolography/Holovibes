@@ -82,25 +82,25 @@ class Analysis
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
 
-        float* data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../data_n.csv"));
+        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/data_n.csv");
         m0_ff_img_csv_.resize(frame_res);
         if (data_csv_cpu)
             cudaXMemcpyAsync(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../f_AVG_mean.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/f_AVG_mean.csv");
         f_avg_csv_.resize(frame_res);
         if (data_csv_cpu)
             cudaXMemcpyAsync(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../vascularPulse.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
         if (data_csv_cpu)
             cudaXMemcpyAsync(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice, stream_);
         delete[] data_csv_cpu;
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../R_VascularPulse.csv"));
+        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/R_VascularPulse.csv");
         R_VascularPulse_csv_.resize(frame_res);
         if (data_csv_cpu)
             cudaXMemcpyAsync(R_VascularPulse_csv_,
@@ -258,13 +258,17 @@ class Analysis
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
+    // TODO: move these in an environment struct
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
-
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> float_buffer_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
 };
 } // namespace holovibes::analysis
 
