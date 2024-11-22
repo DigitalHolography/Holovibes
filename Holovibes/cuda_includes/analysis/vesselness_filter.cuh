@@ -8,6 +8,9 @@
 #include <cublas_v2.h>
 #include "cuComplex.h"
 #include "cufft_handle.hh"
+#include "compute_env.hh"
+
+using holovibes::cuda_tools::CufftHandle;
 
 enum ConvolutionPaddingType
 {
@@ -24,13 +27,11 @@ void vesselness_filter(float* output,
                        int kernel_x_size,
                        int kernel_y_size,
                        int frame_res,
-                       float* convolution_buffer,
-                       cuComplex* cuComplex_buffer,
-                       holovibes::cuda_tools::CufftHandle* convolution_plan,
+                       holovibes::VesselnessFilterStruct& filter_struct_,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream);
 
-void apply_convolution(float* image,
+void apply_convolution(float* input_output,
                        const float* kernel,
                        size_t width,
                        size_t height,

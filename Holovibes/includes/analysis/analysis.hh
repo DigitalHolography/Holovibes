@@ -8,7 +8,7 @@
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
-#include "tools_debug.hh"
+#include "tools_analysis_debug.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -213,6 +213,9 @@ class Analysis
 
     /*! \brief Vesselness mask environment */
     VesselnessMaskEnv& vesselness_mask_env_;
+
+    /*! \brief Vesselness filter buffers struct */
+    VesselnessFilterStruct vesselness_filter_struct_;
 
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;

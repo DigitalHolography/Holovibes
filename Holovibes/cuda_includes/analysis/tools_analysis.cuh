@@ -13,8 +13,7 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
 
-void prepare_hessian(
-    float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream);
+void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream);
 
 void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream);
 
@@ -37,7 +36,7 @@ void compute_circle_mask(float* output,
                          const cudaStream_t stream);
 void apply_mask_and(
     float* output, const float* input, const short width, const short height, const cudaStream_t stream);
-    
+
 void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream);
 
 float* compute_gauss_deriviatives_kernel(

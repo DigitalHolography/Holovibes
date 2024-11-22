@@ -2,12 +2,12 @@
 
 #include "cuda_memory.cuh"
 #include "tools_analysis.cuh"
+#include "tools_analysis_debug.hh"
 
 using holovibes::cuda_tools::CufftHandle;
 
-__global__ void convolution_kernel(const float* image,
+__global__ void convolution_kernel(float* input_output,
                                    const float* kernel,
-                                   float* output,
                                    int width,
                                    int height,
                                    int kWidth,
@@ -48,7 +48,7 @@ __global__ void convolution_kernel(const float* image,
                 if (iy >= height)
                     iy = height - 1;
 
-                imageValue = image[iy * width + ix];
+                imageValue = input_output[iy * width + ix];
             }
             else if (padding_type == ConvolutionPaddingType::SCALAR)
             {
@@ -56,7 +56,7 @@ __global__ void convolution_kernel(const float* image,
                 if (ix < 0 || ix >= width || iy < 0 || iy >= height)
                     imageValue = padding_scalar;
                 else
-                    imageValue = image[iy * width + ix];
+                    imageValue = input_output[iy * width + ix];
             }
 
             float kernelValue = kernel[(ky + kHalfHeight) * kWidth + (kx + kHalfWidth)];
@@ -64,10 +64,10 @@ __global__ void convolution_kernel(const float* image,
         }
     }
 
-    output[y * width + x] = result;
+    input_output[y * width + x] = result;
 }
 
-void apply_convolution(float* image,
+void apply_convolution(float* input_output,
                        const float* kernel,
                        size_t width,
                        size_t height,
@@ -77,17 +77,13 @@ void apply_convolution(float* image,
                        ConvolutionPaddingType padding_type,
                        int padding_scalar)
 {
-    float* d_output;
-    cudaXMalloc(&d_output, width * height * sizeof(float));
-
     // Définir la taille des blocs et de la grille
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
     // Lancer le kernel
-    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(image,
+    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(input_output,
                                                            kernel,
-                                                           d_output,
                                                            width,
                                                            height,
                                                            kWidth,
@@ -95,12 +91,6 @@ void apply_convolution(float* image,
                                                            padding_type,
                                                            padding_scalar);
     cudaCheckError();
-
-    // Copier le résultat du GPU vers le CPU
-    cudaXMemcpy(image, d_output, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
-
-    // Libérer la mémoire sur le GPU
-    cudaXFree(d_output);
 }
 
 void gaussian_imfilter_sep(float* input_output,
@@ -181,7 +171,7 @@ __global__ void kernel_lambda_2_logical(float* output, size_t input_size, float*
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
-        output[index] *= (lambda_2[index] <= 0.f ? 1 : 0);
+        output[index] *= (lambda_2[index] <= 0.f);
 }
 
 void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStream_t stream)
@@ -193,29 +183,22 @@ void lambda_2_logical(float* output, size_t input_size, float* lambda_2, cudaStr
     cudaCheckError();
 }
 
-float* compute_I(float* input,
-                 float* g_mul,
-                 float A,
-                 uint frame_res,
-                 uint kernel_x_size,
-                 uint kernel_y_size,
-                 float* convolution_buffer,
-                 cuComplex* cuComplex_buffer,
-                 CufftHandle* convolution_plan,
-                 cudaStream_t stream)
+void compute_I(float* output,
+               float* input,
+               float* g_mul,
+               float A,
+               uint frame_res,
+               uint kernel_x_size,
+               uint kernel_y_size,
+               cudaStream_t stream)
 {
-    float* I;
-    cudaXMalloc(&I, frame_res * sizeof(float));
-    cudaXMemcpyAsync(I, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+    cudaXMemcpyAsync(output, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
-    gaussian_imfilter_sep(I, g_mul, kernel_x_size, kernel_y_size, frame_res, stream);
+    gaussian_imfilter_sep(output, g_mul, kernel_x_size, kernel_y_size, frame_res, stream);
 
-    multiply_array_by_scalar(I, frame_res, A, stream);
-
-    return I;
+    multiply_array_by_scalar(output, frame_res, A, stream);
 }
 
-// Debuging: return float* to print the result to the screen
 void vesselness_filter(float* output,
                        float* input,
                        float sigma,
@@ -225,9 +208,7 @@ void vesselness_filter(float* output,
                        int kernel_x_size,
                        int kernel_y_size,
                        int frame_res,
-                       float* convolution_buffer,
-                       cuComplex* cuComplex_buffer,
-                       CufftHandle* convolution_plan,
+                       holovibes::VesselnessFilterStruct& filter_struct_,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream)
 {
@@ -236,87 +217,33 @@ void vesselness_filter(float* output,
 
     float A = std::pow(sigma, gamma);
 
-    float* Ixx = compute_I(input,
-                           g_xx_mul,
-                           A,
-                           frame_res,
-                           kernel_x_size,
-                           kernel_y_size,
-                           convolution_buffer,
-                           cuComplex_buffer,
-                           convolution_plan,
-                           stream);
+    compute_I(filter_struct_.I, input, g_xx_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
 
-    float* Ixy = compute_I(input,
-                           g_xy_mul,
-                           A,
-                           frame_res,
-                           kernel_x_size,
-                           kernel_y_size,
-                           convolution_buffer,
-                           cuComplex_buffer,
-                           convolution_plan,
-                           stream);
+    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 0, stream);
 
-    float* Iyy = compute_I(input,
-                           g_yy_mul,
-                           A,
-                           frame_res,
-                           kernel_x_size,
-                           kernel_y_size,
-                           convolution_buffer,
-                           cuComplex_buffer,
-                           convolution_plan,
-                           stream);
+    compute_I(filter_struct_.I, input, g_xy_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
 
-    float* H;
-    cudaXMalloc(&H, frame_res * 3 * sizeof(float));
+    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 1, stream);
 
-    prepare_hessian(H, Ixx, Ixy, Iyy, frame_res, stream);
+    compute_I(filter_struct_.I, input, g_yy_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
 
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(Ixx);
-    cudaXFree(Ixy);
-    cudaXFree(Iyy);
+    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 2, stream);
 
-    float* lambda_1 = new float[frame_res];
-    cudaXMalloc(&lambda_1, frame_res * sizeof(float));
-    cudaXMemsetAsync(lambda_1, 0, frame_res * sizeof(float), stream);
+    cudaXMemsetAsync(filter_struct_.lambda_1, 0, frame_res * sizeof(float), stream);
+    cudaXMemsetAsync(filter_struct_.lambda_2, 0, frame_res * sizeof(float), stream);
 
-    float* lambda_2 = new float[frame_res];
-    cudaXMalloc(&lambda_2, frame_res * sizeof(float));
-    cudaXMemsetAsync(lambda_2, 0, frame_res * sizeof(float), stream);
+    compute_eigen_values(filter_struct_.H, frame_res, filter_struct_.lambda_1, filter_struct_.lambda_2, stream);
 
-    compute_eigen_values(H, frame_res, lambda_1, lambda_2, stream);
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(H);
-
-    float* R_blob;
-    cudaXMalloc(&R_blob, frame_res * sizeof(float));
-    abs_lambda_division(R_blob, lambda_1, lambda_2, frame_res, stream);
-
-    float* c_temp;
-    cudaXMalloc(&c_temp, frame_res * sizeof(float));
-    normalize(c_temp, lambda_1, lambda_2, frame_res, stream);
+    abs_lambda_division(filter_struct_.R_blob, filter_struct_.lambda_1, filter_struct_.lambda_2, frame_res, stream);
+    normalize(filter_struct_.c_temp, filter_struct_.lambda_1, filter_struct_.lambda_2, frame_res, stream);
 
     int c_index;
-    cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, c_temp, 1, &c_index);
+    cublasStatus_t status = cublasIsamax(cublas_handler, frame_res, filter_struct_.c_temp, 1, &c_index);
 
     float c;
-    cudaXMemcpyAsync(&c, &c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(&c, &filter_struct_.c_temp[c_index - 1], sizeof(float), cudaMemcpyDeviceToHost, stream);
 
-    If(output, frame_res, R_blob, beta, c, c_temp, stream);
+    If(output, frame_res, filter_struct_.R_blob, beta, c, filter_struct_.c_temp, stream);
 
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(R_blob);
-    cudaXFree(c_temp);
-    cudaXFree(lambda_1);
-
-    lambda_2_logical(output, frame_res, lambda_2, stream);
-
-    cudaXFree(lambda_2);
+    lambda_2_logical(output, frame_res, filter_struct_.lambda_2, stream);
 }

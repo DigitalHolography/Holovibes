@@ -114,25 +114,21 @@ void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cu
 }
 
 // CUDA kernel to prepare H hessian matrices
-__global__ void
-kernel_prepare_hessian(float* output, const float* ixx, const float* ixy, const float* iyy, const int size)
+__global__ void kernel_prepare_hessian(float* output, const float* I, const size_t offset, const int size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
     {
         // Prepare the 2x2 submatrix for point `index`
-        output[index * 3 + 0] = ixx[index];
-        output[index * 3 + 1] = ixy[index];
-        output[index * 3 + 2] = iyy[index];
+        output[index * 3 + offset] = I[index];
     }
 }
 
-void prepare_hessian(
-    float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream)
+void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream)
 {
     int blockSize = 256;
     int numBlocks = (size + blockSize - 1) / blockSize;
-    kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, ixx, ixy, iyy, size);
+    kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, I, offset, size);
     cudaCheckError();
 }
 
@@ -165,8 +161,8 @@ __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* 
 
 void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cudaStream_t stream)
 {
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
+    int threads = 256;
+    int blocks = (size + threads - 1) / threads;
     kernel_compute_eigen<<<blocks, threads, 0, stream>>>(H, size, lambda1, lambda2);
     cudaCheckError();
 }
