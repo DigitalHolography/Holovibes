@@ -279,6 +279,7 @@ struct VesselnessFilterStruct
      * \brief Struct used for vesselness_filter computations.
      */
     cuda_tools::CudaUniquePtr<float> I = nullptr;
+    cuda_tools::CudaUniquePtr<float> convolution_tmp_buffer = nullptr;
     cuda_tools::CudaUniquePtr<float> H = nullptr;
     cuda_tools::CudaUniquePtr<float> lambda_1 = nullptr;
     cuda_tools::CudaUniquePtr<float> lambda_2 = nullptr;

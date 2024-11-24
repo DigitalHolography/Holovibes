@@ -89,6 +89,7 @@ void Analysis::init()
 
     // Allocate vesselness filter struct internal buffers
     vesselness_filter_struct_.I.resize(frame_res);
+    vesselness_filter_struct_.convolution_tmp_buffer.resize(frame_res);
     vesselness_filter_struct_.H.resize(frame_res * 3);
     vesselness_filter_struct_.lambda_1.resize(frame_res);
     vesselness_filter_struct_.lambda_2.resize(frame_res);

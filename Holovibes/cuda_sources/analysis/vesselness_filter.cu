@@ -6,7 +6,8 @@
 
 using holovibes::cuda_tools::CufftHandle;
 
-__global__ void convolution_kernel(float* input_output,
+__global__ void convolution_kernel(float* output,
+                                   const float* input,
                                    const float* kernel,
                                    int width,
                                    int height,
@@ -48,7 +49,7 @@ __global__ void convolution_kernel(float* input_output,
                 if (iy >= height)
                     iy = height - 1;
 
-                imageValue = input_output[iy * width + ix];
+                imageValue = input[iy * width + ix];
             }
             else if (padding_type == ConvolutionPaddingType::SCALAR)
             {
@@ -56,7 +57,7 @@ __global__ void convolution_kernel(float* input_output,
                 if (ix < 0 || ix >= width || iy < 0 || iy >= height)
                     imageValue = padding_scalar;
                 else
-                    imageValue = input_output[iy * width + ix];
+                    imageValue = input[iy * width + ix];
             }
 
             float kernelValue = kernel[(ky + kHalfHeight) * kWidth + (kx + kHalfWidth)];
@@ -64,15 +65,16 @@ __global__ void convolution_kernel(float* input_output,
         }
     }
 
-    input_output[y * width + x] = result;
+    output[y * width + x] = result;
 }
 
-void apply_convolution(float* input_output,
+void apply_convolution(float* const input_output,
                        const float* kernel,
                        size_t width,
                        size_t height,
                        size_t kWidth,
                        size_t kHeight,
+                       float* const convolution_tmp_buffer,
                        cudaStream_t stream,
                        ConvolutionPaddingType padding_type,
                        int padding_scalar)
@@ -82,7 +84,8 @@ void apply_convolution(float* input_output,
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
     // Lancer le kernel
-    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(input_output,
+    convolution_kernel<<<gridSize, blockSize, 0, stream>>>(convolution_tmp_buffer,
+                                                           input_output,
                                                            kernel,
                                                            width,
                                                            height,
@@ -90,7 +93,15 @@ void apply_convolution(float* input_output,
                                                            kHeight,
                                                            padding_type,
                                                            padding_scalar);
+
     cudaCheckError();
+
+    // Copy convolution result in the input_output
+    CudaXMemcpyAsync(input_output,
+                     convolution_tmp_buffer,
+                     sizeof(float) * width * height,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 }
 
 void gaussian_imfilter_sep(float* input_output,
@@ -98,6 +109,7 @@ void gaussian_imfilter_sep(float* input_output,
                            int kernel_x_size,
                            int kernel_y_size,
                            const size_t frame_res,
+                           float* const convolution_tmp_buffer,
                            cudaStream_t stream)
 {
     // This convolution method gives correct values compared to matlab
@@ -107,6 +119,7 @@ void gaussian_imfilter_sep(float* input_output,
                       std::sqrt(frame_res),
                       kernel_x_size,
                       kernel_y_size,
+                      convolution_tmp_buffer,
                       stream,
                       ConvolutionPaddingType::REPLICATE);
 }
@@ -190,11 +203,12 @@ void compute_I(float* output,
                uint frame_res,
                uint kernel_x_size,
                uint kernel_y_size,
+               float* const convolution_tmp_buffer,
                cudaStream_t stream)
 {
     cudaXMemcpyAsync(output, input, frame_res * sizeof(float), cudaMemcpyDeviceToDevice, stream);
 
-    gaussian_imfilter_sep(output, g_mul, kernel_x_size, kernel_y_size, frame_res, stream);
+    gaussian_imfilter_sep(output, g_mul, kernel_x_size, kernel_y_size, frame_res, convolution_tmp_buffer, stream);
 
     multiply_array_by_scalar(output, frame_res, A, stream);
 }
@@ -217,15 +231,39 @@ void vesselness_filter(float* output,
 
     float A = std::pow(sigma, gamma);
 
-    compute_I(filter_struct_.I, input, g_xx_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
+    compute_I(filter_struct_.I,
+              input,
+              g_xx_mul,
+              A,
+              frame_res,
+              kernel_x_size,
+              kernel_y_size,
+              filter_struct_.convolution_tmp_buffer,
+              stream);
 
     prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 0, stream);
 
-    compute_I(filter_struct_.I, input, g_xy_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
+    compute_I(filter_struct_.I,
+              input,
+              g_xy_mul,
+              A,
+              frame_res,
+              kernel_x_size,
+              kernel_y_size,
+              filter_struct_.convolution_tmp_buffer,
+              stream);
 
     prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 1, stream);
 
-    compute_I(filter_struct_.I, input, g_yy_mul, A, frame_res, kernel_x_size, kernel_y_size, stream);
+    compute_I(filter_struct_.I,
+              input,
+              g_yy_mul,
+              A,
+              frame_res,
+              kernel_x_size,
+              kernel_y_size,
+              filter_struct_.convolution_tmp_buffer,
+              stream);
 
     prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 2, stream);
 
