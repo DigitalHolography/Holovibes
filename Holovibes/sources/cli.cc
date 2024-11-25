@@ -182,18 +182,18 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::RAW});
         holovibes::api::set_compute_mode(holovibes::Computation::Raw);
-        holovibes::api::set_record_mode(holovibes::RecordMode::RAW);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::MOMENTS});
-        holovibes::api::set_record_mode(holovibes::RecordMode::MOMENTS);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::MOMENTS);
     }
     else
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::HOLOGRAM});
         holovibes::api::set_compute_mode(holovibes::Computation::Hologram);
-        holovibes::api::set_record_mode(holovibes::RecordMode::HOLOGRAM);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::HOLOGRAM);
     }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();
@@ -236,9 +236,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
     // Recording progress (used by the progress bar)
     holovibes::FastUpdatesHolder<holovibes::ProgressType>::Value progress = nullptr;
 
-    // Request auto contrast once if auto refresh is enabled
-    bool requested_autocontrast = !holovibes::api::get_xy_contrast_auto_refresh();
-
     while (holovibes::api::get_frame_record_enabled())
     {
         if (holovibes::FastUpdatesMap::map<holovibes::ProgressType>.contains(holovibes::ProgressType::FRAME_RECORD))
@@ -250,16 +247,6 @@ static void main_loop(holovibes::Holovibes& holovibes)
             {
                 // Change the speed of the progress bar according to the nb of frames skip
                 progress_bar(progress->first, progress->second, 40);
-
-                // Very dirty hack
-                // Request auto contrast once we have accumualated enough images
-                // Otherwise the autocontrast is computed at the beginning and we
-                // end up with black images ...
-                if (progress->first >= holovibes::api::get_xy_accumulation_level() && !requested_autocontrast)
-                {
-                    holovibes.get_compute_pipe()->request_autocontrast(holovibes::api::get_current_window_type());
-                    requested_autocontrast = true;
-                }
             }
         }
         // Don't make the current thread loop too fast
@@ -298,6 +285,8 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     if (!opts.noskip_acc && holovibes::api::get_xy_img_accu_enabled() && !opts.record_raw)
         nb_frames_skip = holovibes::api::get_xy_accumulation_level();
 
+    if (opts.fps)
+        holovibes.update_setting(holovibes::settings::InputFPS{opts.fps.value()});
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
     holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});

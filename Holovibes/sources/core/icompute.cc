@@ -26,7 +26,7 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    float d = setting<settings::InputFPS>() / time_transformation_size;
+    float d = setting<settings::CameraFps>() / time_transformation_size;
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f0(new float[time_transformation_size]);
@@ -219,21 +219,6 @@ void ICompute::dispose_cuts()
 
     time_transformation_env_.gpu_output_queue_xz.reset(nullptr);
     time_transformation_env_.gpu_output_queue_yz.reset(nullptr);
-}
-
-void ICompute::request_autocontrast(WindowKind kind)
-{
-    if (kind == WindowKind::XYview && setting<settings::XY>().contrast.enabled)
-        set_requested(ICS::Autocontrast, true);
-    else if (kind == WindowKind::XZview && setting<settings::XZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceXZ, true);
-    else if (kind == WindowKind::YZview && setting<settings::YZ>().contrast.enabled &&
-             setting<settings::CutsViewEnabled>())
-        set_requested(ICS::AutocontrastSliceYZ, true);
-    else if (kind == WindowKind::Filter2D && setting<settings::Filter2d>().contrast.enabled &&
-             setting<settings::Filter2dEnabled>())
-        set_requested(ICS::AutocontrastFilter2D, true);
 }
 
 void ICompute::request_record_chart(unsigned int nb_chart_points_to_record)

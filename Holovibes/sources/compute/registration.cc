@@ -44,16 +44,9 @@ void Registration::insert_registration()
                     y -= fd_.height;
 
                 // Shifting the image to the computed point. The shifted images is stored in `gpu_current_image_`.
-                x = -x;
-                y = -y;
-                circ_shift(gpu_current_image_, buffers_.gpu_postprocess_frame, fd_.width, fd_.height, x, y, stream_);
-
-                // Copy the result of the shift in `gpu_postprocess_frame`.
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 gpu_current_image_,
-                                 fd_.width * fd_.height * sizeof(float),
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
+                shift_x_ = -x;
+                shift_y_ = -y;
+                shift_image(buffers_.gpu_postprocess_frame);
             });
     }
 }
@@ -100,4 +93,16 @@ void Registration::updade_cirular_mask()
     float center_Y = fd_.height / 2.0f;
     float radius = std::min(fd_.width, fd_.height) * setting<settings::RegistrationZone>();
     get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
+}
+
+void Registration::shift_image(float* input_output)
+{
+    circ_shift(gpu_current_image_, input_output, fd_.width, fd_.height, shift_x_, shift_y_, stream_);
+
+    // Copy the result of the shift in `input_output` buffer.
+    cudaXMemcpyAsync(input_output,
+                     gpu_current_image_,
+                     fd_.width * fd_.height * sizeof(float),
+                     cudaMemcpyDeviceToDevice,
+                     stream_);
 }

@@ -905,22 +905,6 @@ It's a post-processing step to remove noise</string>
                   <number>8</number>
                  </property>
                  <item>
-                  <widget class="QPushButton" name="AutoContrastPushButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Apply</string>
-                   </property>
-                   <property name="flat">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QCheckBox" name="AutoRefreshContrastCheckBox">
                    <property name="text">
                     <string>Auto</string>
@@ -3175,6 +3159,16 @@ The range of frequencies kept is [z, z + width]</string>
                   <string>Moments</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts XZ</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts YZ</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
@@ -3310,6 +3304,26 @@ The range of frequencies kept is [z, z + width]</string>
                    <item>
                     <property name="text">
                      <string>.holo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.mp4</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.avi</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.csv</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.txt</string>
                     </property>
                    </item>
                   </widget>
@@ -5221,22 +5235,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </hints>
   </connection>
   <connection>
-   <sender>AutoContrastPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ViewPanel</receiver>
-   <slot>set_auto_contrast()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>338</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>ViewPanel</receiver>
@@ -5286,9 +5284,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
   <connection>
    <sender>RecordImageModeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>ExportPanel</receiver>
-   <slot>set_record_mode(QString)</slot>
+   <slot>set_record_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>793</x>
@@ -6525,7 +6523,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_z_distance_slider(int)</slot>
   <slot>set_space_transformation(QString)</slot>
   <slot>set_time_transformation(QString)</slot>
-  <slot>set_auto_contrast()</slot>
   <slot>set_contrast_min(double)</slot>
   <slot>set_contrast_max(double)</slot>
   <slot>set_contrast_invert(bool)</slot>
@@ -6628,7 +6625,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>reticle_scale(double)</slot>
   <slot>update_registration_zone(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
-  <slot>set_record_mode(QString)</slot>
+  <slot>set_record_mode(int)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>
