@@ -4784,7 +4784,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <sender>ImageModeComboBox</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>ImageRenderingPanel</receiver>
-   <slot>set_image_mode(int)</slot>
+   <slot>set_computation_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
@@ -5902,7 +5902,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
  </connections>
  <slots>
-  <slot>set_image_mode(int)</slot>
+  <slot>set_computation_mode(int)</slot>
   <slot>set_p(int)</slot>
   <slot>set_lambda(double)</slot>
   <slot>set_z_distance(double)</slot>
@@ -6017,7 +6017,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>set_filter2d_n2(int)</slot>
   <slot>set_filter2d(bool)</slot>
   <slot>open_advanced_settings()</slot>
-  <slot>close_advanced_settings()</slot>
   <slot>reset_settings()</slot>
   <slot>update_record_file_extension(QString)</slot>
   <slot>on_input_fps_change(int)</slot>

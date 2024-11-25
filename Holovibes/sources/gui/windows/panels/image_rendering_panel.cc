@@ -10,6 +10,7 @@
 #include "tools.hh"
 #include "frame_desc.hh"
 #include "API.hh"
+#include "GUI.hh"
 
 #include <map>
 
@@ -51,8 +52,7 @@ void ImageRenderingPanel::on_notify()
 
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
 
-    ui_->BatchSizeSpinBox->setEnabled(!UserInterfaceDescriptor::instance().is_recording_ &&
-                                      api::get_data_type() != RecordedDataType::MOMENTS);
+    ui_->BatchSizeSpinBox->setEnabled(!api::is_recording());
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
@@ -128,49 +128,23 @@ void ImageRenderingPanel::save_gui(json& j_us)
     j_us["panels"]["image rendering hidden"] = isHidden();
 }
 
-void ImageRenderingPanel::set_image_mode(int mode)
+void ImageRenderingPanel::set_computation_mode(int mode)
 {
     if (api::get_import_type() == ImportType::None)
         return;
 
-    if (mode == static_cast<int>(Computation::Raw))
+    Computation comp_mode = static_cast<Computation>(mode);
+
+    api::set_computation_mode(comp_mode, parent_->window_max_size);
+
+    if (comp_mode == Computation::Hologram)
     {
-        api::close_windows();
-        api::close_critical_compute();
-        api::set_raw_mode(parent_->window_max_size);
-
-        parent_->notify();
-        parent_->layout_toggled();
-    }
-    else if (mode == static_cast<int>(Computation::Hologram))
-    {
-        // That function is used to reallocate the buffers since the Square
-        // input mode could have changed
-        /* Close windows & destory thread compute */
-        api::close_windows();
-        api::close_critical_compute();
-
-        api::change_window(static_cast<int>(WindowKind::XYview));
-
-        api::set_holographic_mode(parent_->window_max_size);
-
         /* Filter2D */
         camera::FrameDescriptor fd = api::get_fd();
         ui_->Filter2DN2SpinBox->setMaximum(floor((fmax(fd.width, fd.height) / 2) * M_SQRT2));
-
-        /* Record Frame Calculation. Only in file mode */
-        if (api::get_import_type() == ImportType::File)
-            ui_->NumberOfFramesSpinBox->setValue(
-                ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                     (float)ui_->TimeStrideSpinBox->value()));
-
-        /* Batch size */
-        // The batch size is set with the value present in GUI.
-        // update_batch_size();
-
-        /* Notify */
-        parent_->notify();
     }
+
+    parent_->notify();
 }
 
 void ImageRenderingPanel::update_batch_size()
@@ -182,11 +156,6 @@ void ImageRenderingPanel::update_batch_size()
 void ImageRenderingPanel::update_time_stride()
 {
     api::update_time_stride(ui_->TimeStrideSpinBox->value());
-
-    if (api::get_import_type() == ImportType::File)
-        ui_->NumberOfFramesSpinBox->setValue(
-            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
-                 (float)ui_->TimeStrideSpinBox->value()));
     parent_->notify();
 }
 
@@ -232,27 +201,10 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
     }
 }
 
-void ImageRenderingPanel::refresh_input_filter()
-{
-    LOG_FUNC();
-
-    LOG_INFO("--- Filename 1: {}", UserInterfaceDescriptor::instance().filter_name);
-    LOG_INFO("--- Filename 2: {}", ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-
-    auto filename = UserInterfaceDescriptor::instance().filter_name;
-
-    if (filename == UID_FILTER_TYPE_DEFAULT)
-    {
-        LOG_INFO("--- || ---");
-        return;
-    }
-
-    api::load_input_filter(api::get_input_filter(), ui_->InputFilterQuickSelectComboBox->currentText().toStdString());
-}
-
 void ImageRenderingPanel::update_filter2d_view(bool checked)
 {
-    api::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
+    api::set_filter2d_view(checked);
+    gui::set_filter2d_view(checked, parent_->auxiliary_window_max_size);
     parent_->notify();
 }
 
@@ -336,16 +288,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (!api::get_convolution_enabled())
-        return;
-
     UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-
     api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
-
     parent_->notify();
 }
 

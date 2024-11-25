@@ -60,6 +60,7 @@ void FileFrameReadWorker::run()
 
     try
     {
+        LOG_WARN("Start index: {}", setting<settings::InputFileStartIndex>());
         input_file_->set_pos_to_frame(setting<settings::InputFileStartIndex>());
 
         read_file();

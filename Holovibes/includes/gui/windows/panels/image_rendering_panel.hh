@@ -41,7 +41,7 @@ class ImageRenderingPanel : public Panel
      *
      * \param value true for raw mode, false for hologram mode.
      */
-    void set_image_mode(int mode);
+    void set_computation_mode(int mode);
 
     /*! \brief Modifies batch size from ui value */
     void update_batch_size();
@@ -74,10 +74,6 @@ class ImageRenderingPanel : public Panel
      * \param value The new filter to apply
      */
     void update_input_filter(const QString& value);
-
-    /*! \brief Refreshed the input filter iff one was passed before
-     */
-    void refresh_input_filter();
 
     /*! \brief Modifies space transform calculation
      *
