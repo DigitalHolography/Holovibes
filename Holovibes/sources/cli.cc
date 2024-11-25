@@ -62,7 +62,6 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
     }
     LOG_INFO("Raw recording: {}", opts.record_raw);
     LOG_INFO("Skip accumulation frames: {}", !opts.noskip_acc);
-    LOG_INFO("Load in GPU: {}", opts.gpu);
     LOG_INFO("Number of frames to skip between each frame: ");
     if (opts.frame_skip)
     {
