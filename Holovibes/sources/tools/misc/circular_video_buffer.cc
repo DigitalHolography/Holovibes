@@ -100,16 +100,7 @@ void CircularVideoBuffer::compute_mean_image()
     compute_mean(mean_image_, sum_image_, nb_frames_, frame_res_, stream_);
 }
 
-void CircularVideoBuffer::compute_mean_video()
-{
-    if (!mean_1_2_video_)
-        mean_1_2_video_.resize(buffer_capacity_);
-    compute_mean_1_2(mean_1_2_video_, data_, frame_res_, nb_frames_, stream_);
-}
-
 float* CircularVideoBuffer::get_mean_image() { return mean_image_.get(); }
-
-float* CircularVideoBuffer::get_mean_video() { return mean_1_2_video_.get(); }
 
 void CircularVideoBuffer::add_new_frame(const float* const new_frame)
 {
@@ -140,13 +131,14 @@ size_t CircularVideoBuffer::get_frame_count() { return nb_frames_; }
 
 float* CircularVideoBuffer::get_data_ptr() { return data_.get(); }
 
-float* CircularVideoBuffer::multiply_data_by_frame(float* frame)
+void CircularVideoBuffer::multiply_data_by_frame(float* frame)
 {
-    float* result;
-    cudaXMalloc(&result, nb_frames_ * sizeof(float));
-    cudaXMemset(result, 0, sizeof(float) * nb_frames_);
-    compute_multiplication_mean(result, data_.get(), frame, frame_res_, nb_frames_, stream_);
-    return result;
+    if (!compute_mean_1_2_buffer_)
+        compute_mean_1_2_buffer_.resize(buffer_capacity_);
+    cudaXMemsetAsync(compute_mean_1_2_buffer_, 0, sizeof(float) * nb_frames_, stream_);
+    compute_multiplication_mean(compute_mean_1_2_buffer_, data_.get(), frame, frame_res_, nb_frames_, stream_);
 }
+
+float* CircularVideoBuffer::get_mean_1_2_() { return compute_mean_1_2_buffer_.get(); }
 
 } // namespace holovibes

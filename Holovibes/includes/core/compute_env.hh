@@ -270,6 +270,18 @@ struct VesselnessMaskEnv
 
     /*! \brief Size of side of vascular kernel */
     size_t vascular_kernel_size_ = 0;
+
+    /*! \brief f_avg_mean, M1 divided by M0 buffer */
+    cuda_tools::CudaUniquePtr<float> m1_divided_by_m0_frame_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> circle_mask_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> bwareafilt_result_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
 };
 
 // TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
@@ -285,5 +297,13 @@ struct VesselnessFilterStruct
     cuda_tools::CudaUniquePtr<float> lambda_2 = nullptr;
     cuda_tools::CudaUniquePtr<float> R_blob = nullptr;
     cuda_tools::CudaUniquePtr<float> c_temp = nullptr;
+};
+
+struct FirstCorrelationStruct
+{
+    /*!
+     * \brief Struct used for first correlation.
+     */
+    cuda_tools::CudaUniquePtr<float> I = nullptr;
 };
 } // namespace holovibes

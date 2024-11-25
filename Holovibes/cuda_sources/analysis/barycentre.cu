@@ -6,38 +6,57 @@
 
 #define CIRCLE_MASK_RADIUS 0.07f
 
-__global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+// __global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth)
+// {
+//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (index < depth * size)
-    {
-        const uint depth_index = index / size;
-        const uint size_index = index % size;
+//     if (index < depth * size)
+//     {
+//         const uint depth_index = index / size;
+//         const uint size_index = index % size;
 
-        atomicAdd(&output[depth_index], A[size_index + depth_index * size] * B[size_index]);
-    }
-}
+//         atomicAdd(&output[depth_index], A[size_index + depth_index * size] * B[size_index]);
+//     }
+// }
 
-__global__ void kernel_divide(float* output, size_t depth, size_t size)
+// __global__ void kernel_divide(float* output, size_t depth, size_t size)
+// {
+//     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+//     if (index < depth)
+//         output[index] /= size;
+// }
+
+__global__ void kernel_compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < depth)
+    {
+        for (uint i = 0; i < size; i++)
+            output[index] += A[i + index * size] * B[i];
         output[index] /= size;
+    }
 }
 
-void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
+void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(depth * size, threads);
+    uint blocks = map_blocks_to_problem(depth, threads);
     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
     cudaCheckError();
-
-    threads = get_max_threads_1d();
-    blocks = map_blocks_to_problem(depth, threads);
-    kernel_divide<<<blocks, threads, 0, stream>>>(output, depth, size);
-    cudaCheckError();
 }
+
+// void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
+// {
+//     uint threads = get_max_threads_1d();
+//     uint blocks = map_blocks_to_problem(depth * size, threads);
+//     kernel_compute_multiplication_mean<<<blocks, threads, 0, stream>>>(output, A, B, size, depth);
+//     cudaCheckError();
+
+//     threads = get_max_threads_1d();
+//     blocks = map_blocks_to_problem(depth, threads);
+//     kernel_divide<<<blocks, threads, 0, stream>>>(output, depth, size);
+//     cudaCheckError();
+// }
 
 __global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size, size_t depth)
 {
