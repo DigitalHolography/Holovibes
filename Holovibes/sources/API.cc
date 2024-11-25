@@ -231,7 +231,8 @@ void set_computation_mode(Computation mode, uint window_max_size)
     {
         api::change_window(static_cast<int>(WindowKind::XYview));
         api::set_contrast_mode(true);
-    }
+    } else
+        set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
     create_window(mode, window_max_size);
 }
@@ -379,6 +380,9 @@ bool set_3d_cuts_view(bool enabled)
         get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
         while (get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
             continue;
+      
+        if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
+            set_record_mode_enum(RecordMode::HOLOGRAM);
 
         return true;
     }
@@ -1394,26 +1398,11 @@ void set_record_queue_location(Device device)
     }
 }
 
-void set_record_mode(const std::string& text)
+void set_record_mode_enum(RecordMode value)
 {
-    LOG_FUNC(text);
+    stop_record();
 
-    // Mapping from string to RecordMode
-    static const std::unordered_map<std::string, RecordMode> recordModeMap = {{"Chart", RecordMode::CHART},
-                                                                              {"Processed Image", RecordMode::HOLOGRAM},
-                                                                              {"Raw Image", RecordMode::RAW},
-                                                                              {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
-                                                                              {"Moments", RecordMode::MOMENTS}};
-
-    auto it = recordModeMap.find(text);
-    if (it == recordModeMap.end())
-    {
-        LOG_ERROR("Unknown record mode {}", text);
-        throw std::runtime_error("Record mode not handled");
-    }
-
-    set_record_mode(it->second);
+    set_record_mode(value);
 
     // Attempt to initialize compute pipe for non-CHART record modes
     if (get_record_mode() != RecordMode::CHART)
@@ -1435,7 +1424,22 @@ void set_record_mode(const std::string& text)
     }
 }
 
+
 bool is_recording() { return Holovibes::instance().is_recording(); }
+
+std::vector<OutputFormat> get_supported_formats(RecordMode mode)
+{
+    static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
+        {RecordMode::RAW, {OutputFormat::HOLO}},
+        {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
+        {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
+
+    return extension_index_map.at(mode);
+}
 
 bool start_record_preconditions()
 {
@@ -1522,7 +1526,8 @@ bool import_start()
     set_is_computation_stopped(false);
 
     // if the file is to be imported in GPU, we should load the buffer preset for such case
-    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
+    if (api::get_load_file_in_gpu())
+        NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     try
     {
@@ -1539,6 +1544,7 @@ bool import_start()
     }
 
     set_import_type(ImportType::File);
+    set_record_mode(RecordMode::HOLOGRAM);
 
     return true;
 }

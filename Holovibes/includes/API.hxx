@@ -288,6 +288,9 @@ inline void set_chart_record_enabled(bool value) { UPDATE_SETTING(ChartRecordEna
 
 inline uint get_nb_frame_skip() { return GET_SETTING(FrameSkip); }
 inline uint get_mp4_fps() { return GET_SETTING(Mp4Fps); }
+
+inline uint get_camera_fps() { return GET_SETTING(CameraFps); }
+inline void set_camera_fps(uint value) { UPDATE_SETTING(CameraFps, value); }
 /*! \} */
 
 /*!

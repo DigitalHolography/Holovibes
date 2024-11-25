@@ -2760,6 +2760,16 @@ The range of frequencies kept is [z, z + width]</string>
                   <string>Moments</string>
                  </property>
                 </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts XZ</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3D Cuts YZ</string>
+                 </property>
+                </item>
                </widget>
               </item>
              </layout>
@@ -2895,6 +2905,26 @@ The range of frequencies kept is [z, z + width]</string>
                    <item>
                     <property name="text">
                      <string>.holo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.mp4</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.avi</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.csv</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>.txt</string>
                     </property>
                    </item>
                   </widget>
@@ -4848,9 +4878,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </connection>
   <connection>
    <sender>RecordImageModeComboBox</sender>
-   <signal>currentTextChanged(QString)</signal>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>ExportPanel</receiver>
-   <slot>set_record_mode(QString)</slot>
+   <slot>set_record_mode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>793</x>
@@ -5980,7 +6010,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <slot>reticle_scale(double)</slot>
   <slot>update_registration_zone(double)</slot>
   <slot>set_contrast_auto_refresh(bool)</slot>
-  <slot>set_record_mode(QString)</slot>
+  <slot>set_record_mode(int)</slot>
   <slot>set_nb_frames_mode(bool)</slot>
   <slot>update_filter2d_view(bool)</slot>
   <slot>set_filter2d_n1(int)</slot>

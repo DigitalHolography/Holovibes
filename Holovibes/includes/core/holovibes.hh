@@ -64,7 +64,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -111,10 +111,11 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::BenchmarkMode,                          \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps,                                 \
+    holovibes::settings::CameraFps,                              \
     holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -442,6 +443,7 @@ class Holovibes
                                              settings::BenchmarkMode{false},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
+                                             settings::CameraFps{0},
                                              settings::DataType{RecordedDataType::RAW}))
     {
     }

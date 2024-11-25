@@ -182,18 +182,18 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::RAW});
         holovibes::api::set_compute_mode(holovibes::Computation::Raw);
-        holovibes::api::set_record_mode(holovibes::RecordMode::RAW);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::RAW);
     }
     else if (opts.moments_record)
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::MOMENTS});
-        holovibes::api::set_record_mode(holovibes::RecordMode::MOMENTS);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::MOMENTS);
     }
     else
     {
         holovibes.update_setting(holovibes::settings::RecordMode{holovibes::RecordMode::HOLOGRAM});
         holovibes::api::set_compute_mode(holovibes::Computation::Hologram);
-        holovibes::api::set_record_mode(holovibes::RecordMode::HOLOGRAM);
+        holovibes::api::set_record_mode_enum(holovibes::RecordMode::HOLOGRAM);
     }
 
     const camera::FrameDescriptor& fd = input_frame_file->get_frame_descriptor();

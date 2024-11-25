@@ -196,12 +196,19 @@ void start_record(std::function<void()> callback);
  */
 void stop_record();
 
-/*! \brief Set the record mode object, and trigger the allocation of the pipe
+/*! \brief Change the record mode in the settings
  *
- * \param text the catched mode
- * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
+ * \param value The new record mode to be set to
  */
-void set_record_mode(const std::string& text);
+void set_record_mode_enum(RecordMode value);
+
+/*!
+ * \brief Gets the available extension for the given record mode
+ *
+ * \param mode The record mode for which to get the available extensions
+ * \return std::vector<OutputFormat> The available file extensions as an enum.
+ */
+std::vector<OutputFormat> get_supported_formats(RecordMode mode);
 
 /*! \brief Return whether we are recording or not
  *
