@@ -4,7 +4,6 @@
  *  add,.. or any of these other kind of operations.
  */
 #pragma once
-using uint = unsigned int;
 
 #include "cuda.h"
 #include "cuda_runtime.h"
@@ -14,6 +13,8 @@ using uint = unsigned int;
 
 #include "common.cuh"
 #include "cuda_memory.cuh"
+
+using uint = unsigned int;
 
 /*! \brief Mask used by the warp reduce using registers. This mask means every thread should be processed. */
 #define FULL_MASK 0xffffffff
@@ -236,7 +237,6 @@ void reduce_min(T* const output, const T* const input, const uint size, const cu
 
 /*! \brief Reduce max operation.
  *
- *  Two types are needed to avoid overflow (sizeof(U) >= sizeof(T))
  *  ushort not supported by CUDA (because of atomic operation).
  *
  *  \param[out] output The output buffer after add reduction.

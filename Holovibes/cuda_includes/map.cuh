@@ -141,12 +141,12 @@ void map_generic(
 
 /*! \brief Map input (ushort) to output (ushort) throughout a mapping function.
  *
- *  This function is the specialized map operation for float arrays.
- *  It means that it is the most optimized map operation for float arrays.
+ *  This function is the specialized map operation for ushort arrays.
+ *  It means that it is the most optimized map operation for ushort arrays.
  *  When possible (if size is divisible by four) the vectorized map function is
  *  called. Otherwise, the generic (any types, any size) map function is called.
  *
- *  This function overloads the templated generic function with float.
+ *  This function overloads the templated generic function with ushort.
  *
  *  \param[out] output The output to store the pixel after transformation.
  *  \param[in] input The input buffer to get the pixels.
