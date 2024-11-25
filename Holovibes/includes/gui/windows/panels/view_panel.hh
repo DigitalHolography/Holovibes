@@ -32,7 +32,7 @@ class ViewPanel : public Panel
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-     * \brief Changes the image type in the UI and hides irrelevant options.
+    /*! \brief Changes the image type in the UI and hides irrelevant options.
      * Notably, when the input data is moments, only moments views are available.
      *
      * \param[in] img_type The image type to set.

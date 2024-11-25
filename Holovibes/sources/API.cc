@@ -360,7 +360,6 @@ bool set_3d_cuts_view(bool enabled)
             set_yz_enabled(true);
             set_xz_enabled(true);
             set_cuts_view_enabled(true);
-            set_auto_contrast_cuts();
 
             pipe_refresh();
 
@@ -566,7 +565,6 @@ void set_p_index(uint value)
 
     SET_SETTING(P, start, value);
     pipe_refresh();
-    set_auto_contrast();
 }
 
 void set_p_accu_level(uint p_value)
@@ -1489,8 +1487,6 @@ void stop_record()
     // Notify the changes
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
-
-void record_finished() {}
 
 #pragma endregion
 

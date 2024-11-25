@@ -735,11 +735,6 @@ void reticle_scale(float value);
  */
 void update_registration_zone(float value);
 
-/*! \brief Restores attributs when recording ends
- *
- */
-void record_finished();
-
 /*! \brief Start or stop the chart display
  *
  * \param[in] enabled true: enable, false: disable

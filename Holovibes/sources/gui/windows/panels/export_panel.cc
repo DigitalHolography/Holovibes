@@ -269,8 +269,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
 
-    api::record_finished();
-
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
 }

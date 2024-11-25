@@ -30,8 +30,6 @@ void rotateTexture();
 void flipTexture();
 
 void display_reticle(bool value);
-
-void record_finished(); // Record finished UID
 */
 
 /*! \brief Open or close the filter2D view
