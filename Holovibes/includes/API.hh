@@ -798,8 +798,8 @@ void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
- * \param enabled true: enable, false: disable
- * \return true if correctlly set
+ * \param[in] enabled true: enable, false: disable
+ * \return true if correctly set
  */
 bool set_3d_cuts_view(bool enabled);
 
