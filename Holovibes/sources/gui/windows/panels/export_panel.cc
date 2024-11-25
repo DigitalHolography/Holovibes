@@ -46,8 +46,6 @@ void ExportPanel::init()
 
 void ExportPanel::on_notify()
 {
-    // TODO
-
     // File extension
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
     auto extension_indexes =

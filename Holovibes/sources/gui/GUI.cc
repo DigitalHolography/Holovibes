@@ -82,11 +82,9 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
 void set_chart_display(bool enabled)
 {
     if (enabled)
-    {
         UI.plot_window_.reset(new gui::PlotWindow(*api::get_compute_pipe()->get_chart_display_queue().get(),
                                                   UI.auto_scale_point_threshold_,
                                                   "Chart"));
-    }
     else
         UI.plot_window_.reset(nullptr);
 }
@@ -150,11 +148,12 @@ void open_advanced_settings(QMainWindow* parent, std::function<void()> callback)
     UI.advanced_settings_window_->set_callback(callback);
 }
 
-/**
- * @brief Extract the name from the filename
+/*!
+ * \brief Extract the name from the filename
  *
- * @param filePath the file name
- * @return std::string the name extracted from the filename
+ * \param[in] filePath the file name
+ *
+ * \return std::string the name extracted from the filename
  */
 std::string getNameFromFilename(const std::string& filename)
 {

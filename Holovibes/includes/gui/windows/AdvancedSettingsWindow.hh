@@ -31,7 +31,7 @@ class AdvancedSettingsWindow : public QMainWindow
 
     /*! \brief Advanced Settings Window
      *
-     * \param parent the object that will embed the layouts
+     * \param[in] parent the object that will embed the layouts
      */
 
     AdvancedSettingsWindow(QMainWindow* parent = nullptr);
@@ -41,7 +41,7 @@ class AdvancedSettingsWindow : public QMainWindow
 
     /*! \brief Set the callback function called when user click on the Save button
      *
-     * \param callback the function to call
+     * \param[in] callback the function to call
      */
     void set_callback(std::function<void()> callback) { callback_ = callback; }
 
@@ -49,7 +49,7 @@ class AdvancedSettingsWindow : public QMainWindow
     /*!
      * \brief Change the correspondant folder lineEdit
      *
-     * \param lineEdit The line that is currently changed
+     * \param[in] lineEdit The line that is currently changed
      */
     void change_folder(Drag_drop_lineedit* lineEdit);
 

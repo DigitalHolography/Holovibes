@@ -262,6 +262,11 @@ void enable_pipe_refresh();
  */
 void disable_pipe_refresh();
 
+/*! \brief Create and open a window of the specified size and kind
+ *
+ * \param[in] window_kind the kind of window to create (raw or holographic window)
+ * \param[in] window_size the size of the window
+ */
 void create_window(Computation window_kind, ushort window_size);
 
 void create_pipe();
