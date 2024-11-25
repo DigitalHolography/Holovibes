@@ -114,9 +114,9 @@
     holovibes::settings::RecordQueueLocation,                    \
     holovibes::settings::BenchmarkMode,                          \
     holovibes::settings::FrameSkip,                              \
-    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::Mp4Fps,                                 \
     holovibes::settings::CameraFps,                              \
-    holovibes::settings::DataType,                                 \
+    holovibes::settings::DataType,                               \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::OtsuEnabled,                            \
