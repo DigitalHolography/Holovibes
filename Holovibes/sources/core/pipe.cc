@@ -295,11 +295,6 @@ void Pipe::refresh()
         // gpu_time_transformation_queue (with respect to
         // time_stride)
         insert_transfer_for_time_transformation();
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         insert_wait_time_transformation_size();
 
         // time transform
@@ -356,7 +351,7 @@ void Pipe::refresh()
      * If not, the host will keep on adding new functions to be executed
      * by the device, never letting the device the time to execute them.
      */
-    fn_compute_vect_->conditional_push_back([&]() { cudaXStreamSynchronize(stream_); });
+    fn_compute_vect_->push_back([&]() { cudaXStreamSynchronize(stream_); });
 }
 
 void Pipe::insert_wait_batch()
@@ -461,7 +456,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [this]()
         {
             (*processed_output_fps_)++;
@@ -496,7 +491,7 @@ void Pipe::insert_filter2d_view()
 {
     if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [this]()
             {
                 int width = gpu_output_queue_.get_fd().width;
@@ -583,7 +578,7 @@ void Pipe::insert_moments_record()
         // if (Holovibes::instance().is_cli)
         fn_compute_vect_->push_back([&]() { keep_contiguous(3); });
 
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 auto kind = setting<settings::RecordQueueLocation>() == Device::GPU ? cudaMemcpyDeviceToDevice
@@ -603,7 +598,7 @@ void Pipe::insert_hologram_record()
         // if (Holovibes::instance().is_cli)
         fn_compute_vect_->push_back([this]() { keep_contiguous(1); });
 
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [this]()
             {
                 if (gpu_output_queue_.get_fd().depth == camera::PixelDepth::Bits48) // Complex mode

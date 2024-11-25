@@ -1,11 +1,6 @@
 #include "function_vector.hh"
 namespace holovibes
 {
-FunctionVector::FunctionVector(ConditionType condition)
-    : condition_(condition)
-    , next_id_(0)
-{
-}
 
 void FunctionVector::call_all()
 {
@@ -30,20 +25,6 @@ ushort FunctionVector::push_back(const FnType& function)
     // Get a new unique ID for the function to push.
     ushort id = next_id_++;
     fn_vect_.push_back({id, function});
-    return id;
-}
-
-ushort FunctionVector::conditional_push_back(const FnType& function)
-{
-    // Get a new unique ID for the function to push.
-    ushort id = next_id_++;
-    fn_vect_.push_back({id,
-                        [=]()
-                        {
-                            // if (!condition_())
-                            //     return;
-                            function();
-                        }});
     return id;
 }
 

@@ -19,16 +19,12 @@ namespace holovibes
 class FunctionVector
 {
   public:
-    /*! \brief Constuctor
-     *  \param[in] condition The condition used in `conditional_push_back` function.
-     */
-    FunctionVector(ConditionType condition);
+    /*! \brief Constuctor */
     FunctionVector() = default;
 
     /*! \brief Copy constructor. */
     FunctionVector(const FunctionVector& other)
-        : condition_(other.condition_)
-        , fn_vect_(other.fn_vect_)
+        : fn_vect_(other.fn_vect_)
         , next_id_(other.next_id_.load())
     {
     }
@@ -40,7 +36,6 @@ class FunctionVector
     {
         if (this != &other)
         {
-            condition_ = other.condition_;
             fn_vect_ = other.fn_vect_;
             next_id_ = other.next_id_.load();
         }
@@ -63,20 +58,6 @@ class FunctionVector
      *  \return The id of the function in the vector.
      */
     ushort push_back(const FnType& function);
-
-    /*! \brief Push back the function in the vector depending on the condition.
-     *
-     *  Execute it only if the condition is verified.
-     *  in the pipe, the condition is set in the constructor, and is the following :
-     *
-     *  ConditionType batch_condition = [&]() -> bool
-     *  { return batch_env_.batch_index == setting<settings::TimeStride>(); };
-     *
-     *  \param[in] function The reference to the function to push.
-     *
-     *  \return The id of the function in the vector.
-     */
-    ushort conditional_push_back(const FnType& function);
 
     /*! \brief Remove a function of the vector by its ID.
      *  Function is removed at the end of `fn_vect_` execution.
@@ -105,9 +86,6 @@ class FunctionVector
     void erase(const ushort id);
 
   private:
-    /*! \brief The condition used in `conditional_push_back` */
-    ConditionType condition_;
-
     /*! \brief The ID generator for the unique IDs of the functions. Reset to 0 when `clear` is called. */
     std::atomic<ushort> next_id_;
 

@@ -13,7 +13,7 @@ void Registration::insert_registration()
 
     if (setting<settings::FftShiftEnabled>() && setting<settings::RegistrationEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 // Preprocessing the current image before the cross-correlation with the reference image.
@@ -69,7 +69,7 @@ void Registration::set_gpu_reference_image()
 {
     if (setting<settings::RegistrationEnabled>())
     {
-        ushort func_id = fn_compute_vect_->conditional_push_back(
+        ushort func_id = fn_compute_vect_->push_back(
             [=]
             {
                 cudaXMemcpyAsync(gpu_reference_image_,

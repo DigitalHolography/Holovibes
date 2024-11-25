@@ -72,9 +72,7 @@ class Pipe : public ICompute
         : ICompute(input, output, record, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
-        ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
-
-        fn_compute_vect_ = std::make_shared<FunctionVector>(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>();
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -212,7 +210,7 @@ class Pipe : public ICompute
     /*! \brief Discard batch until we reach time stride */
     void insert_wait_time_stride();
 
-    /*! \brief Stop computation until a complete batch of time transformation size has arrived */
+    /*! \brief Pause computation until a complete batch of time transformation size has arrived */
     void insert_wait_time_transformation_size();
 
     /*! \brief Dequeue the input queue frame by frame in raw mode */
