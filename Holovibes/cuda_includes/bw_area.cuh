@@ -1,4 +1,4 @@
-/*! \file
+/*! \file bw_area.cuh
  *
  * \brief function use for black and white area filter and open algo
  */
@@ -48,30 +48,30 @@ void area_filter(float* input_output, const uint* label_d, size_t size, uint lab
  * \param[in] label_d The matrix who store label of each pixel (GPU Memory)
  * \param[in] labels_sizes_d The matrix who store the size of eche labeled connected component (GPU Memory)
  * \param[in] size Size of the frame
- * \param[in] p The threshold of the size we want to keep
+ * \param[in] threshold The threshold of the size we want to keep
  * \param[in] stream The CUDA stream on which to launch the operation
  */
 void area_open(float* input_output,
                const uint* label_d,
                const float* labels_sizes_d,
                size_t size,
-               uint p,
+               uint threshold,
                const cudaStream_t stream);
 
 /*!
  * \brief compute black and white area filter, find the largest connected component from a binarised image and remove
  * all the other, for this we use the ccl (connected component labeling) union find Kuroma algorithm
  *
- * \param input_output image to process
- * \param width width of the image
- * \param height height of the image
- * \param labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
- * \param linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
- * \param labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in memory,
- * float is for use cublas max searsh
- * \param change_d GPU size_t use to inside of cll algo
- * \param handle cublas singleton
- * \param stream The CUDA stream on which to launch the operation
+ * \param[in out] input_output image to process
+ * \param[in] width width of the image
+ * \param[in] height height of the image
+ * \param[in] labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
+ * \param[in] linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
+ * \param[in] labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in
+ * memory, float is for use cublas max searsh
+ * \param[in] change_d GPU size_t use to inside of cll algo
+ * \param[in] handle cublas singleton
+ * \param[in] stream The CUDA stream on which to launch the operation
  */
 void bwareafilt(float* input_output,
                 size_t width,
@@ -87,16 +87,16 @@ void bwareafilt(float* input_output,
  * \brief compute black and white area open, find the size of each connected component and remove all connected
  * component smaller than n, for this we use the ccl (connected component labeling) union find Kuroma algorithm
  *
- * \param input_output image to process
- * \param n threashold size for connected component we want to keep
- * \param width width of the image
- * \param height height of the image
- * \param labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
- * \param linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
- * \param labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in memory,
- * float is for use cublas max searsh
- * \param change_d GPU size_t use to inside of cll algo
- * \param stream The CUDA stream on which to launch the operation
+ * \param[in out] input_output image to process
+ * \param[in] n threashold size for connected component we want to keep
+ * \param[in] width width of the image
+ * \param[in] height height of the image
+ * \param[in] labels_d GPU buffer of uint, this size must be the width * height, use for keep label of pixel in memory
+ * \param[in] linked_d GPU buffer of uint, this size must be the width * height, use for keep label link in memory
+ * \param[in] labels_sizes_d GPU buffer of float, this size must be the width * height, use for keep labels sizes in
+ * memory, float is for use cublas max searsh
+ * \param[in] change_d GPU size_t use to inside of cll algo
+ * \param[in] stream The CUDA stream on which to launch the operation
  */
 void bwareaopen(float* input_output,
                 uint n,

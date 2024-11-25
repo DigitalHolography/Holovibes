@@ -171,6 +171,7 @@ void Analysis::init()
     err += !float_buffer_.resize(frame_res);
 
     err += !otsu_histo_buffer_.resize(256);
+    err += !otsu_float_gpu_.resize(1);
 
     if (err != 0)
         throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -378,6 +379,7 @@ void Analysis::dispose()
     float_buffer_.reset(nullptr);
 
     otsu_histo_buffer_.reset(nullptr);
+    otsu_float_gpu_.reset(nullptr);
 }
 
 void Analysis::insert_show_artery()
@@ -583,11 +585,10 @@ void Analysis::insert_otsu()
             {
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
-
-                    float* d_output = float_buffer_.get();
-                    compute_binarise_otsu_bradley(d_output,
+                    compute_binarise_otsu_bradley(float_buffer_.get(),
                                                   otsu_histo_buffer_.get(),
                                                   buffers_.gpu_postprocess_frame,
+                                                  otsu_float_gpu_.get(),
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
@@ -595,13 +596,14 @@ void Analysis::insert_otsu()
                                                   stream_);
 
                     cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                                d_output,
+                                float_buffer_.get(),
                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
                                 cudaMemcpyDeviceToDevice);
                 }
                 else
                     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                           otsu_histo_buffer_.get(),
+                                          otsu_float_gpu_.get(),
                                           fd_.width,
                                           fd_.height,
                                           stream_);
@@ -617,7 +619,6 @@ void Analysis::insert_bwareafilt()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
-            {
                 bwareafilt(buffers_.gpu_postprocess_frame.get(),
                            fd_.width,
                            fd_.height,
@@ -627,7 +628,6 @@ void Analysis::insert_bwareafilt()
                            size_t_gpu_.get(),
                            cuda_tools::CublasHandle::instance(),
                            stream_);
-            }
         });
 }
 
@@ -639,7 +639,6 @@ void Analysis::insert_bwareaopen()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
-            {
                 bwareaopen(buffers_.gpu_postprocess_frame.get(),
                            setting<settings::MinMaskArea>(),
                            fd_.width,
@@ -649,7 +648,6 @@ void Analysis::insert_bwareaopen()
                            float_buffer_.get(),
                            size_t_gpu_.get(),
                            stream_);
-            }
         });
 }
 

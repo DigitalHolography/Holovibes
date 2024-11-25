@@ -143,31 +143,33 @@ __global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_ou
         *threshold_out = threshold_shared / NUM_BINS;
 }
 
-float otsu_threshold(const float* d_image, uint* histo_buffer_d, int size, const cudaStream_t stream)
+float otsu_threshold(
+    const float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
 {
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
-
-    size_t shared_mem_size = NUM_BINS * sizeof(uint);
-    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(d_image, histo_buffer_d, size);
-
-    float* d_threshold;
-    cudaMalloc(&d_threshold, sizeof(float));
-    otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, d_threshold);
-
     float threshold;
-    cudaMemcpy(&threshold, d_threshold, sizeof(float), cudaMemcpyDeviceToHost);
-    cudaFree(d_threshold);
+    size_t shared_mem_size = NUM_BINS * sizeof(uint);
+
+    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
+
+    otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, threshold_d);
+
+    cudaMemcpy(&threshold, threshold_d, sizeof(float), cudaMemcpyDeviceToHost);
 
     return threshold;
 }
 
-void compute_binarise_otsu(
-    float* input_output, uint* histo_buffer_d, const size_t width, const size_t height, const cudaStream_t stream)
+void compute_binarise_otsu(float* input_output,
+                           uint* histo_buffer_d,
+                           float* threshold_d,
+                           const size_t width,
+                           const size_t height,
+                           const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(input_output, histo_buffer_d, img_size, stream);
+    float global_threshold = otsu_threshold(input_output, histo_buffer_d, threshold_d, img_size, stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
@@ -176,9 +178,10 @@ void compute_binarise_otsu(
     cudaXStreamSynchronize(stream);
 }
 
-void compute_binarise_otsu_bradley(float* d_output,
+void compute_binarise_otsu_bradley(float* output_d,
                                    uint* histo_buffer_d,
-                                   const float* d_input,
+                                   const float* input_d,
+                                   float* threshold_d,
                                    const size_t width,
                                    const size_t height,
                                    const int window_size,
@@ -187,14 +190,14 @@ void compute_binarise_otsu_bradley(float* d_output,
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(d_input, histo_buffer_d, img_size, stream);
+    float global_threshold = otsu_threshold(input_d, histo_buffer_d, threshold_d, img_size, stream);
 
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
     dim3 lblocks(1 + (width - 1) / threads_2d, 1 + (height - 1) / threads_2d);
 
-    bradley_threshold_kernel<<<lblocks, lthreads, 0, stream>>>(d_output,
-                                                               d_input,
+    bradley_threshold_kernel<<<lblocks, lthreads, 0, stream>>>(output_d,
+                                                               input_d,
                                                                width,
                                                                height,
                                                                window_size,

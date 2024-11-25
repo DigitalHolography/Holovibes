@@ -7,72 +7,73 @@
 
 #define IS_BACKGROUND(VALUE) ((VALUE) == 0.0f)
 
-__global__ void initialisation_kernel(const float* I, uint* L, uint* LL, const size_t H, const size_t W)
+__global__ void
+initialisation_kernel(const float* input, uint* labels, uint* linked, const size_t height, const size_t width)
 {
     size_t x = (threadIdx.x + blockIdx.x * blockDim.x);
     size_t y = (threadIdx.y + blockIdx.y * blockDim.y);
-    size_t idx = x * W + y;
+    size_t idx = x * width + y;
 
-    if (x < W && y < H)
+    if (x < width && y < height)
     {
-        L[idx] = I[idx] * idx;
-        LL[idx] = L[idx];
+        labels[idx] = input[idx] * idx;
+        linked[idx] = labels[idx];
     }
 }
 
-__device__ uint find(uint* LL, uint a)
+__device__ uint find(uint* linked, uint l)
 {
-    uint p = a;
-    while (LL[a] != a)
-        a = LL[a];
-    LL[p] = a;
-    return a;
+    uint pred = l;
+    while (linked[l] != l)
+        l = linked[l];
+    linked[pred] = l;
+    return l;
 }
 
-__global__ void propagate_labels_kernel(uint* L, uint* LL, const size_t H, const size_t W, size_t* change)
+__global__ void
+propagate_labels_kernel(uint* labels, uint* linked, const size_t height, const size_t width, size_t* change)
 {
     size_t x = (threadIdx.x + blockIdx.x * blockDim.x);
     size_t y = (threadIdx.y + blockIdx.y * blockDim.y);
-    size_t idx = x * W + y;
+    size_t idx = x * width + y;
 
-    if (x < W && y < H && L[x * W + y] != 0)
+    if (x < width && y < height && labels[x * width + y] != 0)
     {
-        int l = L[idx];
+        int l = labels[idx];
 
         int n[4];
-        n[0] = (y > 0) ? find(LL, L[idx - 1]) : 0;
-        n[1] = (y < W - 1) ? find(LL, L[idx + 1]) : 0;
-        n[2] = (x > 0) ? find(LL, L[idx - W]) : 0;
-        n[3] = (x < H - 1) ? find(LL, L[idx + W]) : 0;
+        n[0] = (y > 0) ? find(linked, labels[idx - 1]) : 0;
+        n[1] = (y < width - 1) ? find(linked, labels[idx + 1]) : 0;
+        n[2] = (x > 0) ? find(linked, labels[idx - width]) : 0;
+        n[3] = (x < height - 1) ? find(linked, labels[idx + width]) : 0;
 
         int min_l = l;
         for (size_t i = 0; i < 4; i++)
         {
             if (n[i] != 0 && n[i] < min_l)
             {
-                LL[min_l] = n[i];
+                linked[min_l] = n[i];
                 min_l = n[i];
             }
         }
 
         if (min_l < l)
         {
-            L[idx] = min_l;
+            labels[idx] = min_l;
             *change = 1;
         }
     }
 }
 
-__global__ void update_label_kernel(uint* L, uint* LL, const size_t size)
+__global__ void update_label_kernel(uint* labels, uint* linked, const size_t size)
 {
     size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx < size)
     {
-        uint l = L[idx];
-        uint ll = LL[idx];
-        if (l != ll)
-            L[idx] = find(LL, l);
+        uint l = labels[idx];
+        if (l != linked[idx])
+            labels[idx] = find(linked, l);
     }
 }
 
@@ -113,12 +114,12 @@ void get_connected_component(uint* labels_d,
     cudaXStreamSynchronize(stream);
 }
 
-__global__ void get_labels_sizes_kernel(float* labels_sizes, uint* L, const size_t size)
+__global__ void get_labels_sizes_kernel(float* labels_sizes, uint* labels, const size_t size)
 {
     size_t idx = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (idx < size && L[idx] != 0)
-        atomicAdd(labels_sizes + L[idx], 1);
+    if (idx < size && labels[idx] != 0)
+        atomicAdd(labels_sizes + labels[idx], 1);
 }
 
 void get_labels_sizes(float* labels_sizes, uint* labels_d, const size_t size, const cudaStream_t stream)
@@ -149,23 +150,23 @@ void area_filter(float* input_output, const uint* label_d, size_t size, uint lab
 }
 
 __global__ void
-area_open_kernel(float* input_output, const uint* label_d, const float* labels_sizes_d, size_t size, uint p)
+area_open_kernel(float* input_output, const uint* label_d, const float* labels_sizes_d, size_t size, uint threshold)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-        input_output[idx] = (labels_sizes_d[label_d[idx]] >= p) ? 1.0f : 0.0f;
+        input_output[idx] = (labels_sizes_d[label_d[idx]] >= threshold) ? 1.0f : 0.0f;
 }
 
 void area_open(float* input_output,
                const uint* label_d,
                const float* labels_sizes_d,
                size_t size,
-               uint p,
+               uint threshold,
                const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    area_open_kernel<<<blocks, threads, 0, stream>>>(input_output, label_d, labels_sizes_d, size, p);
+    area_open_kernel<<<blocks, threads, 0, stream>>>(input_output, label_d, labels_sizes_d, size, threshold);
     cudaCheckError();
 }
 
