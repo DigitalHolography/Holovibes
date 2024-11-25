@@ -186,7 +186,7 @@ void Analysis::init()
                                &alpha,
                                vesselness_mask_env_.g_xy_mul_,
                                y_size,
-                               A & beta,
+                               &beta,
                                nullptr,
                                y_size,
                                result_transpose,
