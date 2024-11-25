@@ -385,6 +385,13 @@ void Pipe::insert_moments()
 
         fourier_transforms_->insert_moments();
 
+        if (setting<settings::RegistrationEnabled>())
+        {
+            registration_->shift_image(moments_env_.moment0_buffer);
+            registration_->shift_image(moments_env_.moment1_buffer);
+            registration_->shift_image(moments_env_.moment2_buffer);
+        }
+
         fourier_transforms_->insert_moments_to_output();
     }
 }
