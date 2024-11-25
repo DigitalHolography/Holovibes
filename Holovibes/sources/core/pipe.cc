@@ -256,7 +256,7 @@ void Pipe::refresh()
 
     /* Begin insertions */
 
-    insert_wait_frames();
+    insert_wait_batch();
     // A batch of frame is ready
 
     insert_raw_record();
@@ -267,6 +267,8 @@ void Pipe::refresh()
         return;
     }
 
+    insert_wait_time_stride();
+
     if (api::get_data_type() == RecordedDataType::MOMENTS)
     {
         // Dequeuing the 3 moments in a row
@@ -275,8 +277,6 @@ void Pipe::refresh()
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
 
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
-
-        update_batch_index();
 
         fourier_transforms_->insert_moments_to_output();
     }
@@ -296,11 +296,11 @@ void Pipe::refresh()
         // time_stride)
         insert_transfer_for_time_transformation();
 
-        update_batch_index();
-
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !! BELOW ENQUEUE IN FN COMPUTE VECT MUST BE CONDITIONAL PUSH BACK !!
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        insert_wait_time_transformation_size();
 
         // time transform
         fourier_transforms_->insert_time_transform();
@@ -333,6 +333,7 @@ void Pipe::refresh()
                                                    buffers_.gpu_postprocess_frame_size,
                                                    *buffers_.gpu_postprocess_frame_xz,
                                                    *buffers_.gpu_postprocess_frame_yz);
+
     registration_->set_gpu_reference_image();
 
     rendering_->insert_chart();
@@ -356,12 +357,9 @@ void Pipe::refresh()
      * by the device, never letting the device the time to execute them.
      */
     fn_compute_vect_->conditional_push_back([&]() { cudaXStreamSynchronize(stream_); });
-
-    // Must be the last inserted function
-    insert_reset_batch_index();
 }
 
-void Pipe::insert_wait_frames()
+void Pipe::insert_wait_batch()
 {
     fn_compute_vect_->push_back(
         [&input_queue_ = input_queue_]()
@@ -369,6 +367,35 @@ void Pipe::insert_wait_frames()
             // Wait while the input queue is enough filled
             while (input_queue_.is_empty())
                 continue;
+        });
+}
+
+void Pipe::insert_wait_time_stride()
+{
+    fn_compute_vect_->push_back(
+        [this]()
+        {
+            batch_env_.batch_index += setting<settings::BatchSize>();
+
+            if (batch_env_.batch_index != setting<settings::TimeStride>())
+            {
+                input_queue_.dequeue();
+                fn_compute_vect_->exit_now();
+                return;
+            }
+
+            batch_env_.batch_index = 0;
+        });
+}
+
+void Pipe::insert_wait_time_transformation_size()
+{
+    fn_compute_vect_->push_back(
+        [this]()
+        {
+            if (time_transformation_env_.gpu_time_transformation_queue->get_size() <
+                setting<settings::TimeTransformationSize>())
+                fn_compute_vect_->exit_now();
         });
 }
 
@@ -392,11 +419,6 @@ void Pipe::insert_moments()
     }
 }
 
-void Pipe::insert_reset_batch_index()
-{
-    fn_compute_vect_->conditional_push_back([&batch_env_ = batch_env_]() { batch_env_.batch_index = 0; });
-}
-
 void Pipe::insert_transfer_for_time_transformation()
 {
     fn_compute_vect_->push_back(
@@ -406,18 +428,6 @@ void Pipe::insert_transfer_for_time_transformation()
                 buffers_.gpu_spatial_transformation_buffer.get(),
                 setting<settings::BatchSize>(),
                 stream_);
-        });
-}
-
-void Pipe::update_batch_index()
-{
-    fn_compute_vect_->push_back(
-        [this]()
-        {
-            batch_env_.batch_index += setting<settings::BatchSize>();
-            CHECK(batch_env_.batch_index <= setting<settings::TimeStride>(),
-                  "batch_index = {}",
-                  batch_env_.batch_index);
         });
 }
 

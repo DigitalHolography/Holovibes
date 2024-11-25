@@ -10,16 +10,18 @@ FunctionVector::FunctionVector(ConditionType condition)
 void FunctionVector::call_all()
 {
     // Call all functions in the vector.
+    exit = false;
     for (const auto& [_, f] : fn_vect_)
     {
         f();
+        if (exit)
+            break;
     }
 
     // If some functions need to be removed, remove them.
     for (const auto& elt_id : remove_vect_)
-    {
         erase(elt_id);
-    }
+
     remove_vect_.clear();
 }
 
@@ -38,8 +40,8 @@ ushort FunctionVector::conditional_push_back(const FnType& function)
     fn_vect_.push_back({id,
                         [=]()
                         {
-                            if (!condition_())
-                                return;
+                            // if (!condition_())
+                            //     return;
                             function();
                         }});
     return id;

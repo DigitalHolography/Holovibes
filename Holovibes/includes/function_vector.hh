@@ -53,6 +53,9 @@ class FunctionVector
      */
     void call_all();
 
+    /*! \brief Stop the execution */
+    void exit_now() { exit = true; }
+
     /*! \brief Push back the function in the vector. Get a new unique ID associated to the function.
      *
      *  \param[in] function The reference to the function to push.
@@ -114,5 +117,8 @@ class FunctionVector
     /*! \brief The vector used to store the functions to remove from the `fn_vect_`. Cleared at the end of `call_all`.
      */
     std::vector<ushort> remove_vect_;
+
+    /*! \brief Tells whether to run or exit */
+    bool exit;
 };
 } // namespace holovibes
