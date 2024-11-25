@@ -1,4 +1,5 @@
 #include "cuda_memory.cuh"
+#include "tools_analysis_debug.hh"
 
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
@@ -88,26 +89,49 @@ void multiply_three_vectors(
     cudaCheckError();
 }
 
-__global__ void
-kernel_computeMean(const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth)
-{
-    // Calcul des indices globaux
-    int x = blockIdx.x * blockDim.x + threadIdx.x; // index de ligne
-    int y = blockIdx.y * blockDim.y + threadIdx.y; // index de colonne
+// __global__ void
+// kernel_computeMean(const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth)
+// {
+//     // Calcul des indices globaux
+//     int x = blockIdx.x * blockDim.x + threadIdx.x; // index de ligne
+//     int y = blockIdx.y * blockDim.y + threadIdx.y; // index de colonne
 
-    if (x < rows && y < cols)
+//     if (x < rows && y < cols)
+//     {
+//         float sum = 0.0f;
+
+//         // Somme sur la 3ème dimension
+//         for (int z = 0; z < depth; ++z)
+//         {
+//             int index3D = x * cols + y + z * rows * cols;
+//             sum += M0[index3D] * vascularPulse[z];
+//         }
+
+//         // Stocker la moyenne dans le tableau résultat
+//         result[x * cols + y] = sum / depth;
+//     }
+// }
+
+__global__ void kernel_computeMean(const float* M0_ff_video_centered,
+                                   const float* vascularPulse_centered,
+                                   float* result,
+                                   int rows,
+                                   int cols,
+                                   int depth)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x < cols && y < rows)
     {
         float sum = 0.0f;
-
-        // Somme sur la 3ème dimension
-        for (int z = 0; z < depth; ++z)
+        for (int z = 0; z < depth; z++)
         {
-            int index3D = x * cols + y + z * rows * cols;
-            sum += M0[index3D] * vascularPulse[z];
+            int idx_video = z * cols * depth + x + y * cols;
+            int idx_pulse = z; // puisque vascularPulse_centered est 1x1xDEPTH
+            sum += M0_ff_video_centered[idx_video] * vascularPulse_centered[idx_pulse];
         }
-
-        // Stocker la moyenne dans le tableau résultat
-        result[x * cols + y] = sum / depth;
+        result[x + cols * y] = sum / depth;
     }
 }
 
@@ -187,6 +211,8 @@ void compute_first_correlation(float* output,
     // TODO: la suite (le calcul de R_vascularPulse)
     computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
 
+    // cudaXMemcpyAsync(output, M0_ff_video_centered, 512 * 512 * sizeof(float), cudaMemcpyDeviceToDevice, stream);
+
     float* std_M0_ff_video_centered;
     cudaXMalloc(&std_M0_ff_video_centered, sizeof(float) * 512 * 512);
     compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, length_video, stream);
@@ -197,7 +223,7 @@ void compute_first_correlation(float* output,
 
     multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered, 512 * 512, stream);
 
-    divide(output, std_M0_ff_video_centered, 512 * 512, stream);
+    // divide(output, std_M0_ff_video_centered, 512 * 512, stream);
 
     // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);

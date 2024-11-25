@@ -461,7 +461,6 @@ void Analysis::insert_first_analysis_masks()
                 float* vascular_pulse = vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_();
 
                 int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
-
                 compute_first_correlation(buffers_.gpu_postprocess_frame, // R_vascular_pulse will be
                                                                           // in this buffer
                                           vesselness_mask_env_.m0_ff_video_centered_,
