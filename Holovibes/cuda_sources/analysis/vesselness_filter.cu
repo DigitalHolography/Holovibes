@@ -97,7 +97,7 @@ void apply_convolution(float* const input_output,
     cudaCheckError();
 
     // Copy convolution result in the input_output
-    CudaXMemcpyAsync(input_output,
+    cudaXMemcpyAsync(input_output,
                      convolution_tmp_buffer,
                      sizeof(float) * width * height,
                      cudaMemcpyDeviceToDevice,

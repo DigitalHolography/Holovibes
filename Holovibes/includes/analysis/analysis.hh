@@ -78,63 +78,36 @@ class Analysis
         [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
         cublasSetStream(cublas_handler_, stream_);
 
-        // TODO: remove this when done
+        // TODO: remove everything below when done
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
 
-        float* data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../data_n.csv"));
         m0_ff_img_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(m0_ff_img_csv_, frame_res, RELATIVE_PATH("../../data_n.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../f_AVG_mean.csv"));
         f_avg_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(f_avg_csv_, frame_res, RELATIVE_PATH("../../f_AVG_mean.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../vascularPulse.csv"));
         vascular_pulse_csv_.resize(506);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice, stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(vascular_pulse_csv_, 506, RELATIVE_PATH("../../vascularPulse.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../R_VascularPulse.csv"));
         R_VascularPulse_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(R_VascularPulse_csv_,
-                             data_csv_cpu,
-                             frame_res * sizeof(float),
-                             cudaMemcpyHostToDevice,
-                             stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(R_VascularPulse_csv_,
+                                    frame_res,
+                                    RELATIVE_PATH("../../R_VascularPulse.csv"),
+                                    stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
         mask_vesselness_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(mask_vesselness_csv_,
-                             data_csv_cpu,
-                             frame_res * sizeof(float),
-                             cudaMemcpyHostToDevice,
-                             stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(mask_vesselness_csv_, frame_res, RELATIVE_PATH("../../maskVesselness.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
         mask_vesselness_clean_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(mask_vesselness_clean_csv_,
-                             data_csv_cpu,
-                             frame_res * sizeof(float),
-                             cudaMemcpyHostToDevice,
-                             stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(mask_vesselness_clean_csv_,
+                                    frame_res,
+                                    RELATIVE_PATH("../../maskVesselnessClean.csv"),
+                                    stream);
 
-        data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../bwareafilt.csv"));
         bwareafilt_csv_.resize(frame_res);
-        if (data_csv_cpu)
-            cudaXMemcpyAsync(bwareafilt_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice, stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(bwareafilt_csv_, frame_res, RELATIVE_PATH("../../bwareafilt.csv"), stream);
 
         m0_bin_video_.resize(512 * 512 * 506);
         load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);

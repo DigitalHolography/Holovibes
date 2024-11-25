@@ -27,16 +27,6 @@ void Analysis::init()
     LOG_FUNC();
     const size_t frame_res = fd_.get_frame_res();
 
-    // Init CircularVideoBuffer
-    vesselness_mask_env_.m0_ff_video_cb_ =
-        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
-
-    vesselness_mask_env_.f_avg_video_cb_ =
-        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
-
-    vesselness_mask_env_.vascular_pulse_video_cb_ =
-        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
-
     // No need for memset here since it will be completely overwritten by
     // cuComplex values
     buffers_.gpu_convolution_buffer.resize(frame_res);
@@ -68,8 +58,6 @@ void Analysis::init()
     err += !uint_buffer_1_.resize(frame_res);
     err += !uint_buffer_2_.resize(frame_res);
     err += !float_buffer_.resize(frame_res);
-    if (err != 0)
-        throw std::exception(cudaGetErrorString(cudaGetLastError()));
 
     shift_corners(gaussian_128_kernel_buffer_.get(), batch_size, fd_.width, fd_.height, stream_);
     cufftSafeCall(cufftExecC2C(convolution_plan_,
@@ -77,24 +65,35 @@ void Analysis::init()
                                gaussian_128_kernel_buffer_.get(),
                                CUFFT_FORWARD));
 
+    // Init CircularVideoBuffer
+    vesselness_mask_env_.m0_ff_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
+    vesselness_mask_env_.f_avg_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
+    vesselness_mask_env_.vascular_pulse_video_cb_ =
+        std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
+
     // (Re)Allocate vesselness buffers, can handle frame size change
     vesselness_mask_env_.time_window_ = api::get_time_window();
     vesselness_mask_env_.number_image_mean_ = 0;
 
-    vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
-    vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
-    vesselness_mask_env_.m0_ff_video_centered_.resize(buffers_.gpu_postprocess_frame_size * 506); // TODO: time_window
+    err += vesselness_mask_env_.m0_ff_sum_image_.resize(buffers_.gpu_postprocess_frame_size);
+    err += vesselness_mask_env_.image_with_mean_.resize(buffers_.gpu_postprocess_frame_size);
+    err += vesselness_mask_env_.m0_ff_video_centered_.resize(buffers_.gpu_postprocess_frame_size *
+                                                             506); // TODO: time_window
 
-    vesselness_mask_env_.vascular_image_.resize(frame_res);
+    err += vesselness_mask_env_.vascular_image_.resize(frame_res);
 
     // Allocate vesselness filter struct internal buffers
-    vesselness_filter_struct_.I.resize(frame_res);
-    vesselness_filter_struct_.convolution_tmp_buffer.resize(frame_res);
-    vesselness_filter_struct_.H.resize(frame_res * 3);
-    vesselness_filter_struct_.lambda_1.resize(frame_res);
-    vesselness_filter_struct_.lambda_2.resize(frame_res);
-    vesselness_filter_struct_.R_blob.resize(frame_res);
-    vesselness_filter_struct_.c_temp.resize(frame_res);
+    err += vesselness_filter_struct_.I.resize(frame_res);
+    err += vesselness_filter_struct_.convolution_tmp_buffer.resize(frame_res);
+    err += vesselness_filter_struct_.H.resize(frame_res * 3);
+    err += vesselness_filter_struct_.lambda_1.resize(frame_res);
+    err += vesselness_filter_struct_.lambda_2.resize(frame_res);
+    err += vesselness_filter_struct_.R_blob.resize(frame_res);
+    err += vesselness_filter_struct_.c_temp.resize(frame_res);
 
     // Compute gaussian deriviatives kernels according to simga
     float sigma = setting<settings::VesselnessSigma>();
@@ -129,7 +128,7 @@ void Analysis::init()
 
     cudaXStreamSynchronize(stream_);
 
-    vesselness_mask_env_.g_xx_mul_.resize(x_size * y_size);
+    err += vesselness_mask_env_.g_xx_mul_.resize(x_size * y_size);
     holovibes::compute::matrix_multiply<float>(g_xx_qy,
                                                g_xx_px,
                                                y_size,
@@ -169,7 +168,7 @@ void Analysis::init()
     cudaXMalloc(&g_xy_qy, y_size * sizeof(float));
     comp_dgaussian(g_xy_qy, y, y_size, sigma, 1, stream_);
 
-    vesselness_mask_env_.g_xy_mul_.resize(x_size * y_size);
+    err += vesselness_mask_env_.g_xy_mul_.resize(x_size * y_size);
     holovibes::compute::matrix_multiply<float>(g_xy_qy,
                                                g_xy_px,
                                                y_size,
@@ -207,7 +206,7 @@ void Analysis::init()
     comp_dgaussian(g_yy_qy, x, y_size, sigma, 2, stream_);
 
     // Compute qy * px matrices to simply two 1D convolutions to one 2D convolution
-    vesselness_mask_env_.g_yy_mul_.resize(x_size * y_size);
+    err += vesselness_mask_env_.g_yy_mul_.resize(x_size * y_size);
     holovibes::compute::matrix_multiply<float>(g_yy_qy,
                                                g_yy_px,
                                                y_size,
@@ -240,9 +239,12 @@ void Analysis::init()
     float sigma_2 = 0.02 * fd_.width;
     vesselness_mask_env_.vascular_kernel_size_ = 2 * std::ceil(2 * sigma_2) + 1;
 
-    vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
-                                                 vesselness_mask_env_.vascular_kernel_size_);
+    err += vesselness_mask_env_.vascular_kernel_.resize(vesselness_mask_env_.vascular_kernel_size_ *
+                                                        vesselness_mask_env_.vascular_kernel_size_);
     compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, sigma_2, stream_);
+
+    if (err != 0)
+        throw std::exception(cudaGetErrorString(cudaGetLastError()));
 }
 
 void Analysis::dispose()

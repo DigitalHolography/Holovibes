@@ -37,6 +37,7 @@ void apply_convolution(float* input_output,
                        size_t height,
                        size_t kWidth,
                        size_t kHeight,
+                       float* const convolution_tmp_buffer,
                        cudaStream_t stream,
                        ConvolutionPaddingType padding_type,
                        int padding_scalar = 0);

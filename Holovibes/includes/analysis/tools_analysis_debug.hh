@@ -4,7 +4,14 @@
  */
 #pragma once
 
+#include <cuda_runtime.h>
+
 float* load_CSV_to_float_array(const std::filesystem::path& path);
+
+void load_CSV_to_float_array_gpu(float* const output,
+                                 const size_t size,
+                                 const std::filesystem::path& path,
+                                 cudaStream_t stream);
 
 void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream);
 
