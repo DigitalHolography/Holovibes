@@ -231,7 +231,8 @@ void set_computation_mode(Computation mode, uint window_max_size)
     {
         api::change_window(static_cast<int>(WindowKind::XYview));
         api::set_contrast_mode(true);
-    } else
+    }
+    else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
     create_window(mode, window_max_size);
@@ -380,7 +381,7 @@ bool set_3d_cuts_view(bool enabled)
         get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
         while (get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
             continue;
-      
+
         if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
             set_record_mode_enum(RecordMode::HOLOGRAM);
 
@@ -1423,7 +1424,6 @@ void set_record_mode_enum(RecordMode value)
         }
     }
 }
-
 
 bool is_recording() { return Holovibes::instance().is_recording(); }
 
