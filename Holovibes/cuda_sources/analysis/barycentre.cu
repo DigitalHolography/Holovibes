@@ -63,13 +63,9 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
         kernel_compute_multiplication_mean_2<<<blocks, threads, 0, stream>>>(output, A, B, size, depth, i);
         cudaCheckError();
     }
-    print_in_file_gpu(output, 1, depth, "before_div", stream);
-
     blocks = map_blocks_to_problem(depth, threads);
     kernel_divide<<<blocks, threads, 0, stream>>>(output, size, depth);
     cudaCheckError();
-
-    print_in_file_gpu(output, 1, depth, "result", stream);
 }
 
 // void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)

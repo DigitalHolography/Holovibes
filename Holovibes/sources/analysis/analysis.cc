@@ -324,6 +324,7 @@ void Analysis::insert_first_analysis_masks()
                                 vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
 #endif
                                 buffers_.gpu_postprocess_frame_size,
+                                i_,
                                 stream_);
 
                 // Compute the first vesselness mask which represents both vessels types (arteries and veins)
@@ -465,7 +466,12 @@ void Analysis::insert_first_analysis_masks()
                 vesselness_mask_env_.m0_ff_video_cb_->multiply_data_by_frame(
                     vesselness_mask_env_.mask_vesselness_clean_);
 
-                float* vascular_pulse = vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_();
+                float* vascular_pulse;
+                cudaXMalloc(&vascular_pulse, 506 * sizeof(float));
+                cudaXMemcpy(vascular_pulse,
+                            vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_(),
+                            i_ * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
 
                 int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
                 compute_first_correlation(buffers_.gpu_postprocess_frame, // R_vascular_pulse will be
@@ -483,6 +489,7 @@ void Analysis::insert_first_analysis_masks()
 #endif
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_);
+                cudaXFree(vascular_pulse);
 
                 // multiply_three_vectors(vesselness_mask_env_.vascular_image_,
                 // #if FROM_CSV

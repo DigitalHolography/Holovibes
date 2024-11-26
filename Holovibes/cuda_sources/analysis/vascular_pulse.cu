@@ -34,14 +34,14 @@ void divide(float* vascular_pulse, float* value, size_t size, cudaStream_t strea
     cudaCheckError();
 }
 
-__global__ void kernel_multiply_constant(float* vascular_pulse, float* value, size_t size)
+__global__ void kernel_multiply_constant(float* vascular_pulse, float value, size_t size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-        vascular_pulse[index] *= (*value);
+        vascular_pulse[index] *= value;
 }
 
-void multiply_constant(float* vascular_pulse, float* value, size_t size, cudaStream_t stream)
+void multiply_constant(float* vascular_pulse, float value, size_t size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -119,29 +119,30 @@ __global__ void kernel_computeMean(const float* M0_ff_video_centered,
                                    int cols,
                                    int depth)
 {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (x < cols && y < rows)
+    if (index < rows * cols)
     {
         float sum = 0.0f;
         for (int z = 0; z < depth; z++)
         {
-            int idx_video = z * cols * depth + x + y * cols;
+            int idx_video = z * cols * rows + index;
             int idx_pulse = z; // puisque vascularPulse_centered est 1x1xDEPTH
             sum += M0_ff_video_centered[idx_video] * vascularPulse_centered[idx_pulse];
         }
-        result[x + cols * y] = sum / depth;
+        result[index] = sum / depth;
     }
 }
 
 void computeMean(
     const float* M0, const float* vascularPulse, float* result, int rows, int cols, int depth, cudaStream_t stream)
 {
-    dim3 blockSize(16, 16);
-    dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, (cols + blockSize.y - 1) / blockSize.y);
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(rows * cols, threads);
+    // dim3 blockSize(16, 16);
+    // dim3 gridSize((rows + blockSize.x - 1) / blockSize.x, (cols + blockSize.y - 1) / blockSize.y);
 
-    kernel_computeMean<<<gridSize, blockSize, 0, stream>>>(M0, vascularPulse, result, rows, cols, depth);
+    kernel_computeMean<<<blocks, threads, 0, stream>>>(M0, vascularPulse, result, rows, cols, depth);
     cudaCheckError();
 }
 
@@ -208,6 +209,9 @@ void compute_first_correlation(float* output,
     float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
     subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
 
+    // vascular_pulse_centered OK
+    // m0_ff_video_centered OK
+    // computeMean is not woring
     // TODO: la suite (le calcul de R_vascularPulse)
     computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
 
@@ -219,7 +223,16 @@ void compute_first_correlation(float* output,
     cudaXMalloc(&std_vascular_pulse_centered, sizeof(float));
     compute_std(vascular_pulse_centered, std_vascular_pulse_centered, 1, length_video, stream);
 
-    multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered, 512 * 512, stream);
+    float std_vascular_pulse_centered_cpu;
+    cudaXMemcpy(&std_vascular_pulse_centered_cpu, std_vascular_pulse_centered, sizeof(float), cudaMemcpyDeviceToHost);
+
+    multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
+
+    if (length_video == 160)
+    {
+        std::cout << std_vascular_pulse_centered_cpu << std::endl;
+        print_in_file_gpu(std_M0_ff_video_centered, 512, 512, "result_multiply_nan", stream);
+    }
 
     divide(output, std_M0_ff_video_centered, 512 * 512, stream);
 
