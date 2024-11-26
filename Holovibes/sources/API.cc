@@ -467,7 +467,7 @@ void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled,
 void set_lens_view(bool enabled)
 {
     if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
-        get_data_type() == RecordedDataType::MOMENTS && checked)
+        get_data_type() == RecordedDataType::MOMENTS && enabled)
         return;
 
     set_lens_view_enabled(enabled);

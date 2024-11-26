@@ -52,8 +52,7 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
-    const bool is_batch_size_enabled =
-        !UserInterfaceDescriptor::instance().is_recording_ && api::get_data_type() != RecordedDataType::MOMENTS;
+    const bool is_batch_size_enabled = !api::is_recording() && api::get_data_type() != RecordedDataType::MOMENTS;
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
