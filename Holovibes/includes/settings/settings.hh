@@ -20,6 +20,7 @@
 #include "enum/enum_device.hh"
 #include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
+#include "frame_desc.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -41,6 +42,7 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+DECLARE_SETTING(ImportedFileFd, camera::FrameDescriptor);
 
 DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);

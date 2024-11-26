@@ -55,7 +55,6 @@ bool Pipe::make_requests()
 
     /* Free buffers */
     HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());
-    HANDLE_REQUEST(ICS::DisableFilter, "Disable filter", postprocess_->dispose());
 
     HANDLE_REQUEST(ICS::DisableLensView, "Disable lens view", fourier_transforms_->get_lens_queue().reset(nullptr));
 
@@ -130,8 +129,8 @@ bool Pipe::make_requests()
         // TODO
         // fourier_transforms_->init();
         api::enable_filter();
-        auto filter = api::get_input_filter();
-        fourier_transforms_->update_setting(settings::InputFilter{filter});
+        // auto filter = api::get_input_filter();
+        // fourier_transforms_->update_setting(settings::InputFilter{filter});
         clear_request(ICS::Filter);
     }
 

@@ -1070,7 +1070,7 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
 void enable_convolution(const std::string& filename)
 {
-    if (api::get_import_type() == ImportType::None || !api::get_convolution_enabled())
+    if (api::get_import_type() == ImportType::None)
         return;
 
     load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
@@ -1169,17 +1169,12 @@ void enable_filter()
     {
         // There is no file None.txt for filtering
         if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
+        {
             load_input_filter(get_input_filter(), file.value());
+            pipe_refresh();
+        }
         else
             disable_filter();
-
-        // Refresh because the current filter might have change.
-        // pipe_refresh();
-
-        if (filename == UID_FILTER_TYPE_DEFAULT)
-            return;
-
-        pipe_refresh();
     }
 }
 
@@ -1187,17 +1182,6 @@ void disable_filter()
 {
     set_input_filter({});
     UPDATE_SETTING(FilterEnabled, false);
-    try
-    {
-        auto pipe = get_compute_pipe();
-        pipe->request(ICS::DisableFilter);
-        while (pipe->is_requested(ICS::DisableFilter))
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
 }
 
 #pragma endregion
@@ -1377,8 +1361,6 @@ void stop_record()
     else if (record_mode != RecordMode::NONE)
         Holovibes::instance().stop_frame_record();
 
-    // Holovibes::instance().get_record_queue().load()->dequeue(-1);
-
     // Notify the changes
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
@@ -1421,8 +1403,7 @@ bool import_start()
 
     try
     {
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_input_buffer_size());
+        Holovibes::instance().init_input_queue(api::get_input_fd(), api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
@@ -1442,8 +1423,48 @@ bool import_start()
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     if (!filename.empty())
-        // Throw if the file format cannot be handled
-        return io_files::InputFrameFileFactory::open(filename);
+    {
+        io_files::InputFrameFile* input = nullptr;
+
+        // Try to open the file
+        try
+        {
+            input = io_files::InputFrameFileFactory::open(filename);
+        }
+        catch (const io_files::FileException& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+            return std::nullopt;
+        }
+
+        // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+        // record
+        auto input_buffer_size = api::get_input_buffer_size();
+        auto record_buffer_size = api::get_record_buffer_size();
+
+        // Import Compute Settings there before init_pipe to
+        // Allocate correctly buffer
+        try
+        {
+            input->import_compute_settings();
+            input->import_info();
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+            LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
+            api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+        }
+
+        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big buffers used
+        // when the file was recorded
+        api::set_input_buffer_size(input_buffer_size);
+        api::set_record_buffer_size(record_buffer_size);
+
+        api::set_input_fd(input->get_frame_descriptor());
+
+        return input;
+    }
 
     return std::nullopt;
 }

@@ -45,8 +45,6 @@ class UserInterfaceDescriptor
         return instance;
     }
 
-    camera::FrameDescriptor file_fd_;
-
     std::unique_ptr<::holovibes::gui::RawWindow> mainDisplay = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceXZ = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceYZ = nullptr;

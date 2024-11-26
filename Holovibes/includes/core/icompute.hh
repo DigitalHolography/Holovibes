@@ -208,7 +208,6 @@ class ICompute
         Convolution,
         DisableConvolution,
         Filter,
-        DisableFilter,
 
         // Add other setting here
 
