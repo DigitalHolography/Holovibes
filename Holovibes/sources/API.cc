@@ -971,6 +971,16 @@ float get_truncate_contrast_min(const int precision)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
+/**
+ * \brief Loads a convolution matrix from a file
+ *
+ * This function is a tool / util supposed to be called by other functions
+ *
+ * \param file The name of the file to load the matrix from. NOT A FULL PATH
+ * \param convo_matrix Where to store the read matrix
+ *
+ * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+ */
 void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
 {
     auto& holo = Holovibes::instance();
@@ -1045,20 +1055,20 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
     }
 }
 
-void load_convolution_matrix(std::optional<std::string> filename)
+void load_convolution_matrix(std::string filename)
 {
     api::set_convolution_enabled(true);
     api::set_convo_matrix({});
 
     // There is no file None.txt for convolution
-    if (!filename || filename.value() == UID_CONVOLUTION_TYPE_DEFAULT)
+    if (filename.empty())
         return;
+
     std::vector<float> convo_matrix = api::get_convo_matrix();
-    const std::string& file = filename.value();
 
     try
     {
-        load_convolution_matrix_file(file, convo_matrix);
+        load_convolution_matrix_file(filename, convo_matrix);
         api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
@@ -1073,11 +1083,12 @@ void enable_convolution(const std::string& filename)
     if (api::get_import_type() == ImportType::None)
         return;
 
-    load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
+    api::set_convolution_file_name(filename);
 
-    if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+    load_convolution_matrix(filename);
+
+    if (filename.empty())
     {
-        // Refresh because the current convolution might have change.
         pipe_refresh();
         return;
     }

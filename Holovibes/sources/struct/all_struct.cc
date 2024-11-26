@@ -58,7 +58,7 @@ void Views::Update()
 void Rendering::Convolution::Update()
 {
     this->enabled = GET_SETTING(ConvolutionEnabled);
-    this->type = UserInterfaceDescriptor::instance().convo_name;
+    this->type = GET_SETTING(ConvolutionFileName);
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
@@ -226,7 +226,7 @@ void Views::Load()
 void Rendering::Convolution::Load()
 {
     UPDATE_SETTING(ConvolutionEnabled, this->enabled);
-    UserInterfaceDescriptor::instance().convo_name = this->type;
+    UPDATE_SETTING(ConvolutionFileName, this->type == "None" ? "" : this->type);
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 

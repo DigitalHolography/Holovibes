@@ -59,8 +59,5 @@ class UserInterfaceDescriptor
     std::string output_filename_{"capture"};
     std::string record_output_directory_;
     std::string file_input_directory_{"C:\\"};
-
-    std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
-    std::string filter_name{UID_FILTER_TYPE_DEFAULT};
 };
 } // namespace holovibes

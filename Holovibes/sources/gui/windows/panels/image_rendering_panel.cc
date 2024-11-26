@@ -113,8 +113,12 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setVisible(api::get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
-        QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
+
+    int index = 0;
+    if (!api::get_convolution_file_name().empty())
+        index = ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution_file_name()));
+
+    ui_->KernelQuickSelectComboBox->setCurrentIndex(index);
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -281,7 +285,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
         return;
 
     if (value)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+        api::enable_convolution(api::get_convolution_file_name());
     else
         api::disable_convolution();
 
@@ -290,8 +294,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    std::string v = value.toStdString();
+    api::enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
     parent_->notify();
 }
 

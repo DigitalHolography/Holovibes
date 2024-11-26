@@ -132,14 +132,6 @@ int get_input_queue_fd_height();
  */
 float get_boundary();
 
-/*! \brief Enables the divide convolution mode
- *
- * \param value the file containing the convolution's settings
- */
-void enable_convolution(const std::string& file);
-
-void disable_convolution();
-
 std::vector<float> get_input_filter();
 
 /*! \brief Sets the input filter
@@ -599,34 +591,22 @@ bool get_log_enabled();
  */
 bool get_contrast_auto_refresh();
 
-/*! \brief Disables convolution
+/*! \brief Enables the divide convolution mode
  *
+ * \param value the file containing the convolution's settings
  */
-void disable_convolution();
-
-/**
- * \brief Loads a convolution matrix from a file
- *
- * This function is a tool / util supposed to be called by other functions
- *
- * \param file The name of the file to load the matrix from. NOT A FULL PATH
- * \param convo_matrix Where to store the read matrix
- *
- * \throw std::runtime_error runtime_error When the matrix cannot be loaded
- */
-void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
+void enable_convolution(const std::string& file);
 
 /*! \brief Loads convolution matrix from a given file
  *
  * \param file the file containing the convolution's settings
  */
-void load_convolution_matrix(std::optional<std::string> filename);
+void load_convolution_matrix(std::string filename);
 
-/*! \brief Enables convolution
+/*! \brief Disables convolution
  *
- * \param file the file containing the convolution's settings
  */
-void enable_convolution(std::optional<std::string> file);
+void disable_convolution();
 
 /*! \brief Sets the contrast mode
  *
