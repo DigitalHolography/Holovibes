@@ -54,16 +54,16 @@ QSize getSavedHoloWindowSize(ushort& width, ushort& height)
 
 void close_windows()
 {
-    if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
-        UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
-    UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+    if (UI.mainDisplay.get() != nullptr)
+        UI.mainDisplay.get()->save_gui("holo window");
 
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
+    UI.mainDisplay.reset(nullptr);
+    UI.sliceXZ.reset(nullptr);
+    UI.sliceYZ.reset(nullptr);
+    UI.filter2d_window.reset(nullptr);
+    UI.lens_window.reset(nullptr);
+    UI.plot_window_.reset(nullptr);
+    UI.raw_window.reset(nullptr);
 }
 
 void create_window(Computation window_kind, ushort window_size)
