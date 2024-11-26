@@ -601,12 +601,18 @@ void Analysis::insert_otsu()
                                 cudaMemcpyDeviceToDevice);
                 }
                 else
-                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                                          otsu_histo_buffer_.get(),
-                                          otsu_float_gpu_.get(),
-                                          fd_.width,
-                                          fd_.height,
-                                          stream_);
+                    // compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                    //                       otsu_histo_buffer_.get(),
+                    //                       otsu_float_gpu_.get(),
+                    //                       fd_.width,
+                    //                       fd_.height,
+                    //                       stream_);
+                    otsu_multi_thresholding(buffers_.gpu_postprocess_frame,
+                                            otsu_histo_buffer_.get(),
+                                            nullptr,
+                                            3,
+                                            fd_.width * fd_.height,
+                                            stream_);
             });
     }
 }

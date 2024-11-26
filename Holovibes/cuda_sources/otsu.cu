@@ -4,6 +4,9 @@
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
 #include "cuda_memory.cuh"
+
+#include <cmath>
+
 using uint = unsigned int;
 
 #define NUM_BINS 256
@@ -205,3 +208,231 @@ void compute_binarise_otsu_bradley(float* output_d,
                                                                local_threshold_factor);
     cudaXStreamSynchronize(stream);
 }
+
+/*
+Function OtsuMultiThresholding(image, num_thresholds):
+    Input: image (grayscale), num_thresholds (number of thresholds)
+    Output: thresholds (list of threshold values)
+
+    # Step 1: Compute the histogram of the image
+    histogram = ComputeHistogram(image)  # array of size 256 for 8-bit images
+    total_pixels = sum(histogram)  # total number of pixels in the image
+
+    # Step 2: Normalize the histogram to get probabilities
+    probabilities = [histogram[i] / total_pixels for i in range(256)]
+
+    # Step 3: Initialize variables
+    best_thresholds = []  # list to store optimal thresholds
+    min_within_class_variance = Infinity  # track minimum intra-class variance
+
+    # Step 4: Generate all possible combinations of thresholds
+    all_combinations = GenerateThresholdCombinations(range(256), num_thresholds)
+
+    For each combination of thresholds in all_combinations:
+        # Step 5: Divide the histogram into (num_thresholds + 1) classes
+        thresholds = [t1, t2, ..., tn]  # current combination of thresholds
+        class_ranges = DivideIntoClasses(probabilities, thresholds)
+
+        # Step 6: Compute within-class variance for the current combination
+        within_class_variance = 0
+        For each class_range in class_ranges:
+            weight = Sum(class_range)  # total probability (weight) of the class
+            mean = WeightedMean(class_range)  # mean intensity of the class
+            variance = WeightedVariance(class_range, mean)  # variance of the class
+            within_class_variance += weight * variance
+
+        # Step 7: Update optimal thresholds if variance is minimized
+        If within_class_variance < min_within_class_variance:
+            min_within_class_variance = within_class_variance
+            best_thresholds = thresholds
+
+    Return best_thresholds
+*/
+
+void set_var_btwcls(const std::vector<float>& prob,
+                    std::vector<float>& var_btwcls,
+                    std::vector<float>& zeroth_moment,
+                    std::vector<float>& first_moment)
+{
+    // Calculer les moments cumulés et remplir var_btwcls
+    uint idx;
+    float zeroth_moment_ij, first_moment_ij;
+
+    zeroth_moment[0] = prob[0];
+    first_moment[0] = prob[0];
+    for (uint i = 1; i < NUM_BINS; i++)
+    {
+        zeroth_moment[i] = zeroth_moment[i - 1] + prob[i];
+        first_moment[i] = first_moment[i - 1] + i * prob[i];
+        if (zeroth_moment[i] > 0)
+            var_btwcls[i] = (first_moment[i] * first_moment[i]) / zeroth_moment[i];
+    }
+    idx = NUM_BINS;
+
+    for (uint i = 1; i < NUM_BINS; i++)
+    {
+        for (uint j = i; j < NUM_BINS; j++)
+        {
+
+            zeroth_moment_ij = zeroth_moment[j] - zeroth_moment[i - 1];
+            if (zeroth_moment_ij > 0)
+            {
+                first_moment_ij = first_moment[j] - first_moment[i - 1];
+                var_btwcls[idx] = (first_moment_ij * first_moment_ij) / zeroth_moment_ij;
+            }
+            idx += 1;
+        }
+    }
+}
+
+// void set_thresh_indices_lut(const std::vector<float>& var_btwcls,
+//                             int hist_idx,
+//                             int thresh_idx,
+//                             int nbins,
+//                             int thresh_count,
+//                             float sigma_max,
+//                             std::vector<int>& current_indices,
+//                             std::vector<int>& thresh_indices)
+
+float get_var_btwclas(const std::vector<float>& var_btwcls, size_t i, size_t j)
+{
+    uint idx = (i * (2 * NUM_BINS - i + 1)) / 2 + j - i;
+    return var_btwcls[idx];
+}
+
+float set_thresh_indices(std::vector<float>& var_btwcls,
+                         //   std::vector<float>& first_moment,
+                         size_t hist_idx,
+                         size_t thresh_idx,
+                         size_t thresh_count,
+                         float sigma_max,
+                         std::vector<size_t>& current_indices,
+                         std::vector<size_t>& thresh_indices)
+{
+    // Parcourir les combinaisons pour maximiser sigma^2_B
+    // int idx;
+    float sigma;
+
+    if (thresh_idx < thresh_count)
+    {
+        for (uint idx = hist_idx; idx < NUM_BINS - thresh_count + thresh_idx; idx++)
+        {
+            current_indices[thresh_idx] = idx;
+            sigma_max = set_thresh_indices(var_btwcls,
+                                           idx + 1,
+                                           thresh_idx + 1,
+                                           thresh_count,
+                                           sigma_max,
+                                           current_indices,
+                                           thresh_indices);
+        }
+    }
+    else
+    {
+        sigma = get_var_btwclas(var_btwcls, 0, current_indices[0]) +
+                get_var_btwclas(var_btwcls, current_indices[thresh_count - 1] + 1, NUM_BINS - 1);
+        for (uint idx = 0; idx < thresh_count - 1; idx++)
+        {
+            sigma += get_var_btwclas(var_btwcls, current_indices[idx] + 1, current_indices[idx + 1]);
+        }
+
+        if (sigma > sigma_max)
+        {
+            sigma_max = sigma;
+            for (size_t i = 0; i < thresh_indices.size(); ++i)
+            {
+                thresh_indices[i] = current_indices[i];
+            }
+        }
+    }
+
+    return sigma_max;
+}
+
+void otsu_multi_thresholding(const float* input_d,
+                             uint* histo_buffer_d,
+                             float* thresholds_d,
+                             size_t nb_thresholds,
+                             size_t size,
+                             const cudaStream_t stream)
+{
+    // Step 1 : Compute the histogram of the image
+    uint threads = NUM_BINS;
+    uint blocks = (size + threads - 1) / threads;
+    size_t shared_mem_size = NUM_BINS * sizeof(uint);
+
+    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
+    cudaXStreamSynchronize(stream);
+    uint* histo = new uint(NUM_BINS);
+    cudaXMemcpy(histo,
+                histo_buffer_d,
+                NUM_BINS * sizeof(uint),
+                cudaMemcpyDeviceToHost); // FIXME: This breaks the program after a moment.
+
+    uint nvalues = 0;
+    for (uint i = 0; i < NUM_BINS; i++)
+    {
+        if (histo[i] > 0)
+            nvalues++;
+    }
+
+    CHECK(nvalues >= 3, "NIK ZEBI");
+
+    std::vector<float> prob(NUM_BINS);
+    for (uint i = 0; i < NUM_BINS; i++)
+    {
+        prob[i] = static_cast<float>(histo[i]);
+    }
+
+    std::vector<uint> thresh(nvalues);
+    std::vector<uint> bin_center(NUM_BINS);
+    for (uint i = 0; i < NUM_BINS; i++)
+        bin_center[i] = i;
+
+    if (nvalues == 3)
+    {
+        uint thresh_idx = 0;
+        for (uint i = 0; i < NUM_BINS; i++)
+        {
+            if (prob[i] > 0)
+                thresh[thresh_idx++] = i;
+        }
+    }
+    else
+    {
+        uint thresh_count = 2; // classes = 3 mais on fait classes-1.
+
+        std::vector<size_t> thresh_indices(thresh_count);
+        std::vector<size_t> current_indices(thresh_count);
+        std::vector<float> var_btwcls(NUM_BINS * (NUM_BINS + 1) / 2, 0.0f);
+        std::vector<float> zeroth_moment(NUM_BINS, 0.0f);
+        std::vector<float> first_moment(NUM_BINS, 0.0f);
+
+        set_var_btwcls(prob, var_btwcls, zeroth_moment, first_moment);
+        set_thresh_indices(var_btwcls, 0, 0, thresh_count, 0.0f, current_indices, thresh_indices);
+
+        /* le res est tresh indices*/
+        uint thresh_idx = 0;
+
+        for (uint i = 0; i < thresh_count; i++)
+        {
+            thresh[thresh_idx++] = bin_center[i];
+        }
+    }
+    delete histo;
+}
+
+// float* proba = new float(NUM_BINS);
+
+// // Step 2 : Normalize the histogram to get probabilities
+// for (size_t i = 0; i < NUM_BINS; i++)
+//     proba[i] = histo[i] / size;
+
+// // Step 3 : Initialize variables
+// float* best_threshold = new float(nb_thresholds);
+// float min_within_class_variance = HUGE_VALF;
+
+// // Step 4 : Generate all possible combinations of thresholds
+// // all_combinations = GenerateThresholdCombinations(range(256), num_thresholds)
+
+// uint* all_combinations = new uint(3 * NUM_BINS * NUM_BINS * NUM_BINS);
