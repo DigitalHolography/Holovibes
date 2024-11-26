@@ -211,8 +211,6 @@ void compute_first_correlation(float* output,
     // TODO: la suite (le calcul de R_vascularPulse)
     computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
 
-    // cudaXMemcpyAsync(output, M0_ff_video_centered, 512 * 512 * sizeof(float), cudaMemcpyDeviceToDevice, stream);
-
     float* std_M0_ff_video_centered;
     cudaXMalloc(&std_M0_ff_video_centered, sizeof(float) * 512 * 512);
     compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, length_video, stream);
@@ -223,7 +221,7 @@ void compute_first_correlation(float* output,
 
     multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered, 512 * 512, stream);
 
-    // divide(output, std_M0_ff_video_centered, 512 * 512, stream);
+    divide(output, std_M0_ff_video_centered, 512 * 512, stream);
 
     // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);

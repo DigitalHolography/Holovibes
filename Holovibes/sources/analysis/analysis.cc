@@ -455,6 +455,13 @@ void Analysis::insert_first_analysis_masks()
                                fd_.height,
                                stream_);
 
+                cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
+                                 mask_vesselness_clean_csv_,
+                                 512 * 512 * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+                cudaXStreamSynchronize(stream_);
+
                 vesselness_mask_env_.m0_ff_video_cb_->multiply_data_by_frame(
                     vesselness_mask_env_.mask_vesselness_clean_);
 
