@@ -69,9 +69,8 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
         // set positions of new windows according to the position of the main GL
         // window and Lens window
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
-        UI.raw_window.reset(new gui::RawWindow(pos,
-                                               QSize(raw_window_width, raw_window_height),
-                                               api::get_compute_pipe()->get_raw_view_queue().get()));
+        UI.raw_window.reset(
+            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), api::get_input_queue().get()));
 
         UI.raw_window->setTitle("Raw view");
     }

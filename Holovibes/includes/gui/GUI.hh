@@ -24,7 +24,6 @@ void create_holo_window(ushort window_size);
 // called like (open window) that will create the windows
 
 // View if useful since there is set_view_mode
-void refresh_view_mode(ushort window_size, ImgType img_type);
 
 void rotateTexture();
 void flipTexture();

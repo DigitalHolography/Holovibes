@@ -18,6 +18,7 @@
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"
+#include "enum_api_code.hh"
 
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
@@ -164,14 +165,7 @@ void enable_filter(const std::string& file);
 void disable_filter();
 
 /*! \brief Sets the computation mode to Raw or Holographic*/
-void set_computation_mode(Computation mode, uint window_max_size);
-
-/*! \brief Restarts everything to change the view mode
- *
- * \param window_size the size of the window
- * \param img_type The new image type
- */
-void refresh_view_mode(ushort window_size, ImgType img_type);
+void set_computation_mode(Computation mode);
 
 /*! \brief Checks preconditions to start recording
  *
@@ -822,7 +816,7 @@ void update_batch_size(uint batch_size);
  *
  * \param type The new image type
  */
-void set_view_mode(const ImgType type);
+ApiCode set_view_mode(const ImgType type);
 
 /*! \brief Configures the camera */
 void configure_camera();
@@ -874,6 +868,15 @@ bool slide_update_threshold(
 
 /*! \brief Displays information */
 void start_information_display();
+
+void* get_raw_last_image();      // get_input_queue().get()
+void* get_raw_view_last_image(); // get_input_queue().get()
+void* get_hologram_last_image(); // get_gpu_output_queue().get()
+void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
+void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
+void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
+void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
+void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
 
 } // namespace holovibes::api
 

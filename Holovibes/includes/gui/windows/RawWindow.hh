@@ -5,6 +5,7 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
+#include "frame_desc.hh"
 
 namespace holovibes::gui
 {

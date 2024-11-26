@@ -219,9 +219,8 @@ bool is_light_ui_mode()
     return json_get_or_default(j_us, false, "light_ui");
 }
 
-void set_computation_mode(Computation mode, uint window_max_size)
+void set_computation_mode(Computation mode)
 {
-    close_windows();
     close_critical_compute();
 
     set_compute_mode(mode);
@@ -234,8 +233,6 @@ void set_computation_mode(Computation mode, uint window_max_size)
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
-
-    create_window(mode, window_max_size);
 }
 
 void create_window(Computation window_kind, ushort window_size)
@@ -282,35 +279,35 @@ void create_window(Computation window_kind, ushort window_size)
     UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
 }
 
-void refresh_view_mode(ushort window_size, ImgType img_type)
+ApiCode set_view_mode(const ImgType type)
 {
-    float old_scale = 1.f;
-    glm::vec2 old_translation(0.f, 0.f);
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
-        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
-    }
+    if (type == api::get_img_type())
+        return ApiCode::NO_CHANGE;
 
-    set_img_type(img_type);
-    set_computation_mode(Computation::Hologram, window_size);
+    if (api::get_import_type() == ImportType::None)
+        return ApiCode::NOT_STARTED;
 
-    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-}
+    if (api::get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_MODE;
 
-void set_view_mode(const ImgType type)
-{
     try
     {
-        auto pipe = get_compute_pipe();
+        bool composite = type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
 
         api::set_img_type(type);
-        pipe_refresh();
+
+        // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
+        if (composite)
+            set_computation_mode(Computation::Hologram);
+        else
+            pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
     {
+        return ApiCode::FAILURE;
     }
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
@@ -1577,6 +1574,34 @@ void set_input_file_end_index(size_t value)
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }
+
+#pragma endregion
+
+#pragma region Image
+
+void* get_raw_last_image()
+{
+    if (get_input_queue())
+        return get_input_queue().get()->get_last_image();
+
+    return nullptr;
+}
+
+// void* get_raw_view_last_image(); // get_input_queue().get()
+
+void* get_hologram_last_image()
+{
+    if (get_gpu_output_queue())
+        return get_gpu_output_queue().get()->get_last_image();
+
+    return nullptr;
+}
+
+// void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
+// void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
+// void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
+// void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
+// void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
 
 #pragma endregion
 

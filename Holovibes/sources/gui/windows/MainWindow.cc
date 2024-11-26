@@ -670,21 +670,30 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None || api::get_compute_mode() == Computation::Raw)
-        return;
-
-    const std::string& value_str = value.toStdString();
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (img_type == api::get_img_type())
-        return;
 
-    // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
-    if (img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite)
-        api::refresh_view_mode(window_max_size, img_type);
+    bool composite = img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
 
-    api::set_view_mode(img_type);
+    if (api::set_view_mode(img_type) == ApiCode::OK)
+    {
+        if (composite)
+        {
+            float old_scale = 1.f;
+            glm::vec2 old_translation(0.f, 0.f);
+            if (UserInterfaceDescriptor::instance().mainDisplay)
+            {
+                old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
+                old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
+            }
 
-    notify();
+            api::close_windows();
+            api::create_window(api::get_compute_mode(), window_max_size);
+
+            UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
+            UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+        }
+        notify();
+    }
 }
 
 #pragma endregion
