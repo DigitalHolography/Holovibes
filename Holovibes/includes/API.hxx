@@ -288,6 +288,9 @@ inline void set_chart_record_enabled(bool value) { UPDATE_SETTING(ChartRecordEna
 
 inline uint get_nb_frame_skip() { return GET_SETTING(FrameSkip); }
 inline uint get_mp4_fps() { return GET_SETTING(Mp4Fps); }
+
+inline uint get_camera_fps() { return GET_SETTING(CameraFps); }
+inline void set_camera_fps(uint value) { UPDATE_SETTING(CameraFps, value); }
 /*! \} */
 
 /*!
@@ -537,8 +540,17 @@ inline void set_filter2d_contrast(float min, float max) noexcept
 /*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
  * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
+inline bool get_registration_enabled();
+inline void set_registration_enabled(bool value);
 inline void set_fft_shift_enabled(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    // Deactivate registration if fft shift is disabled
+    if (api::get_registration_enabled())
+        set_registration_enabled(value);
+
     UPDATE_SETTING(FftShiftEnabled, value);
     pipe_refresh();
 }
@@ -558,6 +570,12 @@ inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); 
 inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
 inline void set_registration_enabled(bool value)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    if (!api::get_fft_shift_enabled())
+        set_fft_shift_enabled(value);
+
     UPDATE_SETTING(RegistrationEnabled, value);
     pipe_refresh();
 }

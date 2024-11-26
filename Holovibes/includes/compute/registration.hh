@@ -1,4 +1,5 @@
-/*! \file
+/*! \file registration.hh
+ *
  *  \brief Implementation of algorithms used for registration.
  *  The registration performs computations as follows:
  *  - Apply a circular mask to each images where each values outside of the circle is 0 and each
@@ -111,6 +112,16 @@ class Registration
     /*! \brief Recompute the circular mask with the new radius on update. Function is also called in constructor. */
     void updade_cirular_mask();
 
+    /*! \brief Function called to apply by `circ_shift` function after the computation of the registration. It could be
+     *  useful if other buffers than the `CoreBuffersEnv::gpu_postprocess_frame` need to be shifted.
+     *  For example it could be used by shifting all the moments when needed.
+     *  Hence this function is operating a `circ_shift` and then copy the result in the `input_output` given in
+     *  parameter.
+     *
+     *  \param[in out] input_output The image buffer used to shift in place.
+     */
+    void shift_image(float* input_output);
+
     template <typename T>
     inline void update_setting(T setting)
     {
@@ -207,6 +218,16 @@ class Registration
 
     /*! \brief Cufft plan used for C2R cufft in the xcorr2 function */
     cuda_tools::CufftHandle plan_2dinv_;
+
+    /*! \brief The X shift to apply to the image by using `circ_shift` function from `tools.cu` file.
+     *  \see circ_shift
+     */
+    int shift_x_ = 0;
+
+    /*! \brief The Y shift to apply to the image by using `circ_shift` function from `tools.cu` file.
+     *  \see circ_shift
+     */
+    int shift_y_ = 0;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };

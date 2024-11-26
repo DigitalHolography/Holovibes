@@ -32,8 +32,6 @@ struct OptionsDescriptor
     bool noskip_acc;
     bool record_raw;
     bool verbose;
-    bool gpu; // remove this two options
-    bool benchmark;
     std::optional<unsigned int> frame_skip;
     std::optional<unsigned int> mp4_fps;
     bool moments_record;

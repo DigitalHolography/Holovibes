@@ -31,7 +31,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
-           Holovibes::instance().is_recording())
+           api::is_recording())
         continue;
 }
 
@@ -64,7 +64,6 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_raw_view_requested");
 
         gpu_raw_view_queue_.reset(nullptr);
-        api::set_raw_view_enabled(false);
         clear_request(ICS::DisableRawView);
     }
 
@@ -77,7 +76,15 @@ bool Pipe::make_requests()
         clear_request(ICS::DisableFilter2DView);
     }
 
-    HANDLE_REQUEST(ICS::DeleteTimeTransformationCuts, "Delete time transformation cuts", dispose_cuts());
+    if (is_requested(ICS::DeleteTimeTransformationCuts))
+    {
+        LOG_DEBUG("Delete time transformation cuts");
+
+        dispose_cuts();
+        image_accumulation_->dispose_cuts_queue();
+
+        clear_request(ICS::DeleteTimeTransformationCuts);
+    }
 
     if (is_requested(ICS::DisableChartDisplay))
     {
@@ -158,7 +165,15 @@ bool Pipe::make_requests()
         clear_request(ICS::UpdateBatchSize);
     }
 
-    HANDLE_REQUEST(ICS::TimeTransformationCuts, "Time transformation cuts", init_cuts());
+    if (is_requested(ICS::TimeTransformationCuts))
+    {
+        LOG_DEBUG("Time transformation cuts");
+
+        init_cuts();
+        image_accumulation_->init_cuts_queue();
+
+        clear_request(ICS::TimeTransformationCuts);
+    }
 
     image_accumulation_->init(); // done only if requested
     image_accumulation_->clear();
@@ -169,7 +184,6 @@ bool Pipe::make_requests()
 
         auto fd = input_queue_.get_fd();
         gpu_raw_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
-        api::set_raw_view_enabled(true);
         clear_request(ICS::RawView);
     }
 
@@ -384,6 +398,13 @@ void Pipe::insert_moments()
 
         fourier_transforms_->insert_moments();
 
+        if (setting<settings::RegistrationEnabled>())
+        {
+            registration_->shift_image(moments_env_.moment0_buffer);
+            registration_->shift_image(moments_env_.moment1_buffer);
+            registration_->shift_image(moments_env_.moment2_buffer);
+        }
+
         fourier_transforms_->insert_moments_to_output();
     }
 }
@@ -502,7 +523,7 @@ void Pipe::insert_filter2d_view()
 
 void Pipe::insert_raw_view()
 {
-    if (!setting<settings::RawViewEnabled>())
+    if (!setting<settings::RawViewEnabled>() || !gpu_raw_view_queue_)
         return;
 
     // FIXME: Copy multiple copies a batch of frames

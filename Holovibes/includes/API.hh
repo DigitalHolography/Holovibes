@@ -170,19 +170,8 @@ void enable_filter(const std::string& file);
 
 void disable_filter();
 
-/*! \brief Sets the image mode to Raw or Holographic*/
-void set_image_mode(Computation mode, uint window_max_size);
-
-/*! \brief Changes display mode to Raw */
-void set_raw_mode(uint window_max_size);
-
-/*! \brief Changes display mode to Holographic
- *
- * \param window_size the size of the window
- * \return true on success
- * \return false on failure
- */
-bool set_holographic_mode(ushort window_size);
+/*! \brief Sets the computation mode to Raw or Holographic*/
+void set_computation_mode(Computation mode, uint window_max_size);
 
 /*! \brief Restarts everything to change the view mode
  *
@@ -190,9 +179,6 @@ bool set_holographic_mode(ushort window_size);
  * \param img_type The new image type
  */
 void refresh_view_mode(ushort window_size, ImgType img_type);
-
-/*! \brief Removes time transformation from computation */
-void cancel_time_transformation_cuts();
 
 /*! \brief Checks preconditions to start recording
  *
@@ -217,19 +203,25 @@ void start_record(std::function<void()> callback);
  */
 void stop_record();
 
-/*! \brief Gets the destination of the output file
+/*! \brief Change the record mode in the settings
  *
- * \param std_filepath the output filepath FIXME: shouldn't be stored in the wild.
- * \return const std::string the extension of the output file
+ * \param value The new record mode to be set to
  */
-const std::string browse_record_output_file(std::string& std_filepath);
+void set_record_mode_enum(RecordMode value);
 
-/*! \brief Set the record mode object, and trigger the allocation of the pipe
+/*!
+ * \brief Gets the available extension for the given record mode
  *
- * \param text the catched mode
- * \param record_mode record mode to modify FIXME: shouldn't be stored in the wild.
+ * \param mode The record mode for which to get the available extensions
+ * \return std::vector<OutputFormat> The available file extensions as an enum.
  */
-void set_record_mode(const std::string& text);
+std::vector<OutputFormat> get_supported_formats(RecordMode mode);
+
+/*! \brief Return whether we are recording or not
+ *
+ * \return true if recording, else false
+ */
+bool is_recording();
 
 /*!
  * \brief Set the record queue location, between gpu and cpu
@@ -277,7 +269,13 @@ void enable_pipe_refresh();
  */
 void disable_pipe_refresh();
 
-void create_holo_window(ushort window_size);
+/*! \brief Create and open a window of the specified size and kind
+ *
+ * \param[in] window_kind the kind of window to create (raw or holographic window)
+ * \param[in] window_size the size of the window
+ */
+void create_window(Computation window_kind, ushort window_size);
+
 void create_pipe();
 
 /*! \brief Modifies p accumulation
@@ -756,40 +754,27 @@ void reticle_scale(float value);
  */
 void update_registration_zone(float value);
 
-/*! \brief Restores attributs when recording ends
+/*! \brief Start or stop the chart display
  *
+ * \param[in] enabled true: enable, false: disable
  */
-void record_finished();
+void set_chart_display(bool enabled);
 
-/*! \brief Creates Noise overlay
+/*! \brief Adds or removes lens view.
  *
+ * \param[in] enabled true: enable, false: disable
  */
-void active_noise_zone();
-
-/*! \brief Creates Signal overlay
- *
- */
-void active_signal_zone();
-
-/*! \brief Opens Chart window
- *
- */
-void start_chart_display();
-
-/*! \brief Closes Chart window
- *
- */
-void stop_chart_display();
-
-/*! \brief Adds or removes lens view */
-void set_lens_view(bool checked, uint auxiliary_window_max_size);
+void set_lens_view(bool enabled);
 
 void set_chart_display_enabled(bool value);
 
 void set_filter2d_view_enabled(bool value);
 
-/*! \brief Adds or removes raw view */
-void set_raw_view(bool checked, uint auxiliary_window_max_size);
+/*! \brief Adds or removes raw view
+
+ * \param[in] enabled true: enable, false: disable
+ */
+void set_raw_view(bool enabled);
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -808,9 +793,9 @@ void set_filter2d(bool checked);
 
 /*! \brief Adds filter2d view
  *
- * \param auxiliary_window_max_size
+ * \param[in] enabled true: enable, false: disable
  */
-void set_filter2d_view(bool check, uint auxiliary_window_max_size);
+void set_filter2d_view(bool enabled);
 
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
@@ -820,10 +805,10 @@ void toggle_renormalize(bool value);
 
 /*! \brief Enables or Disables time transform cuts views
  *
- * \return true on success
- * \return false on failure
+ * \param[in] enabled true: enable, false: disable
+ * \return true if correctly set
  */
-bool set_3d_cuts_view(uint time_transformation_size);
+bool set_3d_cuts_view(bool enabled);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -848,13 +833,6 @@ void set_view_mode(const ImgType type);
 
 /*! \brief Configures the camera */
 void configure_camera();
-
-/*! \brief Gets data from the current main display
- *
- * \param position the position to fill
- * \param size the size to fill
- */
-void init_image_mode(QPoint& position, QSize& size);
 
 /*! \brief Saves the current state of holovibes
  *

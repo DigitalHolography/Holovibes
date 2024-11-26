@@ -3,8 +3,8 @@
 #include "input_filter.hh"
 #include "notifier.hh"
 #include "logger.hh"
+#include "tools.hh"
 
-#include <regex>
 #include <string>
 #include <unordered_map>
 
@@ -67,13 +67,9 @@ void close_windows()
     UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
     UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
     UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-
-    if (UserInterfaceDescriptor::instance().lens_window)
-        set_lens_view(false, 0);
-    if (UserInterfaceDescriptor::instance().raw_window)
-        set_raw_view(false, 0);
-
+    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
     UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
+    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
 }
 
 #pragma endregion
@@ -85,8 +81,6 @@ void camera_none()
     close_windows();
     close_critical_compute();
 
-    if (get_compute_mode() == Computation::Hologram)
-        Holovibes::instance().stop_compute();
     Holovibes::instance().stop_frame_read();
 
     set_camera_kind(CameraKind::NONE);
@@ -170,16 +164,6 @@ void configure_camera()
 
 #pragma region Image Mode
 
-void init_image_mode(QPoint& position, QSize& size)
-{
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        position = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
-        size = UserInterfaceDescriptor::instance().mainDisplay->size();
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
-}
-
 void create_pipe()
 {
     LOG_FUNC();
@@ -235,53 +219,28 @@ bool is_light_ui_mode()
     return json_get_or_default(j_us, false, "light_ui");
 }
 
-void set_image_mode(Computation mode, uint window_max_size)
+void set_computation_mode(Computation mode, uint window_max_size)
 {
-    // When reading moments, the computation mode cannot be raw (the image would be nonsense)
     if (get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
         return;
+    close_windows();
+    close_critical_compute();
 
-    if (mode == Computation::Raw)
-    {
-        set_raw_mode(window_max_size);
-    }
-    else if (mode == Computation::Hologram)
-    {
-        set_holographic_mode(window_max_size);
-    }
-}
-
-void set_raw_mode(uint window_max_size)
-{
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_max_size);
-
-    QPoint pos = getSavedHoloWindowPos();
-    QSize size = getSavedHoloWindowSize(width, height);
-    init_image_mode(pos, size);
-
-    set_compute_mode(Computation::Raw);
-
+    set_compute_mode(mode);
     create_pipe();
 
-    LOG_INFO("Raw mode set");
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
-    UserInterfaceDescriptor::instance().mainDisplay.reset(
-        new holovibes::gui::RawWindow(pos,
-                                      size,
-                                      get_input_queue().get(),
-                                      static_cast<float>(width) / static_cast<float>(height)));
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-    UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
-    std::string fd_info =
-        std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
+    if (mode == Computation::Hologram)
+    {
+        api::change_window(static_cast<int>(WindowKind::XYview));
+        api::set_contrast_mode(true);
+    }
+    else
+        set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 
-    api::pipe_refresh();
+    create_window(mode, window_max_size);
 }
 
-void create_holo_window(ushort window_size)
+void create_window(Computation window_kind, ushort window_size)
 {
     const camera::FrameDescriptor& fd = get_fd();
     unsigned short width = fd.width;
@@ -290,11 +249,24 @@ void create_holo_window(ushort window_size)
 
     QPoint pos = getSavedHoloWindowPos();
     QSize size = getSavedHoloWindowSize(width, height);
-    init_image_mode(pos, size);
 
-    // Holovibes::instance().init_input_queue(fd, get_input_buffer_size());
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+    {
+        pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
+        size = UserInterfaceDescriptor::instance().mainDisplay->size();
+        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
+    }
 
-    try
+    if (window_kind == Computation::Raw)
+    {
+        UserInterfaceDescriptor::instance().mainDisplay.reset(
+            new holovibes::gui::RawWindow(pos,
+                                          size,
+                                          get_input_queue().get(),
+                                          static_cast<float>(width) / static_cast<float>(height)));
+        UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
+    }
+    else
     {
         UserInterfaceDescriptor::instance().mainDisplay.reset(
             new gui::HoloWindow(pos,
@@ -304,44 +276,12 @@ void create_holo_window(ushort window_size)
                                 UserInterfaceDescriptor::instance().sliceYZ,
                                 static_cast<float>(width) / static_cast<float>(height)));
         UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
         UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
         UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
         UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
     }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("create_holo_window: {}", e.what());
-    }
-}
 
-bool set_holographic_mode(ushort window_size)
-{
-    /* ---------- */
-    try
-    {
-        set_compute_mode(Computation::Hologram);
-        /* Pipe & Window */
-        auto fd = get_fd();
-
-        create_pipe();
-        create_holo_window(window_size);
-        /* Info Manager */
-        std::string fd_info =
-            std::to_string(fd.width) + "x" + std::to_string(fd.height) + " - " + std::to_string(fd.depth * 8) + "bit";
-        /* Contrast */
-        api::set_contrast_mode(true);
-
-        LOG_INFO("Holographic mode set");
-
-        return true;
-    }
-    catch (const std::runtime_error& e)
-    {
-        LOG_ERROR("cannot set holographic mode: {}", e.what());
-    }
-
-    return false;
+    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
 }
 
 void refresh_view_mode(ushort window_size, ImgType img_type)
@@ -354,23 +294,11 @@ void refresh_view_mode(ushort window_size, ImgType img_type)
         old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
     }
 
-    close_windows();
-    close_critical_compute();
-
     set_img_type(img_type);
+    set_computation_mode(Computation::Hologram, window_size);
 
-    try
-    {
-        create_pipe();
-        create_holo_window(window_size);
-        UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-        UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-    }
-    catch (const std::runtime_error& e)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-        LOG_ERROR("refresh_view_mode: {}", e.what());
-    }
+    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
+    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
 }
 
 void set_view_mode(const ImgType type)
@@ -420,78 +348,49 @@ void update_time_stride(const uint time_stride)
     get_compute_pipe()->request(ICS::UpdateTimeStride);
 }
 
-bool set_3d_cuts_view(uint time_transformation_size)
+bool set_3d_cuts_view(bool enabled)
 {
     // No 3d cuts in moments mode
-    if (get_data_type() == RecordedDataType::MOMENTS)
+    if (api::get_import_type() == ImportType::None || get_data_type() == RecordedDataType::MOMENTS)
         return false;
-    try
+    if (enabled)
     {
-        get_compute_pipe()->request(ICS::TimeTransformationCuts);
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint xzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                       QPoint(0, UserInterfaceDescriptor::instance().mainDisplay->height() + 42);
-        QPoint yzPos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                       QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 20, 0);
+        try
+        {
+            get_compute_pipe()->request(ICS::TimeTransformationCuts);
+            while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
+                continue;
 
-        while (get_compute_pipe()->is_requested(ICS::UpdateTimeTransformationSize))
+            set_yz_enabled(true);
+            set_xz_enabled(true);
+            set_cuts_view_enabled(true);
+
+            pipe_refresh();
+
+            return true;
+        }
+        catch (const std::logic_error& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+        }
+    }
+    else
+    {
+        set_yz_enabled(false);
+        set_xz_enabled(false);
+        set_cuts_view_enabled(false);
+
+        get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
+        while (get_compute_pipe()->is_requested(ICS::DeleteTimeTransformationCuts))
             continue;
-        while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
-            continue;
 
-        UserInterfaceDescriptor::instance().sliceXZ.reset(new gui::SliceWindow(
-            xzPos,
-            QSize(UserInterfaceDescriptor::instance().mainDisplay->width(), time_transformation_size),
-            get_compute_pipe()->get_stft_slice_queue(0).get(),
-            gui::KindOfView::SliceXZ));
-        UserInterfaceDescriptor::instance().sliceXZ->setTitle("XZ view");
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
-
-        UserInterfaceDescriptor::instance().sliceYZ.reset(new gui::SliceWindow(
-            yzPos,
-            QSize(time_transformation_size, UserInterfaceDescriptor::instance().mainDisplay->height()),
-            get_compute_pipe()->get_stft_slice_queue(1).get(),
-            gui::KindOfView::SliceYZ));
-        UserInterfaceDescriptor::instance().sliceYZ->setTitle("YZ view");
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
-
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Cross>(false);
-        set_cuts_view_enabled(true);
-        auto holo = dynamic_cast<gui::HoloWindow*>(UserInterfaceDescriptor::instance().mainDisplay.get());
-        if (holo)
-            holo->update_slice_transforms();
-
-        pipe_refresh();
+        if (get_record_mode() == RecordMode::CUTS_XZ || get_record_mode() == RecordMode::CUTS_YZ)
+            set_record_mode_enum(RecordMode::HOLOGRAM);
 
         return true;
     }
-    catch (const std::logic_error& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
 
     return false;
-}
-
-void cancel_time_transformation_cuts()
-{
-    if (!get_cuts_view_enabled())
-        return;
-
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay->setCursor(Qt::ArrowCursor);
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Cross);
-    }
-
-    set_cuts_view_enabled(false);
-    get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
 }
 
 #pragma endregion
@@ -516,44 +415,30 @@ void handle_update_exception()
 
 void set_filter2d(bool checked)
 {
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
     set_filter2d_enabled(checked);
     pipe_refresh();
 }
 
-void set_filter2d_view(bool checked, uint auxiliary_window_max_size)
+void set_filter2d_view(bool enabled)
 {
     if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
         return;
 
     auto pipe = get_compute_pipe();
-    if (checked)
+    if (enabled)
     {
         pipe->request(ICS::Filter2DView);
         while (pipe->is_requested(ICS::Filter2DView))
             continue;
-
-        const camera::FrameDescriptor& fd = get_fd();
-        ushort filter2d_window_width = fd.width;
-        ushort filter2d_window_height = fd.height;
-        get_good_size(filter2d_window_width, filter2d_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the
-        // main GL window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().filter2d_window.reset(
-            new gui::Filter2DWindow(pos,
-                                    QSize(filter2d_window_width, filter2d_window_height),
-                                    pipe->get_filter2d_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().filter2d_window->setTitle("Filter2D view");
 
         set_filter2d_log_enabled(true);
         pipe_refresh();
     }
     else
     {
-        UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
         pipe->request(ICS::DisableFilter2DView);
         while (pipe->is_requested(ICS::DisableFilter2DView))
             continue;
@@ -579,92 +464,43 @@ void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled,
 
 void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
 
-void set_lens_view(bool checked, uint auxiliary_window_max_size)
+void set_lens_view(bool enabled)
 {
-    // Cases when we do not want to modify it
-    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS && checked)
+    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS && checked)
         return;
 
-    set_lens_view_enabled(checked);
+    set_lens_view_enabled(enabled);
 
-    auto pipe = get_compute_pipe();
-
-    if (checked)
+    if (!enabled)
     {
-        try
-        {
-            // set positions of new windows according to the position of the
-            // main GL window
-            QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                         QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-
-            const ::camera::FrameDescriptor& fd = get_fd();
-            ushort lens_window_width = fd.width;
-            ushort lens_window_height = fd.height;
-            get_good_size(lens_window_width, lens_window_height, auxiliary_window_max_size);
-
-            UserInterfaceDescriptor::instance().lens_window.reset(
-                new gui::RawWindow(pos,
-                                   QSize(lens_window_width, lens_window_height),
-                                   pipe->get_lens_queue().get(),
-                                   0.f,
-                                   gui::KindOfView::Lens));
-
-            UserInterfaceDescriptor::instance().lens_window->setTitle("Lens view");
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR("Catch {}", e.what());
-        }
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-
+        auto pipe = get_compute_pipe();
         pipe->request(ICS::DisableLensView);
         while (pipe->is_requested(ICS::DisableLensView))
             continue;
-
-        pipe_refresh();
     }
 }
 
-void set_raw_view(bool checked, uint auxiliary_window_max_size)
+void set_raw_view(bool enabled)
 {
-    // Cases when we do not want to modify it
-    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS)
+    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS)
         return;
 
+    if (enabled && get_batch_size() > get_output_buffer_size())
+    {
+        LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
+        return;
+    }
+
     auto pipe = get_compute_pipe();
+    set_raw_view_enabled(enabled);
 
-    if (checked)
-    {
-        pipe->request(ICS::RawView);
-        while (pipe->is_requested(ICS::RawView))
-            continue;
+    auto request = enabled ? ICS::RawView : ICS::DisableRawView;
 
-        const ::camera::FrameDescriptor& fd = get_fd();
-        ushort raw_window_width = fd.width;
-        ushort raw_window_height = fd.height;
-        get_good_size(raw_window_width, raw_window_height, auxiliary_window_max_size);
-
-        // set positions of new windows according to the position of the main GL
-        // window and Lens window
-        QPoint pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition() +
-                     QPoint(UserInterfaceDescriptor::instance().mainDisplay->width() + 310, 0);
-        UserInterfaceDescriptor::instance().raw_window.reset(
-            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), pipe->get_raw_view_queue().get()));
-
-        UserInterfaceDescriptor::instance().raw_window->setTitle("Raw view");
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
-        pipe->request(ICS::DisableRawView);
-        while (pipe->is_requested(ICS::DisableRawView))
-            continue;
-    }
+    pipe->request(request);
+    while (pipe->is_requested(request))
+        continue;
 
     pipe_refresh();
 }
@@ -724,16 +560,24 @@ void set_q_accu_level(uint value)
     SET_SETTING(Q, width, value);
     pipe_refresh();
 }
+
 void set_p_index(uint value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    if (value >= get_time_transformation_size() || value == 0)
+    {
+        LOG_ERROR("p param has to be between 1 and #img");
+        return;
+    }
+
     SET_SETTING(P, start, value);
     pipe_refresh();
 }
 
 void set_p_accu_level(uint p_value)
 {
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-
     SET_SETTING(P, width, p_value);
     pipe_refresh();
 }
@@ -888,9 +732,10 @@ void set_time_transformation(const TimeTransformation value)
 
 void set_unwrapping_2d(const bool value)
 {
-    get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
 
-    pipe_refresh();
+    get_compute_pipe()->request(ICS::Unwrap2D);
 }
 
 WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
@@ -913,11 +758,17 @@ void close_critical_compute()
     if (get_convolution_enabled())
         disable_convolution();
 
-    if (api::get_cuts_view_enabled())
-        cancel_time_transformation_cuts();
+    if (get_cuts_view_enabled())
+        set_3d_cuts_view(false);
 
     if (get_filter2d_view_enabled())
-        set_filter2d_view(false, 0);
+        set_filter2d_view(false);
+
+    if (get_lens_view_enabled())
+        set_lens_view(false);
+
+    if (get_raw_view_enabled())
+        set_raw_view(false);
 
     Holovibes::instance().stop_compute();
 }
@@ -1086,6 +937,9 @@ void update_contrast(WindowKind kind, float min, float max)
 
 void set_log_scale(const bool value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
     auto window = api::get_current_window_type();
     if (window == WindowKind::Filter2D)
         api::set_filter2d_log_enabled(value);
@@ -1182,6 +1036,9 @@ unsigned get_accumulation_level()
 
 void set_accumulation_level(int value)
 {
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
     if (!is_current_window_xyz_type())
         throw std::runtime_error("bad window type");
     set_xyz_members(api::set_xy_accumulation_level,
@@ -1321,6 +1178,9 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
 void enable_convolution(const std::string& filename)
 {
+    if (api::get_import_type() == ImportType::None || !api::get_convolution_enabled())
+        return;
+
     load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
 
     if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
@@ -1469,12 +1329,18 @@ void display_reticle(bool value)
 
 void reticle_scale(float value)
 {
+    if (!is_between(value, 0.f, 1.f))
+        return;
+
     set_reticle_scale(value);
     pipe_refresh();
 }
 
 void update_registration_zone(float value)
 {
+    if (!is_between(value, 0.f, 1.f) || api::get_import_type() == ImportType::None)
+        return;
+
     set_registration_zone(value);
     api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
     pipe_refresh();
@@ -1484,84 +1350,29 @@ void update_registration_zone(float value)
 
 #pragma region Chart
 
-void active_noise_zone() { UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Noise>(); }
-
-void active_signal_zone()
+void set_chart_display(bool enabled)
 {
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Signal>();
-}
+    if (get_chart_display_enabled() == enabled)
+        return;
 
-void start_chart_display()
-{
-    auto pipe = get_compute_pipe();
-    pipe->request(ICS::ChartDisplay);
-
-    // Wait for the chart display to be enabled for notify
-    while (pipe->is_requested(ICS::ChartDisplay))
-        continue;
-
-    UserInterfaceDescriptor::instance().plot_window_ =
-        std::make_unique<gui::PlotWindow>(*get_compute_pipe()->get_chart_display_queue(),
-                                          UserInterfaceDescriptor::instance().auto_scale_point_threshold_,
-                                          "Chart");
-}
-
-void stop_chart_display()
-{
     try
     {
         auto pipe = get_compute_pipe();
-        pipe->request(ICS::DisableChartDisplay);
+        auto request = enabled ? ICS::ChartDisplay : ICS::DisableChartDisplay;
 
-        // Wait for the chart display to be disabled for notify
-        while (pipe->is_requested(ICS::DisableChartDisplay))
+        pipe->request(request);
+        while (pipe->is_requested(request))
             continue;
     }
     catch (const std::exception& e)
     {
         LOG_ERROR("Catch {}", e.what());
     }
-
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
 }
 
 #pragma endregion
 
 #pragma region Record
-
-/**
- * @brief Extract the name from the filename
- *
- * @param filePath the file name
- * @return std::string the name extracted from the filename
- */
-std::string getNameFromFilename(const std::string& filename)
-{
-    std::regex filenamePattern{R"(^\d{6}_(.*?)_?\d*$)"};
-    std::smatch matches;
-    if (std::regex_search(filename, matches, filenamePattern))
-        return matches[1].str();
-    else
-        return filename; // Returning the original filename if no match is found
-}
-
-const std::string browse_record_output_file(std::string& std_filepath)
-{
-    // Let std::filesystem handle path normalization and system compatibility
-    std::filesystem::path normalizedPath(std_filepath);
-
-    // Using std::filesystem to derive parent path, extension, and stem directly
-    std::string parentPath = normalizedPath.parent_path().string();
-    std::string fileExt = normalizedPath.extension().string();
-    std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
-
-    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
-    std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
-    UserInterfaceDescriptor::instance().record_output_directory_ = std::move(parentPath);
-    UserInterfaceDescriptor::instance().output_filename_ = std::move(fileNameWithoutExt);
-
-    return fileExt;
-}
 
 void set_record_buffer_size(uint value)
 {
@@ -1570,7 +1381,7 @@ void set_record_buffer_size(uint value)
     {
         UPDATE_SETTING(RecordBufferSize, value);
 
-        if (Holovibes::instance().is_recording())
+        if (is_recording())
             stop_record();
 
         Holovibes::instance().init_record_queue();
@@ -1585,33 +1396,18 @@ void set_record_queue_location(Device device)
     {
         UPDATE_SETTING(RecordQueueLocation, device);
 
-        if (Holovibes::instance().is_recording())
+        if (is_recording())
             stop_record();
 
         Holovibes::instance().init_record_queue();
     }
 }
 
-void set_record_mode(const std::string& text)
+void set_record_mode_enum(RecordMode value)
 {
-    LOG_FUNC(text);
+    stop_record();
 
-    // Mapping from string to RecordMode
-    static const std::unordered_map<std::string, RecordMode> recordModeMap = {{"Chart", RecordMode::CHART},
-                                                                              {"Processed Image", RecordMode::HOLOGRAM},
-                                                                              {"Raw Image", RecordMode::RAW},
-                                                                              {"3D Cuts XZ", RecordMode::CUTS_XZ},
-                                                                              {"3D Cuts YZ", RecordMode::CUTS_YZ},
-                                                                              {"Moments", RecordMode::MOMENTS}};
-
-    auto it = recordModeMap.find(text);
-    if (it == recordModeMap.end())
-    {
-        LOG_ERROR("Unknown record mode {}", text);
-        throw std::runtime_error("Record mode not handled");
-    }
-
-    set_record_mode(it->second);
+    set_record_mode(value);
 
     // Attempt to initialize compute pipe for non-CHART record modes
     if (get_record_mode() != RecordMode::CHART)
@@ -1619,7 +1415,7 @@ void set_record_mode(const std::string& text)
         try
         {
             auto pipe = get_compute_pipe();
-            if (Holovibes::instance().is_recording())
+            if (is_recording())
                 stop_record();
 
             Holovibes::instance().init_record_queue();
@@ -1631,6 +1427,22 @@ void set_record_mode(const std::string& text)
             LOG_DEBUG("Pipe not initialized: {}", e.what());
         }
     }
+}
+
+bool is_recording() { return Holovibes::instance().is_recording(); }
+
+std::vector<OutputFormat> get_supported_formats(RecordMode mode)
+{
+    static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
+        {RecordMode::RAW, {OutputFormat::HOLO}},
+        {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
+        {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
+
+    return extension_index_map.at(mode);
 }
 
 bool start_record_preconditions()
@@ -1684,8 +1496,6 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-void record_finished() { UserInterfaceDescriptor::instance().is_recording_ = false; }
-
 #pragma endregion
 
 #pragma region Import
@@ -1720,7 +1530,8 @@ bool import_start()
     set_is_computation_stopped(false);
 
     // if the file is to be imported in GPU, we should load the buffer preset for such case
-    NotifierManager::notify<bool>(api::get_load_file_in_gpu() ? "set_preset_file_gpu" : "import_start", true);
+    if (api::get_load_file_in_gpu())
+        NotifierManager::notify<bool>("set_preset_file_gpu", true);
 
     try
     {
@@ -1737,6 +1548,7 @@ bool import_start()
     }
 
     set_import_type(ImportType::File);
+    set_record_mode(RecordMode::HOLOGRAM);
 
     return true;
 }

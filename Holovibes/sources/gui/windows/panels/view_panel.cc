@@ -13,6 +13,7 @@
 #include "view_struct.hh"
 
 #include "API.hh"
+#include "GUI.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
@@ -36,26 +37,6 @@ ViewPanel::~ViewPanel()
 {
     delete p_left_shortcut_;
     delete p_right_shortcut_;
-}
-
-// TODO: use parameters instead of directly the GSH
-void ViewPanel::view_callback(WindowKind, ViewWindow)
-{
-    const bool is_raw = api::get_compute_mode() == Computation::Raw;
-
-    ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
-    ui_->ContrastCheckBox->setEnabled(true);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->InvertContrastCheckBox->setChecked(api::get_contrast_invert());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
-
-    // Window selection
-    QComboBox* window_selection = ui_->WindowSelectionComboBox;
-    window_selection->setEnabled(!is_raw);
-    window_selection->setCurrentIndex(static_cast<int>(api::get_current_window_type()));
 }
 
 void ViewPanel::update_img_type(int img_type)
@@ -230,9 +211,7 @@ void ViewPanel::on_notify()
         max_height = api::get_input_queue_fd_height() - 1;
     }
     else
-    {
         api::set_x_y(0, 0);
-    }
 
     ui_->XSpinBox->setMaximum(max_width);
     ui_->YSpinBox->setMaximum(max_height);
@@ -254,8 +233,6 @@ void ViewPanel::on_notify()
     ui_->ReticleScaleDoubleSpinBox->setEnabled(api::get_reticle_display_enabled());
     ui_->ReticleScaleDoubleSpinBox->setValue(api::get_reticle_scale());
     ui_->DisplayReticleCheckBox->setChecked(api::get_reticle_display_enabled());
-
-    // Filter2D
 }
 
 void ViewPanel::load_gui(const json& j_us)
@@ -278,103 +255,41 @@ void ViewPanel::set_view_mode(const QString& value) { parent_->set_view_image_ty
 
 void ViewPanel::set_unwrapping_2d(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
     api::set_unwrapping_2d(value);
-
     parent_->notify();
 }
 
 void ViewPanel::update_3d_cuts_view(bool checked)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (checked)
+    if (api::set_3d_cuts_view(checked))
     {
-        api::set_yz_enabled(true);
-        api::set_xz_enabled(true);
-        const ushort nImg = api::get_time_transformation_size();
-        uint time_transformation_size = std::max(256u, std::min(512u, (uint)nImg));
-
-        if (time_transformation_size > time_transformation_cuts_window_max_size)
-            time_transformation_size = time_transformation_cuts_window_max_size;
-
-        const bool res = api::set_3d_cuts_view(time_transformation_size);
-
-        if (res)
-            parent_->notify();
-        else
-            cancel_time_transformation_cuts();
+        gui::set_3d_cuts_view(checked, time_transformation_cuts_window_max_size);
+        parent_->notify(); // Make the x and y parameters visible
     }
-    // FIXME: if slice are closed, cancel time should be call.
-    else
-    {
-        cancel_time_transformation_cuts();
-        api::set_yz_enabled(false);
-        api::set_xz_enabled(false);
-    }
-}
-
-void ViewPanel::cancel_time_transformation_cuts()
-{
-    api::cancel_time_transformation_cuts();
-    parent_->notify();
 }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (api::get_registration_enabled())
-    {
-        set_registration(value);
-        ui_->RegistrationCheckBox->setChecked(api::get_registration_enabled());
-    }
-
     api::set_fft_shift_enabled(value);
+    parent_->notify();
 }
 
 void ViewPanel::set_registration(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!value)
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Registration);
-
-    if (!api::get_fft_shift_enabled())
-    {
-        set_fft_shift(value);
-        ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
-    }
-
     api::set_registration_enabled(value);
     parent_->notify();
 }
 
 void ViewPanel::update_lens_view(bool checked)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    api::set_lens_view(checked, parent_->auxiliary_window_max_size);
+    api::set_lens_view(checked);
+    gui::set_lens_view(checked, parent_->auxiliary_window_max_size);
 }
 
 void ViewPanel::update_raw_view(bool checked)
 {
-    if (api::get_import_type() == ImportType::None)
-        return;
-
-    if (checked && api::get_batch_size() > api::get_output_buffer_size())
-    {
-        LOG_ERROR("[RAW VIEW] Batch size must be lower than output queue size");
-        return;
-    }
-
-    api::set_raw_view(checked, parent_->auxiliary_window_max_size);
+    api::set_raw_view(checked);
+    gui::set_raw_view(checked, parent_->auxiliary_window_max_size);
 
     parent_->notify();
 }
@@ -382,71 +297,22 @@ void ViewPanel::update_raw_view(bool checked)
 void ViewPanel::set_x_y()
 {
     api::set_x_y(ui_->XSpinBox->value(), ui_->YSpinBox->value());
-
     parent_->notify();
 }
 
-void ViewPanel::set_x_accu()
-{
-    api::set_x_accu_level(ui_->XAccSpinBox->value());
+void ViewPanel::set_x_accu() { api::set_x_accu_level(ui_->XAccSpinBox->value()); }
 
-    parent_->notify();
-}
-
-void ViewPanel::set_y_accu()
-{
-    api::set_y_accu_level(ui_->YAccSpinBox->value());
-
-    parent_->notify();
-}
+void ViewPanel::set_y_accu() { api::set_y_accu_level(ui_->YAccSpinBox->value()); }
 
 void ViewPanel::set_p(int value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (value >= static_cast<int>(api::get_time_transformation_size()))
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
     api::set_p_index(value);
-
     parent_->notify();
 }
 
-void ViewPanel::increment_p()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::increment_p() { set_p(api::get_p_index() + 1); }
 
-    // FIXME: Cannot append
-    if (api::get_p_index() >= api::get_time_transformation_size())
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_p_index() + 1);
-    parent_->notify();
-}
-
-void ViewPanel::decrement_p()
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    // FIXME: Cannot append
-    if (api::get_p_index() <= 0)
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    set_p(api::get_p_index() - 1);
-    parent_->notify();
-}
+void ViewPanel::decrement_p() { set_p(api::get_p_index() - 1); }
 
 void ViewPanel::set_p_accu()
 {
@@ -457,48 +323,30 @@ void ViewPanel::set_p_accu()
 void ViewPanel::set_q(int value)
 {
     api::set_q_index(value);
-
     parent_->notify();
 }
 
 void ViewPanel::set_q_acc()
 {
     api::set_q_accu_level(ui_->Q_AccSpinBox->value());
-
     parent_->notify();
 }
 
 void ViewPanel::rotateTexture()
 {
     api::rotateTexture();
-
-    parent_->notify();
+    parent_->notify(); // Update rotate number
 }
 
 void ViewPanel::flipTexture()
 {
     api::flipTexture();
-
-    parent_->notify();
+    parent_->notify(); // Update flip number
 }
 
-void ViewPanel::set_log_scale(const bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+void ViewPanel::set_log_scale(const bool value) { api::set_log_scale(value); }
 
-    api::set_log_scale(value);
-
-    parent_->notify();
-}
-
-void ViewPanel::set_accumulation_level(int value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    api::set_accumulation_level(value);
-}
+void ViewPanel::set_accumulation_level(int value) { api::set_accumulation_level(value); }
 
 void ViewPanel::set_contrast_mode(bool value)
 {
@@ -526,22 +374,13 @@ void ViewPanel::display_reticle(bool value)
     parent_->notify();
 }
 
-void ViewPanel::reticle_scale(double value)
-{
-    if (!is_between(value, 0., 1.))
-        return;
-
-    api::reticle_scale(value);
-}
+void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
 
 void ViewPanel::update_registration_zone(double value)
 {
-    if (!is_between(value, 0., 1.) || api::get_import_type() == ImportType::None)
-        return;
-
-    UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
-
     api::update_registration_zone(value);
-}
 
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Registration>(false, 1000);
+}
 } // namespace holovibes::gui
