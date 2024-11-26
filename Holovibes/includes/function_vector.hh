@@ -49,7 +49,7 @@ class FunctionVector
     void call_all();
 
     /*! \brief Stop the execution */
-    void exit_now() { exit = true; }
+    void exit_now() { exit_ = true; }
 
     /*! \brief Push back the function in the vector. Get a new unique ID associated to the function.
      *
@@ -97,6 +97,6 @@ class FunctionVector
     std::vector<ushort> remove_vect_;
 
     /*! \brief Tells whether to run or exit */
-    bool exit;
+    bool exit_;
 };
 } // namespace holovibes

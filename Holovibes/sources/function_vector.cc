@@ -5,11 +5,11 @@ namespace holovibes
 void FunctionVector::call_all()
 {
     // Call all functions in the vector.
-    exit = false;
+    exit_ = false;
     for (const auto& [_, f] : fn_vect_)
     {
         f();
-        if (exit)
+        if (exit_)
             break;
     }
 
