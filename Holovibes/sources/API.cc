@@ -422,6 +422,9 @@ void update_time_stride(const uint time_stride)
 
 bool set_3d_cuts_view(uint time_transformation_size)
 {
+    // No 3d cuts in moments mode
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        return false;
     try
     {
         get_compute_pipe()->request(ICS::TimeTransformationCuts);
@@ -853,7 +856,7 @@ void set_lambda(float value)
 
 void set_z_distance(float value)
 {
-    if (get_compute_mode() == Computation::Raw || get_data_type() == RecordedDataType::MOMENTS)
+    if (get_compute_mode() == Computation::Raw)
         return;
 
     // Avoid 0 for cuda kernel
@@ -866,8 +869,7 @@ void set_z_distance(float value)
 
 void set_space_transformation(const SpaceTransformation value)
 {
-    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value ||
-        get_data_type() == RecordedDataType::MOMENTS)
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
         return;
 
     UPDATE_SETTING(SpaceTransformation, value);
@@ -876,8 +878,7 @@ void set_space_transformation(const SpaceTransformation value)
 
 void set_time_transformation(const TimeTransformation value)
 {
-    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value ||
-        get_data_type() == RecordedDataType::MOMENTS)
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
         return;
 
     UPDATE_SETTING(TimeTransformation, value);
@@ -1775,9 +1776,9 @@ void set_input_file_end_index(size_t value)
 
 void loaded_moments_data()
 {
-    set_batch_size(1);  // Cannot call the api.cc function because some parameters are not defined yet.
-    set_time_stride(1); // The user can change the time stride, but setting it to 1
-                        // allows moments to be read in the correct order
+    set_batch_size(3);  // Cannot call the api.cc function because some parameters are not defined yet.
+    set_time_stride(3); // The user can change the time stride, but setting it to 3
+                        // is a good basis to analyze moments
     close_windows();    // Set lens and raw view to false
 
     // There are plenty of settings not used in data type moments but not modified here;

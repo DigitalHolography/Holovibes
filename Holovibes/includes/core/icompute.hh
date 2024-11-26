@@ -85,7 +85,8 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
-    holovibes::settings::RecordQueueLocation
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::DataType
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -94,8 +95,7 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled,                          \
-    holovibes::settings::DataType
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 

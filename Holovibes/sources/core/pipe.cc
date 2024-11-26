@@ -266,12 +266,11 @@ void Pipe::refresh()
 
     if (api::get_data_type() == RecordedDataType::MOMENTS)
     {
-        // Dequeuing the 3 moments in a row
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
+        // Dequeuing the 3 moments in a temporary buffer
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
 
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
-
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
+        // Splitting them into their respective buffers
+        fourier_transforms_->insert_moments_split();
 
         update_batch_index();
 
