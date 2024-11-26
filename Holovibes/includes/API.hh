@@ -150,19 +150,15 @@ void set_input_filter(std::vector<float> value);
 
 /*! \brief Loads the input filter
  *
- * \param input_filter the input filter to load
  * \param file the file path
  */
-void load_input_filter(std::vector<float> input_filter, const std::string& file);
+void load_input_filter(const std::string& file);
 
 /*! \brief Enables the input filter mode
  *
- * \param value the file containing the filter's settings
+ * \param file the file containing the filter's settings or empty string to disable the filter
  */
-void enable_filter();
 void enable_filter(const std::string& file);
-
-void disable_filter();
 
 /*! \brief Sets the computation mode to Raw or Holographic*/
 void set_computation_mode(Computation mode);

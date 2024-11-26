@@ -65,7 +65,7 @@ void Rendering::Convolution::Update()
 void Rendering::Filter::Update()
 {
     this->enabled = api::get_filter_enabled();
-    this->type = UserInterfaceDescriptor::instance().filter_name;
+    this->type = api::get_filter_file_name();
 }
 
 void Rendering::Filter2D::Update()
@@ -232,8 +232,8 @@ void Rendering::Convolution::Load()
 
 void Rendering::Filter::Load()
 {
-    UPDATE_SETTING(FilterEnabled, this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
-    UserInterfaceDescriptor::instance().filter_name = this->type;
+    UPDATE_SETTING(FilterEnabled, this->enabled && !this->type.empty());
+    UPDATE_SETTING(FilterFileName, this->type);
 }
 
 void Rendering::Filter2D::Load()

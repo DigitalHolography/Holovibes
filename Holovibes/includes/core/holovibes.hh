@@ -76,6 +76,7 @@
     holovibes::settings::Filter2dN2,                             \
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameRecordEnabled,                     \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::DisplayRate,                            \
@@ -96,6 +97,7 @@
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
+    holovibes::settings::ConvolutionFileName,                    \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
     holovibes::settings::IsComputationStopped,                   \
@@ -405,6 +407,7 @@ class Holovibes
                                              settings::Filter2dN2{1},
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
+                                             settings::FilterFileName{std::string("")},
                                              settings::FrameRecordEnabled{false},
                                              settings::ChartRecordEnabled{false},
                                              settings::DisplayRate{24},
@@ -425,6 +428,7 @@ class Holovibes
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
+                                             settings::ConvolutionFileName{std::string("")},
                                              settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},
                                              settings::IsComputationStopped{true},

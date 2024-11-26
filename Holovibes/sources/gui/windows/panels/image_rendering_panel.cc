@@ -99,8 +99,11 @@ void ImageRenderingPanel::on_notify()
     }
     else
     {
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
-            QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+        int index = 0;
+        if (!api::get_filter_file_name().empty())
+            index = ui_->InputFilterQuickSelectComboBox->findText(QString::fromStdString(api::get_filter_file_name()));
+
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
     }
 
     // Convolution
@@ -196,11 +199,8 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     LOG_FUNC();
 
-    if (value.toStdString() != UserInterfaceDescriptor::instance().filter_name)
-    {
-        api::enable_filter(value.toStdString());
-        parent_->notify();
-    }
+    std::string v = value.toStdString();
+    api::enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)

@@ -304,7 +304,7 @@ void handle_update_exception()
     api::set_p_index(0);
     api::set_time_transformation_size(1);
     api::disable_convolution();
-    api::disable_filter();
+    api::enable_filter("");
 }
 
 void set_filter2d(bool checked)
@@ -1132,56 +1132,44 @@ std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
 
 void set_input_filter(std::vector<float> value) { UPDATE_SETTING(InputFilter, value); }
 
-void load_input_filter(std::vector<float> input_filter, const std::string& file)
+void load_input_filter(const std::string& file)
 {
     auto& holo = Holovibes::instance();
     try
     {
         auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
-        InputFilter(input_filter,
+        InputFilter(get_input_filter(),
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
                     holo.get_gpu_output_queue()->get_fd().height);
     }
     catch (std::exception& e)
     {
-        api::set_input_filter({});
         LOG_ERROR("Couldn't load input filter : {}", e.what());
     }
-    pipe_refresh();
 }
 
 void enable_filter(const std::string& filename)
 {
-    UserInterfaceDescriptor::instance().filter_name = filename;
-    enable_filter();
-}
+    if (filename == api::get_filter_file_name())
+        return;
 
-void enable_filter()
-{
-    auto filename = UserInterfaceDescriptor::instance().filter_name;
-    auto file = filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename);
-
+    api::set_filter_file_name(filename);
     UPDATE_SETTING(FilterEnabled, true);
-    set_input_filter({});
 
-    if (get_compute_pipe_no_throw() != nullptr)
+    if (!get_compute_pipe_no_throw())
+        return;
+
+    // There is no file for filtering
+    if (filename.empty())
     {
-        // There is no file None.txt for filtering
-        if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
-        {
-            load_input_filter(get_input_filter(), file.value());
-            pipe_refresh();
-        }
-        else
-            disable_filter();
+        set_input_filter({});
+        UPDATE_SETTING(FilterEnabled, false);
     }
-}
+    else
+        load_input_filter(filename);
 
-void disable_filter()
-{
-    set_input_filter({});
-    UPDATE_SETTING(FilterEnabled, false);
+    pipe_refresh();
 }
 
 #pragma endregion

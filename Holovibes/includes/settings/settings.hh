@@ -109,6 +109,7 @@ DECLARE_SETTING(Filter2dN1, int);
 DECLARE_SETTING(Filter2dN2, int);
 DECLARE_SETTING(Filter2dSmoothLow, int);
 DECLARE_SETTING(Filter2dSmoothHigh, int);
+DECLARE_SETTING(FilterFileName, std::string);
 
 /*! \name FileReadCache */
 /*!
@@ -150,9 +151,12 @@ DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
+
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
+DECLARE_SETTING(ConvolutionFileName, std::string);
+
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);

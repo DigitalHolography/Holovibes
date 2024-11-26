@@ -308,6 +308,9 @@ inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnab
 
 inline bool get_divide_convolution_enabled() { return GET_SETTING(DivideConvolutionEnabled); }
 inline void set_divide_convolution_enabled(bool value) { UPDATE_SETTING(DivideConvolutionEnabled, value); }
+
+inline std::string get_convolution_file_name() { return GET_SETTING(ConvolutionFileName); }
+inline void set_convolution_file_name(std::string value) { UPDATE_SETTING(ConvolutionFileName, value); }
 /*! \} */
 
 /*!
@@ -480,6 +483,9 @@ inline void set_filter2d_n2(int value)
     UPDATE_SETTING(Filter2dN2, value);
     pipe_refresh();
 }
+
+inline std::string get_filter_file_name() { return GET_SETTING(FilterFileName); }
+inline void set_filter_file_name(std::string value) { UPDATE_SETTING(FilterFileName, value); }
 
 inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }
 inline void set_filter2d_smooth_low(int value) { UPDATE_SETTING(Filter2dSmoothLow, value); }

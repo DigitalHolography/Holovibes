@@ -146,22 +146,18 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        if (setting<settings::ImageType>() == ImgType::Composite)
-        {
-            // Grey to RGB
+        if (setting<settings::ImageType>() == ImgType::Composite) // Grey to RGB
             zone_size *= 3;
-            buffers_.gpu_postprocess_frame_size *= 3;
-        }
 
         buffers_.gpu_postprocess_frame_size = zone_size;
 
         // Allocate the buffers
         int err = !buffers_.gpu_output_frame.resize(zone_size);
-        err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_postprocess_frame.resize(zone_size);
+        err += !time_transformation_env_.gpu_p_frame.resize(zone_size);
+        err += !buffers_.gpu_complex_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_float_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
 
