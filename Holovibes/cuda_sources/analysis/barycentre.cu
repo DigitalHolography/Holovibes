@@ -38,17 +38,12 @@ __global__ void kernel_compute_multiplication_mean(float* output, float* A, floa
     }
 }
 
-__global__ void kernel_compute_multiplication(float* output, float* A, float* B, size_t size)
+__global__ void
+kernel_compute_multiplication_mean_2(float* output, float* A, float* B, size_t size, uint depth, size_t i)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-        output[index] = A[index] * B[index];
-}
-__global__ void kernel_compute_multiplication_mean_2(float* output, float* tmp, size_t size, uint depth, size_t i)
-{
-    const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-        atomicAdd(&(output[i]), tmp[index]);
+        atomicAdd(output + i, A[index + i * size] * B[index]);
 }
 
 __global__ void kernel_divide(float* output, size_t denominator, uint depth)
@@ -62,26 +57,19 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    float* tmp;
-    cudaXMalloc(&tmp, size * sizeof(float));
 
     for (size_t i = 0; i < depth; ++i)
     {
-        kernel_compute_multiplication<<<blocks, threads, 0, stream>>>(tmp, A + i * size, B, size); // OK
-        cudaCheckError();
-        cudaXStreamSynchronize(stream);
-        kernel_compute_multiplication_mean_2<<<blocks, threads, 0, stream>>>(output, tmp, size, depth, i);
+        kernel_compute_multiplication_mean_2<<<blocks, threads, 0, stream>>>(output, A, B, size, depth, i);
         cudaCheckError();
     }
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(output, 1, depth, "vascular_pulse_before_div", stream);
+    print_in_file_gpu(output, 1, depth, "before_div", stream);
+
     blocks = map_blocks_to_problem(depth, threads);
     kernel_divide<<<blocks, threads, 0, stream>>>(output, size, depth);
     cudaCheckError();
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(output, 1, depth, "vascular_pulse", stream);
-    cudaXStreamSynchronize(stream);
-    cudaXFree(tmp);
+
+    print_in_file_gpu(output, 1, depth, "result", stream);
 }
 
 // void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
