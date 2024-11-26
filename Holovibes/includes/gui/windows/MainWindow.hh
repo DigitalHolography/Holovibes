@@ -64,9 +64,6 @@ class MainWindow : public QMainWindow
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
 
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
-
     /*! \brief Stops critical compute */
     void close_critical_compute();
 

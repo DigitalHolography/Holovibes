@@ -14,6 +14,7 @@
 #include <QSplashScreen>
 
 #include "API.hh"
+#include "GUI.hh"
 #include "options_parser.hh"
 #include "MainWindow.hh"
 #include "frame_desc.hh"
@@ -90,7 +91,7 @@ static int start_gui(holovibes::Holovibes& holovibes, int argc, char** argv, con
     holovibes::gui::MainWindow window;
 
     LOG_TRACE(" ");
-    if (holovibes::api::is_light_ui_mode())
+    if (holovibes::gui::is_light_ui_mode())
         window.light_ui_->show();
     else
         window.show();

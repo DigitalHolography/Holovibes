@@ -158,6 +158,7 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
+    gui::close_windows();
     api::import_stop();
     parent_->notify();
 }
@@ -165,10 +166,9 @@ void ImportPanel::import_stop()
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
 void ImportPanel::import_start()
 {
+    gui::close_windows();
     if (api::import_start())
         parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
-    else
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }

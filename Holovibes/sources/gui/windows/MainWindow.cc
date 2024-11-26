@@ -198,7 +198,7 @@ MainWindow::~MainWindow()
 {
     ui_->menuSelect_preset->clear();
 
-    api::close_windows();
+    gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
     api::camera_none();
@@ -310,7 +310,7 @@ void MainWindow::notify_error(const std::exception& e)
             {
                 // notify will be in close_critical_compute
                 api::handle_update_exception();
-                api::close_windows();
+                gui::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
@@ -573,6 +573,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
+    gui::close_windows();
     api::camera_none();
     Logger::flush();
 }
@@ -676,6 +677,8 @@ void MainWindow::set_view_image_type(const QString& value)
 
     if (api::set_view_mode(img_type) == ApiCode::OK)
     {
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
         if (composite)
         {
             float old_scale = 1.f;
@@ -686,8 +689,8 @@ void MainWindow::set_view_image_type(const QString& value)
                 old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
             }
 
-            api::close_windows();
-            api::create_window(api::get_compute_mode(), window_max_size);
+            gui::close_windows();
+            gui::create_window(api::get_compute_mode(), window_max_size);
 
             UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
             UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);

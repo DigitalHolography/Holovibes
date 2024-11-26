@@ -58,27 +58,12 @@ static bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_type());
 }
 
-void close_windows()
-{
-    if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
-        UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
-    UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-}
-
 #pragma endregion
 
 #pragma region Close Compute
 
 void camera_none()
 {
-    close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_frame_read();
@@ -177,48 +162,6 @@ void create_pipe()
     }
 }
 
-QPoint getSavedHoloWindowPos()
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    int x = json_get_or_default(j_us, 0, "holo window", "x");
-    int y = json_get_or_default(j_us, 0, "holo window", "y");
-    return QPoint(x, y);
-}
-
-QSize getSavedHoloWindowSize(ushort& width, ushort& height)
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    int final_width = json_get_or_default(j_us, width, "holo window", "width");
-    int final_height = json_get_or_default(j_us, height, "holo window", "height");
-    return QSize(final_width, final_height);
-}
-
-void set_light_ui_mode(bool value)
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-    j_us["light_ui"] = value;
-
-    std::ofstream output_file(path);
-    output_file << j_us.dump(1);
-}
-
-bool is_light_ui_mode()
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    return json_get_or_default(j_us, false, "light_ui");
-}
-
 void set_computation_mode(Computation mode)
 {
     close_critical_compute();
@@ -233,50 +176,6 @@ void set_computation_mode(Computation mode)
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
-}
-
-void create_window(Computation window_kind, ushort window_size)
-{
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_size);
-
-    QPoint pos = getSavedHoloWindowPos();
-    QSize size = getSavedHoloWindowSize(width, height);
-
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
-        size = UserInterfaceDescriptor::instance().mainDisplay->size();
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
-
-    if (window_kind == Computation::Raw)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new holovibes::gui::RawWindow(pos,
-                                          size,
-                                          get_input_queue().get(),
-                                          static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new gui::HoloWindow(pos,
-                                size,
-                                get_gpu_output_queue().get(),
-                                UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ,
-                                static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
-    }
-
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
 }
 
 ApiCode set_view_mode(const ImgType type)
@@ -1312,11 +1211,6 @@ void display_reticle(bool value)
 
     set_reticle_display_enabled(value);
 
-    if (value)
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
-    else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
-
     pipe_refresh();
 }
 
@@ -1500,7 +1394,6 @@ void import_stop()
 
     LOG_FUNC();
 
-    close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
