@@ -12,6 +12,7 @@
 
 #define ONRESTART_SETTINGS                         \
     holovibes::settings::InputFilePath,            \
+    holovibes::settings::BatchSize,            \
     holovibes::settings::FileBufferSize,           \
     holovibes::settings::LoadFileInGPU,            \
     holovibes::settings::InputFileStartIndex,      \

@@ -57,6 +57,8 @@ class BatchInputQueue final : public DisplayQueue
      */
     void enqueue(const void* const input_frame, const cudaMemcpyKind memcpy_kind = cudaMemcpyDeviceToDevice);
 
+    void enqueue_multiple(const void* const frames, const int nb_frame, const cudaMemcpyKind memcpy_kind);
+
     // bool enqueue(void* elt, const cudaStream_t stream, const cudaMemcpyKind cuda_kind = cudaMemcpyDeviceToDevice);
 
     /*! \brief Copy multiple
@@ -222,7 +224,6 @@ class BatchInputQueue final : public DisplayQueue
 
     /*! \brief The current number of frames in the queue
      *
-     * This variable must always be equal to
      * batch_size_ * size_ + curr_batch_counter
      */
     std::atomic<uint>& curr_nb_frames_;
