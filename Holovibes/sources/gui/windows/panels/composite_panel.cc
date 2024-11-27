@@ -231,16 +231,18 @@ void slide_update_threshold(const QSlider& slider,
                             const float lower_bound,
                             const float& upper_bound)
 {
+    receiver = slider.value() / 1000.0f;
 
-    const bool res = api::slide_update_threshold(slider.value(), receiver, bound_to_update, lower_bound, upper_bound);
+    if (lower_bound > upper_bound)
+    {
+        bound_to_update = slider.value() / 1000.0f;
+        slider_to_update.setValue(slider.value());
+    }
 
     char array[10];
     sprintf_s(array, "%d", slider.value());
     fancy_Qslide_text_percent(array);
     to_be_written_in.setText(QString(array));
-
-    if (res)
-        slider_to_update.setValue(slider.value());
 }
 
 void CompositePanel::slide_update_threshold_h_min()

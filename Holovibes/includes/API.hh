@@ -155,62 +155,6 @@ void enable_filter(const std::string& file);
 /*! \brief Sets the computation mode to Raw or Holographic*/
 void set_computation_mode(Computation mode);
 
-/*! \brief Checks preconditions to start recording
- *
- * \return success if all preconditions are met
- */
-bool start_record_preconditions();
-
-/*!
- * \brief Initiates the recording process.
- *
- * This function starts the recording process based on the current recording mode.
- * It executes the provided callback function once the recording is complete.
- *
- * \param callback A lambda function to execute at the end of the recording process.
- *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
- */
-void start_record(std::function<void()> callback);
-
-/*! \brief Stops recording
- *
- * \note This functions calls the notification `record_stop` when this is done.
- */
-void stop_record();
-
-/*! \brief Change the record mode in the settings
- *
- * \param value The new record mode to be set to
- */
-void set_record_mode_enum(RecordMode value);
-
-/*!
- * \brief Gets the available extension for the given record mode
- *
- * \param mode The record mode for which to get the available extensions
- * \return std::vector<OutputFormat> The available file extensions as an enum.
- */
-std::vector<OutputFormat> get_supported_formats(RecordMode mode);
-
-/*! \brief Return whether we are recording or not
- *
- * \return true if recording, else false
- */
-bool is_recording();
-
-/*!
- * \brief Set the record queue location, between gpu and cpu
- *
- * \param gpu whether the record queue is on the gpu or the cpu
- */
-void set_record_queue_location(Device device);
-
-/*! \brief Set the record buffer size, and trigger the allocation of the pipe
- *
- * \param value the size of the buffer
- */
-void set_record_buffer_size(uint value);
-
 /*! \brief Changes the current camera used
  *
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
@@ -736,19 +680,6 @@ const QUrl get_documentation_url();
  */
 constexpr std::vector<std::string> get_credits();
 
-/*! \brief Update the slide value according to the bounds
- *
- * \param slider_value the new value
- * \param receiver will get the new value
- * \param bound_to_update may be updated
- * \param lower_bound the lower bound of the slide
- * \param upper_bound the upper bound of the slide
- * \return true lower_bound greater than upper_bound
- * \return false else
- */
-bool slide_update_threshold(
-    const int slider_value, float& receiver, float& bound_to_update, const float lower_bound, const float upper_bound);
-
 /*! \brief Displays information */
 void start_information_display();
 
@@ -765,3 +696,4 @@ void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_q
 
 #include "API.hxx"
 #include "composite_api.hh"
+#include "record_api.hh"

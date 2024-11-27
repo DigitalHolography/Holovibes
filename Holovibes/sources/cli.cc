@@ -296,7 +296,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     }
     if (opts.mp4_fps)
     {
-        holovibes.update_setting(holovibes::settings::Mp4Fps{opts.mp4_fps.value()});
+        holovibes::api::set_mp4_fps(opts.mp4_fps.value());
     }
     // Change the fps according to the Mp4Fps value when having to convert in Mp4 format
     if (opts.output_path.value().ends_with(".mp4"))
