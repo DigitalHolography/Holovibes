@@ -16,6 +16,7 @@ set(EXTERNAL_INCLUDES
 set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
+    includes/api/
     includes/state/
     includes/compute/
     includes/core/

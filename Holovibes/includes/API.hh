@@ -211,9 +211,6 @@ void set_record_queue_location(Device device);
  */
 void set_record_buffer_size(uint value);
 
-/*! \brief Set the camera timeout object */
-void set_camera_timeout();
-
 /*! \brief Changes the current camera used
  *
  * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
@@ -292,80 +289,6 @@ void set_p_index(uint value);
  * \param value the new value of q
  */
 void set_q_index(uint value);
-
-/*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
- *
- * \param composite_p_red the new value
- * \param composite_p_blue the new value
- */
-void set_composite_intervals(int composite_p_red, int composite_p_blue);
-
-/*! \brief Modifies HSV Hue min frequence
- *
- * \param composite_p_min_h the new value
- */
-void set_composite_intervals_hsv_h_min(uint composite_p_min_h);
-
-/*! \brief Modifies HSV Hue max frequence
- *
- * \param composite_p_max_h the new value
- */
-void set_composite_intervals_hsv_h_max(uint composite_p_max_h);
-
-/*! \brief Modifies HSV Hue max frequence
- *
- * \param composite_p_min_s the new value
- */
-void set_composite_intervals_hsv_s_min(uint composite_p_min_s);
-
-/*! \brief Modifies HSV Saturation max frequence
- *
- * \param composite_p_max_s the new value
- */
-void set_composite_intervals_hsv_s_max(uint composite_p_max_s);
-
-/*! \brief Modifies HSV Value min frequence
- *
- * \param composite_p_min_v the new value
- */
-void set_composite_intervals_hsv_v_min(uint composite_p_min_v);
-
-/*!
- * \brief Modifies HSV Value min frequence
- *
- * \param composite_p_max_v the new value
- */
-void set_composite_intervals_hsv_v_max(uint composite_p_max_v);
-
-/*! \brief Modifies the RGB
- *
- * \param weight_r the new value of Red
- * \param weight_g the new value of Green
- * \param weight_b the new value of blue
- */
-void set_composite_weights(double weight_r, double weight_g, double weight_b);
-
-/*! \brief Switchs between to RGB mode
- *
- */
-void select_composite_rgb();
-
-/*! \brief Switchs between to HSV mode
- *
- */
-void select_composite_hsv();
-
-/*! \brief Enables or disables Saturation frequency channel min and max
- *
- * \param composite_p_activated_s true: enable, false: disable
- */
-void actualize_frequency_channel_s(bool composite_p_activated_s);
-
-/*! \brief Enables or disables Value frequency channel min and max
- *
- * \param composite_p_activated_v true: enable, false: disable
- */
-void actualize_frequency_channel_v(bool composite_p_activated_v);
 
 /*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
 void check_p_limits();
@@ -841,3 +764,4 @@ void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_q
 } // namespace holovibes::api
 
 #include "API.hxx"
+#include "composite_api.hh"
