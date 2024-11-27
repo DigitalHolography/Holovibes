@@ -135,7 +135,7 @@ float* CircularVideoBuffer::get_data_ptr() { return data_.get(); }
 
 void CircularVideoBuffer::multiply_data_by_frame(float* frame)
 {
-    cudaXMemsetAsync(compute_mean_1_2_buffer_, 0, sizeof(float) * buffer_capacity_, stream_);
+    cudaXMemsetAsync(compute_mean_1_2_buffer_, 0, sizeof(float) * nb_frames_, stream_);
     compute_multiplication_mean(compute_mean_1_2_buffer_, data_.get(), frame, frame_res_, nb_frames_, stream_);
 }
 

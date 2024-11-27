@@ -38,12 +38,42 @@ __global__ void kernel_compute_multiplication_mean(float* output, float* A, floa
     }
 }
 
-__global__ void
-kernel_compute_multiplication_mean_2(float* output, float* A, float* B, size_t size, uint depth, size_t i)
+__global__ void kernel_compute_multiplication_mean_optimized(
+    float* output, const float* A, const float* B, size_t size, uint depth, size_t i)
 {
+    // Création de la mémoire partagée pour la réduction locale
+    extern __shared__ float sdata[];
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+    const uint thread_id = threadIdx.x;
+
+    // Initialisation locale des résultats
+    float temp = 0.0f;
+
+    // Accéder aux données de manière coalescente si possible
     if (index < size)
-        atomicAdd(output + i, A[index + i * size] * B[index]);
+    {
+        temp = A[index + i * size] * B[index];
+    }
+
+    // Réduction parallèle dans la mémoire partagée
+    sdata[thread_id] = temp;
+    __syncthreads();
+
+    // Réduction en utilisant l'arbre binaire
+    for (uint s = blockDim.x / 2; s > 0; s >>= 1)
+    {
+        if (thread_id < s)
+        {
+            sdata[thread_id] += sdata[thread_id + s];
+        }
+        __syncthreads();
+    }
+
+    // Le thread 0 écrit le résultat partiel
+    if (thread_id == 0)
+    {
+        atomicAdd(output + i, sdata[0]);
+    }
 }
 
 __global__ void kernel_divide(float* output, size_t denominator, uint depth)
@@ -60,7 +90,13 @@ void compute_multiplication_mean(float* output, float* A, float* B, size_t size,
 
     for (size_t i = 0; i < depth; ++i)
     {
-        kernel_compute_multiplication_mean_2<<<blocks, threads, 0, stream>>>(output, A, B, size, depth, i);
+        size_t shared_mem_size = threads * sizeof(float);
+        kernel_compute_multiplication_mean_optimized<<<blocks, threads, shared_mem_size, stream>>>(output,
+                                                                                                   A,
+                                                                                                   B,
+                                                                                                   size,
+                                                                                                   depth,
+                                                                                                   i);
         cudaCheckError();
     }
     blocks = map_blocks_to_problem(depth, threads);

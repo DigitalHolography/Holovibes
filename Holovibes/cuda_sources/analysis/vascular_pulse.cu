@@ -257,8 +257,6 @@ void compute_first_correlation(float* output,
 
     // NaN start appearing in the output buffer after divide
     divide(output, std_M0_ff_video_centered, 512 * 512, stream);
-    if (length_video == 506)
-        print_in_file_gpu(output, 512, 512, "output", stream);
 
     // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);
