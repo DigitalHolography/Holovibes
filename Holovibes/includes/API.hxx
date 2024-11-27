@@ -238,35 +238,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 /*! \} */
 
 /*!
- * \name Input
- * \{
- */
-inline size_t get_input_file_start_index() { return GET_SETTING(InputFileStartIndex); }
-inline size_t get_input_file_end_index() { return GET_SETTING(InputFileEndIndex); }
-
-inline std::string get_input_file_path() { return GET_SETTING(InputFilePath); }
-inline void set_input_file_path(std::string value) { UPDATE_SETTING(InputFilePath, value); }
-
-inline bool get_load_file_in_gpu() { return GET_SETTING(LoadFileInGPU); }
-inline void set_load_file_in_gpu(bool value) { UPDATE_SETTING(LoadFileInGPU, value); }
-
-inline uint get_input_fps() { return static_cast<uint>(GET_SETTING(InputFPS)); }
-inline void set_input_fps(uint value) { UPDATE_SETTING(InputFPS, value); }
-
-inline camera::FrameDescriptor get_input_fd() { return GET_SETTING(ImportedFileFd); }
-inline void set_input_fd(camera::FrameDescriptor value) { UPDATE_SETTING(ImportedFileFd, value); }
-
-inline ImportType get_import_type() { return GET_SETTING(ImportType); }
-inline void set_import_type(ImportType value) { UPDATE_SETTING(ImportType, value); }
-
-inline CameraKind get_camera_kind() { return GET_SETTING(CameraKind); }
-inline void set_camera_kind(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
-
-inline uint get_camera_fps() { return GET_SETTING(CameraFps); }
-inline void set_camera_fps(uint value) { UPDATE_SETTING(CameraFps, value); }
-/*! \} */
-
-/*!
  * \name Convolution
  * \{
  */

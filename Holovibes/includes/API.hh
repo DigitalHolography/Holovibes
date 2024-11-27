@@ -60,42 +60,6 @@ using json = ::nlohmann::json;
 
 namespace holovibes::api
 {
-/*! \brief Gets an Input file from a given filename
- *
- * \param filename the given filename to open
- * \return std::optional<io_files::InputFrameFile*> the file on success, nullopt on error
- */
-std::optional<io_files::InputFrameFile*> import_file(const std::string& filename);
-
-/*! \brief Launchs the reading of a given inputed file
- *
- * \param file_path location of the file to read
- * \param fps input fps
- * \param first_frame position of the starting frame
- * \param load_file_in_gpu if pre-loaded in gpu
- * \param last_frame position of the ending frame
- * \return true on success
- * \return false on failure
- */
-bool import_start();
-
-/*! \brief Stops the display */
-void import_stop();
-
-/**
- * \brief Sets the file start index
- */
-void set_input_file_start_index(size_t value);
-
-/**
- * \brief Sets the file end index
- */
-void set_input_file_end_index(size_t value);
-
-/*! \brief Switchs operating camera to none
- *
- */
-void camera_none();
 
 /*! \brief Stops the program compute
  *
@@ -154,12 +118,6 @@ void enable_filter(const std::string& file);
 
 /*! \brief Sets the computation mode to Raw or Holographic*/
 void set_computation_mode(Computation mode);
-
-/*! \brief Changes the current camera used
- *
- * \param c the camera kind selection FIXME: shouldn't be stored in the wild.
- */
-bool change_camera(CameraKind c);
 
 /*! \brief Triggers the pipe to make it refresh */
 void pipe_refresh();
@@ -645,9 +603,6 @@ void update_batch_size(uint batch_size);
  */
 ApiCode set_view_mode(const ImgType type);
 
-/*! \brief Configures the camera */
-void configure_camera();
-
 /*! \brief Saves the current state of holovibes
  *
  * \param path The location of the .json file saved
@@ -697,3 +652,4 @@ void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_q
 #include "API.hxx"
 #include "composite_api.hh"
 #include "record_api.hh"
+#include "input_api.hh"

@@ -24,6 +24,8 @@ inline CompositeKind get_composite_kind() noexcept { return GET_SETTING(Composit
  */
 inline void set_composite_kind(CompositeKind value) { UPDATE_SETTING(CompositeKind, value); }
 
+#pragma region RGB
+
 /*! \name RGB
  * \{
  */
@@ -63,6 +65,10 @@ void set_rgb_p(int min, int max);
  */
 void set_composite_intervals(int composite_p_red, int composite_p_blue);
 /*! \} */
+
+#pragma endregion
+
+#pragma region HSV Hue
 
 /*! \name Hue Getters
  * \{
@@ -115,6 +121,10 @@ inline void set_slider_h_shift_min(float value) { SET_SETTING(HSV, h.slider_shif
 inline void set_slider_h_shift_max(float value) { SET_SETTING(HSV, h.slider_shift.max, value); }
 void set_composite_p_h(int min, int max);
 /*! \} */
+
+#pragma endregion
+
+#pragma region HSV Saturation
 
 /*! \name Saturation Getters
  * \{
@@ -189,6 +199,10 @@ inline void set_slider_s_threshold_max(float value) { SET_SETTING(HSV, s.slider_
 inline void set_composite_p_activated_s(bool value) { SET_SETTING(HSV, s.frame_index.activated, value); }
 /*! \} */
 
+#pragma endregion
+
+#pragma region HSV Value
+
 /*! \name Value Getters
  * \{
  */
@@ -259,5 +273,7 @@ inline void set_slider_v_threshold_max(float value) { SET_SETTING(HSV, v.slider_
  */
 inline void set_composite_p_activated_v(bool value) { SET_SETTING(HSV, v.frame_index.activated, value); }
 /*! \} */
+
+#pragma endregion
 
 } // namespace holovibes::api

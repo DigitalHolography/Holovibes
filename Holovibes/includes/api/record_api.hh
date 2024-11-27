@@ -9,10 +9,6 @@
 namespace holovibes::api
 {
 
-inline holovibes::Device get_record_queue_location() { return GET_SETTING(RecordQueueLocation); }
-
-inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
-
 inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); }
 inline void set_record_file_path(std::string value) { UPDATE_SETTING(RecordFilePath, value); }
 
@@ -48,7 +44,7 @@ bool start_record_preconditions();
  * This function starts the recording process based on the current recording mode.
  * It executes the provided callback function once the recording is complete.
  *
- * \param callback A lambda function to execute at the end of the recording process.
+ * \param[in] callback A lambda function to execute at the end of the recording process.
  *                 Note: The API should not handle callbacks directly. This needs to be fixed (FIXME).
  */
 void start_record(std::function<void()> callback);
@@ -61,14 +57,14 @@ void stop_record();
 
 /*! \brief Change the record mode in the settings
  *
- * \param value The new record mode to be set to
+ * \param[in] value The new record mode to be set to
  */
 void set_record_mode_enum(RecordMode value);
 
 /*!
  * \brief Gets the available extension for the given record mode
  *
- * \param mode The record mode for which to get the available extensions
+ * \param[in] mode The record mode for which to get the available extensions
  * \return std::vector<OutputFormat> The available file extensions as an enum.
  */
 std::vector<OutputFormat> get_supported_formats(RecordMode mode);
@@ -79,16 +75,28 @@ std::vector<OutputFormat> get_supported_formats(RecordMode mode);
  */
 bool is_recording();
 
+/*! \brief Get the record queue location, either gpu or cpu
+ *
+ * \return the location of the record queue
+ */
+inline holovibes::Device get_record_queue_location() { return GET_SETTING(RecordQueueLocation); }
+
 /*!
  * \brief Set the record queue location, between gpu and cpu
  *
- * \param gpu whether the record queue is on the gpu or the cpu
+ * \param[in] gpu whether the record queue is on the gpu or the cpu
  */
 void set_record_queue_location(Device device);
 
+/*! \brief Get the record buffer size
+ *
+ * \return the size of the buffer
+ */
+inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
+
 /*! \brief Set the record buffer size, and trigger the allocation of the pipe
  *
- * \param value the size of the buffer
+ * \param[in] value the size of the buffer
  */
 void set_record_buffer_size(uint value);
 
