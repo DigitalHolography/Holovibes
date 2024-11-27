@@ -83,8 +83,6 @@ void ImageRenderingPanel::on_notify()
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
     ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary() * 1000);
-    ui_->BoundaryDoubleSpinBox->setEnabled(is_data_not_moments); // Is not editable but is not needed anyway
-    ui_->BoundaryLabel->setEnabled(is_data_not_moments);
 
     // Filter2D
     bool filter2D_enabled = !is_raw && api::get_filter2d_enabled();

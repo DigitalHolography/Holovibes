@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1210</width>
-    <height>796</height>
+    <width>1283</width>
+    <height>810</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,7 +122,7 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0" columnstretch="0,0">
            <property name="verticalSpacing">
             <number>6</number>
            </property>
@@ -287,17 +287,17 @@
             </widget>
            </item>
            <item row="3" column="1">
-              <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="currentText">
-                <string/>
-               </property>
-              </widget>
+            <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -356,7 +356,7 @@
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="TimeTransformationComboBox">
-            <item>
+             <item>
               <property name="text">
                <string>None</string>
               </property>
@@ -460,6 +460,9 @@
            </item>
            <item row="5" column="1">
             <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -517,7 +520,7 @@
               <number>0</number>
              </property>
              <property name="minimum">
-              <double>0</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
@@ -556,43 +559,43 @@
            <property name="checked">
             <bool>false</bool>
            </property>
-             <layout class="QHBoxLayout" name="kernelSelectLayout">
-              <item>
-               <widget class="QComboBox" name="KernelQuickSelectComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="DivideConvoCheckBox">
-                <property name="text">
-                 <string>Divide</string>
-                </property>
-               </widget>
+           <layout class="QHBoxLayout" name="kernelSelectLayout">
+            <item>
+             <widget class="QComboBox" name="KernelQuickSelectComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
          </item>
-                     <item row="2" column="0">
-             <spacer name="BottomViewSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+         <item>
+          <spacer name="BottomViewSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
@@ -705,14 +708,14 @@
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Flips the image horizontally</string>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
                 </property>
                 <property name="text">
                  <string>h. flip 0</string>
-                </property>
-                <property name="toolTip">
-                 <string>Flips the image horizontally</string>
                 </property>
                </widget>
               </item>
@@ -736,12 +739,12 @@
                   <height>0</height>
                  </size>
                 </property>
-                <property name="text">
-                 <string>Rotate   0</string>
-                </property>
                 <property name="toolTip">
                  <string>Rotates the image by 90° angles.
 The rotation steps counterclockwise</string>
+                </property>
+                <property name="text">
+                 <string>Rotate   0</string>
                 </property>
                </widget>
               </item>
@@ -1377,37 +1380,37 @@ The range of frequencies kept is [z, z + width]</string>
           </layout>
          </item>
          <item row="16" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_registration">
-               <item>
-               <widget class="QCheckBox" name="RegistrationCheckBox">
-               <property name="toolTip">
-               <string>Stabilize the image</string>
-               </property>
-               <property name="text">
-               <string>Registration</string>
-               </property>
-               </widget>
-               </item>
-               <item>
-                  <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
-                  <property name="enabled">
-                     <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                     <string>The radius of the circle to compute the Registration</string>
-                  </property>
-                  <property name="minimum">
-                  <double>0.100000000000000</double>
-                  </property>
-                  <property name="maximum">
-                  <double>1.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                  <double>0.050000000000000</double>
-                  </property>
-                  </widget>
-               </item>
-            </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_registration">
+           <item>
+            <widget class="QCheckBox" name="RegistrationCheckBox">
+             <property name="toolTip">
+              <string>Stabilize the image</string>
+             </property>
+             <property name="text">
+              <string>Registration</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>The radius of the circle to compute the Registration</string>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="15" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -2741,14 +2744,14 @@ The range of frequencies kept is [z, z + width]</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="toolTip">
-                 <string>Defines what to record</string>
-                </property>
                 <property name="minimumSize">
                  <size>
                   <width>126</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Defines what to record</string>
                 </property>
                 <item>
                  <property name="text">
@@ -3175,7 +3178,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1210</width>
+     <width>1283</width>
      <height>21</height>
     </rect>
    </property>
