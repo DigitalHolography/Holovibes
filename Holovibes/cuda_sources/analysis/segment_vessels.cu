@@ -67,24 +67,19 @@ void imquantize(
 }
 
 void segment_vessels(float* output,
+                     float* new_thresholds,
                      float* R_VascularPulse,
                      float* mask_vesselness_clean,
                      uint size,
                      float* thresholds,
                      cudaStream_t stream)
 {
-    float* firstThresholdsGPU;
-    cudaXMalloc(&firstThresholdsGPU, sizeof(float) * 4);
     float minus_one = -1;
-    cudaXMemcpyAsync(firstThresholdsGPU + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
-    cudaXMemcpyAsync(firstThresholdsGPU, &minus_one, sizeof(float), cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(new_thresholds + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(new_thresholds, &minus_one, sizeof(float), cudaMemcpyHostToDevice, stream);
 
     minus_negation_times_2(R_VascularPulse, mask_vesselness_clean, size, stream);
-    imquantize(output, R_VascularPulse, firstThresholdsGPU, size, 4, stream);
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(firstThresholdsGPU);
+    imquantize(output, R_VascularPulse, new_thresholds, size, 4, stream);
 }
 
 __global__ void kernel_is_both_value(float* output, float* input, uint size, float value1, float value2)

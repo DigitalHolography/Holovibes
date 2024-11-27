@@ -322,8 +322,8 @@ void Pipe::refresh()
     analysis_->insert_first_analysis_masks();
     analysis_->insert_artery_mask();
     analysis_->insert_vein_mask();
-    analysis_->insert_vesselness();
-    // analysis_->insert_choroid_mask();
+    // analysis_->insert_vesselness();
+    analysis_->insert_choroid_mask();
     analysis_->insert_bwareaopen();
 
     insert_filter2d_view();

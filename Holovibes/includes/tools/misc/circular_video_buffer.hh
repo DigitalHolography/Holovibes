@@ -48,7 +48,7 @@ class CircularVideoBuffer
 
     float* get_data_ptr();
 
-    void multiply_data_by_frame(float* frame);
+    void compute_mean_1_2(float* frame);
 
     float* get_mean_1_2_();
 

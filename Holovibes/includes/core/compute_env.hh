@@ -225,7 +225,6 @@ struct VesselnessMaskEnv
      */
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> f_avg_video_cb_ = nullptr;
-    std::unique_ptr<CircularVideoBuffer> vascular_pulse_video_cb_ = nullptr;
 
     /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
      *
@@ -248,7 +247,7 @@ struct VesselnessMaskEnv
 
     cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
 
-    float* quantizedVesselCorrelation_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> quantizedVesselCorrelation_ = nullptr;
 
     /*! \brief Time window for mask */
     int time_window_;
@@ -298,5 +297,18 @@ struct VesselnessFilterStruct
     cuda_tools::CudaUniquePtr<float> R_blob = nullptr;
     cuda_tools::CudaUniquePtr<float> c_temp = nullptr;
     cuda_tools::CudaUniquePtr<float> CRV_circle_mask = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_M0_ff_video_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> thresholds = nullptr;
+};
+
+struct FirstMaskChoroidStruct
+{
+    /*!
+     * \brief Struct used for first_mask_choroid computations.
+     */
+    cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
 };
 } // namespace holovibes

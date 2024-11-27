@@ -1,5 +1,8 @@
+#include "vascular_pulse.cuh"
+
 #include "cuda_memory.cuh"
 #include "tools_analysis_debug.hh"
+#include "compute_env.hh"
 
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
@@ -146,34 +149,6 @@ void computeMean(
     cudaCheckError();
 }
 
-float compute_std_cpu(const float* input, int depth)
-{
-    float* h_input = new float[depth];
-    cudaXMemcpy(h_input, input, depth * sizeof(float), cudaMemcpyDeviceToHost);
-
-    float mean = 0.0f;
-    float variance = 0.0f;
-
-    // Compute mean along the third dimension
-    for (int k = 0; k < depth; ++k)
-    {
-        mean += h_input[k];
-    }
-    mean /= depth;
-
-    // Compute variance along the third dimension
-    for (int k = 0; k < depth; ++k)
-    {
-        float diff = h_input[k] - mean;
-        variance += diff * diff;
-    }
-    variance /= depth;
-
-    delete[] h_input;
-    // Store the standard deviation in the output array
-    return sqrt(variance);
-}
-
 __global__ void kernel_compute_std(const float* input, float* output, int size, int depth)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -216,52 +191,33 @@ void compute_first_correlation(float* output,
                                float* vascular_pulse,
                                int nnz_mask_vesslness_clean,
                                size_t length_video,
+                               VesselnessFilterStruct& filter_struct_,
                                size_t image_size,
                                cudaStream_t stream) // Size here is future time window
 {
+    divide_constant(vascular_pulse, nnz_mask_vesslness_clean, length_video, stream);
 
-    float* vascular_pulse_copy;
-    cudaXMalloc(&vascular_pulse_copy, sizeof(float) * length_video);
-    cudaXMemcpyAsync(vascular_pulse_copy,
-                     vascular_pulse,
-                     sizeof(float) * length_video,
-                     cudaMemcpyDeviceToDevice,
-                     stream);
+    float vascular_mean = compute_mean(vascular_pulse, length_video);
+    subtract_constant(filter_struct_.vascular_pulse_centered, vascular_pulse, vascular_mean, length_video, stream);
 
-    divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, length_video, stream);
+    computeMean(M0_ff_video_centered, filter_struct_.vascular_pulse_centered, output, 512, 512, length_video, stream);
 
-    float* vascular_pulse_centered;
-    cudaXMalloc(&vascular_pulse_centered, length_video * sizeof(float));
+    compute_std(M0_ff_video_centered, filter_struct_.std_M0_ff_video_centered, 512 * 512, length_video, stream);
 
-    float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
-    subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
-
-    // vascular_pulse_centered OK
-    // m0_ff_video_centered OK
-    // computeMean is not woring
-    // TODO: la suite (le calcul de R_vascularPulse)
-    computeMean(M0_ff_video_centered, vascular_pulse_centered, output, 512, 512, length_video, stream);
-
-    float* std_M0_ff_video_centered;
-    cudaXMalloc(&std_M0_ff_video_centered, sizeof(float) * 512 * 512);
-    compute_std(M0_ff_video_centered, std_M0_ff_video_centered, 512 * 512, length_video, stream);
-
-    float* std_vascular_pulse_centered;
-    cudaXMalloc(&std_vascular_pulse_centered, sizeof(float));
-    compute_std(vascular_pulse_centered, std_vascular_pulse_centered, 1, length_video, stream);
+    compute_std(filter_struct_.vascular_pulse_centered,
+                filter_struct_.std_vascular_pulse_centered,
+                1,
+                length_video,
+                stream);
 
     float std_vascular_pulse_centered_cpu;
-    cudaXMemcpy(&std_vascular_pulse_centered_cpu, std_vascular_pulse_centered, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(&std_vascular_pulse_centered_cpu,
+                filter_struct_.std_vascular_pulse_centered,
+                sizeof(float),
+                cudaMemcpyDeviceToHost);
 
-    multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
+    multiply_constant(filter_struct_.std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
 
     // NaN start appearing in the output buffer after divide
-    divide(output, std_M0_ff_video_centered, 512 * 512, stream);
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(std_M0_ff_video_centered);
-    cudaXFree(std_vascular_pulse_centered);
-    cudaXFree(vascular_pulse_centered);
-    cudaXFree(vascular_pulse_copy);
+    divide(output, filter_struct_.std_M0_ff_video_centered, 512 * 512, stream);
 }

@@ -9,6 +9,7 @@
 typedef unsigned int uint;
 
 void segment_vessels(float* output,
+                     float* new_thresholds,
                      float* R_VascularPulse,
                      float* mask_vesselness_clean,
                      uint size,

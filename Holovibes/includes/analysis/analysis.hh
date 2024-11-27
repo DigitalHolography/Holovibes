@@ -190,6 +190,9 @@ class Analysis
     /*! \brief Vesselness filter buffers struct */
     VesselnessFilterStruct vesselness_filter_struct_;
 
+    /*! \brief FirstMaskChoroidStruct buffers struct */
+    FirstMaskChoroidStruct first_mask_choroid_struct_;
+
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
