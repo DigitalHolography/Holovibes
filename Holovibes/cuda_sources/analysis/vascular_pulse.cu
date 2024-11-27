@@ -19,18 +19,18 @@ void divide_constant(float* vascular_pulse, int value, size_t size, cudaStream_t
     cudaCheckError();
 }
 
-__global__ void kernel_divide(float* vascular_pulse, float* value, size_t size)
+__global__ void kernel_divide(float* input_output, float* denominator_array, size_t size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
-        vascular_pulse[index] /= value[index];
+        input_output[index] /= denominator_array[index];
 }
 
-void divide(float* vascular_pulse, float* value, size_t size, cudaStream_t stream)
+void divide(float* input_output, float* denominator_array, size_t size, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    kernel_divide<<<blocks, threads, 0, stream>>>(vascular_pulse, value, size);
+    kernel_divide<<<blocks, threads, 0, stream>>>(input_output, denominator_array, size);
     cudaCheckError();
 }
 
@@ -146,6 +146,34 @@ void computeMean(
     cudaCheckError();
 }
 
+float compute_std_cpu(const float* input, int depth)
+{
+    float* h_input = new float[depth];
+    cudaXMemcpy(h_input, input, depth * sizeof(float), cudaMemcpyDeviceToHost);
+
+    float mean = 0.0f;
+    float variance = 0.0f;
+
+    // Compute mean along the third dimension
+    for (int k = 0; k < depth; ++k)
+    {
+        mean += h_input[k];
+    }
+    mean /= depth;
+
+    // Compute variance along the third dimension
+    for (int k = 0; k < depth; ++k)
+    {
+        float diff = h_input[k] - mean;
+        variance += diff * diff;
+    }
+    variance /= depth;
+
+    delete[] h_input;
+    // Store the standard deviation in the output array
+    return sqrt(variance);
+}
+
 __global__ void kernel_compute_std(const float* input, float* output, int size, int depth)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -158,14 +186,14 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
         // Compute mean along the third dimension
         for (int k = 0; k < depth; ++k)
         {
-            mean += input[idx + depth * k];
+            mean += input[idx + size * k];
         }
         mean /= depth;
 
         // Compute variance along the third dimension
         for (int k = 0; k < depth; ++k)
         {
-            float diff = input[idx + depth * k] - mean;
+            float diff = input[idx + size * k] - mean;
             variance += diff * diff;
         }
         variance /= depth;
@@ -203,8 +231,7 @@ void compute_first_correlation(float* output,
     divide_constant(vascular_pulse_copy, nnz_mask_vesslness_clean, length_video, stream);
 
     float* vascular_pulse_centered;
-    cudaXMalloc(&vascular_pulse_centered,
-                length_video * sizeof(float)); // need to be replaced with time window (it's because csv)
+    cudaXMalloc(&vascular_pulse_centered, length_video * sizeof(float));
 
     float vascular_mean = compute_mean(vascular_pulse_copy, length_video);
     subtract_constant(vascular_pulse_centered, vascular_pulse_copy, vascular_mean, length_video, stream);
@@ -228,13 +255,10 @@ void compute_first_correlation(float* output,
 
     multiply_constant(std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
 
-    if (length_video == 160)
-    {
-        std::cout << std_vascular_pulse_centered_cpu << std::endl;
-        print_in_file_gpu(std_M0_ff_video_centered, 512, 512, "result_multiply_nan", stream);
-    }
-
+    // NaN start appearing in the output buffer after divide
     divide(output, std_M0_ff_video_centered, 512 * 512, stream);
+    if (length_video == 506)
+        print_in_file_gpu(output, 512, 512, "output", stream);
 
     // Need to synchronize to avoid freeing too soon
     cudaXStreamSynchronize(stream);

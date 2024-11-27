@@ -66,13 +66,18 @@ void imquantize(
     cudaCheckError();
 }
 
-void segment_vessels(
-    float* output, float* R_VascularPulse, float* mask_vesselness_clean, uint size, cudaStream_t stream)
+void segment_vessels(float* output,
+                     float* R_VascularPulse,
+                     float* mask_vesselness_clean,
+                     uint size,
+                     float* thresholds,
+                     cudaStream_t stream)
 {
-    float firstThresholds[4] = {-1.0f, -0.145349865260771f, 0.225070673825605f, 0.58226190794461f};
     float* firstThresholdsGPU;
     cudaXMalloc(&firstThresholdsGPU, sizeof(float) * 4);
-    cudaXMemcpyAsync(firstThresholdsGPU, firstThresholds, sizeof(float) * 4, cudaMemcpyHostToDevice, stream);
+    float minus_one = -1;
+    cudaXMemcpyAsync(firstThresholdsGPU + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(firstThresholdsGPU, &minus_one, sizeof(float), cudaMemcpyHostToDevice, stream);
 
     minus_negation_times_2(R_VascularPulse, mask_vesselness_clean, size, stream);
     imquantize(output, R_VascularPulse, firstThresholdsGPU, size, 4, stream);
