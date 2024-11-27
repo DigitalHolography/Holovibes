@@ -10,4 +10,10 @@ void compute_multiplication(float* output, float* A, float* B, size_t size, size
 
 void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream);
 
-int compute_barycentre_circle_mask(float* output, float* input, size_t size, cudaStream_t stream, int CRV_index = -1);
+int compute_barycentre_circle_mask(float* output,
+                                   float* crv_circle_mask,
+                                   float* input,
+                                   size_t width,
+                                   size_t height,
+                                   cudaStream_t stream,
+                                   int CRV_index = -1);

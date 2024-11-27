@@ -114,36 +114,36 @@ int find_min_thrust(float* input, size_t size)
     return min_ptr - dev_ptr;
 }
 
-int compute_barycentre_circle_mask(float* output, float* input, size_t size, cudaStream_t stream, int CRV_index)
+int compute_barycentre_circle_mask(float* output,
+                                   float* crv_circle_mask,
+                                   float* input,
+                                   size_t width,
+                                   size_t height,
+                                   cudaStream_t stream,
+                                   int CRV_index)
 {
+    size_t size = width * height;
     int barycentre_index = find_max_thrust(input, size);
     if (CRV_index == -1)
         CRV_index = find_min_thrust(input, size);
 
     compute_circle_mask(output,
-                        barycentre_index % (int)std::floor(std::sqrt(size)),
-                        std::floor(barycentre_index / std::sqrt(size)),
-                        CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
-                        std::sqrt(size),
-                        std::sqrt(size),
+                        barycentre_index % width,
+                        std::floor(barycentre_index / height),
+                        CIRCLE_MASK_RADIUS * (width + height) / 2,
+                        width,
+                        height,
                         stream);
 
-    // circle_mask_min is CRV
-    float* circle_mask_min;
-    cudaXMalloc(&circle_mask_min, sizeof(float) * size);
-    compute_circle_mask(circle_mask_min,
-                        CRV_index % (int)std::floor(std::sqrt(size)),
-                        std::floor(CRV_index / std::sqrt(size)),
-                        CIRCLE_MASK_RADIUS * (std::sqrt(size) + std::sqrt(size)) / 2,
-                        std::sqrt(size),
-                        std::sqrt(size),
+    compute_circle_mask(crv_circle_mask,
+                        CRV_index % width,
+                        std::floor(CRV_index / height),
+                        CIRCLE_MASK_RADIUS * (width + height) / 2,
+                        width,
+                        height,
                         stream);
 
-    apply_mask_or(output, circle_mask_min, std::sqrt(size), std::sqrt(size), stream);
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(circle_mask_min);
+    apply_mask_or(output, crv_circle_mask, width, height, stream);
 
     return CRV_index;
 }

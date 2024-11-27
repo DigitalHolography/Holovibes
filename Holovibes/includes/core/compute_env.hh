@@ -297,13 +297,6 @@ struct VesselnessFilterStruct
     cuda_tools::CudaUniquePtr<float> lambda_2 = nullptr;
     cuda_tools::CudaUniquePtr<float> R_blob = nullptr;
     cuda_tools::CudaUniquePtr<float> c_temp = nullptr;
-};
-
-struct FirstCorrelationStruct
-{
-    /*!
-     * \brief Struct used for first correlation.
-     */
-    cuda_tools::CudaUniquePtr<float> I = nullptr;
+    cuda_tools::CudaUniquePtr<float> CRV_circle_mask = nullptr;
 };
 } // namespace holovibes
