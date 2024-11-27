@@ -249,6 +249,12 @@ Function OtsuMultiThresholding(image, num_thresholds):
     Return best_thresholds
 */
 
+float get_var_btwclas(const std::vector<float>& var_btwcls, size_t i, size_t j)
+{
+    uint idx = (i * (2 * NUM_BINS - i + 1)) / 2 + j - i;
+    return var_btwcls[idx];
+}
+
 void set_var_btwcls(const std::vector<float>& prob,
                     std::vector<float>& var_btwcls,
                     std::vector<float>& zeroth_moment,
@@ -285,23 +291,7 @@ void set_var_btwcls(const std::vector<float>& prob,
     }
 }
 
-// void set_thresh_indices_lut(const std::vector<float>& var_btwcls,
-//                             int hist_idx,
-//                             int thresh_idx,
-//                             int nbins,
-//                             int thresh_count,
-//                             float sigma_max,
-//                             std::vector<int>& current_indices,
-//                             std::vector<int>& thresh_indices)
-
-float get_var_btwclas(const std::vector<float>& var_btwcls, size_t i, size_t j)
-{
-    uint idx = (i * (2 * NUM_BINS - i + 1)) / 2 + j - i;
-    return var_btwcls[idx];
-}
-
 float set_thresh_indices(std::vector<float>& var_btwcls,
-                         //   std::vector<float>& first_moment,
                          size_t hist_idx,
                          size_t thresh_idx,
                          size_t thresh_count,
@@ -309,8 +299,6 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
                          std::vector<size_t>& current_indices,
                          std::vector<size_t>& thresh_indices)
 {
-    // Parcourir les combinaisons pour maximiser sigma^2_B
-    // int idx;
     float sigma;
 
     if (thresh_idx < thresh_count)
@@ -349,6 +337,8 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
     return sigma_max;
 }
 
+// void threshold_multiotsu(image = None, classes = 3, nbins = 256, *, hist = None)
+
 void otsu_multi_thresholding(const float* input_d,
                              uint* histo_buffer_d,
                              float* thresholds_d,
@@ -363,16 +353,16 @@ void otsu_multi_thresholding(const float* input_d,
 
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
     cudaXStreamSynchronize(stream);
-    uint* histo = new uint(NUM_BINS);
-    cudaXMemcpy(histo,
-                histo_buffer_d,
-                NUM_BINS * sizeof(uint),
-                cudaMemcpyDeviceToHost); // FIXME: This breaks the program after a moment.
+
+    // Transferer GPU TO CPU.
+    uint hist[NUM_BINS];
+    // cudaXMalloc(&hist, NUM_BINS * sizeof(uint));
+    cudaXMemcpy(hist, histo_buffer_d, NUM_BINS * sizeof(uint), cudaMemcpyDeviceToHost);
 
     uint nvalues = 0;
     for (uint i = 0; i < NUM_BINS; i++)
     {
-        if (histo[i] > 0)
+        if (hist[i] > 0)
             nvalues++;
     }
 
@@ -381,10 +371,10 @@ void otsu_multi_thresholding(const float* input_d,
     std::vector<float> prob(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
     {
-        prob[i] = static_cast<float>(histo[i]);
+        prob[i] = static_cast<float>(hist[i]);
     }
 
-    std::vector<uint> thresh(nvalues);
+    std::vector<uint> thresh(2);
     std::vector<uint> bin_center(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
         bin_center[i] = i;
@@ -394,6 +384,8 @@ void otsu_multi_thresholding(const float* input_d,
         uint thresh_idx = 0;
         for (uint i = 0; i < NUM_BINS; i++)
         {
+            if (thresh_idx == 2)
+                break;
             if (prob[i] > 0)
                 thresh[thresh_idx++] = i;
         }
@@ -412,14 +404,18 @@ void otsu_multi_thresholding(const float* input_d,
         set_thresh_indices(var_btwcls, 0, 0, thresh_count, 0.0f, current_indices, thresh_indices);
 
         /* le res est tresh indices*/
-        uint thresh_idx = 0;
 
         for (uint i = 0; i < thresh_count; i++)
         {
-            thresh[thresh_idx++] = bin_center[i];
+            thresh[i] = bin_center[thresh_indices[i]];
         }
     }
-    delete histo;
+
+    for (int i = 0; i < 2; i++)
+    {
+        LOG_INFO(i);
+        LOG_INFO((thresh[i] + 1) * 255 / 2);
+    }
 }
 
 // float* proba = new float(NUM_BINS);
