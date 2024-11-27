@@ -108,6 +108,23 @@ void create_window(Computation window_kind, ushort window_size)
     UI.mainDisplay->setTitle(QString("XY view"));
 }
 
+void refresh_window(ushort window_size)
+{
+    float old_scale = 1.f;
+    glm::vec2 old_translation(0.f, 0.f);
+    if (UserInterfaceDescriptor::instance().mainDisplay)
+    {
+        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
+        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
+    }
+
+    gui::close_windows();
+    gui::create_window(api::get_compute_mode(), window_size);
+
+    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
+    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+}
+
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
 {
     if (enabled)

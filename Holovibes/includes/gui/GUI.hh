@@ -50,6 +50,12 @@ bool is_light_ui_mode();
  */
 void create_window(Computation window_kind, ushort window_size);
 
+/*! \brief Close all windows and reopen the current window with the new size
+ *
+ * \param[in] window_size the size of the window
+ */
+void refresh_window(ushort window_size);
+
 /*! \brief Open or close the filter2D view
  *
  * \param[in] enabled true: open, false: close

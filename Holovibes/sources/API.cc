@@ -1165,18 +1165,15 @@ void enable_filter(const std::string& filename)
     if (filename == api::get_filter_file_name())
         return;
 
-    api::set_filter_file_name(filename);
-    UPDATE_SETTING(FilterEnabled, true);
-
     if (!get_compute_pipe_no_throw())
         return;
 
+    api::set_filter_file_name(filename);
+    UPDATE_SETTING(FilterEnabled, !filename.empty());
+
     // There is no file for filtering
     if (filename.empty())
-    {
         set_input_filter({});
-        UPDATE_SETTING(FilterEnabled, false);
-    }
     else
         load_input_filter(filename);
 

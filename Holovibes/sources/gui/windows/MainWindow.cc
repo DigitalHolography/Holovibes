@@ -680,21 +680,8 @@ void MainWindow::set_view_image_type(const QString& value)
         // Composite need a refresh of the window since the depth has changed.
         // A better way would be to just update the buffer and texParam of OpenGL
         if (composite)
-        {
-            float old_scale = 1.f;
-            glm::vec2 old_translation(0.f, 0.f);
-            if (UserInterfaceDescriptor::instance().mainDisplay)
-            {
-                old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
-                old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
-            }
+            gui::refresh_window(window_max_size);
 
-            gui::close_windows();
-            gui::create_window(api::get_compute_mode(), window_max_size);
-
-            UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-            UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-        }
         notify();
     }
 }
