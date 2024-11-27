@@ -98,9 +98,6 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
 inline ImgType get_img_type() { return GET_SETTING(ImageType); }
 inline void set_img_type(ImgType type) { UPDATE_SETTING(ImageType, type); }
 
-inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
-inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
-
 inline uint get_input_buffer_size() { return static_cast<uint>(GET_SETTING(InputBufferSize)); }
 inline void set_input_buffer_size(uint value) { UPDATE_SETTING(InputBufferSize, value); }
 
@@ -157,20 +154,12 @@ inline void set_cuts_contrast_p_offset(uint value) { UPDATE_SETTING(CutsContrast
 inline unsigned get_renorm_constant() { return GET_SETTING(RenormConstant); }
 inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConstant, value); }
 
-inline float get_display_rate() { return GET_SETTING(DisplayRate); }
-inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); }
-
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
 
-inline bool get_chart_display_enabled() { return GET_SETTING(ChartDisplayEnabled); }
-
 inline bool get_reticle_display_enabled() { return GET_SETTING(ReticleDisplayEnabled); }
 inline void set_reticle_display_enabled(bool value) { UPDATE_SETTING(ReticleDisplayEnabled, value); }
-
-inline uint get_file_buffer_size() { return static_cast<uint>(GET_SETTING(FileBufferSize)); }
-inline void set_file_buffer_size(uint value) { UPDATE_SETTING(FileBufferSize, value); }
 
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
@@ -529,22 +518,6 @@ inline void set_registration_enabled(bool value)
     UPDATE_SETTING(RegistrationEnabled, value);
     pipe_refresh();
 }
-/*! \} */
-
-/*!
- * \name View
- * \{
- */
-inline bool get_raw_view_enabled() { return GET_SETTING(RawViewEnabled); }
-inline void set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
-
-inline bool get_filter2d_view_enabled() { return GET_SETTING(Filter2dViewEnabled); }
-
-inline bool get_cuts_view_enabled() { return GET_SETTING(CutsViewEnabled); }
-inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
-
-inline bool get_lens_view_enabled() { return GET_SETTING(LensViewEnabled); }
-inline void set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
 /*! \} */
 
 /*! \name Zone

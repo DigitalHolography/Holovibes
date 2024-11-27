@@ -9,6 +9,9 @@
 namespace holovibes::api
 {
 
+inline uint get_file_buffer_size() { return static_cast<uint>(GET_SETTING(FileBufferSize)); }
+inline void set_file_buffer_size(uint value) { UPDATE_SETTING(FileBufferSize, value); }
+
 inline size_t get_input_file_start_index() { return GET_SETTING(InputFileStartIndex); }
 inline size_t get_input_file_end_index() { return GET_SETTING(InputFileEndIndex); }
 
@@ -32,6 +35,9 @@ inline void set_camera_kind(CameraKind value) { UPDATE_SETTING(CameraKind, value
 
 inline uint get_camera_fps() { return GET_SETTING(CameraFps); }
 inline void set_camera_fps(uint value) { UPDATE_SETTING(CameraFps, value); }
+
+inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
+inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
 
 /*! \brief Sets the file start index
  *

@@ -526,28 +526,6 @@ void reticle_scale(float value);
  */
 void update_registration_zone(float value);
 
-/*! \brief Start or stop the chart display
- *
- * \param[in] enabled true: enable, false: disable
- */
-void set_chart_display(bool enabled);
-
-/*! \brief Adds or removes lens view.
- *
- * \param[in] enabled true: enable, false: disable
- */
-void set_lens_view(bool enabled);
-
-void set_chart_display_enabled(bool value);
-
-void set_filter2d_view_enabled(bool value);
-
-/*! \brief Adds or removes raw view
-
- * \param[in] enabled true: enable, false: disable
- */
-void set_raw_view(bool enabled);
-
 /*! \brief Changes the time transformation size from ui value
  *
  * \param time_transformation_size The new time transformation size
@@ -563,24 +541,11 @@ void change_window(const int index);
 /*! \brief Activates filter2d view */
 void set_filter2d(bool checked);
 
-/*! \brief Adds filter2d view
- *
- * \param[in] enabled true: enable, false: disable
- */
-void set_filter2d_view(bool enabled);
-
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
  * \param value true: enable, false: disable
  */
 void toggle_renormalize(bool value);
-
-/*! \brief Enables or Disables time transform cuts views
- *
- * \param[in] enabled true: enable, false: disable
- * \return true if correctly set
- */
-bool set_3d_cuts_view(bool enabled);
 
 /*! \brief Modifies time transformation stride size from ui value
  *
@@ -638,18 +603,10 @@ constexpr std::vector<std::string> get_credits();
 /*! \brief Displays information */
 void start_information_display();
 
-void* get_raw_last_image();      // get_input_queue().get()
-void* get_raw_view_last_image(); // get_input_queue().get()
-void* get_hologram_last_image(); // get_gpu_output_queue().get()
-void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
-void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
-void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
-void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
-void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
-
 } // namespace holovibes::api
 
 #include "API.hxx"
 #include "composite_api.hh"
 #include "record_api.hh"
 #include "input_api.hh"
+#include "view_api.hh"
