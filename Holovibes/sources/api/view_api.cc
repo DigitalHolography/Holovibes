@@ -3,7 +3,7 @@
 namespace holovibes::api
 {
 
-#pragma region Open / Close Views
+#pragma region Views Logic
 
 bool set_3d_cuts_view(bool enabled)
 {

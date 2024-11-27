@@ -13,8 +13,6 @@
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
-#include "view_panel.hh"
-#include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"

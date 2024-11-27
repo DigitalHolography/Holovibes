@@ -38,7 +38,7 @@ inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); 
 
 #pragma endregion
 
-#pragma region Open / Close Views
+#pragma region Views Logic
 
 /*! \brief Enables or Disables time transform cuts views
  *

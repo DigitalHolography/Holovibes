@@ -96,26 +96,6 @@ int get_input_queue_fd_height();
  */
 float get_boundary();
 
-std::vector<float> get_input_filter();
-
-/*! \brief Sets the input filter
- *
- * \param value the new value of the input filter
- */
-void set_input_filter(std::vector<float> value);
-
-/*! \brief Loads the input filter
- *
- * \param file the file path
- */
-void load_input_filter(const std::string& file);
-
-/*! \brief Enables the input filter mode
- *
- * \param file the file containing the filter's settings or empty string to disable the filter
- */
-void enable_filter(const std::string& file);
-
 /*! \brief Sets the computation mode to Raw or Holographic*/
 void set_computation_mode(Computation mode);
 
@@ -538,9 +518,6 @@ void update_time_transformation_size(uint time_transformation_size);
  */
 void change_window(const int index);
 
-/*! \brief Activates filter2d view */
-void set_filter2d(bool checked);
-
 /*! \brief Enables or Disables renormalize image with clear image accumulation pipe
  *
  * \param value true: enable, false: disable
@@ -610,3 +587,4 @@ void start_information_display();
 #include "record_api.hh"
 #include "input_api.hh"
 #include "view_api.hh"
+#include "filter2d_api.hh"

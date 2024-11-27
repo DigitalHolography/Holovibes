@@ -188,9 +188,6 @@ inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputatio
 inline bool get_renorm_enabled() { return GET_SETTING(RenormEnabled); }
 inline void set_renorm_enabled(bool value) { UPDATE_SETTING(RenormEnabled, value); }
 
-inline bool get_filter_enabled() { return GET_SETTING(FilterEnabled); };
-inline void set_filter_enabled(bool value) { UPDATE_SETTING(FilterEnabled, value); };
-
 inline ViewPQ get_p() { return GET_SETTING(P); }
 inline int get_p_accu_level() { return GET_SETTING(P).width; }
 inline uint get_p_index() { return GET_SETTING(P).start; }
@@ -400,34 +397,6 @@ inline void set_yz_contrast(float min, float max) noexcept
  * \name Filter2D
  * \{
  */
-inline int get_filter2d_n1() { return GET_SETTING(Filter2dN1); }
-inline void set_filter2d_n1(int value)
-{
-    UPDATE_SETTING(Filter2dN1, value);
-    pipe_refresh();
-}
-
-inline int get_filter2d_n2() { return GET_SETTING(Filter2dN2); }
-inline void set_filter2d_n2(int value)
-{
-    UPDATE_SETTING(Filter2dN2, value);
-    pipe_refresh();
-}
-
-inline std::string get_filter_file_name() { return GET_SETTING(FilterFileName); }
-inline void set_filter_file_name(std::string value) { UPDATE_SETTING(FilterFileName, value); }
-
-inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }
-inline void set_filter2d_smooth_low(int value) { UPDATE_SETTING(Filter2dSmoothLow, value); }
-
-inline int get_filter2d_smooth_high() { return GET_SETTING(Filter2dSmoothHigh); }
-inline void set_filter2d_smooth_high(int value) { UPDATE_SETTING(Filter2dSmoothHigh, value); }
-
-inline ViewWindow get_filter2d() { return GET_SETTING(Filter2d); }
-inline void set_filter2d(ViewWindow value) noexcept { UPDATE_SETTING(Filter2d, value); }
-
-inline bool get_filter2d_enabled() { return GET_SETTING(Filter2dEnabled); }
-inline void set_filter2d_enabled(bool value) { UPDATE_SETTING(Filter2dEnabled, value); }
 
 /*!
  * \name Filter2D Getters

@@ -1,8 +1,6 @@
 #include "API.hh"
 #include "logger.hh"
-#include "input_filter.hh"
 #include "notifier.hh"
-#include "logger.hh"
 #include "tools.hh"
 
 #include <string>
@@ -173,15 +171,6 @@ void handle_update_exception()
     api::set_time_transformation_size(1);
     api::disable_convolution();
     api::enable_filter("");
-}
-
-void set_filter2d(bool checked)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    set_filter2d_enabled(checked);
-    pipe_refresh();
 }
 
 void update_time_transformation_size(uint time_transformation_size)
@@ -853,51 +842,6 @@ void set_divide_convolution(const bool value)
         return;
 
     set_divide_convolution_enabled(value);
-    pipe_refresh();
-}
-
-#pragma endregion
-
-#pragma region Filter
-
-std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
-
-void set_input_filter(std::vector<float> value) { UPDATE_SETTING(InputFilter, value); }
-
-void load_input_filter(const std::string& file)
-{
-    auto& holo = Holovibes::instance();
-    try
-    {
-        auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
-        InputFilter(get_input_filter(),
-                    path_file.string(),
-                    holo.get_gpu_output_queue()->get_fd().width,
-                    holo.get_gpu_output_queue()->get_fd().height);
-    }
-    catch (std::exception& e)
-    {
-        LOG_ERROR("Couldn't load input filter : {}", e.what());
-    }
-}
-
-void enable_filter(const std::string& filename)
-{
-    if (filename == api::get_filter_file_name())
-        return;
-
-    if (!get_compute_pipe_no_throw())
-        return;
-
-    api::set_filter_file_name(filename);
-    UPDATE_SETTING(FilterEnabled, !filename.empty());
-
-    // There is no file for filtering
-    if (filename.empty())
-        set_input_filter({});
-    else
-        load_input_filter(filename);
-
     pipe_refresh();
 }
 
