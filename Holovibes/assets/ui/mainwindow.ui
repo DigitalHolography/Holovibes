@@ -740,7 +740,7 @@
                  <string>Rotate   0</string>
                 </property>
                 <property name="toolTip">
-                 <string>Rotates the imageby 90° angles.
+                 <string>Rotates the image by 90° angles.
 The rotation steps counterclockwise</string>
                 </property>
                </widget>

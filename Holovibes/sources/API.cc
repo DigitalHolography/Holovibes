@@ -1571,7 +1571,7 @@ void set_input_file_start_index(size_t value)
 
     UPDATE_SETTING(InputFileStartIndex, value);
     if (value >= get_input_file_end_index())
-        set_input_file_end_index((value + is_data_moments) ? 3 : 1);
+        set_input_file_end_index(value + (is_data_moments ? 3 : 1));
 }
 
 void set_input_file_end_index(size_t value)
@@ -1583,7 +1583,7 @@ void set_input_file_end_index(size_t value)
 
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
-        set_input_file_start_index(value - ((value + is_data_moments) ? 3 : 1));
+        set_input_file_start_index(value - (value + (is_data_moments ? 3 : 1)));
 }
 
 void loaded_moments_data()
@@ -1591,7 +1591,6 @@ void loaded_moments_data()
     set_batch_size(3);  // Cannot call the api.cc function because some parameters are not defined yet.
     set_time_stride(3); // The user can change the time stride, but setting it to 3
                         // is a good basis to analyze moments
-    close_windows();    // Set lens and raw view to false
 
     // There are plenty of settings not used in data type moments but not modified here;
     // it's because these settings' value have no influence at that point (ex: space/time transforms).

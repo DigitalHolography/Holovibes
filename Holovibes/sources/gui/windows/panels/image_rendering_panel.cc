@@ -42,6 +42,7 @@ void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
     const bool is_data_not_moments = !(api::get_data_type() == RecordedDataType::MOMENTS);
+    const bool not_raw_not_moments = !is_raw && is_data_not_moments;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
     ui_->ImageModeComboBox->setEnabled(is_data_not_moments);
@@ -52,18 +53,18 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
-    const bool is_batch_size_enabled = !api::is_recording() && api::get_data_type() != RecordedDataType::MOMENTS;
+    const bool is_batch_size_enabled = !api::is_recording() && is_data_not_moments;
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
     ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationLabel->setEnabled(!is_raw && is_data_not_moments);
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw && is_data_not_moments);
+    ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
-    ui_->TimeTransformationLabel->setEnabled(!is_raw && is_data_not_moments);
-    ui_->TimeTransformationComboBox->setEnabled(!is_raw && is_data_not_moments);
+    ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
@@ -73,14 +74,14 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     // Z (focus)
-    ui_->LambdaLabel->setEnabled(!is_raw && is_data_not_moments);
-    ui_->LambdaSpinBox->setEnabled(!is_raw && is_data_not_moments);
+    ui_->LambdaLabel->setEnabled(not_raw_not_moments);
+    ui_->LambdaSpinBox->setEnabled(not_raw_not_moments);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
-    ui_->ZLabel->setEnabled(!is_raw && is_data_not_moments);
-    ui_->ZDoubleSpinBox->setEnabled(!is_raw && is_data_not_moments);
+    ui_->ZLabel->setEnabled(not_raw_not_moments);
+    ui_->ZDoubleSpinBox->setEnabled(not_raw_not_moments);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
-    ui_->ZSlider->setEnabled(!is_raw && is_data_not_moments);
+    ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary() * 1000);
     ui_->BoundaryDoubleSpinBox->setEnabled(is_data_not_moments); // Is not editable but is not needed anyway
     ui_->BoundaryLabel->setEnabled(is_data_not_moments);

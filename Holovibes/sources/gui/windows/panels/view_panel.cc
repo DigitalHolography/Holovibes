@@ -290,8 +290,6 @@ void ViewPanel::update_raw_view(bool checked)
 {
     api::set_raw_view(checked);
     gui::set_raw_view(checked, parent_->auxiliary_window_max_size);
-
-    parent_->notify();
 }
 
 void ViewPanel::set_x_y()
