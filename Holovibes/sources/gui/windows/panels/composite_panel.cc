@@ -118,7 +118,6 @@ void CompositePanel::on_notify()
 void CompositePanel::click_z_fft_shift(bool checked)
 {
     api::set_z_fft_shift(checked);
-
     parent_->notify();
 }
 
@@ -135,52 +134,43 @@ void CompositePanel::set_composite_intervals()
 
 void CompositePanel::set_composite_intervals_hsv_h_min()
 {
-    api::set_composite_intervals_hsv_h_min(ui_->SpinBox_hue_freq_min->value());
-
+    api::set_composite_p_min_h(ui_->SpinBox_hue_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_h_max()
 {
-    api::set_composite_intervals_hsv_h_max(ui_->SpinBox_hue_freq_max->value());
-
+    api::set_composite_p_max_h(ui_->SpinBox_hue_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_min()
 {
-    api::set_composite_intervals_hsv_s_min(ui_->SpinBox_saturation_freq_min->value());
-
+    api::set_composite_p_min_s(ui_->SpinBox_saturation_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_s_max()
 {
-    api::set_composite_intervals_hsv_s_max(ui_->SpinBox_saturation_freq_max->value());
-
+    api::set_composite_p_max_s(ui_->SpinBox_saturation_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_min()
 {
-    api::set_composite_intervals_hsv_v_min(ui_->SpinBox_value_freq_min->value());
-
+    api::set_composite_p_min_v(ui_->SpinBox_value_freq_min->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_intervals_hsv_v_max()
 {
-    api::set_composite_intervals_hsv_v_max(ui_->SpinBox_value_freq_max->value());
-
+    api::set_composite_p_max_v(ui_->SpinBox_value_freq_max->value());
     parent_->notify();
 }
 
 void CompositePanel::set_composite_weights()
 {
-    api::set_composite_weights(ui_->WeightSpinBox_R->value(),
-                               ui_->WeightSpinBox_G->value(),
-                               ui_->WeightSpinBox_B->value());
-
+    api::set_weight_rgb(ui_->WeightSpinBox_R->value(), ui_->WeightSpinBox_G->value(), ui_->WeightSpinBox_B->value());
     parent_->notify();
 }
 
@@ -199,13 +189,13 @@ void CompositePanel::click_composite_rgb_or_hsv()
 {
     if (ui_->radioButton_rgb->isChecked())
     {
-        api::select_composite_rgb();
+        api::set_composite_kind(CompositeKind::RGB);
         ui_->PRedSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_min->value());
         ui_->PBlueSpinBox_Composite->setValue(ui_->SpinBox_hue_freq_max->value());
     }
     else
     {
-        api::select_composite_hsv();
+        api::set_composite_kind(CompositeKind::HSV);
         ui_->SpinBox_hue_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
         ui_->SpinBox_hue_freq_max->setValue(ui_->PBlueSpinBox_Composite->value());
         ui_->SpinBox_saturation_freq_min->setValue(ui_->PRedSpinBox_Composite->value());
@@ -400,7 +390,7 @@ void CompositePanel::slide_update_threshold_v_max()
 
 void CompositePanel::actualize_frequency_channel_s()
 {
-    api::actualize_frequency_channel_s(ui_->checkBox_saturation_freq->isChecked());
+    api::set_composite_p_activated_s(ui_->checkBox_saturation_freq->isChecked());
 
     ui_->SpinBox_saturation_freq_min->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
     ui_->SpinBox_saturation_freq_max->setDisabled(!ui_->checkBox_saturation_freq->isChecked());
@@ -408,7 +398,7 @@ void CompositePanel::actualize_frequency_channel_s()
 
 void CompositePanel::actualize_frequency_channel_v()
 {
-    api::actualize_frequency_channel_v(ui_->checkBox_value_freq->isChecked());
+    api::set_composite_p_activated_v(ui_->checkBox_value_freq->isChecked());
 
     ui_->SpinBox_value_freq_min->setDisabled(!ui_->checkBox_value_freq->isChecked());
     ui_->SpinBox_value_freq_max->setDisabled(!ui_->checkBox_value_freq->isChecked());
