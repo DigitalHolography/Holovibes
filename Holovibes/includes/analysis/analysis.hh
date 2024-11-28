@@ -4,15 +4,11 @@
  */
 #pragma once
 
-#include <vector>
-
-#include "function_vector.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
 #include "cublas_handle.hh"
-#include "logger.hh"
-#include "tools_analysis.cuh"
+#include "tools_analysis_debug.hh"
 
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
@@ -46,9 +42,10 @@ namespace holovibes
 {
 struct CoreBuffersEnv;
 struct VesselnessMaskEnv;
+struct MomentsEnv;
 } // namespace holovibes
 
-namespace holovibes::compute
+namespace holovibes::analysis
 {
 /*! \class Analysis
  *
@@ -63,6 +60,7 @@ class Analysis
              CoreBuffersEnv& buffers,
              const camera::FrameDescriptor& input_fd,
              VesselnessMaskEnv& vesselness_mask_env,
+             MomentsEnv& moments_env,
              const cudaStream_t& stream,
              InitSettings settings)
         : gaussian_128_kernel_buffer_()
@@ -71,6 +69,7 @@ class Analysis
         , buffers_(buffers)
         , fd_(input_fd)
         , vesselness_mask_env_(vesselness_mask_env)
+        , moments_env_(moments_env)
         , convolution_plan_(input_fd.height, input_fd.width, CUFFT_C2C)
         , stream_(stream)
         , realtime_settings_(settings)
@@ -79,60 +78,61 @@ class Analysis
         [[maybe_unused]] auto status = cublasCreate_v2(&cublas_handler_);
         cublasSetStream(cublas_handler_, stream_);
 
-        // TODO: remove this when done
+        // TODO: remove everything below when done
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
 
-        float* data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/data_n.csv");
         m0_ff_img_csv_.resize(frame_res);
-        cudaXMemcpy(m0_ff_img_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(m0_ff_img_csv_, frame_res, RELATIVE_PATH("../../data_n.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/f_AVG_mean.csv");
         f_avg_csv_.resize(frame_res);
-        cudaXMemcpy(f_avg_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(f_avg_csv_, frame_res, RELATIVE_PATH("../../f_AVG_mean.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/vascularPulse.csv");
         vascular_pulse_csv_.resize(506);
-        cudaXMemcpy(vascular_pulse_csv_, data_csv_cpu, 506 * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(vascular_pulse_csv_, 506, RELATIVE_PATH("../../vascularPulse.csv"), stream);
 
-        data_csv_cpu = load_CSV_to_float_array("C:/Users/Rakushka/Documents/Holovibes/R_VascularPulse.csv");
         R_VascularPulse_csv_.resize(frame_res);
-        cudaXMemcpy(R_VascularPulse_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        cudaXStreamSynchronize(stream_);
-        delete[] data_csv_cpu;
+        load_CSV_to_float_array_gpu(R_VascularPulse_csv_,
+                                    frame_res,
+                                    RELATIVE_PATH("../../R_VascularPulse.csv"),
+                                    stream);
 
-        // data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
-        // mask_vesselness_csv_.resize(frame_res);
-        // if (data_csv_cpu)
-        //     cudaXMemcpy(mask_vesselness_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        // cudaXStreamSynchronize(stream_);
-        // delete[] data_csv_cpu;
+        mask_vesselness_csv_.resize(frame_res);
+        load_CSV_to_float_array_gpu(mask_vesselness_csv_, frame_res, RELATIVE_PATH("../../maskVesselness.csv"), stream);
 
-        // data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselnessClean.csv"));
-        // mask_vesselness_clean_csv_.resize(frame_res);
-        // if (data_csv_cpu)
-        //     cudaXMemcpy(mask_vesselness_clean_csv_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
-        // cudaXStreamSynchronize(stream_);
-        // delete[] data_csv_cpu;
+        mask_vesselness_clean_csv_.resize(frame_res);
+        load_CSV_to_float_array_gpu(mask_vesselness_clean_csv_,
+                                    frame_res,
+                                    RELATIVE_PATH("../../maskVesselnessClean.csv"),
+                                    stream);
+
+        bwareafilt_csv_.resize(frame_res);
+        load_CSV_to_float_array_gpu(bwareafilt_csv_, frame_res, RELATIVE_PATH("../../bwareafilt.csv"), stream);
+
+        m0_bin_video_.resize(512 * 512 * 506);
+        load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);
+
+        m1_bin_video_.resize(512 * 512 * 506);
+        load_bin_video_file(RELATIVE_PATH("../../Obj_M1_data_video_permuted.bin"), m1_bin_video_, stream_);
     }
 
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
-    /*! \brief Free the ressources for the analysis */
-    void dispose();
+    /*! \brief Insert mask computing */
+    void insert_first_analysis_masks();
 
-    /*! \brief Insert artery mask computing */
-    void insert_show_artery();
+    /*! \brief Insert artery mask*/
+    void insert_artery_mask();
 
-    /*! \brief Insert barycentres*/
-    void insert_barycentres();
+    /*! \brief Insert vein mask*/
+    void insert_vein_mask();
+
+    /*! \brief Insert both masks*/
+    void insert_vesselness();
+
+    /*! \brief Insert choroid mask */
+    void insert_choroid_mask();
 
     /*! \brief Insert otsu computation (binarisation) */
     void insert_otsu();
@@ -154,6 +154,17 @@ class Analysis
     }
 
   private:
+    // Below init_analysis functions
+    void init_params_vesselness_filter(float* result_transpose,
+                                       float* target,
+                                       float sigma,
+                                       int x_size,
+                                       int y_size,
+                                       int x_lim,
+                                       int y_lim,
+                                       int p,
+                                       int q,
+                                       cudaStream_t stream);
     /**
      * @brief Helper function to get a settings value.
      */
@@ -169,7 +180,7 @@ class Analysis
     /*! \brief Buffer used for gaussian blur 128x128 convolution kernel */
     cuda_tools::CudaUniquePtr<cuComplex> gaussian_128_kernel_buffer_;
 
-    /*! \brief TODO comment */
+    /*! \brief Temporary complex buffer used for FFT computations */
     cuda_tools::CudaUniquePtr<cuComplex> cuComplex_buffer_;
 
     /*! \brief Vector function in which we insert the processing */
@@ -184,6 +195,12 @@ class Analysis
     /*! \brief Vesselness mask environment */
     VesselnessMaskEnv& vesselness_mask_env_;
 
+    /*! \brief Vesselness filter buffers struct */
+    VesselnessFilterStruct vesselness_filter_struct_;
+
+    /*! \brief FirstMaskChoroidStruct buffers struct */
+    FirstMaskChoroidStruct first_mask_choroid_struct_;
+
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
 
@@ -192,6 +209,9 @@ class Analysis
 
     /*! \brief Compute stream to perform pipe computation */
     const cudaStream_t& stream_;
+
+    /*! \brief Reference to the MomentsEnv to get access to moments buffers */
+    MomentsEnv& moments_env_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> m0_ff_img_csv_;
@@ -211,21 +231,39 @@ class Analysis
     // To delete
     cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_csv_;
 
+    // To delete
+    cuda_tools::CudaUniquePtr<float> bwareafilt_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> m0_bin_video_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> m1_bin_video_;
+
+    // To delete
+    size_t i_ = 0;
+
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> float_buffer_;
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
+    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> otsu_float_gpu_;
 };
-} // namespace holovibes::compute
+} // namespace holovibes::analysis
 
 namespace holovibes
 {
 template <typename T>
-struct has_setting<T, compute::Analysis> : is_any_of<T, ALL_SETTINGS>
+struct has_setting<T, analysis::Analysis> : is_any_of<T, ALL_SETTINGS>
 {
 };
 } // namespace holovibes

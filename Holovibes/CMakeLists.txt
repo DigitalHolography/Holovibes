@@ -15,8 +15,10 @@ set(EXTERNAL_INCLUDES
 
 set(INTERNAL_INCLUDES
     cuda_includes/
+    cuda_includes/analysis/
     includes/
     includes/state/
+    includes/analysis/
     includes/compute/
     includes/core/
     includes/enum/
@@ -208,11 +210,6 @@ install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessHoloFiles.ps1"
     COMPONENT process
 )
 
-install(PROGRAMS "${CMAKE_SOURCE_DIR}/ProcessRegistration.ps1"
-    DESTINATION scripts
-    COMPONENT registration
-)
-
 install(FILES
     $<TARGET_FILE_DIR:Holovibes>/CameraHamamatsu.dll
     $<TARGET_FILE_DIR:Holovibes>/CameraIds.dll
@@ -303,8 +300,7 @@ set(CPACK_GENERATOR "NSIS")
 
 set(CPACK_COMPONENT_APPLICATION_DISPLAY_NAME "Holovibes")
 set(CPACK_COMPONENT_PROCESS_DISPLAY_NAME "Process Holo Files")
-set(CPACK_COMPONENT_REGISTRATION_DISPLAY_NAME "Process Registration")
-set(CPACK_COMPONENTS_ALL application process registration)
+set(CPACK_COMPONENTS_ALL application process)
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${INSTALL_DIRECTORY})
 
@@ -323,8 +319,6 @@ set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "
 set(SHORTCUT_NAME "$DESKTOP\\\\Holovibes ${PROJECT_VERSION}.lnk")
 set(PSONE_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Holo Files.lnk")
 set(PSONE_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Holo Files ${PROJECT_VERSION}.lnk")
-set(PSONE2_SHORTCUT_NAME "$INSTDIR\\\\scripts\\\\Process Registration.lnk")
-set(PSONE2_SHORTCUT_SHORTCUT_NAME "$DESKTOP\\\\Process Registration ${PROJECT_VERSION}.lnk")
 # Note that the project version variable here has the format MAJOR.MINOR.PATCH, which is fine and explicit.
 # But to fit with what Michael does currently, it could could also be MAJORMINORPATCH, like so:
 # ${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}${CMAKE_PROJECT_VERSION_PATCH}
@@ -339,11 +333,6 @@ set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
         CreateShortCut \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessHoloFiles.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
         CreateShortCut \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
     \\\${EndIf}
-
-    \\\${If} \\\${SectionIsSelected} \\\${registration}
-        CreateShortCut \\\"${PSONE2_SHORTCUT_NAME}\\\" \\\"powershell.exe\\\" \'-ExecutionPolicy Bypass -File \\\"$INSTDIR\\\\scripts\\\\ProcessRegistration.ps1\\\"\' \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
-        CreateShortCut \\\"${PSONE2_SHORTCUT_SHORTCUT_NAME}\\\" \\\"${PSONE2_SHORTCUT_NAME}\\\" \\\"$INSTDIR\\\\assets\\\\icons\\\\Script.ico\\\" 0
-    \\\${EndIf}
 ")
 
 # Removes the Desktop shortcut of Holovibes.
@@ -351,8 +340,6 @@ set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
     Delete \\\"${SHORTCUT_NAME}\\\"
     Delete \\\"${PSONE_SHORTCUT_NAME}\\\"
     Delete \\\"${PSONE_SHORTCUT_SHORTCUT_NAME}\\\"
-    Delete \\\"${PSONE2_SHORTCUT_NAME}\\\"
-    Delete \\\"${PSONE2_SHORTCUT_SHORTCUT_NAME}\\\"
 ")
 
 include(CPack)

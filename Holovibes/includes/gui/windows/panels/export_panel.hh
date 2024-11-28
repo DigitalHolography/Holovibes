@@ -34,8 +34,6 @@ class ExportPanel : public Panel
     void init_light_ui();
     void set_output_file_name(std::string std_filepath);
 
-    void set_record_image_mode();
-
   public slots:
     /*! \brief Opens file explorer on the fly to let the user chose the output file he wants with extension
      * replacement*/
@@ -49,9 +47,9 @@ class ExportPanel : public Panel
 
     /*! \brief Modifies the record mode
      *
-     * \param value The new record mode
+     * \param index The new record mode's index in the UI. As it is the same as the enum, it is directly casted.
      */
-    void set_record_mode(const QString& value);
+    void set_record_mode(int index);
 
     /*! \brief Stops the record */
     void stop_record();
@@ -83,19 +81,9 @@ class ExportPanel : public Panel
     void update_record_frame_count_enabled();
 
     /**
-     * @brief Handles the update of the record frame count setting spinbox.
-     */
-    void update_record_frame_count();
-
-    /**
      * @brief Handles the update of the record file path setting line edit.
      */
     void update_record_file_path();
-
-    /**
-     * @brief Handles the update of the record mode setting combo box.
-     */
-    void update_record_mode();
 
     /**
      * @brief Handles the update of the record file extension setting combo box.
@@ -104,7 +92,6 @@ class ExportPanel : public Panel
 
   private:
     int record_frame_step_ = 512;
-    Subscriber<bool> import_start_subscriber_;
     Subscriber<bool> start_record_subscriber_;
     Subscriber<std::string> set_output_file_path_subscriber_;
     Subscriber<bool, std::string> browse_record_output_file_subscriber_;

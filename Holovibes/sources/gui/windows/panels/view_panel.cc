@@ -297,10 +297,7 @@ void ViewPanel::update_3d_cuts_view(bool checked)
         const bool res = api::set_3d_cuts_view(time_transformation_size);
 
         if (res)
-        {
-            set_auto_contrast_cuts();
             parent_->notify();
-        }
         else
             cancel_time_transformation_cuts();
     }
@@ -318,8 +315,6 @@ void ViewPanel::cancel_time_transformation_cuts()
     api::cancel_time_transformation_cuts();
     parent_->notify();
 }
-
-void ViewPanel::set_auto_contrast_cuts() { api::set_auto_contrast_cuts(); }
 
 void ViewPanel::set_fft_shift(const bool value)
 {
@@ -433,8 +428,6 @@ void ViewPanel::increment_p()
     }
 
     set_p(api::get_p_index() + 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -451,8 +444,6 @@ void ViewPanel::decrement_p()
     }
 
     set_p(api::get_p_index() - 1);
-    set_auto_contrast();
-
     parent_->notify();
 }
 
@@ -513,8 +504,6 @@ void ViewPanel::set_contrast_mode(bool value)
     api::set_contrast_mode(value);
     parent_->notify();
 }
-
-void ViewPanel::set_auto_contrast() { api::set_auto_contrast(); }
 
 void ViewPanel::set_contrast_auto_refresh(bool value)
 {

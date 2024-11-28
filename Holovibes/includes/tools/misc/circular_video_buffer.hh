@@ -24,6 +24,10 @@ class CircularVideoBuffer
 
     ~CircularVideoBuffer();
 
+    CircularVideoBuffer(CircularVideoBuffer& ref);
+
+    CircularVideoBuffer& operator=(CircularVideoBuffer& ref);
+
     float* get_first_frame();
 
     float* get_last_frame();
@@ -32,15 +36,21 @@ class CircularVideoBuffer
     void compute_mean_image();
 
     /*! \brief Mean on dimensions 1 and 2 */
-    void compute_mean_video(float scalar_to_multiply = 1);
+    void compute_mean_video();
 
     float* get_mean_image();
-
-    float* get_mean_video();
 
     void add_new_frame(const float* const new_frame);
 
     bool is_full();
+
+    size_t get_frame_count();
+
+    float* get_data_ptr();
+
+    void compute_mean_1_2(float* frame);
+
+    float* get_mean_1_2_();
 
   private:
     /*! \brief Video of the last 'time_window_' frames */
@@ -72,7 +82,7 @@ class CircularVideoBuffer
 
     /*! \brief Video with each frame being a 1x1 pixel with value equal to the mean of pixel in its corresponding frame
      */
-    cuda_tools::UniquePtr<float> mean_1_2_video_{};
+    cuda_tools::UniquePtr<float> compute_mean_1_2_buffer_{};
 
     /*! \brief Cuda stream used for async computations */
     cudaStream_t stream_;

@@ -119,12 +119,13 @@ class Pipe : public ICompute
         postprocess_ =
             std::make_unique<compute::Postprocessing>(fn_compute_vect_, buffers_, input.get_fd(), stream_, settings);
 
-        analysis_ = std::make_unique<compute::Analysis>(fn_compute_vect_,
-                                                        buffers_,
-                                                        input.get_fd(),
-                                                        vesselness_mask_env_,
-                                                        stream_,
-                                                        settings);
+        analysis_ = std::make_unique<analysis::Analysis>(fn_compute_vect_,
+                                                         buffers_,
+                                                         input.get_fd(),
+                                                         vesselness_mask_env_,
+                                                         moments_env_,
+                                                         stream_,
+                                                         settings);
 
         *processed_output_fps_ = 0;
         set_requested(ICS::UpdateTimeTransformationSize, true);
@@ -188,7 +189,7 @@ class Pipe : public ICompute
         if constexpr (has_setting_v<T, compute::Postprocessing>)
             postprocess_->update_setting(setting);
 
-        if constexpr (has_setting_v<T, compute::Analysis>)
+        if constexpr (has_setting_v<T, analysis::Analysis>)
             analysis_->update_setting(setting);
     }
 
@@ -208,9 +209,10 @@ class Pipe : public ICompute
     {
         fourier_transforms_->pipe_refresh_apply_updates();
         image_accumulation_->pipe_refresh_apply_updates();
+        // analysis_->pipe_refresh_apply_updates();
         pipe_refresh_settings_.apply_updates();
-        // TODO: clean this init
-        analysis_->init();
+        // TODO: this init should not be there, also handle pipe_refresh_apply_updates like above
+        // analysis_->init();
     }
 
     /*! \name Insert computation functions in the pipe
@@ -233,9 +235,6 @@ class Pipe : public ICompute
 
     /*! \brief Enqueue the output frame in the filter2d view queue */
     void insert_filter2d_view();
-
-    /*! \brief Request the computation of a autocontrast if the contrast and the contrast refresh is enabled */
-    void insert_request_autocontrast();
 
     void insert_raw_view();
 
@@ -299,7 +298,7 @@ class Pipe : public ICompute
     std::unique_ptr<compute::Rendering> rendering_;
     std::unique_ptr<compute::Converts> converts_;
     std::unique_ptr<compute::Postprocessing> postprocess_;
-    std::unique_ptr<compute::Analysis> analysis_;
+    std::unique_ptr<analysis::Analysis> analysis_;
     /*! \} */
 
     std::shared_ptr<std::atomic<unsigned int>> processed_output_fps_;
