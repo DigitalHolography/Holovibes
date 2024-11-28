@@ -5,9 +5,9 @@
  */
 
 #include "enum_theme.hh"
-#include "API.hh"
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
+#include "compute_settings.hh"
 #include <iomanip>
 #include <spdlog/spdlog.h>
 

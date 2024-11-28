@@ -97,7 +97,7 @@ void set_rotation(float value);
 
 inline uint get_accumulation_level(WindowKind kind)
 {
-    NOT_FILTER2D_R(kind, "accumulation", 1);
+    NOT_FILTER2D_R(kind, "accumulation", 30);
     return get_window_xyz(kind).output_image_accumulation;
 }
 
@@ -141,6 +141,6 @@ inline void set_enabled(WindowKind kind, bool value)
     set_window_xyz(kind, window);
 }
 
-inline void set_enabled(bool value) { return set_enabled(get_current_window_type(), value); }
+inline void set_enabled(bool value) { set_enabled(get_current_window_type(), value); }
 
 } // namespace holovibes::api

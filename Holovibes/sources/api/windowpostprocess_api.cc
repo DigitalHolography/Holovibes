@@ -36,8 +36,8 @@ void set_accumulation_level(WindowKind kind, uint value)
     pipe_refresh();
 }
 
-void set_horizontal_flip(bool value) { return set_horizontal_flip(get_current_window_type(), value); }
-void set_rotation(float value) { return set_rotation(get_current_window_type(), value); }
-void set_accumulation_level(uint value) { return set_accumulation_level(get_current_window_type(), value); }
+void set_horizontal_flip(bool value) { set_horizontal_flip(get_current_window_type(), value); }
+void set_rotation(float value) { set_rotation(get_current_window_type(), value); }
+void set_accumulation_level(uint value) { set_accumulation_level(get_current_window_type(), value); }
 
 } // namespace holovibes::api

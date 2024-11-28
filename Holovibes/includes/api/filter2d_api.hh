@@ -9,25 +9,13 @@
 namespace holovibes::api
 {
 
-inline bool get_filter_enabled() { return GET_SETTING(FilterEnabled); };
-inline void set_filter_enabled(bool value) { UPDATE_SETTING(FilterEnabled, value); };
+#pragma region Filter Settings
 
 inline int get_filter2d_n1() { return GET_SETTING(Filter2dN1); }
-inline void set_filter2d_n1(int value)
-{
-    UPDATE_SETTING(Filter2dN1, value);
-    pipe_refresh();
-}
+void set_filter2d_n1(int value);
 
 inline int get_filter2d_n2() { return GET_SETTING(Filter2dN2); }
-inline void set_filter2d_n2(int value)
-{
-    UPDATE_SETTING(Filter2dN2, value);
-    pipe_refresh();
-}
-
-inline std::string get_filter_file_name() { return GET_SETTING(FilterFileName); }
-inline void set_filter_file_name(std::string value) { UPDATE_SETTING(FilterFileName, value); }
+void set_filter2d_n2(int value);
 
 inline int get_filter2d_smooth_low() { return GET_SETTING(Filter2dSmoothLow); }
 inline void set_filter2d_smooth_low(int value) { UPDATE_SETTING(Filter2dSmoothLow, value); }
@@ -39,13 +27,21 @@ inline ViewWindow get_filter2d() { return GET_SETTING(Filter2d); }
 inline void set_filter2d(ViewWindow value) noexcept { UPDATE_SETTING(Filter2d, value); }
 
 inline bool get_filter2d_enabled() { return GET_SETTING(Filter2dEnabled); }
-inline void set_filter2d_enabled(bool value) { UPDATE_SETTING(Filter2dEnabled, value); }
+void set_filter2d_enabled(bool value);
 
-/*! \brief Activates filter2d
- *
- * \param[in] checked true: enable, false: disable
- */
-void set_filter2d(bool checked);
+#pragma endregion
+
+#pragma region Filter File Settings
+
+inline std::string get_filter_file_name() { return GET_SETTING(FilterFileName); }
+inline void set_filter_file_name(std::string value) { UPDATE_SETTING(FilterFileName, value); }
+
+inline bool get_filter_enabled() { return GET_SETTING(FilterEnabled); };
+inline void set_filter_enabled(bool value) { UPDATE_SETTING(FilterEnabled, value); };
+
+#pragma endregion
+
+#pragma region Filter File
 
 /*! \brief Gets the input filter
  *
@@ -70,5 +66,7 @@ void load_input_filter(const std::string& file);
  * \param file the file containing the filter's settings or empty string to disable the filter
  */
 void enable_filter(const std::string& file);
+
+#pragma endregion
 
 } // namespace holovibes::api

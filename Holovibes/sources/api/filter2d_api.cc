@@ -6,16 +6,34 @@
 namespace holovibes::api
 {
 
-inline static const std::filesystem::path dir(GET_EXE_DIR);
+#pragma region Filter
 
-void set_filter2d(bool checked)
+void set_filter2d_enabled(bool checked)
 {
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    set_filter2d_enabled(checked);
+    UPDATE_SETTING(Filter2dEnabled, checked);
     pipe_refresh();
 }
+
+void set_filter2d_n1(int value)
+{
+    UPDATE_SETTING(Filter2dN1, value);
+    pipe_refresh();
+}
+
+void set_filter2d_n2(int value)
+{
+    UPDATE_SETTING(Filter2dN2, value);
+    pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Filter File
+
+inline static const std::filesystem::path dir(GET_EXE_DIR);
 
 std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
 
@@ -57,5 +75,7 @@ void enable_filter(const std::string& filename)
 
     pipe_refresh();
 }
+
+#pragma endregion
 
 } // namespace holovibes::api

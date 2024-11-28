@@ -9,8 +9,13 @@
 namespace holovibes::api
 {
 
+inline const camera::FrameDescriptor& get_fd() { return Holovibes::instance().get_input_queue()->get_fd(); };
+
 inline float get_pixel_size() { return GET_SETTING(PixelSize); }
 inline void set_pixel_size(float value) { UPDATE_SETTING(PixelSize, value); }
+
+inline uint get_input_buffer_size() { return static_cast<uint>(GET_SETTING(InputBufferSize)); }
+inline void set_input_buffer_size(uint value) { UPDATE_SETTING(InputBufferSize, value); }
 
 inline uint get_file_buffer_size() { return static_cast<uint>(GET_SETTING(FileBufferSize)); }
 inline void set_file_buffer_size(uint value) { UPDATE_SETTING(FileBufferSize, value); }

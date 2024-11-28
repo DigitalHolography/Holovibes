@@ -200,8 +200,8 @@ void ViewPanel::on_notify()
     int max_height = 0;
     if (api::get_input_queue() != nullptr)
     {
-        max_width = api::get_input_queue_fd_width() - 1;
-        max_height = api::get_input_queue_fd_height() - 1;
+        max_width = api::get_fd().width - 1;
+        max_height = api::get_fd().height - 1;
     }
     else
         api::set_x_y(0, 0);

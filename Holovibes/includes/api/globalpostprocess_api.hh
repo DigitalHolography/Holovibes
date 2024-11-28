@@ -16,17 +16,7 @@ namespace holovibes::api
  * (Setter refreshes the pipe) */
 inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
 
-inline void set_registration_enabled(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_fft_shift_enabled())
-        set_fft_shift_enabled(value);
-
-    UPDATE_SETTING(RegistrationEnabled, value);
-    pipe_refresh();
-}
+void set_registration_enabled(bool value);
 
 inline float get_registration_zone() { return GET_SETTING(RegistrationZone); }
 inline void set_registration_zone(float value) { UPDATE_SETTING(RegistrationZone, value); }
@@ -55,11 +45,7 @@ inline unsigned get_renorm_constant() { return GET_SETTING(RenormConstant); }
 inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConstant, value); }
 
 inline bool get_renorm_enabled() { return GET_SETTING(RenormEnabled); }
-inline void set_renorm_enabled(bool value)
-{
-    UPDATE_SETTING(RenormEnabled, value);
-    pipe_refresh();
-}
+void set_renorm_enabled(bool value);
 
 #pragma endregion
 

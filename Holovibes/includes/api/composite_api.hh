@@ -44,11 +44,7 @@ inline bool get_composite_auto_weights() noexcept { return GET_SETTING(Composite
  *
  * \param[in] value enable or disable the composite auto weights
  */
-inline void set_composite_auto_weights(bool value)
-{
-    UPDATE_SETTING(CompositeAutoWeights, value);
-    pipe_refresh();
-}
+void set_composite_auto_weights(bool value);
 
 inline float get_weight_r() noexcept { return GET_SETTING(RGB).weight.r; }
 inline float get_weight_g() noexcept { return GET_SETTING(RGB).weight.g; }
@@ -103,21 +99,13 @@ inline float get_slider_h_shift_max() { return GET_SETTING(HSV).h.slider_shift.m
  *
  * \param[in] value must be in range [0, composite_p_max_h]
  */
-inline void set_composite_p_min_h(uint value)
-{
-    SET_SETTING(HSV, h.frame_index.min, value);
-    pipe_refresh();
-}
+void set_composite_p_min_h(uint value);
 
 /*! \brief Set the Hue maximum frequency
  *
  * \param[in] value must be in range [composite_p_min_h, time_transformation_size]
  */
-inline void set_composite_p_max_h(uint value)
-{
-    SET_SETTING(HSV, h.frame_index.max, value);
-    pipe_refresh();
-}
+void set_composite_p_max_h(uint value);
 
 inline void set_slider_h_threshold_min(float value) { SET_SETTING(HSV, h.slider_threshold.min, value); }
 inline void set_slider_h_threshold_max(float value) { SET_SETTING(HSV, h.slider_threshold.max, value); }
@@ -170,23 +158,13 @@ inline bool get_composite_p_activated_s() noexcept { return GET_SETTING(HSV).s.f
  *
  * \param[in] value must be in range [0, composite_p_max_s]
  */
-inline void set_composite_p_min_s(uint value)
-{
-    SET_SETTING(HSV, s.frame_index.min, value);
-    if (get_composite_p_activated_s())
-        pipe_refresh();
-}
+void set_composite_p_min_s(uint value);
 
 /*! \brief Set the Saturation maximum frequency
  *
  * \param[in] value must be in range [composite_p_min_s, time_transformation_size]
  */
-inline void set_composite_p_max_s(uint value)
-{
-    SET_SETTING(HSV, s.frame_index.max, value);
-    if (get_composite_p_activated_s())
-        pipe_refresh();
-}
+void set_composite_p_max_s(uint value);
 
 inline void set_slider_s_threshold_min(float value) { SET_SETTING(HSV, s.slider_threshold.min, value); }
 inline void set_slider_s_threshold_max(float value) { SET_SETTING(HSV, s.slider_threshold.max, value); }
@@ -245,23 +223,13 @@ inline bool get_composite_p_activated_v() noexcept { return GET_SETTING(HSV).v.f
  *
  * \param[in] value must be in range [0, composite_p_max_v]
  */
-inline void set_composite_p_min_v(uint value)
-{
-    SET_SETTING(HSV, v.frame_index.min, value);
-    if (get_composite_p_activated_v())
-        pipe_refresh();
-}
+void set_composite_p_min_v(uint value);
 
 /*! \brief Set the Value maximum frequency
  *
  * \param[in] value must be in range [composite_p_min_v, time_transformation_size]
  */
-inline void set_composite_p_max_v(uint value)
-{
-    SET_SETTING(HSV, v.frame_index.max, value);
-    if (get_composite_p_activated_v())
-        pipe_refresh();
-}
+void set_composite_p_max_v(uint value);
 
 inline void set_slider_v_threshold_min(float value) { SET_SETTING(HSV, v.slider_threshold.min, value); }
 inline void set_slider_v_threshold_max(float value) { SET_SETTING(HSV, v.slider_threshold.max, value); }
