@@ -143,9 +143,6 @@ inline float get_lambda() { return GET_SETTING(Lambda); }
 
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
 
-inline bool get_reticle_display_enabled() { return GET_SETTING(ReticleDisplayEnabled); }
-inline void set_reticle_display_enabled(bool value) { UPDATE_SETTING(ReticleDisplayEnabled, value); }
-
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
 
@@ -160,9 +157,6 @@ inline std::shared_ptr<Pipe> get_compute_pipe_no_throw() { return Holovibes::ins
 inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
 inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::instance().get_input_queue(); };
-
-inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
-inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
 
 inline bool get_is_computation_stopped() { return GET_SETTING(IsComputationStopped); }
 inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputationStopped, value); }
@@ -320,13 +314,12 @@ inline units::RectFd get_signal_zone() { return GET_SETTING(SignalZone); };
 inline units::RectFd get_noise_zone() { return GET_SETTING(NoiseZone); };
 inline units::RectFd get_composite_zone() { return GET_SETTING(CompositeZone); };
 inline units::RectFd get_zoomed_zone() { return GET_SETTING(ZoomedZone); };
-inline units::RectFd get_reticle_zone() { return GET_SETTING(ReticleZone); };
 
 inline void set_signal_zone(const units::RectFd& rect) { UPDATE_SETTING(SignalZone, rect); };
 inline void set_noise_zone(const units::RectFd& rect) { UPDATE_SETTING(NoiseZone, rect); };
 inline void set_composite_zone(const units::RectFd& rect) { UPDATE_SETTING(CompositeZone, rect); };
 inline void set_zoomed_zone(const units::RectFd& rect) { UPDATE_SETTING(ZoomedZone, rect); };
-inline void set_reticle_zone(const units::RectFd& rect) { UPDATE_SETTING(ReticleZone, rect); };
+
     /*! \} */
 
 #pragma endregion

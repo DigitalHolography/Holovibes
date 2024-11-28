@@ -485,29 +485,6 @@ void set_rotation(double value)
 
 #pragma endregion
 
-#pragma region Reticle
-
-void display_reticle(bool value)
-{
-    if (get_reticle_display_enabled() == value)
-        return;
-
-    set_reticle_display_enabled(value);
-
-    pipe_refresh();
-}
-
-void reticle_scale(float value)
-{
-    if (!is_between(value, 0.f, 1.f))
-        return;
-
-    set_reticle_scale(value);
-    pipe_refresh();
-}
-
-#pragma endregion
-
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }

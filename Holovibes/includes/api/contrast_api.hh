@@ -99,6 +99,8 @@ inline void set_contrast_max(float value) { return set_contrast_max(get_current_
 
 #pragma endregion
 
+#pragma region Contrast Adv.
+
 inline float get_contrast_lower_threshold() { return GET_SETTING(ContrastLowerThreshold); }
 inline void set_contrast_lower_threshold(float value) { UPDATE_SETTING(ContrastLowerThreshold, value); }
 
@@ -107,5 +109,20 @@ inline void set_contrast_upper_threshold(float value) { UPDATE_SETTING(ContrastU
 
 inline uint get_cuts_contrast_p_offset() { return static_cast<uint>(GET_SETTING(CutsContrastPOffset)); }
 inline void set_cuts_contrast_p_offset(uint value) { UPDATE_SETTING(CutsContrastPOffset, value); }
+
+#pragma endregion
+
+#pragma region Reticle
+
+inline bool get_reticle_display_enabled() { return GET_SETTING(ReticleDisplayEnabled); }
+void set_reticle_display_enabled(bool value);
+
+inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
+void set_reticle_scale(float value);
+
+inline units::RectFd get_reticle_zone() { return GET_SETTING(ReticleZone); };
+inline void set_reticle_zone(const units::RectFd& rect) { UPDATE_SETTING(ReticleZone, rect); };
+
+#pragma endregion
 
 } // namespace holovibes::api

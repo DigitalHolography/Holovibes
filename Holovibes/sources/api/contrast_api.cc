@@ -3,34 +3,28 @@
 namespace holovibes::api
 {
 
-float get_truncate_contrast_max(const int precision)
+#pragma region Utils
+
+float ftruncate(const int precision, float value)
 {
-    float value = get_contrast_max();
     const double multiplier = std::pow(10.0, precision);
     return std::round(value * multiplier) / multiplier;
 }
 
-float get_truncate_contrast_min(const int precision)
-{
-    float value = get_contrast_min();
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
-}
+#pragma endregion
+
+#pragma region Contrast
 
 float get_contrast_min(WindowKind kind)
 {
-    bool log = get_log_enabled(kind);
     float min = get_window(kind).contrast.min;
-
-    return log ? min : log10(min);
+    return get_log_enabled(kind) ? min : log10(min);
 }
 
 float get_contrast_max(WindowKind kind)
 {
-    bool log = get_log_enabled(kind);
     float max = get_window(kind).contrast.max;
-
-    return log ? max : log10(max);
+    return get_log_enabled(kind) ? max : log10(max);
 }
 
 void set_contrast_min(WindowKind kind, float value)
@@ -39,7 +33,7 @@ void set_contrast_min(WindowKind kind, float value)
         return;
 
     // Get the minimum contrast value rounded for the comparison
-    const float old_val = get_truncate_contrast_min(2);
+    const float old_val = ftruncate(2, get_contrast_min(kind));
     if (old_val == value)
         return;
 
@@ -58,7 +52,7 @@ void set_contrast_max(WindowKind kind, float value)
         return;
 
     // Get the maximum contrast value rounded for the comparison
-    const float old_val = get_truncate_contrast_max(2);
+    const float old_val = ftruncate(2, get_contrast_max(kind));
     if (old_val == value)
         return;
 
@@ -115,6 +109,8 @@ void set_contrast_invert(WindowKind kind, bool value)
     pipe_refresh();
 }
 
+#pragma endregion
+
 #pragma region Log
 
 void set_log_enabled(WindowKind kind, const bool value)
@@ -125,6 +121,30 @@ void set_log_enabled(WindowKind kind, const bool value)
     auto window = get_window(kind);
     window.log_enabled = value;
     set_window(kind, window);
+
+    pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Reticle
+
+void set_reticle_display_enabled(bool value)
+{
+    if (get_reticle_display_enabled() == value)
+        return;
+
+    UPDATE_SETTING(ReticleDisplayEnabled, value);
+
+    pipe_refresh();
+}
+
+void set_reticle_scale(float value)
+{
+    if (!is_between(value, 0.f, 1.f))
+        return;
+
+    UPDATE_SETTING(ReticleScale, value);
 
     pipe_refresh();
 }

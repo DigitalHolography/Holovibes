@@ -259,7 +259,6 @@ void set_signal_zone(const units::RectFd& rect);
 void set_noise_zone(const units::RectFd& rect);
 void set_composite_zone(const units::RectFd& rect);
 void set_zoomed_zone(const units::RectFd& rect);
-void set_reticle_zone(const units::RectFd& rect);
 /*! \} */
 
 /*!
@@ -360,20 +359,7 @@ units::RectFd get_signal_zone();
 units::RectFd get_noise_zone();
 units::RectFd get_composite_zone();
 units::RectFd get_zoomed_zone();
-units::RectFd get_reticle_zone();
 /*! \} */
-
-/*! \brief Creates or Removes the reticle overlay
- *
- * \param value true: create, false: remove
- */
-void display_reticle(bool value);
-
-/*! \brief Modifies reticle scale in ]0, 1[
- *
- * \param value the new reticle scale value
- */
-void reticle_scale(float value);
 
 /*! \brief Changes the time transformation size from ui value
  *

@@ -361,12 +361,12 @@ void ViewPanel::toggle_renormalize(bool value) { api::set_renorm_enabled(value);
 
 void ViewPanel::display_reticle(bool value)
 {
-    api::display_reticle(value);
+    api::set_reticle_display_enabled(value);
     gui::set_reticle_overlay_visible(value);
     parent_->notify();
 }
 
-void ViewPanel::reticle_scale(double value) { api::reticle_scale(value); }
+void ViewPanel::reticle_scale(double value) { api::set_reticle_scale(value); }
 
 void ViewPanel::update_registration_zone(double value)
 {
