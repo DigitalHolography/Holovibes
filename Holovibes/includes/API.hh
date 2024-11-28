@@ -72,12 +72,6 @@ void handle_update_exception();
 /*! \brief Stops holovibes' controllers for computation*/
 void stop_all_worker_controller();
 
-/*! \brief Gets the image accumulation slice level
- *
- * \return unsigned accumulation slice level
- */
-unsigned get_accumulation_level();
-
 /*! \brief Gets the gpu input queue frame desciptor width
  *
  * \return int
@@ -224,28 +218,6 @@ void set_time_transformation(const TimeTransformation value);
  */
 void set_unwrapping_2d(const bool value);
 
-/*! \brief Returns the current window type
- */
-WindowKind get_current_window_type();
-
-ViewWindow get_current_window();
-
-/*! \brief Modifies the accumulation level on the current window
- *
- * \param value the new value
- */
-void set_accumulation_level(int value);
-
-/*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
- *
- */
-void rotateTexture();
-
-/*! \brief Flips the current selected output display window (XYview or XZview or YZview)
- *
- */
-void flipTexture();
-
 /*! \brief Set value of raw bit shift
  *
  * \param value to set
@@ -267,66 +239,6 @@ void set_zoomed_zone(const units::RectFd& rect);
  * \return int the raw bit shift
  */
 unsigned int get_raw_bitshift();
-
-template <typename T>
-static T get_xyz_member(T xy_member, T xz_member, T yz_member)
-{
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::XYview)
-        return xy_member;
-    else if (window == WindowKind::XZview)
-        return xz_member;
-    else
-        return yz_member;
-}
-
-template <typename T, typename U>
-static void set_xyz_member(T xy_member, T xz_member, T yz_member, U value)
-{
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::XYview)
-        xy_member(value);
-    else if (window == WindowKind::XZview)
-        xz_member(value);
-    else
-        yz_member(value);
-}
-
-template <typename T, typename U>
-static void set_xyz_members(T xy_member, T xz_member, T yz_member, U value)
-{
-    xy_member(value);
-    xz_member(value);
-    yz_member(value);
-}
-
-bool get_horizontal_flip();
-double get_rotation();
-
-/**
- * \brief Helper functions to get the member of the current view
- * \tparam T is the getter function
- */
-template <typename T>
-static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_member)
-{
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::Filter2D)
-        return filter2d_member;
-    return get_xyz_member(xy_member, xz_member, yz_member);
-}
-
-/*! \brief Sets the rotation
- *
- *  \param value the new value
- */
-void set_rotation(double value);
-
-/*! \brief Sets the horizontal flip
- *
- *  \param value the new value
- */
-void set_horizontal_flip(double value);
 
 /*! \brief get x
  *
@@ -366,12 +278,6 @@ units::RectFd get_zoomed_zone();
  * \param time_transformation_size The new time transformation size
  */
 void update_time_transformation_size(uint time_transformation_size);
-
-/*! \brief Changes the focused windows
- *
- * \param index the index representing the window to select
- */
-void change_window(const int index);
 
 /*! \brief Modifies time transformation stride size from ui value
  *

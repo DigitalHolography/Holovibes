@@ -112,17 +112,17 @@ void refresh_window(ushort window_size)
 {
     float old_scale = 1.f;
     glm::vec2 old_translation(0.f, 0.f);
-    if (UserInterfaceDescriptor::instance().mainDisplay)
+    if (UI.mainDisplay)
     {
-        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
-        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
+        old_scale = UI.mainDisplay->getScale();
+        old_translation = UI.mainDisplay->getTranslate();
     }
 
     gui::close_windows();
     gui::create_window(api::get_compute_mode(), window_size);
 
-    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+    UI.mainDisplay->setScale(old_scale);
+    UI.mainDisplay->setTranslate(old_translation[0], old_translation[1]);
 }
 
 void set_filter2d_view(bool enabled, uint auxiliary_window_max_size)
@@ -219,16 +219,16 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
                                               api::get_compute_pipe()->get_stft_slice_queue(0).get(),
                                               gui::KindOfView::SliceXZ));
         UI.sliceXZ->setTitle("XZ view");
-        UI.sliceXZ->setAngle(api::get_xz_rotation());
-        UI.sliceXZ->setFlip(api::get_xz_horizontal_flip());
+        UI.sliceXZ->setAngle(api::get_rotation(WindowKind::XZview));
+        UI.sliceXZ->setFlip(api::get_horizontal_flip(WindowKind::XZview));
 
         UI.sliceYZ.reset(new gui::SliceWindow(yzPos,
                                               QSize(window_size, UI.mainDisplay->height()),
                                               api::get_compute_pipe()->get_stft_slice_queue(1).get(),
                                               gui::KindOfView::SliceYZ));
         UI.sliceYZ->setTitle("YZ view");
-        UI.sliceYZ->setAngle(api::get_yz_rotation());
-        UI.sliceYZ->setFlip(api::get_yz_horizontal_flip());
+        UI.sliceYZ->setAngle(api::get_rotation(WindowKind::YZview));
+        UI.sliceYZ->setFlip(api::get_horizontal_flip(WindowKind::YZview));
 
         UI.mainDisplay->getOverlayManager().enable<gui::Cross>();
 
@@ -248,6 +248,39 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
             UI.mainDisplay->getOverlayManager().disable(gui::Cross);
         }
     }
+}
+
+void rotateTexture()
+{
+    // Rotate
+    double rot = api::get_rotation();
+    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
+
+    api::set_rotation(new_rot);
+
+    WindowKind window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        UI.mainDisplay->setAngle(new_rot);
+    else if (UI.sliceXZ && window == WindowKind::XZview)
+        UI.sliceXZ->setAngle(new_rot);
+    else if (UI.sliceYZ && window == WindowKind::YZview)
+        UI.sliceYZ->setAngle(new_rot);
+}
+
+void flipTexture()
+{
+    bool flip = api::get_horizontal_flip();
+    api::set_horizontal_flip(!flip);
+
+    flip = !flip;
+
+    WindowKind window = api::get_current_window_type();
+    if (window == WindowKind::XYview)
+        UI.mainDisplay->setFlip(flip);
+    else if (UI.sliceXZ && window == WindowKind::XZview)
+        UI.sliceXZ->setFlip(flip);
+    else if (UI.sliceYZ && window == WindowKind::YZview)
+        UI.sliceYZ->setFlip(flip);
 }
 
 void set_composite_area() { UI.mainDisplay->getOverlayManager().enable<gui::CompositeArea>(); }
@@ -297,7 +330,6 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileExt = normalizedPath.extension().string();
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
-    // Setting values in UserInterfaceDescriptor instance in a more optimized manner
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
     UI.record_output_directory_ = std::move(parentPath);
     UI.output_filename_ = std::move(fileNameWithoutExt);

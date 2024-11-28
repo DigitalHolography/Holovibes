@@ -325,13 +325,13 @@ void ViewPanel::set_q_acc()
 
 void ViewPanel::rotateTexture()
 {
-    api::rotateTexture();
+    gui::rotateTexture();
     parent_->notify(); // Update rotate number
 }
 
 void ViewPanel::flipTexture()
 {
-    api::flipTexture();
+    gui::flipTexture();
     parent_->notify(); // Update flip number
 }
 

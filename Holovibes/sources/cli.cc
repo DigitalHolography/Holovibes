@@ -8,6 +8,7 @@
 #include "holovibes_config.hh"
 #include "input_frame_file_factory.hh"
 #include "enum_record_mode.hh"
+#include "enum_window_kind.hh"
 #include "fast_updates_holder.hh"
 #include "user_interface_descriptor.hh"
 #include "API.hh"
@@ -282,8 +283,9 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
     // Thread 1
     uint nb_frames_skip = 0;
     // Skip img acc frames to avoid early black frames
-    if (!opts.noskip_acc && holovibes::api::get_xy_accumulation_level() > 1 && !opts.record_raw)
-        nb_frames_skip = holovibes::api::get_xy_accumulation_level();
+    if (!opts.noskip_acc && holovibes::api::get_accumulation_level(holovibes::WindowKind::XYview) > 1 &&
+        !opts.record_raw)
+        nb_frames_skip = holovibes::api::get_accumulation_level(holovibes::WindowKind::XYview);
 
     if (opts.fps)
         holovibes.update_setting(holovibes::settings::InputFPS{opts.fps.value()});

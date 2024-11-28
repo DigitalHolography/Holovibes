@@ -203,26 +203,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 inline ViewXYZ get_xy() { return GET_SETTING(XY); }
 inline void set_xy(ViewXYZ value) noexcept { UPDATE_SETTING(XY, value); }
 
-/*!
- * \name XY Getters
- * \{
- */
-inline bool get_xy_horizontal_flip() { return GET_SETTING(XY).horizontal_flip; }
-inline float get_xy_rotation() { return GET_SETTING(XY).rotation; }
-inline uint get_xy_accumulation_level() { return GET_SETTING(XY).output_image_accumulation; }
-inline bool get_xy_enabled() { return GET_SETTING(XY).enabled; }
-
-inline bool get_xy_img_accu_enabled() { return GET_SETTING(XY).output_image_accumulation > 1; }
-/*! \} */
-
-/*!
- * \name XY Setters
- * \{
- */
-inline void set_xy_horizontal_flip(bool value) noexcept { SET_SETTING(XY, horizontal_flip, value); }
-inline void set_xy_rotation(float value) noexcept { SET_SETTING(XY, rotation, value); }
-inline void set_xy_accumulation_level(uint value) { SET_SETTING(XY, output_image_accumulation, value); }
-/*! \} */
 /*! \} */
 
 /*!
@@ -237,10 +217,6 @@ inline void set_xz(ViewXYZ value) noexcept { UPDATE_SETTING(XZ, value); }
  * \{
  */
 inline bool get_xz_enabled() { return GET_SETTING(XZ).enabled; }
-inline bool get_xz_horizontal_flip() { return GET_SETTING(XZ).horizontal_flip; }
-inline float get_xz_rotation() { return GET_SETTING(XZ).rotation; }
-inline uint get_xz_accumulation_level() { return GET_SETTING(XZ).output_image_accumulation; }
-inline bool get_xz_img_accu_enabled() { return GET_SETTING(XZ).output_image_accumulation > 1; }
 /*! \} */
 
 /*!
@@ -248,9 +224,6 @@ inline bool get_xz_img_accu_enabled() { return GET_SETTING(XZ).output_image_accu
  * \{
  */
 inline void set_xz_enabled(bool value) noexcept { SET_SETTING(XZ, enabled, value); }
-inline void set_xz_horizontal_flip(bool value) noexcept { SET_SETTING(XZ, horizontal_flip, value); }
-inline void set_xz_rotation(float value) noexcept { SET_SETTING(XZ, rotation, value); }
-inline void set_xz_accumulation_level(uint value) { SET_SETTING(XZ, output_image_accumulation, value); }
 
 /*! \} */
 /*! \} */
@@ -267,10 +240,6 @@ inline void set_yz(ViewXYZ value) noexcept { UPDATE_SETTING(YZ, value); }
  * \{
  */
 inline bool get_yz_enabled() { return GET_SETTING(YZ).enabled; }
-inline bool get_yz_horizontal_flip() { return GET_SETTING(YZ).horizontal_flip; }
-inline float get_yz_rotation() { return GET_SETTING(YZ).rotation; }
-inline uint get_yz_accumulation_level() { return GET_SETTING(YZ).output_image_accumulation; }
-inline bool get_yz_img_accu_enabled() { return GET_SETTING(YZ).output_image_accumulation > 1; }
 /*! \} */
 
 /*!
@@ -278,9 +247,6 @@ inline bool get_yz_img_accu_enabled() { return GET_SETTING(YZ).output_image_accu
  * \{
  */
 inline void set_yz_enabled(bool value) noexcept { SET_SETTING(YZ, enabled, value); }
-inline void set_yz_horizontal_flip(bool value) noexcept { SET_SETTING(YZ, horizontal_flip, value); }
-inline void set_yz_rotation(float value) noexcept { SET_SETTING(YZ, rotation, value); }
-inline void set_yz_accumulation_level(uint value) { SET_SETTING(YZ, output_image_accumulation, value); }
 /*! \} */
 /*! \} */
 

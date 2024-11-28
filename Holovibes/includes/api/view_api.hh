@@ -12,11 +12,20 @@
 #pragma once
 
 #include "common_api.hh"
+#include "enum_window_kind.hh"
 
 namespace holovibes::api
 {
 
 #pragma region View Settings
+
+inline WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
+
+/*! \brief Changes the focused windows
+ *
+ * \param index the index representing the window to select
+ */
+inline void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<WindowKind>(index)); }
 
 inline bool get_cuts_view_enabled() { return GET_SETTING(CutsViewEnabled); }
 inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }

@@ -50,12 +50,6 @@ void pipe_refresh()
 }
 const QUrl get_documentation_url() { return QUrl("https://ftp.espci.fr/incoming/Atlan/holovibes/manual/"); }
 
-static bool is_current_window_xyz_type()
-{
-    static const std::set<WindowKind> types = {WindowKind::XYview, WindowKind::XZview, WindowKind::YZview};
-    return types.contains(api::get_current_window_type());
-}
-
 #pragma endregion
 
 #pragma region Image Mode
@@ -156,8 +150,6 @@ void update_time_stride(const uint time_stride)
 #pragma endregion
 
 #pragma region Computation
-
-void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<WindowKind>(index)); }
 
 void handle_update_exception()
 {
@@ -334,21 +326,6 @@ void set_unwrapping_2d(const bool value)
     get_compute_pipe()->request(ICS::Unwrap2D);
 }
 
-WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
-
-ViewWindow get_current_window()
-{
-    WindowKind window = get_current_window_type();
-    if (window == WindowKind::XYview)
-        return get_xy();
-    else if (window == WindowKind::XZview)
-        return get_xz();
-    else if (window == WindowKind::YZview)
-        return get_yz();
-    else
-        return get_filter2d();
-}
-
 void close_critical_compute()
 {
     if (get_convolution_enabled())
@@ -379,109 +356,11 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 #pragma endregion
 
-#pragma region Texture
-
-static void change_angle()
-{
-    double rot = api::get_rotation();
-    double new_rot = (rot == 270.f) ? 0.f : rot + 90.f;
-
-    api::set_rotation(new_rot);
-}
-
-void rotateTexture()
-{
-    change_angle();
-    WindowKind window = get_current_window_type();
-    if (window == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(get_xy_rotation());
-    else if (UserInterfaceDescriptor::instance().sliceXZ && window == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setAngle(get_xz_rotation());
-    else if (UserInterfaceDescriptor::instance().sliceYZ && window == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setAngle(get_yz_rotation());
-}
-
-void set_horizontal_flip()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    set_xyz_member(api::set_xy_horizontal_flip,
-                   api::set_xz_horizontal_flip,
-                   api::set_yz_horizontal_flip,
-                   !api::get_horizontal_flip());
-}
-
-bool get_horizontal_flip()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    return get_xyz_member(api::get_xy_horizontal_flip(), api::get_xz_horizontal_flip(), api::get_yz_horizontal_flip());
-}
-
-double get_rotation()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    return get_xyz_member(api::get_xy_rotation(), api::get_xz_rotation(), api::get_yz_rotation());
-}
-
-void flipTexture()
-{
-    set_horizontal_flip();
-    WindowKind window = get_current_window_type();
-    if (window == WindowKind::XYview)
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(get_xy_horizontal_flip());
-    else if (UserInterfaceDescriptor::instance().sliceXZ && window == WindowKind::XZview)
-        UserInterfaceDescriptor::instance().sliceXZ->setFlip(get_xz_horizontal_flip());
-    else if (UserInterfaceDescriptor::instance().sliceYZ && window == WindowKind::YZview)
-        UserInterfaceDescriptor::instance().sliceYZ->setFlip(get_yz_horizontal_flip());
-}
-
-#pragma endregion
-
 #pragma region Contrast - Log
 
 void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
 
 unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
-
-unsigned get_accumulation_level()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    return get_xyz_member(api::get_xy_accumulation_level(),
-                          api::get_xz_accumulation_level(),
-                          api::get_yz_accumulation_level());
-}
-
-void set_accumulation_level(int value)
-{
-    if (get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-    set_xyz_members(api::set_xy_accumulation_level,
-                    api::set_xz_accumulation_level,
-                    api::set_yz_accumulation_level,
-                    value);
-
-    pipe_refresh();
-}
-
-void set_rotation(double value)
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    set_xyz_member(api::set_xy_rotation, api::set_xz_rotation, api::set_yz_rotation, value);
-
-    pipe_refresh();
-}
 
 #pragma endregion
 

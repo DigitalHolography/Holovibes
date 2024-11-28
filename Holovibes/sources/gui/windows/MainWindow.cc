@@ -296,7 +296,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
+static void handle_accumulation_exception() { api::set_accumulation_level(WindowKind::XYview, 1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
