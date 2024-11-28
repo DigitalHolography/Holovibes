@@ -119,6 +119,8 @@ void Analysis::init()
     vesselness_mask_env_.vascular_kernel_.safe_resize(vesselness_mask_env_.vascular_kernel_size_ *
                                                       vesselness_mask_env_.vascular_kernel_size_);
 
+    vesselness_mask_env_.before_threshold.safe_resize(frame_res);
+
     // Init CircularVideoBuffer
     vesselness_mask_env_.m0_ff_video_cb_ =
         std::make_unique<CircularVideoBuffer>(frame_res, api::get_time_window(), stream_);
@@ -390,7 +392,7 @@ void Analysis::insert_first_analysis_masks()
                                           vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
                                           vesselness_filter_struct_,
                                           buffers_.gpu_postprocess_frame_size,
-                                          stream_);
+                                          stream_); // R_vascular_pulse is not good here, check when come back
 
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
                                        vesselness_mask_env_.m0_ff_video_centered_,
@@ -428,10 +430,10 @@ void Analysis::insert_first_analysis_masks()
                                                fd_.height,
                                                stream_,
                                                CRV_index);
-
-                float thresholds[3] = {0.207108953480839f,
-                                       0.334478400506137f,
-                                       0.458741275652768f}; // this is hardcoded, need to call titouan function
+                // apply_mask_and(vesselness_mask_env_.before_threshold, )
+                float thresholds[3] = {0.56032641f,
+                                       0.65315951f,
+                                       0.72123712f}; // this is hardcoded, need to call arthur function
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,

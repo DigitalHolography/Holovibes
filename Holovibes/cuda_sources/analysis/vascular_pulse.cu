@@ -218,6 +218,5 @@ void compute_first_correlation(float* output,
 
     multiply_constant(filter_struct_.std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
 
-    // NaN start appearing in the output buffer after divide
     divide(output, filter_struct_.std_M0_ff_video_centered, 512 * 512, stream);
 }

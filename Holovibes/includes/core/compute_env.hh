@@ -270,6 +270,9 @@ struct VesselnessMaskEnv
 
     /*! \brief mask_vesselness_clean buffer */
     cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
+
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> before_threshold = nullptr;
 };
 
 // TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
