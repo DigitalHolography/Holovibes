@@ -223,24 +223,11 @@ struct VesselnessMaskEnv
      * is overwritten. This allows us to keep track of the moment_0 values for the last 'time_window_'
      * frames, which are used for calculations in subsequent processing steps.
      */
-    cuda_tools::CudaUniquePtr<float> m0_ff_video_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
-    std::unique_ptr<CircularVideoBuffer> m0_ff_centered_video_cb_ = nullptr;
-    std::unique_ptr<CircularVideoBuffer> vascular_pulse_video_cb_ = nullptr;
-
-    /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
-     *
-     * This buffer is used to store the sum of pixel values over a sliding time window. This allows us to efficiently
-     * calculate the mean pixel value over the time window by subtracting the value of the oldest frame and adding the
-     * value of the newest frame.
-     */
-    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
-
-    /*! \brief image with mean calculated for a time window*/
-    cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
+    std::unique_ptr<CircularVideoBuffer> f_avg_video_cb_ = nullptr;
 
     /*! \brief image with mean and centered calculated for a time window*/
-    cuda_tools::CudaUniquePtr<float> image_centered_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> m0_ff_video_centered_ = nullptr;
 
     /*! \brief Gaussian kernels converted in cuComplex used in vesselness filter */
     cuda_tools::CudaUniquePtr<float> g_xx_mul_ = nullptr;
@@ -249,11 +236,10 @@ struct VesselnessMaskEnv
 
     cuda_tools::CudaUniquePtr<float> g_yy_mul_ = nullptr;
 
+    cuda_tools::CudaUniquePtr<float> quantizedVesselCorrelation_ = nullptr;
+
     /*! \brief Time window for mask */
     int time_window_;
-
-    /*! \brief Get the number of image for the mean mask*/
-    int number_image_mean_ = 0;
 
     /*! \brief X size of kernel */
     int kernel_x_size_ = 0;
@@ -269,5 +255,49 @@ struct VesselnessMaskEnv
 
     /*! \brief Size of side of vascular kernel */
     size_t vascular_kernel_size_ = 0;
+
+    /*! \brief f_avg_mean, M1 divided by M0 buffer */
+    cuda_tools::CudaUniquePtr<float> m1_divided_by_m0_frame_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> circle_mask_ = nullptr;
+
+    /*! \brief circle_mask buffer */
+    cuda_tools::CudaUniquePtr<float> bwareafilt_result_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
+};
+
+// TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
+struct VesselnessFilterStruct
+{
+    /*!
+     * \brief Struct used for vesselness_filter computations.
+     */
+    cuda_tools::CudaUniquePtr<float> I = nullptr;
+    cuda_tools::CudaUniquePtr<float> convolution_tmp_buffer = nullptr;
+    cuda_tools::CudaUniquePtr<float> H = nullptr;
+    cuda_tools::CudaUniquePtr<float> lambda_1 = nullptr;
+    cuda_tools::CudaUniquePtr<float> lambda_2 = nullptr;
+    cuda_tools::CudaUniquePtr<float> R_blob = nullptr;
+    cuda_tools::CudaUniquePtr<float> c_temp = nullptr;
+    cuda_tools::CudaUniquePtr<float> CRV_circle_mask = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse = nullptr;
+    cuda_tools::CudaUniquePtr<float> vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_M0_ff_video_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> std_vascular_pulse_centered = nullptr;
+    cuda_tools::CudaUniquePtr<float> thresholds = nullptr;
+};
+
+struct FirstMaskChoroidStruct
+{
+    /*!
+     * \brief Struct used for first_mask_choroid computations.
+     */
+    cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
 };
 } // namespace holovibes

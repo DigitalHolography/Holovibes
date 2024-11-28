@@ -4,22 +4,16 @@
  */
 #pragma once
 
-#include "cuda_memory.cuh"
-#include "common.cuh"
-#include "cublas_handle.hh"
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
 
-float* load_CSV_to_float_array(const std::string& filename);
-
-void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
-
-void print_in_file_cpu(float* input, uint rows, uint col, std::string filename);
+typedef unsigned int uint;
 
 void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
 
-void prepare_hessian(
-    float* output, const float* ixx, const float* ixy, const float* iyy, const int size, cudaStream_t stream);
+void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream);
 
 void multiply_array_by_scalar(float* input_output, size_t size, float scalar, cudaStream_t stream);
 
@@ -42,6 +36,7 @@ void compute_circle_mask(float* output,
                          const cudaStream_t stream);
 void apply_mask_and(
     float* output, const float* input, const short width, const short height, const cudaStream_t stream);
+
 void apply_mask_or(float* output, const float* input, const short width, const short height, const cudaStream_t stream);
 
 float* compute_gauss_deriviatives_kernel(
@@ -57,4 +52,13 @@ void convolution_kernel_add_padding(float* output,
 
 float* compute_kernel(float sigma);
 
-void compute_kernel_cuda(float* output, float sigma);
+void compute_gauss_kernel(float* output, float sigma, cudaStream_t stream);
+
+int count_non_zero(const float* const input, const int rows, const int cols, cudaStream_t stream);
+
+void divide_frames_inplace(float* const input_output,
+                           const float* const denominator,
+                           const uint size,
+                           cudaStream_t stream);
+
+void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);

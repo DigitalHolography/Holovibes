@@ -64,7 +64,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -112,13 +112,11 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordQueueLocation,                    \
-    holovibes::settings::RawViewQueueLocation,                   \
-    holovibes::settings::InputQueueLocation,                     \
     holovibes::settings::BenchmarkMode,                          \
-    holovibes::settings::RecordOnGPU,                            \
     holovibes::settings::FrameSkip,                              \
-    holovibes::settings::Mp4Fps,                                    \
-    holovibes::settings::DataType,                                 \
+    holovibes::settings::Mp4Fps,                                 \
+    holovibes::settings::CameraFps,                              \
+    holovibes::settings::DataType,                               \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
     holovibes::settings::OtsuEnabled,                            \
@@ -453,12 +451,10 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
-                                             settings::RawViewQueueLocation{Device::GPU},
-                                             settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
+                                             settings::CameraFps{0},
                                              settings::DataType{RecordedDataType::RAW},
                                              settings::TimeWindow{100},
                                              settings::ArteryMaskEnabled{false},

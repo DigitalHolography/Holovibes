@@ -47,7 +47,7 @@
     holovibes::settings::OtsuLocalThreshold,                     \
     holovibes::settings::BwareafiltEnabled,                      \
     holovibes::settings::BwareaopenEnabled,                      \
-    holovibes::settings::RegistrationEnabled,                    \
+    holovibes::settings::RegistrationEnabled,                     \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -81,6 +81,7 @@
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
+    holovibes::settings::CameraFps,                              \
     holovibes::settings::TimeWindow,                             \
     holovibes::settings::ArteryMaskEnabled,                      \
     holovibes::settings::VeinMaskEnabled,                        \
@@ -96,9 +97,7 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
-    holovibes::settings::RecordQueueLocation,                    \
-    holovibes::settings::RawViewQueueLocation,                   \
-    holovibes::settings::InputQueueLocation
+    holovibes::settings::RecordQueueLocation
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -197,16 +196,7 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
-
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         UpdateTimeTransformationAlgorithm,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -226,7 +216,6 @@ class ICompute
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
@@ -267,8 +256,6 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 
     void request_refresh();
-
-    void request_autocontrast(WindowKind kind);
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */
