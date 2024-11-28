@@ -246,39 +246,6 @@ void rotateTexture();
  */
 void flipTexture();
 
-/*! \brief Get the rounded value of max contrast for the given WindowKind
- *
- * Qt rounds the value by default.
- * In order to compare the compute descriptor values these values also needs to be rounded.
- */
-float get_truncate_contrast_max(const int precision = 2);
-
-/*! \brief Get the rounded value of min contrast for the given WindowKind
- *
- * \see get_truncate_contrast_max()
- */
-float get_truncate_contrast_min(const int precision = 2);
-
-/*! \brief Enables or Disables auto refresh contrast
- *
- * \param value true: enable, false: disable
- */
-void set_contrast_auto_refresh(bool value);
-
-/*! \brief Update the contrast of a window
- *
- * \param kind the window to update
- * \param min the min contrast value
- * \param max the max contrast value
- */
-void update_contrast(WindowKind kind, float min, float max);
-
-/*! \brief Enables or Disables log scale on the current window
- *
- * \param value true: enable, false: disable
- */
-void set_log_scale(const bool value);
-
 /*! \brief Set value of raw bit shift
  *
  * \param value to set
@@ -334,6 +301,9 @@ static void set_xyz_members(T xy_member, T xz_member, T yz_member, U value)
     yz_member(value);
 }
 
+bool get_horizontal_flip();
+double get_rotation();
+
 /**
  * \brief Helper functions to get the member of the current view
  * \tparam T is the getter function
@@ -346,79 +316,6 @@ static T get_view_member(T filter2d_member, T xy_member, T xz_member, T yz_membe
         return filter2d_member;
     return get_xyz_member(xy_member, xz_member, yz_member);
 }
-
-/*! \brief Gets the contrast min of a given window
- *
- * \return float the contrast minimum of the given window kind
- */
-float get_contrast_min();
-
-/*! \brief Gets the contrast max of a given window
- *
- * \return float the contrast maximum of the given window kind
- */
-float get_contrast_max();
-
-/*! \brief Gets the contrast max of a given window
- *
- * \return bool the contrast maximum of the given window kind
- */
-bool get_contrast_invert();
-
-/*! \brief Gets if the contrast is enabled for the current window
- *
- * \return bool the contrast is enabled for the current window
- */
-bool get_contrast_enabled();
-
-/*! \brief Gets the rotation of a given window
- *
- * \return double the rotation of the given window kind
- */
-double get_rotation();
-
-/*! \brief Gets the horizontal flip of a given window
- *
- * \return bool the horizontal flip of the given window kind
- */
-bool get_horizontal_flip();
-
-/*! \brief Checks if log scale is enabled for a given window
- *
- * \return true Enabled
- * \return false Disabled
- */
-bool get_log_enabled();
-
-/*! \brief Returns if the auto contrast is enabled for the current window
- *
- * \return double the rotation of the given window kind
- */
-bool get_contrast_auto_refresh();
-
-/*! \brief Sets the contrast mode
- *
- *  \param value true: enable, false: disable
- */
-void set_contrast_mode(bool contrast_enabled);
-
-/*! \brief Sets the contrast invert mode
- *
- *  \param value true: enable, false: disable
- */
-void set_contrast_invert(bool contrast_invert);
-
-/*! \brief Sets the contrast min
- *
- *  \param value the new value
- */
-void set_contrast_min(float value);
-
-/*! \brief Sets the contrast max
- *
- *  \param value the new value
- */
-void set_contrast_max(float value);
 
 /*! \brief Sets the rotation
  *
@@ -490,12 +387,6 @@ void update_time_transformation_size(uint time_transformation_size);
  */
 void change_window(const int index);
 
-/*! \brief Enables or Disables renormalize image with clear image accumulation pipe
- *
- * \param value true: enable, false: disable
- */
-void toggle_renormalize(bool value);
-
 /*! \brief Modifies time transformation stride size from ui value
  *
  * \param time_stride the new value
@@ -561,3 +452,5 @@ void start_information_display();
 #include "view_api.hh"
 #include "filter2d_api.hh"
 #include "globalpostprocess_api.hh"
+#include "windowpostprocess_api.hh"
+#include "contrast_api.hh"

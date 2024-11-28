@@ -90,9 +90,6 @@ constexpr std::vector<std::string> get_credits()
 inline Computation get_compute_mode() { return GET_SETTING(ComputeMode); }
 inline void set_compute_mode(Computation mode) { UPDATE_SETTING(ComputeMode, mode); }
 
-inline float get_pixel_size() { return GET_SETTING(PixelSize); }
-inline void set_pixel_size(float value) { UPDATE_SETTING(PixelSize, value); }
-
 inline SpaceTransformation get_space_transformation() { return GET_SETTING(SpaceTransformation); }
 
 inline ImgType get_img_type() { return GET_SETTING(ImageType); }
@@ -142,18 +139,6 @@ inline bool set_batch_size(uint value)
     return request_time_stride_update;
 }
 
-inline float get_contrast_lower_threshold() { return GET_SETTING(ContrastLowerThreshold); }
-inline void set_contrast_lower_threshold(float value) { UPDATE_SETTING(ContrastLowerThreshold, value); }
-
-inline float get_contrast_upper_threshold() { return GET_SETTING(ContrastUpperThreshold); }
-inline void set_contrast_upper_threshold(float value) { UPDATE_SETTING(ContrastUpperThreshold, value); }
-
-inline uint get_cuts_contrast_p_offset() { return static_cast<uint>(GET_SETTING(CutsContrastPOffset)); }
-inline void set_cuts_contrast_p_offset(uint value) { UPDATE_SETTING(CutsContrastPOffset, value); }
-
-inline unsigned get_renorm_constant() { return GET_SETTING(RenormConstant); }
-inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConstant, value); }
-
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
@@ -181,9 +166,6 @@ inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value)
 
 inline bool get_is_computation_stopped() { return GET_SETTING(IsComputationStopped); }
 inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputationStopped, value); }
-
-inline bool get_renorm_enabled() { return GET_SETTING(RenormEnabled); }
-inline void set_renorm_enabled(bool value) { UPDATE_SETTING(RenormEnabled, value); }
 
 inline ViewPQ get_p() { return GET_SETTING(P); }
 inline int get_p_accu_level() { return GET_SETTING(P).width; }
@@ -235,13 +217,7 @@ inline bool get_xy_horizontal_flip() { return GET_SETTING(XY).horizontal_flip; }
 inline float get_xy_rotation() { return GET_SETTING(XY).rotation; }
 inline uint get_xy_accumulation_level() { return GET_SETTING(XY).output_image_accumulation; }
 inline bool get_xy_enabled() { return GET_SETTING(XY).enabled; }
-inline bool get_xy_log_enabled() { return GET_SETTING(XY).log_enabled; }
 
-inline bool get_xy_contrast_enabled() { return GET_SETTING(XY).contrast.enabled; }
-inline bool get_xy_contrast_auto_refresh() { return GET_SETTING(XY).contrast.auto_refresh; }
-inline bool get_xy_contrast_invert() { return GET_SETTING(XY).contrast.invert; }
-inline float get_xy_contrast_min() { return GET_SETTING(XY).contrast.min; }
-inline float get_xy_contrast_max() { return GET_SETTING(XY).contrast.max; }
 inline bool get_xy_img_accu_enabled() { return GET_SETTING(XY).output_image_accumulation > 1; }
 /*! \} */
 
@@ -252,24 +228,6 @@ inline bool get_xy_img_accu_enabled() { return GET_SETTING(XY).output_image_accu
 inline void set_xy_horizontal_flip(bool value) noexcept { SET_SETTING(XY, horizontal_flip, value); }
 inline void set_xy_rotation(float value) noexcept { SET_SETTING(XY, rotation, value); }
 inline void set_xy_accumulation_level(uint value) { SET_SETTING(XY, output_image_accumulation, value); }
-inline void set_xy_log_enabled(bool value) noexcept { SET_SETTING(XY, log_enabled, value); }
-
-inline void set_xy_contrast_enabled(bool value) noexcept
-{
-    SET_SETTING(XY, contrast.enabled, value);
-    pipe_refresh();
-}
-inline void set_xy_contrast_auto_refresh(bool value) noexcept { SET_SETTING(XY, contrast.auto_refresh, value); }
-inline void set_xy_contrast_invert(bool value) noexcept { SET_SETTING(XY, contrast.invert, value); }
-inline void set_xy_contrast_min(float value) noexcept { SET_SETTING(XY, contrast.min, value > 1.0f ? value : 1.0f); }
-inline void set_xy_contrast_max(float value) noexcept { SET_SETTING(XY, contrast.max, value > 1.0f ? value : 1.0f); }
-inline void set_xy_contrast(float min, float max) noexcept
-{
-    auto xy = GET_SETTING(XY);
-    xy.contrast.min = min > 1.0f ? min : 1.0f;
-    xy.contrast.max = max > 1.0f ? max : 1.0f;
-    UPDATE_SETTING(XY, xy);
-}
 /*! \} */
 /*! \} */
 
@@ -288,13 +246,6 @@ inline bool get_xz_enabled() { return GET_SETTING(XZ).enabled; }
 inline bool get_xz_horizontal_flip() { return GET_SETTING(XZ).horizontal_flip; }
 inline float get_xz_rotation() { return GET_SETTING(XZ).rotation; }
 inline uint get_xz_accumulation_level() { return GET_SETTING(XZ).output_image_accumulation; }
-inline bool get_xz_log_enabled() { return GET_SETTING(XZ).log_enabled; }
-
-inline bool get_xz_contrast_enabled() { return GET_SETTING(XZ).contrast.enabled; }
-inline bool get_xz_contrast_auto_refresh() { return GET_SETTING(XZ).contrast.auto_refresh; }
-inline bool get_xz_contrast_invert() { return GET_SETTING(XZ).contrast.invert; }
-inline float get_xz_contrast_min() { return GET_SETTING(XZ).contrast.min; }
-inline float get_xz_contrast_max() { return GET_SETTING(XZ).contrast.max; }
 inline bool get_xz_img_accu_enabled() { return GET_SETTING(XZ).output_image_accumulation > 1; }
 /*! \} */
 
@@ -306,20 +257,7 @@ inline void set_xz_enabled(bool value) noexcept { SET_SETTING(XZ, enabled, value
 inline void set_xz_horizontal_flip(bool value) noexcept { SET_SETTING(XZ, horizontal_flip, value); }
 inline void set_xz_rotation(float value) noexcept { SET_SETTING(XZ, rotation, value); }
 inline void set_xz_accumulation_level(uint value) { SET_SETTING(XZ, output_image_accumulation, value); }
-inline void set_xz_log_enabled(bool value) noexcept { SET_SETTING(XZ, log_enabled, value); }
 
-inline void set_xz_contrast_enabled(bool value) noexcept { SET_SETTING(XZ, contrast.enabled, value); }
-inline void set_xz_contrast_auto_refresh(bool value) noexcept { SET_SETTING(XZ, contrast.auto_refresh, value); }
-inline void set_xz_contrast_invert(bool value) noexcept { SET_SETTING(XZ, contrast.invert, value); }
-inline void set_xz_contrast_min(float value) noexcept { SET_SETTING(XZ, contrast.min, value > 1.0f ? value : 1.0f); }
-inline void set_xz_contrast_max(float value) noexcept { SET_SETTING(XZ, contrast.max, value > 1.0f ? value : 1.0f); }
-inline void set_xz_contrast(float min, float max) noexcept
-{
-    auto xz = GET_SETTING(XZ);
-    xz.contrast.min = min > 1.0f ? min : 1.0f;
-    xz.contrast.max = max > 1.0f ? max : 1.0f;
-    UPDATE_SETTING(XZ, xz);
-}
 /*! \} */
 /*! \} */
 
@@ -338,13 +276,6 @@ inline bool get_yz_enabled() { return GET_SETTING(YZ).enabled; }
 inline bool get_yz_horizontal_flip() { return GET_SETTING(YZ).horizontal_flip; }
 inline float get_yz_rotation() { return GET_SETTING(YZ).rotation; }
 inline uint get_yz_accumulation_level() { return GET_SETTING(YZ).output_image_accumulation; }
-inline bool get_yz_log_enabled() { return GET_SETTING(YZ).log_enabled; }
-
-inline bool get_yz_contrast_enabled() { return GET_SETTING(YZ).contrast.enabled; }
-inline bool get_yz_contrast_auto_refresh() { return GET_SETTING(YZ).contrast.auto_refresh; }
-inline bool get_yz_contrast_invert() { return GET_SETTING(YZ).contrast.invert; }
-inline float get_yz_contrast_min() { return GET_SETTING(YZ).contrast.min; }
-inline float get_yz_contrast_max() { return GET_SETTING(YZ).contrast.max; }
 inline bool get_yz_img_accu_enabled() { return GET_SETTING(YZ).output_image_accumulation > 1; }
 /*! \} */
 
@@ -356,68 +287,6 @@ inline void set_yz_enabled(bool value) noexcept { SET_SETTING(YZ, enabled, value
 inline void set_yz_horizontal_flip(bool value) noexcept { SET_SETTING(YZ, horizontal_flip, value); }
 inline void set_yz_rotation(float value) noexcept { SET_SETTING(YZ, rotation, value); }
 inline void set_yz_accumulation_level(uint value) { SET_SETTING(YZ, output_image_accumulation, value); }
-inline void set_yz_log_enabled(bool value) noexcept { SET_SETTING(YZ, log_enabled, value); }
-
-inline void set_yz_contrast_enabled(bool value) noexcept { SET_SETTING(YZ, contrast.enabled, value); }
-inline void set_yz_contrast_auto_refresh(bool value) noexcept { SET_SETTING(YZ, contrast.auto_refresh, value); }
-inline void set_yz_contrast_invert(bool value) noexcept { SET_SETTING(YZ, contrast.invert, value); }
-inline void set_yz_contrast_min(float value) noexcept { SET_SETTING(YZ, contrast.min, value > 1.0f ? value : 1.0f); }
-inline void set_yz_contrast_max(float value) noexcept { SET_SETTING(YZ, contrast.max, value > 1.0f ? value : 1.0f); }
-inline void set_yz_contrast(float min, float max) noexcept
-{
-    auto yz = GET_SETTING(YZ);
-    yz.contrast.min = min > 1.0f ? min : 1.0f;
-    yz.contrast.max = max > 1.0f ? max : 1.0f;
-    UPDATE_SETTING(YZ, yz);
-}
-/*! \} */
-/*! \} */
-
-/*!
- * \name Filter2D
- * \{
- */
-
-/*!
- * \name Filter2D Getters
- * \{
- */
-inline bool get_filter2d_log_enabled() { return GET_SETTING(Filter2d).log_enabled; }
-
-inline bool get_filter2d_contrast_enabled() { return GET_SETTING(Filter2d).contrast.enabled; }
-inline bool get_filter2d_contrast_auto_refresh() { return GET_SETTING(Filter2d).contrast.auto_refresh; }
-inline bool get_filter2d_contrast_invert() { return GET_SETTING(Filter2d).contrast.invert; }
-inline float get_filter2d_contrast_min() { return GET_SETTING(Filter2d).contrast.min; }
-inline float get_filter2d_contrast_max() { return GET_SETTING(Filter2d).contrast.max; }
-/*! \} */
-
-/*!
- * \name Filter2D Setters
- * \{
- */
-inline void set_filter2d_log_enabled(bool value) noexcept { SET_SETTING(Filter2d, log_enabled, value); }
-
-inline void set_filter2d_contrast_enabled(bool value) noexcept { SET_SETTING(Filter2d, contrast.enabled, value); }
-inline void set_filter2d_contrast_auto_refresh(bool value) noexcept
-{
-    SET_SETTING(Filter2d, contrast.auto_refresh, value);
-}
-inline void set_filter2d_contrast_invert(bool value) noexcept { SET_SETTING(Filter2d, contrast.invert, value); }
-inline void set_filter2d_contrast_min(float value) noexcept
-{
-    SET_SETTING(Filter2d, contrast.min, value > 1.0f ? value : 1.0f);
-}
-inline void set_filter2d_contrast_max(float value) noexcept
-{
-    SET_SETTING(Filter2d, contrast.max, value > 1.0f ? value : 1.0f);
-}
-inline void set_filter2d_contrast(float min, float max) noexcept
-{
-    auto filter2d = GET_SETTING(Filter2d);
-    filter2d.contrast.min = min > 1.0f ? min : 1.0f;
-    filter2d.contrast.max = max > 1.0f ? max : 1.0f;
-    UPDATE_SETTING(Filter2d, filter2d);
-}
 /*! \} */
 /*! \} */
 

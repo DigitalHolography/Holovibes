@@ -62,7 +62,7 @@ void set_filter2d_view(bool enabled)
         while (pipe->is_requested(ICS::Filter2DView))
             continue;
 
-        set_filter2d_log_enabled(true);
+        set_log_enabled(WindowKind::Filter2D, true);
         pipe_refresh();
     }
     else

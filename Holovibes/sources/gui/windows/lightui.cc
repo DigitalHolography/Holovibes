@@ -166,7 +166,7 @@ void LightUI::notify()
     ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 }
 
-void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
+void LightUI::set_contrast_mode(bool value) { api::set_contrast_enabled(value); }
 
 void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
 

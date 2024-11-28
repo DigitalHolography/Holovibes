@@ -83,7 +83,7 @@ void set_computation_mode(Computation mode)
     if (mode == Computation::Hologram)
     {
         api::change_window(static_cast<int>(WindowKind::XYview));
-        api::set_contrast_mode(true);
+        api::set_contrast_enabled(true);
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
@@ -158,12 +158,6 @@ void update_time_stride(const uint time_stride)
 #pragma region Computation
 
 void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<WindowKind>(index)); }
-
-void toggle_renormalize(bool value)
-{
-    set_renorm_enabled(value);
-    pipe_refresh();
-}
 
 void handle_update_exception()
 {
@@ -418,6 +412,22 @@ void set_horizontal_flip()
                    !api::get_horizontal_flip());
 }
 
+bool get_horizontal_flip()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    return get_xyz_member(api::get_xy_horizontal_flip(), api::get_xz_horizontal_flip(), api::get_yz_horizontal_flip());
+}
+
+double get_rotation()
+{
+    if (!is_current_window_xyz_type())
+        throw std::runtime_error("bad window type");
+
+    return get_xyz_member(api::get_xy_rotation(), api::get_xz_rotation(), api::get_yz_rotation());
+}
+
 void flipTexture()
 {
     set_horizontal_flip();
@@ -434,197 +444,9 @@ void flipTexture()
 
 #pragma region Contrast - Log
 
-void set_contrast_mode(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    auto window = api::get_current_window_type();
-
-    if (window == WindowKind::Filter2D)
-        api::set_filter2d_contrast_enabled(value);
-    else
-        set_xyz_member(api::set_xy_contrast_enabled, api::set_xz_contrast_enabled, api::set_yz_contrast_enabled, value);
-    pipe_refresh();
-}
-
-void set_contrast_min(float value)
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return;
-
-    // Get the minimum contrast value rounded for the comparison
-    const float old_val = get_truncate_contrast_min();
-
-    if (old_val != value)
-    {
-        auto window = api::get_current_window_type();
-        float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
-        if (window == WindowKind::Filter2D)
-            api::set_filter2d_contrast_min(new_val);
-        else
-            set_xyz_member(api::set_xy_contrast_min, api::set_xz_contrast_min, api::set_yz_contrast_min, new_val);
-        pipe_refresh();
-    }
-}
-
-void set_contrast_max(float value)
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return;
-
-    // Get the maximum contrast value rounded for the comparison
-    const float old_val = get_truncate_contrast_max();
-
-    if (old_val != value)
-    {
-        auto window = api::get_current_window_type();
-        float new_val = api::get_current_window().log_enabled ? value : pow(10, value);
-        if (window == WindowKind::Filter2D)
-            api::set_filter2d_contrast_max(new_val);
-        else
-            set_xyz_member(api::set_xy_contrast_max, api::set_xz_contrast_max, api::set_yz_contrast_max, new_val);
-        pipe_refresh();
-    }
-}
-
-void set_contrast_invert(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return;
-
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::Filter2D)
-        api::set_filter2d_contrast_invert(value);
-    else
-        set_xyz_member(api::set_xy_contrast_invert, api::set_xz_contrast_invert, api::set_yz_contrast_invert, value);
-    pipe_refresh();
-}
-
-void set_contrast_auto_refresh(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
-        return;
-
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::Filter2D)
-        api::set_filter2d_contrast_auto_refresh(value);
-    else
-        set_xyz_member(api::set_xy_contrast_auto_refresh,
-                       api::set_xz_contrast_auto_refresh,
-                       api::set_yz_contrast_auto_refresh,
-                       value);
-    pipe_refresh();
-}
-
-void update_contrast(WindowKind kind, float min, float max)
-{
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        api::set_xy_contrast(min, max);
-        break;
-    case WindowKind::XZview:
-        api::set_xz_contrast(min, max);
-        break;
-    case WindowKind::YZview:
-        api::set_yz_contrast(min, max);
-        break;
-    // TODO : set_filter2d_contrast_auto
-    default:
-        api::set_filter2d_contrast(min, max);
-        break;
-    }
-}
-
-void set_log_scale(const bool value)
-{
-    if (get_compute_mode() == Computation::Raw)
-        return;
-
-    auto window = api::get_current_window_type();
-    if (window == WindowKind::Filter2D)
-        api::set_filter2d_log_enabled(value);
-    else
-        set_xyz_member(api::set_xy_log_enabled, api::set_xz_log_enabled, api::set_yz_log_enabled, value);
-
-    pipe_refresh();
-}
-
 void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
 
 unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
-
-float get_contrast_min()
-{
-    bool log_enabled =
-        get_view_member(get_filter2d_log_enabled(), get_xy_log_enabled(), get_xz_log_enabled(), get_yz_log_enabled());
-    float contrast_min = get_view_member(get_filter2d_contrast_min(),
-                                         get_xy_contrast_min(),
-                                         get_xz_contrast_min(),
-                                         get_yz_contrast_min());
-    return log_enabled ? contrast_min : log10(contrast_min);
-}
-
-float get_contrast_max()
-{
-    bool log_enabled =
-        get_view_member(get_filter2d_log_enabled(), get_xy_log_enabled(), get_xz_log_enabled(), get_yz_log_enabled());
-    float contrast_max = get_view_member(get_filter2d_contrast_max(),
-                                         get_xy_contrast_max(),
-                                         get_xz_contrast_max(),
-                                         get_yz_contrast_max());
-
-    return log_enabled ? contrast_max : log10(contrast_max);
-}
-
-bool get_contrast_invert()
-{
-    return get_view_member(get_filter2d_contrast_invert(),
-                           get_xy_contrast_invert(),
-                           get_xz_contrast_invert(),
-                           get_yz_contrast_invert());
-}
-
-bool get_contrast_auto_refresh()
-{
-    return get_view_member(get_filter2d_contrast_auto_refresh(),
-                           get_xy_contrast_auto_refresh(),
-                           get_xz_contrast_auto_refresh(),
-                           get_yz_contrast_auto_refresh());
-}
-
-bool get_contrast_enabled()
-{
-    return get_view_member(get_filter2d_contrast_enabled(),
-                           get_xy_contrast_enabled(),
-                           get_xz_contrast_enabled(),
-                           get_yz_contrast_enabled());
-}
-
-double get_rotation()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    return get_xyz_member(api::get_xy_rotation(), api::get_xz_rotation(), api::get_yz_rotation());
-}
-
-bool get_horizontal_flip()
-{
-    if (!is_current_window_xyz_type())
-        throw std::runtime_error("bad window type");
-
-    return get_xyz_member(api::get_xy_horizontal_flip(), api::get_xz_horizontal_flip(), api::get_yz_horizontal_flip());
-}
-
-bool get_log_enabled()
-{
-    return get_view_member(get_filter2d_log_enabled(),
-                           get_xy_log_enabled(),
-                           get_xz_log_enabled(),
-                           get_yz_log_enabled());
-}
 
 unsigned get_accumulation_level()
 {
@@ -659,20 +481,6 @@ void set_rotation(double value)
     set_xyz_member(api::set_xy_rotation, api::set_xz_rotation, api::set_yz_rotation, value);
 
     pipe_refresh();
-}
-
-float get_truncate_contrast_max(const int precision)
-{
-    float value = get_contrast_max();
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
-}
-
-float get_truncate_contrast_min(const int precision)
-{
-    float value = get_contrast_min();
-    const double multiplier = std::pow(10.0, precision);
-    return std::round(value * multiplier) / multiplier;
 }
 
 #pragma endregion

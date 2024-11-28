@@ -1,7 +1,7 @@
 /*! \file
  *
  * \brief Regroup all functions used to interact with post processing operations done on the main image (the on on the
- * XY view panel). These operations are: convolution and registration.
+ * XY view panel). These operations are: convolution, registration and renormalization.
  */
 #pragma once
 
@@ -46,6 +46,20 @@ inline void set_divide_convolution_enabled(bool value) { UPDATE_SETTING(DivideCo
 
 inline std::string get_convolution_file_name() { return GET_SETTING(ConvolutionFileName); }
 inline void set_convolution_file_name(std::string value) { UPDATE_SETTING(ConvolutionFileName, value); }
+
+#pragma endregion
+
+#pragma region Renorm Settings
+
+inline unsigned get_renorm_constant() { return GET_SETTING(RenormConstant); }
+inline void set_renorm_constant(unsigned int value) { UPDATE_SETTING(RenormConstant, value); }
+
+inline bool get_renorm_enabled() { return GET_SETTING(RenormEnabled); }
+inline void set_renorm_enabled(bool value)
+{
+    UPDATE_SETTING(RenormEnabled, value);
+    pipe_refresh();
+}
 
 #pragma endregion
 

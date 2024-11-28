@@ -335,13 +335,13 @@ void ViewPanel::flipTexture()
     parent_->notify(); // Update flip number
 }
 
-void ViewPanel::set_log_scale(const bool value) { api::set_log_scale(value); }
+void ViewPanel::set_log_scale(const bool value) { api::set_log_enabled(value); }
 
 void ViewPanel::set_accumulation_level(int value) { api::set_accumulation_level(value); }
 
 void ViewPanel::set_contrast_mode(bool value)
 {
-    api::set_contrast_mode(value);
+    api::set_contrast_enabled(value);
     parent_->notify();
 }
 
@@ -357,7 +357,7 @@ void ViewPanel::set_contrast_min(const double value) { api::set_contrast_min(val
 
 void ViewPanel::set_contrast_max(const double value) { api::set_contrast_max(value); }
 
-void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value); }
+void ViewPanel::toggle_renormalize(bool value) { api::set_renorm_enabled(value); }
 
 void ViewPanel::display_reticle(bool value)
 {
