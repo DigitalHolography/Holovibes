@@ -218,61 +218,6 @@ void set_time_transformation(const TimeTransformation value);
  */
 void set_unwrapping_2d(const bool value);
 
-/*! \brief Set value of raw bit shift
- *
- * \param value to set
- */
-void set_raw_bitshift(unsigned int value);
-
-/*! \name	Setter of the overlay positions.
- * \{
- */
-void set_signal_zone(const units::RectFd& rect);
-void set_noise_zone(const units::RectFd& rect);
-void set_composite_zone(const units::RectFd& rect);
-void set_zoomed_zone(const units::RectFd& rect);
-/*! \} */
-
-/*!
- * \brief Gets the raw bit shift
- *
- * \return int the raw bit shift
- */
-unsigned int get_raw_bitshift();
-
-/*! \brief get x
- *
- * \return x
- */
-ViewXY get_x(void);
-
-/*! \brief get y
- *
- * \return y
- */
-ViewXY get_y(void);
-
-/*! \brief get p
- *
- * \return p
- */
-ViewPQ get_p(void);
-
-/*! \brief get q
- *
- * \return q
- */
-ViewPQ get_q(void);
-
-/*! \name	Getter of the overlay positions.
- * \{
- */
-units::RectFd get_signal_zone();
-units::RectFd get_noise_zone();
-units::RectFd get_composite_zone();
-units::RectFd get_zoomed_zone();
-/*! \} */
-
 /*! \brief Changes the time transformation size from ui value
  *
  * \param time_transformation_size The new time transformation size

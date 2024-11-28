@@ -14,6 +14,8 @@ namespace holovibes::api
 
 #pragma region Internal
 
+WindowKind get_current_window_type();
+
 inline ViewWindow get_window(WindowKind kind)
 {
     switch (kind)
@@ -34,13 +36,13 @@ inline void set_window(WindowKind kind, ViewWindow value)
     switch (kind)
     {
     case WindowKind::XYview:
-        set_xy(static_cast<ViewXYZ>(value));
+        UPDATE_SETTING(XY, static_cast<ViewXYZ>(value));
         break;
     case WindowKind::XZview:
-        set_xz(static_cast<ViewXYZ>(value));
+        UPDATE_SETTING(XZ, static_cast<ViewXYZ>(value));
         break;
     case WindowKind::YZview:
-        set_yz(static_cast<ViewXYZ>(value));
+        UPDATE_SETTING(YZ, static_cast<ViewXYZ>(value));
         break;
     default:
         UPDATE_SETTING(Filter2d, value);

@@ -18,8 +18,8 @@ bool set_3d_cuts_view(bool enabled)
             while (get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
                 continue;
 
-            set_yz_enabled(true);
-            set_xz_enabled(true);
+            set_enabled(WindowKind::YZview, true);
+            set_enabled(WindowKind::XZview, true);
             set_cuts_view_enabled(true);
 
             pipe_refresh();
@@ -33,8 +33,8 @@ bool set_3d_cuts_view(bool enabled)
     }
     else
     {
-        set_yz_enabled(false);
-        set_xz_enabled(false);
+        set_enabled(WindowKind::YZview, false);
+        set_enabled(WindowKind::XZview, false);
         set_cuts_view_enabled(false);
 
         get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);

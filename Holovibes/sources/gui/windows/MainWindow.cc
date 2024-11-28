@@ -184,7 +184,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
 
-    if (api::get_yz_enabled() and api::get_xz_enabled())
+    if (api::get_enabled(WindowKind::YZview) && api::get_enabled(WindowKind::XZview))
         ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();

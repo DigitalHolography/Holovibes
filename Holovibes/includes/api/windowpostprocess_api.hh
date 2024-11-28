@@ -19,6 +19,8 @@ namespace holovibes::api
 
 #pragma region Internal
 
+WindowKind get_current_window_type();
+
 #define NOT_FILTER2D_R(kind, text, r_value)                                                                            \
     if (kind == WindowKind::Filter2D)                                                                                  \
     {                                                                                                                  \
@@ -51,13 +53,13 @@ inline void set_window_xyz(WindowKind kind, ViewXYZ value)
     switch (kind)
     {
     case WindowKind::XYview:
-        set_xy(value);
+        UPDATE_SETTING(XY, value);
         break;
     case WindowKind::XZview:
-        set_xz(value);
+        UPDATE_SETTING(XZ, value);
         break;
     case WindowKind::YZview:
-        set_yz(value);
+        UPDATE_SETTING(YZ, value);
         break;
     default:
         break;
@@ -103,6 +105,23 @@ inline uint get_accumulation_level() { return get_accumulation_level(get_current
 
 void set_accumulation_level(WindowKind kind, uint value);
 void set_accumulation_level(uint value);
+
+#pragma endregion
+
+#pragma region Raw Bitshift
+
+/*! \brief Set value of raw bit shift
+ *
+ * \param value to set
+ */
+inline void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
+
+/*!
+ * \brief Gets the raw bit shift
+ *
+ * \return uint the raw bit shift
+ */
+inline unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
 
 #pragma endregion
 

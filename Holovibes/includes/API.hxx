@@ -197,60 +197,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 /*! \} */
 
 /*!
- * \name XY
- * \{
- */
-inline ViewXYZ get_xy() { return GET_SETTING(XY); }
-inline void set_xy(ViewXYZ value) noexcept { UPDATE_SETTING(XY, value); }
-
-/*! \} */
-
-/*!
- * \name XZ
- * \{
- */
-inline ViewXYZ get_xz() { return GET_SETTING(XZ); }
-inline void set_xz(ViewXYZ value) noexcept { UPDATE_SETTING(XZ, value); }
-
-/*!
- * \name XZ Getters
- * \{
- */
-inline bool get_xz_enabled() { return GET_SETTING(XZ).enabled; }
-/*! \} */
-
-/*!
- * \name XZ Setters
- * \{
- */
-inline void set_xz_enabled(bool value) noexcept { SET_SETTING(XZ, enabled, value); }
-
-/*! \} */
-/*! \} */
-
-/*!
- * \name YZ
- * \{
- */
-inline ViewXYZ get_yz() { return GET_SETTING(YZ); }
-inline void set_yz(ViewXYZ value) noexcept { UPDATE_SETTING(YZ, value); }
-
-/*!
- * \name YZ Getters
- * \{
- */
-inline bool get_yz_enabled() { return GET_SETTING(YZ).enabled; }
-/*! \} */
-
-/*!
- * \name YZ Setters
- * \{
- */
-inline void set_yz_enabled(bool value) noexcept { SET_SETTING(YZ, enabled, value); }
-/*! \} */
-/*! \} */
-
-/*!
  * \name FFT
  * \{
  */

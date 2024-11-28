@@ -356,14 +356,6 @@ float get_boundary() { return Holovibes::instance().get_boundary(); }
 
 #pragma endregion
 
-#pragma region Contrast - Log
-
-void set_raw_bitshift(unsigned int value) { UPDATE_SETTING(RawBitshift, value); }
-
-unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SETTING(RawBitshift)); }
-
-#pragma endregion
-
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }
