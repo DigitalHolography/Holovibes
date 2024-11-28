@@ -3,10 +3,37 @@
 #include "cuComplex.h"
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
+#include "cublas_handle.hh"
 #include "cuda_memory.cuh"
 using uint = unsigned int;
 
 #define NUM_BINS 256
+
+__global__ void normalise_kernel(float* d_input, float min, float max, int size)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < size)
+        d_input[tid] = (int)(((d_input[tid] - min) / (max - min)));
+}
+
+void normalise(float* input, uint size, cublasHandle_t& handle, const cudaStream_t stream)
+{
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+
+    // cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
+    int maxI = -1;
+    int minI = -1;
+    cublasIsamax(handle, size, input, 1, &maxI);
+    cublasIsamin(handle, size, input, 1, &minI);
+
+    float h_min, h_max;
+    cudaXMemcpy(&h_min, input + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(&h_max, input + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
+    normalise_kernel<<<blocks, threads, 0, stream>>>(input, size, h_min, h_max);
+    // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream);
+}
 
 // Check if optimizable in future with `reduce.cuh` functions.
 __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
@@ -143,13 +170,19 @@ __global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_ou
         *threshold_out = threshold_shared / NUM_BINS;
 }
 
-float otsu_threshold(
-    const float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
+float otsu_threshold(float* image_d,
+                     uint* histo_buffer_d,
+                     float* threshold_d,
+                     int size,
+                     cublasHandle_t& handle,
+                     const cudaStream_t stream)
 {
-    uint threads = NUM_BINS;
-    uint blocks = (size + threads - 1) / threads;
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
     float threshold;
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
+
+    normalise(image_d, size, handle, stream);
 
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
 
@@ -165,11 +198,12 @@ void compute_binarise_otsu(float* input_output,
                            float* threshold_d,
                            const size_t width,
                            const size_t height,
+                           cublasHandle_t& handle,
                            const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(input_output, histo_buffer_d, threshold_d, img_size, stream);
+    float global_threshold = otsu_threshold(input_output, histo_buffer_d, threshold_d, img_size, handle, stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
@@ -180,17 +214,18 @@ void compute_binarise_otsu(float* input_output,
 
 void compute_binarise_otsu_bradley(float* output_d,
                                    uint* histo_buffer_d,
-                                   const float* input_d,
+                                   float* input_d,
                                    float* threshold_d,
                                    const size_t width,
                                    const size_t height,
                                    const int window_size,
                                    const float local_threshold_factor,
+                                   cublasHandle_t& handle,
                                    const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(input_d, histo_buffer_d, threshold_d, img_size, stream);
+    float global_threshold = otsu_threshold(input_d, histo_buffer_d, threshold_d, img_size, handle, stream);
 
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
