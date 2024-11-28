@@ -24,6 +24,10 @@ inline CompositeKind get_composite_kind() noexcept { return GET_SETTING(Composit
  */
 inline void set_composite_kind(CompositeKind value) { UPDATE_SETTING(CompositeKind, value); }
 
+inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
+
+inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
+
 #pragma region RGB
 
 /*! \name RGB

@@ -179,9 +179,6 @@ inline std::shared_ptr<BatchInputQueue> get_input_queue() { return Holovibes::in
 inline float get_reticle_scale() { return GET_SETTING(ReticleScale); }
 inline void set_reticle_scale(float value) { UPDATE_SETTING(ReticleScale, value); }
 
-inline float get_registration_zone() { return GET_SETTING(RegistrationZone); }
-inline void set_registration_zone(float value) { UPDATE_SETTING(RegistrationZone, value); }
-
 inline bool get_is_computation_stopped() { return GET_SETTING(IsComputationStopped); }
 inline void set_is_computation_stopped(bool value) { UPDATE_SETTING(IsComputationStopped, value); }
 
@@ -221,23 +218,6 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 {
     UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
 }
-/*! \} */
-
-/*!
- * \name Convolution
- * \{
- */
-inline std::vector<float> get_convo_matrix() { return GET_SETTING(ConvolutionMatrix); };
-inline void set_convo_matrix(std::vector<float> value) { UPDATE_SETTING(ConvolutionMatrix, value); }
-
-inline bool get_convolution_enabled() { return GET_SETTING(ConvolutionEnabled); }
-inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
-
-inline bool get_divide_convolution_enabled() { return GET_SETTING(DivideConvolutionEnabled); }
-inline void set_divide_convolution_enabled(bool value) { UPDATE_SETTING(DivideConvolutionEnabled, value); }
-
-inline std::string get_convolution_file_name() { return GET_SETTING(ConvolutionFileName); }
-inline void set_convolution_file_name(std::string value) { UPDATE_SETTING(ConvolutionFileName, value); }
 /*! \} */
 
 /*!
@@ -460,31 +440,6 @@ inline void set_fft_shift_enabled(bool value)
         set_registration_enabled(value);
 
     UPDATE_SETTING(FftShiftEnabled, value);
-    pipe_refresh();
-}
-
-/*! \brief Getter and Setter for the Z fft shift, triggered when Z FFT Shift button is clicked on the gui. */
-inline bool get_z_fft_shift() noexcept { return GET_SETTING(ZFFTShift); }
-inline void set_z_fft_shift(bool checked) { UPDATE_SETTING(ZFFTShift, checked); }
-/*! \} */
-
-/*!
- * \name Registration
- * \{
- */
-
-/*! \brief Getter and Setter for the registration, triggered when the Registration button is clicked on the gui.
- * (Setter refreshes the pipe) */
-inline bool get_registration_enabled() { return GET_SETTING(RegistrationEnabled); }
-inline void set_registration_enabled(bool value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
-
-    if (!api::get_fft_shift_enabled())
-        set_fft_shift_enabled(value);
-
-    UPDATE_SETTING(RegistrationEnabled, value);
     pipe_refresh();
 }
 /*! \} */

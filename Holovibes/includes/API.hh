@@ -396,23 +396,6 @@ bool get_log_enabled();
  */
 bool get_contrast_auto_refresh();
 
-/*! \brief Enables the divide convolution mode
- *
- * \param value the file containing the convolution's settings
- */
-void enable_convolution(const std::string& file);
-
-/*! \brief Loads convolution matrix from a given file
- *
- * \param file the file containing the convolution's settings
- */
-void load_convolution_matrix(std::string filename);
-
-/*! \brief Disables convolution
- *
- */
-void disable_convolution();
-
 /*! \brief Sets the contrast mode
  *
  *  \param value true: enable, false: disable
@@ -483,12 +466,6 @@ units::RectFd get_zoomed_zone();
 units::RectFd get_reticle_zone();
 /*! \} */
 
-/*! \brief Enable the divide convolution mode
- *
- * \param value true: enable, false: disable
- */
-void set_divide_convolution(const bool value);
-
 /*! \brief Creates or Removes the reticle overlay
  *
  * \param value true: create, false: remove
@@ -500,11 +477,6 @@ void display_reticle(bool value);
  * \param value the new reticle scale value
  */
 void reticle_scale(float value);
-
-/*! \brief Set the new value of the registration zone for the circular mask. Range ]0, 1[.
- *  \param[in] value The new zone value.
- */
-void update_registration_zone(float value);
 
 /*! \brief Changes the time transformation size from ui value
  *
@@ -588,3 +560,4 @@ void start_information_display();
 #include "input_api.hh"
 #include "view_api.hh"
 #include "filter2d_api.hh"
+#include "globalpostprocess_api.hh"
