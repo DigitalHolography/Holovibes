@@ -43,15 +43,15 @@ void Analysis::init_params_vesselness_filter(float* result_transpose,
     normalized_list(y, y_lim, y_size, stream);
 
     // Initialize X and Y deriviative gaussian kernels
-    float* g_xx_px;
-    cudaXMalloc(&g_xx_px, x_size * sizeof(float));
-    comp_dgaussian(g_xx_px, x, x_size, sigma, p, stream);
+    float* g_px;
+    cudaXMalloc(&g_px, x_size * sizeof(float));
+    comp_dgaussian(g_px, x, x_size, sigma, p, stream);
 
-    float* g_xx_qy;
-    cudaXMalloc(&g_xx_qy, y_size * sizeof(float));
-    comp_dgaussian(g_xx_qy, y, y_size, sigma, q, stream);
+    float* g_qy;
+    cudaXMalloc(&g_qy, y_size * sizeof(float));
+    comp_dgaussian(g_qy, y, y_size, sigma, q, stream);
 
-    holovibes::compute::matrix_multiply<float>(g_xx_qy, g_xx_px, y_size, x_size, 1, target, cublas_handler_);
+    holovibes::compute::matrix_multiply<float>(g_qy, g_px, y_size, x_size, 1, target, cublas_handler_);
     const float alpha = 1.0f;
     const float beta = 0.0f;
     cublasSafeCall(cublasSgeam(cublas_handler_,
@@ -67,10 +67,12 @@ void Analysis::init_params_vesselness_filter(float* result_transpose,
                                y_size,
                                result_transpose,
                                x_size));
+
+    // We no longer need those
     cudaXFree(x);
     cudaXFree(y);
-    cudaXFree(g_xx_qy);
-    cudaXFree(g_xx_px);
+    cudaXFree(g_qy);
+    cudaXFree(g_px);
 }
 
 void Analysis::init()
@@ -182,19 +184,6 @@ void Analysis::init()
 
     // Compute Gaussian kernel for vascular pulse
     compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, VpSigma, stream_);
-}
-
-void Analysis::dispose()
-{
-    LOG_FUNC();
-
-    vesselness_mask_env_.g_xx_mul_.reset();
-    vesselness_mask_env_.g_xy_mul_.reset();
-    vesselness_mask_env_.g_yy_mul_.reset();
-
-    uint_buffer_1_.reset();
-    uint_buffer_2_.reset();
-    float_buffer_.reset();
 }
 
 void Analysis::insert_first_analysis_masks()
@@ -355,7 +344,7 @@ void Analysis::insert_first_analysis_masks()
                 //            cublas_handler_,
                 //            stream_);
 
-                //                 // TODO: get titouan to fix his function and remove csv
+                // TODO: get titouan to fix his function and remove csv
                 cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
                                  bwareafilt_csv_,
                                  512 * 512 * sizeof(float),

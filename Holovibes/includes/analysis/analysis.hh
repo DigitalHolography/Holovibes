@@ -119,9 +119,6 @@ class Analysis
     /*! \brief Initialize convolution by allocating the corresponding buffer */
     void init();
 
-    /*! \brief Free the ressources for the analysis */
-    void dispose();
-
     /*! \brief Insert mask computing */
     void insert_first_analysis_masks();
 
