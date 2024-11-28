@@ -249,9 +249,14 @@ class Analysis
     cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
-
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> float_buffer_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> otsu_float_gpu_;
 };
 } // namespace holovibes::analysis
 

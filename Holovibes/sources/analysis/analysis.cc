@@ -94,7 +94,10 @@ void Analysis::init()
     // Used in bwareafilt and bwareaopen
     uint_buffer_1_.safe_resize(frame_res);
     uint_buffer_2_.safe_resize(frame_res);
+    size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
+    otsu_histo_buffer_.resize(256);
+    otsu_float_gpu_.resize(1);
 
     // Allocate vesselness mask env buffers
     vesselness_mask_env_.time_window_ = api::get_time_window();
@@ -265,7 +268,12 @@ void Analysis::insert_first_analysis_masks()
 // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
 #if !FROM_CSV
                 // Binarize the vesselness output to produce the mask vesselness
-                compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                      otsu_histo_buffer_.get(),
+                                      otsu_float_gpu_.get(),
+                                      fd_.width,
+                                      fd_.height,
+                                      stream_);
 
                 // Compute f_AVG_mean, which is the temporal average of M1 / M0
                 cudaXMemcpyAsync(vesselness_mask_env_.m1_divided_by_m0_frame_,
@@ -341,6 +349,7 @@ void Analysis::insert_first_analysis_masks()
                 //            uint_buffer_1_,
                 //            uint_buffer_2_,
                 //            float_buffer_,
+                //            size_t_gpu_,
                 //            cublas_handler_,
                 //            stream_);
 
@@ -595,29 +604,12 @@ void Analysis::insert_otsu()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                // cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-                // int maxI = -1;
-                // int minI = -1;
-                // cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &maxI);
-                // cublasIsamin(handle, buffers_.gpu_postprocess_frame_size, buffers_.gpu_postprocess_frame, 1, &minI);
-
-                // float h_min, h_max;
-                // cudaXMemcpy(&h_min, buffers_.gpu_postprocess_frame + (minI - 1), sizeof(float),
-                // cudaMemcpyDeviceToHost); cudaXMemcpy(&h_max, buffers_.gpu_postprocess_frame + (maxI - 1),
-                // sizeof(float), cudaMemcpyDeviceToHost);
-
-                // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size,
-                // stream_);
-
-                // print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu_normalized", stream_);
-
                 if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
                 {
-
-                    float* d_output;
-                    cudaMalloc(&d_output, buffers_.gpu_postprocess_frame_size * sizeof(float));
-                    compute_binarise_otsu_bradley(buffers_.gpu_postprocess_frame,
-                                                  d_output,
+                    compute_binarise_otsu_bradley(float_buffer_.get(),
+                                                  otsu_histo_buffer_.get(),
+                                                  buffers_.gpu_postprocess_frame,
+                                                  otsu_float_gpu_.get(),
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
@@ -625,13 +617,17 @@ void Analysis::insert_otsu()
                                                   stream_);
 
                     cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                                d_output,
+                                float_buffer_.get(),
                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
                                 cudaMemcpyDeviceToDevice);
-                    cudaFree(d_output);
                 }
                 else
-                    compute_binarise_otsu(buffers_.gpu_postprocess_frame, fd_.width, fd_.height, stream_);
+                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                          otsu_histo_buffer_.get(),
+                                          otsu_float_gpu_.get(),
+                                          fd_.width,
+                                          fd_.height,
+                                          stream_);
             });
     }
 }
@@ -644,21 +640,15 @@ void Analysis::insert_bwareafilt()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
-            {
-                float* image_d = buffers_.gpu_postprocess_frame.get();
-                uint* labels_d = uint_buffer_1_.get();
-                uint* linked_d = uint_buffer_2_.get();
-                float* labels_sizes_d = float_buffer_.get();
-
-                cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
-
-                int maxI = -1;
-                cublasIsamax(handle, buffers_.gpu_postprocess_frame_size, labels_sizes_d, 1, &maxI);
-                if (maxI - 1 > 0)
-                    area_filter(image_d, labels_d, buffers_.gpu_postprocess_frame_size, maxI - 1, stream_);
-            }
+                bwareafilt(buffers_.gpu_postprocess_frame.get(),
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           cuda_tools::CublasHandle::instance(),
+                           stream_);
         });
 }
 
@@ -670,18 +660,15 @@ void Analysis::insert_bwareaopen()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
-            {
-                float* image_d = buffers_.gpu_postprocess_frame.get();
-                uint* labels_d = uint_buffer_1_.get();
-                uint* linked_d = uint_buffer_2_.get();
-                float* labels_sizes_d = float_buffer_.get();
-
-                uint p = setting<settings::MinMaskArea>();
-
-                get_connected_component(labels_d, labels_sizes_d, linked_d, image_d, fd_.width, fd_.height, stream_);
-                if (p != 0)
-                    area_open(image_d, labels_d, labels_sizes_d, buffers_.gpu_postprocess_frame_size, p, stream_);
-            }
+                bwareaopen(buffers_.gpu_postprocess_frame.get(),
+                           setting<settings::MinMaskArea>(),
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           stream_);
         });
 }
 
