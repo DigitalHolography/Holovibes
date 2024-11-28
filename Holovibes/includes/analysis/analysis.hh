@@ -157,6 +157,17 @@ class Analysis
     }
 
   private:
+    // Below init_analysis functions
+    void init_params_vesselness_filter(float* result_transpose,
+                                       float* target,
+                                       float sigma,
+                                       int x_size,
+                                       int y_size,
+                                       int x_lim,
+                                       int y_lim,
+                                       int p,
+                                       int q,
+                                       cudaStream_t stream);
     /**
      * @brief Helper function to get a settings value.
      */

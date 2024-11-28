@@ -226,17 +226,6 @@ struct VesselnessMaskEnv
     std::unique_ptr<CircularVideoBuffer> m0_ff_video_cb_ = nullptr;
     std::unique_ptr<CircularVideoBuffer> f_avg_video_cb_ = nullptr;
 
-    /*! \brief Buffer used to calculate the sum of pixel values over time for mean calculation
-     *
-     * This buffer is used to store the sum of pixel values over a sliding time window. This allows us to efficiently
-     * calculate the mean pixel value over the time window by subtracting the value of the oldest frame and adding the
-     * value of the newest frame.
-     */
-    cuda_tools::CudaUniquePtr<float> m0_ff_sum_image_ = nullptr;
-
-    /*! \brief image with mean calculated for a time window*/
-    cuda_tools::CudaUniquePtr<float> image_with_mean_ = nullptr;
-
     /*! \brief image with mean and centered calculated for a time window*/
     cuda_tools::CudaUniquePtr<float> m0_ff_video_centered_ = nullptr;
 
@@ -251,9 +240,6 @@ struct VesselnessMaskEnv
 
     /*! \brief Time window for mask */
     int time_window_;
-
-    /*! \brief Get the number of image for the mean mask*/
-    int number_image_mean_ = 0;
 
     /*! \brief X size of kernel */
     int kernel_x_size_ = 0;
