@@ -108,6 +108,15 @@ class Analysis
         cudaXStreamSynchronize(stream_);
         delete[] data_csv_cpu;
 
+        data_csv_cpu =
+            load_CSV_to_float_array("C:/Users/Domodekavkaz/Documents/Holovibes/tests_csv/test_pour_arthur.csv");
+        otsu_test_.resize(frame_res);
+        cudaXMemcpy(otsu_test_, data_csv_cpu, frame_res * sizeof(float), cudaMemcpyHostToDevice);
+        cudaXStreamSynchronize(stream_);
+        delete[] data_csv_cpu;
+
+        otsu_rescale_.resize(frame_res);
+
         // data_csv_cpu = load_CSV_to_float_array(RELATIVE_PATH("../../maskVesselness.csv"));
         // mask_vesselness_csv_.resize(frame_res);
         // if (data_csv_cpu)
@@ -202,6 +211,12 @@ class Analysis
 
     // To delete
     cuda_tools::CudaUniquePtr<float> R_VascularPulse_csv_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> otsu_test_;
+
+    // To delete
+    cuda_tools::CudaUniquePtr<float> otsu_rescale_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;

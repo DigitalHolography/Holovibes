@@ -607,12 +607,15 @@ void Analysis::insert_otsu()
                     //                       fd_.width,
                     //                       fd_.height,
                     //                       stream_);
-                    otsu_multi_thresholding(buffers_.gpu_postprocess_frame,
-                                            otsu_histo_buffer_.get(),
-                                            nullptr,
-                                            3,
-                                            fd_.width * fd_.height,
-                                            stream_);
+                    otsu_multi_thresholding(
+                        // buffers_.gpu_postprocess_frame,
+                        otsu_test_,
+                        otsu_rescale_,
+                        otsu_histo_buffer_.get(),
+                        nullptr,
+                        4,
+                        fd_.width * fd_.height,
+                        stream_);
             });
     }
 }

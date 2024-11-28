@@ -339,19 +339,60 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
 
 // void threshold_multiotsu(image = None, classes = 3, nbins = 256, *, hist = None)
 
+__global__ void rescale_csv_kernel(float* output, const float* input, size_t size)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size)
+    {
+        // Transformation : [-1, 1] -> [0, 255]
+        output[idx] = (input[idx] + 1.0f) / 2; //* 127.5f;
+    }
+}
+
+__global__ void histogram_kernel_multi(const float* image, uint* hist, int imgSize)
+{
+    extern __shared__ uint shared_hist[]; // Shared memory for histogram bins
+
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + tid;
+
+    // Initialize shared memory histogram
+    if (tid < NUM_BINS)
+        shared_hist[tid] = 0;
+    __syncthreads();
+
+    // Populate shared histogram
+    if (idx < imgSize)
+    {
+        int bin = static_cast<int>(image[idx]);
+        atomicAdd(&shared_hist[bin], 1);
+    }
+    __syncthreads();
+
+    // Merge shared histograms into global memory
+    if (tid < NUM_BINS)
+        atomicAdd(&hist[tid], shared_hist[tid]);
+}
+
 void otsu_multi_thresholding(const float* input_d,
+                             float* otsu_rescale,
                              uint* histo_buffer_d,
                              float* thresholds_d,
-                             size_t nb_thresholds,
+                             size_t nclasses,
                              size_t size,
                              const cudaStream_t stream)
 {
+
     // Step 1 : Compute the histogram of the image
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
 
-    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
+    rescale_csv_kernel<<<blocks, threads, 0, stream>>>(otsu_rescale, input_d, size);
+
+    // cudaXMalloc(&hist, NUM_BINS * sizeof(uint));
+    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(otsu_rescale, histo_buffer_d, size);
+    // histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
     cudaXStreamSynchronize(stream);
 
     // Transferer GPU TO CPU.
@@ -366,7 +407,7 @@ void otsu_multi_thresholding(const float* input_d,
             nvalues++;
     }
 
-    CHECK(nvalues >= 3, "NIK ZEBI");
+    CHECK(nvalues >= nclasses, "NIK ZEBI");
 
     std::vector<float> prob(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
@@ -374,12 +415,12 @@ void otsu_multi_thresholding(const float* input_d,
         prob[i] = static_cast<float>(hist[i]);
     }
 
-    std::vector<uint> thresh(2);
+    std::vector<uint> thresh(nclasses - 1);
     std::vector<uint> bin_center(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
         bin_center[i] = i;
 
-    if (nvalues == 3)
+    if (nvalues == nclasses)
     {
         uint thresh_idx = 0;
         for (uint i = 0; i < NUM_BINS; i++)
@@ -392,7 +433,7 @@ void otsu_multi_thresholding(const float* input_d,
     }
     else
     {
-        uint thresh_count = 2; // classes = 3 mais on fait classes-1.
+        uint thresh_count = nclasses - 1; // classes = 3 mais on fait classes-1.
 
         std::vector<size_t> thresh_indices(thresh_count);
         std::vector<size_t> current_indices(thresh_count);
@@ -411,10 +452,10 @@ void otsu_multi_thresholding(const float* input_d,
         }
     }
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < nclasses - 1; i++)
     {
         LOG_INFO(i);
-        LOG_INFO((thresh[i] + 1) * 255 / 2);
+        LOG_INFO((static_cast<float>(thresh[i]) / 255) * 2 - 1);
     }
 }
 
