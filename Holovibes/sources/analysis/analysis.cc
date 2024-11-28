@@ -17,7 +17,7 @@
 #include "tools_analysis_debug.hh"
 
 #define DIAPHRAGM_FACTOR 0.4f
-#define FROM_CSV false
+#define FROM_CSV true
 
 namespace holovibes::analysis
 {
@@ -107,6 +107,7 @@ void Analysis::init()
     vesselness_mask_env_.m1_divided_by_m0_frame_.safe_resize(frame_res);
     vesselness_mask_env_.circle_mask_.safe_resize(frame_res);
     vesselness_mask_env_.bwareafilt_result_.safe_resize(frame_res);
+    vesselness_mask_env_.mask_vesselness_.safe_resize(frame_res);
     vesselness_mask_env_.mask_vesselness_clean_.safe_resize(frame_res);
     vesselness_mask_env_.quantizedVesselCorrelation_.safe_resize(frame_res);
     vesselness_mask_env_.kernel_x_size_ = x_size;
@@ -228,22 +229,14 @@ void Analysis::insert_first_analysis_masks()
                 // Compute the centered image from the temporal mean of the video
                 image_centering(vesselness_mask_env_.m0_ff_video_centered_,
                                 vesselness_mask_env_.m0_ff_video_cb_->get_data_ptr(),
-#if FROM_CSV
-                                m0_ff_img_csv_,
-#else
                                 vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-#endif
                                 buffers_.gpu_postprocess_frame_size,
                                 vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
                                 stream_);
 
                 // Compute the first vesselness mask which represents both vessels types (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
-#if FROM_CSV
-                                  m0_ff_img_csv_,
-#else
                                   vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-#endif
                                   setting<settings::VesselnessSigma>(),
                                   vesselness_mask_env_.g_xx_mul_,
                                   vesselness_mask_env_.g_xy_mul_,
@@ -267,6 +260,8 @@ void Analysis::insert_first_analysis_masks()
 
 // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
 #if !FROM_CSV
+                if (i_ == 0)
+                    print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu", stream_);
                 // Binarize the vesselness output to produce the mask vesselness
                 compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                       otsu_histo_buffer_.get(),
@@ -274,6 +269,21 @@ void Analysis::insert_first_analysis_masks()
                                       fd_.width,
                                       fd_.height,
                                       stream_);
+                if (i_ == 0)
+                    print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
+#else
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                                 mask_vesselness_csv_,
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+#endif
+                // Store mask_vesselness for later computations
+                cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
+                                 buffers_.gpu_postprocess_frame,
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
 
                 // Compute f_AVG_mean, which is the temporal average of M1 / M0
                 cudaXMemcpyAsync(vesselness_mask_env_.m1_divided_by_m0_frame_,
@@ -290,17 +300,11 @@ void Analysis::insert_first_analysis_masks()
                 vesselness_mask_env_.f_avg_video_cb_->add_new_frame(vesselness_mask_env_.m1_divided_by_m0_frame_);
 
                 vesselness_mask_env_.f_avg_video_cb_->compute_mean_image();
-#endif
                 // From here ~111 FPS (might change when otsu fix)
                 // Compute vascular image
                 compute_multiplication(vesselness_mask_env_.vascular_image_,
-#if FROM_CSV
-                                       m0_ff_img_csv_,
-                                       f_avg_csv_,
-#else
                                        vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
                                        vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
-#endif
                                        buffers_.gpu_postprocess_frame_size,
                                        1,
                                        stream_);
@@ -330,43 +334,28 @@ void Analysis::insert_first_analysis_masks()
                 // From here ~90 FPS
                 // From here, also issue to get good fps because we don't have Titouan's code
                 cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
-#if FROM_CSV
-                                 mask_vesselness_csv_,
-#else
                                  buffers_.gpu_postprocess_frame, // This is the result of otsu
-#endif
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
 
-                // apply_mask_or(vesselness_mask_env_.bwareafilt_result_,
-                // vesselness_mask_env_.circle_mask_, fd_.width,
-                // fd_.height, stream_);
-
-                // bwareafilt(vesselness_mask_env_.bwareafilt_result_,
-                //            fd_.width,
-                //            fd_.height,
-                //            uint_buffer_1_,
-                //            uint_buffer_2_,
-                //            float_buffer_,
-                //            size_t_gpu_,
-                //            cublas_handler_,
-                //            stream_);
-
-                // TODO: get titouan to fix his function and remove csv
-                cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
-                                 bwareafilt_csv_,
-                                 512 * 512 * sizeof(float),
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
+                apply_mask_or(vesselness_mask_env_.bwareafilt_result_,
+                              vesselness_mask_env_.circle_mask_,
+                              fd_.width,
+                              fd_.height,
+                              stream_);
+                bwareafilt(vesselness_mask_env_.bwareafilt_result_,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_,
+                           uint_buffer_2_,
+                           float_buffer_,
+                           size_t_gpu_,
+                           cublas_handler_,
+                           stream_);
 
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-#if FROM_CSV
-
-                                 mask_vesselness_csv_,
-#else
                                  buffers_.gpu_postprocess_frame, // this is the result of otsu
-#endif
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
@@ -377,12 +366,12 @@ void Analysis::insert_first_analysis_masks()
                                fd_.height,
                                stream_);
                 // Fps here ~90 FPS
-                // To be removed but to get the identical result
-                cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-                                 mask_vesselness_clean_csv_,
-                                 512 * 512 * sizeof(float),
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
+                // // To be removed but to get the identical result
+                // cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
+                //                  mask_vesselness_clean_csv_,
+                //                  512 * 512 * sizeof(float),
+                //                  cudaMemcpyDeviceToDevice,
+                //                  stream_);
 
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_1_2(vesselness_mask_env_.mask_vesselness_clean_);
                 // Fps here ~45 FPS, better than before (5 FPS)
@@ -396,30 +385,17 @@ void Analysis::insert_first_analysis_masks()
                 int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
                 compute_first_correlation(buffers_.gpu_postprocess_frame, // R_vascular_pulse will be in this buffer
                                           vesselness_mask_env_.m0_ff_video_centered_,
-#if FROM_CSV
-
-                                          vascular_pulse,
-                                          11727,
-                                          506,
-#else
                                           vesselness_filter_struct_.vascular_pulse,
                                           nnz,
                                           vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
-#endif
                                           vesselness_filter_struct_,
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_);
 
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-#if FROM_CSV
-                                       m0_ff_img_csv_,
-                                       f_avg_csv_,
-                                       R_VascularPulse_csv_,
-#else
                                        vesselness_mask_env_.m0_ff_video_centered_,
                                        vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
                                        buffers_.gpu_postprocess_frame,
-#endif
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
@@ -456,14 +432,7 @@ void Analysis::insert_first_analysis_masks()
                 float thresholds[3] = {0.207108953480839f,
                                        0.334478400506137f,
                                        0.458741275652768f}; // this is hardcoded, need to call titouan function
-#if FROM_CSV
-                segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
-                                R_VascularPulse_csv_,
-                                mask_vesselness_clean_csv_,
-                                buffers_.gpu_postprocess_frame_size,
-                                thresholds,
-                                stream_);
-#else
+
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
                                 buffers_.gpu_postprocess_frame,
@@ -471,8 +440,6 @@ void Analysis::insert_first_analysis_masks()
                                 buffers_.gpu_postprocess_frame_size,
                                 thresholds,
                                 stream_);
-
-#endif
             });
     }
 }
@@ -545,7 +512,7 @@ void Analysis::insert_choroid_mask()
             [=]()
             {
                 cudaXMemcpyAsync(first_mask_choroid_struct_.first_mask_choroid,
-                                 mask_vesselness_clean_csv_,
+                                 vesselness_mask_env_.mask_vesselness_clean_,
                                  buffers_.gpu_postprocess_frame_size * sizeof(float),
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
@@ -553,7 +520,7 @@ void Analysis::insert_choroid_mask()
                 negation(first_mask_choroid_struct_.first_mask_choroid, buffers_.gpu_postprocess_frame_size, stream_);
 
                 apply_mask_and(first_mask_choroid_struct_.first_mask_choroid,
-                               mask_vesselness_csv_,
+                               vesselness_mask_env_.mask_vesselness_,
                                fd_.width,
                                fd_.height,
                                stream_);

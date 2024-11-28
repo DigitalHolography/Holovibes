@@ -266,6 +266,9 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> bwareafilt_result_ = nullptr;
 
     /*! \brief mask_vesselness_clean buffer */
+    cuda_tools::CudaUniquePtr<float> mask_vesselness_ = nullptr;
+
+    /*! \brief mask_vesselness_clean buffer */
     cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
 };
 
