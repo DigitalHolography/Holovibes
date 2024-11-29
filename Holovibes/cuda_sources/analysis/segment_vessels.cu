@@ -2,6 +2,7 @@
 
 #include <thrust/extrema.h>
 #include <thrust/execution_policy.h>
+#include "tools_analysis_debug.hh"
 
 __global__ void kernel_minus_negation_times_2(float* R_vascular_pulse, float* mask_vesselnessClean, uint size)
 {

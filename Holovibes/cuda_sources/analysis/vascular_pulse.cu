@@ -1,6 +1,7 @@
 #include "vascular_pulse.cuh"
 
 #include "cuda_memory.cuh"
+#include <cuda_runtime.h>
 #include "tools_analysis_debug.hh"
 #include "compute_env.hh"
 
@@ -155,8 +156,8 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
 
     if (idx < size)
     {
-        float mean = 0.0f;
-        float variance = 0.0f;
+        double mean = 0.0f;
+        double variance = 0.0f;
 
         // Compute mean along the third dimension
         for (int k = 0; k < depth; ++k)
@@ -168,7 +169,7 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
         // Compute variance along the third dimension
         for (int k = 0; k < depth; ++k)
         {
-            float diff = input[idx + size * k] - mean;
+            double diff = input[idx + size * k] - mean;
             variance += diff * diff;
         }
         variance /= depth;
@@ -186,6 +187,98 @@ void compute_std(const float* input, float* output, int size, int depth, cudaStr
     cudaCheckError();
 }
 
+__device__ void atomicMinFloat(float* address, float val)
+{
+    unsigned int* address_as_int = (unsigned int*)address;
+    unsigned int old = *address_as_int, assumed;
+
+    do
+    {
+        assumed = old;
+        old = atomicCAS(address_as_int, assumed, __float_as_int(fminf(__int_as_float(assumed), val)));
+    } while (assumed != old);
+}
+
+__device__ void atomicMaxFloat(float* address, float val)
+{
+    unsigned int* address_as_int = (unsigned int*)address;
+    unsigned int old = *address_as_int, assumed;
+
+    do
+    {
+        assumed = old;
+        old = atomicCAS(address_as_int, assumed, __float_as_int(fmaxf(__int_as_float(assumed), val)));
+    } while (assumed != old);
+}
+
+// Kernel for finding min and max in a float array
+__global__ void findMinMax(const float* input, float* min, float* max, int size)
+{
+    __shared__ float localMin;
+    __shared__ float localMax;
+
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (threadIdx.x == 0)
+    {
+        localMin = input[0];
+        localMax = input[0];
+    }
+    __syncthreads();
+
+    if (idx < size)
+    {
+        atomicMinFloat(&localMin, input[idx]);
+        atomicMaxFloat(&localMax, input[idx]);
+    }
+    __syncthreads();
+
+    if (threadIdx.x == 0)
+    {
+        atomicMinFloat(min, localMin);
+        atomicMaxFloat(max, localMax);
+    }
+}
+
+// Kernel pour normaliser les valeurs entre 0 et 1
+__global__ void normalize(float* input, float min, float max, int size)
+{
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < size)
+    {
+        input[idx] = (input[idx] - min) / (max - min);
+    }
+}
+
+// Fonction principale pour normaliser une matrice en CUDA
+void mat2gray(float* d_input, int size)
+{
+    float *d_min, *d_max;
+    float h_min = FLT_MAX, h_max = -FLT_MAX;
+
+    cudaMalloc(&d_min, sizeof(float));
+    cudaMalloc(&d_max, sizeof(float));
+
+    cudaMemcpy(d_min, &h_min, sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_max, &h_max, sizeof(float), cudaMemcpyHostToDevice);
+
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (size + threadsPerBlock - 1) / threadsPerBlock;
+
+    findMinMax<<<blocksPerGrid, threadsPerBlock>>>(d_input, d_min, d_max, size);
+
+    cudaMemcpy(&h_min, d_min, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&h_max, d_max, sizeof(float), cudaMemcpyDeviceToHost);
+
+    normalize<<<blocksPerGrid, threadsPerBlock>>>(d_input, h_min, h_max, size);
+
+    cudaFree(d_min);
+    cudaFree(d_max);
+}
+
+#define PRINT_IN_FILE false
+
 void compute_first_correlation(float* output,
                                float* M0_ff_video_centered,
                                float* vascular_pulse,
@@ -193,22 +286,57 @@ void compute_first_correlation(float* output,
                                size_t length_video,
                                VesselnessFilterStruct& filter_struct_,
                                size_t image_size,
-                               cudaStream_t stream) // Size here is future time window
+                               cudaStream_t stream)
 {
+    // input are good
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(M0_ff_video_centered, 512, 512, "M0_ff_video_centered", stream);
+        print_in_file_gpu(vascular_pulse, 1, 506, "vascular_pulse", stream);
+        std::cout << "nnz : " << nnz_mask_vesslness_clean << std::endl;
+        // Everything is good here
+    }
     divide_constant(vascular_pulse, nnz_mask_vesslness_clean, length_video, stream);
-
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(vascular_pulse, 1, 506, "vascular_pulse_with_division", stream);
+        // this is good
+    }
     float vascular_mean = compute_mean(vascular_pulse, length_video);
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        std::cout << "vascular mean : " << vascular_mean << std::endl;
+        // this is good
+    }
     subtract_constant(filter_struct_.vascular_pulse_centered, vascular_pulse, vascular_mean, length_video, stream);
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(filter_struct_.vascular_pulse_centered, 1, 506, "vascular_pulse_centered", stream);
+        // this is good
+    }
 
     computeMean(M0_ff_video_centered, filter_struct_.vascular_pulse_centered, output, 512, 512, length_video, stream);
-
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(output, 512, 512, "result_mean", stream);
+        // close enough, as it is a mean
+    }
     compute_std(M0_ff_video_centered, filter_struct_.std_M0_ff_video_centered, 512 * 512, length_video, stream);
-
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(filter_struct_.std_M0_ff_video_centered, 512, 512, "std_M0_ff_video_centered", stream);
+        // lots of move in this std, which is strange
+    }
     compute_std(filter_struct_.vascular_pulse_centered,
                 filter_struct_.std_vascular_pulse_centered,
                 1,
                 length_video,
                 stream);
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(filter_struct_.std_vascular_pulse_centered, 1, 1, "std_vascular_pulse_centered", stream);
+        // same issue here
+    }
 
     float std_vascular_pulse_centered_cpu;
     cudaXMemcpy(&std_vascular_pulse_centered_cpu,
@@ -218,5 +346,23 @@ void compute_first_correlation(float* output,
 
     multiply_constant(filter_struct_.std_M0_ff_video_centered, std_vascular_pulse_centered_cpu, 512 * 512, stream);
 
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(filter_struct_.std_M0_ff_video_centered, 512, 512, "result_product_std", stream);
+        // same issue here
+    }
+
     divide(output, filter_struct_.std_M0_ff_video_centered, 512 * 512, stream);
+
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(output, 512, 512, "R_vascular_pulse", stream);
+        // same issue here
+    }
+
+    // mat2gray(output, 512 * 512);
+    if (length_video == 506 && PRINT_IN_FILE)
+    {
+        print_in_file_gpu(output, 512, 512, "R_vascular_pulse_with_mat2gray", stream);
+    }
 }

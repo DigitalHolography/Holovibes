@@ -393,18 +393,17 @@ void Analysis::insert_first_analysis_masks()
                                           vesselness_filter_struct_,
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_); // R_vascular_pulse is not good here, check when come back
-
+#define PRINT_TEST false
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
                                        vesselness_mask_env_.m0_ff_video_centered_,
                                        vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
                                        buffers_.gpu_postprocess_frame,
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 vesselness_mask_env_.vascular_image_,
-                                 sizeof(float) * 512 * 512,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
+                if (i_ == 0 && PRINT_TEST)
+                {
+                    print_in_file_gpu(vesselness_mask_env_.vascular_image_, 512, 512, "vascular_image", stream_);
+                }
                 apply_convolution(vesselness_mask_env_.vascular_image_,
                                   vesselness_mask_env_.vascular_kernel_,
                                   fd_.width,
@@ -430,10 +429,28 @@ void Analysis::insert_first_analysis_masks()
                                                fd_.height,
                                                stream_,
                                                CRV_index);
-                // apply_mask_and(vesselness_mask_env_.before_threshold, )
-                float thresholds[3] = {0.56032641f,
-                                       0.65315951f,
-                                       0.72123712f}; // this is hardcoded, need to call arthur function
+                cudaXMemcpyAsync(vesselness_mask_env_.before_threshold,
+                                 buffers_.gpu_postprocess_frame,
+                                 buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+                apply_mask_and(vesselness_mask_env_.before_threshold,
+                               vesselness_mask_env_.mask_vesselness_clean_,
+                               fd_.width,
+                               fd_.height,
+                               stream_);
+                if (i_ == 0)
+                {
+                    print_in_file_gpu(vesselness_mask_env_.before_threshold, 512 * 512, 1, "before_threshold", stream_);
+                    print_in_file_gpu(vesselness_mask_env_.mask_vesselness_clean_,
+                                      512,
+                                      512,
+                                      "mask_vesslness_clean",
+                                      stream_);
+                }
+                float thresholds[3] = {0.108341498039216f,
+                                       0.265326117647059f,
+                                       0.364823411764706f}; // this is hardcoded, need to call arthur function
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
@@ -442,6 +459,12 @@ void Analysis::insert_first_analysis_masks()
                                 buffers_.gpu_postprocess_frame_size,
                                 thresholds,
                                 stream_);
+                if (i_ == 0)
+                    print_in_file_gpu(vesselness_mask_env_.quantizedVesselCorrelation_,
+                                      512 * 512,
+                                      1,
+                                      "quantizedVesselCorrelation",
+                                      stream_);
             });
     }
 }
