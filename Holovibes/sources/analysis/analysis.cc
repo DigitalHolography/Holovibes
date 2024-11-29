@@ -15,9 +15,10 @@
 #include "circular_video_buffer.hh"
 #include "segment_vessels.cuh"
 #include "tools_analysis_debug.hh"
+#include "imbinarize.cuh"
 
 #define DIAPHRAGM_FACTOR 0.4f
-#define FROM_CSV true
+#define FROM_CSV false
 
 namespace holovibes::analysis
 {
@@ -98,6 +99,8 @@ void Analysis::init()
     float_buffer_.safe_resize(frame_res);
     otsu_histo_buffer_.resize(256);
     otsu_float_gpu_.resize(1);
+
+    otsu_histo_buffer_2_.resize(256);
 
     // Allocate vesselness mask env buffers
     vesselness_mask_env_.time_window_ = api::get_time_window();
@@ -262,8 +265,17 @@ void Analysis::insert_first_analysis_masks()
 
 // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
 #if !FROM_CSV
-                if (i_ == 0)
-                    print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu", stream_);
+                // if (i_ == 0)
+                //     print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu", stream_);
+
+                // compute_binarise_otsu(m0_ff_img_csv_,
+                //                       otsu_histo_buffer_,
+                //                       otsu_float_gpu_,
+                //                       fd_.width,
+                //                       fd_.height,
+                //                       stream_);
+                otsu_compute(m0_ff_img_csv_, otsu_histo_buffer_2_, buffers_.gpu_postprocess_frame_size, stream_);
+
                 // Binarize the vesselness output to produce the mask vesselness
                 compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                       otsu_histo_buffer_.get(),
@@ -271,8 +283,8 @@ void Analysis::insert_first_analysis_masks()
                                       fd_.width,
                                       fd_.height,
                                       stream_);
-                if (i_ == 0)
-                    print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
+            // if (i_ == 0)
+            //     print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
 #else
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                                  mask_vesselness_csv_,
@@ -442,6 +454,12 @@ void Analysis::insert_first_analysis_masks()
                                 buffers_.gpu_postprocess_frame_size,
                                 thresholds,
                                 stream_);
+
+                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                                 m0_ff_img_csv_,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
             });
     }
 }
@@ -456,10 +474,10 @@ void Analysis::insert_artery_mask()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                compute_first_mask_artery(buffers_.gpu_postprocess_frame,
-                                          vesselness_mask_env_.quantizedVesselCorrelation_,
-                                          buffers_.gpu_postprocess_frame_size,
-                                          stream_);
+                // compute_first_mask_artery(buffers_.gpu_postprocess_frame,
+                //                           vesselness_mask_env_.quantizedVesselCorrelation_,
+                //                           buffers_.gpu_postprocess_frame_size,
+                //                           stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }

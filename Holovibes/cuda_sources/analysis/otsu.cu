@@ -4,6 +4,8 @@
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
 #include "cuda_memory.cuh"
+#include "tools_analysis_debug.hh"
+
 using uint = unsigned int;
 
 #define NUM_BINS 256
@@ -24,7 +26,13 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     // Populate shared histogram
     if (idx < imgSize)
     {
-        int bin = static_cast<int>(image[idx] * NUM_BINS);
+        // Clamp les valeurs dans [minVal, maxVal]
+        float b = image[idx];
+        float clamped_value = max(0.0f, min(1.0f, b));
+        // Mise à l'échelle dans [0, 255] et conversion en uint8_t
+        float uint8Value = round(255 * clamped_value);
+        int bin = static_cast<int>(uint8Value);
+        // int bin = static_cast<int>(input[idx] * NUM_BINS);
         atomicAdd(&shared_hist[bin], 1);
     }
     __syncthreads();
@@ -151,9 +159,15 @@ float otsu_threshold(
     float threshold;
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
 
+    cudaXMemsetAsync(histo_buffer_d, 0, sizeof(uint) * NUM_BINS, stream);
+
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
 
+    // Histogram is OK, threshold is not
+
     otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, threshold_d);
+
+    cudaXStreamSynchronize(stream);
 
     cudaMemcpy(&threshold, threshold_d, sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -175,6 +189,7 @@ void compute_binarise_otsu(float* input_output,
     uint blocks = map_blocks_to_problem(img_size, threads);
 
     global_threshold_kernel<<<blocks, threads, 0, stream>>>(input_output, img_size, global_threshold);
+    std::cout << global_threshold << std::endl;
     cudaXStreamSynchronize(stream);
 }
 

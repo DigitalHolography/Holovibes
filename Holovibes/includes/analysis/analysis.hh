@@ -97,6 +97,9 @@ class Analysis
         //                             RELATIVE_PATH("../../R_VascularPulse.csv"),
         //                             stream);
 
+        m0_ff_img_csv_.resize(frame_res);
+        load_CSV_to_float_array_gpu(m0_ff_img_csv_, frame_res, RELATIVE_PATH("../../otsu_tmp_test.csv"), stream);
+
         mask_vesselness_csv_.resize(frame_res);
         load_CSV_to_float_array_gpu(mask_vesselness_csv_, frame_res, RELATIVE_PATH("../../maskVesselness.csv"), stream);
 
@@ -257,6 +260,9 @@ class Analysis
     cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> otsu_float_gpu_;
+
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> otsu_histo_buffer_2_;
 };
 } // namespace holovibes::analysis
 
