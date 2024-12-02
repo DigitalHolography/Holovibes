@@ -164,6 +164,9 @@ void create_pipe()
 
 void set_computation_mode(Computation mode)
 {
+    if (get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
+        return;
+
     close_critical_compute();
 
     set_compute_mode(mode);
@@ -244,9 +247,9 @@ void update_time_stride(const uint time_stride)
 
 bool set_3d_cuts_view(bool enabled)
 {
-    if (api::get_import_type() == ImportType::None)
+    // No 3d cuts in moments mode
+    if (api::get_import_type() == ImportType::None || get_data_type() == RecordedDataType::MOMENTS)
         return false;
-
     if (enabled)
     {
         try
@@ -360,7 +363,8 @@ void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled,
 
 void set_lens_view(bool enabled)
 {
-    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
+    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS && enabled)
         return;
 
     set_lens_view_enabled(enabled);
@@ -376,7 +380,8 @@ void set_lens_view(bool enabled)
 
 void set_raw_view(bool enabled)
 {
-    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
+    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     if (enabled && get_batch_size() > get_output_buffer_size())
@@ -1463,16 +1468,36 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 void set_input_file_start_index(size_t value)
 {
+    const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
+    // Ensures that moments are read 3 by 3
+    if (is_data_moments)
+        value -= value % 3;
+
     UPDATE_SETTING(InputFileStartIndex, value);
     if (value >= get_input_file_end_index())
-        set_input_file_end_index(value + 1);
+        set_input_file_end_index(value + (is_data_moments ? 3 : 1));
 }
 
 void set_input_file_end_index(size_t value)
 {
+    const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
+    // Ensures that moments are read 3 by 3
+    if (get_data_type() == RecordedDataType::MOMENTS)
+        value -= value % 3;
+
     UPDATE_SETTING(InputFileEndIndex, value);
     if (value <= get_input_file_start_index())
-        set_input_file_start_index(value - 1);
+        set_input_file_start_index(value - (value + (is_data_moments ? 3 : 1)));
+}
+
+void loaded_moments_data()
+{
+    set_batch_size(3);  // Cannot call the api.cc function because some parameters are not defined yet.
+    set_time_stride(3); // The user can change the time stride, but setting it to 3
+                        // is a good basis to analyze moments
+
+    // There are plenty of settings not used in data type moments but not modified here;
+    // it's because these settings' value have no influence at that point (ex: space/time transforms).
 }
 
 #pragma endregion
