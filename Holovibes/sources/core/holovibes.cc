@@ -53,6 +53,7 @@ void Holovibes::init_record_queue()
 {
     auto device = api::get_record_queue_location();
     auto record_mode = api::get_record_mode();
+    LOG_ERROR("Yeah the bro called me with record_mode: {}", (int)record_mode);
     switch (record_mode)
     {
     case RecordMode::RAW:
@@ -130,6 +131,7 @@ void Holovibes::init_record_queue()
         LOG_DEBUG("RecordMode = Moments");
         camera::FrameDescriptor record_fd = input_queue_.load()->get_fd();
         record_fd.depth = camera::PixelDepth::Bits32;
+        LOG_ERROR("Hey bro call me");
 
         if (!record_queue_.load())
             record_queue_ =
