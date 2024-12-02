@@ -25,9 +25,8 @@ void Rendering::insert_fft_shift()
     if (setting<settings::FftShiftEnabled>())
     {
         if (setting<settings::ImageType>() == ImgType::Composite)
-            fn_compute_vect_->conditional_push_back(
-                [=]()
-                {
+            fn_compute_vect_->push_back(
+                [=]() {
                     shift_corners(reinterpret_cast<float3*>(buffers_.gpu_postprocess_frame.get()),
                                   1,
                                   fd_.width,
@@ -35,7 +34,7 @@ void Rendering::insert_fft_shift()
                                   stream_);
                 });
         else
-            fn_compute_vect_->conditional_push_back(
+            fn_compute_vect_->push_back(
                 [=]() { shift_corners(buffers_.gpu_postprocess_frame, 1, fd_.width, fd_.height, stream_); });
     }
 }
@@ -46,7 +45,7 @@ void Rendering::insert_chart()
 
     if (setting<settings::ChartDisplayEnabled>() || setting<settings::ChartRecordEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 auto signal_zone = setting<settings::SignalZone>();
@@ -129,7 +128,7 @@ void Rendering::insert_main_log()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             map_log10(buffers_.gpu_postprocess_frame.get(),
@@ -144,7 +143,7 @@ void Rendering::insert_slice_log()
 
     if (setting<settings::XZ>().log_enabled)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 map_log10(buffers_.gpu_postprocess_frame_xz.get(),
@@ -155,7 +154,7 @@ void Rendering::insert_slice_log()
     }
     if (setting<settings::YZ>().log_enabled)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 map_log10(buffers_.gpu_postprocess_frame_yz.get(),
@@ -172,7 +171,7 @@ void Rendering::insert_filter2d_view_log()
 
     if (setting<settings::Filter2dViewEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 map_log10(buffers_.gpu_float_filter2d_frame.get(),
@@ -187,7 +186,7 @@ void Rendering::insert_apply_contrast(WindowKind view)
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             // Set parameters
@@ -296,7 +295,7 @@ void Rendering::insert_compute_autocontrast()
         }
     };
 
-    fn_compute_vect_->conditional_push_back(lambda_autocontrast);
+    fn_compute_vect_->push_back(lambda_autocontrast);
 }
 
 void Rendering::autocontrast_caller(

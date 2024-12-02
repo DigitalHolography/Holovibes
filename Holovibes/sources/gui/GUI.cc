@@ -186,6 +186,8 @@ void set_raw_view(bool enabled, uint auxiliary_window_max_size)
         QPoint pos = UI.mainDisplay->framePosition() + QPoint(UI.mainDisplay->width() + 310, 0);
         UI.raw_window.reset(
             new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), api::get_input_queue().get()));
+        UI.raw_window.reset(
+            new gui::RawWindow(pos, QSize(raw_window_width, raw_window_height), api::get_input_queue().get()));
 
         UI.raw_window->setTitle("Raw view");
     }
@@ -331,6 +333,8 @@ const std::string browse_record_output_file(std::string& std_filepath)
     std::string fileNameWithoutExt = getNameFromFilename(normalizedPath.stem().string());
 
     std::replace(parentPath.begin(), parentPath.end(), '/', '\\');
+    UI.record_output_directory_ = std::move(parentPath);
+    UI.output_filename_ = std::move(fileNameWithoutExt);
     UI.record_output_directory_ = std::move(parentPath);
     UI.output_filename_ = std::move(fileNameWithoutExt);
 

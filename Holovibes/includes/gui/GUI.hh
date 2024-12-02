@@ -110,8 +110,7 @@ void set_reticle_overlay_visible(bool value);
  * \param[in] parent then window that will embed the specific panel
  * \param[in] callback the function to call when the advanced settings are closed on clicking on the save button
  */
-void open_advanced_settings(
-    QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
+void open_advanced_settings(QMainWindow* parent = nullptr, std::function<void()> callback = []() {});
 
 /*! \brief Gets the destination of the output file
  *
