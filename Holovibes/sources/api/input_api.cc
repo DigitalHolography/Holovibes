@@ -1,5 +1,7 @@
 #include "input_api.hh"
 
+#include "camera_exception.hh"
+
 namespace holovibes::api
 {
 

@@ -143,4 +143,7 @@ inline void set_enabled(WindowKind kind, bool value)
 
 inline void set_enabled(bool value) { set_enabled(get_current_window_type(), value); }
 
+inline units::RectFd get_zoomed_zone() { return GET_SETTING(ZoomedZone); }
+inline void set_zoomed_zone(const units::RectFd& rect) { UPDATE_SETTING(ZoomedZone, rect); }
+
 } // namespace holovibes::api

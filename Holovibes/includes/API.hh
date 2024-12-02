@@ -13,10 +13,7 @@
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
-#include "view_panel.hh"
-#include "AdvancedSettingsWindow.hh"
 #include "holovibes_config.hh"
-#include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"
 #include "enum_api_code.hh"
 
@@ -58,33 +55,6 @@ using json = ::nlohmann::json;
         UPDATE_SETTING(type, setting_##type);                                                                          \
     }
 
-namespace holovibes::api
-{
-
-/*! \brief Get the boundary of frame descriptor
- *
- * \return float boundary
- */
-float get_boundary();
-
-/*! \brief Gets the documentation url
- *
- * \return const QUrl& url
- */
-const QUrl get_documentation_url();
-
-/*! \brief Gets the credits
- *
- * \return const std::vector<std::string> credits in columns
- */
-constexpr std::vector<std::string> get_credits();
-
-/*! \brief Displays information */
-void start_information_display();
-
-} // namespace holovibes::api
-
-#include "API.hxx"
 #include "composite_api.hh"
 #include "record_api.hh"
 #include "input_api.hh"
@@ -95,5 +65,6 @@ void start_information_display();
 #include "contrast_api.hh"
 #include "compute_api.hh"
 #include "transform_api.hh"
+#include "information_api.hh"
 
 #include "compute_settings.hh"

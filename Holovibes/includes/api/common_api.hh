@@ -7,14 +7,11 @@
 
 #include <optional>
 
-#include "API.hh"
-
 #include "logger.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
 #include "holovibes.hh"
 #include "holovibes_config.hh"
-#include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"
 #include "enum_api_code.hh"
 

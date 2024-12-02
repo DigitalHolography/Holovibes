@@ -14,6 +14,7 @@
 
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 

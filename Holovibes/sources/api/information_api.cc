@@ -1,10 +1,4 @@
-#include "API.hh"
-#include "logger.hh"
-#include "notifier.hh"
-#include "tools.hh"
-
-#include <string>
-#include <unordered_map>
+#include "information_api.hh"
 
 namespace holovibes::api
 {

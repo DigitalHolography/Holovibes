@@ -24,13 +24,23 @@ inline void set_record_frame_skip(size_t value) { UPDATE_SETTING(RecordFrameSkip
 inline bool get_frame_record_enabled() { return GET_SETTING(FrameRecordEnabled); }
 inline void set_frame_record_enabled(bool value) { UPDATE_SETTING(FrameRecordEnabled, value); }
 
-inline bool get_chart_record_enabled() { return GET_SETTING(ChartRecordEnabled); }
-inline void set_chart_record_enabled(bool value) { UPDATE_SETTING(ChartRecordEnabled, value); }
-
 inline uint get_nb_frame_skip() { return GET_SETTING(FrameSkip); }
 
 inline uint get_mp4_fps() { return GET_SETTING(Mp4Fps); }
 inline void set_mp4_fps(uint value) { UPDATE_SETTING(Mp4Fps, value); }
+
+#pragma region Chart Setting
+
+inline bool get_chart_record_enabled() { return GET_SETTING(ChartRecordEnabled); }
+inline void set_chart_record_enabled(bool value) { UPDATE_SETTING(ChartRecordEnabled, value); }
+
+inline units::RectFd get_signal_zone() { return GET_SETTING(SignalZone); }
+inline units::RectFd get_noise_zone() { return GET_SETTING(NoiseZone); }
+
+inline void set_signal_zone(const units::RectFd& rect) { UPDATE_SETTING(SignalZone, rect); }
+inline void set_noise_zone(const units::RectFd& rect) { UPDATE_SETTING(NoiseZone, rect); }
+
+#pragma endregion
 
 /*! \brief Checks preconditions to start recording
  *
@@ -75,6 +85,8 @@ std::vector<OutputFormat> get_supported_formats(RecordMode mode);
  */
 bool is_recording();
 
+#pragma region Record Queue
+
 /*! \brief Get the record queue location, either gpu or cpu
  *
  * \return the location of the record queue
@@ -99,5 +111,7 @@ inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(Reco
  * \param[in] value the size of the buffer
  */
 void set_record_buffer_size(uint value);
+
+#pragma endregion
 
 } // namespace holovibes::api

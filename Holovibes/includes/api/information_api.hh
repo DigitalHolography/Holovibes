@@ -1,11 +1,15 @@
+/*! \file
+ *
+ * \brief Regroup all functions used for information (information display, benchmark, boundary, credits, doc).
+ */
 #pragma once
 
-#include "API.hh"
-#include "enum_record_mode.hh"
-#include "enum_recorded_data_type.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
+
+#pragma region Credits
 
 static std::vector<std::string> authors{"Titouan Gragnic",
                                         "Arthur Courselle",
@@ -76,6 +80,10 @@ static std::vector<std::string> authors{"Titouan Gragnic",
 
                                         "Michael Atlan"};
 
+/*! \brief Gets the credits
+ *
+ * \return const std::vector<std::string> credits in columns
+ */
 constexpr std::vector<std::string> get_credits()
 {
     std::vector<std::string> res{"", "", ""};
@@ -87,24 +95,24 @@ constexpr std::vector<std::string> get_credits()
     return res;
 }
 
+#pragma endregion
+
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
 
-/*! \name Zone
- * \{
+/*! \brief Get the boundary of frame descriptor
+ *
+ * \return float boundary
  */
-inline units::RectFd get_signal_zone() { return GET_SETTING(SignalZone); };
-inline units::RectFd get_noise_zone() { return GET_SETTING(NoiseZone); };
-inline units::RectFd get_composite_zone() { return GET_SETTING(CompositeZone); };
-inline units::RectFd get_zoomed_zone() { return GET_SETTING(ZoomedZone); };
+float get_boundary();
 
-inline void set_signal_zone(const units::RectFd& rect) { UPDATE_SETTING(SignalZone, rect); };
-inline void set_noise_zone(const units::RectFd& rect) { UPDATE_SETTING(NoiseZone, rect); };
-inline void set_composite_zone(const units::RectFd& rect) { UPDATE_SETTING(CompositeZone, rect); };
-inline void set_zoomed_zone(const units::RectFd& rect) { UPDATE_SETTING(ZoomedZone, rect); };
+/*! \brief Gets the documentation url
+ *
+ * \return const QUrl& url
+ */
+const QUrl get_documentation_url();
 
-    /*! \} */
-
-#pragma endregion
+/*! \brief Displays information */
+void start_information_display();
 
 } // namespace holovibes::api

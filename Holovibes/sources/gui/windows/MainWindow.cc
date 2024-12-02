@@ -20,6 +20,7 @@
 
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include "view_struct.hh"
 
