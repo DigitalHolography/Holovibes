@@ -26,7 +26,8 @@ using camera::FrameDescriptor;
 void ICompute::fft_freqs()
 {
     uint time_transformation_size = setting<settings::TimeTransformationSize>();
-    float d = setting<settings::CameraFps>() / time_transformation_size;
+    // float d = setting<settings::CameraFps>() / time_transformation_size;
+    float d = setting<settings::InputFps>() / time_transformation_size;
 
     // We fill our buffers using CPU buffers, since CUDA buffers are not accessible
     std::unique_ptr<float[]> f0(new float[time_transformation_size]);

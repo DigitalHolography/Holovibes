@@ -108,7 +108,7 @@ void Converts::insert_to_modulus(float* gpu_postprocess_frame)
         });
 }
 
-void Converts::insert_to_modulus_moments(float* output)
+void Converts::insert_to_modulus_moments(float* output, const ushort f_start, const ushort f_end)
 {
     LOG_FUNC();
 
@@ -118,8 +118,8 @@ void Converts::insert_to_modulus_moments(float* output)
             complex_to_modulus_moments(output,
                                        time_transformation_env_.gpu_p_acc_buffer,
                                        fd_.get_frame_res(),
-                                       pmin_,
-                                       pmax_,
+                                       f_start,
+                                       f_end,
                                        stream_);
         });
 }
