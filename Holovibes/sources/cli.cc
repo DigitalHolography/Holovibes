@@ -215,7 +215,7 @@ static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::Opti
     auto pipe = holovibes.get_compute_pipe();
     if (holovibes::api::get_convolution_enabled())
     {
-        holovibes::api::load_convolution_matrix(holovibes::UserInterfaceDescriptor::instance().convo_name);
+        holovibes::api::load_convolution_matrix(holovibes::api::get_convolution_file_name());
         pipe->request(ICS::Convolution);
     }
 

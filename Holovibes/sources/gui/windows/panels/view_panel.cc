@@ -362,6 +362,7 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 void ViewPanel::display_reticle(bool value)
 {
     api::display_reticle(value);
+    gui::set_reticle_overlay_visible(value);
     parent_->notify();
 }
 

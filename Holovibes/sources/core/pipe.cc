@@ -55,7 +55,6 @@ bool Pipe::make_requests()
 
     /* Free buffers */
     HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());
-    HANDLE_REQUEST(ICS::DisableFilter, "Disable filter", postprocess_->dispose());
 
     HANDLE_REQUEST(ICS::DisableLensView, "Disable lens view", fourier_transforms_->get_lens_queue().reset(nullptr));
 
@@ -123,17 +122,7 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
-    if (is_requested(ICS::Filter))
-    {
-        LOG_DEBUG("filter_requested");
-
-        // TODO
-        // fourier_transforms_->init();
-        api::enable_filter();
-        auto filter = api::get_input_filter();
-        fourier_transforms_->update_setting(settings::InputFilter{filter});
-        clear_request(ICS::Filter);
-    }
+    HANDLE_REQUEST(ICS::Filter, "Filter Init", api::enable_filter(api::get_filter_file_name()));
 
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
@@ -298,9 +287,7 @@ void Pipe::refresh()
         converts_->insert_complex_conversion(input_queue_);
 
         // Spatial transform
-        fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
-                                        input_queue_.get_fd().width,
-                                        input_queue_.get_fd().height);
+        fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
 
         // Move frames from gpu_space_transformation_buffer to
         // gpu_time_transformation_queue (with respect to

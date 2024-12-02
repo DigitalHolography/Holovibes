@@ -11,26 +11,50 @@
 #include "SliceWindow.hh"
 #include "Filter2DWindow.hh"
 
+#include "enum_computation.hh"
+
 namespace holovibes::gui
 {
 
 /*
-void close_windows();
-
-void set_raw_mode(uint window_max_size);
-void create_holo_window(ushort window_size);
-
 // Refacto set_image_mode to create the pipe and then another GUI set_image_mode
 // called like (open window) that will create the windows
 
 // View if useful since there is set_view_mode
-void refresh_view_mode(ushort window_size, ImgType img_type);
 
 void rotateTexture();
 void flipTexture();
-
-void display_reticle(bool value);
 */
+
+/*! \brief Closes all the currently displaying windows
+ *
+ */
+void close_windows();
+
+/*! \brief Set the light ui mode
+ *
+ * \param value true: enable, false: disable
+ */
+void set_light_ui_mode(bool value);
+
+/*! \brief Get the light ui mode
+ *
+ * \return Whether the light ui mode is enabled or not
+ */
+bool is_light_ui_mode();
+
+/*! \brief Create and open a window of the specified size and kind
+ *
+ * \param[in] window_kind the kind of window to create (raw or holographic window)
+ * \param[in] window_size the size of the window
+ */
+void create_window(Computation window_kind, ushort window_size);
+
+/*! \brief Close all windows and reopen the current window with the new size
+ *
+ * \param[in] window_size the size of the window
+ */
+void refresh_window(ushort window_size);
 
 /*! \brief Open or close the filter2D view
  *
@@ -74,6 +98,12 @@ void active_noise_zone();
 
 /*! \brief Creates Signal overlay */
 void active_signal_zone();
+
+/*! \brief Show or hide the reticle overlay
+ *
+ * \param[in] value Whether to display the reticle overlay or not
+ */
+void set_reticle_overlay_visible(bool value);
 
 /*! \brief Opens additional settings window
  *
