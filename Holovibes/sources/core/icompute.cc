@@ -58,6 +58,11 @@ void ICompute::fft_freqs()
         for (uint i = time_transformation_size - 1; i > (time_transformation_size) / 2; i--)
             f1[i] = (i - (float)time_transformation_size) * d;
     }
+
+    // Converts to Hz
+    for (uint i = 0; i < time_transformation_size; i++)
+        f1[i] /= 1000;
+
     cudaXMemcpy(moments_env_.f1_buffer, f1.get(), time_transformation_size * sizeof(float), cudaMemcpyHostToDevice);
 
     // initialize f2 (f2 = f1^2)
