@@ -110,7 +110,7 @@ float get_boundary();
  *
  * \return const QUrl& url
  */
-const QUrl get_documentation_url();
+const std::string get_documentation_url();
 
 /*! \brief Displays information */
 void start_information_display();

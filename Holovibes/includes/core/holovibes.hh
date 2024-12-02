@@ -19,7 +19,7 @@
 #include "common.cuh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include "logger.hh"
 
 // Enum
@@ -273,8 +273,7 @@ class Holovibes
      * \param camera_kind
      * \param callback
      */
-    void start_camera_frame_read(
-        CameraKind camera_kind, const std::function<void()>& callback = []() {});
+    void start_camera_frame_read(CameraKind camera_kind, const std::function<void()>& callback = []() {});
 
     /*! \brief Handle frame reading interruption
      *

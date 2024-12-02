@@ -372,7 +372,10 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
+void MainWindow::documentation()
+{
+    QDesktopServices::openUrl(QUrl(QString::fromStdString(api::get_documentation_url())));
+}
 
 #pragma endregion
 /* ------------ */

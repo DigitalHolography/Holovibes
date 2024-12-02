@@ -13,7 +13,6 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
-#include "chart_point.hh"
 #include "compute_env.hh"
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"

@@ -2,14 +2,15 @@
 
 #include "queue.hh"
 #include "unique_ptr.hh"
-#include "cufft_handle.hh"
 #include "chart_point.hh"
+#include "cufft_handle.hh"
 #include "concurrent_deque.hh"
 
 #include <cufft.h>
 
 namespace holovibes
 {
+
 /*! \struct CoreBuffersEnv
  *
  * \brief Struct containing main buffers used by the pipe.
@@ -205,4 +206,5 @@ struct ImageAccEnv
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
+
 } // namespace holovibes

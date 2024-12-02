@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include "logger.hh"
 
 namespace holovibes::worker
