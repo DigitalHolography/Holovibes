@@ -167,13 +167,13 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = static_cast<unsigned int>(
+    const unsigned int file_buffer_size = static_cast<unsigned int>(
         setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
 
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, total_nb_frames_to_read_ - current_nb_frames_read_);
+        size_t frames_to_read = std::min(file_buffer_size, total_nb_frames_to_read_ - current_nb_frames_read_);
 
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
@@ -257,7 +257,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 {
     size_t frames_enqueued = 0;
 
-    while (frames_enqueued < nb_frames_to_enqueue - setting<settings::BatchSize>() && !stop_requested_)
+    while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
         // fps_handler_.wait();
         fps_limiter_.wait(setting<settings::InputFPS>() / setting<settings::BatchSize>());
@@ -269,9 +269,6 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-
-        if (stop_requested_)
-            break;
 
         // for (unsigned i = 0; i < setting<settings::BatchSize>(); ++i)
         // {
@@ -288,6 +285,9 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
         frames_enqueued += setting<settings::BatchSize>();
 
         compute_fps();
+
+        if (stop_requested_)
+            break;
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
