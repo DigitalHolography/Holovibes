@@ -243,8 +243,6 @@ void FourierTransform::insert_moments()
     fn_compute_vect_->push_back(
         [=]()
         {
-            auto type = setting<settings::ImageType>();
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -282,8 +280,7 @@ void FourierTransform::insert_moments_to_output()
     fn_compute_vect_->push_back(
         [this]()
         {
-            size_t image_resolution = fd_.get_frame_res();
-            size_t image_size = image_resolution * sizeof(float);
+            size_t image_size = fd_.get_frame_res() * sizeof(float);
 
             float* moment = nullptr;
 
