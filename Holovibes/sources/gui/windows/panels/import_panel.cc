@@ -95,7 +95,7 @@ void ImportPanel::import_file(const QString& filename)
     if (input_file_opt)
     {
         auto input_file = input_file_opt.value();
-        
+
         parent_->notify();
 
         // Gather data from the newly opened file
