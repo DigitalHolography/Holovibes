@@ -210,7 +210,7 @@ void FourierTransform::insert_time_transform()
         break;
     case TimeTransformation::NONE:
         // Just copy data to the next buffer
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 cuComplex* buf = time_transformation_env_.gpu_p_acc_buffer.get();
@@ -230,7 +230,7 @@ void FourierTransform::insert_stft()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             stft(time_transformation_env_.gpu_p_acc_buffer,
@@ -243,11 +243,9 @@ void FourierTransform::insert_moments()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
-            auto type = setting<settings::ImageType>();
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -282,11 +280,10 @@ void FourierTransform::insert_moments()
 
 void FourierTransform::insert_moments_to_output()
 {
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [this]()
         {
-            size_t image_resolution = fd_.get_frame_res();
-            size_t image_size = image_resolution * sizeof(float);
+            size_t image_size = fd_.get_frame_res() * sizeof(float);
 
             float* moment = nullptr;
 
@@ -316,7 +313,7 @@ void FourierTransform::insert_pca()
     cusolver_work_buffer_size_ = eigen_values_vectors_work_buffer_size(time_transformation_size);
     cusolver_work_buffer_.resize(cusolver_work_buffer_size_);
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -359,7 +356,7 @@ void FourierTransform::insert_ssa_stft(ViewPQ view_q)
     static cuda_tools::CudaUniquePtr<cuComplex> tmp_matrix = nullptr;
     tmp_matrix.resize(time_transformation_size * time_transformation_size);
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             cuComplex* H = static_cast<cuComplex*>(time_transformation_env_.gpu_time_transformation_queue->get_data());
@@ -418,7 +415,7 @@ void FourierTransform::insert_store_p_frame()
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             const int frame_res = static_cast<int>(fd_.get_frame_res());
@@ -440,7 +437,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
 {
     LOG_FUNC();
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             if (setting<settings::CutsViewEnabled>())

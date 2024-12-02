@@ -72,9 +72,7 @@ class Pipe : public ICompute
         : ICompute(input, output, record, stream, settings)
         , processed_output_fps_(FastUpdatesMap::map<IntType>.create_entry(IntType::OUTPUT_FPS))
     {
-        ConditionType batch_condition = [&] { return batch_env_.batch_index == setting<settings::TimeStride>(); };
-
-        fn_compute_vect_ = std::make_shared<FunctionVector>(batch_condition);
+        fn_compute_vect_ = std::make_shared<FunctionVector>();
 
         image_accumulation_ = std::make_unique<compute::ImageAccumulation>(fn_compute_vect_,
                                                                            image_acc_env_,
@@ -206,11 +204,14 @@ class Pipe : public ICompute
     /*! \brief Transfer from gpu_space_transformation_buffer to gpu_time_transformation_queue for time transform */
     void insert_transfer_for_time_transformation();
 
-    /*! \brief Increase batch_index by batch_size */
-    void update_batch_index();
-
     /*! \brief Wait that there are at least a batch of frames in input queue */
-    void insert_wait_frames();
+    void insert_wait_batch();
+
+    /*! \brief Discard batch until we reach time stride */
+    void insert_wait_time_stride();
+
+    /*! \brief Pause computation until a complete batch of time transformation size has arrived */
+    void insert_wait_time_transformation_size();
 
     /*! \brief Dequeue the input queue frame by frame in raw mode */
     void insert_dequeue_input();
@@ -233,8 +234,6 @@ class Pipe : public ICompute
 
     void insert_cuts_record();
 
-    /*! \brief Reset the batch index if time_stride has been reached */
-    void insert_reset_batch_index();
     /*! \}*/
 
     /*! \brief Iterates and executes function of the pipe.

@@ -1281,10 +1281,6 @@ void set_record_mode_enum(RecordMode value)
     {
         try
         {
-            auto pipe = get_compute_pipe();
-            if (is_recording())
-                stop_record();
-
             Holovibes::instance().init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }

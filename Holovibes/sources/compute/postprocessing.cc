@@ -107,7 +107,7 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
 
     if (setting<settings::ImageType>() != ImgType::Composite)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 convolution_kernel(gpu_postprocess_frame,
@@ -122,7 +122,7 @@ void Postprocessing::insert_convolution(float* gpu_postprocess_frame, float* gpu
     }
     else
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 convolution_composite(gpu_postprocess_frame,
@@ -139,7 +139,7 @@ void Postprocessing::insert_renormalize(float* gpu_postprocess_frame)
     if (!setting<settings::RenormEnabled>())
         return;
 
-    fn_compute_vect_->conditional_push_back(
+    fn_compute_vect_->push_back(
         [=]()
         {
             uint frame_res = static_cast<uint>(fd_.get_frame_res());
