@@ -7,7 +7,8 @@ namespace holovibes::api
 
 bool set_3d_cuts_view(bool enabled)
 {
-    if (api::get_import_type() == ImportType::None)
+    // No 3d cuts in moments mode
+    if (api::get_import_type() == ImportType::None || get_data_type() == RecordedDataType::MOMENTS)
         return false;
 
     if (enabled)
@@ -95,7 +96,8 @@ void set_chart_display(bool enabled)
 
 void set_lens_view(bool enabled)
 {
-    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
+    if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS && enabled)
         return;
 
     set_lens_view_enabled(enabled);
@@ -111,7 +113,8 @@ void set_lens_view(bool enabled)
 
 void set_raw_view(bool enabled)
 {
-    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw)
+    if (get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
+        get_data_type() == RecordedDataType::MOMENTS)
         return;
 
     if (enabled && get_batch_size() > get_output_buffer_size())

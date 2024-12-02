@@ -278,6 +278,24 @@ void FourierTransform::insert_moments()
         });
 }
 
+void FourierTransform::insert_moments_split()
+{
+    const size_t size = fd_.get_frame_size();
+    float* moment1_tmp_buffer = moments_env_.moment_tmp_buffer + fd_.get_frame_res();
+    float* moment2_tmp_buffer = moment1_tmp_buffer + fd_.get_frame_res();
+    fn_compute_vect_->push_back(
+        [this, size, moment1_tmp_buffer, moment2_tmp_buffer]()
+        {
+            cudaXMemcpyAsync(moments_env_.moment0_buffer,
+                             moments_env_.moment_tmp_buffer,
+                             size,
+                             cudaMemcpyDeviceToDevice,
+                             stream_);
+            cudaXMemcpyAsync(moments_env_.moment1_buffer, moment1_tmp_buffer, size, cudaMemcpyDeviceToDevice, stream_);
+            cudaXMemcpyAsync(moments_env_.moment2_buffer, moment2_tmp_buffer, size, cudaMemcpyDeviceToDevice, stream_);
+        });
+}
+
 void FourierTransform::insert_moments_to_output()
 {
     fn_compute_vect_->push_back(

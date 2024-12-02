@@ -92,6 +92,9 @@ void create_pipe()
 
 void set_computation_mode(Computation mode)
 {
+    if (get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
+        return;
+
     close_critical_compute();
 
     set_compute_mode(mode);
@@ -104,6 +107,16 @@ void set_computation_mode(Computation mode)
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
+}
+
+void loaded_moments_data()
+{
+    set_batch_size(3);  // Cannot call the api.cc function because some parameters are not defined yet.
+    set_time_stride(3); // The user can change the time stride, but setting it to 3
+                        // is a good basis to analyze moments
+
+    // There are plenty of settings not used in data type moments but not modified here;
+    // it's because these settings' value have no influence at that point (ex: space/time transforms).
 }
 
 ApiCode set_view_mode(const ImgType type)

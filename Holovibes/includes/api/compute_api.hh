@@ -62,6 +62,13 @@ void create_pipe();
 /*! \brief Sets the computation mode to Raw or Holographic*/
 void set_computation_mode(Computation mode);
 
+/*!
+ * \brief Disables / edits numerous settings when reading a moments file
+ * Most of the settings are just booleans set to false (ex: lens view)
+ *
+ */
+void loaded_moments_data();
+
 /*! \brief Modifies view image type
  * Changes the setting and requests a pipe refresh
  * Also requests an autocontrast refresh

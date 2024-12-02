@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1210</width>
-    <height>796</height>
+    <width>1283</width>
+    <height>810</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,7 +122,7 @@
           <number>9</number>
          </property>
          <item>
-          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0" columnstretch="0,0">
            <property name="verticalSpacing">
             <number>6</number>
            </property>
@@ -287,17 +287,17 @@
             </widget>
            </item>
            <item row="3" column="1">
-              <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="currentText">
-                <string/>
-               </property>
-              </widget>
+            <widget class="QComboBox" name="InputFilterQuickSelectComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -356,7 +356,7 @@
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="TimeTransformationComboBox">
-            <item>
+             <item>
               <property name="text">
                <string>None</string>
               </property>
@@ -381,8 +381,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="timeTransformationSizeLabel">
              <property name="toolTip">
-              <string>Number of images averaged together to generate a single output image.
-It's a post-processing step to remove noise</string>
+              <string>The size of the time transformation</string>
              </property>
              <property name="text">
               <string>Nb. img</string>
@@ -449,7 +448,7 @@ It's a post-processing step to remove noise</string>
            <item row="5" column="0">
             <widget class="QLabel" name="BoundaryLabel">
              <property name="toolTip">
-              <string>The boundary</string>
+              <string>The maximum value of the focus</string>
              </property>
              <property name="text">
               <string>Boundary (mm)</string>
@@ -461,6 +460,9 @@ It's a post-processing step to remove noise</string>
            </item>
            <item row="5" column="1">
             <widget class="QDoubleSpinBox" name="BoundaryDoubleSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -518,7 +520,7 @@ It's a post-processing step to remove noise</string>
               <number>0</number>
              </property>
              <property name="minimum">
-              <double>0</double>
+              <double>0.000000000000000</double>
              </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
@@ -557,43 +559,43 @@ It's a post-processing step to remove noise</string>
            <property name="checked">
             <bool>false</bool>
            </property>
-             <layout class="QHBoxLayout" name="kernelSelectLayout">
-              <item>
-               <widget class="QComboBox" name="KernelQuickSelectComboBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="currentText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="DivideConvoCheckBox">
-                <property name="text">
-                 <string>Divide</string>
-                </property>
-               </widget>
+           <layout class="QHBoxLayout" name="kernelSelectLayout">
+            <item>
+             <widget class="QComboBox" name="KernelQuickSelectComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="DivideConvoCheckBox">
+              <property name="text">
+               <string>Divide</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
          </item>
-                     <item row="2" column="0">
-             <spacer name="BottomViewSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+         <item>
+          <spacer name="BottomViewSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
@@ -706,6 +708,9 @@ It's a post-processing step to remove noise</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Flips the image horizontally</string>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
                 </property>
@@ -734,6 +739,10 @@ It's a post-processing step to remove noise</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Rotates the image by 90° angles.
+The rotation steps counterclockwise</string>
+                </property>
                 <property name="text">
                  <string>Rotate   0</string>
                 </property>
@@ -748,7 +757,7 @@ It's a post-processing step to remove noise</string>
                  </font>
                 </property>
                 <property name="toolTip">
-                 <string>set log filter for output</string>
+                 <string>Set log filter for output</string>
                 </property>
                 <property name="text">
                  <string>Log</string>
@@ -762,7 +771,8 @@ It's a post-processing step to remove noise</string>
               <item>
                <widget class="QLabel" name="ImgAccuLabel">
                 <property name="toolTip">
-                 <string>Number of images averaged together to generate a single output image. It's a post-processing step to remove noise</string>
+                 <string>Number of images averaged together to generate a single output image.
+It's a post-processing step to remove noise</string>
                 </property>
                 <property name="text">
                  <string>Output Image Acc.</string>
@@ -933,7 +943,7 @@ It's a post-processing step to remove noise</string>
           </widget>
          </item>
          <item row="4" column="0" colspan="2">
-          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0">
+          <layout class="QGridLayout" name="XYZGridLayout" columnstretch="0,0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
@@ -1122,7 +1132,7 @@ The range of frequencies kept is [z2, z2 + width].</string>
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QLabel" name="PaccLabel">
+            <widget class="QLabel" name="PAccLabel">
              <property name="toolTip">
               <string>Number of frequencies kept by the FFT in the time transformation algorithm.
 The range of frequencies kept is [z, z + width]</string>
@@ -1370,37 +1380,37 @@ The range of frequencies kept is [z, z + width]</string>
           </layout>
          </item>
          <item row="16" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_registration">
-               <item>
-               <widget class="QCheckBox" name="RegistrationCheckBox">
-               <property name="toolTip">
-               <string>Stabilize the image</string>
-               </property>
-               <property name="text">
-               <string>Registration</string>
-               </property>
-               </widget>
-               </item>
-               <item>
-                  <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
-                  <property name="enabled">
-                     <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                     <string>The radius of the circle to compute the Registration.</string>
-                  </property>
-                  <property name="minimum">
-                  <double>0.100000000000000</double>
-                  </property>
-                  <property name="maximum">
-                  <double>1.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                  <double>0.050000000000000</double>
-                  </property>
-                  </widget>
-               </item>
-            </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_registration">
+           <item>
+            <widget class="QCheckBox" name="RegistrationCheckBox">
+             <property name="toolTip">
+              <string>Stabilize the image</string>
+             </property>
+             <property name="text">
+              <string>Registration</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="RegistrationZoneSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>The radius of the circle to compute the Registration</string>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="15" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -2740,6 +2750,9 @@ The range of frequencies kept is [z, z + width]</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Defines what to record</string>
+                </property>
                 <item>
                  <property name="text">
                   <string>Raw Image</string>
@@ -2901,6 +2914,9 @@ The range of frequencies kept is [z, z + width]</string>
                      <width>50</width>
                      <height>16777215</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>The extension of the file; also defines the format of the recording</string>
                    </property>
                    <item>
                     <property name="text">
@@ -3162,7 +3178,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1210</width>
+     <width>1283</width>
      <height>21</height>
     </rect>
    </property>
@@ -5761,38 +5777,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <signal>stateChanged()</signal>
    <receiver>ImportPanel</receiver>
    <slot>update_load_file_in_gpu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportStartIndexSpinBox</sender>
-   <signal>valueChanged()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_input_file_start_index()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImportEndIndexSpinBox</sender>
-   <signal>valueChanged()</signal>
-   <receiver>ImportPanel</receiver>
-   <slot>update_input_file_end_index()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>20</x>
