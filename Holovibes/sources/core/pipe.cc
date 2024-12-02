@@ -337,8 +337,6 @@ void Pipe::refresh()
     rendering_->insert_log();
     rendering_->insert_contrast();
 
-    // converts_->insert_cuts_final();
-
     converts_->insert_to_ushort();
 
     insert_output_enqueue_hologram_mode();

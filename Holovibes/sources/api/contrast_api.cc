@@ -39,9 +39,15 @@ void set_contrast_min(WindowKind kind, float value)
 
     float new_val = get_log_enabled(kind) ? value : pow(10, value);
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, contrast.min, new_val);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.contrast.min = new_val;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }
@@ -58,19 +64,38 @@ void set_contrast_max(WindowKind kind, float value)
 
     float new_val = get_log_enabled(kind) ? value : pow(10, value);
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, contrast.max, new_val);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.contrast.max = new_val;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }
 
 void update_contrast(WindowKind kind, float min, float max)
 {
-    auto window = get_window(kind);
-    window.contrast.min = min > 1.0f ? min : 1.0f;
-    window.contrast.max = max > 1.0f ? max : 1.0f;
-    set_window(kind, window);
+    min = min > 1.0f ? min : 1.0f;
+    max = max > 1.0f ? max : 1.0f;
+
+    if (kind == WindowKind::Filter2D)
+    {
+        auto window = GET_SETTING(Filter2d);
+        window.contrast.min = min;
+        window.contrast.max = max;
+        UPDATE_SETTING(Filter2d, window);
+
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
+    window.contrast.min = min;
+    window.contrast.max = max;
+    set_window_xyz(kind, window);
 }
 
 void set_contrast_enabled(WindowKind kind, bool value)
@@ -78,9 +103,15 @@ void set_contrast_enabled(WindowKind kind, bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, contrast.enabled, value);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.contrast.enabled = value;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }
@@ -90,9 +121,15 @@ void set_contrast_auto_refresh(WindowKind kind, bool value)
     if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
         return;
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, contrast.auto_refresh, value);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.contrast.auto_refresh = value;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }
@@ -102,9 +139,15 @@ void set_contrast_invert(WindowKind kind, bool value)
     if (api::get_compute_mode() == Computation::Raw || !api::get_contrast_enabled())
         return;
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, contrast.invert, value);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.contrast.invert = value;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }
@@ -118,9 +161,15 @@ void set_log_enabled(WindowKind kind, const bool value)
     if (get_compute_mode() == Computation::Raw)
         return;
 
-    auto window = get_window(kind);
+    if (kind == WindowKind::Filter2D)
+    {
+        SET_SETTING(Filter2d, log_enabled, value);
+        return;
+    }
+
+    auto window = get_window_xyz(kind);
     window.log_enabled = value;
-    set_window(kind, window);
+    set_window_xyz(kind, window);
 
     pipe_refresh();
 }

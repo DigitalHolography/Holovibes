@@ -31,25 +31,6 @@ inline ViewWindow get_window(WindowKind kind)
     }
 }
 
-inline void set_window(WindowKind kind, ViewWindow value)
-{
-    switch (kind)
-    {
-    case WindowKind::XYview:
-        UPDATE_SETTING(XY, static_cast<ViewXYZ>(value));
-        break;
-    case WindowKind::XZview:
-        UPDATE_SETTING(XZ, static_cast<ViewXYZ>(value));
-        break;
-    case WindowKind::YZview:
-        UPDATE_SETTING(YZ, static_cast<ViewXYZ>(value));
-        break;
-    default:
-        UPDATE_SETTING(Filter2d, value);
-        break;
-    }
-}
-
 #pragma endregion
 
 #pragma region Log

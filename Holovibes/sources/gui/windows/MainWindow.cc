@@ -24,8 +24,6 @@
 
 #include "view_struct.hh"
 
-#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
-
 namespace holovibes
 {
 using camera::Endianness;
