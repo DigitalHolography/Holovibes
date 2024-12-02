@@ -27,14 +27,15 @@ using holovibes::FunctionVector;
 using holovibes::Queue;
 using holovibes::compute::FourierTransform;
 
-void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, const uint height)
+void FourierTransform::insert_fft(const uint width, const uint height)
 {
     LOG_FUNC();
+
     auto space_transformation = setting<settings::SpaceTransformation>();
     bool filter2d_enabled = setting<settings::Filter2dEnabled>();
     if (filter2d_enabled)
     {
-        update_filter2d_circles_mask(gpu_filter2d_mask,
+        update_filter2d_circles_mask(buffers_.gpu_filter2d_mask,
                                      width,
                                      height,
                                      setting<settings::Filter2dN1>(),
@@ -45,7 +46,7 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
 
         if (setting<settings::FilterEnabled>())
         {
-            apply_filter(gpu_filter2d_mask,
+            apply_filter(buffers_.gpu_filter2d_mask,
                          buffers_.gpu_input_filter_mask,
                          setting<settings::InputFilter>().data(),
                          width,
@@ -59,13 +60,15 @@ void FourierTransform::insert_fft(float* gpu_filter2d_mask, const uint width, co
             insert_filter2d();
     }
 
+    if (space_transformation == SpaceTransformation::NONE)
+        return;
+
     if (space_transformation == SpaceTransformation::FRESNELTR)
         insert_fresnel_transform();
-    else if (space_transformation == SpaceTransformation::ANGULARSP)
+    else
         insert_angular_spectrum(filter2d_enabled);
-    if (space_transformation == SpaceTransformation::FRESNELTR ||
-        space_transformation == SpaceTransformation::ANGULARSP)
-        fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
+
+    fn_compute_vect_->push_back([=]() { enqueue_lens(space_transformation); });
 }
 
 void FourierTransform::insert_filter2d()
@@ -147,7 +150,7 @@ void FourierTransform::insert_angular_spectrum(bool filter2d_enabled)
                              setting<settings::BatchSize>(),
                              gpu_lens_.get(),
                              buffers_.gpu_complex_filter2d_frame,
-                             setting<settings::Filter2dEnabled>(),
+                             filter2d_enabled,
                              spatial_transformation_plan_,
                              fd_,
                              stream_);
@@ -243,8 +246,6 @@ void FourierTransform::insert_moments()
     fn_compute_vect_->push_back(
         [=]()
         {
-            auto type = setting<settings::ImageType>();
-
             // compute the moment of order 0, corresponding to the sequence of frames multiplied by the
             // frequencies at order 0 (all equal to 1)
             tensor_multiply_vector(moments_env_.moment0_buffer,
@@ -300,8 +301,7 @@ void FourierTransform::insert_moments_to_output()
     fn_compute_vect_->push_back(
         [this]()
         {
-            size_t image_resolution = fd_.get_frame_res();
-            size_t image_size = image_resolution * sizeof(float);
+            size_t image_size = fd_.get_frame_res() * sizeof(float);
 
             float* moment = nullptr;
 

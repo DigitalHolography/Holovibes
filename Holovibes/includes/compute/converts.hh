@@ -99,7 +99,7 @@ class Converts
     void insert_float_dequeue(BatchInputQueue& input_queue, void* output);
 
     /*! \brief Insert the conversion Complex => Modulus on a batch of time transformation size frames. */
-    void insert_to_modulus_moments(float* output);
+    void insert_to_modulus_moments(float* output, const ushort f_start, const ushort f_end);
 
     template <typename T>
     inline void update_setting(T setting)

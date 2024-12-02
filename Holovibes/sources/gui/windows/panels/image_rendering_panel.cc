@@ -108,8 +108,11 @@ void ImageRenderingPanel::on_notify()
     }
     else
     {
-        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(ui_->InputFilterQuickSelectComboBox->findText(
-            QString::fromStdString(UserInterfaceDescriptor::instance().filter_name)));
+        int index = 0;
+        if (!api::get_filter_file_name().empty())
+            index = ui_->InputFilterQuickSelectComboBox->findText(QString::fromStdString(api::get_filter_file_name()));
+
+        ui_->InputFilterQuickSelectComboBox->setCurrentIndex(index);
     }
 
     // Convolution
@@ -119,8 +122,12 @@ void ImageRenderingPanel::on_notify()
     ui_->DivideConvoCheckBox->setVisible(api::get_convolution_enabled());
     ui_->DivideConvoCheckBox->setChecked(api::get_divide_convolution_enabled());
     ui_->KernelQuickSelectComboBox->setVisible(api::get_convolution_enabled());
-    ui_->KernelQuickSelectComboBox->setCurrentIndex(ui_->KernelQuickSelectComboBox->findText(
-        QString::fromStdString(UserInterfaceDescriptor::instance().convo_name)));
+
+    int index = 0;
+    if (!api::get_convolution_file_name().empty())
+        index = ui_->KernelQuickSelectComboBox->findText(QString::fromStdString(api::get_convolution_file_name()));
+
+    ui_->KernelQuickSelectComboBox->setCurrentIndex(index);
 }
 
 void ImageRenderingPanel::load_gui(const json& j_us)
@@ -144,7 +151,9 @@ void ImageRenderingPanel::set_computation_mode(int mode)
 
     Computation comp_mode = static_cast<Computation>(mode);
 
-    api::set_computation_mode(comp_mode, parent_->window_max_size);
+    gui::close_windows();
+    api::set_computation_mode(comp_mode);
+    gui::create_window(comp_mode, parent_->window_max_size);
 
     if (comp_mode == Computation::Hologram)
     {
@@ -203,11 +212,8 @@ void ImageRenderingPanel::update_input_filter(const QString& value)
 {
     LOG_FUNC();
 
-    if (value.toStdString() != UserInterfaceDescriptor::instance().filter_name)
-    {
-        api::enable_filter(value.toStdString());
-        parent_->notify();
-    }
+    std::string v = value.toStdString();
+    api::enable_filter(v == UID_FILTER_TYPE_DEFAULT ? "" : v);
 }
 
 void ImageRenderingPanel::update_filter2d_view(bool checked)
@@ -288,7 +294,7 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
         return;
 
     if (value)
-        api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+        api::enable_convolution(api::get_convolution_file_name());
     else
         api::disable_convolution();
 
@@ -297,8 +303,8 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
-    UserInterfaceDescriptor::instance().convo_name = value.toStdString();
-    api::enable_convolution(UserInterfaceDescriptor::instance().convo_name);
+    std::string v = value.toStdString();
+    api::enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
     parent_->notify();
 }
 

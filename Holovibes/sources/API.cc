@@ -58,27 +58,12 @@ static bool is_current_window_xyz_type()
     return types.contains(api::get_current_window_type());
 }
 
-void close_windows()
-{
-    if (UserInterfaceDescriptor::instance().mainDisplay.get() != nullptr)
-        UserInterfaceDescriptor::instance().mainDisplay.get()->save_gui("holo window");
-    UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-
-    UserInterfaceDescriptor::instance().sliceXZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().sliceYZ.reset(nullptr);
-    UserInterfaceDescriptor::instance().filter2d_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().lens_window.reset(nullptr);
-    UserInterfaceDescriptor::instance().plot_window_.reset(nullptr);
-    UserInterfaceDescriptor::instance().raw_window.reset(nullptr);
-}
-
 #pragma endregion
 
 #pragma region Close Compute
 
 void camera_none()
 {
-    close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_frame_read();
@@ -177,53 +162,11 @@ void create_pipe()
     }
 }
 
-QPoint getSavedHoloWindowPos()
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    int x = json_get_or_default(j_us, 0, "holo window", "x");
-    int y = json_get_or_default(j_us, 0, "holo window", "y");
-    return QPoint(x, y);
-}
-
-QSize getSavedHoloWindowSize(ushort& width, ushort& height)
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    int final_width = json_get_or_default(j_us, width, "holo window", "width");
-    int final_height = json_get_or_default(j_us, height, "holo window", "height");
-    return QSize(final_width, final_height);
-}
-
-void set_light_ui_mode(bool value)
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-    j_us["light_ui"] = value;
-
-    std::ofstream output_file(path);
-    output_file << j_us.dump(1);
-}
-
-bool is_light_ui_mode()
-{
-    auto path = holovibes::settings::user_settings_filepath;
-    std::ifstream input_file(path);
-    json j_us = json::parse(input_file);
-
-    return json_get_or_default(j_us, false, "light_ui");
-}
-
-void set_computation_mode(Computation mode, uint window_max_size)
+void set_computation_mode(Computation mode)
 {
     if (get_data_type() == RecordedDataType::MOMENTS && mode == Computation::Raw)
         return;
-    close_windows();
+
     close_critical_compute();
 
     set_compute_mode(mode);
@@ -236,83 +179,37 @@ void set_computation_mode(Computation mode, uint window_max_size)
     }
     else
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
-
-    create_window(mode, window_max_size);
 }
 
-void create_window(Computation window_kind, ushort window_size)
+ApiCode set_view_mode(const ImgType type)
 {
-    const camera::FrameDescriptor& fd = get_fd();
-    unsigned short width = fd.width;
-    unsigned short height = fd.height;
-    get_good_size(width, height, window_size);
+    if (type == api::get_img_type())
+        return ApiCode::NO_CHANGE;
 
-    QPoint pos = getSavedHoloWindowPos();
-    QSize size = getSavedHoloWindowSize(width, height);
+    if (api::get_import_type() == ImportType::None)
+        return ApiCode::NOT_STARTED;
 
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        pos = UserInterfaceDescriptor::instance().mainDisplay->framePosition();
-        size = UserInterfaceDescriptor::instance().mainDisplay->size();
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
-    }
+    if (api::get_compute_mode() == Computation::Raw)
+        return ApiCode::WRONG_MODE;
 
-    if (window_kind == Computation::Raw)
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new holovibes::gui::RawWindow(pos,
-                                          size,
-                                          get_input_queue().get(),
-                                          static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->setBitshift(get_raw_bitshift());
-    }
-    else
-    {
-        UserInterfaceDescriptor::instance().mainDisplay.reset(
-            new gui::HoloWindow(pos,
-                                size,
-                                get_gpu_output_queue().get(),
-                                UserInterfaceDescriptor::instance().sliceXZ,
-                                UserInterfaceDescriptor::instance().sliceYZ,
-                                static_cast<float>(width) / static_cast<float>(height)));
-        UserInterfaceDescriptor::instance().mainDisplay->set_is_resize(false);
-        UserInterfaceDescriptor::instance().mainDisplay->resetTransform();
-        UserInterfaceDescriptor::instance().mainDisplay->setAngle(api::get_rotation());
-        UserInterfaceDescriptor::instance().mainDisplay->setFlip(api::get_horizontal_flip());
-    }
-
-    UserInterfaceDescriptor::instance().mainDisplay->setTitle(QString("XY view"));
-}
-
-void refresh_view_mode(ushort window_size, ImgType img_type)
-{
-    float old_scale = 1.f;
-    glm::vec2 old_translation(0.f, 0.f);
-    if (UserInterfaceDescriptor::instance().mainDisplay)
-    {
-        old_scale = UserInterfaceDescriptor::instance().mainDisplay->getScale();
-        old_translation = UserInterfaceDescriptor::instance().mainDisplay->getTranslate();
-    }
-
-    set_img_type(img_type);
-    set_computation_mode(Computation::Hologram, window_size);
-
-    UserInterfaceDescriptor::instance().mainDisplay->setScale(old_scale);
-    UserInterfaceDescriptor::instance().mainDisplay->setTranslate(old_translation[0], old_translation[1]);
-}
-
-void set_view_mode(const ImgType type)
-{
     try
     {
-        auto pipe = get_compute_pipe();
+        bool composite = type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
 
         api::set_img_type(type);
-        pipe_refresh();
+
+        // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
+        if (composite)
+            set_computation_mode(Computation::Hologram);
+        else
+            pipe_refresh();
     }
     catch (const std::runtime_error&) // The pipe is not initialized
     {
+        return ApiCode::FAILURE;
     }
+
+    return ApiCode::OK;
 }
 
 #pragma endregion
@@ -410,7 +307,7 @@ void handle_update_exception()
     api::set_p_index(0);
     api::set_time_transformation_size(1);
     api::disable_convolution();
-    api::disable_filter();
+    api::enable_filter("");
 }
 
 void set_filter2d(bool checked)
@@ -1079,6 +976,16 @@ float get_truncate_contrast_min(const int precision)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
+/**
+ * \brief Loads a convolution matrix from a file
+ *
+ * This function is a tool / util supposed to be called by other functions
+ *
+ * \param file The name of the file to load the matrix from. NOT A FULL PATH
+ * \param convo_matrix Where to store the read matrix
+ *
+ * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+ */
 void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
 {
     auto& holo = Holovibes::instance();
@@ -1153,20 +1060,20 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
     }
 }
 
-void load_convolution_matrix(std::optional<std::string> filename)
+void load_convolution_matrix(std::string filename)
 {
     api::set_convolution_enabled(true);
     api::set_convo_matrix({});
 
     // There is no file None.txt for convolution
-    if (!filename || filename.value() == UID_CONVOLUTION_TYPE_DEFAULT)
+    if (filename.empty())
         return;
+
     std::vector<float> convo_matrix = api::get_convo_matrix();
-    const std::string& file = filename.value();
 
     try
     {
-        load_convolution_matrix_file(file, convo_matrix);
+        load_convolution_matrix_file(filename, convo_matrix);
         api::set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
@@ -1178,14 +1085,15 @@ void load_convolution_matrix(std::optional<std::string> filename)
 
 void enable_convolution(const std::string& filename)
 {
-    if (api::get_import_type() == ImportType::None || !api::get_convolution_enabled())
+    if (api::get_import_type() == ImportType::None)
         return;
 
-    load_convolution_matrix(filename == UID_CONVOLUTION_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename));
+    api::set_convolution_file_name(filename);
 
-    if (filename == UID_CONVOLUTION_TYPE_DEFAULT)
+    load_convolution_matrix(filename);
+
+    if (filename.empty())
     {
-        // Refresh because the current convolution might have change.
         pipe_refresh();
         return;
     }
@@ -1240,72 +1148,41 @@ std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
 
 void set_input_filter(std::vector<float> value) { UPDATE_SETTING(InputFilter, value); }
 
-void load_input_filter(std::vector<float> input_filter, const std::string& file)
+void load_input_filter(const std::string& file)
 {
     auto& holo = Holovibes::instance();
     try
     {
         auto path_file = dir / __INPUT_FILTER_FOLDER_PATH__ / file;
-        InputFilter(input_filter,
+        InputFilter(get_input_filter(),
                     path_file.string(),
                     holo.get_gpu_output_queue()->get_fd().width,
                     holo.get_gpu_output_queue()->get_fd().height);
     }
     catch (std::exception& e)
     {
-        api::set_input_filter({});
         LOG_ERROR("Couldn't load input filter : {}", e.what());
     }
-    pipe_refresh();
 }
 
 void enable_filter(const std::string& filename)
 {
-    UserInterfaceDescriptor::instance().filter_name = filename;
-    enable_filter();
-}
+    if (filename == api::get_filter_file_name())
+        return;
 
-void enable_filter()
-{
-    auto filename = UserInterfaceDescriptor::instance().filter_name;
-    auto file = filename == UID_FILTER_TYPE_DEFAULT ? std::nullopt : std::make_optional(filename);
+    if (!get_compute_pipe_no_throw())
+        return;
 
-    UPDATE_SETTING(FilterEnabled, true);
-    set_input_filter({});
+    api::set_filter_file_name(filename);
+    UPDATE_SETTING(FilterEnabled, !filename.empty());
 
-    if (get_compute_pipe_no_throw() != nullptr)
-    {
-        // There is no file None.txt for filtering
-        if (file && file.value() != UID_FILTER_TYPE_DEFAULT)
-            load_input_filter(get_input_filter(), file.value());
-        else
-            disable_filter();
+    // There is no file for filtering
+    if (filename.empty())
+        set_input_filter({});
+    else
+        load_input_filter(filename);
 
-        // Refresh because the current filter might have change.
-        // pipe_refresh();
-
-        if (filename == UID_FILTER_TYPE_DEFAULT)
-            return;
-
-        pipe_refresh();
-    }
-}
-
-void disable_filter()
-{
-    set_input_filter({});
-    UPDATE_SETTING(FilterEnabled, false);
-    try
-    {
-        auto pipe = get_compute_pipe();
-        pipe->request(ICS::DisableFilter);
-        while (pipe->is_requested(ICS::DisableFilter))
-            continue;
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("Catch {}", e.what());
-    }
+    pipe_refresh();
 }
 
 #pragma endregion
@@ -1318,11 +1195,6 @@ void display_reticle(bool value)
         return;
 
     set_reticle_display_enabled(value);
-
-    if (value)
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().enable<gui::Reticle>(false);
-    else
-        UserInterfaceDescriptor::instance().mainDisplay->getOverlayManager().disable(gui::Reticle);
 
     pipe_refresh();
 }
@@ -1414,10 +1286,6 @@ void set_record_mode_enum(RecordMode value)
     {
         try
         {
-            auto pipe = get_compute_pipe();
-            if (is_recording())
-                stop_record();
-
             Holovibes::instance().init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
@@ -1490,8 +1358,6 @@ void stop_record()
     else if (record_mode != RecordMode::NONE)
         Holovibes::instance().stop_frame_record();
 
-    // Holovibes::instance().get_record_queue().load()->dequeue(-1);
-
     // Notify the changes
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
@@ -1507,7 +1373,6 @@ void import_stop()
 
     LOG_FUNC();
 
-    close_windows();
     close_critical_compute();
 
     Holovibes::instance().stop_all_worker_controller();
@@ -1535,8 +1400,7 @@ bool import_start()
 
     try
     {
-        Holovibes::instance().init_input_queue(UserInterfaceDescriptor::instance().file_fd_,
-                                               api::get_input_buffer_size());
+        Holovibes::instance().init_input_queue(api::get_input_fd(), api::get_input_buffer_size());
         Holovibes::instance().start_file_frame_read();
     }
     catch (const std::exception& e)
@@ -1556,8 +1420,48 @@ bool import_start()
 std::optional<io_files::InputFrameFile*> import_file(const std::string& filename)
 {
     if (!filename.empty())
-        // Throw if the file format cannot be handled
-        return io_files::InputFrameFileFactory::open(filename);
+    {
+        io_files::InputFrameFile* input = nullptr;
+
+        // Try to open the file
+        try
+        {
+            input = io_files::InputFrameFileFactory::open(filename);
+        }
+        catch (const io_files::FileException& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+            return std::nullopt;
+        }
+
+        // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
+        // record
+        auto input_buffer_size = api::get_input_buffer_size();
+        auto record_buffer_size = api::get_record_buffer_size();
+
+        // Import Compute Settings there before init_pipe to
+        // Allocate correctly buffer
+        try
+        {
+            input->import_compute_settings();
+            input->import_info();
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR("Catch {}", e.what());
+            LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
+            api::load_compute_settings(holovibes::settings::compute_settings_filepath);
+        }
+
+        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big buffers used
+        // when the file was recorded
+        api::set_input_buffer_size(input_buffer_size);
+        api::set_record_buffer_size(record_buffer_size);
+
+        api::set_input_fd(input->get_frame_descriptor());
+
+        return input;
+    }
 
     return std::nullopt;
 }
@@ -1601,6 +1505,34 @@ void loaded_moments_data()
 #pragma region Information
 
 void start_information_display() { Holovibes::instance().start_information_display(); }
+
+#pragma endregion
+
+#pragma region Image
+
+void* get_raw_last_image()
+{
+    if (get_input_queue())
+        return get_input_queue().get()->get_last_image();
+
+    return nullptr;
+}
+
+// void* get_raw_view_last_image(); // get_input_queue().get()
+
+void* get_hologram_last_image()
+{
+    if (get_gpu_output_queue())
+        return get_gpu_output_queue().get()->get_last_image();
+
+    return nullptr;
+}
+
+// void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
+// void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
+// void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
+// void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
+// void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
 
 #pragma endregion
 

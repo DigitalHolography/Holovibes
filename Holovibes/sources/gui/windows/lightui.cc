@@ -8,6 +8,8 @@
 #include "logger.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
+
 #pragma warning(push, 0)
 #include "ui_lightui.h"
 #pragma warning(pop)
@@ -41,7 +43,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
 
 LightUI::~LightUI()
 {
-    api::set_light_ui_mode(visible_);
+    gui::set_light_ui_mode(visible_);
 
     delete ui_;
 }

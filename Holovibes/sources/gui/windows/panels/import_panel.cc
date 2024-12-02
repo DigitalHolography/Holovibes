@@ -69,11 +69,7 @@ void ImportPanel::set_start_stop_buttons(bool value)
 
 void ImportPanel::import_browse_file()
 {
-    QString filename = "";
-
-    // Open the file explorer to let the user pick his file
-    // and store the chosen file in filename
-    filename =
+    QString filename =
         QFileDialog::getOpenFileName(this,
                                      tr("import file"),
                                      QString::fromStdString(UserInterfaceDescriptor::instance().file_input_directory_),
@@ -94,55 +90,16 @@ void ImportPanel::import_file(const QString& filename)
     import_line_edit->insert(filename);
 
     // Start importing the chosen
-    std::optional<io_files::InputFrameFile*> input_file_opt;
-    try
-    {
-        input_file_opt = api::import_file(filename.toStdString());
-    }
-    catch (const io_files::FileException& e)
-    {
-        // In case of bad format, we triggered the user
-        QMessageBox messageBox;
-        messageBox.critical(nullptr, "File Error", e.what());
-        LOG_ERROR("Catch {}", e.what());
-        // Holovibes cannot be launched over this file
-        set_start_stop_buttons(false);
-        return;
-    }
+    std::optional<io_files::InputFrameFile*> input_file_opt = api::import_file(filename.toStdString());
 
     if (input_file_opt)
     {
         auto input_file = input_file_opt.value();
-
-        // Get the buffer size that will be used to allocate the buffer for reading the file instead of the one from the
-        // record
-        auto input_buffer_size = api::get_input_buffer_size();
-        auto record_buffer_size = api::get_record_buffer_size();
-
-        // Import Compute Settings there before init_pipe to
-        // Allocate correctly buffer
-        try
-        {
-            input_file->import_compute_settings();
-            input_file->import_info();
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox messageBox;
-            messageBox.critical(nullptr, "File Error", e.what());
-            LOG_ERROR("Catch {}", e.what());
-            LOG_INFO("Compute settings incorrect or file not found. Initialization with default values.");
-            api::save_compute_settings(holovibes::settings::compute_settings_filepath);
-        }
-
-        // update the buffer size with the old values to avoid surcharging the gpu memory in case of big buffers used
-        // when the file was recorded
-        api::set_input_buffer_size(input_buffer_size);
-        api::set_record_buffer_size(record_buffer_size);
+        
+        parent_->notify();
 
         // Gather data from the newly opened file
         int nb_frames = static_cast<int>(input_file->get_total_nb_frames());
-        UserInterfaceDescriptor::instance().file_fd_ = input_file->get_frame_descriptor();
 
         // Don't need the input file anymore
         delete input_file;
@@ -168,6 +125,7 @@ void ImportPanel::import_file(const QString& filename)
 
 void ImportPanel::import_stop()
 {
+    gui::close_windows();
     api::import_stop();
     parent_->notify();
 }
@@ -175,10 +133,9 @@ void ImportPanel::import_stop()
 // TODO: review function, we cannot edit UserInterfaceDescriptor here (instead of API)
 void ImportPanel::import_start()
 {
+    gui::close_windows();
     if (api::import_start())
         parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
-    else
-        UserInterfaceDescriptor::instance().mainDisplay.reset(nullptr);
 }
 
 void ImportPanel::update_fps() { api::set_input_fps(ui_->ImportInputFpsSpinBox->value()); }

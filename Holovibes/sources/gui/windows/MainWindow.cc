@@ -198,7 +198,7 @@ MainWindow::~MainWindow()
 {
     ui_->menuSelect_preset->clear();
 
-    api::close_windows();
+    gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
     api::camera_none();
@@ -310,7 +310,7 @@ void MainWindow::notify_error(const std::exception& e)
             {
                 // notify will be in close_critical_compute
                 api::handle_update_exception();
-                api::close_windows();
+                gui::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
@@ -573,6 +573,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
+    gui::close_windows();
     api::camera_none();
     Logger::flush();
 }
@@ -670,21 +671,19 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_import_type() == ImportType::None || api::get_compute_mode() == Computation::Raw)
-        return;
-
-    const std::string& value_str = value.toStdString();
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (img_type == api::get_img_type())
-        return;
 
-    // Switching to composite or back from composite needs a recreation of the pipe since buffers size will be *3
-    if (img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite)
-        api::refresh_view_mode(window_max_size, img_type);
+    bool composite = img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
 
-    api::set_view_mode(img_type);
+    if (api::set_view_mode(img_type) == ApiCode::OK)
+    {
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
+        if (composite)
+            gui::refresh_window(window_max_size);
 
-    notify();
+        notify();
+    }
 }
 
 #pragma endregion
