@@ -60,13 +60,14 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
 {
     cudaMemcpyKind copy_kind = captured_fd.on_gpu ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
     size_t frames_enqueued = 0;
+    size_t batch_size = api::get_batch_size();
     while (frames_enqueued < captured_fd.count1)
     {
         input_queue_.load()->enqueue_multiple((uint8_t*)(captured_fd.region1) +
                                                   frames_enqueued * camera_fd.get_frame_size(),
-                                              setting<settings::BatchSize>(),
+                                              batch_size,
                                               copy_kind);
-        frames_enqueued += setting<settings::BatchSize>();
+        frames_enqueued += batch_size;
     }
 
     frames_enqueued = 0;
@@ -75,9 +76,9 @@ void CameraFrameReadWorker::enqueue_loop(const camera::CapturedFramesDescriptor&
     {
         input_queue_.load()->enqueue_multiple((uint8_t*)(captured_fd.region2) +
                                                   frames_enqueued * camera_fd.get_frame_size(),
-                                              setting<settings::BatchSize>(),
+                                              batch_size,
                                               copy_kind);
-        frames_enqueued += setting<settings::BatchSize>();
+        frames_enqueued += batch_size;
     }
 
     processed_frames_ += captured_fd.count1 + captured_fd.count2;
