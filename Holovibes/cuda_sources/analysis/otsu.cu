@@ -9,12 +9,12 @@ using uint = unsigned int;
 
 #define NUM_BINS 256
 
-__global__ void normalise_kernel(float* d_input, float min, float max, int size)
+__global__ void normalize_kernel(float* d_input, float min, float max, uint size)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < size)
-        d_input[tid] = (int)(((d_input[tid] - min) / (max - min)));
+        d_input[tid] = (d_input[tid] - min) / (max - min);
 }
 
 void normalise(float* input, uint size, cublasHandle_t& handle, const cudaStream_t stream)
@@ -31,8 +31,7 @@ void normalise(float* input, uint size, cublasHandle_t& handle, const cudaStream
     float h_min, h_max;
     cudaXMemcpy(&h_min, input + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
     cudaXMemcpy(&h_max, input + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
-    normalise_kernel<<<blocks, threads, 0, stream>>>(input, size, h_min, h_max);
-    // normalise(buffers_.gpu_postprocess_frame, h_min, h_max, buffers_.gpu_postprocess_frame_size, stream);
+    normalize_kernel<<<blocks, threads, 0, stream>>>(input, h_min, h_max, size);
 }
 
 // Check if optimizable in future with `reduce.cuh` functions.
@@ -44,20 +43,23 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     int idx = blockIdx.x * blockDim.x + tid;
 
     // Initialize shared memory histogram
-    if (tid < NUM_BINS)
+    if (tid <= NUM_BINS)
         shared_hist[tid] = 0;
+    if (idx <= NUM_BINS)
+        hist[idx] = 0;
     __syncthreads();
 
     // Populate shared histogram
-    if (idx < imgSize)
+    if (idx < imgSize && image[idx] > 0.0f)
     {
-        int bin = static_cast<int>(image[idx] * NUM_BINS);
-        atomicAdd(&shared_hist[bin], 1);
+        int bin = static_cast<int>(image[idx] * (NUM_BINS - 1));
+        atomicAdd(shared_hist + bin, 1);
+        atomicAdd(shared_hist + NUM_BINS, 1);
     }
     __syncthreads();
 
     // Merge shared histograms into global memory
-    if (tid < NUM_BINS)
+    if (tid <= NUM_BINS)
         atomicAdd(&hist[tid], shared_hist[tid]);
 }
 
@@ -110,7 +112,7 @@ __global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_ou
 {
     __shared__ float sum_shared;
     __shared__ float varMax_shared;
-    __shared__ float threshold_shared;
+    __shared__ unsigned int threshold_shared;
 
     int tid = threadIdx.x;
     if (tid == 0)
@@ -158,16 +160,18 @@ __global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_ou
         float mF = (total_sum - sumB) / wF;
         float varBetween = wB * wF * (mB - mF) * (mB - mF);
 
-        atomicMax(reinterpret_cast<unsigned int*>(&varMax_shared), __float_as_uint(varBetween));
+        if (varMax_shared < varBetween)
+            varMax_shared = varBetween;
+        // myAtomicMax(&varMax_shared, varBetween);
 
         if (varBetween == varMax_shared)
-            atomicExch(reinterpret_cast<unsigned int*>(&threshold_shared), t);
+            atomicExch(&threshold_shared, t);
     }
 
     __syncthreads();
 
     if (tid == 0)
-        *threshold_out = threshold_shared / NUM_BINS;
+        *threshold_out = threshold_shared / ((float)NUM_BINS);
 }
 
 float otsu_threshold(float* image_d,
@@ -180,13 +184,26 @@ float otsu_threshold(float* image_d,
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     float threshold;
-    size_t shared_mem_size = NUM_BINS * sizeof(uint);
+    size_t shared_mem_size = (NUM_BINS + 1) * sizeof(uint);
 
     normalise(image_d, size, handle, stream);
 
-    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
+    // cudaXMemset(histo_buffer_d, 0, sizeof(uint) * NUM_BINS);
 
-    otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, threshold_d);
+    histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
+    cudaXStreamSynchronize(stream);
+    uint total;
+    cudaXMemcpy(&total, histo_buffer_d + NUM_BINS, sizeof(uint), cudaMemcpyDeviceToHost);
+
+    //---------
+    // uint* histo = new uint[NUM_BINS + 1];
+    // for (size_t i = 0; i < NUM_BINS; i++)
+    //     std::cout << "h[" << i << "] = " << histo[i] << std::endl;
+    // std::cout << "-----------------------" << histo[NUM_BINS] << " / " << size << std::endl;
+    // delete histo;
+
+    // ---------
+    otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, total, threshold_d);
 
     cudaMemcpy(&threshold, threshold_d, sizeof(float), cudaMemcpyDeviceToHost);
 
