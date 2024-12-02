@@ -2,6 +2,12 @@
 #include "cuda_memory.cuh"
 #include "vascular_pulse.cuh"
 #include "tools_analysis_debug.hh"
+#include <thrust/device_vector.h>
+#include <thrust/extrema.h>
+#include <thrust/functional.h>
+#include <thrust/copy.h>
+#include <iostream>
+#include <cmath>
 
 #define NUM_BINS (1 << 8)
 
@@ -90,6 +96,18 @@ void cumsum(float* p, float* omega, size_t size, cudaStream_t stream)
     cudaCheckError();
 }
 
+void host_cumsum(float* output, float* input, size_t size)
+{
+    if (size == 0)
+        return;
+
+    output[0] = input[0];
+    for (size_t i = 1; i < size; ++i)
+    {
+        output[i] = output[i - 1] + input[i];
+    }
+}
+
 __global__ void kernel_multiply_with_indices(float* p, float* result, size_t num_bins)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -131,67 +149,45 @@ void compute_sigma_b_squared(
     cudaCheckError();
 }
 
-// Kernel to perform the parallel scan (prefix sum)
-__global__ void scan_kernel(float* d_out, float* d_in, int n)
+__global__ void kernel_find_max(float* sigma_b_squared, float maxval, float* is_max, size_t size)
 {
-    extern __shared__ int temp[]; // Shared memory to hold the data
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int thid = threadIdx.x;
-    int offset = 1;
-
-    // Load input into shared memory
-    temp[2 * thid] = d_in[2 * thid];
-    temp[2 * thid + 1] = d_in[2 * thid + 1];
-
-    // Up-sweep phase (Reduction in shared memory)
-    for (int d = n >> 1; d > 0; d >>= 1)
+    if (index < size && sigma_b_squared[index] == maxval)
     {
-        __syncthreads();
-        if (thid < d)
-        {
-            int ai = offset * (2 * thid + 1) - 1;
-            int bi = offset * (2 * thid + 2) - 1;
-            temp[bi] += temp[ai];
-        }
-        offset <<= 1;
+        is_max[index] = index;
     }
-
-    // Down-sweep phase (Calculating prefix sum)
-    if (thid == 0)
-    {
-        temp[n - 1] = 0; // Set the last element to 0
-    }
-
-    for (int d = 1; d < n; d <<= 1)
-    {
-        offset >>= 1;
-        __syncthreads();
-        if (thid < d)
-        {
-            int ai = offset * (2 * thid + 1) - 1;
-            int bi = offset * (2 * thid + 2) - 1;
-            float t = temp[ai];
-            temp[ai] = temp[bi];
-            temp[bi] += t;
-        }
-    }
-
-    __syncthreads();
-
-    // Write results to global memory
-    d_out[2 * thid] = temp[2 * thid];
-    d_out[2 * thid + 1] = temp[2 * thid + 1];
 }
 
-// Function to perform scan (prefix sum) on host
-void prefix_sum(float* h_out, float* h_in, int n)
+void find_mean_index(float* sigma_b_squared, float maxval, float* is_max, size_t size, cudaStream_t stream)
 {
-    // Launch the kernel with enough threads per block (and shared memory)
-    int block_size = 512; // Maximum block size for CUDA
-    int grid_size = (n + block_size - 1) / block_size;
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(size, threads);
+    kernel_find_max<<<blocks, threads, 0, stream>>>(sigma_b_squared, maxval, is_max, size);
+}
 
-    // Execute the scan kernel
-    scan_kernel<<<grid_size, block_size, 2 * block_size * sizeof(int)>>>(h_out, h_in, n);
+float mean_non_zero(float* input, int size)
+{
+    float sum = 0.0f;
+    int cpt = 0;
+
+    for (int i = 0; i < size; ++i)
+    {
+        if (input[i] != 0.0f)
+        {
+            sum += input[i];
+            ++cpt;
+        }
+    }
+
+    if (cpt > 0)
+    {
+        return sum / cpt;
+    }
+    else
+    {
+        return 0.0f;
+    }
 }
 
 float otsuthresh(float* counts, cudaStream_t stream)
@@ -216,9 +212,6 @@ float otsuthresh(float* counts, cudaStream_t stream)
     size_t d_counts_size = 256;
     sum(d_counts_sum, d_counts, d_counts_size, stream);
 
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(d_counts_sum, 1, 1, "d_counts_sum", stream);
-
     // p = counts / sum(counts);
     float* p;
     cudaXMallocAsync(&p, 256 * sizeof(float), stream);
@@ -229,18 +222,12 @@ float otsuthresh(float* counts, cudaStream_t stream)
 
     divide_constant(p, *h_counts_sum, 256 * sizeof(float), stream);
 
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(p, 256, 1, "p", stream);
-
     // omega = cumsum(p);
-    float* omega;
-    cudaXMallocAsync(&omega, 256 * sizeof(float), stream);
+    float* omega = new float[256];
+    float* h_p = new float[256];
+    cudaXMemcpy(h_p, p, 256 * sizeof(float), cudaMemcpyDeviceToHost);
 
-    prefix_sum(omega, p, 256 * sizeof(float));
-    // cumsum(p, omega, 256 * sizeof(float), stream);
-
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(omega, 256, 1, "omega", stream);
+    host_cumsum(omega, h_p, 256);
 
     // mu = cumsum(p .* (1:num_bins)');
     float* p_;
@@ -248,22 +235,15 @@ float otsuthresh(float* counts, cudaStream_t stream)
 
     multiply_with_indices(p, p_, 256, stream);
 
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(p_, 256, 1, "p_", stream);
+    float* mu = new float[256];
+    float* h_p_ = new float[256];
+    cudaXMemcpy(h_p_, p_, 256 * sizeof(float), cudaMemcpyDeviceToHost);
 
-    float* mu;
-    cudaXMallocAsync(&mu, 256 * sizeof(float), stream);
-
-    cumsum(p_, mu, 256 * sizeof(float), stream);
-
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(mu, 256, 1, "mu", stream);
+    host_cumsum(mu, h_p_, 256);
 
     // mu_t = mu(end);
-    float* h_mu = new float[256];
-    cudaXMemcpyAsync(h_mu, mu, 256 * sizeof(float), cudaMemcpyDeviceToHost, stream);
     cudaXStreamSynchronize(stream);
-    float mu_tt = h_mu[255];
+    float mu_tt = mu[255];
 
     // sigma_b_squared = (mu_t * omega - mu).^2 ./ (omega .* (1 - omega));
     float* sigma_b_squared;
@@ -273,15 +253,42 @@ float otsuthresh(float* counts, cudaStream_t stream)
     cudaXMallocAsync(&d_mu_tt, sizeof(float), stream);
     cudaXMemcpyAsync(d_mu_tt, &mu_tt, sizeof(float), cudaMemcpyHostToDevice, stream);
 
-    compute_sigma_b_squared(d_mu_tt, omega, mu, sigma_b_squared, 256 * sizeof(float), stream);
+    float* d_mu;
+    cudaXMallocAsync(&d_mu, 256 * sizeof(float), stream);
+    cudaXMemcpy(d_mu, mu, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
-    cudaXStreamSynchronize(stream);
-    print_in_file_gpu(sigma_b_squared, 256, 1, "sigma_b_squared", stream);
+    float* d_omega;
+    cudaXMallocAsync(&d_omega, 256 * sizeof(float), stream);
+    cudaXMemcpy(d_omega, omega, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
-    return 0.0f;
+    compute_sigma_b_squared(d_mu_tt, d_omega, d_mu, sigma_b_squared, 256 * sizeof(float), stream);
+
+    // maxval = max(sigma_b_squared);
+
+    float* h_sigma_b_squared = new float[256];
+    cudaXMemcpy(h_sigma_b_squared, sigma_b_squared, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+    thrust::device_vector<float> d_input(h_sigma_b_squared, h_sigma_b_squared + 256);
+    thrust::device_vector<float>::iterator max_it = thrust::max_element(d_input.begin(), d_input.end());
+    float maxval = *max_it;
+
+    // idx = mean(find(sigma_b_squared == maxval));
+
+    float* is_max;
+    cudaXMalloc(&is_max, sizeof(float) * 256);
+    cudaXMemset(is_max, 0.0f, sizeof(float) * 256);
+    find_mean_index(sigma_b_squared, maxval, is_max, 256, stream);
+
+    float* h_is_max = new float[256];
+    cudaXMemcpy(h_is_max, is_max, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+
+    float idx = mean_non_zero(h_is_max, 256);
+
+    // t = (idx - 1 {// 1 indexed in matlab} ) / (num_bins - 1);
+
+    return idx / (256 - 1);
 }
 
-float otsu_compute(float* input, float* histo_buffer_d, const size_t size, cudaStream_t stream)
+float otsu_compute_threshold(float* input, float* histo_buffer_d, const size_t size, cudaStream_t stream)
 {
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
@@ -298,4 +305,24 @@ float otsu_compute(float* input, float* histo_buffer_d, const size_t size, cudaS
     threshold = otsuthresh(histo_buffer_d, stream);
 
     return threshold;
+}
+
+__global__ void kernel_apply_binarisation(float* input, int size, float globalThreshold)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (idx < size)
+        input[idx] = input[idx] > globalThreshold;
+}
+
+void apply_binarisation(
+    float* input_output, float threshold, const size_t width, const size_t height, const cudaStream_t stream)
+{
+    size_t img_size = width * height;
+
+    uint threads = get_max_threads_1d();
+    uint blocks = map_blocks_to_problem(img_size, threads);
+
+    kernel_apply_binarisation<<<blocks, threads, 0, stream>>>(input_output, img_size, threshold);
+    cudaXStreamSynchronize(stream);
 }

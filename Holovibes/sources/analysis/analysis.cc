@@ -265,26 +265,13 @@ void Analysis::insert_first_analysis_masks()
 
 // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
 #if !FROM_CSV
-                // if (i_ == 0)
-                //     print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu", stream_);
-
-                // compute_binarise_otsu(m0_ff_img_csv_,
-                //                       otsu_histo_buffer_,
-                //                       otsu_float_gpu_,
-                //                       fd_.width,
-                //                       fd_.height,
-                //                       stream_);
-                otsu_compute(m0_ff_img_csv_, otsu_histo_buffer_2_, buffers_.gpu_postprocess_frame_size, stream_);
+                float threshold = otsu_compute_threshold(m0_ff_img_csv_,
+                                                         otsu_histo_buffer_2_,
+                                                         buffers_.gpu_postprocess_frame_size,
+                                                         stream_);
 
                 // Binarize the vesselness output to produce the mask vesselness
-                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                                      otsu_histo_buffer_.get(),
-                                      otsu_float_gpu_.get(),
-                                      fd_.width,
-                                      fd_.height,
-                                      stream_);
-            // if (i_ == 0)
-            //     print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
+                apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
 #else
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                                  mask_vesselness_csv_,
@@ -292,6 +279,7 @@ void Analysis::insert_first_analysis_masks()
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
 #endif
+
                 // Store mask_vesselness for later computations
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
                                  buffers_.gpu_postprocess_frame,
@@ -443,9 +431,9 @@ void Analysis::insert_first_analysis_masks()
                                                stream_,
                                                CRV_index);
                 // apply_mask_and(vesselness_mask_env_.before_threshold, )
-                float thresholds[3] = {0.56032641f,
-                                       0.65315951f,
-                                       0.72123712f}; // this is hardcoded, need to call arthur function
+                float thresholds[3] = {0.207108953480839f,
+                                       0.334478400506137f,
+                                       0.458741275652768f}; // this is hardcoded, need to call arthur function
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
@@ -591,30 +579,30 @@ void Analysis::insert_otsu()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
-                {
-                    compute_binarise_otsu_bradley(float_buffer_.get(),
-                                                  otsu_histo_buffer_.get(),
-                                                  buffers_.gpu_postprocess_frame,
-                                                  otsu_float_gpu_.get(),
-                                                  fd_.width,
-                                                  fd_.height,
-                                                  setting<settings::OtsuWindowSize>(),
-                                                  setting<settings::OtsuLocalThreshold>(),
-                                                  stream_);
+                // if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
+                // {
+                //     compute_binarise_otsu_bradley(float_buffer_.get(),
+                //                                   otsu_histo_buffer_.get(),
+                //                                   buffers_.gpu_postprocess_frame,
+                //                                   otsu_float_gpu_.get(),
+                //                                   fd_.width,
+                //                                   fd_.height,
+                //                                   setting<settings::OtsuWindowSize>(),
+                //                                   setting<settings::OtsuLocalThreshold>(),
+                //                                   stream_);
 
-                    cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                                float_buffer_.get(),
-                                buffers_.gpu_postprocess_frame_size * sizeof(float),
-                                cudaMemcpyDeviceToDevice);
-                }
-                else
-                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                                          otsu_histo_buffer_.get(),
-                                          otsu_float_gpu_.get(),
-                                          fd_.width,
-                                          fd_.height,
-                                          stream_);
+                //     cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                //                 float_buffer_.get(),
+                //                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                //                 cudaMemcpyDeviceToDevice);
+                // }
+                // else
+                //     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                //                           otsu_histo_buffer_.get(),
+                //                           otsu_float_gpu_.get(),
+                //                           fd_.width,
+                //                           fd_.height,
+                //                           stream_);
             });
     }
 }
