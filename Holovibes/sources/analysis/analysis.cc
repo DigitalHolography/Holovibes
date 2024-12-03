@@ -492,7 +492,7 @@ void Analysis::insert_first_analysis_masks()
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                                  vesselness_mask_env_.quantizedVesselCorrelation_,
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                                 cudaMempcyDeviceToDevice,
+                                 cudaMemcpyDeviceToDevice,
                                  stream_);
 
                 if (i_ == 0)
