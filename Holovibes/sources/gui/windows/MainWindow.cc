@@ -200,7 +200,7 @@ MainWindow::~MainWindow()
     gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none();
+    api::set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
 }
@@ -506,7 +506,7 @@ void MainWindow::load_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
-    bool is_camera = api::change_camera(camera);
+    bool is_camera = api::set_camera_kind(camera);
 }
 
 void MainWindow::set_preset_file_on_gpu()
@@ -576,7 +576,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         api::save_compute_settings();
 
     gui::close_windows();
-    api::camera_none();
+    api::set_camera_kind(CameraKind::NONE, false);
     Logger::flush();
 }
 
@@ -588,7 +588,7 @@ void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
 
-    if (api::change_camera(c))
+    if (api::set_camera_kind(c))
     {
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
@@ -626,7 +626,10 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera() { api::configure_camera(); }
+void MainWindow::configure_camera()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api::get_camera_ini_name())));
+}
 
 void open_file(const std::string& filename)
 {

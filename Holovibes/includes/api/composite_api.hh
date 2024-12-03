@@ -58,14 +58,13 @@ inline void set_weight_r(double value) { SET_SETTING(RGB, weight.r, value); }
 inline void set_weight_g(double value) { SET_SETTING(RGB, weight.g, value); }
 inline void set_weight_b(double value) { SET_SETTING(RGB, weight.b, value); }
 void set_weight_rgb(double r, double g, double b);
-void set_rgb_p(int min, int max);
 
-/*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max) from ui values
+/*! \brief Modifies Frequency channel (p) Red (min) and Frequency channel (p) Blue (max).
  *
- * \param[in] composite_p_red the new value
- * \param[in] composite_p_blue the new value
+ * \param[in] red the new value
+ * \param[in] blue the new value
  */
-void set_composite_intervals(int composite_p_red, int composite_p_blue);
+void set_rgb_p(int red, int blue);
 /*! \} */
 
 #pragma endregion

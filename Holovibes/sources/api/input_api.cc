@@ -5,6 +5,42 @@
 namespace holovibes::api
 {
 
+#pragma region Internals
+
+/*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
+ * descriptor.
+ *
+ * \return camera::FrameDescriptor the frame descriptor of the file
+ */
+camera::FrameDescriptor get_input_fd() { return GET_SETTING(ImportedFileFd); }
+
+/*! \brief Set the frame descriptor of the loaded file.
+ *
+ * \param[in] value the new frame descriptor
+ */
+void set_input_fd(camera::FrameDescriptor value) { UPDATE_SETTING(ImportedFileFd, value); }
+
+/*! \brief Set the type of camera used or none if no camera is used.
+ *
+ * \param[in] value the new camera kind
+ */
+void set_camera_kind_enum(CameraKind value, bool save = true) { UPDATE_SETTING(CameraKind, value); }
+
+void camera_none()
+{
+    close_critical_compute();
+
+    Holovibes::instance().stop_frame_read();
+
+    set_camera_kind_enum(CameraKind::NONE);
+    set_is_computation_stopped(true);
+    set_import_type(ImportType::None);
+}
+
+#pragma endregion
+
+#pragma region File Offest
+
 void set_input_file_start_index(size_t value)
 {
     const bool is_data_moments = get_data_type() == RecordedDataType::MOMENTS;
@@ -28,6 +64,8 @@ void set_input_file_end_index(size_t value)
     if (value <= get_input_file_start_index())
         set_input_file_start_index(value - (value + (is_data_moments ? 3 : 1)));
 }
+
+#pragma endregion
 
 #pragma region File Import
 
@@ -135,18 +173,7 @@ std::optional<io_files::InputFrameFile*> import_file(const std::string& filename
 
 #pragma region Cameras
 
-void camera_none()
-{
-    close_critical_compute();
-
-    Holovibes::instance().stop_frame_read();
-
-    set_camera_kind(CameraKind::NONE);
-    set_is_computation_stopped(true);
-    set_import_type(ImportType::None);
-}
-
-bool change_camera(CameraKind c)
+bool set_camera_kind(CameraKind c, bool save)
 {
     LOG_FUNC(static_cast<int>(c));
     camera_none();
@@ -156,13 +183,18 @@ bool change_camera(CameraKind c)
     std::ifstream input_file(path);
     json j_us = json::parse(input_file);
 
-    j_us["camera"]["type"] = c;
+    if (save)
+        j_us["camera"]["type"] = c;
 
     if (c == CameraKind::NONE)
     {
-        std::ofstream output_file(path);
-        output_file << j_us.dump(1);
-        return false;
+        if (save)
+        {
+            std::ofstream output_file(path);
+            output_file << j_us.dump(1);
+        }
+
+        return true;
     }
     try
     {
@@ -179,19 +211,26 @@ bool change_camera(CameraKind c)
         {
             LOG_INFO("Set camera to NONE");
 
-            j_us["camera"]["type"] = 0;
-            std::ofstream output_file(path);
-            output_file << j_us.dump(1);
+            if (save)
+            {
+                j_us["camera"]["type"] = 0;
+                std::ofstream output_file(path);
+                output_file << j_us.dump(1);
+            }
+
             Holovibes::instance().stop_frame_read();
             return false;
         }
 
-        set_camera_kind(c);
+        set_camera_kind_enum(c);
         set_import_type(ImportType::Camera);
         set_is_computation_stopped(false);
 
-        std::ofstream output_file(path);
-        output_file << j_us.dump(1);
+        if (save)
+        {
+            std::ofstream output_file(path);
+            output_file << j_us.dump(1);
+        }
 
         return true;
     }
@@ -204,14 +243,13 @@ bool change_camera(CameraKind c)
         LOG_ERROR("Catch {}", e.what());
     }
 
-    std::ofstream output_file(path);
-    output_file << j_us.dump(1);
-    return false;
-}
+    if (save)
+    {
+        std::ofstream output_file(path);
+        output_file << j_us.dump(1);
+    }
 
-void configure_camera()
-{
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(Holovibes::instance().get_camera_ini_name())));
+    return false;
 }
 
 #pragma endregion

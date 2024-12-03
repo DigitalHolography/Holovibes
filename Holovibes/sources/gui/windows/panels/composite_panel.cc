@@ -127,7 +127,7 @@ void CompositePanel::set_composite_intervals()
     ui_->PRedSpinBox_Composite->setValue(
         std::min(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value()));
 
-    api::set_composite_intervals(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value());
+    api::set_rgb_p(ui_->PRedSpinBox_Composite->value(), ui_->PBlueSpinBox_Composite->value());
 
     parent_->notify();
 }

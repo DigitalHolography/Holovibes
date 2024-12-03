@@ -21,20 +21,12 @@ void set_rgb_p(int min, int max)
     rgb.frame_index.min = min;
     rgb.frame_index.max = max;
     UPDATE_SETTING(RGB, rgb);
+    pipe_refresh();
 }
 
 void set_composite_auto_weights(bool value)
 {
     UPDATE_SETTING(CompositeAutoWeights, value);
-    pipe_refresh();
-}
-
-void set_composite_intervals(int composite_p_red, int composite_p_blue)
-{
-    holovibes::CompositeRGB rgb = GET_SETTING(RGB);
-    rgb.frame_index.min = composite_p_red;
-    rgb.frame_index.max = composite_p_blue;
-    UPDATE_SETTING(RGB, rgb);
     pipe_refresh();
 }
 
