@@ -17,9 +17,9 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     int idx = blockIdx.x * blockDim.x + tid;
 
     // Initialize shared memory histogram
-    if (tid <= NUM_BINS)
+    if (tid < NUM_BINS)
         shared_hist[tid] = 0;
-    if (idx <= NUM_BINS)
+    if (idx < NUM_BINS)
         hist[idx] = 0;
     __syncthreads();
 
@@ -33,7 +33,7 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     __syncthreads();
 
     // Merge shared histograms into global memory
-    if (tid <= NUM_BINS)
+    if (tid < NUM_BINS)
         atomicAdd(&hist[tid], shared_hist[tid]);
 }
 
