@@ -582,13 +582,10 @@ void im2uint8(float* image, size_t size, float minVal, float maxVal)
 
     for (size_t i = 0; i < size; ++i)
     {
-        // Clamp les valeurs dans [minVal, maxVal]
         float clampedValue = std::max(minVal, std::min(maxVal, image[i]));
 
-        // Mise à l'échelle dans [0, 255] et conversion en uint8_t
         float uint8Value = std::round(255 * (clampedValue - minVal) / scale);
 
-        // Copier le résultat dans la mémoire de l'élément actuel
         image[i] = uint8Value;
     }
 }

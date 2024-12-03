@@ -6,6 +6,11 @@
 
 #include <thrust/device_ptr.h>
 #include <thrust/extrema.h>
+#include <thrust/device_vector.h>
+#include <thrust/transform.h>
+#include <thrust/reduce.h>
+#include <thrust/functional.h>
+#include <cmath>
 
 __global__ void kernel_divide_constant(float* vascular_pulse, int value, size_t size)
 {
@@ -155,15 +160,15 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
 
     if (idx < size)
     {
-        float mean = 0.0f;
-        float variance = 0.0f;
+        double mean = 0.0f;
+        double variance = 0.0f;
 
         // Compute mean along the third dimension
         for (int k = 0; k < depth; ++k)
         {
             mean += input[idx + size * k];
         }
-        mean /= depth;
+        mean /= depth - 1;
 
         // Compute variance along the third dimension
         for (int k = 0; k < depth; ++k)
@@ -171,10 +176,10 @@ __global__ void kernel_compute_std(const float* input, float* output, int size, 
             float diff = input[idx + size * k] - mean;
             variance += diff * diff;
         }
-        variance /= depth;
+        variance /= depth - 1;
 
         // Store the standard deviation in the output array
-        output[idx] = sqrt(variance);
+        output[idx] = (float)sqrt(variance);
     }
 }
 
