@@ -10,8 +10,6 @@
 #include <optional>
 
 #include "logger.hh"
-#include "input_frame_file.hh"
-#include "input_frame_file_factory.hh"
 #include "holovibes.hh"
 #include "holovibes_config.hh"
 #include "compute_settings_struct.hh"
@@ -25,6 +23,9 @@ using json = ::nlohmann::json;
  * ```cpp
  * auto value = GET_SETTING(T);
  * ```
+ *
+ * \param[in] setting The setting to get
+ * \return The value of the setting T
  */
 #define GET_SETTING(setting) holovibes::Holovibes::instance().get_setting<holovibes::settings::setting>().value
 
@@ -33,6 +34,9 @@ using json = ::nlohmann::json;
  * ```cpp
  * UPDATE_SETTING(T, value);
  * ```
+ *
+ * \param[in] setting The setting to update
+ * \param[in] value The new value of the setting
  */
 #define UPDATE_SETTING(setting, value)                                                                                 \
     holovibes::Holovibes::instance().update_setting(holovibes::settings::setting{value})
@@ -47,6 +51,10 @@ using json = ::nlohmann::json;
  * t.path = value;
  * UPDATE_SETTING(T, t);
  * ```
+ *
+ * \param[in] setting The setting to update
+ * \param[in] path The path of the setting to update (e.g. value, min, max, etc.)
+ * \param[in] value The new value of the setting
  */
 #define SET_SETTING(type, path, value)                                                                                 \
     {                                                                                                                  \

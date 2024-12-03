@@ -139,7 +139,7 @@ void set_time_transformation(const TimeTransformation value)
 
 #pragma endregion
 
-#pragma region Time Tr. Freq.
+#pragma region Time Tr.Freq.
 
 void set_p_index(uint value)
 {
@@ -176,9 +176,9 @@ void set_q_accu_level(uint value)
 
 void check_p_limits()
 {
-    int upper_bound = get_time_transformation_size() - 1;
+    int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
-    if (get_p_accu_level() > upper_bound)
+    if (std::cmp_greater(get_p_accu_level(), upper_bound))
         api::set_p_accu_level(upper_bound);
 
     upper_bound -= get_p_accu_level();
@@ -189,7 +189,7 @@ void check_p_limits()
 
 void check_q_limits()
 {
-    int upper_bound = get_time_transformation_size() - 1;
+    int upper_bound = static_cast<int>(get_time_transformation_size()) - 1;
 
     if (std::cmp_greater(get_q_accu_level(), upper_bound))
         api::set_q_accu_level(upper_bound);
@@ -202,7 +202,7 @@ void check_q_limits()
 
 #pragma endregion
 
-#pragma region Time Tr. Cuts
+#pragma region Time Tr.Cuts
 
 void set_x_accu_level(uint x_value)
 {

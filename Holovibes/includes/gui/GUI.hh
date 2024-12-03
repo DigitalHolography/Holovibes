@@ -78,14 +78,10 @@ void set_chart_display(bool enabled);
  */
 void set_3d_cuts_view(bool enabled, uint max_window_size);
 
-/*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
- *
- */
+/*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
 void rotate_texture();
 
-/*! \brief Flips the current selected output display window (XYview or XZview or YZview)
- *
- */
+/*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
 void flip_texture();
 
 /*! \brief Make the ui composite overlay visible */

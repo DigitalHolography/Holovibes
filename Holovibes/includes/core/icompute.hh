@@ -1,4 +1,4 @@
-/*! \file
+/*! \file icompute.hh
  *
  * \brief Stores functions helping the editing of the images.
  */

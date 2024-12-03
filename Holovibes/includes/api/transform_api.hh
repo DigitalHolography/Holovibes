@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "common_api.hh"
+#include "API.hh"
 
 namespace holovibes::api
 {
@@ -131,20 +131,23 @@ void set_z_distance(float value);
 
 #pragma region Time Tr.
 
-/*! \brief Returns the time transformation size. It's the number of frames used for one time transformation.
+/*! \brief Returns the time transformation size. It's the number of frames used for one time transformation. Is greater
+ * than 0.
  *
  * \return uint the time transformation size
  */
 inline uint get_time_transformation_size() { return GET_SETTING(TimeTransformationSize); }
 
-/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation.
+/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must be
+ * greater than 0.
  *
  * \param[in] value the new value
  * \warning This function is not intended for realtime use.
  */
 inline void set_time_transformation_size(uint value) { UPDATE_SETTING(TimeTransformationSize, value); }
 
-/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation.
+/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation. Must be
+ * greater than 0.
  *
  * \param[in] value the new value
  * \warning This function is intended for realtime use.
@@ -166,7 +169,7 @@ void set_time_transformation(const TimeTransformation value);
 
 #pragma endregion
 
-#pragma region Time Tr. Freq
+#pragma region Time Tr.Freq
 
 /*! \brief Returns the min accumulation frequency for time transformation. Is in range [0, `time_transformation_size -
  * get_p_accu_level - 1`].
@@ -196,7 +199,7 @@ void set_p_index(uint value);
  *
  * \return uint the number of frequencies accumulated
  */
-inline int get_p_accu_level() { return GET_SETTING(P).width; }
+inline uint get_p_accu_level() { return GET_SETTING(P).width; }
 
 /*! \brief Sets the number of frequencies accumulated for the time transformation. Must be in range [0,
  * `time_transformation_size - get_p_index - 1`].
@@ -252,7 +255,7 @@ void check_q_limits();
 
 #pragma endregion
 
-#pragma region Time Tr. Cuts
+#pragma region Time Tr.Cuts
 
 /*! \brief Returns the start index for the x cut accumulation. Is in range [0, `time_transformation_size -
  * get_x_accu_level - 1`].
@@ -291,9 +294,9 @@ void set_x_y(uint x, uint y);
 
 /*! \brief Returns the x cut accumulation level. Is in range [0, `time_transformation_size - get_x_cuts - 1`].
  *
- * \return int the x cut accumulation level
+ * \return uint the x cut accumulation level
  */
-inline int get_x_accu_level() { return GET_SETTING(X).width; }
+inline uint get_x_accu_level() { return GET_SETTING(X).width; }
 
 /*! \brief Sets the x cut accumulation level. Must be in range [0, `time_transformation_size - get_x_cuts - 1`].
  *
@@ -303,9 +306,9 @@ void set_x_accu_level(uint x_value);
 
 /*! \brief Returns the y cut accumulation level. Is in range [0, `time_transformation_size - get_y_cuts - 1`].
  *
- * \return int the y cut accumulation level
+ * \return uint the y cut accumulation level
  */
-inline int get_y_accu_level() { return GET_SETTING(Y).width; }
+inline uint get_y_accu_level() { return GET_SETTING(Y).width; }
 
 /*! \brief Sets the y cut accumulation level. Must be in range [0, `time_transformation_size - get_y_cuts - 1`].
  *

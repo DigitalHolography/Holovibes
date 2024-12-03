@@ -1,6 +1,6 @@
-/*! \file
+/*! \file thread_worker_controller.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the ThreadWorkerController class. The base class for all worker controllers.
  */
 #pragma once
 

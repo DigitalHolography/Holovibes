@@ -1,6 +1,8 @@
 #include "input_api.hh"
 
 #include "camera_exception.hh"
+#include "input_frame_file.hh"
+#include "input_frame_file_factory.hh"
 
 namespace holovibes::api
 {
@@ -24,7 +26,7 @@ void set_input_fd(camera::FrameDescriptor value) { UPDATE_SETTING(ImportedFileFd
  *
  * \param[in] value the new camera kind
  */
-void set_camera_kind_enum(CameraKind value, bool save = true) { UPDATE_SETTING(CameraKind, value); }
+void set_camera_kind_enum(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
 
 void camera_none()
 {

@@ -1,6 +1,6 @@
-/*! \file
+/*! \file file_frame_read_worker.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This worker handles the reading of frames from a file.
  */
 #pragma once
 

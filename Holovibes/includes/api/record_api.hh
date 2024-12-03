@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "common_api.hh"
+#include "API.hh"
 
 namespace holovibes::api
 {
@@ -14,7 +14,7 @@ namespace holovibes::api
 /*! \brief Return the absolute path of where the record will be saved.
  *
  * The file extension will determine the format of the record. To see supported formats for a particular record mode,
- * see \ref gholovibes::api::get_supported_formats "this".
+ * see \ref holovibes::api::get_supported_formats "this".
  *
  * \return std::string the absolute file path
  */
@@ -23,7 +23,7 @@ inline std::string get_record_file_path() { return GET_SETTING(RecordFilePath); 
 /*! \brief Set the absolute path of where the record will be saved.
  *
  * The file extension will determine the format of the record. To see supported formats for a particular record mode,
- * see \ref gholovibes::api::get_supported_formats "this".
+ * see \ref holovibes::api::get_supported_formats "this".
  *
  * \param[in] value the new absolute file path
  */
@@ -61,7 +61,7 @@ inline void set_frame_record_enabled(bool value) { UPDATE_SETTING(FrameRecordEna
 /*! \brief Return the number of frames that will be recorded. This number is multiplied by three in case of moments
  * recording since one frame will results in three moments.
  *
- * \return the record frame count
+ * \return std::optional<size_t> the record frame count
  */
 inline std::optional<size_t> get_record_frame_count() { return GET_SETTING(RecordFrameCount); }
 
@@ -76,7 +76,7 @@ inline void set_record_frame_count(std::optional<size_t> value) { UPDATE_SETTING
  *
  * Ex: `get_record_frame_offset() == 10` means that the first 10 frames will be skipped.
  *
- * \return size_t the record frame skip
+ * \return size_t the record frame offset
  */
 inline size_t get_record_frame_offset() { return GET_SETTING(RecordFrameOffset); }
 
@@ -84,7 +84,7 @@ inline size_t get_record_frame_offset() { return GET_SETTING(RecordFrameOffset);
  *
  * Ex: `set_record_frame_offset(10)` means that the first 10 frames will be skipped.
  *
- * \param[in] value the new record frame skip
+ * \param[in] value the new record frame offset
  */
 inline void set_record_frame_offset(size_t value) { UPDATE_SETTING(RecordFrameOffset, value); }
 
@@ -96,7 +96,7 @@ inline void set_record_frame_offset(size_t value) { UPDATE_SETTING(RecordFrameOf
  * - `get_nb_frame_skip() == 3` and get_record_frame_offset() == 10 means that only frames 10, 14, 18, 22, ... will be
  * saved.
  *
- * \return size_t the record frame skip
+ * \return uint the record frame skip
  */
 inline uint get_nb_frame_skip() { return GET_SETTING(FrameSkip); }
 
@@ -131,7 +131,7 @@ inline void set_chart_record_enabled(bool value) { UPDATE_SETTING(ChartRecordEna
 
 /*! \brief Return the rectangular region used as the signal zone.
  *
- * \return the signal zone
+ * \return units::RectFd the signal zone
  */
 inline units::RectFd get_signal_zone() { return GET_SETTING(SignalZone); }
 
@@ -143,7 +143,7 @@ inline void set_signal_zone(const units::RectFd& rect) { UPDATE_SETTING(SignalZo
 
 /*! \brief Return the rectangular region used as the noise zone.
  *
- * \return the noise zone
+ * \return units::RectFd the noise zone
  */
 inline units::RectFd get_noise_zone() { return GET_SETTING(NoiseZone); }
 
@@ -159,7 +159,7 @@ inline void set_noise_zone(const units::RectFd& rect) { UPDATE_SETTING(NoiseZone
 
 /*! \brief Return the record mode (raw, holgram, moments, etc.).
  *
- * \return the record mode
+ * \return RecordMode the record mode
  */
 inline RecordMode get_record_mode() { return GET_SETTING(RecordMode); }
 
@@ -237,7 +237,7 @@ void set_record_queue_location(Device device);
 
 /*! \brief Gets the capacity (number of frames) of the record queue.
  *
- * \return the size of the record queue
+ * \return uint the size of the record queue
  */
 inline uint get_record_buffer_size() { return static_cast<uint>(GET_SETTING(RecordBufferSize)); }
 

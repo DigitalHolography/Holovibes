@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "common_api.hh"
+#include "API.hh"
 #include "enum_window_kind.hh"
 
 namespace holovibes::api
