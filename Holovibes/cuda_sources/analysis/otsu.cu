@@ -9,31 +9,6 @@ using uint = unsigned int;
 
 #define NUM_BINS 256
 
-__global__ void normalize_kernel(float* d_input, float min, float max, uint size)
-{
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (tid < size)
-        d_input[tid] = (d_input[tid] - min) / (max - min);
-}
-
-void normalise(float* input, uint size, cublasHandle_t& handle, const cudaStream_t stream)
-{
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(size, threads);
-
-    // cublasHandle_t& handle = cuda_tools::CublasHandle::instance();
-    int maxI = -1;
-    int minI = -1;
-    cublasIsamax(handle, size, input, 1, &maxI);
-    cublasIsamin(handle, size, input, 1, &minI);
-
-    float h_min, h_max;
-    cudaXMemcpy(&h_min, input + (minI - 1), sizeof(float), cudaMemcpyDeviceToHost);
-    cudaXMemcpy(&h_max, input + (maxI - 1), sizeof(float), cudaMemcpyDeviceToHost);
-    normalize_kernel<<<blocks, threads, 0, stream>>>(input, h_min, h_max, size);
-}
-
 // Check if optimizable in future with `reduce.cuh` functions.
 __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
 {
@@ -50,7 +25,7 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     __syncthreads();
 
     // Populate shared histogram
-    if (idx < imgSize && image[idx] > 0.0f)
+    if (idx < imgSize)
     {
         int bin = static_cast<int>(image[idx] * (NUM_BINS - 1));
         atomicAdd(shared_hist + bin, 1);
@@ -108,72 +83,6 @@ __global__ void bradley_threshold_kernel(float* output,
     }
 }
 
-__global__ void otsu_threshold_kernel(uint* hist, int total, float* threshold_out)
-{
-    __shared__ float sum_shared;
-    __shared__ float varMax_shared;
-    __shared__ unsigned int threshold_shared;
-
-    int tid = threadIdx.x;
-    if (tid == 0)
-    {
-        sum_shared = 0;
-        varMax_shared = 0;
-        threshold_shared = 0;
-    }
-    __syncthreads();
-
-    // Compute total sum in parallel
-    __shared__ float partial_sum[NUM_BINS];
-    partial_sum[tid] = (tid < NUM_BINS) ? tid * hist[tid] : 0;
-    __syncthreads();
-
-    // Reduce to get total sum
-    for (int offset = blockDim.x / 2; offset > 0; offset >>= 1)
-    {
-        if (tid < offset)
-            partial_sum[tid] += partial_sum[tid + offset];
-        __syncthreads();
-    }
-
-    if (tid == 0)
-        sum_shared = partial_sum[0];
-    __syncthreads();
-
-    // Variables for Otsu
-    int wB = 0, wF = 0;
-    float sumB = 0;
-    float total_sum = sum_shared;
-
-    for (int t = tid; t < NUM_BINS; t += blockDim.x)
-    {
-        wB += hist[t];
-        if (wB == 0)
-            continue;
-
-        wF = total - wB;
-        if (wF == 0)
-            break;
-
-        sumB += t * hist[t];
-        float mB = sumB / wB;
-        float mF = (total_sum - sumB) / wF;
-        float varBetween = wB * wF * (mB - mF) * (mB - mF);
-
-        if (varMax_shared < varBetween)
-            varMax_shared = varBetween;
-        // myAtomicMax(&varMax_shared, varBetween);
-
-        if (varBetween == varMax_shared)
-            atomicExch(&threshold_shared, t);
-    }
-
-    __syncthreads();
-
-    if (tid == 0)
-        *threshold_out = threshold_shared / ((float)NUM_BINS);
-}
-
 float otsu_threshold(float* image_d,
                      uint* histo_buffer_d,
                      float* threshold_d,
@@ -183,31 +92,53 @@ float otsu_threshold(float* image_d,
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
-    float threshold;
     size_t shared_mem_size = (NUM_BINS + 1) * sizeof(uint);
 
-    normalise(image_d, size, handle, stream);
-
-    // cudaXMemset(histo_buffer_d, 0, sizeof(uint) * NUM_BINS);
-
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(image_d, histo_buffer_d, size);
-    cudaXStreamSynchronize(stream);
-    uint total;
-    cudaXMemcpy(&total, histo_buffer_d + NUM_BINS, sizeof(uint), cudaMemcpyDeviceToHost);
 
-    //---------
-    // uint* histo = new uint[NUM_BINS + 1];
-    // for (size_t i = 0; i < NUM_BINS; i++)
-    //     std::cout << "h[" << i << "] = " << histo[i] << std::endl;
-    // std::cout << "-----------------------" << histo[NUM_BINS] << " / " << size << std::endl;
-    // delete histo;
+    int histogram[256] = {0};
 
-    // ---------
-    otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, total, threshold_d);
+    cudaXMemcpy(histogram, histo_buffer_d, NUM_BINS * sizeof(uint), cudaMemcpyDeviceToHost);
 
-    cudaMemcpy(&threshold, threshold_d, sizeof(float), cudaMemcpyDeviceToHost);
+    std::vector<double> probabilities(256, 0.0);
+    for (int i = 0; i < 256; ++i)
+    {
+        probabilities[i] = static_cast<double>(histogram[i]) / size;
+    }
 
-    return threshold;
+    std::vector<double> cumulativeSum(256, 0.0);
+    std::vector<double> cumulativeMean(256, 0.0);
+
+    cumulativeSum[0] = probabilities[0];
+    cumulativeMean[0] = 0.0;
+
+    for (int i = 1; i < 256; ++i)
+    {
+        cumulativeSum[i] = cumulativeSum[i - 1] + probabilities[i];
+        cumulativeMean[i] = cumulativeMean[i - 1] + i * probabilities[i];
+    }
+
+    double globalMean = cumulativeMean[255];
+
+    double maxVariance = 0.0;
+    int optimalThreshold = 0;
+
+    for (int t = 0; t < NUM_BINS; ++t)
+    {
+        if (cumulativeSum[t] == 0 || cumulativeSum[t] == 1)
+            continue;
+
+        double betweenClassVariance = std::pow(globalMean * cumulativeSum[t] - cumulativeMean[t], 2) /
+                                      (cumulativeSum[t] * (1.0 - cumulativeSum[t]));
+
+        if (betweenClassVariance > maxVariance)
+        {
+            maxVariance = betweenClassVariance;
+            optimalThreshold = t;
+        }
+    }
+
+    return (float)optimalThreshold / (float)NUM_BINS;
 }
 
 void compute_binarise_otsu(float* input_output,

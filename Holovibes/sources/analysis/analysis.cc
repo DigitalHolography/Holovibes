@@ -96,7 +96,7 @@ void Analysis::init()
     uint_buffer_2_.safe_resize(frame_res);
     size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
-    otsu_histo_buffer_.resize(257);
+    otsu_histo_buffer_.resize(256);
     otsu_float_gpu_.resize(1);
 
     // Allocate vesselness mask env buffers
