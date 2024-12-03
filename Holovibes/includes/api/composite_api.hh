@@ -6,9 +6,6 @@
 
 #include "common_api.hh"
 
-// TODO: compute.treshold used in hsv.cu but never modified (not in the GUI)
-// Most of pipe refresh used only to redo contrast but just clearing the acc queue is sufficient
-
 namespace holovibes::api
 {
 

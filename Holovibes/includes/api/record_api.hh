@@ -42,6 +42,8 @@ inline void set_noise_zone(const units::RectFd& rect) { UPDATE_SETTING(NoiseZone
 
 #pragma endregion
 
+#pragma region Record
+
 /*! \brief Checks preconditions to start recording
  *
  * \return success if all preconditions are met
@@ -84,6 +86,8 @@ std::vector<OutputFormat> get_supported_formats(RecordMode mode);
  * \return true if recording, else false
  */
 bool is_recording();
+
+#pragma endregion
 
 #pragma region Record Queue
 
