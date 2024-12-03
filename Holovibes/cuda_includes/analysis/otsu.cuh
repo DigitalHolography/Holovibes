@@ -40,7 +40,7 @@ void compute_binarise_otsu(float* input_output,
  */
 void compute_binarise_otsu_bradley(float* output_d,
                                    uint* histo_buffer_d,
-                                   float* input_d,
+                                   const float* input_d,
                                    float* threshold_d,
                                    const size_t width,
                                    const size_t height,

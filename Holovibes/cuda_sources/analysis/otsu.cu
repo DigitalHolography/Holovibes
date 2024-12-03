@@ -82,7 +82,8 @@ __global__ void bradley_threshold_kernel(float* output,
     }
 }
 
-float otsu_threshold(float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
+float otsu_threshold(
+    const float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -155,7 +156,7 @@ void compute_binarise_otsu(float* input_output,
 
 void compute_binarise_otsu_bradley(float* output_d,
                                    uint* histo_buffer_d,
-                                   float* input_d,
+                                   const float* input_d,
                                    float* threshold_d,
                                    const size_t width,
                                    const size_t height,

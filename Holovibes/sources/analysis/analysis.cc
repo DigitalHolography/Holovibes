@@ -268,7 +268,6 @@ void Analysis::insert_first_analysis_masks()
                                       otsu_float_gpu_.get(),
                                       fd_.width,
                                       fd_.height,
-                                      cublas_handler_,
                                       stream_);
             // if (i_ == 0)
             //     print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
@@ -585,7 +584,6 @@ void Analysis::insert_otsu()
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
                                                   setting<settings::OtsuLocalThreshold>(),
-                                                  cublas_handler_,
                                                   stream_);
 
                     cudaXMemcpy(buffers_.gpu_postprocess_frame,
@@ -599,7 +597,6 @@ void Analysis::insert_otsu()
                                           otsu_float_gpu_.get(),
                                           fd_.width,
                                           fd_.height,
-                                          cublas_handler_,
                                           stream_);
             });
     }
