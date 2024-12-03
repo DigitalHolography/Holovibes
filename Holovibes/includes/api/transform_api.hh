@@ -96,7 +96,7 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
 
 /*! \brief Modifies the space transformation algorithm used (either Fresnel or Angular Spectrum).
  *
- * \param value the new value
+ * \param[in] value the new value
  * \warning This function is intended for realtime use.
  */
 void set_space_transformation(const SpaceTransformation value);
@@ -123,7 +123,7 @@ inline float get_z_distance() { return GET_SETTING(ZDistance); }
 /*!
  * \brief Sets the distance value for the z-coordinate (the focus). // TODO(etienne): metrics
  *
- * \param value The new z-coordinate distance value.
+ * \param[in] value The new z-coordinate distance value.
  */
 void set_z_distance(float value);
 
@@ -131,135 +131,233 @@ void set_z_distance(float value);
 
 #pragma region Time Tr.
 
-inline int get_p_accu_level() { return GET_SETTING(P).width; }
-inline uint get_p_index() { return GET_SETTING(P).start; }
-
-inline uint get_q_index() { return GET_SETTING(Q).start; }
-inline uint get_q_accu_level() { return GET_SETTING(Q).width; }
-
-inline uint get_x_cuts() { return GET_SETTING(X).start; }
-inline int get_x_accu_level() { return GET_SETTING(X).width; }
-
-inline uint get_y_cuts() { return GET_SETTING(Y).start; }
-inline int get_y_accu_level() { return GET_SETTING(Y).width; }
-
-/*!
- * \name Time transformation
- * \{
+/*! \brief Returns the time transformation size. It's the number of frames used for one time transformation.
+ *
+ * \return uint the time transformation size
  */
-inline TimeTransformation get_time_transformation() { return GET_SETTING(TimeTransformation); }
-
 inline uint get_time_transformation_size() { return GET_SETTING(TimeTransformationSize); }
+
+/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation.
+ *
+ * \param[in] value the new value
+ * \warning This function is not intended for realtime use.
+ */
 inline void set_time_transformation_size(uint value) { UPDATE_SETTING(TimeTransformationSize, value); }
 
-inline uint get_time_transformation_cuts_output_buffer_size()
-{
-    return GET_SETTING(TimeTransformationCutsOutputBufferSize);
-}
-inline void set_time_transformation_cuts_output_buffer_size(uint value)
-{
-    UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
-}
-/*! \} */
-
-/*! \brief Changes the time transformation size from ui value
+/*! \brief Modifies the time transformation size. It's the number of frames used for one time transformation.
  *
- * \param time_transformation_size The new time transformation size
+ * \param[in] value the new value
+ * \warning This function is intended for realtime use.
  */
 void update_time_transformation_size(uint time_transformation_size);
 
-/*! \brief Modifies p accumulation
+/*! \brief Returns the time transformation algorithm used (STFT, PAC, etc.).
  *
- * \param p_value the new value of p accu
+ * \return TimeTransformation the time transformation algorithm
  */
-void set_p_accu_level(uint p_value);
+inline TimeTransformation get_time_transformation() { return GET_SETTING(TimeTransformation); }
 
-/*! \brief Modifies x accumulation
+/*! \brief Sets the time transformation algorithm used (STFT, PAC, etc.).
  *
- * \param x_value the new value of x accu
- */
-void set_x_accu_level(uint x_value);
-
-/*! \brief Modifies x cuts
- *
- * \param x_value the new value of x cuts
- */
-void set_x_cuts(uint x_value);
-
-/*! \brief Modifies y accumulation
- *
- * \param y_value the new value of y accu
- */
-void set_y_accu_level(uint y_value);
-
-/*! \brief Modifies y cuts
- *
- * \param y_value the new value of y cuts
- */
-void set_y_cuts(uint y_value);
-
-/*! \brief Modifies q accumulation
- *
- * \param is_q_accu if q accumulation is allowed
- * \param q_value the new value of q accu
- */
-void set_q_accu_level(uint q_value);
-
-/*! \brief Modifies x and y
- *
- * \param x value to modify
- * \param y value to modify
- */
-void set_x_y(uint x, uint y);
-
-/*! \brief Modifies p
- *
- * \param value the new value of p
- */
-void set_p_index(uint value);
-
-/*! \brief Modifies q
- *
- * \param value the new value of q
- */
-void set_q_index(uint value);
-
-/*! \brief Limit the value of p_index and p_acc according to time_transformation_size */
-void check_p_limits();
-
-/*! \brief Limit the value of q_index and q_acc according to time_transformation_size */
-void check_q_limits();
-
-/*! \brief Increment p by 1 */
-void increment_p();
-
-/*! \brief Decrement p by 1 */
-void decrement_p();
-
-/*! \brief Modifies time transform calculation
- *
- * \param value the string to match to determine the kind of time transformation
+ * \param[in] value the new value
+ * \warning This function is intended for realtime use.
  */
 void set_time_transformation(const TimeTransformation value);
 
 #pragma endregion
 
+#pragma region Time Tr. Freq
+
+/*! \brief Returns the min accumulation frequency for time transformation. Is in range [0, `time_transformation_size -
+ * get_p_accu_level - 1`].
+ *
+ * After the time transformation, the frequency ranging (resulting from the FFT) between [`get_p_index`, `get_p_index +
+ * get_p_accu_level`] will be accumulated into one image.
+ *
+ * \return uint the min accumulation frequency
+ */
+inline uint get_p_index() { return GET_SETTING(P).start; }
+
+/*! \brief Sets the min accumulation frequency for time transformation. Must be in range [0,
+ * `time_transformation_size - get_p_accu_level - 1`].
+ *
+ * After the time transformation, the frequency ranging (resulting from the FFT) between [`get_p_index`, `get_p_index +
+ * get_p_accu_level`] will be accumulated into one image.
+ *
+ * \param[in] value the new min accumulation frequency
+ */
+void set_p_index(uint value);
+
+/*! \brief Returns the number of frequencies accumulated for the time transformation. Is in range [0,
+ * `time_transformation_size - get_p_index - 1`].
+ *
+ * After the time transformation, the frequency ranging (resulting from the FFT) between [`get_p_index`, `get_p_index +
+ * get_p_accu_level`] will be accumulated into one image.
+ *
+ * \return uint the number of frequencies accumulated
+ */
+inline int get_p_accu_level() { return GET_SETTING(P).width; }
+
+/*! \brief Sets the number of frequencies accumulated for the time transformation. Must be in range [0,
+ * `time_transformation_size - get_p_index - 1`].
+ *
+ * After the time transformation, the frequency ranging (resulting from the FFT) between [`get_p_index`, `get_p_index +
+ * get_p_accu_level`] will be accumulated into one image.
+ *
+ * \param[in] p_value the new number of frequencies accumulated
+ */
+void set_p_accu_level(uint p_value);
+
+/*! \brief Returns the min eigen value index kept by the SVD. Is in range [0, `time_transformation_size -
+ * get_p_accu_level - 1`].
+ *
+ * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
+ *
+ * \return uint the new min eigen value index kept
+ */
+inline uint get_q_index() { return GET_SETTING(Q).start; }
+
+/*! \brief Sets the min eigen value index kept by the SVD. Must be in range [0, `time_transformation_size -
+ * get_q_accu_level - 1`].
+ *
+ * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
+ *
+ * \param[in] value the new min eigen value index kept
+ */
+void set_q_index(uint value);
+
+/*! \brief Returns the number of eigen values kept by the SVD. Is in range [0, `time_transformation_size - get_q_index -
+ * 1`].
+ *
+ * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
+ *
+ * \return uint the number of eigen values kept
+ */
+inline uint get_q_accu_level() { return GET_SETTING(Q).width; }
+
+/*! \brief Sets the number of eigen values kept by the SVD. Must be in range [0, `time_transformation_size - get_q_index
+ * - 1`].
+ *
+ * Only eigen values ranging between [`get_q_index`, `get_q_index + get_q_accu_level`] will be ketp.
+ *
+ * \param[in] value the new number of eigen values kept
+ */
+void set_q_accu_level(uint value);
+
+/*! \brief Adjust the value of `p_index` and `p_accu_level` according to `time_transformation_size` */
+void check_p_limits();
+
+/*! \brief Adjust the value of `q_index` and `q_accu_level` according to `time_transformation_size` */
+void check_q_limits();
+
+#pragma endregion
+
+#pragma region Time Tr. Cuts
+
+/*! \brief Returns the start index for the x cut accumulation. Is in range [0, `time_transformation_size -
+ * get_x_accu_level - 1`].
+ *
+ * \return uint the x cut start index
+ */
+inline uint get_x_cuts() { return GET_SETTING(X).start; }
+
+/*! \brief Sets the start index for the x cut accumulation. Must be in range [0, `time_transformation_size -
+ * get_x_accu_level - 1`].
+ *
+ * \param[in] x_value the new x cut start index
+ */
+void set_x_cuts(uint x_value);
+
+/*! \brief Returns the start index for the y cut accumulation. Is in range [0, `time_transformation_size -
+ * get_y_accu_level - 1`].
+ *
+ * \return uint the y cut start index
+ */
+inline uint get_y_cuts() { return GET_SETTING(Y).start; }
+
+/*! \brief Sets the start index for the y cut accumulation. Must be in range [0, `time_transformation_size -
+ * get_y_accu_level - 1`].
+ *
+ * \param[in] y_value the new y cut start index
+ */
+void set_y_cuts(uint y_value);
+
+/*! \brief Modifies the start index for the x and y cuts accumulation.
+ *
+ * \param[in] x value to modify
+ * \param[in] y value to modify
+ */
+void set_x_y(uint x, uint y);
+
+/*! \brief Returns the x cut accumulation level. Is in range [0, `time_transformation_size - get_x_cuts - 1`].
+ *
+ * \return int the x cut accumulation level
+ */
+inline int get_x_accu_level() { return GET_SETTING(X).width; }
+
+/*! \brief Sets the x cut accumulation level. Must be in range [0, `time_transformation_size - get_x_cuts - 1`].
+ *
+ * \param[in] x_value the new x cut accumulation level
+ */
+void set_x_accu_level(uint x_value);
+
+/*! \brief Returns the y cut accumulation level. Is in range [0, `time_transformation_size - get_y_cuts - 1`].
+ *
+ * \return int the y cut accumulation level
+ */
+inline int get_y_accu_level() { return GET_SETTING(Y).width; }
+
+/*! \brief Sets the y cut accumulation level. Must be in range [0, `time_transformation_size - get_y_cuts - 1`].
+ *
+ * \param[in] y_value the new y cut accumulation level
+ */
+void set_y_accu_level(uint y_value);
+
+/*! \brief Returns the capacity (in number of frames) of the output buffers containing the result of the time
+ * transformation cuts.
+ *
+ * \return uint the capacity of the output buffer
+ */
+inline uint get_time_transformation_cuts_output_buffer_size()
+{
+    return GET_SETTING(TimeTransformationCutsOutputBufferSize);
+}
+
+/*! \brief Sets the capacity (in number of frames) of the output buffers containing the result of the time
+ * transformation cuts.
+ *
+ * \param[in] value the new capacity
+ */
+inline void set_time_transformation_cuts_output_buffer_size(uint value)
+{
+    UPDATE_SETTING(TimeTransformationCutsOutputBufferSize, value);
+}
+
+#pragma endregion
+
 #pragma region Specials
 
-/*!
- * \name FFT
- * \{
+/*! \brief Returns the fft shift status.
+ *
+ * After the time transform, frequencies will be ordered from 0 to N/2 - 1 and from -N/2 to -1. The fft shift will
+ * reorder them the be from -N/2 to N/2. Where N is the number of frequencies (`time_transformation_size`).
+ *
+ * \return bool true: enabled, false: disabled
  */
-/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
- * the pipe) */
 inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
-inline bool get_registration_enabled();
+
+/*! \brief Enables or Disables the fft shift
+ *
+ * After the time transform, frequencies will be ordered from 0 to N/2 - 1 and from -N/2 to -1. The fft shift will
+ * reorder them to be from -N/2 to N/2. Where N is the number of frequencies (`time_transformation_size`).
+ *
+ * \param[in] value true: enable, false: disable
+ */
 void set_fft_shift_enabled(bool value);
-/*! \} */
 
 /*! \brief Enables or Disables unwrapping 2d
  *
- * \param value true: enable, false: disable
+ * \param[in] value true: enable, false: disable
  */
 void set_unwrapping_2d(const bool value);
 

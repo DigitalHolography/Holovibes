@@ -114,7 +114,7 @@ inline void set_nb_frame_skip(uint value) { UPDATE_SETTING(FrameSkip, value); }
 
 #pragma endregion
 
-#pragma region Chart Setting
+#pragma region Chart Record
 
 /*! \brief Return whether the chart recording is enabled or not.
  *

@@ -77,6 +77,15 @@ void update_time_stride(const uint time_stride)
 
 #pragma region Space Tr.
 
+void set_space_transformation(const SpaceTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
+        return;
+
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
+
 void set_lambda(float value)
 {
     if (api::get_compute_mode() == Computation::Raw)
@@ -99,28 +108,9 @@ void set_z_distance(float value)
     pipe_refresh();
 }
 
-void set_space_transformation(const SpaceTransformation value)
-{
-    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
-        return;
-
-    UPDATE_SETTING(SpaceTransformation, value);
-    pipe_refresh();
-}
-
 #pragma endregion
 
 #pragma region Time Tr.
-
-void set_time_transformation(const TimeTransformation value)
-{
-    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
-        return;
-
-    UPDATE_SETTING(TimeTransformation, value);
-    set_z_fft_shift(value == TimeTransformation::STFT);
-    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
-}
 
 void update_time_transformation_size(uint time_transformation_size)
 {
@@ -136,6 +126,83 @@ void update_time_transformation_size(uint time_transformation_size)
     set_time_transformation_size(time_transformation_size);
     get_compute_pipe()->request(ICS::UpdateTimeTransformationSize);
 }
+
+void set_time_transformation(const TimeTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
+        return;
+
+    UPDATE_SETTING(TimeTransformation, value);
+    set_z_fft_shift(value == TimeTransformation::STFT);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
+}
+
+#pragma endregion
+
+#pragma region Time Tr. Freq.
+
+void set_p_index(uint value)
+{
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    if (value >= get_time_transformation_size() || value == 0)
+    {
+        LOG_ERROR("p param has to be between 1 and #img");
+        return;
+    }
+
+    SET_SETTING(P, start, value);
+    pipe_refresh();
+}
+
+void set_p_accu_level(uint p_value)
+{
+    SET_SETTING(P, width, p_value);
+    pipe_refresh();
+}
+
+void set_q_index(uint value)
+{
+    SET_SETTING(Q, start, value);
+    pipe_refresh();
+}
+
+void set_q_accu_level(uint value)
+{
+    SET_SETTING(Q, width, value);
+    pipe_refresh();
+}
+
+void check_p_limits()
+{
+    int upper_bound = get_time_transformation_size() - 1;
+
+    if (get_p_accu_level() > upper_bound)
+        api::set_p_accu_level(upper_bound);
+
+    upper_bound -= get_p_accu_level();
+
+    if (upper_bound >= 0 && get_p_index() > static_cast<uint>(upper_bound))
+        api::set_p_index(upper_bound);
+}
+
+void check_q_limits()
+{
+    int upper_bound = get_time_transformation_size() - 1;
+
+    if (std::cmp_greater(get_q_accu_level(), upper_bound))
+        api::set_q_accu_level(upper_bound);
+
+    upper_bound -= get_q_accu_level();
+
+    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
+        api::set_q_index(upper_bound);
+}
+
+#pragma endregion
+
+#pragma region Time Tr. Cuts
 
 void set_x_accu_level(uint x_value)
 {
@@ -181,65 +248,6 @@ void set_x_y(uint x, uint y)
     pipe_refresh();
 }
 
-void set_q_index(uint value)
-{
-    SET_SETTING(Q, start, value);
-    pipe_refresh();
-}
-
-void set_q_accu_level(uint value)
-{
-    SET_SETTING(Q, width, value);
-    pipe_refresh();
-}
-
-void set_p_index(uint value)
-{
-    if (get_compute_mode() == Computation::Raw)
-        return;
-
-    if (value >= get_time_transformation_size() || value == 0)
-    {
-        LOG_ERROR("p param has to be between 1 and #img");
-        return;
-    }
-
-    SET_SETTING(P, start, value);
-    pipe_refresh();
-}
-
-void set_p_accu_level(uint p_value)
-{
-    SET_SETTING(P, width, p_value);
-    pipe_refresh();
-}
-
-void check_p_limits()
-{
-    int upper_bound = get_time_transformation_size() - 1;
-
-    if (get_p_accu_level() > upper_bound)
-        api::set_p_accu_level(upper_bound);
-
-    upper_bound -= get_p_accu_level();
-
-    if (upper_bound >= 0 && get_p_index() > static_cast<uint>(upper_bound))
-        api::set_p_index(upper_bound);
-}
-
-void check_q_limits()
-{
-    int upper_bound = get_time_transformation_size() - 1;
-
-    if (std::cmp_greater(get_q_accu_level(), upper_bound))
-        api::set_q_accu_level(upper_bound);
-
-    upper_bound -= get_q_accu_level();
-
-    if (upper_bound >= 0 && get_q_index() > static_cast<uint>(upper_bound))
-        api::set_q_index(upper_bound);
-}
-
 #pragma endregion
 
 #pragma region Specials
@@ -249,7 +257,8 @@ void set_unwrapping_2d(const bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    get_compute_pipe()->request(ICS::Unwrap2D);
+    get_compute_pipe()->set_requested(ICS::Unwrap2D, value);
+    pipe_refresh();
 }
 
 void set_fft_shift_enabled(bool value)
