@@ -33,8 +33,8 @@ set(INTERNAL_INCLUDES
     includes/gui/windows/AdvancedSettingsWindowTools
     includes/gui/windows/AdvancedSettingsWindowTools/panels
     includes/io/
-    includes/io/input/
-    includes/io/output/
+    includes/io/input_file/
+    includes/io/output_file/
     includes/thread/
     includes/tools/
     includes/tools/cuda_tools/

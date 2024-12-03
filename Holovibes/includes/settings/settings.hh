@@ -73,7 +73,7 @@ DECLARE_SETTING(RecordMode, holovibes::RecordMode);
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */
-DECLARE_SETTING(RecordFrameSkip, size_t);
+DECLARE_SETTING(RecordFrameOffset, size_t);
 
 /*! \brief The setting that specifies the size of the output buffer. */
 DECLARE_SETTING(OutputBufferSize, size_t);

@@ -11,6 +11,7 @@ namespace holovibes::api
 
 #pragma region Credits
 
+/*! \brief Authors of the project */
 static std::vector<std::string> authors{"Titouan Gragnic",
                                         "Arthur Courselle",
                                         "Gustave Herve",
@@ -97,10 +98,27 @@ constexpr std::vector<std::string> get_credits()
 
 #pragma endregion
 
+#pragma region Benchmark
+
+/*! \brief Return whether the benchmark mode is activated. If activated, information about the computation (fps, memory
+ * usage, etc.) will be written in a file.
+ *
+ * \return bool benchmark mode
+ */
 inline bool get_benchmark_mode() { return GET_SETTING(BenchmarkMode); }
+
+/*! \brief Activate or deactivate the benchmark mode. If activated, information about the computation (fps, memory
+ * usage, etc.) will be written in a file.
+ *
+ * \param[in] value the new value
+ */
 inline void set_benchmark_mode(bool value) { UPDATE_SETTING(BenchmarkMode, value); }
 
-/*! \brief Get the boundary of frame descriptor
+#pragma endregion
+
+#pragma region Information
+
+/*! \brief Get the boundary of the frame descriptor. It's used to choose the space transformation algorithm.
  *
  * \return float boundary
  */
@@ -108,11 +126,13 @@ float get_boundary();
 
 /*! \brief Gets the documentation url
  *
- * \return const QUrl& url
+ * \return const std::string url
  */
 const std::string get_documentation_url();
 
 /*! \brief Displays information */
 void start_information_display();
+
+#pragma endregion
 
 } // namespace holovibes::api

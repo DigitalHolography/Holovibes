@@ -290,7 +290,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
         holovibes.update_setting(holovibes::settings::InputFPS{opts.fps.value()});
     holovibes.update_setting(holovibes::settings::RecordFilePath{opts.output_path.value()});
     holovibes.update_setting(holovibes::settings::RecordFrameCount{record_nb_frames});
-    holovibes.update_setting(holovibes::settings::RecordFrameSkip{nb_frames_skip});
+    holovibes.update_setting(holovibes::settings::RecordFrameOffset{nb_frames_skip});
     if (opts.frame_skip)
     {
         holovibes.update_setting(holovibes::settings::FrameSkip{opts.frame_skip.value()});

@@ -9,6 +9,8 @@
 namespace holovibes::api
 {
 
+#pragma region Input
+
 /*! \brief Return the current frame descriptor used. A file must be loaded or a camera must be running in order to have
  * a valid frame descriptor.
  *
@@ -39,6 +41,8 @@ inline RecordedDataType get_data_type() { return GET_SETTING(DataType); }
  * \param[in] data_type the new data type
  */
 inline void set_data_type(const RecordedDataType data_type) { UPDATE_SETTING(DataType, data_type); }
+
+#pragma endregion
 
 #pragma region Buffer Size
 
