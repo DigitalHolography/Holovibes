@@ -653,6 +653,9 @@ void Analysis::insert_bwareaopen()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
+            {
+                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
+
                 bwareaopen(buffers_.gpu_postprocess_frame.get(),
                            setting<settings::MinMaskArea>(),
                            fd_.width,
@@ -662,6 +665,7 @@ void Analysis::insert_bwareaopen()
                            float_buffer_.get(),
                            size_t_gpu_.get(),
                            stream_);
+            }
         });
 }
 
