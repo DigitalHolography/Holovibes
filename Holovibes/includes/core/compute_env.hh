@@ -273,6 +273,9 @@ struct VesselnessMaskEnv
 
     /*! \brief before_threshold buffer */
     cuda_tools::CudaUniquePtr<float> before_threshold = nullptr;
+
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> R_vascular_pulse_ = nullptr;
 };
 
 // TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
