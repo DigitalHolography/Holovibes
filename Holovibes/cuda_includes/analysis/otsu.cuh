@@ -30,7 +30,7 @@ void compute_binarise_otsu(float* input_output,
  *
  * \param[out] output_d Where to store the output
  * \param[out] histo_buffer_d gpu buffer for histogram
- * \param[in out] input_d Input data should be contiguous
+ * \param[in] input_d Input data should be contiguous
  * \param[in] threshold_d GPU float use inside
  * \param[in] width Width of the frame
  * \param[in] height Height of the frame
