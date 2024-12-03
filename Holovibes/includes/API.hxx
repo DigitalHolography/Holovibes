@@ -548,8 +548,8 @@ inline void set_fft_shift_enabled(bool value)
         return;
 
     UPDATE_SETTING(FftShiftEnabled, value);
-    // if (get_registration_enabled())
-    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    if (get_registration_enabled())
+        api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
     pipe_refresh();
 }
 

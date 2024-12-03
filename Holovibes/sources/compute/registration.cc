@@ -116,7 +116,6 @@ void Registration::shift_image(float* input_output)
 
     // Copy the result of the shift in `input_output` buffer.
     cudaXMemcpyAsync(input_output,
-                     //  gpu_reference_image_,
                      gpu_current_image_,
                      fd_.width * fd_.height * sizeof(float),
                      cudaMemcpyDeviceToDevice,
