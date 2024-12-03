@@ -28,7 +28,6 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     {
         int bin = static_cast<int>(image[idx] * (NUM_BINS - 1));
         atomicAdd(shared_hist + bin, 1);
-        atomicAdd(shared_hist + NUM_BINS, 1);
     }
     __syncthreads();
 
