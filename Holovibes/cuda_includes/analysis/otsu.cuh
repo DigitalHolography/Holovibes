@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include "cublas_handle.hh"
 #include "frame_desc.hh"
 
 using uint = unsigned int;
@@ -25,7 +24,6 @@ void compute_binarise_otsu(float* input_output,
                            float* threshold_d,
                            const size_t width,
                            const size_t height,
-                           cublasHandle_t& handle, // TODO
                            const cudaStream_t stream);
 
 /*! \brief Compute Binarisation with Otsu threshold and bradley method
@@ -48,5 +46,4 @@ void compute_binarise_otsu_bradley(float* output_d,
                                    const size_t height,
                                    const int window_size,
                                    const float local_threshold_factor,
-                                   cublasHandle_t& handle,
                                    const cudaStream_t stream);

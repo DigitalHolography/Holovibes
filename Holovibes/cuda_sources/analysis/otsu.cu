@@ -3,7 +3,6 @@
 #include "cuComplex.h"
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
-#include "cublas_handle.hh"
 #include "cuda_memory.cuh"
 using uint = unsigned int;
 
@@ -83,12 +82,7 @@ __global__ void bradley_threshold_kernel(float* output,
     }
 }
 
-float otsu_threshold(float* image_d,
-                     uint* histo_buffer_d,
-                     float* threshold_d,
-                     int size,
-                     cublasHandle_t& handle,
-                     const cudaStream_t stream)
+float otsu_threshold(float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
@@ -146,12 +140,11 @@ void compute_binarise_otsu(float* input_output,
                            float* threshold_d,
                            const size_t width,
                            const size_t height,
-                           cublasHandle_t& handle,
                            const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(input_output, histo_buffer_d, threshold_d, img_size, handle, stream);
+    float global_threshold = otsu_threshold(input_output, histo_buffer_d, threshold_d, img_size, stream);
 
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(img_size, threads);
@@ -168,12 +161,11 @@ void compute_binarise_otsu_bradley(float* output_d,
                                    const size_t height,
                                    const int window_size,
                                    const float local_threshold_factor,
-                                   cublasHandle_t& handle,
                                    const cudaStream_t stream)
 {
     size_t img_size = width * height;
 
-    float global_threshold = otsu_threshold(input_d, histo_buffer_d, threshold_d, img_size, handle, stream);
+    float global_threshold = otsu_threshold(input_d, histo_buffer_d, threshold_d, img_size, stream);
 
     uint threads_2d = get_max_threads_2d();
     dim3 lthreads(threads_2d, threads_2d);
