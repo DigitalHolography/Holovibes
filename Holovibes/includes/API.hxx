@@ -547,11 +547,9 @@ inline void set_fft_shift_enabled(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    // Deactivate registration if fft shift is disabled
-    if (api::get_registration_enabled())
-        set_registration_enabled(value);
-
     UPDATE_SETTING(FftShiftEnabled, value);
+    // if (get_registration_enabled())
+    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
     pipe_refresh();
 }
 
@@ -573,10 +571,8 @@ inline void set_registration_enabled(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_fft_shift_enabled())
-        set_fft_shift_enabled(value);
-
     UPDATE_SETTING(RegistrationEnabled, value);
+    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
     pipe_refresh();
 }
 /*! \} */

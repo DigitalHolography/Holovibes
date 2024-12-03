@@ -1,6 +1,7 @@
 #include "registration.hh"
 #include "apply_mask.cuh"
 #include "convolution.cuh"
+#include "shift_corners.cuh"
 #include "tools_compute.cuh"
 
 using holovibes::FunctionVector;
@@ -11,11 +12,18 @@ void Registration::insert_registration()
 {
     LOG_FUNC();
 
-    if (setting<settings::FftShiftEnabled>() && setting<settings::RegistrationEnabled>())
+    if (setting<settings::RegistrationEnabled>())
     {
         fn_compute_vect_->push_back(
             [=]()
             {
+                // Before computing the registration we need to have a reference image. Since `gpu_reference_image_` is
+                // taken from the accumulation queue, we need to wait that the
+                // `image_acc_env_.gpu_accumulation_xy_queue` is full and that we have a reference that is stable.
+                if (image_acc_env_.gpu_accumulation_xy_queue.get() &&
+                    !image_acc_env_.gpu_accumulation_xy_queue.get()->is_full())
+                    return;
+
                 // Preprocessing the current image before the cross-correlation with the reference image.
                 image_preprocess(gpu_current_image_, buffers_.gpu_postprocess_frame, &current_image_mean_);
 
@@ -65,6 +73,7 @@ void Registration::set_gpu_reference_image()
         ushort func_id = fn_compute_vect_->push_back(
             [=]
             {
+                // The reference image is taken from the average of the image accumulation (done before this function).
                 cudaXMemcpyAsync(gpu_reference_image_,
                                  buffers_.gpu_postprocess_frame,
                                  fd_.width * fd_.height * sizeof(float),
@@ -91,8 +100,14 @@ void Registration::updade_cirular_mask()
     // Get the center and radius of the circle.
     float center_X = fd_.width / 2.0f;
     float center_Y = fd_.height / 2.0f;
-    float radius = std::min(fd_.width, fd_.height) * setting<settings::RegistrationZone>();
+    float radius = (std::min(fd_.width, fd_.height) / 2) * setting<settings::RegistrationZone>();
     get_circular_mask(gpu_circle_mask_, center_X, center_Y, radius, fd_.width, fd_.height, stream_);
+
+    // We shift the mask if the fftshift is not enabled to stay in the wanted zone (Useful for LDH).
+    // Also, this happens only when we have a Space Transform, since this process change the image shift.
+    // Here we are doing a XOR in the if condition since we want one or the other but not both.
+    if ((setting<settings::SpaceTransformation>() != SpaceTransformation::NONE) != setting<settings::FftShiftEnabled>())
+        shift_corners(gpu_circle_mask_, 1, fd_.width, fd_.height, stream_);
 }
 
 void Registration::shift_image(float* input_output)
@@ -101,6 +116,7 @@ void Registration::shift_image(float* input_output)
 
     // Copy the result of the shift in `input_output` buffer.
     cudaXMemcpyAsync(input_output,
+                     //  gpu_reference_image_,
                      gpu_current_image_,
                      fd_.width * fd_.height * sizeof(float),
                      cudaMemcpyDeviceToDevice,
