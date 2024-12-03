@@ -94,15 +94,17 @@ void get_connected_component(uint* labels_d,
     uint blocks = map_blocks_to_problem(width * height, threads);
 
     initialisation_kernel<<<lblocks, lthreads, 0, stream>>>(image_d, labels_d, linked_d, height, width);
+    cudaCheckError();
+
     size_t change_h;
     do
     {
-        cudaXMemset(change_d, 0, sizeof(size_t));
+        cudaXMemsetAsync(change_d, 0, sizeof(size_t), stream);
 
         propagate_labels_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
         cudaCheckError();
-        cudaXStreamSynchronize(stream);
-        cudaXMemcpy(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+        cudaXMemcpyAsync(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost, stream);
 
         if (change_h)
         {

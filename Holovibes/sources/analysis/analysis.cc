@@ -228,28 +228,10 @@ void Analysis::insert_first_analysis_masks()
                 // Compute the flat field corrected image for each frame of the video
                 normalize_array(buffers_.gpu_postprocess_frame, fd_.get_frame_res(), 0, 255, stream_);
 
-                if (i_ == 0)
-                {
-                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame,
-                                             512,
-                                             512,
-                                             "flat_field_normalized",
-                                             stream_);
-                }
-
                 // Fill the m0_ff_video circular buffer with the flat field corrected images and compute the mean from
                 // it
                 vesselness_mask_env_.m0_ff_video_cb_->add_new_frame(buffers_.gpu_postprocess_frame);
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_image();
-
-                if (i_ == 0)
-                {
-                    print_in_file_gpu<float>(vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                                             512,
-                                             512,
-                                             "m0_ff_img",
-                                             stream_);
-                }
 
                 // Compute the centered image from the temporal mean of the video
                 image_centering(vesselness_mask_env_.m0_ff_video_centered_,
@@ -258,15 +240,6 @@ void Analysis::insert_first_analysis_masks()
                                 buffers_.gpu_postprocess_frame_size,
                                 vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
                                 stream_);
-
-                if (i_ == 0)
-                {
-                    print_in_file_gpu<float>(vesselness_mask_env_.m0_ff_video_centered_ + 505 * 512 * 512,
-                                             512,
-                                             512,
-                                             "m0_ff_video_centered",
-                                             stream_);
-                }
 
                 // Compute the first vesselness mask which represents both vessels types (arteries and veins)
                 vesselness_filter(buffers_.gpu_postprocess_frame,
@@ -291,14 +264,6 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.height,
                                      stream_);
 
-                if (i_ == 0)
-                {
-                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame,
-                                             512,
-                                             512,
-                                             "mask_vesselness_before_binarize",
-                                             stream_);
-                }
 // From here ~160 FPS
 
 // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
@@ -479,28 +444,28 @@ void Analysis::insert_first_analysis_masks()
                 // Everything is OK before here
                 ///////////////////////////////
 
-                bwareaopen(vesselness_mask_env_.quantizedVesselCorrelation_,
-                           150,
-                           fd_.width,
-                           fd_.height,
-                           uint_buffer_1_.get(),
-                           uint_buffer_2_.get(),
-                           float_buffer_.get(),
-                           size_t_gpu_.get(),
-                           stream_);
+                // bwareaopen(vesselness_mask_env_.quantizedVesselCorrelation_,
+                //            150,
+                //            fd_.width,
+                //            fd_.height,
+                //            uint_buffer_1_.get(),
+                //            uint_buffer_2_.get(),
+                //            float_buffer_.get(),
+                //            size_t_gpu_.get(),
+                //            stream_);
 
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 vesselness_mask_env_.quantizedVesselCorrelation_,
-                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
+                // cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
+                //                  vesselness_mask_env_.quantizedVesselCorrelation_,
+                //                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                //                  cudaMemcpyDeviceToDevice,
+                //                  stream_);
 
-                if (i_ == 0)
-                    print_in_file_gpu<float>(vesselness_mask_env_.quantizedVesselCorrelation_,
-                                             512,
-                                             512,
-                                             "bwareaopen",
-                                             stream_);
+                // if (i_ == 0)
+                //     print_in_file_gpu<float>(vesselness_mask_env_.quantizedVesselCorrelation_,
+                //                              512,
+                //                              512,
+                //                              "bwareaopen",
+                //                              stream_);
             });
     }
 }
@@ -519,10 +484,6 @@ void Analysis::insert_artery_mask()
                                           vesselness_mask_env_.quantizedVesselCorrelation_,
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_);
-                if (i_ == 0)
-                {
-                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "final_image", stream_);
-                }
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }

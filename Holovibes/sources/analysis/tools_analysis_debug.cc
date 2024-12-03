@@ -127,16 +127,6 @@ void load_bin_video_file(const std::filesystem::path& path, float* output, cudaS
     delete[] video_data;
 }
 
-// void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
-// {
-//     if (input == nullptr)
-//         return;
-//     float* result = new float[rows * col];
-//     cudaXMemcpyAsync(result, input, rows * col * sizeof(float), cudaMemcpyDeviceToHost, stream);
-//     cudaXStreamSynchronize(stream);
-//     write_1D_float_array_to_file(result, rows, col, "test_" + filename + ".txt");
-// }
-
 void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
 {
     if (input == nullptr)
