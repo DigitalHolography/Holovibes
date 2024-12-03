@@ -1,4 +1,4 @@
-/*! \file
+/*! \file information_api.hh
  *
  * \brief Regroup all functions used for information (information display, benchmark, boundary, credits, doc).
  */

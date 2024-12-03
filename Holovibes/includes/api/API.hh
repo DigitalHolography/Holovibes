@@ -1,4 +1,4 @@
-/*! \file
+/*! \file API.hh
  *
  * \brief This file contains the API functions for the Holovibes application. These functions manage input files,
  * camera operations, computation settings, visualization modes, and more. The API functions are used to interact with

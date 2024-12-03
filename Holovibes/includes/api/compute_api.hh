@@ -1,4 +1,4 @@
-/*! \file
+/*! \file compute_api.hh
  *
  * \brief Regroup all functions related to computation: pipe (refresh, creation, ...), compute mode, view mode
  */

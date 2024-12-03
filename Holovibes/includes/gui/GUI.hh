@@ -16,9 +16,7 @@
 namespace holovibes::gui
 {
 
-/*! \brief Closes all the currently displaying windows
- *
- */
+/*! \brief Closes all the currently displaying windows */
 void close_windows();
 
 /*! \brief Set the light ui mode
@@ -83,12 +81,12 @@ void set_3d_cuts_view(bool enabled, uint max_window_size);
 /*! \brief Rotates the current selected output display window (XYview or XZview or YZview)
  *
  */
-void rotateTexture();
+void rotate_texture();
 
 /*! \brief Flips the current selected output display window (XYview or XZview or YZview)
  *
  */
-void flipTexture();
+void flip_texture();
 
 /*! \brief Make the ui composite overlay visible */
 void set_composite_area();

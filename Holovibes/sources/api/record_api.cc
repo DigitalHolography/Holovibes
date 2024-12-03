@@ -3,6 +3,52 @@
 namespace holovibes::api
 {
 
+#pragma region Record Mode
+
+void set_record_mode_enum(RecordMode value)
+{
+    stop_record();
+
+    set_record_mode(value);
+
+    // Attempt to initialize compute pipe for non-CHART record modes
+    if (get_record_mode() != RecordMode::CHART)
+    {
+        try
+        {
+            auto pipe = get_compute_pipe();
+            if (is_recording())
+                stop_record();
+
+            Holovibes::instance().init_record_queue();
+            LOG_DEBUG("Pipe initialized");
+        }
+        catch (const std::exception& e)
+        {
+            (void)e; // Suppress warning in case debug log is disabled
+            LOG_DEBUG("Pipe not initialized: {}", e.what());
+        }
+    }
+}
+
+std::vector<OutputFormat> get_supported_formats(RecordMode mode)
+{
+    static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
+        {RecordMode::RAW, {OutputFormat::HOLO}},
+        {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
+        {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
+        {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
+        {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
+
+    return extension_index_map.at(mode);
+}
+
+#pragma endregion
+
+#pragma region Recording
+
 bool start_record_preconditions()
 {
     std::optional<size_t> nb_frames_to_record = api::get_record_frame_count();
@@ -52,47 +98,11 @@ void stop_record()
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
 
-void set_record_mode_enum(RecordMode value)
-{
-    stop_record();
-
-    set_record_mode(value);
-
-    // Attempt to initialize compute pipe for non-CHART record modes
-    if (get_record_mode() != RecordMode::CHART)
-    {
-        try
-        {
-            auto pipe = get_compute_pipe();
-            if (is_recording())
-                stop_record();
-
-            Holovibes::instance().init_record_queue();
-            LOG_DEBUG("Pipe initialized");
-        }
-        catch (const std::exception& e)
-        {
-            (void)e; // Suppress warning in case debug log is disabled
-            LOG_DEBUG("Pipe not initialized: {}", e.what());
-        }
-    }
-}
-
-std::vector<OutputFormat> get_supported_formats(RecordMode mode)
-{
-    static const std::map<RecordMode, std::vector<OutputFormat>> extension_index_map = {
-        {RecordMode::RAW, {OutputFormat::HOLO}},
-        {RecordMode::CHART, {OutputFormat::CSV, OutputFormat::TXT}},
-        {RecordMode::HOLOGRAM, {OutputFormat::HOLO, OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::MOMENTS, {OutputFormat::HOLO}},
-        {RecordMode::CUTS_XZ, {OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::CUTS_YZ, {OutputFormat::MP4, OutputFormat::AVI}},
-        {RecordMode::NONE, {}}}; // Just here JUST IN CASE, to avoid any potential issues
-
-    return extension_index_map.at(mode);
-}
-
 bool is_recording() { return Holovibes::instance().is_recording(); }
+
+#pragma endregion
+
+#pragma region Buffer
 
 void set_record_queue_location(Device device)
 {
@@ -122,5 +132,7 @@ void set_record_buffer_size(uint value)
         Holovibes::instance().init_record_queue();
     }
 }
+
+#pragma endregion
 
 } // namespace holovibes::api

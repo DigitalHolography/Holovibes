@@ -1,4 +1,4 @@
-/*! \file
+/*! \file common_api.hh
  *
  * \brief This file contains common header and maccros for all APIs files.
  */

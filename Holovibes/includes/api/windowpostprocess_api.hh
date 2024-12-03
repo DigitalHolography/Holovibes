@@ -1,4 +1,4 @@
-/*! \file
+/*! \file windowpostprocess_api.hh
  *
  * \brief Regroup all functions used to interact with post processing operations done on all windows.
  *
@@ -17,7 +17,7 @@
 namespace holovibes::api
 {
 
-#pragma region Internal
+#pragma region Internals
 
 WindowKind get_current_window_type();
 
@@ -91,6 +91,9 @@ void set_rotation(WindowKind kind, float value);
 void set_horizontal_flip(bool value);
 void set_rotation(float value);
 
+inline units::RectFd get_zoomed_zone() { return GET_SETTING(ZoomedZone); }
+inline void set_zoomed_zone(const units::RectFd& rect) { UPDATE_SETTING(ZoomedZone, rect); }
+
 #pragma endregion
 
 #pragma region Accumulation
@@ -125,6 +128,8 @@ inline unsigned int get_raw_bitshift() { return static_cast<unsigned int>(GET_SE
 
 #pragma endregion
 
+#pragma region Enabled
+
 inline bool get_enabled(WindowKind kind)
 {
     NOT_FILTER2D_R(kind, "enabled", false);
@@ -143,7 +148,6 @@ inline void set_enabled(WindowKind kind, bool value)
 
 inline void set_enabled(bool value) { set_enabled(get_current_window_type(), value); }
 
-inline units::RectFd get_zoomed_zone() { return GET_SETTING(ZoomedZone); }
-inline void set_zoomed_zone(const units::RectFd& rect) { UPDATE_SETTING(ZoomedZone, rect); }
+#pragma endregion
 
 } // namespace holovibes::api

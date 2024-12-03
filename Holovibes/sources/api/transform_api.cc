@@ -5,6 +5,32 @@ namespace holovibes::api
 
 #pragma region Batch
 
+bool set_batch_size(uint value)
+{
+    bool request_time_stride_update = false;
+    UPDATE_SETTING(BatchSize, value);
+
+    if (value > get_input_buffer_size())
+        value = get_input_buffer_size();
+
+    uint time_stride = get_time_stride();
+    if (time_stride < value)
+    {
+        UPDATE_SETTING(TimeStride, value);
+        time_stride = value;
+        request_time_stride_update = true;
+    }
+
+    // Go to lower multiple
+    if (time_stride % value != 0)
+    {
+        request_time_stride_update = true;
+        set_time_stride(time_stride - time_stride % value);
+    }
+
+    return request_time_stride_update;
+}
+
 void update_batch_size(uint batch_size)
 {
     if (get_data_type() == RecordedDataType::MOMENTS)
@@ -20,7 +46,20 @@ void update_batch_size(uint batch_size)
 
 #pragma endregion
 
-#pragma region STFT
+#pragma region Time Stride
+
+void set_time_stride(uint value)
+{
+    UPDATE_SETTING(TimeStride, value);
+
+    uint batch_size = GET_SETTING(BatchSize);
+
+    if (batch_size > value)
+        UPDATE_SETTING(TimeStride, batch_size);
+    // Go to lower multiple
+    if (value % batch_size != 0)
+        UPDATE_SETTING(TimeStride, value - value % batch_size);
+}
 
 void update_time_stride(const uint time_stride)
 {
@@ -36,7 +75,52 @@ void update_time_stride(const uint time_stride)
 
 #pragma endregion
 
-#pragma region Computation
+#pragma region Space Tr.
+
+void set_lambda(float value)
+{
+    if (api::get_compute_mode() == Computation::Raw)
+        return;
+
+    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
+    pipe_refresh();
+}
+
+void set_z_distance(float value)
+{
+    if (get_compute_mode() == Computation::Raw)
+        return;
+
+    // Avoid 0 for cuda kernel
+    if (value <= 0)
+        value = 0.000001f;
+
+    UPDATE_SETTING(ZDistance, value);
+    pipe_refresh();
+}
+
+void set_space_transformation(const SpaceTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
+        return;
+
+    UPDATE_SETTING(SpaceTransformation, value);
+    pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Time Tr.
+
+void set_time_transformation(const TimeTransformation value)
+{
+    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
+        return;
+
+    UPDATE_SETTING(TimeTransformation, value);
+    set_z_fft_shift(value == TimeTransformation::STFT);
+    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
+}
 
 void update_time_transformation_size(uint time_transformation_size)
 {
@@ -156,46 +240,9 @@ void check_q_limits()
         api::set_q_index(upper_bound);
 }
 
-void set_lambda(float value)
-{
-    if (api::get_compute_mode() == Computation::Raw)
-        return;
+#pragma endregion
 
-    UPDATE_SETTING(Lambda, value < 0 ? 0 : value);
-    pipe_refresh();
-}
-
-void set_z_distance(float value)
-{
-    if (get_compute_mode() == Computation::Raw)
-        return;
-
-    // Avoid 0 for cuda kernel
-    if (value <= 0)
-        value = 0.000001f;
-
-    UPDATE_SETTING(ZDistance, value);
-    pipe_refresh();
-}
-
-void set_space_transformation(const SpaceTransformation value)
-{
-    if (api::get_compute_mode() == Computation::Raw || api::get_space_transformation() == value)
-        return;
-
-    UPDATE_SETTING(SpaceTransformation, value);
-    pipe_refresh();
-}
-
-void set_time_transformation(const TimeTransformation value)
-{
-    if (api::get_compute_mode() == Computation::Raw || api::get_time_transformation() == value)
-        return;
-
-    UPDATE_SETTING(TimeTransformation, value);
-    set_z_fft_shift(value == TimeTransformation::STFT);
-    get_compute_pipe()->request(ICS::UpdateTimeTransformationAlgorithm);
-}
+#pragma region Specials
 
 void set_unwrapping_2d(const bool value)
 {
@@ -203,45 +250,6 @@ void set_unwrapping_2d(const bool value)
         return;
 
     get_compute_pipe()->request(ICS::Unwrap2D);
-}
-
-void set_time_stride(uint value)
-{
-    UPDATE_SETTING(TimeStride, value);
-
-    uint batch_size = GET_SETTING(BatchSize);
-
-    if (batch_size > value)
-        UPDATE_SETTING(TimeStride, batch_size);
-    // Go to lower multiple
-    if (value % batch_size != 0)
-        UPDATE_SETTING(TimeStride, value - value % batch_size);
-}
-
-bool set_batch_size(uint value)
-{
-    bool request_time_stride_update = false;
-    UPDATE_SETTING(BatchSize, value);
-
-    if (value > get_input_buffer_size())
-        value = get_input_buffer_size();
-
-    uint time_stride = get_time_stride();
-    if (time_stride < value)
-    {
-        UPDATE_SETTING(TimeStride, value);
-        time_stride = value;
-        request_time_stride_update = true;
-    }
-
-    // Go to lower multiple
-    if (time_stride % value != 0)
-    {
-        request_time_stride_update = true;
-        set_time_stride(time_stride - time_stride % value);
-    }
-
-    return request_time_stride_update;
 }
 
 void set_fft_shift_enabled(bool value)

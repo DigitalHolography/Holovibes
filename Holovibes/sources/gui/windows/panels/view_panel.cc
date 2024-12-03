@@ -331,19 +331,19 @@ void ViewPanel::set_q_acc()
     parent_->notify();
 }
 
-void ViewPanel::rotateTexture()
+void ViewPanel::rotate_texture()
 {
-    gui::rotateTexture();
+    gui::rotate_texture();
     parent_->notify(); // Update rotate number
 }
 
-void ViewPanel::flipTexture()
+void ViewPanel::flip_texture()
 {
-    gui::flipTexture();
+    gui::flip_texture();
     parent_->notify(); // Update flip number
 }
 
-void ViewPanel::set_log_scale(const bool value) { api::set_log_enabled(value); }
+void ViewPanel::set_log_enabled(const bool value) { api::set_log_enabled(value); }
 
 void ViewPanel::set_accumulation_level(int value) { api::set_accumulation_level(value); }
 

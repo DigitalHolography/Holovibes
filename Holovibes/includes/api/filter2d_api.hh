@@ -1,4 +1,4 @@
-/*! \file
+/*! \file filter2d_api.hh
  *
  * \brief Regroup all functions used to interact with the filter 2D settings.
  */

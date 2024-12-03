@@ -1,4 +1,4 @@
-/*! \file
+/*! \file input_api.hh
  *
  * \brief Regroup all functions used to interact with file loading and camera managment.
  */

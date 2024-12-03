@@ -1,4 +1,4 @@
-/*! \file
+/*! \file composite_api.hh
  *
  * \brief Regroup all functions used to interact with the composite settings.
  */

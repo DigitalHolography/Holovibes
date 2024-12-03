@@ -3,6 +3,8 @@
 namespace holovibes::api
 {
 
+#pragma region Geometry Tr.
+
 void set_rotation(WindowKind kind, float value)
 {
     NOT_FILTER2D(kind, "rotation");
@@ -22,6 +24,13 @@ void set_horizontal_flip(WindowKind kind, bool value)
     set_window_xyz(kind, window);
 }
 
+void set_horizontal_flip(bool value) { set_horizontal_flip(get_current_window_type(), value); }
+void set_rotation(float value) { set_rotation(get_current_window_type(), value); }
+
+#pragma endregion
+
+#pragma region Accumulation
+
 void set_accumulation_level(WindowKind kind, uint value)
 {
     NOT_FILTER2D(kind, "accumulation");
@@ -36,8 +45,8 @@ void set_accumulation_level(WindowKind kind, uint value)
     pipe_refresh();
 }
 
-void set_horizontal_flip(bool value) { set_horizontal_flip(get_current_window_type(), value); }
-void set_rotation(float value) { set_rotation(get_current_window_type(), value); }
 void set_accumulation_level(uint value) { set_accumulation_level(get_current_window_type(), value); }
+
+#pragma endregion
 
 } // namespace holovibes::api

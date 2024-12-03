@@ -1,4 +1,4 @@
-/*! \file
+/*! \file transform_api.hh
  *
  * \brief Regroup all functions used to interact with the Space transform and the time transform alogrithm.
  */
@@ -9,29 +9,137 @@
 namespace holovibes::api
 {
 
-inline SpaceTransformation get_space_transformation() { return GET_SETTING(SpaceTransformation); }
+#pragma region Batch
 
-inline uint get_time_stride() { return GET_SETTING(TimeStride); }
-void set_time_stride(uint value);
-
+/*! \brief Returns the batch size.
+ *
+ * The batch size defined:
+ * - The number of frames that are processed at the same time for the space transformation.
+ * - The size of the batch in the input queue
+ * - The number of frames recorded at once in raw record.
+ *
+ * The batch size must be greater than `time_stride`.
+ *
+ * \return uint the batch size
+ */
 inline uint get_batch_size() { return GET_SETTING(BatchSize); }
+
+/*! \brief Modifies the batch size. Updates time stride if needed.
+ *
+ * The batch size defined:
+ * - The number of frames that are processed at the same time for the space transformation.
+ * - The size of the batch in the input queue
+ * - The number of frames recorded at once in raw record.
+ *
+ * The batch size must be greater than `time_stride`.
+ *
+ * \param[in] value the new value
+ * \warning This function is not intended for realtime use.
+ *
+ * \return bool true if the time stride needs to be updated
+ */
 bool set_batch_size(uint value);
 
+/*! \brief Modifies the batch size. Updates time stride if needed.
+ *
+ * \param[in] batch_size the new value
+ * \warning This function is intended for realtime use.
+ */
+void update_batch_size(uint batch_size);
+
+#pragma endregion
+
+#pragma region Time Stride
+
+/*! \brief Returns the time stride.
+ *
+ * It defines the number of batch skipped before processing frames. It's a multiple of `batch_size` and it's greater
+ * equal than `batch_size`.`skipped = (time_stride` / `batch_size`) - 1`.
+ * For example:
+ * - `batch_size` = 10, `time_stride` = 20, 1 batch is skipped
+ * - `batch_size` = 10, `time_stride` = 60, 6 batch are skipped
+ * - `batch_size` = 10, `time_stride` = 10, 0 batch are skipped
+ *
+ * \return uint the time stride
+ */
+inline uint get_time_stride() { return GET_SETTING(TimeStride); }
+
+/*! \brief Modifies the time stride. Must be a multiple of `batch_size` and greater equal than `batch_size`.
+ *
+ * It defines the number of batch skipped before processing frames. `skipped = (time_stride` / `batch_size`) - 1`.
+ * For example:
+ * - `batch_size` = 10, `time_stride` = 20, 1 batch is skipped
+ * - `batch_size` = 10, `time_stride` = 60, 6 batch are skipped
+ * - `batch_size` = 10, `time_stride` = 10, 0 batch are skipped
+ *
+ * \param[in] value the new value
+ * \warning This function is not intended for realtime use.
+ */
+void set_time_stride(uint value);
+
+/*! \brief Modifies the time stride. Must be a multiple of `batch_size` and greater equal than `batch_size`.
+ *
+ * \param[in] time_stride the new value
+ * \warning This function is intended for realtime use.
+ */
+void update_time_stride(const uint time_stride);
+
+#pragma endregion
+
+#pragma region Space Tr.
+
+/*! \brief Returns the space transformation algorithm used (either Fresnel or Angular Spectrum).
+ *
+ * \return SpaceTransformation the space transformation algorithm
+ */
+inline SpaceTransformation get_space_transformation() { return GET_SETTING(SpaceTransformation); }
+
+/*! \brief Modifies the space transformation algorithm used (either Fresnel or Angular Spectrum).
+ *
+ * \param value the new value
+ * \warning This function is intended for realtime use.
+ */
+void set_space_transformation(const SpaceTransformation value);
+
+/*! \brief Returns the wave length of the laser. // TODO(etienne): metrics
+ *
+ * \return float the wave length
+ */
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
-inline ViewPQ get_p() { return GET_SETTING(P); }
+/*!
+ * \brief Sets the wave length of the laser. // TODO(etienne): metrics
+ *
+ * \param[in] value the new value
+ */
+void set_lambda(float value);
+
+/*! \brief Returns the distance value for the z-coordinate (the focus). // TODO(etienne): metrics
+ *
+ * \return float the z-coordinate distance value
+ */
+inline float get_z_distance() { return GET_SETTING(ZDistance); }
+
+/*!
+ * \brief Sets the distance value for the z-coordinate (the focus). // TODO(etienne): metrics
+ *
+ * \param value The new z-coordinate distance value.
+ */
+void set_z_distance(float value);
+
+#pragma endregion
+
+#pragma region Time Tr.
+
 inline int get_p_accu_level() { return GET_SETTING(P).width; }
 inline uint get_p_index() { return GET_SETTING(P).start; }
 
-inline ViewPQ get_q(void) { return GET_SETTING(Q); }
 inline uint get_q_index() { return GET_SETTING(Q).start; }
 inline uint get_q_accu_level() { return GET_SETTING(Q).width; }
 
-inline ViewXY get_x(void) { return GET_SETTING(X); }
 inline uint get_x_cuts() { return GET_SETTING(X).start; }
 inline int get_x_accu_level() { return GET_SETTING(X).width; }
 
-inline ViewXY get_y(void) { return GET_SETTING(Y); }
 inline uint get_y_cuts() { return GET_SETTING(Y).start; }
 inline int get_y_accu_level() { return GET_SETTING(Y).width; }
 
@@ -54,20 +162,11 @@ inline void set_time_transformation_cuts_output_buffer_size(uint value)
 }
 /*! \} */
 
-#pragma region FFT Shift
-
-/*!
- * \name FFT
- * \{
+/*! \brief Changes the time transformation size from ui value
+ *
+ * \param time_transformation_size The new time transformation size
  */
-/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
- * the pipe) */
-inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
-inline bool get_registration_enabled();
-void set_fft_shift_enabled(bool value);
-/*! \} */
-
-#pragma endregion
+void update_time_transformation_size(uint time_transformation_size);
 
 /*! \brief Modifies p accumulation
  *
@@ -137,42 +236,26 @@ void increment_p();
 /*! \brief Decrement p by 1 */
 void decrement_p();
 
-/*!
- * \brief Modifies wave length (represented by lambda symbol in phisics)
- *
- * \param value the new value
- */
-void set_lambda(float value);
-
-inline float get_z_distance() { return GET_SETTING(ZDistance); }
-
-/*!
- * \brief Sets the distance value for the z-coordinate.
- *
- * This function updates the internal setting for the z-coordinate distance
- * and sends a notification to the `z_distance` notifier. Additionally,
- * it refreshes the pipeline if the computation mode is not set to raw.
- *
- * \param value The new z-coordinate distance value.
- *
- * \note
- * - This function sends the notification `z_distance` with the new value when called.
- * - If the computation mode is `Computation::Raw`, the function returns immediately
- *   without updating the setting or refreshing the pipeline.
- */
-void set_z_distance(float value);
-
-/*! \brief Modifies space transform calculation
- *
- * \param value the string to match to determine the kind of space transformation
- */
-void set_space_transformation(const SpaceTransformation value);
-
 /*! \brief Modifies time transform calculation
  *
  * \param value the string to match to determine the kind of time transformation
  */
 void set_time_transformation(const TimeTransformation value);
+
+#pragma endregion
+
+#pragma region Specials
+
+/*!
+ * \name FFT
+ * \{
+ */
+/*! \brief Getter and Setter for the fft shift, triggered when FFT Shift button is clicked on the gui. (Setter refreshes
+ * the pipe) */
+inline bool get_fft_shift_enabled() { return GET_SETTING(FftShiftEnabled); }
+inline bool get_registration_enabled();
+void set_fft_shift_enabled(bool value);
+/*! \} */
 
 /*! \brief Enables or Disables unwrapping 2d
  *
@@ -180,23 +263,6 @@ void set_time_transformation(const TimeTransformation value);
  */
 void set_unwrapping_2d(const bool value);
 
-/*! \brief Changes the time transformation size from ui value
- *
- * \param time_transformation_size The new time transformation size
- */
-void update_time_transformation_size(uint time_transformation_size);
-
-/*! \brief Modifies time transformation stride size from ui value
- *
- * \param time_stride the new value
- */
-void update_time_stride(const uint time_stride);
-
-/*! \brief Modifies batch size from ui value. Used when the image mode is changed ; in this case neither batch_size or
- * time_stride were modified on the GUI, so no notify is needed.
- *
- * \param batch_size the new value
- */
-void update_batch_size(uint batch_size);
+#pragma endregion
 
 } // namespace holovibes::api

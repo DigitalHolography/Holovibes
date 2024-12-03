@@ -1,4 +1,4 @@
-/*! \file
+/*! \file globalpostprocess_api.hh
  *
  * \brief Regroup all functions used to interact with post processing operations done on the main image (the on on the
  * XY view panel). These operations are: convolution, registration and renormalization.

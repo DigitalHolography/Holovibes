@@ -1,4 +1,4 @@
-/*! \file
+/*! \file view_api.hh
  *
  * \brief Regroup all functions used to interact with the different view.
  *

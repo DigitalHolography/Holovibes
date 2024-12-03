@@ -3,7 +3,7 @@
 namespace holovibes::api
 {
 
-#pragma region Utils
+#pragma region Internals
 
 float ftruncate(const int precision, float value)
 {

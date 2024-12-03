@@ -1,4 +1,4 @@
-/*! \file
+/*! \file contrast_api.hh
  *
  * \brief Regroup all functions used to interact with the contrast and the log setting.
  *
@@ -12,7 +12,7 @@
 namespace holovibes::api
 {
 
-#pragma region Internal
+#pragma region Internals
 
 WindowKind get_current_window_type();
 

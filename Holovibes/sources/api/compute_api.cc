@@ -43,6 +43,7 @@ void disable_pipe_refresh()
     }
     catch (const std::runtime_error&)
     {
+        LOG_DEBUG("Pipe not initialized: {}", e.what());
     }
 }
 
@@ -54,6 +55,7 @@ void enable_pipe_refresh()
     }
     catch (const std::runtime_error&)
     {
+        LOG_DEBUG("Pipe not initialized: {}", e.what());
     }
 }
 
@@ -88,7 +90,7 @@ void create_pipe()
 
 #pragma endregion
 
-#pragma region Change Mode
+#pragma region Compute Mode
 
 void set_computation_mode(Computation mode)
 {
@@ -109,15 +111,9 @@ void set_computation_mode(Computation mode)
         set_record_mode_enum(RecordMode::RAW); // Force set record mode to raw because it cannot be anything else
 }
 
-void loaded_moments_data()
-{
-    set_batch_size(3);  // Cannot call the api.cc function because some parameters are not defined yet.
-    set_time_stride(3); // The user can change the time stride, but setting it to 3
-                        // is a good basis to analyze moments
+#pragma endregion
 
-    // There are plenty of settings not used in data type moments but not modified here;
-    // it's because these settings' value have no influence at that point (ex: space/time transforms).
-}
+#pragma region Img Type
 
 ApiCode set_view_mode(const ImgType type)
 {
@@ -148,6 +144,13 @@ ApiCode set_view_mode(const ImgType type)
     }
 
     return ApiCode::OK;
+}
+
+void loaded_moments_data()
+{
+    set_batch_size(3);  // Moments are read in batch of 3 (since there are three moments)
+    set_time_stride(3); // The user can change the time stride, but setting it to 3
+                        // is a good basis to analyze moments
 }
 
 #pragma endregion

@@ -3,7 +3,7 @@
 namespace holovibes::api
 {
 
-#pragma region Renrm
+#pragma region Renormalization
 
 void set_renorm_enabled(bool value)
 {
