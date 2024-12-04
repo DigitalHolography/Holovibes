@@ -274,20 +274,20 @@ void Analysis::insert_first_analysis_masks()
                 // From here ~160 FPS
 
                 // // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
-                // float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
-                //                                          otsu_histo_buffer_2_,
-                //                                          buffers_.gpu_postprocess_frame_size,
-                //                                          otsu_struct_,
-                //                                          stream_);
+                float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
+                                                         otsu_histo_buffer_2_,
+                                                         buffers_.gpu_postprocess_frame_size,
+                                                         otsu_struct_,
+                                                         stream_);
 
-                // // Binarize the vesselness output to produce the mask vesselness
-                // apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+                // Binarize the vesselness output to produce the mask vesselness
+                apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
 
-                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                                      otsu_histo_buffer_.get(),
-                                      fd_.width,
-                                      fd_.height,
-                                      stream_);
+                // compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                //                       otsu_histo_buffer_.get(),
+                //                       fd_.width,
+                //                       fd_.height,
+                //                       stream_);
 
                 // Store mask_vesselness for later computations
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
@@ -424,7 +424,26 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-
+                cudaXMemcpyAsync(vesselness_mask_env_.before_threshold,
+                                 vesselness_mask_env_.R_vascular_pulse_,
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+                apply_mask_and(vesselness_mask_env_.before_threshold,
+                               vesselness_mask_env_.mask_vesselness_clean_,
+                               fd_.width,
+                               fd_.height,
+                               stream_);
+                if (i_ == 0)
+                {
+                    print_in_file_gpu<float>(vesselness_mask_env_.before_threshold,
+                                             512,
+                                             512,
+                                             "test_threshold",
+                                             stream_);
+                    std::cout << count_non_zero(vesselness_mask_env_.before_threshold, fd_.height, fd_.width, stream_)
+                              << std::endl;
+                }
                 float thresholds[3] = {0.207108953480839f,
                                        0.334478400506137f,
                                        0.458741275652768f}; // this is hardcoded, need to call arthur function
