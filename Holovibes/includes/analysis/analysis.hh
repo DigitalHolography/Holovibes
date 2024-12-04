@@ -81,7 +81,7 @@ class Analysis
         // TODO: remove everything below when done
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
-          
+
         m0_bin_video_.resize(512 * 512 * 506);
         load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);
 
