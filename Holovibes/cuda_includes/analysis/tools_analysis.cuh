@@ -62,5 +62,3 @@ void divide_frames_inplace(float* const input_output,
                            cudaStream_t stream);
 
 void normalize_array(float* device_array, size_t size, float min_range, float max_range, cudaStream_t stream);
-
-void im2uint8(float* image, size_t size, float minVal = 0.0f, float maxVal = 1.0f);

@@ -15,7 +15,6 @@
 #include "circular_video_buffer.hh"
 #include "segment_vessels.cuh"
 #include "tools_analysis_debug.hh"
-#include "imbinarize.cuh"
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
@@ -97,10 +96,7 @@ void Analysis::init()
     uint_buffer_2_.safe_resize(frame_res);
     size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
-    otsu_histo_buffer_.resize(OTSU_BINS);
-    otsu_float_gpu_.resize(1);
-
-    otsu_histo_buffer_2_.resize(OTSU_BINS);
+    otsu_histo_buffer_.resize(256);
 
     // Allocate vesselness mask env buffers
     vesselness_mask_env_.time_window_ = api::get_time_window();
@@ -121,10 +117,6 @@ void Analysis::init()
     vesselness_mask_env_.g_yy_mul_.safe_resize(x_size * y_size);
     vesselness_mask_env_.vascular_kernel_.safe_resize(vesselness_mask_env_.vascular_kernel_size_ *
                                                       vesselness_mask_env_.vascular_kernel_size_);
-
-    vesselness_mask_env_.before_threshold.safe_resize(frame_res);
-
-    vesselness_mask_env_.R_vascular_pulse_.safe_resize(frame_res);
 
     // Init CircularVideoBuffer
     vesselness_mask_env_.m0_ff_video_cb_ =
@@ -150,18 +142,6 @@ void Analysis::init()
 
     // Allocate first mask choroid struct buffers
     first_mask_choroid_struct_.first_mask_choroid.safe_resize(frame_res);
-
-    // TODO taille constante a bouger dans le constructeur peut etre
-    // Allocate temporary Otsu buffers
-    otsu_struct_.d_counts.safe_resize(OTSU_BINS);
-    otsu_struct_.d_counts_sum.safe_resize(1);
-    otsu_struct_.p.safe_resize(OTSU_BINS);
-    otsu_struct_.p_.safe_resize(OTSU_BINS);
-    otsu_struct_.sigma_b_squared.safe_resize(OTSU_BINS);
-    otsu_struct_.d_mu_tt.safe_resize(1);
-    otsu_struct_.d_mu.safe_resize(OTSU_BINS);
-    otsu_struct_.d_omega.safe_resize(OTSU_BINS);
-    otsu_struct_.is_max.safe_resize(OTSU_BINS);
 
     // Init gaussian kernels
     float* result_transpose;
@@ -276,17 +256,25 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.height,
                                      stream_);
 
-                // From here ~160 FPS
+            // From here ~160 FPS
 
-                // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
-                float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
-                                                         otsu_histo_buffer_2_,
-                                                         buffers_.gpu_postprocess_frame_size,
-                                                         otsu_struct_,
-                                                         stream_);
+#pragma region SimonOtsu
+            // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
+            // float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
+            //                                          otsu_histo_buffer_2_,
+            //                                          buffers_.gpu_postprocess_frame_size,
+            //                                          otsu_struct_,
+            //                                          stream_);
 
-                // Binarize the vesselness output to produce the mask vesselness
-                apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+            // // Binarize the vesselness output to produce the mask vesselness
+            // apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+#pragma endregion
+
+                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                      otsu_histo_buffer_.get(),
+                                      fd_.width,
+                                      fd_.height,
+                                      stream_);
 
                 // Store mask_vesselness for later computations
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
@@ -453,22 +441,10 @@ void Analysis::insert_artery_mask()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                compute_first_mask_artery(buffers_.gpu_postprocess_frame,
-                                          vesselness_mask_env_.quantizedVesselCorrelation_,
-                                          buffers_.gpu_postprocess_frame_size,
-                                          stream_);
-                // bwareaopen is 4 neighbours currently, should be 8
-                bwareaopen(buffers_.gpu_postprocess_frame,
-                           150,
-                           fd_.width,
-                           fd_.height,
-                           uint_buffer_1_.get(),
-                           uint_buffer_2_.get(),
-                           float_buffer_.get(),
-                           size_t_gpu_.get(),
-                           stream_);
-                if (i_ == 0)
-                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "bwareaopen_artery", stream_);
+                // compute_first_mask_artery(buffers_.gpu_postprocess_frame,
+                //                           vesselness_mask_env_.quantizedVesselCorrelation_,
+                //                           buffers_.gpu_postprocess_frame_size,
+                //                           stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
@@ -488,18 +464,6 @@ void Analysis::insert_vein_mask()
                                         vesselness_mask_env_.quantizedVesselCorrelation_,
                                         buffers_.gpu_postprocess_frame_size,
                                         stream_);
-
-                bwareaopen(buffers_.gpu_postprocess_frame,
-                           150,
-                           fd_.width,
-                           fd_.height,
-                           uint_buffer_1_.get(),
-                           uint_buffer_2_.get(),
-                           float_buffer_.get(),
-                           size_t_gpu_.get(),
-                           stream_);
-                if (i_ == 0)
-                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "bwareaopen_vein", stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
@@ -594,30 +558,28 @@ void Analysis::insert_otsu()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                // if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
-                // {
-                //     compute_binarise_otsu_bradley(float_buffer_.get(),
-                //                                   otsu_histo_buffer_.get(),
-                //                                   buffers_.gpu_postprocess_frame,
-                //                                   otsu_float_gpu_.get(),
-                //                                   fd_.width,
-                //                                   fd_.height,
-                //                                   setting<settings::OtsuWindowSize>(),
-                //                                   setting<settings::OtsuLocalThreshold>(),
-                //                                   stream_);
+                if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
+                {
+                    compute_binarise_otsu_bradley(float_buffer_.get(),
+                                                  otsu_histo_buffer_.get(),
+                                                  buffers_.gpu_postprocess_frame,
+                                                  fd_.width,
+                                                  fd_.height,
+                                                  setting<settings::OtsuWindowSize>(),
+                                                  setting<settings::OtsuLocalThreshold>(),
+                                                  stream_);
 
-                //     cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                //                 float_buffer_.get(),
-                //                 buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //                 cudaMemcpyDeviceToDevice);
-                // }
-                // else
-                //     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                //                           otsu_histo_buffer_.get(),
-                //                           otsu_float_gpu_.get(),
-                //                           fd_.width,
-                //                           fd_.height,
-                //                           stream_);
+                    cudaXMemcpy(buffers_.gpu_postprocess_frame,
+                                float_buffer_.get(),
+                                buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                cudaMemcpyDeviceToDevice);
+                }
+                else
+                    compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                          otsu_histo_buffer_.get(),
+                                          fd_.width,
+                                          fd_.height,
+                                          stream_);
             });
     }
 }
@@ -650,9 +612,6 @@ void Analysis::insert_bwareaopen()
         [=]()
         {
             if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
-            {
-                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
-
                 bwareaopen(buffers_.gpu_postprocess_frame.get(),
                            setting<settings::MinMaskArea>(),
                            fd_.width,
@@ -662,7 +621,6 @@ void Analysis::insert_bwareaopen()
                            float_buffer_.get(),
                            size_t_gpu_.get(),
                            stream_);
-            }
         });
 }
 
