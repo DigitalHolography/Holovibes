@@ -1,5 +1,14 @@
 ## Changelog
 
+### 14.X.X
+
+- Add 3 new preset :
+  - doppler_8b_512_256_25.json
+  - doppler_8b_1024_768_120.json
+  - doppler_8b_1280_800_130.json
+- Rename doppler_8b_384_27.json to doppler_8b_384_384_27.json
+- Rename doppler_8b_512_40.json to doppler_8b_512_512_40.json
+
 ### 14.0.1
 
 - Remove the second .ps1 script
