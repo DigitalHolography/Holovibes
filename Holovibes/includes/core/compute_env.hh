@@ -306,4 +306,17 @@ struct FirstMaskChoroidStruct
      */
     cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
 };
+
+struct OtsuStruct
+{
+    cuda_tools::CudaUniquePtr<float> d_counts = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_counts_sum = nullptr;
+    cuda_tools::CudaUniquePtr<float> p = nullptr;
+    cuda_tools::CudaUniquePtr<float> p_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> sigma_b_squared = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_mu_tt = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_mu = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_omega = nullptr;
+    cuda_tools::CudaUniquePtr<float> is_max = nullptr;
+};
 } // namespace holovibes

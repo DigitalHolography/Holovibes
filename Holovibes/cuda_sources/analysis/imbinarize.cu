@@ -2,6 +2,7 @@
 #include "cuda_memory.cuh"
 #include "vascular_pulse.cuh"
 #include "tools_analysis_debug.hh"
+#include "compute_env.hh"
 #include <thrust/device_vector.h>
 #include <thrust/extrema.h>
 #include <thrust/functional.h>
@@ -113,9 +114,7 @@ __global__ void kernel_multiply_with_indices(float* p, float* result, size_t num
     int index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < num_bins)
-    {
         result[index] = p[index] * (index + 1);
-    }
 }
 
 void multiply_with_indices(float* p, float* result, size_t num_bins, cudaStream_t stream)
@@ -154,9 +153,7 @@ __global__ void kernel_find_max(float* sigma_b_squared, float maxval, float* is_
     int index = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (index < size && sigma_b_squared[index] == maxval)
-    {
         is_max[index] = index;
-    }
 }
 
 void find_mean_index(float* sigma_b_squared, float maxval, float* is_max, size_t size, cudaStream_t stream)
@@ -164,6 +161,7 @@ void find_mean_index(float* sigma_b_squared, float maxval, float* is_max, size_t
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);
     kernel_find_max<<<blocks, threads, 0, stream>>>(sigma_b_squared, maxval, is_max, size);
+    cudaCheckError();
 }
 
 float mean_non_zero(float* input, int size)
@@ -181,16 +179,11 @@ float mean_non_zero(float* input, int size)
     }
 
     if (cpt > 0)
-    {
         return sum / cpt;
-    }
-    else
-    {
-        return 0.0f;
-    }
+    return 0.0f;
 }
 
-float otsuthresh(float* counts, cudaStream_t stream)
+float otsuthresh(float* counts, holovibes::OtsuStruct& otsu_struct, cudaStream_t stream)
 {
     /*
     p = counts / sum(counts);
@@ -200,44 +193,35 @@ float otsuthresh(float* counts, cudaStream_t stream)
     */
 
     // sum(counts);
-    float* d_counts;
-    float* d_counts_sum;
     float counts_sum = 0.0f;
 
-    cudaXMallocAsync(&d_counts, 256 * sizeof(float), stream);
-    cudaXMallocAsync(&d_counts_sum, sizeof(float), stream);
-    cudaXMemcpyAsync(d_counts, counts, 256 * sizeof(float), cudaMemcpyHostToDevice, stream);
-    cudaXMemcpyAsync(d_counts_sum, &counts_sum, sizeof(float), cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(otsu_struct.d_counts, counts, 256 * sizeof(float), cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(otsu_struct.d_counts_sum, &counts_sum, sizeof(float), cudaMemcpyHostToDevice, stream);
 
     size_t d_counts_size = 256;
-    sum(d_counts_sum, d_counts, d_counts_size, stream);
+    sum(otsu_struct.d_counts_sum, otsu_struct.d_counts, d_counts_size, stream);
 
     // p = counts / sum(counts);
-    float* p;
-    cudaXMallocAsync(&p, 256 * sizeof(float), stream);
-    cudaXMemcpyAsync(p, counts, 256 * sizeof(float), cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(otsu_struct.p, counts, 256 * sizeof(float), cudaMemcpyHostToDevice, stream);
 
     float* h_counts_sum = new float[1];
-    cudaXMemcpyAsync(h_counts_sum, d_counts_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXMemcpyAsync(h_counts_sum, otsu_struct.d_counts_sum, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
-    divide_constant(p, *h_counts_sum, 256 * sizeof(float), stream);
+    divide_constant(otsu_struct.p, *h_counts_sum, 256 * sizeof(float), stream);
 
     // omega = cumsum(p);
     float* omega = new float[256];
     float* h_p = new float[256];
-    cudaXMemcpy(h_p, p, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(h_p, otsu_struct.p, 256 * sizeof(float), cudaMemcpyDeviceToHost);
 
     host_cumsum(omega, h_p, 256);
 
     // mu = cumsum(p .* (1:num_bins)');
-    float* p_;
-    cudaXMallocAsync(&p_, 256 * sizeof(float), stream);
-
-    multiply_with_indices(p, p_, 256, stream);
+    multiply_with_indices(otsu_struct.p, otsu_struct.p_, 256, stream);
 
     float* mu = new float[256];
     float* h_p_ = new float[256];
-    cudaXMemcpy(h_p_, p_, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(h_p_, otsu_struct.p_, 256 * sizeof(float), cudaMemcpyDeviceToHost);
 
     host_cumsum(mu, h_p_, 256);
 
@@ -246,49 +230,53 @@ float otsuthresh(float* counts, cudaStream_t stream)
     float mu_tt = mu[255];
 
     // sigma_b_squared = (mu_t * omega - mu).^2 ./ (omega .* (1 - omega));
-    float* sigma_b_squared;
-    cudaXMallocAsync(&sigma_b_squared, 256 * sizeof(float), stream);
 
-    float* d_mu_tt;
-    cudaXMallocAsync(&d_mu_tt, sizeof(float), stream);
-    cudaXMemcpyAsync(d_mu_tt, &mu_tt, sizeof(float), cudaMemcpyHostToDevice, stream);
+    cudaXMemcpyAsync(otsu_struct.d_mu_tt, &mu_tt, sizeof(float), cudaMemcpyHostToDevice, stream);
 
-    float* d_mu;
-    cudaXMallocAsync(&d_mu, 256 * sizeof(float), stream);
-    cudaXMemcpy(d_mu, mu, 256 * sizeof(float), cudaMemcpyHostToDevice);
+    cudaXMemcpy(otsu_struct.d_mu, mu, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
-    float* d_omega;
-    cudaXMallocAsync(&d_omega, 256 * sizeof(float), stream);
-    cudaXMemcpy(d_omega, omega, 256 * sizeof(float), cudaMemcpyHostToDevice);
+    cudaXMemcpy(otsu_struct.d_omega, omega, 256 * sizeof(float), cudaMemcpyHostToDevice);
 
-    compute_sigma_b_squared(d_mu_tt, d_omega, d_mu, sigma_b_squared, 256 * sizeof(float), stream);
+    compute_sigma_b_squared(otsu_struct.d_mu_tt,
+                            otsu_struct.d_omega,
+                            otsu_struct.d_mu,
+                            otsu_struct.sigma_b_squared,
+                            256 * sizeof(float),
+                            stream);
 
     // maxval = max(sigma_b_squared);
 
     float* h_sigma_b_squared = new float[256];
-    cudaXMemcpy(h_sigma_b_squared, sigma_b_squared, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(h_sigma_b_squared, otsu_struct.sigma_b_squared, 256 * sizeof(float), cudaMemcpyDeviceToHost);
     thrust::device_vector<float> d_input(h_sigma_b_squared, h_sigma_b_squared + 256);
     thrust::device_vector<float>::iterator max_it = thrust::max_element(d_input.begin(), d_input.end());
     float maxval = *max_it;
 
     // idx = mean(find(sigma_b_squared == maxval));
 
-    float* is_max;
-    cudaXMalloc(&is_max, sizeof(float) * 256);
-    cudaXMemset(is_max, 0.0f, sizeof(float) * 256);
-    find_mean_index(sigma_b_squared, maxval, is_max, 256, stream);
+    cudaXMemset(otsu_struct.is_max, 0.0f, sizeof(float) * 256);
+    find_mean_index(otsu_struct.sigma_b_squared, maxval, otsu_struct.is_max, 256, stream);
 
     float* h_is_max = new float[256];
-    cudaXMemcpy(h_is_max, is_max, 256 * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaXMemcpy(h_is_max, otsu_struct.is_max, 256 * sizeof(float), cudaMemcpyDeviceToHost);
 
     float idx = mean_non_zero(h_is_max, 256);
 
     // t = (idx - 1 {// 1 indexed in matlab} ) / (num_bins - 1);
 
+    delete[] h_counts_sum;
+    delete[] omega;
+    delete[] h_p;
+    delete[] mu;
+    delete[] h_p_;
+    delete[] h_sigma_b_squared;
+    delete[] h_is_max;
+
     return idx / (256 - 1);
 }
 
-float otsu_compute_threshold(float* input, float* histo_buffer_d, const size_t size, cudaStream_t stream)
+float otsu_compute_threshold(
+    float* input, float* histo_buffer_d, const size_t size, holovibes::OtsuStruct& otsu_struct, cudaStream_t stream)
 {
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
@@ -302,7 +290,7 @@ float otsu_compute_threshold(float* input, float* histo_buffer_d, const size_t s
     // Histogram is OK, threshold is not
 
     // otsu_threshold_kernel<<<1, NUM_BINS, 0, stream>>>(histo_buffer_d, size, threshold_d);
-    threshold = otsuthresh(histo_buffer_d, stream);
+    threshold = otsuthresh(histo_buffer_d, otsu_struct, stream);
 
     return threshold;
 }
@@ -324,5 +312,6 @@ void apply_binarisation(
     uint blocks = map_blocks_to_problem(img_size, threads);
 
     kernel_apply_binarisation<<<blocks, threads, 0, stream>>>(input_output, img_size, threshold);
+    cudaCheckError();
     cudaXStreamSynchronize(stream);
 }

@@ -19,6 +19,7 @@
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define FROM_CSV false
+#define OTSU_BINS 256
 
 namespace holovibes::analysis
 {
@@ -97,10 +98,10 @@ void Analysis::init()
     uint_buffer_2_.safe_resize(frame_res);
     size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
-    otsu_histo_buffer_.resize(256);
+    otsu_histo_buffer_.resize(OTSU_BINS);
     otsu_float_gpu_.resize(1);
 
-    otsu_histo_buffer_2_.resize(256);
+    otsu_histo_buffer_2_.resize(OTSU_BINS);
 
     // Allocate vesselness mask env buffers
     vesselness_mask_env_.time_window_ = api::get_time_window();
@@ -150,6 +151,18 @@ void Analysis::init()
 
     // Allocate first mask choroid struct buffers
     first_mask_choroid_struct_.first_mask_choroid.safe_resize(frame_res);
+
+    // TODO taille constante a bouger dans le constructeur peut etre
+    // Allocate temporary Otsu buffers
+    otsu_struct_.d_counts.safe_resize(OTSU_BINS);
+    otsu_struct_.d_counts_sum.safe_resize(1);
+    otsu_struct_.p.safe_resize(OTSU_BINS);
+    otsu_struct_.p_.safe_resize(OTSU_BINS);
+    otsu_struct_.sigma_b_squared.safe_resize(OTSU_BINS);
+    otsu_struct_.d_mu_tt.safe_resize(1);
+    otsu_struct_.d_mu.safe_resize(OTSU_BINS);
+    otsu_struct_.d_omega.safe_resize(OTSU_BINS);
+    otsu_struct_.is_max.safe_resize(OTSU_BINS);
 
     // Init gaussian kernels
     float* result_transpose;
@@ -271,6 +284,7 @@ void Analysis::insert_first_analysis_masks()
                 float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
                                                          otsu_histo_buffer_2_,
                                                          buffers_.gpu_postprocess_frame_size,
+                                                         otsu_struct_,
                                                          stream_);
 
                 // Binarize the vesselness output to produce the mask vesselness
@@ -392,20 +406,19 @@ void Analysis::insert_first_analysis_masks()
                             cudaMemcpyDeviceToDevice);
 
                 int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
-                compute_first_correlation(
-                    vesselness_mask_env_.R_vascular_pulse_, // R_vascular_pulse will be in this buffer
-                    vesselness_mask_env_.m0_ff_video_centered_,
-                    vesselness_filter_struct_.vascular_pulse,
-                    nnz,
-                    vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
-                    vesselness_filter_struct_,
-                    buffers_.gpu_postprocess_frame_size,
-                    stream_);
+                compute_first_correlation(vesselness_mask_env_.R_vascular_pulse_,
+                                          vesselness_mask_env_.m0_ff_video_centered_,
+                                          vesselness_filter_struct_.vascular_pulse,
+                                          nnz,
+                                          vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
+                                          vesselness_filter_struct_,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
 
                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-                                       vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(), // M0_ff_img
-                                       vesselness_mask_env_.f_avg_video_cb_->get_mean_image(), // f_AVG_mean
-                                       vesselness_mask_env_.R_vascular_pulse_,                 // R_vascular_pulse
+                                       vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                       vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
+                                       vesselness_mask_env_.R_vascular_pulse_,
                                        buffers_.gpu_postprocess_frame_size,
                                        stream_);
 
@@ -434,7 +447,7 @@ void Analysis::insert_first_analysis_masks()
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
-                                vesselness_mask_env_.R_vascular_pulse_, // R_vascular_pulse
+                                vesselness_mask_env_.R_vascular_pulse_,
                                 vesselness_mask_env_.mask_vesselness_clean_,
                                 buffers_.gpu_postprocess_frame_size,
                                 thresholds,
@@ -443,29 +456,6 @@ void Analysis::insert_first_analysis_masks()
                 ///////////////////////////////
                 // Everything is OK before here
                 ///////////////////////////////
-
-                // bwareaopen(vesselness_mask_env_.quantizedVesselCorrelation_,
-                //            150,
-                //            fd_.width,
-                //            fd_.height,
-                //            uint_buffer_1_.get(),
-                //            uint_buffer_2_.get(),
-                //            float_buffer_.get(),
-                //            size_t_gpu_.get(),
-                //            stream_);
-
-                // cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                //                  vesselness_mask_env_.quantizedVesselCorrelation_,
-                //                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                //                  cudaMemcpyDeviceToDevice,
-                //                  stream_);
-
-                // if (i_ == 0)
-                //     print_in_file_gpu<float>(vesselness_mask_env_.quantizedVesselCorrelation_,
-                //                              512,
-                //                              512,
-                //                              "bwareaopen",
-                //                              stream_);
             });
     }
 }
@@ -484,6 +474,18 @@ void Analysis::insert_artery_mask()
                                           vesselness_mask_env_.quantizedVesselCorrelation_,
                                           buffers_.gpu_postprocess_frame_size,
                                           stream_);
+                // bwareaopen is 4 neighbours currently, should be 8
+                bwareaopen(buffers_.gpu_postprocess_frame,
+                           150,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           stream_);
+                if (i_ == 0)
+                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "bwareaopen_artery", stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
@@ -503,6 +505,18 @@ void Analysis::insert_vein_mask()
                                         vesselness_mask_env_.quantizedVesselCorrelation_,
                                         buffers_.gpu_postprocess_frame_size,
                                         stream_);
+
+                bwareaopen(buffers_.gpu_postprocess_frame,
+                           150,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_.get(),
+                           uint_buffer_2_.get(),
+                           float_buffer_.get(),
+                           size_t_gpu_.get(),
+                           stream_);
+                if (i_ == 0)
+                    print_in_file_gpu<float>(buffers_.gpu_postprocess_frame, 512, 512, "bwareaopen_vein", stream_);
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }

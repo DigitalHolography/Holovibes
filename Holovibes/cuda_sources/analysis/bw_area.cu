@@ -156,7 +156,7 @@ area_open_kernel(float* input_output, const uint* label_d, const float* labels_s
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-        input_output[idx] = (labels_sizes_d[label_d[idx]] >= threshold) ? 1.0f : 0.0f;
+        input_output[idx] = labels_sizes_d[label_d[idx]] >= threshold;
 }
 
 void area_open(float* input_output,

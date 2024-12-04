@@ -43,6 +43,8 @@ namespace holovibes
 struct CoreBuffersEnv;
 struct VesselnessMaskEnv;
 struct MomentsEnv;
+struct FirstMaskChoroidStruct;
+struct OtsuStruct;
 } // namespace holovibes
 
 namespace holovibes::analysis
@@ -203,6 +205,9 @@ class Analysis
 
     /*! \brief FirstMaskChoroidStruct buffers struct */
     FirstMaskChoroidStruct first_mask_choroid_struct_;
+
+    /*! \brief Temporary Otsu buffers struct */
+    OtsuStruct otsu_struct_;
 
     /*! \brief Plan used for the convolution (frame width, frame height, cufft_c2c) */
     CufftHandle convolution_plan_;
