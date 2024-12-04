@@ -55,7 +55,6 @@ bool Pipe::make_requests()
 
     /* Free buffers */
     HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());
-    HANDLE_REQUEST(ICS::DisableFilter, "Disable filter", postprocess_->dispose());
 
     HANDLE_REQUEST(ICS::DisableLensView, "Disable lens view", fourier_transforms_->get_lens_queue().reset(nullptr));
 
@@ -123,17 +122,7 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
-    if (is_requested(ICS::Filter))
-    {
-        LOG_DEBUG("filter_requested");
-
-        // TODO
-        // fourier_transforms_->init();
-        api::enable_filter();
-        auto filter = api::get_input_filter();
-        fourier_transforms_->update_setting(settings::InputFilter{filter});
-        clear_request(ICS::Filter);
-    }
+    HANDLE_REQUEST(ICS::Filter, "Filter Init", api::enable_filter(api::get_filter_file_name()));
 
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
@@ -281,12 +270,11 @@ void Pipe::refresh()
 
     if (api::get_data_type() == RecordedDataType::MOMENTS)
     {
-        // Dequeuing the 3 moments in a row
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment0_buffer);
+        // Dequeuing the 3 moments in a temporary buffer
+        converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
 
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment1_buffer);
-
-        converts_->insert_float_dequeue(input_queue_, moments_env_.moment2_buffer);
+        // Splitting them into their respective buffers
+        fourier_transforms_->insert_moments_split();
 
         fourier_transforms_->insert_moments_to_output();
     }
@@ -297,9 +285,7 @@ void Pipe::refresh()
         converts_->insert_complex_conversion(input_queue_);
 
         // Spatial transform
-        fourier_transforms_->insert_fft(buffers_.gpu_filter2d_mask.get(),
-                                        input_queue_.get_fd().width,
-                                        input_queue_.get_fd().height);
+        fourier_transforms_->insert_fft(input_queue_.get_fd().width, input_queue_.get_fd().height);
 
         // Move frames from gpu_space_transformation_buffer to
         // gpu_time_transformation_queue (with respect to
@@ -414,9 +400,9 @@ void Pipe::insert_moments()
         auto p = setting<settings::P>();
         moments_env_.f_start = p.start;
         moments_env_.f_end =
-            std::min<int>(p.start + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()));
+            std::min<int>(p.start + p.width, static_cast<int>(setting<settings::TimeTransformationSize>()) - 1);
 
-        converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer);
+        converts_->insert_to_modulus_moments(moments_env_.stft_res_buffer, moments_env_.f_start, moments_env_.f_end);
 
         fourier_transforms_->insert_moments();
 

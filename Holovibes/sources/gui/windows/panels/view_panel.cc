@@ -68,6 +68,7 @@ void ViewPanel::update_img_type(int img_type)
 void ViewPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_data_not_moments = !(api::get_data_type() == RecordedDataType::MOMENTS);
 
     update_img_type(static_cast<int>(api::get_img_type()));
 
@@ -75,8 +76,8 @@ void ViewPanel::on_notify()
                                            api::get_img_type() == ImgType::Argument);
 
     ui_->TimeTransformationCutsCheckBox->setChecked(!is_raw && api::get_cuts_view_enabled());
-    ui_->TimeTransformationCutsCheckBox->setEnabled(ui_->timeTransformationSizeSpinBox->value() >=
-                                                    MIN_IMG_NB_TIME_TRANSFORMATION_CUTS);
+    ui_->TimeTransformationCutsCheckBox->setEnabled(
+        ui_->timeTransformationSizeSpinBox->value() >= MIN_IMG_NB_TIME_TRANSFORMATION_CUTS && is_data_not_moments);
 
     ui_->FFTShiftCheckBox->setChecked(api::get_fft_shift_enabled());
     ui_->FFTShiftCheckBox->setEnabled(true);
@@ -87,9 +88,10 @@ void ViewPanel::on_notify()
     ui_->RegistrationZoneSpinBox->setValue(api::get_registration_zone());
 
     ui_->LensViewCheckBox->setChecked(api::get_lens_view_enabled());
+    ui_->LensViewCheckBox->setEnabled(is_data_not_moments);
 
-    ui_->RawDisplayingCheckBox->setEnabled(!is_raw);
     ui_->RawDisplayingCheckBox->setChecked(!is_raw && api::get_raw_view_enabled());
+    ui_->RawDisplayingCheckBox->setEnabled(!is_raw && is_data_not_moments);
 
     // Contrast
     ui_->ContrastCheckBox->setChecked(!is_raw && api::get_contrast_enabled());
@@ -164,6 +166,8 @@ void ViewPanel::on_notify()
     ui_->PSpinBox->setValue(api::get_p_index());
     ui_->PAccSpinBox->setEnabled(api::get_img_type() != ImgType::PhaseIncrease &&
                                  api::get_img_type() != ImgType::Composite);
+    ui_->PAccSpinBox->setVisible(is_data_not_moments);
+    ui_->PAccLabel->setVisible(is_data_not_moments);
 
     api::check_p_limits(); // FIXME: May be moved in setters
 
@@ -171,13 +175,16 @@ void ViewPanel::on_notify()
     ui_->PSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_accu_level() - 1);
     ui_->PAccSpinBox->setMaximum(api::get_time_transformation_size() - api::get_p_index() - 1);
     ui_->PSpinBox->setEnabled(!is_raw && api::get_img_type() != ImgType::Composite);
+    ui_->PSpinBox->setVisible(is_data_not_moments);
+    ui_->PLabel->setVisible(is_data_not_moments);
 
     // q accu
-    bool is_ssa_stft = api::get_time_transformation() == TimeTransformation::SSA_STFT;
-    ui_->Q_AccSpinBox->setVisible(is_ssa_stft && !is_raw);
-    ui_->Q_SpinBox->setVisible(is_ssa_stft && !is_raw);
-    ui_->Q_Label->setVisible(is_ssa_stft && !is_raw);
-    ui_->QaccLabel->setVisible(is_ssa_stft && !is_raw);
+    bool is_q_visible =
+        api::get_time_transformation() == TimeTransformation::SSA_STFT && !is_raw && is_data_not_moments;
+    ui_->Q_AccSpinBox->setVisible(is_q_visible);
+    ui_->Q_SpinBox->setVisible(is_q_visible);
+    ui_->Q_Label->setVisible(is_q_visible);
+    ui_->QaccLabel->setVisible(is_q_visible);
 
     // Deactivate previous maximum (chetor + unused)
     ui_->Q_SpinBox->setMaximum(INT_MAX);
@@ -362,6 +369,7 @@ void ViewPanel::toggle_renormalize(bool value) { api::toggle_renormalize(value);
 void ViewPanel::display_reticle(bool value)
 {
     api::display_reticle(value);
+    gui::set_reticle_overlay_visible(value);
     parent_->notify();
 }
 

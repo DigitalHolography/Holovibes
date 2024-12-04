@@ -18,6 +18,7 @@
 #include "holovibes_config.hh"
 #include "user_interface_descriptor.hh"
 #include "compute_settings_struct.hh"
+#include "enum_api_code.hh"
 
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
@@ -91,6 +92,13 @@ void set_input_file_start_index(size_t value);
  */
 void set_input_file_end_index(size_t value);
 
+/*!
+ * \brief Disables / edits numerous settings when reading a moments file
+ * Most of the settings are just booleans set to false (ex: lens view)
+ *
+ */
+void loaded_moments_data();
+
 /*! \brief Switchs operating camera to none
  *
  */
@@ -131,14 +139,6 @@ int get_input_queue_fd_height();
  */
 float get_boundary();
 
-/*! \brief Enables the divide convolution mode
- *
- * \param value the file containing the convolution's settings
- */
-void enable_convolution(const std::string& file);
-
-void disable_convolution();
-
 std::vector<float> get_input_filter();
 
 /*! \brief Sets the input filter
@@ -149,29 +149,18 @@ void set_input_filter(std::vector<float> value);
 
 /*! \brief Loads the input filter
  *
- * \param input_filter the input filter to load
  * \param file the file path
  */
-void load_input_filter(std::vector<float> input_filter, const std::string& file);
+void load_input_filter(const std::string& file);
 
 /*! \brief Enables the input filter mode
  *
- * \param value the file containing the filter's settings
+ * \param file the file containing the filter's settings or empty string to disable the filter
  */
-void enable_filter();
 void enable_filter(const std::string& file);
 
-void disable_filter();
-
 /*! \brief Sets the computation mode to Raw or Holographic*/
-void set_computation_mode(Computation mode, uint window_max_size);
-
-/*! \brief Restarts everything to change the view mode
- *
- * \param window_size the size of the window
- * \param img_type The new image type
- */
-void refresh_view_mode(ushort window_size, ImgType img_type);
+void set_computation_mode(Computation mode);
 
 /*! \brief Checks preconditions to start recording
  *
@@ -229,15 +218,6 @@ void set_record_queue_location(Device device);
  */
 void set_record_buffer_size(uint value);
 
-void set_light_ui_mode(bool value);
-
-bool is_light_ui_mode();
-
-/*! \brief Closes all the currently displaying windows
- *
- */
-void close_windows();
-
 /*! \brief Set the camera timeout object */
 void set_camera_timeout();
 
@@ -261,13 +241,6 @@ void enable_pipe_refresh();
  *
  */
 void disable_pipe_refresh();
-
-/*! \brief Create and open a window of the specified size and kind
- *
- * \param[in] window_kind the kind of window to create (raw or holographic window)
- * \param[in] window_size the size of the window
- */
-void create_window(Computation window_kind, ushort window_size);
 
 void create_pipe();
 
@@ -625,34 +598,22 @@ bool get_log_enabled();
  */
 bool get_contrast_auto_refresh();
 
-/*! \brief Disables convolution
+/*! \brief Enables the divide convolution mode
  *
+ * \param value the file containing the convolution's settings
  */
-void disable_convolution();
-
-/**
- * \brief Loads a convolution matrix from a file
- *
- * This function is a tool / util supposed to be called by other functions
- *
- * \param file The name of the file to load the matrix from. NOT A FULL PATH
- * \param convo_matrix Where to store the read matrix
- *
- * \throw std::runtime_error runtime_error When the matrix cannot be loaded
- */
-void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
+void enable_convolution(const std::string& file);
 
 /*! \brief Loads convolution matrix from a given file
  *
  * \param file the file containing the convolution's settings
  */
-void load_convolution_matrix(std::optional<std::string> filename);
+void load_convolution_matrix(std::string filename);
 
-/*! \brief Enables convolution
+/*! \brief Disables convolution
  *
- * \param file the file containing the convolution's settings
  */
-void enable_convolution(std::optional<std::string> file);
+void disable_convolution();
 
 /*! \brief Sets the contrast mode
  *
@@ -822,7 +783,7 @@ void update_batch_size(uint batch_size);
  *
  * \param type The new image type
  */
-void set_view_mode(const ImgType type);
+ApiCode set_view_mode(const ImgType type);
 
 /*! \brief Configures the camera */
 void configure_camera();
@@ -874,6 +835,15 @@ bool slide_update_threshold(
 
 /*! \brief Displays information */
 void start_information_display();
+
+void* get_raw_last_image();      // get_input_queue().get()
+void* get_raw_view_last_image(); // get_input_queue().get()
+void* get_hologram_last_image(); // get_gpu_output_queue().get()
+void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
+void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
+void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
+void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
+void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
 
 } // namespace holovibes::api
 

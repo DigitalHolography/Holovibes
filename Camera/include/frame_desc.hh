@@ -38,6 +38,11 @@ struct FrameDescriptor
     /*! \brief Return the frame resolution (number of pixels). */
     size_t get_frame_res() const { return width * height; }
 
+    bool operator==(const FrameDescriptor& rhs) const
+    {
+        return width == rhs.width && height == rhs.height && depth == rhs.depth && byteEndian == rhs.byteEndian;
+    }
+
     unsigned short width;  /*!< Width of the frame in pixels. */
     unsigned short height; /*!< Height of the frame in pixels. */
     PixelDepth depth;      /*!< Byte depth during acquisition. */
