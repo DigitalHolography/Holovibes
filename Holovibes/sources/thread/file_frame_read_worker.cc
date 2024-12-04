@@ -167,8 +167,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int file_buffer_size = static_cast<unsigned int>(
-        setting<settings::FileBufferSize>()); 
+    const unsigned int file_buffer_size = static_cast<unsigned int>(setting<settings::FileBufferSize>());
 
     // Read the entire file by batch
     while (!stop_requested_)
