@@ -15,7 +15,7 @@ void compute_first_correlation(float* output,
                                int nnz_mask_vesslness_clean,
                                size_t length_video,
                                VesselnessFilterStruct& filter_struct_,
-                               size_t image_size,
+                               size_t size,
                                cudaStream_t stream);
 void multiply_three_vectors(
     float* output, float* input1, float* input2, float* input3, size_t size, cudaStream_t stream);

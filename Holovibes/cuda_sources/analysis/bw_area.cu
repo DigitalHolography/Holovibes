@@ -94,15 +94,17 @@ void get_connected_component(uint* labels_d,
     uint blocks = map_blocks_to_problem(width * height, threads);
 
     initialisation_kernel<<<lblocks, lthreads, 0, stream>>>(image_d, labels_d, linked_d, height, width);
+    cudaCheckError();
+
     size_t change_h;
     do
     {
-        cudaXMemset(change_d, 0, sizeof(size_t));
+        cudaXMemsetAsync(change_d, 0, sizeof(size_t), stream);
 
         propagate_labels_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
         cudaCheckError();
-        cudaXStreamSynchronize(stream);
-        cudaXMemcpy(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost);
+
+        cudaXMemcpyAsync(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost, stream);
 
         if (change_h)
         {
@@ -154,7 +156,7 @@ area_open_kernel(float* input_output, const uint* label_d, const float* labels_s
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-        input_output[idx] = (labels_sizes_d[label_d[idx]] >= threshold) ? 1.0f : 0.0f;
+        input_output[idx] = labels_sizes_d[label_d[idx]] >= threshold;
 }
 
 void area_open(float* input_output,

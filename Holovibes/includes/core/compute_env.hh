@@ -270,6 +270,12 @@ struct VesselnessMaskEnv
 
     /*! \brief mask_vesselness_clean buffer */
     cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_ = nullptr;
+
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> before_threshold = nullptr;
+
+    /*! \brief before_threshold buffer */
+    cuda_tools::CudaUniquePtr<float> R_vascular_pulse_ = nullptr;
 };
 
 // TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
@@ -299,5 +305,18 @@ struct FirstMaskChoroidStruct
      * \brief Struct used for first_mask_choroid computations.
      */
     cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
+};
+
+struct OtsuStruct
+{
+    cuda_tools::CudaUniquePtr<float> d_counts = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_counts_sum = nullptr;
+    cuda_tools::CudaUniquePtr<float> p = nullptr;
+    cuda_tools::CudaUniquePtr<float> p_ = nullptr;
+    cuda_tools::CudaUniquePtr<float> sigma_b_squared = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_mu_tt = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_mu = nullptr;
+    cuda_tools::CudaUniquePtr<float> d_omega = nullptr;
+    cuda_tools::CudaUniquePtr<float> is_max = nullptr;
 };
 } // namespace holovibes

@@ -15,6 +15,6 @@ void load_CSV_to_float_array_gpu(float* const output,
 
 void load_bin_video_file(const std::filesystem::path& path, float* output, cudaStream_t stream);
 
-void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream);
-
 void print_in_file_cpu(float* input, uint rows, uint col, std::string filename);
+
+#include "tools_analysis_debug.hxx"
