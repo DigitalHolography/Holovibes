@@ -1,38 +1,36 @@
-#include "tools_analysis_debug.hh"
-
 #include "cuda_memory.cuh"
 
 namespace
 {
 
-// void write_1D_float_array_to_file(const float* array, int rows, int cols, const std::string& filename)
-// {
-//     // Open the file in write mode
-//     std::ofstream outFile(filename);
+void write_1D_float_array_to_file(const float* array, int rows, int cols, const std::string& filename)
+{
+    // Open the file in write mode
+    std::ofstream outFile(filename);
 
-//     // Check if the file was opened successfully
-//     if (!outFile)
-//     {
-//         std::cerr << "Error: Unable to open the file " << filename << std::endl;
-//         return;
-//     }
+    // Check if the file was opened successfully
+    if (!outFile)
+    {
+        std::cerr << "Error: Unable to open the file " << filename << std::endl;
+        return;
+    }
 
-//     // Write the 1D array in row-major order to the file
-//     for (int i = 0; i < rows; ++i)
-//     {
-//         for (int j = 0; j < cols; ++j)
-//         {
-//             outFile << array[i * cols + j]; // Calculate index in row-major order
-//             if (j < cols - 1)
-//                 outFile << " "; // Separate values in a row by a space
-//         }
-//         outFile << std::endl; // New line after each row
-//     }
+    // Write the 1D array in row-major order to the file
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            outFile << array[i * cols + j]; // Calculate index in row-major order
+            if (j < cols - 1)
+                outFile << " "; // Separate values in a row by a space
+        }
+        outFile << std::endl; // New line after each row
+    }
 
-//     // Close the file
-//     outFile.close();
-//     std::cout << "1D array written to the file " << filename << std::endl;
-// }
+    // Close the file
+    outFile.close();
+    std::cout << "1D array written to the file " << filename << std::endl;
+}
 } // namespace
 
 float* load_CSV_to_float_array(const std::filesystem::path& path)
@@ -127,9 +125,19 @@ void load_bin_video_file(const std::filesystem::path& path, float* output, cudaS
     delete[] video_data;
 }
 
+void print_in_file_gpu(float* input, uint rows, uint col, std::string filename, cudaStream_t stream)
+{
+    if (input == nullptr)
+        return;
+    float* result = new float[rows * col];
+    cudaXMemcpyAsync(result, input, rows * col * sizeof(float), cudaMemcpyDeviceToHost, stream);
+    cudaXStreamSynchronize(stream);
+    write_1D_float_array_to_file(result, rows, col, "test_" + filename + ".txt");
+}
+
 void print_in_file_cpu(float* input, uint rows, uint col, std::string filename)
 {
     if (input == nullptr)
         return;
-    write_1D_array_to_file<float>(input, rows, col, "test_" + filename + ".txt");
+    write_1D_float_array_to_file(input, rows, col, "test_" + filename + ".txt");
 }
