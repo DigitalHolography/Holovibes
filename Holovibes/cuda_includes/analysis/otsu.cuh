@@ -40,3 +40,11 @@ void compute_binarise_otsu_bradley(float* output_d,
                                    const int window_size,
                                    const float local_threshold_factor,
                                    const cudaStream_t stream);
+
+void otsu_multi_thresholding(const float* input_d,
+                             float* otsu_rescale,
+                             uint* histo_buffer_d,
+                             float* thresholds_d,
+                             size_t nclasses,
+                             size_t size,
+                             const cudaStream_t stream);
