@@ -131,7 +131,7 @@ float otsu_threshold(const float* image_d, uint* histo_buffer_d, int size, const
         }
     }
 
-    return (float)optimalThreshold / (float)NUM_BINS;
+    return (float)optimalThreshold / ((float)NUM_BINS - 1.0f);
 }
 
 void compute_binarise_otsu(
