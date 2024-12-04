@@ -43,13 +43,13 @@ void set_registration_enabled(bool value)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
-/**
+/*!
  * \brief Loads a convolution matrix from a file
  *
  * This function is a tool / util supposed to be called by other functions
  *
- * \param file The name of the file to load the matrix from. NOT A FULL PATH
- * \param convo_matrix Where to store the read matrix
+ * \param[in] file The name of the file to load the matrix from. NOT A FULL PATH
+ * \param[in] convo_matrix Where to store the read matrix
  *
  * \throw std::runtime_error runtime_error When the matrix cannot be loaded
  */
@@ -57,7 +57,7 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
 {
     auto& holo = Holovibes::instance();
 
-    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file; //"convolution_kernels" / file;
+    auto path_file = dir / __CONVOLUTION_KERNEL_FOLDER_PATH__ / file;
     std::string path = path_file.string();
 
     std::vector<float> matrix;

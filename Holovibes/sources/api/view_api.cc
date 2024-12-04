@@ -157,12 +157,6 @@ void* get_hologram_last_image()
     return nullptr;
 }
 
-// void* get_lens_last_image();     // api::get_compute_pipe()->get_lens_queue().get()
-// void* get_xz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(0).get()
-// void* get_yz_last_image();       // api::get_compute_pipe()->get_stft_slice_queue(1).get()
-// void* get_filter2d_last_image(); // api::get_compute_pipe()->get_filter2d_view_queue().get()
-// void* get_chart_last_image();    // api::get_compute_pipe()->get_chart_display_queue().get()
-
 #pragma endregion
 
 } // namespace holovibes::api
