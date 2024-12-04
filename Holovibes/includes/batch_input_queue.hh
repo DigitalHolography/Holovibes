@@ -63,7 +63,7 @@ class BatchInputQueue final : public DisplayQueue
      * The producer is in the critical while enqueueing in a batch
      * and exit this critical section when a batch of frames is full
      * in order to let the resize occure if needed.
-     * 
+     *
      * \param input_frame Pointer to the frame buffers
      * \param nb_frame Number of frames to enqueue
      */
