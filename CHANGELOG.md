@@ -2,6 +2,9 @@
 
 ### 14.X.X
 
+- Registration is fixed:
+  - Now the registaration is working with LDH.
+  - The registration does not need the fftshift to work anymore. Hence the image is registered whether or not the fftshift is activated.
 - Add 3 new preset :
   - doppler_8b_512_256_25.json
   - doppler_8b_1024_768_120.json
