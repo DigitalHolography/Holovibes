@@ -1,6 +1,6 @@
-/*! \file
+/*! \file avi_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief This file contains the AviFile base class definition (inherited for writing avi files).
  */
 #pragma once
 
@@ -8,7 +8,7 @@ namespace holovibes::io_files
 {
 /*! \class AviFile
  *
- * \brief #TODO Add a description for this class
+ * \brief A base class for the AviFile class.
  */
 class AviFile
 {

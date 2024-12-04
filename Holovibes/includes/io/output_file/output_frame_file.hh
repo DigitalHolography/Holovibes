@@ -1,6 +1,6 @@
-/*! \file
+/*! \file output_frame_file.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the OutputFrameFile class, the base class for all output files class.
  */
 #pragma once
 

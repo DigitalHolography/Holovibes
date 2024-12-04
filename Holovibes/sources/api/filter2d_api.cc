@@ -35,10 +35,6 @@ void set_filter2d_n2(int value)
 
 inline static const std::filesystem::path dir(GET_EXE_DIR);
 
-std::vector<float> get_input_filter() { return GET_SETTING(InputFilter); }
-
-void set_input_filter(std::vector<float> value) { UPDATE_SETTING(InputFilter, value); }
-
 void load_input_filter(const std::string& file)
 {
     auto& holo = Holovibes::instance();
