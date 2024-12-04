@@ -31,7 +31,7 @@ __device__ uint find(uint* linked, uint l)
 }
 
 __global__ void
-propagate_labels_kernel(uint* labels, uint* linked, const size_t height, const size_t width, size_t* change)
+propagate_labels_4n_kernel(uint* labels, uint* linked, const size_t height, const size_t width, size_t* change)
 {
     size_t x = (threadIdx.x + blockIdx.x * blockDim.x);
     size_t y = (threadIdx.y + blockIdx.y * blockDim.y);
@@ -49,6 +49,45 @@ propagate_labels_kernel(uint* labels, uint* linked, const size_t height, const s
 
         int min_l = l;
         for (size_t i = 0; i < 4; i++)
+        {
+            if (n[i] != 0 && n[i] < min_l)
+            {
+                linked[min_l] = n[i];
+                min_l = n[i];
+            }
+        }
+
+        if (min_l < l)
+        {
+            labels[idx] = min_l;
+            *change = 1;
+        }
+    }
+}
+
+__global__ void
+propagate_labels_8n_kernel(uint* labels, uint* linked, const size_t height, const size_t width, size_t* change)
+{
+    size_t x = (threadIdx.x + blockIdx.x * blockDim.x);
+    size_t y = (threadIdx.y + blockIdx.y * blockDim.y);
+    size_t idx = x * width + y;
+
+    if (x < width && y < height && labels[x * width + y] != 0)
+    {
+        int l = labels[idx];
+
+        int n[8];
+        n[0] = (y > 0) ? find(linked, labels[idx - 1]) : 0;
+        n[1] = (y < width - 1) ? find(linked, labels[idx + 1]) : 0;
+        n[2] = (x > 0) ? find(linked, labels[idx - width]) : 0;
+        n[3] = (x < height - 1) ? find(linked, labels[idx + width]) : 0;
+        n[4] = (y > 0 && x > 0) ? find(linked, labels[idx - 1 - width]) : 0;
+        n[5] = (y < width - 1 && x > 0) ? find(linked, labels[idx + 1 - width]) : 0;
+        n[6] = (y > 0 && x < height - 1) ? find(linked, labels[idx - 1 + width]) : 0;
+        n[7] = (y < width - 1 && x < height - 1) ? find(linked, labels[idx + 1 + width]) : 0;
+
+        int min_l = l;
+        for (size_t i = 0; i < 8; i++)
         {
             if (n[i] != 0 && n[i] < min_l)
             {
@@ -83,7 +122,8 @@ void get_connected_component(uint* labels_d,
                              const size_t width,
                              const size_t height,
                              size_t* change_d,
-                             const cudaStream_t stream)
+                             const cudaStream_t stream,
+                             bool four_neig = true)
 {
     // Setting up the parallelisation.
     uint threads_2d = get_max_threads_2d();
@@ -99,7 +139,12 @@ void get_connected_component(uint* labels_d,
     {
         cudaXMemset(change_d, 0, sizeof(size_t));
 
-        propagate_labels_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
+        if (four_neig)
+            propagate_labels_4n_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
+        else
+
+            propagate_labels_8n_kernel<<<lblocks, lthreads, 0, stream>>>(labels_d, linked_d, height, width, change_d);
+
         cudaCheckError();
         cudaXStreamSynchronize(stream);
         cudaXMemcpy(&change_h, change_d, sizeof(size_t), cudaMemcpyDeviceToHost);
@@ -203,7 +248,7 @@ void bwareaopen(float* input_output,
 {
     size_t size = width * height;
 
-    get_connected_component(labels_d, linked_d, input_output, width, height, change_d, stream);
+    get_connected_component(labels_d, linked_d, input_output, width, height, change_d, stream, false);
 
     get_labels_sizes(labels_sizes_d, labels_d, size, stream);
     if (n != 0)
