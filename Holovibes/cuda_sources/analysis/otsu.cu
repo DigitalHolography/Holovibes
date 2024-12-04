@@ -45,7 +45,6 @@ __global__ void global_threshold_kernel(float* input, int size, float globalThre
         input[idx] = input[idx] > globalThreshold;
 }
 
-
 float otsu_threshold(
     const float* image_d, uint* histo_buffer_d, float* threshold_d, int size, const cudaStream_t stream)
 {
