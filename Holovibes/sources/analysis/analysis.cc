@@ -228,7 +228,7 @@ void Analysis::insert_first_analysis_masks()
 
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
                                  moments_env_.moment0_buffer,
-                                 sizeof(float) * 512 * 512,
+                                 sizeof(float) * fd_.width * fd_.height,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
 
@@ -261,6 +261,9 @@ void Analysis::insert_first_analysis_masks()
                                   vesselness_filter_struct_,
                                   cublas_handler_,
                                   stream_);
+
+                // Uncomment if using real moments
+                // shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
 
                 // Compute and apply a circular diaphragm mask on the vesselness output
                 apply_diaphragm_mask(buffers_.gpu_postprocess_frame,
@@ -308,6 +311,12 @@ void Analysis::insert_first_analysis_masks()
                                       buffers_.gpu_postprocess_frame_size,
                                       stream_);
 
+                // print_in_file_gpu<float>(vesselness_mask_env_.m1_divided_by_m0_frame_,
+                //                          512,
+                //                          512,
+                //                          "m1_divided_by_m0",
+                //                          stream_);
+
                 vesselness_mask_env_.f_avg_video_cb_->add_new_frame(vesselness_mask_env_.m1_divided_by_m0_frame_);
 
                 vesselness_mask_env_.f_avg_video_cb_->compute_mean_image();
@@ -345,9 +354,11 @@ void Analysis::insert_first_analysis_masks()
                                                                stream_);
 
                 // From here ~90 FPS
-                // From here, also issue to get good fps because we don't have Titouan's code
+                // From here, also issue to get good fps because we don't
+                // have Titouan's code
                 cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
-                                 buffers_.gpu_postprocess_frame, // This is the result of otsu
+                                 buffers_.gpu_postprocess_frame, // This is the result of
+                                                                 // otsu
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
@@ -368,7 +379,8 @@ void Analysis::insert_first_analysis_masks()
                            stream_);
 
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-                                 buffers_.gpu_postprocess_frame, // this is the result of otsu
+                                 buffers_.gpu_postprocess_frame, // this is the result of
+                                                                 // otsu
                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
                                  cudaMemcpyDeviceToDevice,
                                  stream_);
@@ -382,7 +394,8 @@ void Analysis::insert_first_analysis_masks()
                 // Fps here ~90 FPS
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_1_2(vesselness_mask_env_.mask_vesselness_clean_);
                 // Fps here ~45 FPS, better than before (5 FPS)
-                // With all the other code, we are at 40 FPS so we won't test
+                // With all the other code, we are at 40 FPS so we won't
+                // test
 
                 cudaXMemcpy(vesselness_filter_struct_.vascular_pulse,
                             vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_(),
@@ -437,7 +450,8 @@ void Analysis::insert_first_analysis_masks()
 
                 float thresholds[3] = {0.207108953480839f,
                                        0.334478400506137f,
-                                       0.458741275652768f}; // this is hardcoded, need to call arthur function
+                                       0.458741275652768f}; // this is hardcoded, need to call
+                                                            // arthur function
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
@@ -470,7 +484,7 @@ void Analysis::insert_artery_mask()
                                           stream_);
                 // bwareaopen is 4 neighbours currently, should be 8
                 bwareaopen(buffers_.gpu_postprocess_frame,
-                           150,
+                           setting<settings::MinMaskArea>(),
                            fd_.width,
                            fd_.height,
                            uint_buffer_1_.get(),
@@ -498,7 +512,7 @@ void Analysis::insert_vein_mask()
                                         buffers_.gpu_postprocess_frame_size,
                                         stream_);
                 bwareaopen(buffers_.gpu_postprocess_frame,
-                           150,
+                           setting<settings::MinMaskArea>(),
                            fd_.width,
                            fd_.height,
                            uint_buffer_1_.get(),
@@ -588,86 +602,6 @@ void Analysis::insert_choroid_mask()
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
-}
-
-void Analysis::insert_otsu()
-{
-    LOG_FUNC();
-
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::OtsuEnabled>() == true)
-    {
-
-        fn_compute_vect_->conditional_push_back(
-            [=]()
-            {
-                // if (setting<settings::OtsuKind>() == OtsuKind::Adaptive)
-                // {
-                //     compute_binarise_otsu_bradley(float_buffer_.get(),
-                //                                   otsu_histo_buffer_.get(),
-                //                                   buffers_.gpu_postprocess_frame,
-                //                                   otsu_float_gpu_.get(),
-                //                                   fd_.width,
-                //                                   fd_.height,
-                //                                   setting<settings::OtsuWindowSize>(),
-                //                                   setting<settings::OtsuLocalThreshold>(),
-                //                                   stream_);
-                //     cudaXMemcpy(buffers_.gpu_postprocess_frame,
-                //                 float_buffer_.get(),
-                //                 buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //                 cudaMemcpyDeviceToDevice);
-                // }
-                // else
-                //     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                //                           otsu_histo_buffer_.get(),
-                //                           otsu_float_gpu_.get(),
-                //                           fd_.width,
-                //                           fd_.height,
-                //                           stream_);
-            });
-    }
-}
-
-void Analysis::insert_bwareafilt()
-{
-    LOG_FUNC();
-
-    fn_compute_vect_->conditional_push_back(
-        [=]()
-        {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareafiltEnabled>() == true)
-                bwareafilt(buffers_.gpu_postprocess_frame.get(),
-                           fd_.width,
-                           fd_.height,
-                           uint_buffer_1_.get(),
-                           uint_buffer_2_.get(),
-                           float_buffer_.get(),
-                           size_t_gpu_.get(),
-                           cuda_tools::CublasHandle::instance(),
-                           stream_);
-        });
-}
-
-void Analysis::insert_bwareaopen()
-{
-    LOG_FUNC();
-
-    fn_compute_vect_->conditional_push_back(
-        [=]()
-        {
-            if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::BwareaopenEnabled>() == true)
-            {
-                shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
-                bwareaopen(buffers_.gpu_postprocess_frame.get(),
-                           setting<settings::MinMaskArea>(),
-                           fd_.width,
-                           fd_.height,
-                           uint_buffer_1_.get(),
-                           uint_buffer_2_.get(),
-                           float_buffer_.get(),
-                           size_t_gpu_.get(),
-                           stream_);
-            }
-        });
 }
 
 } // namespace holovibes::analysis
