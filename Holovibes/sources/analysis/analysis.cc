@@ -98,7 +98,6 @@ void Analysis::init()
     size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
     otsu_histo_buffer_.resize(OTSU_BINS);
-    otsu_float_gpu_.resize(1);
     otsu_histo_buffer_2_.resize(OTSU_BINS);
 
     // Allocate vesselness mask env buffers
@@ -274,15 +273,21 @@ void Analysis::insert_first_analysis_masks()
 
                 // From here ~160 FPS
 
-                // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
-                float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
-                                                         otsu_histo_buffer_2_,
-                                                         buffers_.gpu_postprocess_frame_size,
-                                                         otsu_struct_,
-                                                         stream_);
+                // // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
+                // float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
+                //                                          otsu_histo_buffer_2_,
+                //                                          buffers_.gpu_postprocess_frame_size,
+                //                                          otsu_struct_,
+                //                                          stream_);
 
-                // Binarize the vesselness output to produce the mask vesselness
-                apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+                // // Binarize the vesselness output to produce the mask vesselness
+                // apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+
+                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
+                                      otsu_histo_buffer_.get(),
+                                      fd_.width,
+                                      fd_.height,
+                                      stream_);
 
                 // Store mask_vesselness for later computations
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,

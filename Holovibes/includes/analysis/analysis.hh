@@ -213,8 +213,6 @@ class Analysis
     /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
     /*! \brief TODO: comment */
-    cuda_tools::CudaUniquePtr<float> otsu_float_gpu_;
-    /*! \brief TODO: comment */
     cuda_tools::CudaUniquePtr<float> otsu_histo_buffer_2_;
 };
 } // namespace holovibes::analysis
