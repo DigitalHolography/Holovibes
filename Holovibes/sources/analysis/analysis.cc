@@ -97,7 +97,6 @@ void Analysis::init()
     size_t_gpu_.resize(1);
     float_buffer_.safe_resize(frame_res);
     otsu_histo_buffer_.resize(256);
-    otsu_float_gpu_.resize(1);
 
     // Allocate vesselness mask env buffers
     vesselness_mask_env_.time_window_ = api::get_time_window();
@@ -265,7 +264,6 @@ void Analysis::insert_first_analysis_masks()
                 // Binarize the vesselness output to produce the mask vesselness
                 compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                       otsu_histo_buffer_.get(),
-                                      otsu_float_gpu_.get(),
                                       fd_.width,
                                       fd_.height,
                                       stream_);
@@ -579,7 +577,6 @@ void Analysis::insert_otsu()
                     compute_binarise_otsu_bradley(float_buffer_.get(),
                                                   otsu_histo_buffer_.get(),
                                                   buffers_.gpu_postprocess_frame,
-                                                  otsu_float_gpu_.get(),
                                                   fd_.width,
                                                   fd_.height,
                                                   setting<settings::OtsuWindowSize>(),
@@ -594,7 +591,6 @@ void Analysis::insert_otsu()
                 else
                     compute_binarise_otsu(buffers_.gpu_postprocess_frame,
                                           otsu_histo_buffer_.get(),
-                                          otsu_float_gpu_.get(),
                                           fd_.width,
                                           fd_.height,
                                           stream_);
