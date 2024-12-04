@@ -18,7 +18,6 @@
 #include "imbinarize.cuh"
 
 #define DIAPHRAGM_FACTOR 0.4f
-#define FROM_CSV false
 #define OTSU_BINS 256
 
 namespace holovibes::analysis
@@ -277,10 +276,9 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.height,
                                      stream_);
 
-// From here ~160 FPS
+                // From here ~160 FPS
 
-// Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
-#if !FROM_CSV
+                // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
                 float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
                                                          otsu_histo_buffer_2_,
                                                          buffers_.gpu_postprocess_frame_size,
@@ -289,14 +287,6 @@ void Analysis::insert_first_analysis_masks()
 
                 // Binarize the vesselness output to produce the mask vesselness
                 apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
-
-#else
-                cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                                 mask_vesselness_csv_,
-                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                                 cudaMemcpyDeviceToDevice,
-                                 stream_);
-#endif
 
                 // Store mask_vesselness for later computations
                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
@@ -389,13 +379,6 @@ void Analysis::insert_first_analysis_masks()
                                stream_);
 
                 // Fps here ~90 FPS
-                // // To be removed but to get the identical result
-                // cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-                //                  mask_vesselness_clean_csv_,
-                //                  512 * 512 * sizeof(float),
-                //                  cudaMemcpyDeviceToDevice,
-                //                  stream_);
-
                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_1_2(vesselness_mask_env_.mask_vesselness_clean_);
                 // Fps here ~45 FPS, better than before (5 FPS)
                 // With all the other code, we are at 40 FPS so we won't test
