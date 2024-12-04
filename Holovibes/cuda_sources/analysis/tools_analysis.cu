@@ -1,3 +1,7 @@
+#include <vector>
+#include <algorithm>
+#include <type_traits>
+#include <cstdint>
 
 #include "cuda_memory.cuh"
 #include "matrix_operations.hh"
@@ -554,7 +558,6 @@ kernel_normalize_array(float* input_output, size_t size, float min_range, float 
     }
 }
 
-// Host function to normalize a device-only array
 void normalize_array(float* input_output, size_t size, float min_range, float max_range, cudaStream_t stream)
 {
     // Step 1: Use Thrust to find min and max values on the device
@@ -571,4 +574,18 @@ void normalize_array(float* input_output, size_t size, float min_range, float ma
     const uint blocks = map_blocks_to_problem(size, threads);
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(input_output, size, min_range, max_range, min_val, max_val);
     cudaCheckError();
+}
+
+void im2uint8(float* image, size_t size, float minVal, float maxVal)
+{
+    float scale = maxVal - minVal;
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        float clampedValue = std::max(minVal, std::min(maxVal, image[i]));
+
+        float uint8Value = std::round(255 * (clampedValue - minVal) / scale);
+
+        image[i] = uint8Value;
+    }
 }
