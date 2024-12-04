@@ -104,7 +104,7 @@ void set_computation_mode(Computation mode)
 
     if (mode == Computation::Hologram)
     {
-        api::change_window(static_cast<int>(WindowKind::XYview));
+        api::change_window(WindowKind::XYview);
         api::set_contrast_enabled(true);
     }
     else

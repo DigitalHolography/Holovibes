@@ -3,7 +3,13 @@
 namespace holovibes::api
 {
 
-#pragma region Views Logic
+#pragma region 3D Cuts View
+
+/*! \brief Sets whether the 3D cuts view are enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
 
 bool set_3d_cuts_view(bool enabled)
 {
@@ -51,6 +57,16 @@ bool set_3d_cuts_view(bool enabled)
     return false;
 }
 
+#pragma endregion
+
+#pragma region Filter2D View
+
+/*! \brief Sets whether the 2D filter view is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
+
 void set_filter2d_view(bool enabled)
 {
     if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
@@ -74,6 +90,16 @@ void set_filter2d_view(bool enabled)
     }
 }
 
+#pragma endregion
+
+#pragma region Chart View
+
+/*! \brief Sets whether the chart display is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
+
 void set_chart_display(bool enabled)
 {
     if (get_chart_display_enabled() == enabled)
@@ -94,6 +120,16 @@ void set_chart_display(bool enabled)
     }
 }
 
+#pragma endregion
+
+#pragma region Lens View
+
+/*! \brief Sets whether the lens view is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
+
 void set_lens_view(bool enabled)
 {
     if (api::get_import_type() == ImportType::None || get_compute_mode() == Computation::Raw ||
@@ -110,6 +146,16 @@ void set_lens_view(bool enabled)
             continue;
     }
 }
+
+#pragma endregion
+
+#pragma region Raw View
+
+/*! \brief Sets whether the raw view is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
 
 void set_raw_view(bool enabled)
 {
@@ -146,8 +192,6 @@ void* get_raw_last_image()
 
     return nullptr;
 }
-
-// void* get_raw_view_last_image(); // get_input_queue().get()
 
 void* get_hologram_last_image()
 {

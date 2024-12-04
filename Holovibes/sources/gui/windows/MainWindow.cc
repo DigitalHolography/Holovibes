@@ -697,7 +697,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
 void MainWindow::change_window(int index)
 {
-    api::change_window(index);
+    api::change_window(static_cast<WindowKind>(index));
 
     notify();
 }

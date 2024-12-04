@@ -1,13 +1,13 @@
 /*! \file view_api.hh
  *
- * \brief Regroup all functions used to interact with the different view.
+ * \brief Regroup all functions used to interact with the different view and view related settings.
  *
  * Views are:
- * - Filter2D
  * - 3D Cuts
- * - Raw
- * - Lens
+ * - Filter2D
  * - Chart
+ * - Lens
+ * - Raw
  */
 #pragma once
 
@@ -17,37 +17,31 @@
 namespace holovibes::api
 {
 
-#pragma region View Settings
+#pragma region Focused Window
 
+/*! \brief Returns the type of the focused window. This setting is only useful if you use functions overload that does
+ * not take a WindowKind as parameter (for contrast, log and other window specific computation).
+ *
+ * \return WindowKind the current window type
+ */
 inline WindowKind get_current_window_type() { return GET_SETTING(CurrentWindow); }
 
-/*! \brief Changes the focused windows
+/*! \brief Changes the focused window. This function is only useful if you use functions overload that does
+ * not take a WindowKind as parameter (for contrast, log and other window specific computation).
  *
- * \param index the index representing the window to select
+ * \param[in] kind the new window type
  */
-inline void change_window(const int index) { UPDATE_SETTING(CurrentWindow, static_cast<WindowKind>(index)); }
-
-inline bool get_cuts_view_enabled() { return GET_SETTING(CutsViewEnabled); }
-inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
-
-inline bool get_filter2d_view_enabled() { return GET_SETTING(Filter2dViewEnabled); }
-inline void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
-
-inline bool get_chart_display_enabled() { return GET_SETTING(ChartDisplayEnabled); }
-inline void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
-
-inline bool get_lens_view_enabled() { return GET_SETTING(LensViewEnabled); }
-inline void set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
-
-inline bool get_raw_view_enabled() { return GET_SETTING(RawViewEnabled); }
-inline void set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
-
-inline float get_display_rate() { return GET_SETTING(DisplayRate); }
-inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); }
+inline void change_window(const WindowKind kind) { UPDATE_SETTING(CurrentWindow, kind); }
 
 #pragma endregion
 
-#pragma region Views Logic
+#pragma region 3D Cuts View
+
+/*! \brief Returns whether the 3D cuts view are enabled or not.
+ *
+ * \return bool true if enabled, false otherwise
+ */
+inline bool get_cuts_view_enabled() { return GET_SETTING(CutsViewEnabled); }
 
 /*! \brief Enables or Disables time transform cuts views
  *
@@ -56,11 +50,31 @@ inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); 
  */
 bool set_3d_cuts_view(bool enabled);
 
+#pragma endregion
+
+#pragma region Filter2D View
+
+/*! \brief Returns whether the 2D filter view is enabled or not.
+ *
+ * \return bool true if enabled, false otherwise
+ */
+inline bool get_filter2d_view_enabled() { return GET_SETTING(Filter2dViewEnabled); }
+
 /*! \brief Adds filter2d view
  *
  * \param[in] enabled true: enable, false: disable
  */
 void set_filter2d_view(bool enabled);
+
+#pragma endregion
+
+#pragma region Chart View
+
+/*! \brief Returns whether the chart display is enabled or not.
+ *
+ * \return bool true if enabled, false otherwise
+ */
+inline bool get_chart_display_enabled() { return GET_SETTING(ChartDisplayEnabled); }
 
 /*! \brief Start or stop the chart display
  *
@@ -68,17 +82,53 @@ void set_filter2d_view(bool enabled);
  */
 void set_chart_display(bool enabled);
 
+#pragma endregion
+
+#pragma region Lens View
+
+/*! \brief Returns whether the lens view is enabled or not.
+ *
+ * \return bool true if enabled, false otherwise
+ */
+inline bool get_lens_view_enabled() { return GET_SETTING(LensViewEnabled); }
+
 /*! \brief Adds or removes lens view.
  *
  * \param[in] enabled true: enable, false: disable
  */
 void set_lens_view(bool enabled);
 
+#pragma endregion
+
+#pragma region Raw View
+
+/*! \brief Returns whether the raw view is enabled or not.
+ *
+ * \return bool true if enabled, false otherwise
+ */
+inline bool get_raw_view_enabled() { return GET_SETTING(RawViewEnabled); }
+
 /*! \brief Adds or removes raw view
 
  * \param[in] enabled true: enable, false: disable
  */
 void set_raw_view(bool enabled);
+
+#pragma endregion
+
+#pragma region Display Rate
+
+/*! \brief Returns the display rate of the view.
+ *
+ * \return float the display rate
+ */
+inline float get_display_rate() { return GET_SETTING(DisplayRate); }
+
+/*! \brief Sets the display rate of the view.
+ *
+ * \param[in] value the new display rate
+ */
+inline void set_display_rate(float value) { UPDATE_SETTING(DisplayRate, value); }
 
 #pragma endregion
 
