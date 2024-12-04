@@ -5,7 +5,6 @@
 - Registration is fixed:
   - Now the registaration is working with LDH.
   - The registration does not need the fftshift to work anymore. Hence the image is registered whether or not the fftshift is activated.
-    Then it lets a lot of possibilities for the user.
 
 ### 14.0.1
 
