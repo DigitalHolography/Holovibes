@@ -168,7 +168,7 @@ void FileFrameReadWorker::read_file_in_gpu()
 void FileFrameReadWorker::read_file_batch()
 {
     const unsigned int file_buffer_size = static_cast<unsigned int>(
-        setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
+        setting<settings::FileBufferSize>()); 
 
     // Read the entire file by batch
     while (!stop_requested_)
@@ -259,7 +259,6 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        // fps_handler_.wait();
         fps_limiter_.wait(setting<settings::InputFPS>() / setting<settings::BatchSize>());
 
         if (Holovibes::instance().is_cli)
@@ -269,13 +268,6 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
-
-        // for (unsigned i = 0; i < setting<settings::BatchSize>(); ++i)
-        // {
-        //     auto ptr = gpu_file_frame_buffer_ + (frames_enqueued + i) * frame_size_;
-        //     input_queue_.load()->enqueue(ptr, cudaMemcpyDeviceToDevice);
-        // }
-
         input_queue_.load()->enqueue_multiple(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
                                               setting<settings::BatchSize>(),
                                               cudaMemcpyDeviceToDevice);
