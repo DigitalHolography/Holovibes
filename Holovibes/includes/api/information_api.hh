@@ -5,6 +5,7 @@
 #pragma once
 
 #include "API.hh"
+#include "information_struct.hh"
 
 namespace holovibes::api
 {
@@ -132,6 +133,8 @@ const std::string get_documentation_url();
 
 /*! \brief Displays information */
 void start_information_display();
+
+void get_information(Information* info);
 
 #pragma endregion
 
