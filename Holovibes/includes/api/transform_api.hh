@@ -101,29 +101,29 @@ inline SpaceTransformation get_space_transformation() { return GET_SETTING(Space
  */
 void set_space_transformation(const SpaceTransformation value);
 
-/*! \brief Returns the wave length of the laser. // TODO(etienne): metrics
+/*! \brief Returns the wave length of the laser (in nm).
  *
- * \return float the wave length
+ * \return float the wave length (in nm)
  */
 inline float get_lambda() { return GET_SETTING(Lambda); }
 
 /*!
- * \brief Sets the wave length of the laser. // TODO(etienne): metrics
+ * \brief Sets the wave length of the laser (in nm).
  *
- * \param[in] value the new value
+ * \param[in] value the new value (in nm)
  */
 void set_lambda(float value);
 
-/*! \brief Returns the distance value for the z-coordinate (the focus). // TODO(etienne): metrics
+/*! \brief Returns the distance in meter for the z-coordinate (the focus).
  *
- * \return float the z-coordinate distance value
+ * \return float the z-coordinate distance in meter.
  */
 inline float get_z_distance() { return GET_SETTING(ZDistance); }
 
 /*!
- * \brief Sets the distance value for the z-coordinate (the focus). // TODO(etienne): metrics
+ * \brief Sets the distance in meter for the z-coordinate (the focus).
  *
- * \param[in] value The new z-coordinate distance value.
+ * \param[in] value The new z-coordinate distance in meter.
  */
 void set_z_distance(float value);
 

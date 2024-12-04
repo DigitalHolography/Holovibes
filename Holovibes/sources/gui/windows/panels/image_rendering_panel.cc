@@ -283,11 +283,12 @@ void ImageRenderingPanel::set_z_distance(const double value)
 
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
+    ui_->ZDoubleSpinBox->setValue(value);
 }
 
-void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
+void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() * 1000 + z_step_); }
 
-void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
+void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() * 1000 - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
