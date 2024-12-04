@@ -61,12 +61,6 @@ bool set_3d_cuts_view(bool enabled)
 
 #pragma region Filter2D View
 
-/*! \brief Sets whether the 2D filter view is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
-
 void set_filter2d_view(bool enabled)
 {
     if (get_compute_mode() == Computation::Raw || get_import_type() == ImportType::None)
@@ -93,12 +87,6 @@ void set_filter2d_view(bool enabled)
 #pragma endregion
 
 #pragma region Chart View
-
-/*! \brief Sets whether the chart display is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
 void set_chart_display(bool enabled)
 {

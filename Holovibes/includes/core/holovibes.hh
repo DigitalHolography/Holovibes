@@ -104,7 +104,6 @@
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
-    holovibes::settings::ZoomedZone,                             \
     holovibes::settings::ReticleZone,                            \
     holovibes::settings::FilterEnabled,                          \
     holovibes::settings::InputFilter,                            \
@@ -436,7 +435,6 @@ class Holovibes
                                              settings::SignalZone{units::RectFd{}},
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
-                                             settings::ZoomedZone{units::RectFd{}},
                                              settings::ReticleZone{units::RectFd{}},
                                              settings::FilterEnabled{false},
                                              settings::InputFilter{{}},

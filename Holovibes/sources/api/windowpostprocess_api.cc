@@ -20,7 +20,7 @@ void set_horizontal_flip(WindowKind kind, bool value)
 {
     NOT_FILTER2D(kind, "horizontal flip");
     auto window = get_window_xyz(kind);
-    window.horizontal_flip = get_horizontal_flip();
+    window.horizontal_flip = value;
     set_window_xyz(kind, window);
 }
 

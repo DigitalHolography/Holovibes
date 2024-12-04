@@ -60,6 +60,12 @@ bool set_3d_cuts_view(bool enabled);
  */
 inline bool get_filter2d_view_enabled() { return GET_SETTING(Filter2dViewEnabled); }
 
+/*! \brief Sets whether the 2D filter view is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_filter2d_view_enabled(bool value) { UPDATE_SETTING(Filter2dViewEnabled, value); }
+
 /*! \brief Adds filter2d view
  *
  * \param[in] enabled true: enable, false: disable
@@ -75,6 +81,12 @@ void set_filter2d_view(bool enabled);
  * \return bool true if enabled, false otherwise
  */
 inline bool get_chart_display_enabled() { return GET_SETTING(ChartDisplayEnabled); }
+
+/*! \brief Sets whether the chart display is enabled or not.
+ *
+ * \param[in] value true: enable, false: disable
+ */
+inline void set_chart_display_enabled(bool value) { UPDATE_SETTING(ChartDisplayEnabled, value); }
 
 /*! \brief Start or stop the chart display
  *
