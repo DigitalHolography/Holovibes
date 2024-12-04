@@ -17,7 +17,6 @@ namespace holovibes::gui
 {
 ExportPanel::ExportPanel(QWidget* parent)
     : Panel(parent)
-    , import_start_subscriber_("import_start", [this](bool success) { set_record_image_mode(); })
     , start_record_subscriber_("start_record_export_panel", [this](bool _unused) { start_record(); })
     , set_output_file_path_subscriber_("set_output_file_name",
                                        std::bind(&ExportPanel::set_output_file_name, this, std::placeholders::_1))
@@ -28,12 +27,6 @@ ExportPanel::ExportPanel(QWidget* parent)
 
 ExportPanel::~ExportPanel() {}
 
-void ExportPanel::init()
-{
-    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
-    set_record_mode(QString::fromUtf8("Raw Image"));
-}
-
 /*
  * \brief Small helper function NOT IN THE CLASS to update the record output file path in the UI.
  * Exists to avoid code duplication and to centralise the Notifier name 'record_output_file'.
@@ -43,36 +36,72 @@ void actualise_record_output_file_ui(const std::filesystem::path file_path)
     NotifierManager::notify<std::filesystem::path>("record_output_file", file_path);
 }
 
+void ExportPanel::init()
+{
+    ui_->NumberOfFramesSpinBox->setSingleStep(record_frame_step_);
+    set_record_mode(static_cast<int>(RecordMode::RAW)); // Not great but it works
+
+    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
+}
+
 void ExportPanel::on_notify()
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    // File extension
+    auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
+    auto extension_indexes =
+        api::get_supported_formats(api::get_record_mode()); // The indexes compatible with the current record mode
+    for (int i = 0; i < ui_->RecordExtComboBox->count(); i++)
     {
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Processed Image"));
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("Chart"));
-    }
-    else // Hologram mode
-    {
-        if (ui_->RecordImageModeComboBox->findText("Processed Image") == -1)
-            ui_->RecordImageModeComboBox->insertItem(1, "Processed Image");
-        if (ui_->RecordImageModeComboBox->findText("Chart") == -1)
-            ui_->RecordImageModeComboBox->insertItem(2, "Chart");
+        bool do_hide = std::find(extension_indexes.begin(), extension_indexes.end(), i) == extension_indexes.end();
+        file_ext_view->setRowHidden(i, do_hide); // Hiding the incompatible extensions
+
+        // Changing the current extension if it is not compatible with the current record mode
+        if (i == ui_->RecordExtComboBox->currentIndex() && do_hide)
+            ui_->RecordExtComboBox->setCurrentIndex(extension_indexes[0]);
     }
 
-    if (ui_->TimeTransformationCutsCheckBox->isChecked())
+    if (api::get_record_mode() == RecordMode::CHART)
     {
-        // Only one check is needed
-        if (ui_->RecordImageModeComboBox->findText("3D Cuts XZ") == -1)
+        ui_->ChartPlotWidget->show();
+
+        if (gui::get_main_display())
         {
-            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts XZ");
-            ui_->RecordImageModeComboBox->insertItem(1, "3D Cuts YZ");
+            gui::get_main_display()->resetTransform();
+
+            gui::get_main_display()->getOverlayManager().enable<Noise>();
+            gui::get_main_display()->getOverlayManager().enable<Signal>();
         }
     }
     else
     {
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts XZ"));
-        ui_->RecordImageModeComboBox->removeItem(ui_->RecordImageModeComboBox->findText("3D Cuts YZ"));
+        ui_->ChartPlotWidget->hide();
+
+        if (gui::get_main_display())
+        {
+            gui::get_main_display()->resetTransform();
+
+            gui::get_main_display()->getOverlayManager().disable(Signal);
+            gui::get_main_display()->getOverlayManager().disable(Noise);
+        }
     }
 
+    // Record type
+    auto img_mode_view = qobject_cast<QListView*>(ui_->RecordImageModeComboBox->view());
+
+    ui_->RecordImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_record_mode()));
+
+    // Hiding most of the options when in raw mode
+    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::HOLOGRAM), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CHART), is_raw);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw);
+
+    // When set to raw, the 3D cuts are automatically disabled, so this works as a valid toggle for raw mode too
+    const bool hide_cuts = !ui_->TimeTransformationCutsCheckBox->isChecked();
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_XZ), hide_cuts);
+    img_mode_view->setRowHidden(static_cast<int>(RecordMode::CUTS_YZ), hide_cuts);
+
+    // Chart buttons
     QPushButton* signalBtn = ui_->ChartSignalPushButton;
     signalBtn->setStyleSheet((gui::get_main_display() && signalBtn->isEnabled() &&
                               gui::get_main_display()->getKindOfOverlay() == KindOfOverlay::Signal)
@@ -85,6 +114,7 @@ void ExportPanel::on_notify()
                                 ? "QPushButton {color: #00A4AB;}"
                                 : "");
 
+    // File path
     QLineEdit* path_line_edit = ui_->OutputFilePathLineEdit;
     path_line_edit->clear();
 
@@ -93,9 +123,11 @@ void ExportPanel::on_notify()
          UserInterfaceDescriptor::instance().output_filename_)
             .string();
     path_line_edit->insert(record_output_path.c_str());
+    path_line_edit->setToolTip(record_output_path.c_str());
 
     actualise_record_output_file_ui(record_output_path);
 
+    // Number of frames
     if (api::get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
@@ -103,6 +135,11 @@ void ExportPanel::on_notify()
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
+
+    if (api::get_import_type() == ImportType::File)
+        ui_->NumberOfFramesSpinBox->setValue(
+            ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
+                 (float)ui_->TimeStrideSpinBox->value()));
 }
 
 void ExportPanel::set_record_frame_step(int step)
@@ -112,11 +149,6 @@ void ExportPanel::set_record_frame_step(int step)
 }
 
 int ExportPanel::get_record_frame_step() { return record_frame_step_; }
-
-void ExportPanel::init_light_ui()
-{
-    actualise_record_output_file_ui(std::filesystem::path(ui_->OutputFilePathLineEdit->text().toStdString()));
-}
 
 QString ExportPanel::browse_record_output_file()
 {
@@ -161,7 +193,7 @@ QString ExportPanel::browse_record_output_file()
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
 
-    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    const std::string file_ext = gui::browse_record_output_file(std_filepath);
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
@@ -172,7 +204,7 @@ QString ExportPanel::browse_record_output_file()
 
 void ExportPanel::set_output_file_name(std::string std_filepath)
 {
-    const std::string file_ext = api::browse_record_output_file(std_filepath);
+    const std::string file_ext = gui::browse_record_output_file(std_filepath);
     // Will pick the item combobox related to file_ext if it exists, else, nothing is done
     ui_->RecordExtComboBox->setCurrentText(file_ext.c_str());
 
@@ -181,69 +213,12 @@ void ExportPanel::set_output_file_name(std::string std_filepath)
 
 void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->setEnabled(value); }
 
-void ExportPanel::set_record_mode(const QString& value)
+void ExportPanel::set_record_mode(int index)
 {
     if (api::get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    stop_record();
-
-    const std::string text = value.toStdString();
-
-    api::set_record_mode(text);
-
-    if (api::get_record_mode() == RecordMode::CHART)
-    {
-        ui_->RecordExtComboBox->clear();
-        ui_->RecordExtComboBox->insertItem(0, ".csv");
-        ui_->RecordExtComboBox->insertItem(1, ".txt");
-
-        ui_->ChartPlotWidget->show();
-
-        if (gui::get_main_display())
-        {
-            gui::get_main_display()->resetTransform();
-
-            gui::get_main_display()->getOverlayManager().enable<Noise>();
-            gui::get_main_display()->getOverlayManager().enable<Signal>();
-        }
-    }
-    else
-    {
-        if (api::get_record_mode() == RecordMode::RAW)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-        else if (api::get_record_mode() == RecordMode::HOLOGRAM)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-            ui_->RecordExtComboBox->insertItem(2, ".mp4");
-        }
-        else if (api::get_record_mode() == RecordMode::CUTS_YZ || api::get_record_mode() == RecordMode::CUTS_XZ)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".mp4");
-            ui_->RecordExtComboBox->insertItem(1, ".avi");
-        }
-        else if (api::get_record_mode() == RecordMode::MOMENTS)
-        {
-            ui_->RecordExtComboBox->clear();
-            ui_->RecordExtComboBox->insertItem(0, ".holo");
-        }
-
-        ui_->ChartPlotWidget->hide();
-
-        if (gui::get_main_display())
-        {
-            gui::get_main_display()->resetTransform();
-
-            gui::get_main_display()->getOverlayManager().disable(Signal);
-            gui::get_main_display()->getOverlayManager().disable(Noise);
-        }
-    }
+    api::set_record_mode_enum(static_cast<RecordMode>(index));
 
     parent_->notify();
 }
@@ -267,8 +242,6 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->ExportStopPushButton->setEnabled(false);
     ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
 
-    api::record_finished();
-
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
 }
@@ -284,7 +257,6 @@ void ExportPanel::start_record()
     ui_->RawDisplayingCheckBox->setHidden(true);
 
     ui_->BatchSizeSpinBox->setEnabled(false);
-    UserInterfaceDescriptor::instance().is_recording_ = true;
 
     // set the record progress bar color to orange, the patient should not move
     ui_->InfoPanel->set_recordProgressBar_color(QColor(209, 90, 25), "Recording: %v/%m");
@@ -304,22 +276,21 @@ void ExportPanel::start_record()
 
 void ExportPanel::activeSignalZone()
 {
-    api::active_signal_zone();
+    gui::active_signal_zone();
     parent_->notify();
 }
 
 void ExportPanel::activeNoiseZone()
 {
-    api::active_noise_zone();
+    gui::active_noise_zone();
     parent_->notify();
 }
 
 void ExportPanel::start_chart_display()
 {
-    if (api::get_chart_display_enabled())
-        return;
+    api::set_chart_display(true);
+    gui::set_chart_display(true);
 
-    api::start_chart_display();
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
             SIGNAL(closed()),
             this,
@@ -331,10 +302,8 @@ void ExportPanel::start_chart_display()
 
 void ExportPanel::stop_chart_display()
 {
-    if (!api::get_chart_display_enabled())
-        return;
-
-    api::stop_chart_display();
+    api::set_chart_display(false);
+    gui::set_chart_display(false);
 
     ui_->ChartPlotPushButton->setEnabled(true);
 }
@@ -349,45 +318,10 @@ void ExportPanel::update_record_frame_count_enabled()
         api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
-void ExportPanel::update_record_frame_count() {}
-
 void ExportPanel::update_record_file_path()
 {
     api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
                               ui_->RecordExtComboBox->currentText().toStdString());
-}
-
-void ExportPanel::set_record_image_mode()
-{
-    ui_->RecordImageModeComboBox->setCurrentText(QString("Processed Image"));
-    api::set_record_mode(RecordMode::HOLOGRAM);
-}
-
-void ExportPanel::update_record_mode()
-{
-    set_record_mode(ui_->RecordImageModeComboBox->currentText());
-
-    std::string record_mode_str = ui_->RecordImageModeComboBox->currentText().toStdString();
-    RecordMode record_mode = RecordMode::NONE;
-    if (record_mode_str == "Chart")
-        record_mode = RecordMode::CHART;
-    else if (record_mode_str == "Processed Image")
-        record_mode = RecordMode::HOLOGRAM;
-    else if (record_mode_str == "Raw Image")
-        record_mode = RecordMode::RAW;
-    else if (record_mode_str == "3D Cuts XZ")
-        record_mode = RecordMode::CUTS_XZ;
-    else if (record_mode_str == "3D Cuts YZ")
-        record_mode = RecordMode::CUTS_YZ;
-    else if (record_mode_str == "Moments")
-        record_mode = RecordMode::MOMENTS;
-    else
-    {
-        LOG_CRITICAL("[ExportPanel] [update_record_mode] Record mode \"{}\" not handled", record_mode_str);
-        exit(4);
-    }
-
-    api::set_record_mode(record_mode);
 }
 
 /**

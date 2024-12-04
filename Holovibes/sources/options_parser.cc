@@ -65,11 +65,6 @@ OptionsParser::OptionsParser()
         "Enable raw recording (default = false)"
     )
     (
-        "gpu",
-        po::bool_switch()->default_value(false),
-        "Load file in GPU (default = false)"
-    )
-    (
         "start_frame,s",
         po::value<unsigned int>(),
         "Start frame (default = 1). Everything strictly before start frame is not read."
@@ -78,11 +73,6 @@ OptionsParser::OptionsParser()
         "end_frame,e",
         po::value<unsigned int>(),
         "End frame (default = eof). Everything strictly after end frame is not read."
-    )
-    (
-        "benchmark,b",
-        po::bool_switch()->default_value(false),
-        "Benchmark mode (default = false)"
     )
     (
         "frame_skip",
@@ -170,8 +160,6 @@ OptionsDescriptor OptionsParser::parse(int argc, char* const argv[])
         options_.record_raw = vm_["raw"].as<bool>();
         options_.verbose = vm_["verbose"].as<bool>();
         options_.noskip_acc = vm_["noskip_acc"].as<bool>();
-        options_.gpu = vm_["gpu"].as<bool>();
-        options_.benchmark = vm_["benchmark"].as<bool>();
         if (vm_.count("frame_skip"))
         {
             int frame_skip = boost::any_cast<uint>(vm_["frame_skip"].value());

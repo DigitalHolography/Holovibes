@@ -64,9 +64,6 @@ class MainWindow : public QMainWindow
     // Might be removed because all parameters can be accessed in UserInterfaceDescriptor
     friend class AdvancedSettingsWindow;
 
-    /*! \brief Closes all the displayed windows */
-    void close_windows();
-
     /*! \brief Stops critical compute */
     void close_critical_compute();
 
@@ -95,7 +92,6 @@ class MainWindow : public QMainWindow
     void write_compute_settings();
     void open_advanced_settings();
     void reset_settings();
-    void close_advanced_settings();
 
     void configure_camera();
     void camera_none();
@@ -148,10 +144,6 @@ class MainWindow : public QMainWindow
      * * Request a pipe refresh
      * * Set visibility to true
      */
-
-    bool need_refresh(const std::string& last_type, const std::string& new_type);
-    void set_composite_values();
-
     /*! \brief Modifies view image type
      *
      * \param value The new image type

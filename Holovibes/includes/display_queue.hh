@@ -20,6 +20,10 @@ class DisplayQueue
     {
     }
 
+    /*! Return the last image in the Queue of nullptr if the Queue is empty
+     *
+     * \return The last image of size fd.frame_res or nullptr if no frame
+     */
     virtual void* get_last_image() const = 0;
 
     const camera::FrameDescriptor& get_fd() const { return fd_; }

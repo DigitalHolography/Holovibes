@@ -53,7 +53,9 @@ void AdvancedSettingsWindow::set_ui_values()
 
     api::set_raw_bitshift(ui.rawBitShiftSpinBox->value());
 
-    UserInterfaceDescriptor::instance().has_been_updated = true;
+    if (callback_)
+        callback_();
+
     this->close();
 }
 

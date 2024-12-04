@@ -96,7 +96,7 @@ class FourierTransform
     }
 
     /*! \brief enqueue functions relative to spatial fourier transforms. */
-    void insert_fft(float* gpu_filter2d_mask, const uint width, const uint height);
+    void insert_fft(const uint width, const uint height);
 
     /*! \brief enqueue functions that store the p frame after the time transformation. */
     void insert_store_p_frame();
@@ -112,6 +112,12 @@ class FourierTransform
      *
      */
     void insert_moments();
+
+    /**
+     * \brief Splits 3 contiguous moments from a temporary buffer to their respective individual buffers.
+     * Is used only when reading a moments file.
+     */
+    void insert_moments_split();
 
     /**
      * \brief Sends the respective moment to the output display (gpu_postprocess_frame)
