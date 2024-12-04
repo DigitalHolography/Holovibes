@@ -312,7 +312,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api::set_divide_convolution(value);
+    api::set_divide_convolution_enabled(value);
     parent_->notify();
 }
 

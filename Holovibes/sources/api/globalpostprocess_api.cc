@@ -3,13 +3,9 @@
 namespace holovibes::api
 {
 
-#pragma region Renormalization
+#pragma region Internals
 
-void set_renorm_enabled(bool value)
-{
-    UPDATE_SETTING(RenormEnabled, value);
-    pipe_refresh();
-}
+inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
 
 #pragma endregion
 
@@ -39,7 +35,17 @@ void set_registration_enabled(bool value)
 
 #pragma endregion
 
-#pragma region Convolution
+#pragma region Renormalization
+
+void set_renorm_enabled(bool value)
+{
+    UPDATE_SETTING(RenormEnabled, value);
+    pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Conv Matrix
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
@@ -150,6 +156,24 @@ void load_convolution_matrix(std::string filename)
     }
 }
 
+#pragma endregion
+
+#pragma region Conv Divide
+
+void set_divide_convolution_enabled(const bool value)
+{
+    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+        !get_convolution_enabled())
+        return;
+
+    UPDATE_SETTING(DivideConvolutionEnabled, value);
+    pipe_refresh();
+}
+
+#pragma endregion
+
+#pragma region Convolution
+
 void enable_convolution(const std::string& filename)
 {
     if (api::get_import_type() == ImportType::None)
@@ -195,16 +219,6 @@ void disable_convolution()
     {
         LOG_ERROR("Catch {}", e.what());
     }
-}
-
-void set_divide_convolution(const bool value)
-{
-    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
-        !get_convolution_enabled())
-        return;
-
-    set_divide_convolution_enabled(value);
-    pipe_refresh();
 }
 
 #pragma endregion
