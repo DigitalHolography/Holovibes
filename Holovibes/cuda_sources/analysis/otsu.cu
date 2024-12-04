@@ -4,6 +4,8 @@
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
 #include "cuda_memory.cuh"
+
+#include "tools_analysis_debug.hh"
 using uint = unsigned int;
 
 #define NUM_BINS 256
@@ -249,7 +251,6 @@ float set_thresh_indices(std::vector<float>& var_btwcls,
         {
             sigma += get_var_btwclas(var_btwcls, current_indices[idx] + 1, current_indices[idx + 1]);
         }
-
         if (sigma > sigma_max)
         {
             sigma_max = sigma;
@@ -270,7 +271,7 @@ __global__ void rescale_csv_kernel(float* output, const float* input, size_t siz
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
     {
-        // Transformation : [-1, 1] -> [0, 255]
+        // Transformation : [-1, 1] -> [0, 1]
         output[idx] = (input[idx] + 1.0f) / 2; //* 127.5f;
     }
 }
@@ -320,19 +321,19 @@ void otsu_multi_thresholding(const float* input_d,
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(otsu_rescale, histo_buffer_d, size);
     // histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
     cudaXStreamSynchronize(stream);
+    // print_in_file_gpu<uint>(histo_buffer_d, 1, 256, "histo", stream);
 
     // Transferer GPU TO CPU.
     uint hist[NUM_BINS];
     // cudaXMalloc(&hist, NUM_BINS * sizeof(uint));
     cudaXMemcpy(hist, histo_buffer_d, NUM_BINS * sizeof(uint), cudaMemcpyDeviceToHost);
-
     uint nvalues = 0;
     for (uint i = 0; i < NUM_BINS; i++)
     {
         if (hist[i] > 0)
             nvalues++;
     }
-
+    std::cout << "nvalues : " << nvalues << std::endl;
     CHECK(nvalues >= nclasses, "NIK ZEBI");
 
     std::vector<float> prob(NUM_BINS);
@@ -341,7 +342,13 @@ void otsu_multi_thresholding(const float* input_d,
         prob[i] = static_cast<float>(hist[i]);
     }
 
-    std::vector<uint> thresh(nclasses - 1);
+    float total_prob = std::accumulate(prob.begin(), prob.end(), 0.0f);
+    for (auto& p : prob)
+    {
+        p /= total_prob;
+    }
+
+    std::vector<float> thresh(nclasses - 1);
     std::vector<uint> bin_center(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
         bin_center[i] = i;
@@ -354,7 +361,7 @@ void otsu_multi_thresholding(const float* input_d,
             if (thresh_idx == 2)
                 break;
             if (prob[i] > 0)
-                thresh[thresh_idx++] = i;
+                thresh[thresh_idx++] = static_cast<float>(i);
         }
     }
     else
@@ -374,13 +381,21 @@ void otsu_multi_thresholding(const float* input_d,
 
         for (uint i = 0; i < thresh_count; i++)
         {
-            thresh[i] = bin_center[thresh_indices[i]];
+            thresh[i] = static_cast<float>(bin_center[thresh_indices[i]]);
         }
     }
 
+    float* test = new float[3];
     for (int i = 0; i < nclasses - 1; i++)
     {
         LOG_INFO(i);
         LOG_INFO((static_cast<float>(thresh[i]) / 255) * 2 - 1);
+        test[i] = (static_cast<float>(thresh[i]) / 255) * 2 - 1;
     }
+    // test[1] += 0.02f;
+    // test[0] = 0.207108953480839f;
+    // test[1] = 0.334478400506137f;
+    // test[2] = 0.458741275652768f;
+    cudaXMemcpy(thresholds_d, test, 3 * sizeof(float), cudaMemcpyHostToDevice);
+    delete[] test;
 }

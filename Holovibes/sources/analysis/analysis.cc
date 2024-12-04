@@ -439,21 +439,37 @@ void Analysis::insert_first_analysis_masks()
                     print_in_file_gpu<float>(vesselness_mask_env_.before_threshold,
                                              512,
                                              512,
-                                             "test_threshold",
+                                             "before_threshold",
                                              stream_);
                     std::cout << count_non_zero(vesselness_mask_env_.before_threshold, fd_.height, fd_.width, stream_)
                               << std::endl;
                 }
-                float thresholds[3] = {0.207108953480839f,
-                                       0.334478400506137f,
-                                       0.458741275652768f}; // this is hardcoded, need to call arthur function
+                float* otsu_rescale;
+                cudaXMalloc(&otsu_rescale, sizeof(float) * buffers_.gpu_postprocess_frame_size);
+                uint* histo_buffer_d;
+                cudaXMalloc(&histo_buffer_d, sizeof(uint) * OTSU_BINS);
+
+                if (i_ == 0)
+                    otsu_multi_thresholding(vesselness_mask_env_.before_threshold,
+                                            otsu_rescale,
+                                            histo_buffer_d,
+                                            vesselness_filter_struct_.thresholds + 1,
+                                            4,
+                                            buffers_.gpu_postprocess_frame_size,
+                                            stream_);
+                cudaXFree(otsu_rescale);
+                cudaXFree(histo_buffer_d);
+
+                // float thresholds[3] = {0.207108953480839f,
+                //                        0.334478400506137f,
+                //                        0.458741275652768f}; // this is hardcoded, need to call arthur function
 
                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
                                 vesselness_filter_struct_.thresholds,
                                 vesselness_mask_env_.R_vascular_pulse_,
                                 vesselness_mask_env_.mask_vesselness_clean_,
                                 buffers_.gpu_postprocess_frame_size,
-                                thresholds,
+                                nullptr,
                                 stream_);
 
                 ///////////////////////////////

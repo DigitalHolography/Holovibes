@@ -75,9 +75,8 @@ void segment_vessels(float* output,
                      cudaStream_t stream)
 {
     float minus_one = -1;
-    cudaXMemcpyAsync(new_thresholds + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
+    // cudaXMemcpyAsync(new_thresholds + 1, thresholds, sizeof(float) * 3, cudaMemcpyHostToDevice, stream);
     cudaXMemcpyAsync(new_thresholds, &minus_one, sizeof(float), cudaMemcpyHostToDevice, stream);
-
     minus_negation_times_2(R_VascularPulse, mask_vesselness_clean, size, stream);
     imquantize(output, R_VascularPulse, new_thresholds, size, 4, stream);
 }
