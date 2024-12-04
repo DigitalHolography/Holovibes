@@ -219,7 +219,6 @@ bool Pipe::make_requests()
 void Pipe::refresh()
 {
     pipe_refresh_apply_updates();
-
     clear_request(ICS::Refresh);
 
     fn_compute_vect_->clear();

@@ -18,7 +18,6 @@ void update_registration_zone(float value)
 
     set_registration_zone(value);
     api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
-    pipe_refresh();
 }
 
 void set_registration_enabled(bool value)
@@ -26,11 +25,8 @@ void set_registration_enabled(bool value)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    if (!api::get_fft_shift_enabled())
-        set_fft_shift_enabled(value);
-
     UPDATE_SETTING(RegistrationEnabled, value);
-    pipe_refresh();
+    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
 #pragma endregion
