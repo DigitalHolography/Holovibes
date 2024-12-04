@@ -572,3 +572,14 @@ void normalize_array(float* input_output, size_t size, float min_range, float ma
     kernel_normalize_array<<<blocks, threads, 0, stream>>>(input_output, size, min_range, max_range, min_val, max_val);
     cudaCheckError();
 }
+
+void im2uint8(float* image, size_t size, float minVal, float maxVal)
+{
+    float scale = maxVal - minVal;
+    for (size_t i = 0; i < size; ++i)
+    {
+        float clampedValue = std::max(minVal, std::min(maxVal, image[i]));
+        float uint8Value = std::round(255 * (clampedValue - minVal) / scale);
+        image[i] = uint8Value;
+    }
+}
