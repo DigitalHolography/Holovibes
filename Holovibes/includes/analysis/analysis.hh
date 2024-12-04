@@ -81,34 +81,7 @@ class Analysis
         // TODO: remove everything below when done
         // Load valid moment test data for debugging purpose
         const size_t frame_res = fd_.get_frame_res();
-
-        // m0_ff_img_csv_.resize(frame_res);
-        // load_CSV_to_float_array_gpu(m0_ff_img_csv_, frame_res, RELATIVE_PATH("../../data_n.csv"), stream);
-
-        // f_avg_csv_.resize(frame_res);
-        // load_CSV_to_float_array_gpu(f_avg_csv_, frame_res, RELATIVE_PATH("../../f_AVG_mean.csv"), stream);
-
-        // vascular_pulse_csv_.resize(506);
-        // load_CSV_to_float_array_gpu(vascular_pulse_csv_, 506, RELATIVE_PATH("../../vascularPulse.csv"), stream);
-
-        // R_VascularPulse_csv_.resize(frame_res);
-        // load_CSV_to_float_array_gpu(R_VascularPulse_csv_,
-        //                             frame_res,
-        //                             RELATIVE_PATH("../../R_VascularPulse.csv"),
-        //                             stream);
-
-        mask_vesselness_csv_.resize(frame_res);
-        load_CSV_to_float_array_gpu(mask_vesselness_csv_, frame_res, RELATIVE_PATH("../../maskVesselness.csv"), stream);
-
-        // mask_vesselness_clean_csv_.resize(frame_res);
-        // load_CSV_to_float_array_gpu(mask_vesselness_clean_csv_,
-        //                             frame_res,
-        //                             RELATIVE_PATH("../../maskVesselnessClean.csv"),
-        //                             stream);
-
-        // bwareafilt_csv_.resize(frame_res);
-        // load_CSV_to_float_array_gpu(bwareafilt_csv_, frame_res, RELATIVE_PATH("../../bwareafilt.csv"), stream);
-
+          
         m0_bin_video_.resize(512 * 512 * 506);
         load_bin_video_file(RELATIVE_PATH("../../Obj_M0_data_video_permuted.bin"), m0_bin_video_, stream_);
 
@@ -212,27 +185,6 @@ class Analysis
 
     /*! \brief Reference to the MomentsEnv to get access to moments buffers */
     MomentsEnv& moments_env_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> m0_ff_img_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> f_avg_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> R_VascularPulse_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> vascular_pulse_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> mask_vesselness_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> mask_vesselness_clean_csv_;
-
-    // To delete
-    cuda_tools::CudaUniquePtr<float> bwareafilt_csv_;
 
     // To delete
     cuda_tools::CudaUniquePtr<float> m0_bin_video_;

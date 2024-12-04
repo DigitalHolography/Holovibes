@@ -17,7 +17,8 @@
 #include "tools_analysis_debug.hh"
 
 #define DIAPHRAGM_FACTOR 0.4f
-#define FROM_CSV false
+#define OTSU_BINS 256
+
 
 namespace holovibes::analysis
 {
@@ -255,192 +256,170 @@ void Analysis::insert_first_analysis_masks()
                                      fd_.width,
                                      fd_.height,
                                      stream_);
-// From here ~160 FPS
 
-// Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
-#if !FROM_CSV
-                // if (i_ == 0)
-                //     print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "before_otsu", stream_);
+                // From here ~160 FPS
+
+                // Otsu is unoptimized (~100 FPS after) TODO: merge titouan's otsu
+                float threshold = otsu_compute_threshold(buffers_.gpu_postprocess_frame,
+                                                         otsu_histo_buffer_2_,
+                                                         buffers_.gpu_postprocess_frame_size,
+                                                         otsu_struct_,
+                                                         stream_);
+
                 // Binarize the vesselness output to produce the mask vesselness
-                compute_binarise_otsu(buffers_.gpu_postprocess_frame,
-                                      otsu_histo_buffer_.get(),
-                                      fd_.width,
-                                      fd_.height,
+                apply_binarisation(buffers_.gpu_postprocess_frame, threshold, fd_.width, fd_.height, stream_);
+
+                // Store mask_vesselness for later computations
+                cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
+                                 buffers_.gpu_postprocess_frame,
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+
+                // Compute f_AVG_mean, which is the temporal average of M1 / M0
+                cudaXMemcpyAsync(vesselness_mask_env_.m1_divided_by_m0_frame_,
+                                 moments_env_.moment1_buffer,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+
+                divide_frames_inplace(vesselness_mask_env_.m1_divided_by_m0_frame_,
+                                      moments_env_.moment0_buffer,
+                                      buffers_.gpu_postprocess_frame_size,
                                       stream_);
-            // if (i_ == 0)
-            //     print_in_file_gpu(buffers_.gpu_postprocess_frame, 512, 512, "after_otsu", stream_);
-#endif
-                // #else
-                //                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                //                                  mask_vesselness_csv_,
-                //                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
-                // #endif
-                //                 // Store mask_vesselness for later computations
-                //                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_,
-                //                                  buffers_.gpu_postprocess_frame,
-                //                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
 
-                //                 // Compute f_AVG_mean, which is the temporal average of M1 / M0
-                //                 cudaXMemcpyAsync(vesselness_mask_env_.m1_divided_by_m0_frame_,
-                //                                  moments_env_.moment1_buffer,
-                //                                  buffers_.gpu_postprocess_frame_size * sizeof(float),
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
+                vesselness_mask_env_.f_avg_video_cb_->add_new_frame(vesselness_mask_env_.m1_divided_by_m0_frame_);
 
-                //                 divide_frames_inplace(vesselness_mask_env_.m1_divided_by_m0_frame_,
-                //                                       moments_env_.moment0_buffer,
-                //                                       buffers_.gpu_postprocess_frame_size,
-                //                                       stream_);
+                vesselness_mask_env_.f_avg_video_cb_->compute_mean_image();
 
-                //                 vesselness_mask_env_.f_avg_video_cb_->add_new_frame(vesselness_mask_env_.m1_divided_by_m0_frame_);
+                // From here ~111 FPS (might change when otsu fix)
+                // Compute vascular image
+                compute_multiplication(vesselness_mask_env_.vascular_image_,
+                                       vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                       vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
+                                       buffers_.gpu_postprocess_frame_size,
+                                       1,
+                                       stream_);
 
-                //                 vesselness_mask_env_.f_avg_video_cb_->compute_mean_image();
-                //                 // From here ~111 FPS (might change when otsu fix)
-                //                 // Compute vascular image
-                //                 compute_multiplication(vesselness_mask_env_.vascular_image_,
-                //                                        vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
-                //                                        vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
-                //                                        buffers_.gpu_postprocess_frame_size,
-                //                                        1,
-                //                                        stream_);
-                //                 // From here ~110 FPS
+                // From here ~110 FPS
 
-                //                 // Apply gaussian blur
-                //                 apply_convolution(vesselness_mask_env_.vascular_image_,
-                //                                   vesselness_mask_env_.vascular_kernel_,
-                //                                   fd_.width,
-                //                                   fd_.height,
-                //                                   vesselness_mask_env_.vascular_kernel_size_,
-                //                                   vesselness_mask_env_.vascular_kernel_size_,
-                //                                   vesselness_filter_struct_.convolution_tmp_buffer,
-                //                                   stream_,
-                //                                   ConvolutionPaddingType::SCALAR,
-                //                                   0);
+                // Apply gaussian blur
+                apply_convolution(vesselness_mask_env_.vascular_image_,
+                                  vesselness_mask_env_.vascular_kernel_,
+                                  fd_.width,
+                                  fd_.height,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_filter_struct_.convolution_tmp_buffer,
+                                  stream_,
+                                  ConvolutionPaddingType::SCALAR,
+                                  0);
 
-                //                 // From here ~105 FPS
+                // From here ~105 FPS
 
-                //                 int CRV_index = compute_barycentre_circle_mask(vesselness_mask_env_.circle_mask_,
-                //                                                                vesselness_filter_struct_.CRV_circle_mask,
-                //                                                                vesselness_mask_env_.vascular_image_,
-                //                                                                fd_.width,
-                //                                                                fd_.height,
-                //                                                                stream_);
+                int CRV_index = compute_barycentre_circle_mask(vesselness_mask_env_.circle_mask_,
+                                                               vesselness_filter_struct_.CRV_circle_mask,
+                                                               vesselness_mask_env_.vascular_image_,
+                                                               fd_.width,
+                                                               fd_.height,
+                                                               stream_);
 
-                //                 // From here ~90 FPS
-                //                 // From here, also issue to get good fps because we don't have Titouan's code
-                //                 cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
-                //                                  buffers_.gpu_postprocess_frame, // This is the result of otsu
-                //                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
+                // From here ~90 FPS
+                // From here, also issue to get good fps because we don't have Titouan's code
+                cudaXMemcpyAsync(vesselness_mask_env_.bwareafilt_result_,
+                                 buffers_.gpu_postprocess_frame, // This is the result of otsu
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
 
-                //                 apply_mask_or(vesselness_mask_env_.bwareafilt_result_,
-                //                               vesselness_mask_env_.circle_mask_,
-                //                               fd_.width,
-                //                               fd_.height,
-                //                               stream_);
-                //                 bwareafilt(vesselness_mask_env_.bwareafilt_result_,
-                //                            fd_.width,
-                //                            fd_.height,
-                //                            uint_buffer_1_,
-                //                            uint_buffer_2_,
-                //                            float_buffer_,
-                //                            size_t_gpu_,
-                //                            cublas_handler_,
-                //                            stream_);
+                apply_mask_or(vesselness_mask_env_.bwareafilt_result_,
+                              vesselness_mask_env_.circle_mask_,
+                              fd_.width,
+                              fd_.height,
+                              stream_);
+                bwareafilt(vesselness_mask_env_.bwareafilt_result_,
+                           fd_.width,
+                           fd_.height,
+                           uint_buffer_1_,
+                           uint_buffer_2_,
+                           float_buffer_,
+                           size_t_gpu_,
+                           cublas_handler_,
+                           stream_);
 
-                //                 cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-                //                                  buffers_.gpu_postprocess_frame, // this is the result of otsu
-                //                                  sizeof(float) * buffers_.gpu_postprocess_frame_size,
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
+                cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
+                                 buffers_.gpu_postprocess_frame, // this is the result of otsu
+                                 sizeof(float) * buffers_.gpu_postprocess_frame_size,
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
 
-                //                 apply_mask_and(vesselness_mask_env_.mask_vesselness_clean_,
-                //                                vesselness_mask_env_.bwareafilt_result_,
-                //                                fd_.width,
-                //                                fd_.height,
-                //                                stream_);
-                //                 // Fps here ~90 FPS
-                //                 // // To be removed but to get the identical result
-                //                 // cudaXMemcpyAsync(vesselness_mask_env_.mask_vesselness_clean_,
-                //                 //                  mask_vesselness_clean_csv_,
-                //                 //                  512 * 512 * sizeof(float),
-                //                 //                  cudaMemcpyDeviceToDevice,
-                //                 //                  stream_);
+                apply_mask_and(vesselness_mask_env_.mask_vesselness_clean_,
+                               vesselness_mask_env_.bwareafilt_result_,
+                               fd_.width,
+                               fd_.height,
+                               stream_);
 
-                //                 vesselness_mask_env_.m0_ff_video_cb_->compute_mean_1_2(vesselness_mask_env_.mask_vesselness_clean_);
-                //                 // Fps here ~45 FPS, better than before (5 FPS)
-                //                 // With all the other code, we are at 40 FPS so we won't test
+                // Fps here ~90 FPS
+                vesselness_mask_env_.m0_ff_video_cb_->compute_mean_1_2(vesselness_mask_env_.mask_vesselness_clean_);
+                // Fps here ~45 FPS, better than before (5 FPS)
+                // With all the other code, we are at 40 FPS so we won't test
 
-                //                 cudaXMemcpy(vesselness_filter_struct_.vascular_pulse,
-                //                             vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_(),
-                //                             vesselness_mask_env_.m0_ff_video_cb_->get_frame_count() * sizeof(float),
-                //                             cudaMemcpyDeviceToDevice);
+                cudaXMemcpy(vesselness_filter_struct_.vascular_pulse,
+                            vesselness_mask_env_.m0_ff_video_cb_->get_mean_1_2_(),
+                            vesselness_mask_env_.m0_ff_video_cb_->get_frame_count() * sizeof(float),
+                            cudaMemcpyDeviceToDevice);
 
-                //                 int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height,
-                //                 fd_.width, stream_); compute_first_correlation(buffers_.gpu_postprocess_frame, //
-                //                 R_vascular_pulse will be in this buffer
-                //                                           vesselness_mask_env_.m0_ff_video_centered_,
-                //                                           vesselness_filter_struct_.vascular_pulse,
-                //                                           nnz,
-                //                                           vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
-                //                                           vesselness_filter_struct_,
-                //                                           buffers_.gpu_postprocess_frame_size,
-                //                                           stream_);
+                int nnz = count_non_zero(vesselness_mask_env_.mask_vesselness_clean_, fd_.height, fd_.width, stream_);
+                compute_first_correlation(vesselness_mask_env_.R_vascular_pulse_,
+                                          vesselness_mask_env_.m0_ff_video_centered_,
+                                          vesselness_filter_struct_.vascular_pulse,
+                                          nnz,
+                                          vesselness_mask_env_.m0_ff_video_cb_->get_frame_count(),
+                                          vesselness_filter_struct_,
+                                          buffers_.gpu_postprocess_frame_size,
+                                          stream_);
 
-                //                 multiply_three_vectors(vesselness_mask_env_.vascular_image_,
-                //                                        vesselness_mask_env_.m0_ff_video_centered_,
-                //                                        vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
-                //                                        buffers_.gpu_postprocess_frame,
-                //                                        buffers_.gpu_postprocess_frame_size,
-                //                                        stream_);
-                //                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
-                //                                  vesselness_mask_env_.vascular_image_,
-                //                                  sizeof(float) * 512 * 512,
-                //                                  cudaMemcpyDeviceToDevice,
-                //                                  stream_);
-                //                 apply_convolution(vesselness_mask_env_.vascular_image_,
-                //                                   vesselness_mask_env_.vascular_kernel_,
-                //                                   fd_.width,
-                //                                   fd_.height,
-                //                                   vesselness_mask_env_.vascular_kernel_size_,
-                //                                   vesselness_mask_env_.vascular_kernel_size_,
-                //                                   vesselness_filter_struct_.convolution_tmp_buffer,
-                //                                   stream_,
-                //                                   ConvolutionPaddingType::SCALAR,
-                //                                   0);
-                //                 apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
-                //                                      fd_.width / 2 - 1,
-                //                                      fd_.height / 2 - 1,
-                //                                      DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
-                //                                      fd_.width,
-                //                                      fd_.height,
-                //                                      stream_);
+                multiply_three_vectors(vesselness_mask_env_.vascular_image_,
+                                       vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
+                                       vesselness_mask_env_.f_avg_video_cb_->get_mean_image(),
+                                       vesselness_mask_env_.R_vascular_pulse_,
+                                       buffers_.gpu_postprocess_frame_size,
+                                       stream_);
 
-                //                 compute_barycentre_circle_mask(vesselness_mask_env_.circle_mask_,
-                //                                                vesselness_filter_struct_.CRV_circle_mask,
-                //                                                vesselness_mask_env_.vascular_image_,
-                //                                                fd_.width,
-                //                                                fd_.height,
-                //                                                stream_,
-                //                                                CRV_index);
+                apply_convolution(vesselness_mask_env_.vascular_image_,
+                                  vesselness_mask_env_.vascular_kernel_,
+                                  fd_.width,
+                                  fd_.height,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_mask_env_.vascular_kernel_size_,
+                                  vesselness_filter_struct_.convolution_tmp_buffer,
+                                  stream_,
+                                  ConvolutionPaddingType::SCALAR,
+                                  0);
 
-                //                 float thresholds[3] = {0.207108953480839f,
-                //                                        0.334478400506137f,
-                //                                        0.458741275652768f}; // this is hardcoded, need to call
-                //                                        titouan function
+                apply_diaphragm_mask(vesselness_mask_env_.vascular_image_,
+                                     fd_.width / 2 - 1,
+                                     fd_.height / 2 - 1,
+                                     DIAPHRAGM_FACTOR * (fd_.width + fd_.height) / 2,
+                                     fd_.width,
+                                     fd_.height,
+                                     stream_);
 
-                //                 segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
-                //                                 vesselness_filter_struct_.thresholds,
-                //                                 buffers_.gpu_postprocess_frame,
-                //                                 vesselness_mask_env_.mask_vesselness_clean_,
-                //                                 buffers_.gpu_postprocess_frame_size,
-                //                                 thresholds,
-                //                                 stream_);
+                float thresholds[3] = {0.207108953480839f,
+                                       0.334478400506137f,
+                                       0.458741275652768f}; // this is hardcoded, need to call arthur function
+
+                segment_vessels(vesselness_mask_env_.quantizedVesselCorrelation_,
+                                vesselness_filter_struct_.thresholds,
+                                vesselness_mask_env_.R_vascular_pulse_,
+                                vesselness_mask_env_.mask_vesselness_clean_,
+                                buffers_.gpu_postprocess_frame_size,
+                                thresholds,
+                                stream_);
+
+                ///////////////////////////////
+                // Everything is OK before here
+                ///////////////////////////////
             });
     }
 }
