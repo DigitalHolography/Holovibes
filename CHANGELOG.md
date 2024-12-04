@@ -1,6 +1,6 @@
 ## Changelog
 
-### 14.X.X
+### 14.0.2
 
 - Registration is fixed:
   - Now the registaration is working with LDH.
