@@ -7,14 +7,14 @@
 #include <cuda_runtime.h>
 #include "compute_env.hh"
 
-using holovibes::VesselnessFilterStruct;
+using holovibes::VesselnessFilterEnv;
 
 void compute_first_correlation(float* output,
                                float* M0_ff_video_centered,
                                float* vascular_pulse,
                                int nnz_mask_vesslness_clean,
                                size_t length_video,
-                               VesselnessFilterStruct& filter_struct_,
+                               VesselnessFilterEnv& filter_struct_,
                                size_t size,
                                cudaStream_t stream);
 void multiply_three_vectors(

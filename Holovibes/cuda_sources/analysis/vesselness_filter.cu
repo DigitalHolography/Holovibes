@@ -3,6 +3,7 @@
 #include "cuda_memory.cuh"
 #include "tools_analysis.cuh"
 #include "tools_analysis_debug.hh"
+#include "map.cuh"
 
 using holovibes::cuda_tools::CufftHandle;
 
@@ -210,7 +211,7 @@ void compute_I(float* output,
 
     gaussian_imfilter_sep(output, g_mul, kernel_x_size, kernel_y_size, frame_res, convolution_tmp_buffer, stream);
 
-    multiply_array_by_scalar(output, frame_res, A, stream);
+    map_multiply(output, frame_res, A, stream);
 }
 
 void vesselness_filter(float* output,
@@ -222,7 +223,7 @@ void vesselness_filter(float* output,
                        int kernel_x_size,
                        int kernel_y_size,
                        int frame_res,
-                       holovibes::VesselnessFilterStruct& filter_struct_,
+                       holovibes::VesselnessFilterEnv& filter_struct_,
                        cublasHandle_t cublas_handler,
                        cudaStream_t stream)
 {

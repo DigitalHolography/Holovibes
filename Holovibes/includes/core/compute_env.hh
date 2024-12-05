@@ -276,12 +276,13 @@ struct VesselnessMaskEnv
     cuda_tools::CudaUniquePtr<float> R_vascular_pulse_ = nullptr;
 };
 
+/*! \struct ImageAccEnv
+ *
+ * \brief Struct used for vesselness_filter computations.
+ */
 // TODO: maybe move this as a subclass / anonymous class of analysis because it should not be accessed from elsewhere
-struct VesselnessFilterStruct
+struct VesselnessFilterEnv
 {
-    /*!
-     * \brief Struct used for vesselness_filter computations.
-     */
     cuda_tools::CudaUniquePtr<float> I = nullptr;
     cuda_tools::CudaUniquePtr<float> convolution_tmp_buffer = nullptr;
     cuda_tools::CudaUniquePtr<float> H = nullptr;
@@ -297,23 +298,39 @@ struct VesselnessFilterStruct
     cuda_tools::CudaUniquePtr<float> thresholds = nullptr;
 };
 
-struct FirstMaskChoroidStruct
+/*! \struct FirstMaskChoroidEnv
+ *
+ * \brief Struct used for first_mask_choroid computations.
+ */
+struct FirstMaskChoroidEnv
 {
-    /*!
-     * \brief Struct used for first_mask_choroid computations.
-     */
     cuda_tools::CudaUniquePtr<float> first_mask_choroid = nullptr;
 };
-struct OtsuStruct
+
+/*! \struct OtsuEnv
+ *
+ * \brief Struct used for otsu computations.
+ */
+struct OtsuEnv
 {
-    cuda_tools::CudaUniquePtr<float> d_counts = nullptr;
-    cuda_tools::CudaUniquePtr<float> d_counts_sum = nullptr;
-    cuda_tools::CudaUniquePtr<float> p = nullptr;
-    cuda_tools::CudaUniquePtr<float> p_ = nullptr;
-    cuda_tools::CudaUniquePtr<float> sigma_b_squared = nullptr;
-    cuda_tools::CudaUniquePtr<float> d_mu_tt = nullptr;
-    cuda_tools::CudaUniquePtr<float> d_mu = nullptr;
-    cuda_tools::CudaUniquePtr<float> d_omega = nullptr;
-    cuda_tools::CudaUniquePtr<float> is_max = nullptr;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> otsu_histo_buffer_;
 };
+
+/*! \struct OtsuEnv
+ *
+ * \brief Struct used for bwareaopen and bwarefilt computations.
+ */
+struct BwAreaEnv
+{
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_1_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<uint> uint_buffer_2_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<size_t> size_t_gpu_;
+    /*! \brief TODO: comment */
+    cuda_tools::CudaUniquePtr<float> float_buffer_;
+};
+
 } // namespace holovibes

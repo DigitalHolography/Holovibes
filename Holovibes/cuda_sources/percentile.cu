@@ -53,7 +53,7 @@ void compute_percentile(thrust::device_ptr<float>& thrust_gpu_input_copy,
     cudaXStreamSynchronize(stream);
 }
 
-/**
+/*!
 ** \brief Calculate frame_res according to the width, height and required offset
 *
 * \param factor Multiplication factor for the offset (width for xz and height

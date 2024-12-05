@@ -22,3 +22,10 @@ void map_multiply(
 
     map_generic(output, input, size, multiply, stream);
 }
+
+void map_multiply(float* const input_output, const size_t size, const float value, const cudaStream_t stream)
+{
+    const auto multiply = [value] __device__(const float input_pixel) -> float { return input_pixel * value; };
+
+    map_generic(input_output, size, multiply, stream);
+}
