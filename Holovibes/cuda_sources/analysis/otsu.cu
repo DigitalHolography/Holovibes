@@ -310,7 +310,6 @@ void otsu_multi_thresholding(const float* input_d,
                              const cudaStream_t stream)
 {
 
-    // Step 1 : Compute the histogram of the image
     uint threads = NUM_BINS;
     uint blocks = (size + threads - 1) / threads;
     size_t shared_mem_size = NUM_BINS * sizeof(uint);
@@ -321,7 +320,7 @@ void otsu_multi_thresholding(const float* input_d,
     histogram_kernel<<<blocks, threads, shared_mem_size, stream>>>(otsu_rescale, histo_buffer_d, size);
     // histogram_kernel_multi<<<blocks, threads, shared_mem_size, stream>>>(input_d, histo_buffer_d, size);
     cudaXStreamSynchronize(stream);
-    // print_in_file_gpu<uint>(histo_buffer_d, 1, 256, "histo", stream);
+    print_in_file_gpu<uint>(histo_buffer_d, 1, 256, "histo", stream);
 
     // Transferer GPU TO CPU.
     uint hist[NUM_BINS];
@@ -340,12 +339,6 @@ void otsu_multi_thresholding(const float* input_d,
     for (uint i = 0; i < NUM_BINS; i++)
     {
         prob[i] = static_cast<float>(hist[i]);
-    }
-
-    float total_prob = std::accumulate(prob.begin(), prob.end(), 0.0f);
-    for (auto& p : prob)
-    {
-        p /= total_prob;
     }
 
     std::vector<float> thresh(nclasses - 1);
@@ -385,14 +378,14 @@ void otsu_multi_thresholding(const float* input_d,
         }
     }
 
-    float* test = new float[5];
+    float* test = new float[3];
     for (int i = 0; i < nclasses - 1; i++)
     {
         LOG_INFO(i);
         LOG_INFO((static_cast<float>(thresh[i]) / 255) * 2 - 1);
         test[i] = (static_cast<float>(thresh[i]) / 255) * 2 - 1;
     }
-    // test[1] += 0.02f;
+    // test[1] += 0.01f;
     // test[0] = 0.207108953480839f;
     // test[1] = 0.334478400506137f;
     // test[2] = 0.458741275652768f;
