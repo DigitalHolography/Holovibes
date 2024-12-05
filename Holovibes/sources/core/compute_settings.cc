@@ -31,7 +31,7 @@ void merge_json(json& base_json, const json& update_json)
     }
 }
 
-void load_compute_settings(const std::string& json_path)
+void ComputeSettingsApi::load_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
     if (json_path.empty())
@@ -68,7 +68,7 @@ void load_compute_settings(const std::string& json_path)
     pipe_refresh();
 }
 
-void import_buffer(const std::string& json_path)
+void ComputeSettingsApi::import_buffer(const std::string& json_path)
 {
 
     LOG_FUNC(json_path);
@@ -114,7 +114,7 @@ json compute_settings_to_json()
 
 // clang-format on
 
-void save_compute_settings(const std::string& json_path)
+void ComputeSettingsApi::save_compute_settings(const std::string& json_path)
 {
     LOG_FUNC(json_path);
 

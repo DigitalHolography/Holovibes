@@ -151,7 +151,7 @@ void Filter2DWindow::initializeGL()
     Vao.release();
 
     glViewport(0, 0, width(), height());
-    startTimer(1000 / api::get_display_rate());
+    startTimer(1000 / API.view.get_display_rate());
 }
 
 void Filter2DWindow::paintGL()
@@ -187,6 +187,6 @@ void Filter2DWindow::paintGL()
 void Filter2DWindow::focusInEvent(QFocusEvent* e)
 {
     QWindow::focusInEvent(e);
-    api::change_window(WindowKind::Filter2D);
+    API.view.change_window(WindowKind::Filter2D);
 }
 } // namespace holovibes::gui

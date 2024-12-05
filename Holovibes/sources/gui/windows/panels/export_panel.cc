@@ -48,9 +48,10 @@ void ExportPanel::init()
 void ExportPanel::on_notify()
 {
     // File extension
+    const auto& api = API;
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
-    auto extension_indexes =
-        api::get_supported_formats(api::get_record_mode()); // The indexes compatible with the current record mode
+    auto extension_indexes = api.record.get_supported_formats(
+        api.record.get_record_mode()); // The indexes compatible with the current record mode
     for (int i = 0; i < ui_->RecordExtComboBox->count(); i++)
     {
         bool do_hide = std::find(extension_indexes.begin(), extension_indexes.end(), i) == extension_indexes.end();
@@ -61,7 +62,7 @@ void ExportPanel::on_notify()
             ui_->RecordExtComboBox->setCurrentIndex(extension_indexes[0]);
     }
 
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (api.record.get_record_mode() == RecordMode::CHART)
     {
         ui_->ChartPlotWidget->show();
 
@@ -89,10 +90,10 @@ void ExportPanel::on_notify()
     // Record type
     auto img_mode_view = qobject_cast<QListView*>(ui_->RecordImageModeComboBox->view());
 
-    ui_->RecordImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_record_mode()));
+    ui_->RecordImageModeComboBox->setCurrentIndex(static_cast<int>(api.record.get_record_mode()));
 
     // Hiding most of the options when in raw mode
-    const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_raw = api.compute.get_compute_mode() == Computation::Raw;
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::HOLOGRAM), is_raw);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::CHART), is_raw);
     img_mode_view->setRowHidden(static_cast<int>(RecordMode::MOMENTS), is_raw);
@@ -129,15 +130,15 @@ void ExportPanel::on_notify()
     actualise_record_output_file_ui(record_output_path);
 
     // Number of frames
-    if (api::get_record_frame_count().has_value())
+    if (api.record.get_record_frame_count().has_value())
     {
         // const QSignalBlocker blocker(ui_->NumberOfFramesSpinBox);
-        ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api::get_record_frame_count().value()));
+        ui_->NumberOfFramesSpinBox->setValue(static_cast<int>(api.record.get_record_frame_count().value()));
         ui_->NumberOfFramesCheckBox->setChecked(true);
         ui_->NumberOfFramesSpinBox->setEnabled(true);
     }
 
-    if (api::get_import_type() == ImportType::File)
+    if (api.input.get_import_type() == ImportType::File)
         ui_->NumberOfFramesSpinBox->setValue(
             ceil((ui_->ImportEndIndexSpinBox->value() - ui_->ImportStartIndexSpinBox->value()) /
                  (float)ui_->TimeStrideSpinBox->value()));
@@ -157,7 +158,7 @@ QString ExportPanel::browse_record_output_file()
 
     // Open file explorer dialog on the fly depending on the record mode
     // Add the matched extension to the file if none
-    RecordMode record_mode = api::get_record_mode();
+    RecordMode record_mode = API.record.get_record_mode();
 
     if (record_mode == RecordMode::CHART)
     {
@@ -189,7 +190,7 @@ QString ExportPanel::browse_record_output_file()
     }
 
     if (filepath.isEmpty())
-        return QString::fromStdString(api::get_record_file_path());
+        return QString::fromStdString(API.record.get_record_file_path());
 
     // Convert QString to std::string
     std::string std_filepath = filepath.toStdString();
@@ -216,15 +217,15 @@ void ExportPanel::set_nb_frames_mode(bool value) { ui_->NumberOfFramesSpinBox->s
 
 void ExportPanel::set_record_mode(int index)
 {
-    if (api::get_record_mode() == RecordMode::CHART)
+    if (API.record.get_record_mode() == RecordMode::CHART)
         stop_chart_display();
 
-    api::set_record_mode_enum(static_cast<RecordMode>(index));
+    API.record.set_record_mode_enum(static_cast<RecordMode>(index));
 
     parent_->notify();
 }
 
-void ExportPanel::stop_record() { api::stop_record(); }
+void ExportPanel::stop_record() { API.record.stop_record(); }
 
 void ExportPanel::record_finished(RecordMode record_mode)
 {
@@ -241,7 +242,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
     ui_->RawDisplayingCheckBox->setHidden(false);
     ui_->ExportRecPushButton->setEnabled(true);
     ui_->ExportStopPushButton->setEnabled(false);
-    ui_->BatchSizeSpinBox->setEnabled(api::get_compute_mode() == Computation::Hologram);
+    ui_->BatchSizeSpinBox->setEnabled(API.compute.get_compute_mode() == Computation::Hologram);
 
     // notify others panels (info panel & lightUI) that the record is finished
     NotifierManager::notify<bool>("record_finished", true);
@@ -249,7 +250,7 @@ void ExportPanel::record_finished(RecordMode record_mode)
 
 void ExportPanel::start_record()
 {
-    if (!api::start_record_preconditions()) // Check if the record can be started
+    if (!API.record.start_record_preconditions()) // Check if the record can be started
         return;
 
     // Start record
@@ -269,10 +270,10 @@ void ExportPanel::start_record()
 
     ui_->InfoPanel->set_visible_record_progress(true);
 
-    auto callback = [record_mode = api::get_record_mode(), this]()
+    auto callback = [record_mode = API.record.get_record_mode(), this]()
     { parent_->synchronize_thread([=]() { record_finished(record_mode); }); };
 
-    api::start_record(callback);
+    API.record.start_record(callback);
 }
 
 void ExportPanel::activeSignalZone()
@@ -289,7 +290,7 @@ void ExportPanel::activeNoiseZone()
 
 void ExportPanel::start_chart_display()
 {
-    api::set_chart_display(true);
+    API.view.set_chart_display(true);
     gui::set_chart_display(true);
 
     connect(UserInterfaceDescriptor::instance().plot_window_.get(),
@@ -303,7 +304,7 @@ void ExportPanel::start_chart_display()
 
 void ExportPanel::stop_chart_display()
 {
-    api::set_chart_display(false);
+    API.view.set_chart_display(false);
     gui::set_chart_display(false);
 
     ui_->ChartPlotPushButton->setEnabled(true);
@@ -314,15 +315,15 @@ void ExportPanel::update_record_frame_count_enabled()
     bool checked = ui_->NumberOfFramesCheckBox->isChecked();
 
     if (!checked)
-        api::set_record_frame_count(std::nullopt);
+        API.record.set_record_frame_count(std::nullopt);
     else
-        api::set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
+        API.record.set_record_frame_count(ui_->NumberOfFramesSpinBox->value());
 }
 
 void ExportPanel::update_record_file_path()
 {
-    api::set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
-                              ui_->RecordExtComboBox->currentText().toStdString());
+    API.record.set_record_file_path(ui_->OutputFilePathLineEdit->text().toStdString() +
+                                    ui_->RecordExtComboBox->currentText().toStdString());
 }
 
 /**
@@ -332,6 +333,6 @@ void ExportPanel::update_record_file_extension(const QString& value)
 {
     std::string path = ui_->OutputFilePathLineEdit->text().toStdString();
     std::string ext = value.toStdString();
-    api::set_record_file_path(path + ext);
+    API.record.set_record_file_path(path + ext);
 }
 } // namespace holovibes::gui

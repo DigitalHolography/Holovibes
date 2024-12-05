@@ -5,38 +5,38 @@ namespace holovibes::api
 
 #pragma region Internals
 
-inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
+inline void GlobalPostProcessApi::set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
 
 #pragma endregion
 
 #pragma region Registration
 
-void update_registration_zone(float value)
+void GlobalPostProcessApi::update_registration_zone(float value)
 {
-    if (!is_between(value, 0.f, 1.f) || api::get_import_type() == ImportType::None)
+    if (!is_between(value, 0.f, 1.f) || api_.input.get_import_type() == ImportType::None)
         return;
 
     set_registration_zone(value);
-    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    api_.compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
-void set_registration_enabled(bool value)
+void GlobalPostProcessApi::set_registration_enabled(bool value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
+    if (api_.compute.get_compute_mode() == Computation::Raw)
         return;
 
     UPDATE_SETTING(RegistrationEnabled, value);
-    api::get_compute_pipe()->request(ICS::UpdateRegistrationZone);
+    api_.compute.get_compute_pipe()->request(ICS::UpdateRegistrationZone);
 }
 
 #pragma endregion
 
 #pragma region Renormalization
 
-void set_renorm_enabled(bool value)
+void GlobalPostProcessApi::set_renorm_enabled(bool value)
 {
     UPDATE_SETTING(RenormEnabled, value);
-    pipe_refresh();
+    api_.compute.pipe_refresh();
 }
 
 #pragma endregion
@@ -55,7 +55,7 @@ static inline const std::filesystem::path dir(GET_EXE_DIR);
  *
  * \throw std::runtime_error runtime_error When the matrix cannot be loaded
  */
-void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
+void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
 {
     auto& holo = Holovibes::instance();
 
@@ -129,25 +129,25 @@ void load_convolution_matrix_file(const std::string& file, std::vector<float>& c
     }
 }
 
-void load_convolution_matrix(std::string filename)
+void GlobalPostProcessApi::load_convolution_matrix(std::string filename)
 {
-    api::set_convolution_enabled(true);
-    api::set_convo_matrix({});
+    set_convolution_enabled(true);
+    set_convo_matrix({});
 
     // There is no file None.txt for convolution
     if (filename.empty())
         return;
 
-    std::vector<float> convo_matrix = api::get_convo_matrix();
+    std::vector<float> convo_matrix = get_convo_matrix();
 
     try
     {
         load_convolution_matrix_file(filename, convo_matrix);
-        api::set_convo_matrix(convo_matrix);
+        set_convo_matrix(convo_matrix);
     }
     catch (std::exception& e)
     {
-        api::set_convo_matrix({});
+        set_convo_matrix({});
         LOG_ERROR("Couldn't load convolution matrix : {}", e.what());
     }
 }
@@ -156,38 +156,37 @@ void load_convolution_matrix(std::string filename)
 
 #pragma region Conv Divide
 
-void set_divide_convolution_enabled(const bool value)
+void GlobalPostProcessApi::set_divide_convolution_enabled(const bool value)
 {
-    if (get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
+    if (api_.input.get_import_type() == ImportType::None || get_divide_convolution_enabled() == value ||
         !get_convolution_enabled())
         return;
 
     UPDATE_SETTING(DivideConvolutionEnabled, value);
-    pipe_refresh();
+    api_.compute.pipe_refresh();
 }
 
 #pragma endregion
 
 #pragma region Convolution
 
-void enable_convolution(const std::string& filename)
+void GlobalPostProcessApi::enable_convolution(const std::string& filename)
 {
-    if (api::get_import_type() == ImportType::None)
+    if (api_.input.get_import_type() == ImportType::None)
         return;
 
-    api::set_convolution_file_name(filename);
-
+    set_convolution_file_name(filename);
     load_convolution_matrix(filename);
 
     if (filename.empty())
     {
-        pipe_refresh();
+        api_.compute.pipe_refresh();
         return;
     }
 
     try
     {
-        auto pipe = get_compute_pipe();
+        auto pipe = api_.compute.get_compute_pipe();
         pipe->request(ICS::Convolution);
         // Wait for the convolution to be enabled for notify
         while (pipe->is_requested(ICS::Convolution))
@@ -200,13 +199,13 @@ void enable_convolution(const std::string& filename)
     }
 }
 
-void disable_convolution()
+void GlobalPostProcessApi::disable_convolution()
 {
     set_convo_matrix({});
     set_convolution_enabled(false);
     try
     {
-        auto pipe = get_compute_pipe();
+        auto pipe = api_.compute.get_compute_pipe();
         pipe->request(ICS::DisableConvolution);
         while (pipe->is_requested(ICS::DisableConvolution))
             continue;

@@ -64,7 +64,7 @@ void LightUI::actualise_record_output_file_ui(const std::filesystem::path file_p
 
 void LightUI::z_value_changed(int z_distance)
 {
-    api::set_z_distance(static_cast<float>(z_distance) / 1000.0f);
+    API.transform.set_z_distance(static_cast<float>(z_distance) / 1000.0f);
 
     // The slider and the box must have the same value
     ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance)));
@@ -102,7 +102,7 @@ void LightUI::start_stop_recording(bool start)
     if (start)
         NotifierManager::notify<bool>("start_record_export_panel", true);
     else
-        api::stop_record();
+        API.record.stop_record();
 }
 
 void LightUI::on_record_start(RecordMode record)
@@ -148,33 +148,34 @@ void LightUI::reset_record_progress_bar()
 void LightUI::notify()
 {
     // Z distance
-    float z_distance = api::get_z_distance();
+    const auto& api = API;
+    float z_distance = api.transform.get_z_distance();
 
     ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));
     ui_->ZSlider->setValue(static_cast<int>(std::round(z_distance * 1000)));
 
     // Contrast
-    bool pipe_loaded = api::get_compute_pipe_no_throw() != nullptr;
-    ui_->ContrastCheckBox->setChecked(pipe_loaded && api::get_contrast_enabled());
+    bool pipe_loaded = api.compute.get_compute_pipe_no_throw() != nullptr;
+    ui_->ContrastCheckBox->setChecked(pipe_loaded && api.contrast.get_contrast_enabled());
     ui_->ContrastCheckBox->setEnabled(pipe_loaded);
-    ui_->AutoRefreshContrastCheckBox->setChecked(api::get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMinDoubleSpinBox->setValue(api::get_contrast_min());
-    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api::get_contrast_auto_refresh());
-    ui_->ContrastMaxDoubleSpinBox->setValue(api::get_contrast_max());
+    ui_->AutoRefreshContrastCheckBox->setChecked(api.contrast.get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setEnabled(!api.contrast.get_contrast_auto_refresh());
+    ui_->ContrastMinDoubleSpinBox->setValue(api.contrast.get_contrast_min());
+    ui_->ContrastMaxDoubleSpinBox->setEnabled(!api.contrast.get_contrast_auto_refresh());
+    ui_->ContrastMaxDoubleSpinBox->setValue(api.contrast.get_contrast_max());
 
-    ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
+    ui_->actionSettings->setEnabled(api.input.get_camera_kind() != CameraKind::NONE);
 }
 
-void LightUI::set_contrast_mode(bool value) { api::set_contrast_enabled(value); }
+void LightUI::set_contrast_mode(bool value) { API.contrast.set_contrast_enabled(value); }
 
-void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
+void LightUI::set_contrast_min(const double value) { API.contrast.set_contrast_min(value); }
 
-void LightUI::set_contrast_max(const double value) { api::set_contrast_max(value); }
+void LightUI::set_contrast_max(const double value) { API.contrast.set_contrast_max(value); }
 
 void LightUI::set_contrast_auto_refresh(bool value)
 {
-    api::set_contrast_auto_refresh(value);
+    API.contrast.set_contrast_auto_refresh(value);
     notify(); // Enable or disable the DoubleBox range
 }
 
@@ -190,7 +191,7 @@ void LightUI::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind
 
 void LightUI::configure_camera()
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api::get_camera_ini_name())));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(API.input.get_camera_ini_name())));
 }
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)

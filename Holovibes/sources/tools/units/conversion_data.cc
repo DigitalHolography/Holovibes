@@ -54,21 +54,25 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 double ConversionData::fd_to_real(int val, Axis axis) const
 {
     CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
+    const auto& api = API;
     auto fd = window_->getFd();
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)
-        pix_size = (api::get_lambda() * api::get_z_distance()) / (fd.width * api::get_pixel_size() * 1e-6);
+        pix_size = (api.transform.get_lambda() * api.transform.get_z_distance()) /
+                   (fd.width * api.input.get_pixel_size() * 1e-6);
     else if (window_->getKindOfView() == gui::KindOfView::SliceXZ && axis == Axis::HORIZONTAL)
     {
-        pix_size = (api::get_lambda() * api::get_z_distance()) / (fd.width * api::get_pixel_size() * 1e-6);
+        pix_size = (api.transform.get_lambda() * api.transform.get_z_distance()) /
+                   (fd.width * api.input.get_pixel_size() * 1e-6);
     }
     else if (window_->getKindOfView() == gui::KindOfView::SliceYZ && axis == Axis::VERTICAL)
     {
-        pix_size = (api::get_lambda() * api::get_z_distance()) / (fd.height * api::get_pixel_size() * 1e-6);
+        pix_size = (api.transform.get_lambda() * api.transform.get_z_distance()) /
+                   (fd.height * api.input.get_pixel_size() * 1e-6);
     }
     else
     {
-        pix_size = std::pow(api::get_lambda(), 2) / 50E-9; // 50nm is an arbitrary value
+        pix_size = std::pow(api.transform.get_lambda(), 2) / 50E-9; // 50nm is an arbitrary value
     }
 
     return val * pix_size;

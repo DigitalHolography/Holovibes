@@ -40,12 +40,13 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
     try
     {
-        auto j_fi =
-            json{{"pixel_pitch", {{"x", api::get_pixel_size()}, {"y", api::get_pixel_size()}}},
-                 {"input_fps", input_fps},
-                 {"camera_fps", api::get_import_type() == ImportType::Camera ? input_fps : api::get_camera_fps()},
-                 {"contiguous", contiguous},
-                 {"holovibes_version", __HOLOVIBES_VERSION__}};
+        const auto& api = API;
+        auto j_fi = json{
+            {"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
+            {"input_fps", input_fps},
+            {"camera_fps", api.input.get_import_type() == ImportType::Camera ? input_fps : api.input.get_camera_fps()},
+            {"contiguous", contiguous},
+            {"holovibes_version", __HOLOVIBES_VERSION__}};
         raw_footer_.Update();
         auto inter = json{};
         to_json(inter, raw_footer_);

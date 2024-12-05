@@ -31,7 +31,7 @@ void Pipe::keep_contiguous(int nb_elm_to_add) const
 {
     while (record_queue_.get_size() + nb_elm_to_add > record_queue_.get_max_size() &&
            // This check prevents being stuck in this loop because record might stop while in this loop
-           api::is_recording())
+           API.record.is_recording())
         continue;
 }
 
@@ -52,6 +52,7 @@ bool Pipe::make_requests()
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
     bool success_allocation = true;
+    const auto api& = API;
 
     /* Free buffers */
     HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());
@@ -71,7 +72,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_filter2D_view_requested");
 
         gpu_filter2d_view_queue_.reset(nullptr);
-        api::set_filter2d_view_enabled(false);
+        api.view.set_filter2d_view_enabled(false);
         clear_request(ICS::DisableFilter2DView);
     }
 
@@ -90,7 +91,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(nullptr);
-        api::set_chart_display_enabled(false);
+        api.view.set_chart_display_enabled(false);
         clear_request(ICS::DisableChartDisplay);
     }
 
@@ -99,7 +100,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(nullptr);
-        api::set_chart_record_enabled(false);
+        api.record.set_chart_record_enabled(false);
         chart_env_.nb_chart_points_to_record_ = 0;
         clear_request(ICS::DisableChartRecord);
     }
@@ -109,7 +110,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("disable_frame_record_requested");
 
         record_queue_.reset(); // we only empty the queue, since it is preallocated and stays allocated
-        api::set_frame_record_enabled(false);
+        api.record.set_frame_record_enabled(false);
         clear_request(ICS::DisableFrameRecord);
     }
 
@@ -122,7 +123,7 @@ bool Pipe::make_requests()
 
     HANDLE_REQUEST(ICS::Convolution, "Convolution", postprocess_->init());
 
-    HANDLE_REQUEST(ICS::Filter, "Filter Init", api::enable_filter(api::get_filter_file_name()));
+    HANDLE_REQUEST(ICS::Filter, "Filter Init", api.filter2d.enable_filter(api.filter2d.get_filter_file_name()));
 
     // Updating number of images
     if (is_requested(ICS::UpdateTimeTransformationSize))
@@ -135,7 +136,7 @@ bool Pipe::make_requests()
             auto P = setting<settings::P>();
             P.start = 0;
             realtime_settings_.update_setting(settings::P{P});
-            api::set_time_transformation_size(1);
+            api.transform.set_time_transformation_size(1);
             update_time_transformation_size(1);
             LOG_WARN("Updating #img failed; #img updated to 1");
         }
@@ -182,7 +183,7 @@ bool Pipe::make_requests()
 
         auto fd = gpu_output_queue_.get_fd();
         gpu_filter2d_view_queue_.reset(new Queue(fd, static_cast<unsigned int>(setting<settings::OutputBufferSize>())));
-        api::set_filter2d_view_enabled(true);
+        api.view.set_filter2d_view_enabled(true);
         clear_request(ICS::Filter2DView);
     }
 
@@ -191,7 +192,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("chart_display_requested");
 
         chart_env_.chart_display_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        api::set_chart_display_enabled(true);
+        api.view.set_chart_display_enabled(true);
         clear_request(ICS::ChartDisplay);
     }
 
@@ -200,7 +201,7 @@ bool Pipe::make_requests()
         LOG_DEBUG("chart_record_requested");
 
         chart_env_.chart_record_queue_.reset(new ConcurrentDeque<ChartPoint>());
-        api::set_chart_record_enabled(true);
+        api.record.set_chart_record_enabled(true);
         chart_env_.nb_chart_points_to_record_ = chart_record_requested_.load().value();
         chart_record_requested_ = std::nullopt;
     }
@@ -211,7 +212,7 @@ bool Pipe::make_requests()
         clear_request(ICS::UpdateRegistrationZone);
     }
 
-    HANDLE_REQUEST(ICS::FrameRecord, "Frame Record", api::set_frame_record_enabled(true));
+    HANDLE_REQUEST(ICS::FrameRecord, "Frame Record", api.record.set_frame_record_enabled(true));
 
     return success_allocation;
 }
@@ -268,7 +269,7 @@ void Pipe::refresh()
 
     insert_wait_time_stride();
 
-    if (api::get_data_type() == RecordedDataType::MOMENTS)
+    if (API.input.get_data_type() == RecordedDataType::MOMENTS)
     {
         // Dequeuing the 3 moments in a temporary buffer
         converts_->insert_float_dequeue(input_queue_, moments_env_.moment_tmp_buffer);
@@ -467,7 +468,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                 "Can't enqueue the output frame in gpu_output_queue");
 
             // Always enqueue the cuts if enabled
-            if (api::get_cuts_view_enabled())
+            if (API.view.get_cuts_view_enabled())
             {
                 safe_enqueue_output(*time_transformation_env_.gpu_output_queue_xz.get(),
                                     buffers_.gpu_output_frame_xz.get(),
@@ -478,7 +479,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
                                     "Can't enqueue the output yz frame in output yz queue");
             }
 
-            if (api::get_filter2d_view_enabled())
+            if (API.view.get_filter2d_view_enabled())
             {
                 safe_enqueue_output(*gpu_filter2d_view_queue_.get(),
                                     buffers_.gpu_filter2d_frame.get(),
@@ -490,7 +491,7 @@ void Pipe::insert_output_enqueue_hologram_mode()
 
 void Pipe::insert_filter2d_view()
 {
-    if (api::get_filter2d_enabled() && api::get_filter2d_view_enabled())
+    if (API.filter2d.get_filter2d_enabled() && API.view.get_filter2d_view_enabled())
     {
         fn_compute_vect_->push_back(
             [this]()

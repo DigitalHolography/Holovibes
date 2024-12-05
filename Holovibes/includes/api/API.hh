@@ -63,6 +63,26 @@ using json = ::nlohmann::json;
         UPDATE_SETTING(type, setting_##type);                                                                          \
     }
 
+namespace holovibes::api
+{
+class Api;
+
+class IApi
+{
+  public:
+    // Take reference to parent in ctor
+    IApi() {}
+
+    void set_api(Api& api) { api_ = api; }
+
+    virtual ~IApi() = default;
+
+  protected:
+    Api& api_;
+};
+
+} // namespace holovibes::api
+
 #include "composite_api.hh"
 #include "record_api.hh"
 #include "input_api.hh"
@@ -76,3 +96,55 @@ using json = ::nlohmann::json;
 #include "information_api.hh"
 
 #include "compute_settings.hh"
+
+namespace holovibes::api
+{
+
+#define API holovibes::api::Api::instance()
+
+class Api
+{
+
+  private:
+    // Private ctor
+    Api() { init(); }
+
+    void init()
+    {
+        composite.set_api(*this);
+        compute.set_api(*this);
+        contrast.set_api(*this);
+        filter2d.set_api(*this);
+        global_pp.set_api(*this);
+        information.set_api(*this);
+        input.set_api(*this);
+        record.set_api(*this);
+        transform.set_api(*this);
+        view.set_api(*this);
+        window_pp.set_api(*this);
+    }
+
+  public:
+    // Singleton
+    static Api& instance()
+    {
+        static Api instance;
+        return instance;
+    }
+
+  public:
+    CompositeApi composite;
+    ComputeApi compute;
+    ContrastApi contrast;
+    Filter2dApi filter2d;
+    GlobalPostProcessApi global_pp;
+    InformationApi information;
+    InputApi input;
+    RecordApi record;
+    TransformApi transform;
+    ViewApi view;
+    WindowPostProcessApi window_pp;
+    ComputeSettingsApi settings;
+};
+
+} // namespace holovibes::api
