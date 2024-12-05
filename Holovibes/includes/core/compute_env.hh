@@ -2,14 +2,15 @@
 
 #include "queue.hh"
 #include "unique_ptr.hh"
-#include "cufft_handle.hh"
 #include "chart_point.hh"
+#include "cufft_handle.hh"
 #include "concurrent_deque.hh"
 
 #include <cufft.h>
 
 namespace holovibes
 {
+
 /*! \struct CoreBuffersEnv
  *
  * \brief Struct containing main buffers used by the pipe.
@@ -96,6 +97,11 @@ struct MomentsEnv
     /*! \brief Vector of size time_transformation_size, representing the frequencies at order 2.
      * Used to compute the moment of order 2*/
     cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
+
+    /*! \brief Is used when reading a moments file; it is where the moments will be
+     * dequeued 3 at a time, and then split to their respective buffer.
+     * This is needed due to the batch behaviour of the input queue.*/
+    cuda_tools::CudaUniquePtr<float> moment_tmp_buffer = nullptr;
 
     /*! \brief Starts and end frequencies of calculus */
     unsigned short f_start;
@@ -205,4 +211,5 @@ struct ImageAccEnv
     /*! \brief Queue accumulating the YZ computed frames. */
     std::unique_ptr<Queue> gpu_accumulation_yz_queue = nullptr;
 };
+
 } // namespace holovibes

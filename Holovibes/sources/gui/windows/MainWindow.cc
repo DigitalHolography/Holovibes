@@ -20,10 +20,9 @@
 
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include "view_struct.hh"
-
-#define MIN_IMG_NB_TIME_TRANSFORMATION_CUTS 8
 
 namespace holovibes
 {
@@ -184,7 +183,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
 
-    if (api::get_yz_enabled() and api::get_xz_enabled())
+    if (api::get_enabled(WindowKind::YZview) && api::get_enabled(WindowKind::XZview))
         ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
@@ -201,7 +200,7 @@ MainWindow::~MainWindow()
     gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
-    api::camera_none();
+    api::set_camera_kind(CameraKind::NONE, false);
 
     delete ui_;
 }
@@ -296,7 +295,7 @@ void MainWindow::on_notify()
     adjustSize();
 }
 
-static void handle_accumulation_exception() { api::set_xy_accumulation_level(1); }
+static void handle_accumulation_exception() { api::set_accumulation_level(WindowKind::XYview, 1); }
 
 void MainWindow::notify_error(const std::exception& e)
 {
@@ -373,7 +372,10 @@ void MainWindow::credits()
     msg_box.exec();
 }
 
-void MainWindow::documentation() { QDesktopServices::openUrl(api::get_documentation_url()); }
+void MainWindow::documentation()
+{
+    QDesktopServices::openUrl(QUrl(QString::fromStdString(api::get_documentation_url())));
+}
 
 #pragma endregion
 /* ------------ */
@@ -504,7 +506,7 @@ void MainWindow::load_gui()
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->load_gui(j_us);
 
-    bool is_camera = api::change_camera(camera);
+    bool is_camera = api::set_camera_kind(camera);
 }
 
 void MainWindow::set_preset_file_on_gpu()
@@ -574,7 +576,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         api::save_compute_settings();
 
     gui::close_windows();
-    api::camera_none();
+    api::set_camera_kind(CameraKind::NONE, false);
     Logger::flush();
 }
 
@@ -586,7 +588,7 @@ void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
 
-    if (api::change_camera(c))
+    if (api::set_camera_kind(c))
     {
         // Shows Holo/Raw window
         ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
@@ -624,7 +626,10 @@ void MainWindow::camera_euresys_egrabber() { change_camera(CameraKind::Ametek); 
 
 void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
-void MainWindow::configure_camera() { api::configure_camera(); }
+void MainWindow::configure_camera()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api::get_camera_ini_name())));
+}
 
 void open_file(const std::string& filename)
 {
@@ -692,7 +697,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
 void MainWindow::change_window(int index)
 {
-    api::change_window(index);
+    api::change_window(static_cast<WindowKind>(index));
 
     notify();
 }
@@ -784,7 +789,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }

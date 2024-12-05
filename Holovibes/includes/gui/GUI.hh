@@ -1,4 +1,4 @@
-/*! \file
+/*! \file GUI.hh
  *
  * \brief This file contains the GUI API functions for the Holovibes application. These functions manage UI window and
  * recurent functions. They can call the API
@@ -16,19 +16,7 @@
 namespace holovibes::gui
 {
 
-/*
-// Refacto set_image_mode to create the pipe and then another GUI set_image_mode
-// called like (open window) that will create the windows
-
-// View if useful since there is set_view_mode
-
-void rotateTexture();
-void flipTexture();
-*/
-
-/*! \brief Closes all the currently displaying windows
- *
- */
+/*! \brief Closes all the currently displaying windows */
 void close_windows();
 
 /*! \brief Set the light ui mode
@@ -89,6 +77,12 @@ void set_chart_display(bool enabled);
  * \param[in] window_size the size of the slice window
  */
 void set_3d_cuts_view(bool enabled, uint max_window_size);
+
+/*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
+void rotate_texture();
+
+/*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
+void flip_texture();
 
 /*! \brief Make the ui composite overlay visible */
 void set_composite_area();

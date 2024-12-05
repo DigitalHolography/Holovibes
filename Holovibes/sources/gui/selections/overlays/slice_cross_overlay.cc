@@ -41,10 +41,8 @@ void SliceCrossOverlay::setBuffer()
 {
     bool slice_xz = parent_->getKindOfView() == KindOfView::SliceXZ;
 
-    ViewPQ p = api::get_p();
-
-    uint pmin = p.start;
-    uint pmax = pmin + p.width + 1;
+    uint pmin = api::get_p_index();
+    uint pmax = pmin + api::get_p_accu_level() + 1;
 
     units::ConversionData convert(parent_);
 

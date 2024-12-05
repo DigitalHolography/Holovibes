@@ -62,7 +62,7 @@ void FrameRecordWorker::run()
     std::atomic<uint>& nb_frames_recorded = fast_update_progress_entry->first;
     std::atomic<uint>& nb_frames_to_record = fast_update_progress_entry->second;
 
-    size_t nb_frames_to_skip = setting<settings::RecordFrameSkip>();
+    size_t nb_frames_to_skip = setting<settings::RecordFrameOffset>();
 
     nb_frames_recorded = 0;
 
@@ -188,9 +188,6 @@ void FrameRecordWorker::run()
                 nb_frames_to_record++;
         }
 
-        // api::set_record_frame_skip(nb_frames_to_skip);
-
-        // api::set_record_frame_skip(nb_frames_to_skip);
         LOG_INFO("Recording stopped, written frames : {}", nb_frames_recorded.load());
         output_frame_file->correct_number_of_frames(nb_frames_recorded);
 

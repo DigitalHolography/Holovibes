@@ -11,6 +11,7 @@
 #include "frame_desc.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 
 #include <map>
 
@@ -41,8 +42,11 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 void ImageRenderingPanel::on_notify()
 {
     const bool is_raw = api::get_compute_mode() == Computation::Raw;
+    const bool is_data_not_moments = !(api::get_data_type() == RecordedDataType::MOMENTS);
+    const bool not_raw_not_moments = !is_raw && is_data_not_moments;
 
     ui_->ImageModeComboBox->setCurrentIndex(static_cast<int>(api::get_compute_mode()));
+    ui_->ImageModeComboBox->setEnabled(is_data_not_moments);
 
     ui_->TimeStrideSpinBox->setEnabled(!is_raw);
 
@@ -50,15 +54,18 @@ void ImageRenderingPanel::on_notify()
     ui_->TimeStrideSpinBox->setSingleStep(api::get_batch_size());
     ui_->TimeStrideSpinBox->setMinimum(api::get_batch_size());
 
+    const bool is_batch_size_enabled = !api::is_recording() && is_data_not_moments;
     ui_->BatchSizeSpinBox->setValue(api::get_batch_size());
-
-    ui_->BatchSizeSpinBox->setEnabled(!api::is_recording());
+    ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
+    ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
     ui_->BatchSizeSpinBox->setMaximum(api::get_input_buffer_size());
 
-    ui_->SpaceTransformationComboBox->setEnabled(!is_raw);
+    ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->SpaceTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_space_transformation()));
-    ui_->TimeTransformationComboBox->setEnabled(!is_raw);
+    ui_->TimeTransformationLabel->setEnabled(not_raw_not_moments);
+    ui_->TimeTransformationComboBox->setEnabled(not_raw_not_moments);
     ui_->TimeTransformationComboBox->setCurrentIndex(static_cast<int>(api::get_time_transformation()));
 
     // Changing time_transformation_size with time transformation cuts is
@@ -68,11 +75,14 @@ void ImageRenderingPanel::on_notify()
     ui_->timeTransformationSizeSpinBox->setValue(api::get_time_transformation_size());
 
     // Z (focus)
-    ui_->LambdaSpinBox->setEnabled(!is_raw);
+    ui_->LambdaLabel->setEnabled(not_raw_not_moments);
+    ui_->LambdaSpinBox->setEnabled(not_raw_not_moments);
     ui_->LambdaSpinBox->setValue(api::get_lambda() * 1.0e9f);
-    ui_->ZDoubleSpinBox->setEnabled(!is_raw);
+    ui_->ZLabel->setEnabled(not_raw_not_moments);
+    ui_->ZDoubleSpinBox->setEnabled(not_raw_not_moments);
     ui_->ZDoubleSpinBox->setValue(api::get_z_distance() * 1000);
     ui_->ZDoubleSpinBox->setSingleStep(z_step_);
+    ui_->ZSlider->setEnabled(not_raw_not_moments);
     ui_->BoundaryDoubleSpinBox->setValue(api::get_boundary() * 1000);
 
     // Filter2D
@@ -173,7 +183,7 @@ void ImageRenderingPanel::set_filter2d(bool checked)
     if (api::get_compute_mode() == Computation::Raw)
         return;
 
-    api::set_filter2d(checked);
+    api::set_filter2d_enabled(checked);
 
     if (checked)
     {
@@ -273,11 +283,12 @@ void ImageRenderingPanel::set_z_distance(const double value)
 
     const QSignalBlocker blocker(ui_->ZSlider);
     ui_->ZSlider->setValue(value);
+    ui_->ZDoubleSpinBox->setValue(value);
 }
 
-void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() + z_step_); }
+void ImageRenderingPanel::increment_z() { set_z_distance(api::get_z_distance() * 1000 + z_step_); }
 
-void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() - z_step_); }
+void ImageRenderingPanel::decrement_z() { set_z_distance(api::get_z_distance() * 1000 - z_step_); }
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
@@ -301,7 +312,7 @@ void ImageRenderingPanel::update_convo_kernel(const QString& value)
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api::set_divide_convolution(value);
+    api::set_divide_convolution_enabled(value);
     parent_->notify();
 }
 

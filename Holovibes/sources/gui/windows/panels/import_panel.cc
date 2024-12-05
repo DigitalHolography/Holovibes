@@ -10,6 +10,7 @@
 #include "input_frame_file_factory.hh"
 #include "API.hh"
 #include "GUI.hh"
+#include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
 namespace api = ::holovibes::api;
@@ -25,6 +26,12 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify()
 {
+    ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api::get_input_file_start_index()));
+    ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api::get_input_file_end_index()));
+    const char step = api::get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
+    ui_->ImportStartIndexSpinBox->setSingleStep(step);
+    ui_->ImportEndIndexSpinBox->setSingleStep(step);
+
     const bool no_comp = api::get_is_computation_stopped();
     ui_->InputBrowseToolButton->setEnabled(no_comp);
     ui_->FileReaderProgressBar->setVisible(!no_comp && api::get_import_type() == ImportType::File);
@@ -102,10 +109,16 @@ void ImportPanel::import_file(const QString& filename)
         // The start index cannot exceed the end index
         ui_->ImportStartIndexSpinBox->setMaximum(nb_frames);
         ui_->ImportEndIndexSpinBox->setMaximum(nb_frames);
-        ui_->ImportEndIndexSpinBox->setValue(nb_frames);
+
+        // Changing the settings is straight-up better than changing the UI
+        // This whole logic will need to go in the API at one point
+        api::set_input_file_start_index(1);
+        api::set_input_file_end_index(nb_frames);
 
         // We can now launch holovibes over this file
         set_start_stop_buttons(true);
+
+        parent_->notify();
     }
     else
         set_start_stop_buttons(false);

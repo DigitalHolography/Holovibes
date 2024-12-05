@@ -1,4 +1,4 @@
-/*! \file
+/*! \file icompute.hh
  *
  * \brief Stores functions helping the editing of the images.
  */
@@ -13,7 +13,6 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
-#include "chart_point.hh"
 #include "compute_env.hh"
 #include "concurrent_deque.hh"
 #include "enum_window_kind.hh"
@@ -86,7 +85,8 @@
     holovibes::settings::ContrastUpperThreshold,                 \
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
-    holovibes::settings::RecordQueueLocation
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::DataType
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -95,8 +95,7 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled,                          \
-    holovibes::settings::DataType
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 

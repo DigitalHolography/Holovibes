@@ -1,6 +1,7 @@
 #include "ui_advancedsettingswindow.h"
 #include "AdvancedSettingsWindow.hh"
 #include "API.hh"
+#include "user_interface_descriptor.hh"
 #include <spdlog/spdlog.h>
 
 namespace holovibes::gui
