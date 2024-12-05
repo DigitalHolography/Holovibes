@@ -454,7 +454,7 @@ void Analysis::insert_first_analysis_masks()
                                             otsu_rescale,
                                             histo_buffer_d,
                                             vesselness_filter_struct_.thresholds + 1,
-                                            4,
+                                            6,
                                             buffers_.gpu_postprocess_frame_size,
                                             stream_);
                 cudaXFree(otsu_rescale);

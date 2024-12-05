@@ -385,7 +385,7 @@ void otsu_multi_thresholding(const float* input_d,
         }
     }
 
-    float* test = new float[3];
+    float* test = new float[5];
     for (int i = 0; i < nclasses - 1; i++)
     {
         LOG_INFO(i);
