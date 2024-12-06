@@ -27,22 +27,15 @@ class ViewPanel : public Panel
     ViewPanel(QWidget* parent = nullptr);
     ~ViewPanel();
 
-    void view_callback(WindowKind kind, ViewWindow window);
     void on_notify() override;
 
     void load_gui(const json& j_us) override;
     void save_gui(json& j_us) override;
 
-    /*! \brief Remove time transformation cut views */
-    void cancel_time_transformation_cuts();
-    /*! \brief Adds auto contrast to the pipe over cut views */
-    void set_auto_contrast_cuts();
-
-    /**
-     * \brief Changes the image type in the UI and hides irrelevant options.
+    /*! \brief Changes the image type in the UI and hides irrelevant options.
      * Notably, when the input data is moments, only moments views are available.
      *
-     * \param img_type The image type to set.
+     * \param[in] img_type The image type to set.
      */
     void update_img_type(int img_type);
 
@@ -128,8 +121,6 @@ class ViewPanel : public Panel
      * \param value true: enable, false: disable
      */
     void set_contrast_mode(bool value);
-    /*! \brief Enalbles auto-contrast */
-    void set_auto_contrast();
 
     /*! \brief Enables or Disables auto refresh contrast
      *

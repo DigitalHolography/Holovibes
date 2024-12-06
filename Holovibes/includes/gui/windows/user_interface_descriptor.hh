@@ -45,8 +45,6 @@ class UserInterfaceDescriptor
         return instance;
     }
 
-    camera::FrameDescriptor file_fd_;
-
     std::unique_ptr<::holovibes::gui::RawWindow> mainDisplay = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceXZ = nullptr;
     std::unique_ptr<::holovibes::gui::SliceWindow> sliceYZ = nullptr;
@@ -56,20 +54,10 @@ class UserInterfaceDescriptor
     std::unique_ptr<::holovibes::gui::PlotWindow> plot_window_ = nullptr;
     std::unique_ptr<::holovibes::gui::AdvancedSettingsWindow> advanced_settings_window_ = nullptr;
 
-    bool is_recording_ = false;
-
-    bool is_advanced_settings_displayed = false;
-    bool has_been_updated = false;
-
-    std::string last_img_type_ = "Magnitude";
-
     size_t auto_scale_point_threshold_ = 100;
 
     std::string output_filename_{"capture"};
     std::string record_output_directory_;
     std::string file_input_directory_{"C:\\"};
-
-    std::string convo_name{UID_CONVOLUTION_TYPE_DEFAULT};
-    std::string filter_name{UID_FILTER_TYPE_DEFAULT};
 };
 } // namespace holovibes

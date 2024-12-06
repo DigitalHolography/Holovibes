@@ -190,8 +190,6 @@ void convert_frame_for_display(void* output,
                                const ushort shift,
                                const cudaStream_t stream);
 
-void float_to_complex(cuComplex* output, const float* input, size_t size, const cudaStream_t stream);
-
 /*!
  * \brief Convert a buffer filled with complex values into real values using the modulus. The function will
  * only convert from index f_start to index f_end.

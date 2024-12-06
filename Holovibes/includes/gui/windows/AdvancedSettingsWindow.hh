@@ -31,7 +31,7 @@ class AdvancedSettingsWindow : public QMainWindow
 
     /*! \brief Advanced Settings Window
      *
-     * \param parent the object that will embed the layouts
+     * \param[in] parent the object that will embed the layouts
      */
 
     AdvancedSettingsWindow(QMainWindow* parent = nullptr);
@@ -39,11 +39,17 @@ class AdvancedSettingsWindow : public QMainWindow
     /*! \brief Destroy the AdvancedSettingsWindow object. */
     ~AdvancedSettingsWindow();
 
+    /*! \brief Set the callback function called when user click on the Save button
+     *
+     * \param[in] callback the function to call
+     */
+    void set_callback(std::function<void()> callback) { callback_ = callback; }
+
   private:
     /*!
      * \brief Change the correspondant folder lineEdit
      *
-     * \param lineEdit The line that is currently changed
+     * \param[in] lineEdit The line that is currently changed
      */
     void change_folder(Drag_drop_lineedit* lineEdit);
 
@@ -52,6 +58,9 @@ class AdvancedSettingsWindow : public QMainWindow
 
   private:
     Ui::AdvancedSettingsWindow ui;
+
+    /*! \brief Callback function called when user click on the Save button */
+    std::function<void()> callback_ = []() {};
 
   public slots:
     /*! \brief emit signal closed on window is closed */

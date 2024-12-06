@@ -42,7 +42,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -75,7 +75,8 @@
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
     holovibes::settings::RecordFrameCount,                       \
-    holovibes::settings::RecordMode
+    holovibes::settings::RecordMode,                             \
+    holovibes::settings::CameraFps                               \
 
 
 #define ONRESTART_SETTINGS                                       \
@@ -86,8 +87,7 @@
     holovibes::settings::RenormConstant,                         \
     holovibes::settings::CutsContrastPOffset,                    \
     holovibes::settings::RecordQueueLocation,                    \
-    holovibes::settings::RawViewQueueLocation,                   \
-    holovibes::settings::InputQueueLocation
+    holovibes::settings::DataType
 
 #define PIPEREFRESH_SETTINGS                                     \
     holovibes::settings::TimeStride,                             \
@@ -96,8 +96,7 @@
     holovibes::settings::XZ,                                     \
     holovibes::settings::YZ,                                     \
     holovibes::settings::InputFilter,                            \
-    holovibes::settings::FilterEnabled,                          \
-    holovibes::settings::DataType
+    holovibes::settings::FilterEnabled
 
 #define ALL_SETTINGS REALTIME_SETTINGS, ONRESTART_SETTINGS, PIPEREFRESH_SETTINGS
 
@@ -147,22 +146,18 @@ class ICompute
         time_transformation_env_.gpu_time_transformation_queue.reset(
             new Queue(fd, setting<settings::TimeTransformationSize>()));
 
-        if (setting<settings::ImageType>() == ImgType::Composite)
-        {
-            // Grey to RGB
+        if (setting<settings::ImageType>() == ImgType::Composite) // Grey to RGB
             zone_size *= 3;
-            buffers_.gpu_postprocess_frame_size *= 3;
-        }
 
         buffers_.gpu_postprocess_frame_size = zone_size;
 
         // Allocate the buffers
         int err = !buffers_.gpu_output_frame.resize(zone_size);
-        err += !buffers_.gpu_postprocess_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !time_transformation_env_.gpu_p_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_complex_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_float_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
-        err += !buffers_.gpu_filter2d_frame.resize(buffers_.gpu_postprocess_frame_size);
+        err += !buffers_.gpu_postprocess_frame.resize(zone_size);
+        err += !time_transformation_env_.gpu_p_frame.resize(zone_size);
+        err += !buffers_.gpu_complex_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_float_filter2d_frame.resize(zone_size);
+        err += !buffers_.gpu_filter2d_frame.resize(zone_size);
         err += !buffers_.gpu_filter2d_mask.resize(zone_size);
         err += !buffers_.gpu_input_filter_mask.resize(zone_size);
 
@@ -186,16 +181,7 @@ class ICompute
     enum class Setting
     {
         Unwrap2D = 0,
-
-        // These 4 autocontrast settings are set to false by & in renderer.cc
-        // it's not clean
-        Autocontrast,
-        AutocontrastSliceXZ,
-        AutocontrastSliceYZ,
-        AutocontrastFilter2D,
-
         UpdateTimeTransformationAlgorithm,
-
         Refresh,
         RefreshEnabled,
         UpdateTimeTransformationSize,
@@ -215,11 +201,9 @@ class ICompute
         DisableLensView,
         FrameRecord,
         DisableFrameRecord,
-        ClearImgAccu,
         Convolution,
         DisableConvolution,
         Filter,
-        DisableFilter,
 
         // Add other setting here
 
@@ -256,8 +240,6 @@ class ICompute
     std::optional<unsigned int> get_chart_record_requested() const { return chart_record_requested_; }
 
     void request_refresh();
-
-    void request_autocontrast(WindowKind kind);
 
     void request_record_chart(unsigned int nb_chart_points_to_record);
     /*! \} */

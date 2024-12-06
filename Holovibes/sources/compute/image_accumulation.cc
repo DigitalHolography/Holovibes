@@ -75,9 +75,14 @@ void ImageAccumulation::init()
                                     setting<settings::XY>().output_image_accumulation,
                                     new_fd);
     }
+}
+
+void ImageAccumulation::init_cuts_queue()
+{
+    LOG_FUNC();
 
     // XZ view
-    if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
+    if (setting<settings::XZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = camera::PixelDepth::Bits32; // Size of float
@@ -89,7 +94,7 @@ void ImageAccumulation::init()
     }
 
     // YZ view
-    if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
+    if (setting<settings::YZ>().output_image_accumulation > 1)
     {
         auto new_fd = fd_;
         new_fd.depth = camera::PixelDepth::Bits32; // Size of float
@@ -107,9 +112,15 @@ void ImageAccumulation::dispose()
 
     if (!(setting<settings::XY>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xy_queue.reset(nullptr);
-    if (setting<settings::CutsViewEnabled>() && !(setting<settings::XZ>().output_image_accumulation > 1))
+}
+
+void ImageAccumulation::dispose_cuts_queue()
+{
+    LOG_FUNC();
+
+    if (!(setting<settings::XZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_xz_queue.reset(nullptr);
-    if (setting<settings::CutsViewEnabled>() && !(setting<settings::YZ>().output_image_accumulation > 1))
+    if (!(setting<settings::YZ>().output_image_accumulation > 1))
         image_acc_env_.gpu_accumulation_yz_queue.reset(nullptr);
 }
 
@@ -140,9 +151,9 @@ void ImageAccumulation::compute_average(std::unique_ptr<Queue>& gpu_accumulation
         // Compute the average and store it in the output frame
         accumulate_images(gpu_ouput_average_frame,
                           static_cast<float*>(gpu_accumulation_queue->get_data()),
-                          gpu_accumulation_queue->get_size(),
+                          gpu_accumulation_queue->get_start_index(),
                           gpu_accumulation_queue->get_max_size(),
-                          image_acc_level,
+                          gpu_accumulation_queue->get_size(),
                           frame_res,
                           stream_);
     }
@@ -158,7 +169,7 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
     // XY view
     if (image_acc_env_.gpu_accumulation_xy_queue && setting<settings::XY>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 compute_average(image_acc_env_.gpu_accumulation_xy_queue,
@@ -172,7 +183,7 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
     // XZ view
     if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 compute_average(image_acc_env_.gpu_accumulation_xz_queue,
@@ -186,7 +197,7 @@ void ImageAccumulation::insert_compute_average(float& gpu_postprocess_frame,
     // YZ view
     if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 compute_average(image_acc_env_.gpu_accumulation_yz_queue,
@@ -210,7 +221,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
     // XY view
     if (image_acc_env_.gpu_accumulation_xy_queue && setting<settings::XY>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame,
@@ -224,7 +235,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
     // XZ view
     if (setting<settings::CutsViewEnabled>() && setting<settings::XZ>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_xz,
@@ -238,7 +249,7 @@ void ImageAccumulation::insert_copy_accumulation_result(const holovibes::ViewXYZ
     // YZ view
     if (setting<settings::CutsViewEnabled>() && setting<settings::YZ>().output_image_accumulation > 1)
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [&]()
             {
                 cudaXMemcpyAsync(buffers_.gpu_postprocess_frame_yz,

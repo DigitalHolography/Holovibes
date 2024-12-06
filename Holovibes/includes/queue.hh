@@ -157,6 +157,10 @@ class Queue final : public DisplayQueue, public HoloQueue
     /*! \return Pointer to the last image */
     void* get_last_image() const override
     {
+        // The queue is empty
+        if (size_ == 0)
+            return nullptr;
+
         MutexGuard mGuard(mutex_);
         // if the queue is empty, return a random frame
         // return (gpu_ ? std::get<0>(data_).get() : std::get<1>(data_).get()) + ((start_index_ + size_ - 1) %

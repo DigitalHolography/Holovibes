@@ -22,10 +22,27 @@ CompositePanel::CompositePanel(QWidget* parent)
 
 CompositePanel::~CompositePanel() {}
 
+void CompositePanel::showEvent(QShowEvent* event)
+{
+    const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
+    const unsigned max_val_composite = api::get_time_transformation_size() - 1;
+
+    ui_->PRedSpinBox_Composite->setValue(min_val_composite);
+    ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
+    ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
+    ui_->SpinBox_value_freq_min->setValue(min_val_composite);
+
+    ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
+    ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
+    ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
+    ui_->SpinBox_value_freq_max->setValue(max_val_composite);
+}
+
 void CompositePanel::on_notify()
 {
     if (!isVisible())
         return;
+
     const int time_transformation_size_max = api::get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -175,7 +192,6 @@ void CompositePanel::set_composite_auto_weights(bool value)
     ui_->WeightSpinBox_G->setEnabled(!value);
     ui_->WeightSpinBox_B->setEnabled(!value);
 
-    ui_->ViewPanel->set_auto_contrast();
     parent_->notify();
 }
 

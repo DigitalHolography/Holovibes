@@ -20,6 +20,7 @@
 #include "enum/enum_device.hh"
 #include "enum/enum_recorded_data_type.hh"
 #include "rect.hh"
+#include "frame_desc.hh"
 
 #define DECLARE_SETTING(name, type)                                                                                    \
     struct name                                                                                                        \
@@ -41,6 +42,7 @@ DECLARE_SETTING(InputFPS, size_t);
  * \brief The path of the input file.
  */
 DECLARE_SETTING(InputFilePath, std::string);
+DECLARE_SETTING(ImportedFileFd, camera::FrameDescriptor);
 
 DECLARE_SETTING(ImportType, holovibes::ImportType);
 DECLARE_SETTING(CameraKind, holovibes::CameraKind);
@@ -107,6 +109,7 @@ DECLARE_SETTING(Filter2dN1, int);
 DECLARE_SETTING(Filter2dN2, int);
 DECLARE_SETTING(Filter2dSmoothLow, int);
 DECLARE_SETTING(Filter2dSmoothHigh, int);
+DECLARE_SETTING(FilterFileName, std::string);
 
 /*! \name FileReadCache */
 /*!
@@ -132,14 +135,12 @@ DECLARE_SETTING(ChartRecordEnabled, bool);
 /*! \name Advanced Cache */
 DECLARE_SETTING(DisplayRate, float);
 DECLARE_SETTING(InputBufferSize, size_t);
-DECLARE_SETTING(InputQueueLocation, holovibes::Device);
 DECLARE_SETTING(RecordBufferSize, size_t);
 DECLARE_SETTING(ContrastLowerThreshold, float);
 DECLARE_SETTING(RawBitshift, size_t);
 DECLARE_SETTING(ContrastUpperThreshold, float);
 DECLARE_SETTING(RenormConstant, unsigned);
 DECLARE_SETTING(CutsContrastPOffset, size_t);
-DECLARE_SETTING(RecordOnGPU, bool);
 DECLARE_SETTING(BenchmarkMode, bool);
 
 /*! \name ComputeCache */
@@ -150,9 +151,12 @@ DECLARE_SETTING(SpaceTransformation, holovibes::SpaceTransformation);
 DECLARE_SETTING(TimeTransformation, holovibes::TimeTransformation);
 DECLARE_SETTING(Lambda, float);
 DECLARE_SETTING(ZDistance, float);
+
 DECLARE_SETTING(ConvolutionEnabled, bool);
 DECLARE_SETTING(ConvolutionMatrix, std::vector<float>);
 DECLARE_SETTING(DivideConvolutionEnabled, bool);
+DECLARE_SETTING(ConvolutionFileName, std::string);
+
 DECLARE_SETTING(ComputeMode, holovibes::Computation);
 DECLARE_SETTING(PixelSize, float);
 DECLARE_SETTING(IsComputationStopped, bool);
@@ -184,10 +188,10 @@ DECLARE_SETTING(HSV, holovibes::CompositeHSV);
 DECLARE_SETTING(ZFFTShift, bool);
 
 DECLARE_SETTING(RecordQueueLocation, holovibes::Device);
-DECLARE_SETTING(RawViewQueueLocation, holovibes::Device);
 
 DECLARE_SETTING(FrameSkip, uint);
 DECLARE_SETTING(Mp4Fps, uint);
+DECLARE_SETTING(CameraFps, uint);
 
 DECLARE_SETTING(DataType, holovibes::RecordedDataType);
 } // namespace holovibes::settings

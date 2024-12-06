@@ -8,6 +8,8 @@
 #include "logger.hh"
 #include "tools.hh"
 #include "API.hh"
+#include "GUI.hh"
+
 #pragma warning(push, 0)
 #include "ui_lightui.h"
 #pragma warning(pop)
@@ -41,7 +43,7 @@ LightUI::LightUI(QWidget* parent, MainWindow* main_window)
 
 LightUI::~LightUI()
 {
-    api::set_light_ui_mode(visible_);
+    gui::set_light_ui_mode(visible_);
 
     delete ui_;
 }
@@ -169,8 +171,6 @@ void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
 void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
 
 void LightUI::set_contrast_max(const double value) { api::set_contrast_max(value); }
-
-void LightUI::set_auto_contrast() { api::set_auto_contrast(); }
 
 void LightUI::set_contrast_auto_refresh(bool value)
 {

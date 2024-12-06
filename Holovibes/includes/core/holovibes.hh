@@ -38,6 +38,7 @@
 #define REALTIME_SETTINGS                                        \
     holovibes::settings::InputFPS,                               \
     holovibes::settings::InputFilePath,                          \
+    holovibes::settings::ImportedFileFd,                         \
     holovibes::settings::ImportType,                             \
     holovibes::settings::CameraKind,                             \
     holovibes::settings::FileBufferSize,                         \
@@ -64,7 +65,7 @@
     holovibes::settings::Filter2dEnabled,                        \
     holovibes::settings::Filter2dViewEnabled,                    \
     holovibes::settings::FftShiftEnabled,                        \
-    holovibes::settings::RegistrationEnabled,                   \
+    holovibes::settings::RegistrationEnabled,                    \
     holovibes::settings::RawViewEnabled,                         \
     holovibes::settings::CutsViewEnabled,                        \
     holovibes::settings::RenormEnabled,                          \
@@ -75,6 +76,7 @@
     holovibes::settings::Filter2dN2,                             \
     holovibes::settings::Filter2dSmoothLow,                      \
     holovibes::settings::Filter2dSmoothHigh,                     \
+    holovibes::settings::FilterFileName,                         \
     holovibes::settings::FrameRecordEnabled,                     \
     holovibes::settings::ChartRecordEnabled,                     \
     holovibes::settings::DisplayRate,                            \
@@ -95,6 +97,7 @@
     holovibes::settings::ConvolutionEnabled,                     \
     holovibes::settings::ConvolutionMatrix,                      \
     holovibes::settings::DivideConvolutionEnabled,               \
+    holovibes::settings::ConvolutionFileName,                    \
     holovibes::settings::ComputeMode,                            \
     holovibes::settings::PixelSize,                              \
     holovibes::settings::IsComputationStopped,                   \
@@ -111,13 +114,11 @@
     holovibes::settings::RGB,                                    \
     holovibes::settings::HSV,                                    \
     holovibes::settings::ZFFTShift,                              \
-    holovibes::settings::RecordQueueLocation,                       \
-    holovibes::settings::RawViewQueueLocation,                      \
-    holovibes::settings::InputQueueLocation,                        \
-    holovibes::settings::BenchmarkMode,                             \
-    holovibes::settings::RecordOnGPU,                               \
-    holovibes::settings::FrameSkip,                                 \
-    holovibes::settings::Mp4Fps,                                    \
+    holovibes::settings::RecordQueueLocation,                    \
+    holovibes::settings::BenchmarkMode,                          \
+    holovibes::settings::FrameSkip,                              \
+    holovibes::settings::Mp4Fps,                                 \
+    holovibes::settings::CameraFps,                              \
     holovibes::settings::DataType
 
 #define ALL_SETTINGS REALTIME_SETTINGS
@@ -369,6 +370,7 @@ class Holovibes
         : realtime_settings_(std::make_tuple(settings::InputFPS{10000},
                                              settings::InputFilePath{std::string("")},
                                              settings::ImportType{ImportType::None},
+                                             settings::ImportedFileFd{camera::FrameDescriptor{}},
                                              settings::CameraKind{CameraKind::NONE},
                                              settings::FileBufferSize{1024},
                                              settings::LoadFileInGPU{false},
@@ -405,6 +407,7 @@ class Holovibes
                                              settings::Filter2dN2{1},
                                              settings::Filter2dSmoothLow{0},
                                              settings::Filter2dSmoothHigh{1},
+                                             settings::FilterFileName{std::string("")},
                                              settings::FrameRecordEnabled{false},
                                              settings::ChartRecordEnabled{false},
                                              settings::DisplayRate{24},
@@ -425,6 +428,7 @@ class Holovibes
                                              settings::ConvolutionEnabled{false},
                                              settings::ConvolutionMatrix{std::vector<float>{}},
                                              settings::DivideConvolutionEnabled{false},
+                                             settings::ConvolutionFileName{std::string("")},
                                              settings::ComputeMode{Computation::Raw},
                                              settings::PixelSize{12.0f},
                                              settings::IsComputationStopped{true},
@@ -442,12 +446,10 @@ class Holovibes
                                              settings::HSV{CompositeHSV{}},
                                              settings::ZFFTShift{false},
                                              settings::RecordQueueLocation{Device::CPU},
-                                             settings::RawViewQueueLocation{Device::GPU},
-                                             settings::InputQueueLocation{Device::GPU},
                                              settings::BenchmarkMode{false},
-                                             settings::RecordOnGPU{true},
                                              settings::FrameSkip{0},
                                              settings::Mp4Fps{24},
+                                             settings::CameraFps{0},
                                              settings::DataType{RecordedDataType::RAW}))
     {
     }
