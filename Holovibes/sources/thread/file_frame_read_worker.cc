@@ -166,13 +166,12 @@ void FileFrameReadWorker::read_file_in_gpu()
 
 void FileFrameReadWorker::read_file_batch()
 {
-    const unsigned int batch_size = static_cast<unsigned int>(
-        setting<settings::FileBufferSize>()); // onrestart_settings_.get<settings::FileBufferSize>().value;
+    const unsigned int file_buffer_size = static_cast<unsigned int>(setting<settings::FileBufferSize>());
 
     // Read the entire file by batch
     while (!stop_requested_)
     {
-        size_t frames_to_read = std::min(batch_size, total_nb_frames_to_read_ - current_nb_frames_read_);
+        size_t frames_to_read = std::min(file_buffer_size, total_nb_frames_to_read_ - current_nb_frames_read_);
 
         // Read batch in cpu and copy it to gpu
         size_t frames_read = read_copy_file(frames_to_read);
@@ -258,8 +257,7 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
 
     while (frames_enqueued < nb_frames_to_enqueue && !stop_requested_)
     {
-        // fps_handler_.wait();
-        fps_limiter_.wait(setting<settings::InputFPS>()); // realtime_settings_.get<settings::InputFPS>().value);
+        fps_limiter_.wait(setting<settings::InputFPS>() / setting<settings::BatchSize>());
 
         if (Holovibes::instance().is_cli)
         {
@@ -268,17 +266,18 @@ void FileFrameReadWorker::enqueue_loop(size_t nb_frames_to_enqueue)
             {
             }
         }
+        input_queue_.load()->enqueue_multiple(gpu_file_frame_buffer_ + frames_enqueued * frame_size_,
+                                              setting<settings::BatchSize>(),
+                                              cudaMemcpyDeviceToDevice);
+
+        current_nb_frames_read_ += setting<settings::BatchSize>();
+        processed_frames_ += setting<settings::BatchSize>();
+        frames_enqueued += setting<settings::BatchSize>();
+
+        compute_fps();
 
         if (stop_requested_)
             break;
-
-        input_queue_.load()->enqueue(gpu_file_frame_buffer_ + frames_enqueued * frame_size_, cudaMemcpyDeviceToDevice);
-
-        current_nb_frames_read_++;
-        processed_frames_++;
-        frames_enqueued++;
-
-        compute_fps();
     }
 
     // Synchronize forced, because of the cudaMemcpyAsync we have to finish to
