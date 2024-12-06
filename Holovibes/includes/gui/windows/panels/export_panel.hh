@@ -31,7 +31,6 @@ class ExportPanel : public Panel
     void set_record_frame_step(int step);
     int get_record_frame_step();
 
-    void init_light_ui();
     void set_output_file_name(std::string std_filepath);
 
   public slots:

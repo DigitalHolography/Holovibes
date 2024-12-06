@@ -202,8 +202,7 @@ void InputHoloFile::import_compute_settings()
     // This is because moments don't need to and shouldn't be batched;
     // every single frame is necessary
     if (api::get_data_type() == RecordedDataType::MOMENTS)
-        UPDATE_SETTING(BatchSize, 1); // Cannot call API function,
-                                      // as it would do nothing because ImportType is not set
+        api::loaded_moments_data();
 }
 
 void InputHoloFile::import_info() const

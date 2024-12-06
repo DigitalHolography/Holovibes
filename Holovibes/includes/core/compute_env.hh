@@ -99,6 +99,11 @@ struct MomentsEnv
      * Used to compute the moment of order 2*/
     cuda_tools::CudaUniquePtr<float> f2_buffer = nullptr;
 
+    /*! \brief Is used when reading a moments file; it is where the moments will be
+     * dequeued 3 at a time, and then split to their respective buffer.
+     * This is needed due to the batch behaviour of the input queue.*/
+    cuda_tools::CudaUniquePtr<float> moment_tmp_buffer = nullptr;
+
     /*! \brief Starts and end frequencies of calculus */
     unsigned short f_start;
     unsigned short f_end;

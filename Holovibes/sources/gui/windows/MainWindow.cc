@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget* parent)
                                        })
     , set_preset_subscriber_("set_preset_file_gpu", [this](bool success) { set_preset_file_on_gpu(); })
 {
+    disable_notify();
+
     ui_->setupUi(this);
     panels_ = {
         ui_->ImageRenderingPanel,
@@ -156,13 +158,8 @@ MainWindow::MainWindow(QWidget* parent)
         api::save_compute_settings(holovibes::settings::compute_settings_filepath);
     }
 
-    // Display default values
-    api::set_compute_mode(api::get_compute_mode());
-    UserInterfaceDescriptor::instance().last_img_type_ = api::get_img_type() == ImgType::Composite
-                                                             ? "Composite image"
-                                                             : UserInterfaceDescriptor::instance().last_img_type_;
-    bool is_conv_enabled =
-        api::get_convolution_enabled(); // Store the value because when the camera is initialised it is reset
+    // Store the value because when the camera is initialised it is reset
+    bool is_conv_enabled = api::get_convolution_enabled();
 
     ui_->VesselnessSigmaDoubleSpinBox->setValue(2.0f);
     ui_->TimeWindowSpinBox->setValue(100);
@@ -173,9 +170,7 @@ MainWindow::MainWindow(QWidget* parent)
     load_gui();
 
     if (api::get_import_type() != ImportType::None)
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
-
-    notify();
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -189,32 +184,27 @@ MainWindow::MainWindow(QWidget* parent)
     for (auto it = panels_.begin(); it != panels_.end(); it++)
         (*it)->init();
 
-    // ui_->ExportPanel->set_light_ui(light_ui_);
-    ui_->ExportPanel->init_light_ui();
-    // ui_->ImageRenderingPanel->set_light_ui(light_ui_);
-    // ui_->InfoPanel->set_light_ui(light_ui_);
-
     api::start_information_display();
 
-    ui_->ImageRenderingPanel->set_convolution_mode(
-        is_conv_enabled); // Add the convolution after the initialisation of the panel
-                          // if the value is enabled in the compute settings.
+    ui_->ImageRenderingPanel->set_convolution_mode(is_conv_enabled);
+    // Add the convolution after the initialisation of the panel
+    // if the value is enabled in the compute settings.
 
     if (api::get_yz_enabled() and api::get_xz_enabled())
-    {
         ui_->ViewPanel->update_3d_cuts_view(true);
-    }
 
     init_tooltips();
 
-    qApp->setStyle(QStyleFactory::create("Fusion"));
+    enable_notify();
+
+    notify();
 }
 
 MainWindow::~MainWindow()
 {
     ui_->menuSelect_preset->clear();
 
-    api::close_windows();
+    gui::close_windows();
     api::close_critical_compute();
     api::stop_all_worker_controller();
     api::camera_none();
@@ -314,7 +304,6 @@ void MainWindow::on_notify()
     ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 
     resize(baseSize());
-
     adjustSize();
 }
 
@@ -332,7 +321,7 @@ void MainWindow::notify_error(const std::exception& e)
             {
                 // notify will be in close_critical_compute
                 api::handle_update_exception();
-                api::close_windows();
+                gui::close_windows();
                 api::close_critical_compute();
                 LOG_ERROR("GPU computing error occured. : {}", e.what());
                 notify();
@@ -595,6 +584,7 @@ void MainWindow::closeEvent(QCloseEvent*)
     if (save_cs)
         api::save_compute_settings();
 
+    gui::close_windows();
     api::camera_none();
     Logger::flush();
 }
@@ -610,7 +600,7 @@ void MainWindow::change_camera(CameraKind c)
     if (api::change_camera(c))
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_image_mode(static_cast<int>(api::get_compute_mode()));
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api::get_compute_mode()));
         shift_screen();
     }
 
@@ -690,55 +680,21 @@ void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 /* ------------ */
 #pragma region Image Mode
 
-// Is there a change in window pixel depth (needs to be re-opened)
-bool MainWindow::need_refresh(const std::string& last_type, const std::string& new_type)
-{
-    std::vector<std::string> types_needing_refresh({"Composite image"});
-    for (auto& type : types_needing_refresh)
-        if ((last_type == type) != (new_type == type))
-            return true;
-    return false;
-}
-
-void MainWindow::set_composite_values()
-{
-    const unsigned min_val_composite = api::get_time_transformation_size() == 1 ? 0 : 1;
-    const unsigned max_val_composite = api::get_time_transformation_size() - 1;
-
-    ui_->PRedSpinBox_Composite->setValue(min_val_composite);
-    ui_->SpinBox_hue_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_saturation_freq_min->setValue(min_val_composite);
-    ui_->SpinBox_value_freq_min->setValue(min_val_composite);
-
-    ui_->PBlueSpinBox_Composite->setValue(max_val_composite);
-    ui_->SpinBox_hue_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_saturation_freq_max->setValue(max_val_composite);
-    ui_->SpinBox_value_freq_max->setValue(max_val_composite);
-}
-
 void MainWindow::set_view_image_type(const QString& value)
 {
-    if (api::get_compute_mode() == Computation::Raw)
-    {
-        LOG_ERROR("Cannot set view image type in raw mode");
-        return;
-    }
-
-    const std::string& value_str = value.toStdString();
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
-    if (need_refresh(UserInterfaceDescriptor::instance().last_img_type_, value_str))
+
+    bool composite = img_type == ImgType::Composite || api::get_img_type() == ImgType::Composite;
+
+    if (api::set_view_mode(img_type) == ApiCode::OK)
     {
-        api::refresh_view_mode(window_max_size, img_type);
-        if (api::get_img_type() == ImgType::Composite)
-            set_composite_values();
+        // Composite need a refresh of the window since the depth has changed.
+        // A better way would be to just update the buffer and texParam of OpenGL
+        if (composite)
+            gui::refresh_window(window_max_size);
+
+        notify();
     }
-
-    UserInterfaceDescriptor::instance().last_img_type_ = value_str;
-
-    api::set_view_mode(img_type);
-
-    notify();
-    layout_toggled();
 }
 
 #pragma endregion
@@ -764,22 +720,21 @@ Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 /* ------------ */
 #pragma region Advanced
 
-void MainWindow::close_advanced_settings()
+void MainWindow::open_advanced_settings()
 {
-    if (UserInterfaceDescriptor::instance().has_been_updated)
-    {
-        // If the settings have been updated, they must be not considered updated after closing the window.
-        UserInterfaceDescriptor::instance().has_been_updated = false;
+    if (UserInterfaceDescriptor::instance().advanced_settings_window_)
+        return;
 
-        ImportType it = api::get_import_type();
+    gui::open_advanced_settings(this,
+                                [=]()
+                                {
+                                    ImportType it = api::get_import_type();
 
-        if (it == ImportType::File)
-            ui_->ImportPanel->import_start();
-        else if (it == ImportType::Camera)
-            change_camera(api::get_camera_kind());
-    }
-
-    UserInterfaceDescriptor::instance().is_advanced_settings_displayed = false;
+                                    if (it == ImportType::File)
+                                        ui_->ImportPanel->import_start();
+                                    else if (it == ImportType::Camera)
+                                        change_camera(api::get_camera_kind());
+                                });
 }
 
 void MainWindow::reset_settings()
@@ -816,20 +771,6 @@ void MainWindow::reset_settings()
     }
 }
 
-void MainWindow::open_advanced_settings()
-{
-    if (UserInterfaceDescriptor::instance().is_advanced_settings_displayed)
-        return;
-
-    gui::open_advanced_settings(this);
-
-    connect(UserInterfaceDescriptor::instance().advanced_settings_window_.get(),
-            SIGNAL(closed()),
-            this,
-            SLOT(close_advanced_settings()),
-            Qt::UniqueConnection);
-}
-
 #pragma endregion
 
 /* ------------ */
@@ -854,7 +795,7 @@ void MainWindow::open_light_ui()
 // Set default preset from preset.json (called from .ui)
 void MainWindow::set_preset()
 {
-    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_27.json"));
+    std::filesystem::path preset_directory_path(RELATIVE_PATH(__PRESET_FOLDER_PATH__ / "doppler_8b_384_384_27.json"));
     reload_ini(preset_directory_path.string());
     LOG_INFO("Preset loaded");
 }

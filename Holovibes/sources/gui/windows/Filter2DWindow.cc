@@ -156,12 +156,16 @@ void Filter2DWindow::initializeGL()
 
 void Filter2DWindow::paintGL()
 {
+    void* last = output_->get_last_image();
+    if (!last)
+        return;
+
     makeCurrent();
     glClear(GL_COLOR_BUFFER_BIT);
     Vao.bind();
     Program->bind();
 
-    textureUpdate(cuSurface, output_->get_last_image(), output_->get_fd(), cuStream);
+    textureUpdate(cuSurface, last, output_->get_fd(), cuStream);
 
     glBindTexture(GL_TEXTURE_2D, Tex);
     glGenerateMipmap(GL_TEXTURE_2D);

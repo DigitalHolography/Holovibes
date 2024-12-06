@@ -271,7 +271,7 @@ void Analysis::insert_first_analysis_masks()
     if (setting<settings::ImageType>() == ImgType::Moments_0 &&
         (setting<settings::ArteryMaskEnabled>() || setting<settings::VeinMaskEnabled>()))
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 // map_multiply(moments_env_.moment0_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
@@ -298,7 +298,7 @@ void Analysis::insert_artery_mask()
         setting<settings::ArteryMaskEnabled>()) //&&
                                                 //! setting<settings::VeinMaskEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 compute_first_mask_artery(buffers_.gpu_postprocess_frame,
@@ -335,7 +335,7 @@ void Analysis::insert_vein_mask()
         setting<settings::VeinMaskEnabled>()) //&&
                                               //! setting<settings::ArteryMaskEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 compute_first_mask_vein(buffers_.gpu_postprocess_frame,
@@ -371,7 +371,7 @@ void Analysis::insert_choroid_mask()
     if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
         setting<settings::ArteryMaskEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 cudaXMemcpyAsync(first_mask_choroid_struct_.first_mask_choroid,
@@ -431,7 +431,7 @@ void Analysis::insert_vesselness()
     if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
         setting<settings::ArteryMaskEnabled>())
     {
-        fn_compute_vect_->conditional_push_back(
+        fn_compute_vect_->push_back(
             [=]()
             {
                 cudaXMemcpy(buffers_.gpu_postprocess_frame,

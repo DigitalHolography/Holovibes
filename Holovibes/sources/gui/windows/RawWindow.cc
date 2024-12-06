@@ -250,6 +250,11 @@ void RawWindow::resizeGL(int w, int h)
 
 void RawWindow::paintGL()
 {
+    // Get the last image from the ouput queue
+    void* frame = output_->get_last_image();
+    if (!frame)
+        return;
+
     // Window translation but none seems to be performed
     glViewport(0, 0, width(), height());
 
@@ -269,9 +274,6 @@ void RawWindow::paintGL()
     cudaSafeCall(cudaGraphicsMapResources(1, &cuResource, cuStream));
     // Retrive the cuda pointer
     cudaSafeCall(cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource));
-
-    // Get the last image from the ouput queue
-    void* frame = output_->get_last_image();
 
     // Put the frame inside the cuda ressrouce
 

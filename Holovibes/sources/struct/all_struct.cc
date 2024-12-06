@@ -58,14 +58,14 @@ void Views::Update()
 void Rendering::Convolution::Update()
 {
     this->enabled = GET_SETTING(ConvolutionEnabled);
-    this->type = UserInterfaceDescriptor::instance().convo_name;
+    this->type = GET_SETTING(ConvolutionFileName);
     this->divide = GET_SETTING(DivideConvolutionEnabled);
 }
 
 void Rendering::Filter::Update()
 {
     this->enabled = api::get_filter_enabled();
-    this->type = UserInterfaceDescriptor::instance().filter_name;
+    this->type = api::get_filter_file_name();
 }
 
 void Rendering::Filter2D::Update()
@@ -226,14 +226,14 @@ void Views::Load()
 void Rendering::Convolution::Load()
 {
     UPDATE_SETTING(ConvolutionEnabled, this->enabled);
-    UserInterfaceDescriptor::instance().convo_name = this->type;
+    UPDATE_SETTING(ConvolutionFileName, this->type == "None" ? "" : this->type);
     UPDATE_SETTING(DivideConvolutionEnabled, this->divide);
 }
 
 void Rendering::Filter::Load()
 {
-    UPDATE_SETTING(FilterEnabled, this->enabled && this->type != UID_FILTER_TYPE_DEFAULT);
-    UserInterfaceDescriptor::instance().filter_name = this->type;
+    UPDATE_SETTING(FilterEnabled, this->enabled && !this->type.empty());
+    UPDATE_SETTING(FilterFileName, this->type);
 }
 
 void Rendering::Filter2D::Load()
