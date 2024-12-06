@@ -97,7 +97,11 @@
             "width": 0,
             "start": 0
         },
-        "image_type": "MODULUS"
+        "image_type": "MODULUS",
+        "registration": {
+            "registration_enabled": false,
+            "registration_zone": 0.7
+        }
     },
     "color_composite_image": {
         "hsv": {

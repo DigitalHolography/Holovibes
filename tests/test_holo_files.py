@@ -144,7 +144,7 @@ def test_holo(folder: str):
 
     if os.path.isfile(ref_error):
         error_wanted = True
-    elif find_files(path, "[0-9]*_" + REF_FILENAME) == []:
+    elif find_files(path, "R_" + REF_FILENAME) == []:
         not_found(REF_FILENAME)
 
     if not os.path.isfile(config):
@@ -180,7 +180,7 @@ def test_holo(folder: str):
             assert output_error_code == ref_error_code, f"Return value is invalid: wanted {ref_error_code} but got {output_error_code}"
         else:
             out = read_holo(os.path.join(path,find_files(path, "R_" + OUTPUT_FILENAME)[0]))
-            ref = read_holo(os.path.join(path,find_files(path, "[0-9]*_" + REF_FILENAME)[0]))
+            ref = read_holo(os.path.join(path,find_files(path, "R_" + REF_FILENAME)[0]))
             try:
                 ref_time = read_time(os.path.join(path, "ref_time.txt"))
                 logger.info(f"Current time: {current_time} Ref time: {ref_time}")
