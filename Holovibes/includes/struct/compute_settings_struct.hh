@@ -10,7 +10,6 @@
 #include "view_struct.hh"
 #include "composite_struct.hh"
 #include "advanced_struct.hh"
-#include "API.hh"
 
 namespace holovibes
 {

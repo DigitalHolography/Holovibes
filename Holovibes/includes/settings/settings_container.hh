@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include <functional>
 #include <spdlog/spdlog.h>
 #include <tuple>

@@ -19,7 +19,7 @@
 #include "common.cuh"
 #include "settings/settings.hh"
 #include "settings/settings_container.hh"
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include "logger.hh"
 
 // Enum
@@ -48,7 +48,7 @@
     holovibes::settings::RecordFilePath,                         \
     holovibes::settings::RecordFrameCount,                       \
     holovibes::settings::RecordMode,                             \
-    holovibes::settings::RecordFrameSkip,                        \
+    holovibes::settings::RecordFrameOffset,                        \
     holovibes::settings::OutputBufferSize,                       \
     holovibes::settings::ImageType,                              \
     holovibes::settings::X,                                      \
@@ -104,7 +104,6 @@
     holovibes::settings::SignalZone,                             \
     holovibes::settings::NoiseZone,                              \
     holovibes::settings::CompositeZone,                          \
-    holovibes::settings::ZoomedZone,                             \
     holovibes::settings::ReticleZone,                            \
     holovibes::settings::FilterEnabled,                          \
     holovibes::settings::InputFilter,                            \
@@ -379,7 +378,7 @@ class Holovibes
                                              settings::RecordFilePath{std::string("")},
                                              settings::RecordFrameCount{std::nullopt},
                                              settings::RecordMode{RecordMode::RAW},
-                                             settings::RecordFrameSkip{0},
+                                             settings::RecordFrameOffset{0},
                                              settings::OutputBufferSize{1024},
                                              settings::ImageType{ImgType::Modulus},
                                              settings::X{ViewXY{}},
@@ -436,7 +435,6 @@ class Holovibes
                                              settings::SignalZone{units::RectFd{}},
                                              settings::NoiseZone{units::RectFd{}},
                                              settings::CompositeZone{units::RectFd{}},
-                                             settings::ZoomedZone{units::RectFd{}},
                                              settings::ReticleZone{units::RectFd{}},
                                              settings::FilterEnabled{false},
                                              settings::InputFilter{{}},

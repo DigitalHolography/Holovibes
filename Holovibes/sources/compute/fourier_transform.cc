@@ -476,7 +476,7 @@ void FourierTransform::insert_time_transformation_cuts_view(const camera::FrameD
                         mouse_posx = x.start;
                         mouse_posy = y.start;
                     }
-                    // -----------------------------------------------------
+
                     time_transformation_cuts_begin(gpu_postprocess_frame_xz,
                                                    gpu_postprocess_frame_yz,
                                                    time_transformation_env_.gpu_p_acc_buffer,

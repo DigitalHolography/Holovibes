@@ -16,7 +16,7 @@ void ChartRecordWorker::run()
 
     // Header displaying
     of << "[#img : " << setting<settings::TimeTransformationSize>() << ", p : " << setting<settings::P>().start
-       << ", lambda : " << api::get_lambda() << ", z : " << setting<settings::ZDistance>() << "]" << std::endl;
+       << ", lambda : " << API.transform.get_lambda() << ", z : " << setting<settings::ZDistance>() << "]" << std::endl;
 
     of << "["
        << "Column 1 : avg(signal), "

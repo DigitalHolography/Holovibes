@@ -132,7 +132,8 @@ void CrossOverlay::draw()
 
 void CrossOverlay::onSetCurrent()
 {
-    mouse_position_ = units::PointFd(units::ConversionData(parent_), api::get_x_cuts(), api::get_y_cuts());
+    mouse_position_ =
+        units::PointFd(units::ConversionData(parent_), API.transform.get_x_cuts(), API.transform.get_y_cuts());
 }
 
 void CrossOverlay::press(QMouseEvent* e) {}
@@ -153,8 +154,8 @@ void CrossOverlay::move(QMouseEvent* e)
         units::PointFd pos = getMousePos(e->pos());
         mouse_position_ = pos;
 
-        api::set_x_cuts(mouse_position_.x());
-        api::set_y_cuts(mouse_position_.y());
+        API.transform.set_x_cuts(mouse_position_.x());
+        API.transform.set_y_cuts(mouse_position_.y());
     }
 }
 
@@ -166,29 +167,32 @@ void CrossOverlay::computeZone()
     units::PointFd bottomRight;
 
     // Computing min/max coordinates in function of the frame_descriptor
-    ViewXY x = api::get_x();
-    ViewXY y = api::get_y();
-    int x_min = x.start;
-    int x_max = x.start;
-    int y_min = y.start;
-    int y_max = y.start;
-    (x.width < 0 ? x_min : x_max) += x.width;
-    (y.width < 0 ? y_min : y_max) += y.width;
+    int x_start = API.transform.get_x_cuts();
+    int x_width = API.transform.get_x_accu_level();
+    int y_start = API.transform.get_y_cuts();
+    int y_width = API.transform.get_y_accu_level();
+
+    int x_min = x_start;
+    int x_max = x_start;
+    int y_min = y_start;
+    int y_max = y_start;
+    (x_width < 0 ? x_min : x_max) += x_width;
+    (y_width < 0 ? y_min : y_max) += y_width;
     units::ConversionData convert(parent_);
 
     units::PointFd min(convert, x_min, y_min);
     units::PointFd max(convert, x_max, y_max);
 
     // Setting the zone_
-    if (x.width == 0)
+    if (x_width == 0)
     {
-        min.x().set(x.start);
-        max.x().set(x.start);
+        min.x().set(x_start);
+        max.x().set(x_start);
     }
-    if (y.width == 0)
+    if (y_width == 0)
     {
-        min.y().set(y.start);
-        max.y().set(y.start);
+        min.y().set(y_start);
+        max.y().set(y_start);
     }
     max.x() += 1;
     max.y() += 1;

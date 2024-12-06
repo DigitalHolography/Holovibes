@@ -16,8 +16,10 @@ set(EXTERNAL_INCLUDES
 set(INTERNAL_INCLUDES
     cuda_includes/
     includes/
-    includes/state/
+    includes/api/
+    includes/cli/
     includes/compute/
+    includes/data_struct/
     includes/core/
     includes/enum/
     includes/struct/
@@ -30,7 +32,9 @@ set(INTERNAL_INCLUDES
     includes/gui/windows/panels/
     includes/gui/windows/AdvancedSettingsWindowTools
     includes/gui/windows/AdvancedSettingsWindowTools/panels
-    includes/io_files/
+    includes/io/
+    includes/io/input_file/
+    includes/io/output_file/
     includes/thread/
     includes/tools/
     includes/tools/cuda_tools/
@@ -38,6 +42,7 @@ set(INTERNAL_INCLUDES
     includes/tools/check/
     includes/tools/exception/
     includes/tools/logger/
+    includes/tools/state/
     "${CMAKE_SOURCE_DIR}/GPIB/"
     "${CAMERA_DIR}/include/"
 )

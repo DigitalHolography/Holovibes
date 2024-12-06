@@ -176,9 +176,9 @@ void Converts::insert_to_composite(float* gpu_postprocess_frame)
                                         stream_);
 
                     double max = std::max(std::max(averages[0], averages[1]), averages[2]);
-                    api::set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
-                                        (static_cast<double>(averages[1]) / max) * factor,
-                                        (static_cast<double>(averages[2]) / max) * factor);
+                    API.composite.set_weight_rgb((static_cast<double>(averages[0]) / max) * factor,
+                                                 (static_cast<double>(averages[1]) / max) * factor,
+                                                 (static_cast<double>(averages[2]) / max) * factor);
                 }
             }
             else

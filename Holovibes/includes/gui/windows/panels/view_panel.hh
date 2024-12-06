@@ -99,16 +99,16 @@ class ViewPanel : public Panel
     void set_q_acc();
 
     /*! \brief Rotates the current selected output display window (XYview or XZview or YZview) */
-    void rotateTexture();
+    void rotate_texture();
 
     /*! \brief Flips the current selected output display window (XYview or XZview or YZview) */
-    void flipTexture();
+    void flip_texture();
 
     /*! \brief Enables or Disables log scale on the current window
      *
      * \param value true: enable, false: disable
      */
-    void set_log_scale(bool value);
+    void set_log_enabled(bool value);
 
     /*! \brief Modifies the accumulation level on the current window
      *

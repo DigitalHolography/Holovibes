@@ -19,7 +19,7 @@
   holovibes::settings::RecordFilePath,   \
   holovibes::settings::RecordFrameCount, \
   holovibes::settings::RecordMode,       \
-  holovibes::settings::RecordFrameSkip,  \
+  holovibes::settings::RecordFrameOffset,  \
   holovibes::settings::OutputBufferSize, \
   holovibes::settings::FrameSkip,        \
   holovibes::settings::Mp4Fps
