@@ -211,5 +211,9 @@ void Analysis::init()
 
     // Step 9: Compute Gaussian kernel for vascular pulse
     compute_gauss_kernel(vesselness_mask_env_.vascular_kernel_, vp_sigma, stream_);
+
+    // Step 10: Allocate the final result buffer and set it to 0
+    mask_result_buffer_.safe_resize(frame_res);
+    cudaXMemset(mask_result_buffer_, 0, frame_res * sizeof(float));
 }
 } // namespace holovibes::analysis

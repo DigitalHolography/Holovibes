@@ -120,6 +120,12 @@ class Analysis
     /*! \brief Insert both masks*/
     void insert_vesselness();
 
+    /*! \brief Getter for the mask result buffer */
+    float* get_mask_result();
+
+    /*! \brief Getter for the mask number of non zero count */
+    size_t get_mask_nnz();
+
     template <typename T>
     inline void update_setting(T setting)
     {
@@ -238,6 +244,9 @@ class Analysis
     size_t i_ = 0;
 
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
+
+    /*! \brief Buffer containing the final resulting mask */
+    cuda_tools::CudaUniquePtr<float> mask_result_buffer_;
 };
 } // namespace holovibes::analysis
 

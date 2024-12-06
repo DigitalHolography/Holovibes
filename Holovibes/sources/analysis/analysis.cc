@@ -24,7 +24,15 @@
 namespace holovibes::analysis
 {
 
-#pragma region compute
+#pragma region Getters
+
+float* Analysis::get_mask_result() { return mask_result_buffer_.get(); }
+
+size_t Analysis::get_mask_nnz() { return count_non_zero(mask_result_buffer_, fd_.width, fd_.height, stream_); }
+
+#pragma endregion
+
+#pragma region Compute
 
 // To be deleted
 void Analysis::insert_bin_moments()
@@ -266,11 +274,12 @@ void Analysis::insert_first_analysis_masks()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
-                // shift_corners(moments_env_.moment0_buffer.get(), 1, fd_.width, fd_.height, stream_);
-                // shift_corners(moments_env_.moment1_buffer.get(), 1, fd_.width, fd_.height, stream_);
-
                 // map_multiply(moments_env_.moment0_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
                 // map_multiply(moments_env_.moment1_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
+
+                // Reset the mask result to 0
+                cudaXMemsetAsync(mask_result_buffer_, 0, sizeof(float) * buffers_.gpu_postprocess_frame_size, stream_);
+
                 insert_bin_moments();
                 compute_pretreatment();
                 compute_vesselness_response();
@@ -285,8 +294,9 @@ void Analysis::insert_artery_mask()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::ArteryMaskEnabled>() &&
-        !setting<settings::VeinMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 &&
+        setting<settings::ArteryMaskEnabled>()) //&&
+                                                //! setting<settings::VeinMaskEnabled>())
     {
         fn_compute_vect_->conditional_push_back(
             [=]()
@@ -304,6 +314,14 @@ void Analysis::insert_artery_mask()
                            bw_area_env_.float_buffer_.get(),
                            bw_area_env_.size_t_gpu_.get(),
                            stream_);
+
+                apply_mask_or(buffers_.gpu_postprocess_frame, mask_result_buffer_, fd_.width, fd_.height, stream_);
+                cudaXMemcpyAsync(mask_result_buffer_,
+                                 buffers_.gpu_postprocess_frame,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
@@ -313,8 +331,9 @@ void Analysis::insert_vein_mask()
 {
     LOG_FUNC();
 
-    if (setting<settings::ImageType>() == ImgType::Moments_0 && setting<settings::VeinMaskEnabled>() &&
-        !setting<settings::ArteryMaskEnabled>())
+    if (setting<settings::ImageType>() == ImgType::Moments_0 &&
+        setting<settings::VeinMaskEnabled>()) //&&
+                                              //! setting<settings::ArteryMaskEnabled>())
     {
         fn_compute_vect_->conditional_push_back(
             [=]()
@@ -332,6 +351,14 @@ void Analysis::insert_vein_mask()
                            bw_area_env_.float_buffer_.get(),
                            bw_area_env_.size_t_gpu_.get(),
                            stream_);
+
+                apply_mask_or(buffers_.gpu_postprocess_frame, mask_result_buffer_, fd_.width, fd_.height, stream_);
+                cudaXMemcpyAsync(mask_result_buffer_,
+                                 buffers_.gpu_postprocess_frame,
+                                 buffers_.gpu_postprocess_frame_size * sizeof(float),
+                                 cudaMemcpyDeviceToDevice,
+                                 stream_);
+
                 shift_corners(buffers_.gpu_postprocess_frame.get(), 1, fd_.width, fd_.height, stream_);
             });
     }
