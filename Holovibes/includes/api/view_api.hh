@@ -52,7 +52,7 @@ class ViewApi : public IApi
     /*! \brief Enables or Disables time transform cuts views
      *
      * \param[in] enabled true: enable, false: disable
-     * \return true if correctly set
+     * \return bool true if correctly set
      */
     bool set_3d_cuts_view(bool enabled);
 

@@ -36,8 +36,7 @@ class ComputeApi : public IApi
     /*! \brief Stops holovibes' controllers for computation*/
     void stop_all_worker_controller();
 
-    /*! \brief Force batch size and time stride to be equal to 3 for moments data type. // TODO(etienne): This function
-     * should not be exposed to the user.*/
+    /*! \brief Force batch size and time stride to be equal to 3 for moments data type. */
     void loaded_moments_data();
 
 #pragma region Buffer
@@ -56,13 +55,13 @@ class ComputeApi : public IApi
      */
     inline void set_output_buffer_size(size_t value) { UPDATE_SETTING(OutputBufferSize, value); }
 
-    /*! \brief Return the gpu output queue. // TODO(etienne): This function should not be exposed to the user.
+    /*! \brief Return the gpu output queue.
      *
      * \return std::shared_ptr<Queue> The gpu output queue
      */
     inline std::shared_ptr<Queue> get_gpu_output_queue() { return Holovibes::instance().get_gpu_output_queue(); };
 
-    /*! \brief Return the input queue. // TODO(etienne): This function should not be exposed to the user.
+    /*! \brief Return the input queue.
      *
      * \return std::shared_ptr<BatchInputQueue> The input queue
      */
@@ -72,7 +71,7 @@ class ComputeApi : public IApi
 
 #pragma region Pipe
 
-    /*! \brief Return the compute pipe or throw if no pipe. // TODO(etienne): This function should not be exposed to the
+    /*! \brief Return the compute pipe or throw if no pipe.
      * user.
      *
      * \return std::shared_ptr<Pipe> The compute pipe
@@ -80,7 +79,7 @@ class ComputeApi : public IApi
      */
     inline std::shared_ptr<Pipe> get_compute_pipe() { return Holovibes::instance().get_compute_pipe(); };
 
-    /*! \brief Return the compute pipe. // TODO(etienne): This function should not be exposed to the user.
+    /*! \brief Return the compute pipe.
      *
      * \return std::shared_ptr<Pipe> The compute pipe
      */
@@ -122,7 +121,8 @@ class ComputeApi : public IApi
     /*! \brief Changes the image type in realtime. Changes the setting and requests a pipe refresh. If the type is
      * composite the pipe is rebuild
      *
-     * \param type The new image type
+     * \param[in] type The new image type
+     * \return ApiCode OK if the image type was changed, an error code otherwise
      */
     ApiCode set_view_mode(const ImgType type);
 

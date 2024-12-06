@@ -77,8 +77,6 @@ class ContrastApi : public IApi
 
 #pragma region Contrast Range
 
-#pragma endregion
-
     /*! \brief Returns the contrast min value of the specified window kind.
      *
      * The following formula is used to calculate the contrast: `px = (65535 / (max - min)) * (px - min)`
@@ -162,6 +160,8 @@ class ContrastApi : public IApi
      * \param[in] max the new contrast max value
      */
     void update_contrast(WindowKind kind, float min, float max);
+
+#pragma endregion
 
 #pragma region Contrast Enabled
 

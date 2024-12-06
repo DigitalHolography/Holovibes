@@ -208,7 +208,7 @@ MainWindow::~MainWindow()
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Notify
 void MainWindow::synchronize_thread(std::function<void()> f)
 {
@@ -380,7 +380,7 @@ void MainWindow::documentation()
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Json
 
 void MainWindow::write_compute_settings() { API.settings.save_compute_settings(); }
@@ -567,7 +567,7 @@ void MainWindow::save_gui()
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Close Compute
 
 void MainWindow::closeEvent(QCloseEvent*)
@@ -582,7 +582,7 @@ void MainWindow::closeEvent(QCloseEvent*)
 }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Cameras
 
 void MainWindow::change_camera(CameraKind c)
@@ -672,7 +672,7 @@ void MainWindow::camera_euresys_egrabber_settings() { open_file("ametek_s710_eur
 void MainWindow::camera_alvium_settings() { open_file("alvium.ini"); }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Image Mode
 
 void MainWindow::set_view_image_type(const QString& value)
@@ -694,8 +694,6 @@ void MainWindow::set_view_image_type(const QString& value)
 
 #pragma endregion
 
-/* ------------ */
-
 void MainWindow::change_window(int index)
 {
     api.view.change_window(static_cast<WindowKind>(index));
@@ -712,7 +710,7 @@ void MainWindow::start_import(QString filename)
 Ui::MainWindow* MainWindow::get_ui() { return ui_; }
 
 #pragma endregion
-/* ------------ */
+
 #pragma region Advanced
 
 void MainWindow::open_advanced_settings()
@@ -768,7 +766,6 @@ void MainWindow::reset_settings()
 
 #pragma endregion
 
-/* ------------ */
 #pragma region UI
 
 void MainWindow::shift_screen()
@@ -846,7 +843,6 @@ void MainWindow::init_tooltips()
 
 #pragma endregion
 
-/* ------------ */
 #pragma region Themes
 
 void MainWindow::set_night()

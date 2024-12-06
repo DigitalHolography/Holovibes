@@ -19,6 +19,10 @@ class ComputeSettingsApi
      */
     void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
 
+    /*! \brief Returns the compute settings as a json object.
+     *
+     * \return nlohmann::json The compute settings as a json object
+     */
     json compute_settings_to_json();
 
     /*! \brief Load and set settings from a .json file.
