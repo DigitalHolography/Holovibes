@@ -4,6 +4,8 @@
 #include "cuda_runtime.h"
 #include "hardware_limits.hh"
 #include "cuda_memory.cuh"
+#include "map.cuh"
+
 using uint = unsigned int;
 
 #define NUM_BINS 256
@@ -34,14 +36,6 @@ __global__ void histogram_kernel(const float* image, uint* hist, int imgSize)
     // Merge shared histograms into global memory
     if (tid < NUM_BINS)
         atomicAdd(&hist[tid], shared_hist[tid]);
-}
-
-__global__ void global_threshold_kernel(float* input, int size, float globalThreshold)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (idx < size)
-        input[idx] = (input[idx] > globalThreshold) * 1.0f;
 }
 
 __global__ void bradley_threshold_kernel(float* output,
@@ -138,14 +132,11 @@ void compute_binarise_otsu(
     float* input_output, uint* histo_buffer_d, const size_t width, const size_t height, const cudaStream_t stream)
 {
     size_t img_size = width * height;
-
     float global_threshold = otsu_threshold(input_output, histo_buffer_d, img_size, stream);
+    auto map_function = [global_threshold] __device__(const float input_pixel) -> float
+    { return input_pixel > global_threshold; };
 
-    uint threads = get_max_threads_1d();
-    uint blocks = map_blocks_to_problem(img_size, threads);
-
-    global_threshold_kernel<<<blocks, threads, 0, stream>>>(input_output, img_size, global_threshold);
-    cudaXStreamSynchronize(stream);
+    map_generic(input_output, img_size, map_function, stream);
 }
 
 void compute_binarise_otsu_bradley(float* output_d,
@@ -172,5 +163,4 @@ void compute_binarise_otsu_bradley(float* output_d,
                                                                window_size,
                                                                global_threshold,
                                                                local_threshold_factor);
-    cudaXStreamSynchronize(stream);
 }

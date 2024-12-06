@@ -183,7 +183,7 @@ __global__ void area_filter_kernel(float* input_output, const uint* label_d, siz
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size)
-        input_output[idx] = (label_d[idx] == label_to_keep) ? 1.0f : 0.0f;
+        input_output[idx] = (label_d[idx] == label_to_keep);
 }
 
 void area_filter(float* input_output, const uint* label_d, size_t size, uint label_to_keep, const cudaStream_t stream)
