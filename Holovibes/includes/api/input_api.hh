@@ -194,7 +194,7 @@ inline CameraKind get_camera_kind() { return GET_SETTING(CameraKind); }
  * \param[in] value the new camera kind
  * \param[in] save whether to save the camera kind in the user settings file.
  *
- *  \return true on success
+ *  \return bool true on success
  */
 bool set_camera_kind(CameraKind value, bool save = true);
 
