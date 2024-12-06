@@ -54,7 +54,7 @@ __global__ void kernel_divide(float* output, size_t denominator, uint depth)
         output[index] /= denominator;
 }
 
-void compute_multiplication_mean(float* output, float* A, float* B, size_t size, uint depth, cudaStream_t stream)
+void compute_multiplication_mean(float* output, float* A, float* B, size_t size, size_t depth, cudaStream_t stream)
 {
     uint threads = get_max_threads_1d();
     uint blocks = map_blocks_to_problem(size, threads);

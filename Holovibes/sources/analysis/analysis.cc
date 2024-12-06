@@ -16,6 +16,7 @@
 #include "segment_vessels.cuh"
 #include "tools_analysis_debug.hh"
 #include "tools_compute.cuh"
+#include "map.cuh"
 
 #define DIAPHRAGM_FACTOR 0.4f
 #define OTSU_BINS 256
@@ -129,7 +130,7 @@ void Analysis::compute_barycentres_and_circle_mask()
 
     vesselness_mask_env_.f_avg_video_cb_->compute_mean_image();
 
-    // From here ~111 FPS (might change when otsu fix)
+    // From here ~111 FPS
     // Compute vascular image
     compute_hadamard_product(vesselness_mask_env_.vascular_image_,
                              vesselness_mask_env_.m0_ff_video_cb_->get_mean_image(),
@@ -265,6 +266,11 @@ void Analysis::insert_first_analysis_masks()
         fn_compute_vect_->conditional_push_back(
             [=]()
             {
+                // shift_corners(moments_env_.moment0_buffer.get(), 1, fd_.width, fd_.height, stream_);
+                // shift_corners(moments_env_.moment1_buffer.get(), 1, fd_.width, fd_.height, stream_);
+
+                // map_multiply(moments_env_.moment0_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
+                // map_multiply(moments_env_.moment1_buffer, 512 * 512, 1.0f / 10000.0f, stream_);
                 insert_bin_moments();
                 compute_pretreatment();
                 compute_vesselness_response();

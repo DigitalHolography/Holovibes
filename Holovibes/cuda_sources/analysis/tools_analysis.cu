@@ -28,7 +28,7 @@ int find_min_thrust(float* input, const size_t size)
  * \param [in] lim The limit value to subtract from each index.
  * \param [in] size The total number of elements to compute.
  */
-__global__ void kernel_normalized_list(float* output, int lim, int size)
+static __global__ void kernel_normalized_list(float* output, int lim, int size)
 {
     const int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -56,7 +56,7 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream)
 /*!
  * \brief Computes the value of the Hermite polynomial of degree `n` at a given point `x`.
  *
- * This device function recursively computes the Hermite polynomial \( H_n(x) \). The computation uses the
+ * This device function computes the Hermite polynomial \( H_n(x) \). The computation uses the
  * recurrence relation:
  * \f[
  * H_n(x) = 2xH_{n-1}(x) - 2(n-1)H_{n-2}(x)
@@ -66,19 +66,28 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream)
  * \param [in] x The point at which to evaluate the polynomial.
  * \return The value of the Hermite polynomial \( H_n(x) \) at \( x \).
  *
- * TODO: This function uses recursion, which can be costly on a GPU. Implement a iterative methods
- * for higher efficiency if performance is critical.
  */
-__device__ float comp_hermite(int n, float x)
+static __device__ float comp_hermite(int n, float x)
 {
+    if (n < 0)
+        return 0.0f; // This line is a safeguard for invalid input, though n should always be >= 0.
     if (n == 0)
         return 1.0f; // Base case: H_0(x) = 1.
     if (n == 1)
         return 2.0f * x; // Base case: H_1(x) = 2x.
-    if (n > 1)
-        return (2.0f * x * comp_hermite(n - 1, x)) - (2.0f * (n - 1) * comp_hermite(n - 2, x));
-    // Recurrence relation.
-    return 0.0f; // This line is a safeguard for invalid input, though n should always be >= 0.
+
+    float h0 = 1.0f;     // H_0(x)
+    float h1 = 2.0f * x; // H_1(x)
+    float h_curr = 0.0f; // Placeholder for current H_n(x)
+
+    for (int i = 2; i <= n; ++i)
+    {
+        h_curr = (2.0f * x * h1) - (2.0f * (i - 1) * h0);
+        h0 = h1;     // Update H_(n-2)
+        h1 = h_curr; // Update H_(n-1)
+    }
+
+    return h_curr; // Return H_n(x)
 }
 
 /*!
@@ -96,7 +105,7 @@ __device__ float comp_hermite(int n, float x)
  * \note The function assumes that \f$ \sigma > 0 \f$. Passing a non-positive sigma will
  * lead to undefined behavior (e.g., division by zero).
  */
-__device__ float comp_gaussian(float x, float sigma)
+static __device__ float comp_gaussian(float x, float sigma)
 {
     return 1 / (sigma * (sqrt(2 * M_PI))) * exp((-1 * x * x) / (2 * sigma * sigma));
     // Compute the Gaussian function value.
@@ -123,7 +132,7 @@ __device__ float comp_gaussian(float x, float sigma)
  *       \( \sigma > 0 \), and \( n \) should be non-negative. Incorrect inputs may
  *       result in undefined behavior.
  */
-__device__ float device_comp_dgaussian(float x, float sigma, int n)
+static __device__ float device_comp_dgaussian(float x, float sigma, int n)
 {
     float A = pow((-1 / (sigma * sqrt((float)2))), n);       // Coefficient for the nth derivative.
     float B = comp_hermite(n, x / (sigma * sqrt((float)2))); // Hermite polynomial evaluated at normalized x.
@@ -147,7 +156,7 @@ __device__ float device_comp_dgaussian(float x, float sigma, int n)
  * \note Ensure that the `output` and `input` arrays are allocated in device memory with
  *       sufficient size to store `input_size` elements.
  */
-__global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
+static __global__ void kernel_comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n)
 {
     const uint index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < input_size)
@@ -191,7 +200,7 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
  * \param [in] offset The starting offset in the Hessian matrix array for this computation.
  * \param [in] size The number of elements in the input array to process.
  */
-__global__ void kernel_prepare_hessian(float* output, const float* I, const size_t offset, const int size)
+static __global__ void kernel_prepare_hessian(float* output, const float* I, const size_t offset, const int size)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -224,7 +233,7 @@ void prepare_hessian(float* output, const float* I, const int size, const size_t
     cudaCheckError();
 }
 
-__global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
+static __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
@@ -259,7 +268,7 @@ void compute_eigen_values(float* H, int size, float* lambda1, float* lambda2, cu
     cudaCheckError();
 }
 
-__global__ void
+static __global__ void
 kernel_apply_diaphragm_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -272,9 +281,8 @@ kernel_apply_diaphragm_mask(float* output, short width, short height, float cent
         float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
         float radius_squared = radius * radius;
 
-        // If the point is inside the circle set the value to 1.
-        if (distance_squared > radius_squared)
-            output[index] = 0;
+        // If the point is outside the circle set the value to 0.
+        output[index] *= (distance_squared <= radius_squared);
     }
 }
 
@@ -295,7 +303,7 @@ void apply_diaphragm_mask(float* output,
     cudaCheckError();
 }
 
-__global__ void
+static __global__ void
 kernel_compute_circle_mask(float* output, short width, short height, float center_X, float center_Y, float radius)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -308,11 +316,13 @@ kernel_compute_circle_mask(float* output, short width, short height, float cente
         float distance_squared = (x - center_X) * (x - center_X) + (y - center_Y) * (y - center_Y);
         float radius_squared = radius * radius;
 
-        // If the point is inside the circle set the value to 1.
-        if (distance_squared <= radius_squared)
-            output[index] = 1;
-        else
-            output[index] = 0;
+        // If the point is inside the circle set the value to 1, else 0.
+        output[index] = (distance_squared <= radius_squared);
+
+        // if (distance_squared <= radius_squared)
+        //     output[index] = 1;
+        // else
+        //     output[index] = 0;
     }
 }
 
@@ -333,7 +343,7 @@ void compute_circle_mask(float* output,
     cudaCheckError();
 }
 
-__global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
+static __global__ void kernel_apply_mask_and(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -355,7 +365,7 @@ void apply_mask_and(float* output, const float* input, const short width, const 
     cudaCheckError();
 }
 
-__global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
+static __global__ void kernel_apply_mask_or(float* output, const float* input, short width, short height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -377,102 +387,7 @@ void apply_mask_or(float* output, const float* input, const short width, const s
     cudaCheckError();
 }
 
-float* compute_gauss_deriviatives_kernel(
-    int kernel_width, int kernel_height, float sigma, cublasHandle_t cublas_handler_, cudaStream_t stream)
-{
-    // Initialize normalized centered at 0 lists, ex for kernel_width = 3 : [-1, 0, 1]
-    float* x;
-    cudaXMalloc(&x, kernel_width * sizeof(float));
-    normalized_list(x, (kernel_width - 1) / 2, kernel_width, stream);
-
-    float* y;
-    cudaXMalloc(&y, kernel_height * sizeof(float));
-    normalized_list(y, (kernel_height - 1) / 2, kernel_height, stream);
-
-    // Initialize X and Y deriviative gaussian kernels
-    float* kernel_x;
-    cudaXMalloc(&kernel_x, kernel_width * sizeof(float));
-    comp_dgaussian(kernel_x, x, kernel_width, sigma, 2, stream);
-
-    float* kernel_y;
-    cudaXMalloc(&kernel_y, kernel_height * sizeof(float));
-    comp_dgaussian(kernel_y, y, kernel_height, sigma, 0, stream);
-
-    cudaXStreamSynchronize(stream);
-
-    float* kernel_result;
-    cudaXMalloc(&kernel_result, sizeof(float) * kernel_width * kernel_height);
-    holovibes::compute::matrix_multiply(kernel_y,
-                                        kernel_x,
-                                        kernel_height,
-                                        kernel_width,
-                                        1,
-                                        kernel_result,
-                                        cublas_handler_,
-                                        CUBLAS_OP_N,
-                                        CUBLAS_OP_N);
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
-    float* result_transpose;
-    cudaXMalloc(&result_transpose, sizeof(float) * kernel_width * kernel_height);
-    cublasSafeCall(cublasSgeam(cublas_handler_,
-                               CUBLAS_OP_T,
-                               CUBLAS_OP_N,
-                               kernel_width,
-                               kernel_height,
-                               &alpha,
-                               kernel_result,
-                               kernel_height,
-                               &beta,
-                               nullptr,
-                               kernel_height,
-                               result_transpose,
-                               kernel_width));
-
-    // Need to synchronize to avoid freeing too soon
-    cudaXStreamSynchronize(stream);
-    cudaXFree(kernel_result);
-
-    cudaXFree(x);
-    cudaXFree(y);
-    cudaXFree(kernel_y);
-    cudaXFree(kernel_x);
-
-    return result_transpose;
-}
-
-float* compute_kernel(float sigma)
-{
-    int kernel_size = 2 * std::ceil(2 * sigma) + 1;
-    float* kernel = new float[kernel_size * kernel_size];
-    float half_size = (kernel_size - 1.0f) / 2.0f;
-    float sum = 0.0f;
-
-    int y = 0;
-    for (float i = -half_size; i <= half_size; ++i)
-    {
-        int x = 0;
-        for (float j = -half_size; j <= half_size; ++j)
-        {
-            float value = std::exp(-(i * i + j * j) / (2 * sigma * sigma));
-
-            kernel[x * kernel_size + y] = value;
-
-            sum += value;
-            x++;
-        }
-        y++;
-    }
-
-    for (int i = 0; i < kernel_size * kernel_size; ++i)
-    {
-        kernel[i] /= sum;
-    }
-
-    return kernel;
-}
-
-__global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
+static __global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, float sigma, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -491,7 +406,7 @@ __global__ void kernel_compute_gauss_kernel(float* output, int kernel_size, floa
     atomicAdd(d_sum, value);
 }
 
-__global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
+static __global__ void kernel_normalize_array(float* input_output, int kernel_size, float* d_sum)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
