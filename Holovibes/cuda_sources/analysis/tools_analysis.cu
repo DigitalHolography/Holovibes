@@ -187,58 +187,14 @@ void comp_dgaussian(float* output, float* input, size_t input_size, float sigma,
     cudaCheckError();
 }
 
-/*!
- * \brief CUDA kernel to prepare 2x2 Hessian submatrices.
- *
- * This kernel populates a portion of a Hessian matrix stored in a flat array. For each point
- * indexed by `index`, the kernel calculates the appropriate offset within the output array and
- * assigns a value from the input array `I`. The values are placed at positions determined by the
- * `offset` parameter to construct 2x2 submatrices in the output array.
- *
- * \param [out] output Pointer to the output array in device memory where the Hessian matrices will be stored.
- * \param [in] I Pointer to the input array in device memory containing the source data.
- * \param [in] offset The starting offset in the Hessian matrix array for this computation.
- * \param [in] size The number of elements in the input array to process.
- */
-static __global__ void kernel_prepare_hessian(float* output, const float* I, const size_t offset, const int size)
-{
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (index < size)
-    {
-        // Assign input value to the output array at the appropriate offset for the Hessian submatrix.
-        output[index * 3 + offset] = I[index];
-    }
-}
-
-/**
- * \brief Prepares Hessian matrices by launching a CUDA kernel.
- *
- * This function launches the `kernel_prepare_hessian` kernel to compute and populate
- * Hessian matrix entries in the output array.
- *
- * \param [out] output Pointer to the output array in device memory where the Hessian matrices will be stored.
- * \param [in] I Pointer to the input array in device memory containing the source data.
- * \param [in] size The number of elements in the input array to process.
- * \param [in] offset The starting offset in the Hessian matrix array for this computation.
- * \param [in] stream The CUDA stream to be used for asynchronous kernel execution.
- *
- * \note The `output` array must be pre-allocated in device memory with sufficient space to store
- *       the results. The function automatically hardcoded the grid and block dimensions.
- */
-void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream)
-{
-    int blockSize = 256;
-    int numBlocks = (size + blockSize - 1) / blockSize;
-    kernel_prepare_hessian<<<numBlocks, blockSize, 0, stream>>>(output, I, offset, size);
-    cudaCheckError();
-}
-
 static __global__ void kernel_compute_eigen(float* H, int size, float* lambda1, float* lambda2)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size)
     {
-        double a = H[index * 3], b = H[index * 3 + 1], d = H[index * 3 + 2];
+        double a = H[index];
+        double b = H[size + index];
+        double d = H[size * 2 + index];
         double trace = a + d;
         double determinant = a * d - b * b;
         double discriminant = trace * trace - 4 * determinant;

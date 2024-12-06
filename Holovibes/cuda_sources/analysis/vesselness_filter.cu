@@ -242,7 +242,7 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 0, stream);
+    cudaXMemcpyAsync(filter_struct_.H, filter_struct_.I, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice, stream);
 
     compute_I(filter_struct_.I,
               input,
@@ -254,7 +254,11 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 1, stream);
+    cudaXMemcpyAsync(filter_struct_.H + frame_res,
+                     filter_struct_.I,
+                     sizeof(float) * frame_res,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     compute_I(filter_struct_.I,
               input,
@@ -266,7 +270,11 @@ void vesselness_filter(float* output,
               filter_struct_.convolution_tmp_buffer,
               stream);
 
-    prepare_hessian(filter_struct_.H, filter_struct_.I, frame_res, 2, stream);
+    cudaXMemcpyAsync(filter_struct_.H + frame_res * 2,
+                     filter_struct_.I,
+                     sizeof(float) * frame_res,
+                     cudaMemcpyDeviceToDevice,
+                     stream);
 
     cudaXMemsetAsync(filter_struct_.lambda_1, 0, frame_res * sizeof(float), stream);
     cudaXMemsetAsync(filter_struct_.lambda_2, 0, frame_res * sizeof(float), stream);

@@ -17,8 +17,6 @@ void normalized_list(float* output, int lim, int size, cudaStream_t stream);
 
 void comp_dgaussian(float* output, float* input, size_t input_size, float sigma, int n, cudaStream_t stream);
 
-void prepare_hessian(float* output, const float* I, const int size, const size_t offset, cudaStream_t stream);
-
 void apply_diaphragm_mask(float* output,
                           const float center_X,
                           const float center_Y,
