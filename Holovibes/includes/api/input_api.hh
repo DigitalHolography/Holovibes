@@ -4,12 +4,10 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class InputApi : public IApi
 {
@@ -163,7 +161,7 @@ class InputApi : public IApi
      *
      * Will stop any computation currently running (camera or file loading).
      *
-     * \return false on failure
+     * \return bool false on failure
      */
     bool import_start();
 
@@ -236,6 +234,29 @@ class InputApi : public IApi
     inline void set_pixel_size(float value) { UPDATE_SETTING(PixelSize, value); }
 
 #pragma endregion
+
+  private:
+    /*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
+     * descriptor.
+     *
+     * \return camera::FrameDescriptor the frame descriptor of the file
+     */
+    camera::FrameDescriptor get_input_fd() { return GET_SETTING(ImportedFileFd); }
+
+    /*! \brief Set the frame descriptor of the loaded file.
+     *
+     * \param[in] value the new frame descriptor
+     */
+    void set_input_fd(camera::FrameDescriptor value) { UPDATE_SETTING(ImportedFileFd, value); }
+
+    /*! \brief Set the type of camera used or none if no camera is used.
+     *
+     * \param[in] value the new camera kind
+     */
+    void set_camera_kind_enum(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
+
+    /*! \brief Stop the camera and close the critical compute. */
+    void camera_none();
 };
 
 } // namespace holovibes::api

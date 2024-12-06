@@ -43,7 +43,7 @@ void CompositePanel::on_notify()
     if (!isVisible())
         return;
 
-    const auto& api = API;
+    auto& api = API;
     const int time_transformation_size_max = api.transform.get_time_transformation_size() - 1;
     ui_->PRedSpinBox_Composite->setMaximum(time_transformation_size_max);
     ui_->PBlueSpinBox_Composite->setMaximum(time_transformation_size_max);
@@ -254,7 +254,7 @@ void CompositePanel::slide_update_threshold_h_min()
 {
 
     // Avoid modification from panel instead of API
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_h_threshold_min();
     float bound_to_update = api.composite.get_slider_h_threshold_max();
 
@@ -272,7 +272,7 @@ void CompositePanel::slide_update_threshold_h_min()
 
 void CompositePanel::slide_update_threshold_h_max()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_h_threshold_max();
     float bound_to_update = api.composite.get_slider_h_threshold_min();
 
@@ -291,7 +291,7 @@ void CompositePanel::slide_update_threshold_h_max()
 void CompositePanel::slide_update_shift_h_min()
 {
     // Avoid modification from panel instead of API
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_h_shift_min();
     float bound_to_update = api.composite.get_slider_h_shift_max();
 
@@ -309,7 +309,7 @@ void CompositePanel::slide_update_shift_h_min()
 
 void CompositePanel::slide_update_shift_h_max()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_h_shift_max();
     float bound_to_update = api.composite.get_slider_h_shift_min();
 
@@ -327,7 +327,7 @@ void CompositePanel::slide_update_shift_h_max()
 
 void CompositePanel::slide_update_threshold_s_min()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_s_threshold_min();
     float bound_to_update = api.composite.get_slider_s_threshold_max();
 
@@ -345,7 +345,7 @@ void CompositePanel::slide_update_threshold_s_min()
 
 void CompositePanel::slide_update_threshold_s_max()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_s_threshold_max();
     float bound_to_update = api.composite.get_slider_s_threshold_min();
 
@@ -363,7 +363,7 @@ void CompositePanel::slide_update_threshold_s_max()
 
 void CompositePanel::slide_update_threshold_v_min()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_v_threshold_min();
     float bound_to_update = api.composite.get_slider_v_threshold_max();
 
@@ -381,7 +381,7 @@ void CompositePanel::slide_update_threshold_v_min()
 
 void CompositePanel::slide_update_threshold_v_max()
 {
-    const auto& api = API;
+    auto& api = API;
     float receiver = api.composite.get_slider_v_threshold_max();
     float bound_to_update = api.composite.get_slider_v_threshold_min();
 

@@ -4,7 +4,8 @@
  */
 #pragma once
 
-#include "API.hh"
+#include <nlohmann/json_fwd.hpp>
+using json = ::nlohmann::json;
 
 namespace holovibes::api
 {

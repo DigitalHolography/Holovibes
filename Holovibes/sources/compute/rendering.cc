@@ -307,7 +307,7 @@ void Rendering::autocontrast_caller(
 
     const float percent_in[percent_size] = {setting<settings::ContrastLowerThreshold>(),
                                             setting<settings::ContrastUpperThreshold>()};
-    const auto& api = API;
+    auto& api = API;
     switch (view)
     {
     case WindowKind::XYview:

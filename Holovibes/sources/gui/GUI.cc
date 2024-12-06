@@ -68,7 +68,7 @@ void close_windows()
 
 void create_window(Computation window_kind, ushort window_size)
 {
-    const auto& api = API;
+    auto& api = API;
     const camera::FrameDescriptor& fd = api.input.get_fd();
     unsigned short width = fd.width;
     unsigned short height = fd.height;
@@ -209,7 +209,7 @@ void set_3d_cuts_view(bool enabled, uint max_window_size)
 {
     if (enabled)
     {
-        const auto& api = API;
+        auto& api = API;
         const uint window_size =
             std::max(256u, std::min(max_window_size, api.transform.get_time_transformation_size()));
 

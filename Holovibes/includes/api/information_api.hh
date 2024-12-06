@@ -4,11 +4,10 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
-class IApi;
 
 class InformationApi : public IApi
 {

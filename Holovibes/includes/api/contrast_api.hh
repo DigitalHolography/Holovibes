@@ -6,13 +6,11 @@
  */
 #pragma once
 
-#include "API.hh"
 #include "enum_window_kind.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class ContrastApi : public IApi
 {

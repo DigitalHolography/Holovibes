@@ -41,7 +41,7 @@ void ImageRenderingPanel::init() { ui_->ZDoubleSpinBox->setSingleStep(z_step_); 
 
 void ImageRenderingPanel::on_notify()
 {
-    const auto& api = API;
+    auto& api = API;
     const bool is_raw = api.compute.get_compute_mode() == Computation::Raw;
     const bool is_data_not_moments = !(api.input.get_data_type() == RecordedDataType::MOMENTS);
     const bool not_raw_not_moments = !is_raw && is_data_not_moments;
@@ -60,7 +60,7 @@ void ImageRenderingPanel::on_notify()
     ui_->BatchSizeSpinBox->setEnabled(is_batch_size_enabled);
     ui_->BatchSizeLabel->setEnabled(is_batch_size_enabled);
 
-    ui_->BatchSizeSpinBox->setMaximum(api.compute.get_input_buffer_size());
+    ui_->BatchSizeSpinBox->setMaximum(api.input.get_input_buffer_size());
 
     ui_->SpaceTransformationLabel->setEnabled(not_raw_not_moments);
     ui_->SpaceTransformationComboBox->setEnabled(not_raw_not_moments);
@@ -92,7 +92,7 @@ void ImageRenderingPanel::on_notify()
     ui_->Filter2D->setChecked(filter2D_enabled);
 
     ui_->Filter2DView->setVisible(filter2D_enabled);
-    ui_->Filter2DView->setChecked(!is_raw && api.filter2d.get_filter2d_view_enabled());
+    ui_->Filter2DView->setChecked(!is_raw && api.view.get_filter2d_view_enabled());
     ui_->Filter2DN1SpinBox->setVisible(filter2D_enabled);
     ui_->Filter2DN1SpinBox->setValue(api.filter2d.get_filter2d_n1());
 
@@ -150,7 +150,7 @@ void ImageRenderingPanel::save_gui(json& j_us)
 
 void ImageRenderingPanel::set_computation_mode(int mode)
 {
-    const auto& api = API;
+    auto& api = API;
     if (api.input.get_import_type() == ImportType::None)
         return;
 
@@ -184,7 +184,7 @@ void ImageRenderingPanel::update_time_stride()
 
 void ImageRenderingPanel::set_filter2d(bool checked)
 {
-    cosnt auto& api = API;
+    auto& api = API;
     if (api.compute.get_compute_mode() == Computation::Raw)
         return;
 
@@ -297,7 +297,7 @@ void ImageRenderingPanel::decrement_z() { set_z_distance(API.transform.get_z_dis
 
 void ImageRenderingPanel::set_convolution_mode(const bool value)
 {
-    const auto& api = API;
+    auto& api = API;
     if (api.input.get_import_type() == ImportType::None)
         return;
 
@@ -312,13 +312,13 @@ void ImageRenderingPanel::set_convolution_mode(const bool value)
 void ImageRenderingPanel::update_convo_kernel(const QString& value)
 {
     std::string v = value.toStdString();
-    api.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
+    API.global_pp.enable_convolution(v == UID_CONVOLUTION_TYPE_DEFAULT ? "" : v);
     parent_->notify();
 }
 
 void ImageRenderingPanel::set_divide_convolution(const bool value)
 {
-    api.global_pp.set_divide_convolution_enabled(value);
+    API.global_pp.set_divide_convolution_enabled(value);
     parent_->notify();
 }
 

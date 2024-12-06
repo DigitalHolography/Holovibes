@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget* parent)
         ui_->InputFilterQuickSelectComboBox->addItems(QStringList::fromVector(files));
     }
 
-    const auto& api = API;
+    auto& api = API;
 
     try
     {
@@ -185,7 +185,7 @@ MainWindow::MainWindow(QWidget* parent)
     // Add the convolution after the initialisation of the panel
     // if the value is enabled in the compute settings.
 
-    if (api.view.get_enabled(WindowKind::YZview) && api.view.get_enabled(WindowKind::XZview))
+    if (api.window_pp.get_enabled(WindowKind::YZview) && api.window_pp.get_enabled(WindowKind::XZview))
         ui_->ViewPanel->update_3d_cuts_view(true);
 
     init_tooltips();
@@ -232,7 +232,7 @@ void MainWindow::notify()
 void MainWindow::on_notify()
 {
     // Disable pipe refresh to avoid the numerous refreshes at the launch of the program
-    const auto& api = API;
+    auto& api = API;
     api.compute.disable_pipe_refresh();
 
     // Disable the notify for the same reason
@@ -350,7 +350,7 @@ void MainWindow::layout_toggled()
 
 void MainWindow::credits()
 {
-    const std::vector<std::string> columns = api.information.get_credits();
+    const std::vector<std::string> columns = API.information.get_credits();
 
     // Create HTML for 3 columns inside a table
     QString columnarText = QString("Holovibes v" + QString::fromStdString(std::string(__HOLOVIBES_VERSION__)) +
@@ -376,7 +376,7 @@ void MainWindow::credits()
 
 void MainWindow::documentation()
 {
-    QDesktopServices::openUrl(QUrl(QString::fromStdString(api.information.get_documentation_url())));
+    QDesktopServices::openUrl(QUrl(QString::fromStdString(API.information.get_documentation_url())));
 }
 
 #pragma endregion
@@ -395,14 +395,14 @@ void MainWindow::browse_export_ini()
 
 void MainWindow::reload_ini(const std::string& filename)
 {
-    ImportType it = api.input.get_import_type();
+    ImportType it = API.input.get_import_type();
     ui_->ImportPanel->import_stop();
 
     try
     {
         API.settings.load_compute_settings(filename);
         // Set values not set by notify
-        ui_->BatchSizeSpinBox->setValue(api.transform.get_batch_size());
+        ui_->BatchSizeSpinBox->setValue(API.transform.get_batch_size());
     }
     catch (const std::exception&)
     {
@@ -414,7 +414,7 @@ void MainWindow::reload_ini(const std::string& filename)
     if (it == ImportType::File)
         ui_->ImportPanel->import_start();
     else if (it == ImportType::Camera)
-        change_camera(api.input.get_camera_kind());
+        change_camera(API.input.get_camera_kind());
     else // if (it == ImportType::None)
         notify();
 }
@@ -473,7 +473,7 @@ void MainWindow::load_gui()
                                         json_get_or_default(j_us, 560, "light ui window", "x"),
                                         json_get_or_default(j_us, 290, "light ui window", "y"));
 
-    const auto& api = API;
+    auto& api = API;
     api.view.set_display_rate(json_get_or_default(j_us, api.view.get_display_rate(), "display", "refresh rate"));
     api.window_pp.set_raw_bitshift(
         json_get_or_default(j_us, api.window_pp.get_raw_bitshift(), "file info", "raw bit shift"));
@@ -577,7 +577,7 @@ void MainWindow::closeEvent(QCloseEvent*)
         API.settings.save_compute_settings();
 
     gui::close_windows();
-    api.input.set_camera_kind(CameraKind::NONE, false);
+    API.input.set_camera_kind(CameraKind::NONE, false);
     Logger::flush();
 }
 
@@ -589,10 +589,10 @@ void MainWindow::change_camera(CameraKind c)
 {
     ui_->ImportPanel->import_stop();
 
-    if (api.input.set_camera_kind(c))
+    if (API.input.set_camera_kind(c))
     {
         // Shows Holo/Raw window
-        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(api.compute.get_compute_mode()));
+        ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(API.compute.get_compute_mode()));
         shift_screen();
     }
 
@@ -629,7 +629,7 @@ void MainWindow::camera_alvium() { change_camera(CameraKind::Alvium); }
 
 void MainWindow::configure_camera()
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api.input.get_camera_ini_name())));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(API.input.get_camera_ini_name())));
 }
 
 void open_file(const std::string& filename)
@@ -679,9 +679,9 @@ void MainWindow::set_view_image_type(const QString& value)
 {
     const ImgType img_type = static_cast<ImgType>(ui_->ViewModeComboBox->currentIndex());
 
-    bool composite = img_type == ImgType::Composite || api.compute.get_img_type() == ImgType::Composite;
+    bool composite = img_type == ImgType::Composite || API.compute.get_img_type() == ImgType::Composite;
 
-    if (api.compute.set_view_mode(img_type) == ApiCode::OK)
+    if (API.compute.set_view_mode(img_type) == ApiCode::OK)
     {
         // Composite need a refresh of the window since the depth has changed.
         // A better way would be to just update the buffer and texParam of OpenGL
@@ -696,7 +696,7 @@ void MainWindow::set_view_image_type(const QString& value)
 
 void MainWindow::change_window(int index)
 {
-    api.view.change_window(static_cast<WindowKind>(index));
+    API.view.change_window(static_cast<WindowKind>(index));
 
     notify();
 }
@@ -721,12 +721,12 @@ void MainWindow::open_advanced_settings()
     gui::open_advanced_settings(this,
                                 [=]()
                                 {
-                                    ImportType it = api.input.get_import_type();
+                                    ImportType it = API.input.get_import_type();
 
                                     if (it == ImportType::File)
                                         ui_->ImportPanel->import_start();
                                     else if (it == ImportType::Camera)
-                                        change_camera(api.input.get_camera_kind());
+                                        change_camera(API.input.get_camera_kind());
                                 });
 }
 

@@ -1,5 +1,6 @@
 #include "filter2d_api.hh"
 
+#include "API.hh"
 #include "input_filter.hh"
 #include "tools.hh"
 

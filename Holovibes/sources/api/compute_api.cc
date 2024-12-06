@@ -1,5 +1,7 @@
 #include "compute_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 

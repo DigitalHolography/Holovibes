@@ -1,15 +1,11 @@
 #include "view_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
 #pragma region 3D Cuts View
-
-/*! \brief Sets whether the 3D cuts view are enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void ViewApi::set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
 
 bool ViewApi::set_3d_cuts_view(bool enabled)
 {
@@ -25,8 +21,8 @@ bool ViewApi::set_3d_cuts_view(bool enabled)
             while (api_->compute.get_compute_pipe()->is_requested(ICS::TimeTransformationCuts))
                 continue;
 
-            set_enabled(WindowKind::YZview, true);
-            set_enabled(WindowKind::XZview, true);
+            api_->window_pp.set_enabled(WindowKind::YZview, true);
+            api_->window_pp.set_enabled(WindowKind::XZview, true);
             set_cuts_view_enabled(true);
 
             api_->compute.pipe_refresh();
@@ -40,8 +36,8 @@ bool ViewApi::set_3d_cuts_view(bool enabled)
     }
     else
     {
-        set_enabled(WindowKind::YZview, false);
-        set_enabled(WindowKind::XZview, false);
+        api_->window_pp.set_enabled(WindowKind::YZview, false);
+        api_->window_pp.set_enabled(WindowKind::XZview, false);
         set_cuts_view_enabled(false);
 
         api_->compute.get_compute_pipe()->request(ICS::DeleteTimeTransformationCuts);
@@ -113,12 +109,6 @@ void ViewApi::set_chart_display(bool enabled)
 
 #pragma region Lens View
 
-/*! \brief Sets whether the lens view is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void ViewApi::set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
-
 void ViewApi::set_lens_view(bool enabled)
 {
     if (api_->input.get_import_type() == ImportType::None || api_->compute.get_compute_mode() == Computation::Raw ||
@@ -139,12 +129,6 @@ void ViewApi::set_lens_view(bool enabled)
 #pragma endregion
 
 #pragma region Raw View
-
-/*! \brief Sets whether the raw view is enabled or not.
- *
- * \param[in] value true: enable, false: disable
- */
-inline void ViewApi::set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
 
 void ViewApi::set_raw_view(bool enabled)
 {

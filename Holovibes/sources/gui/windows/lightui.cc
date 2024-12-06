@@ -148,7 +148,7 @@ void LightUI::reset_record_progress_bar()
 void LightUI::notify()
 {
     // Z distance
-    const auto& api = API;
+    auto& api = API;
     float z_distance = api.transform.get_z_distance();
 
     ui_->ZSpinBox->setValue(static_cast<int>(std::round(z_distance * 1000)));

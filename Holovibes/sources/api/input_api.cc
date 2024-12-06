@@ -1,5 +1,6 @@
 #include "input_api.hh"
 
+#include "API.hh"
 #include "camera_exception.hh"
 #include "input_frame_file.hh"
 #include "input_frame_file_factory.hh"
@@ -8,25 +9,6 @@ namespace holovibes::api
 {
 
 #pragma region Internals
-
-/*! \brief Return the frame descriptor of the loaded file. A file must be loaded in order to have a valid frame
- * descriptor.
- *
- * \return camera::FrameDescriptor the frame descriptor of the file
- */
-camera::FrameDescriptor InputApi::get_input_fd() { return GET_SETTING(ImportedFileFd); }
-
-/*! \brief Set the frame descriptor of the loaded file.
- *
- * \param[in] value the new frame descriptor
- */
-void InputApi::set_input_fd(camera::FrameDescriptor value) { UPDATE_SETTING(ImportedFileFd, value); }
-
-/*! \brief Set the type of camera used or none if no camera is used.
- *
- * \param[in] value the new camera kind
- */
-void InputApi::set_camera_kind_enum(CameraKind value) { UPDATE_SETTING(CameraKind, value); }
 
 void InputApi::camera_none()
 {

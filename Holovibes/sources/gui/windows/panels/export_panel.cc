@@ -48,7 +48,7 @@ void ExportPanel::init()
 void ExportPanel::on_notify()
 {
     // File extension
-    const auto& api = API;
+    auto& api = API;
     auto file_ext_view = qobject_cast<QListView*>(ui_->RecordExtComboBox->view());
     auto extension_indexes = api.record.get_supported_formats(
         api.record.get_record_mode()); // The indexes compatible with the current record mode

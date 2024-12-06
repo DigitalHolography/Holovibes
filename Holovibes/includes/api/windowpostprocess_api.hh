@@ -11,13 +11,11 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 #include "enum_window_kind.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class WindowPostProcessApi : public IApi
 {

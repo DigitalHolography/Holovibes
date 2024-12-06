@@ -1,5 +1,7 @@
 #include "contrast_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
@@ -15,9 +17,9 @@ float ftruncate(const int precision, float value)
 
 #pragma region Log
 
-bool get_log_enabled() { return get_log_enabled(api_->window_pp.get_current_window_type()); }
+bool ContrastApi::get_log_enabled() { return get_log_enabled(api_->view.get_current_window_type()); }
 
-void set_log_enabled(bool value) { return set_log_enabled(api_->window_pp.get_current_window_type(), value); }
+void ContrastApi::set_log_enabled(bool value) { return set_log_enabled(api_->view.get_current_window_type(), value); }
 
 #pragma endregion
 
@@ -29,7 +31,7 @@ float ContrastApi::get_contrast_min(WindowKind kind)
     return get_log_enabled(kind) ? min : log10(min);
 }
 
-float get_contrast_min() { return get_contrast_min(api_->window_pp.get_current_window_type()); }
+float ContrastApi::get_contrast_min() { return get_contrast_min(api_->view.get_current_window_type()); }
 
 void ContrastApi::set_contrast_min(WindowKind kind, float value)
 {
@@ -56,7 +58,10 @@ void ContrastApi::set_contrast_min(WindowKind kind, float value)
     api_->compute.pipe_refresh();
 }
 
-void set_contrast_min(float value) { return set_contrast_min(api_->window_pp.get_current_window_type(), value); }
+void ContrastApi::set_contrast_min(float value)
+{
+    return set_contrast_min(api_->view.get_current_window_type(), value);
+}
 
 float ContrastApi::get_contrast_max(WindowKind kind)
 {
@@ -64,7 +69,7 @@ float ContrastApi::get_contrast_max(WindowKind kind)
     return get_log_enabled(kind) ? max : log10(max);
 }
 
-float get_contrast_max() { return get_contrast_max(api_->window_pp.get_current_window_type()); }
+float ContrastApi::get_contrast_max() { return get_contrast_max(api_->view.get_current_window_type()); }
 
 void ContrastApi::set_contrast_max(WindowKind kind, float value)
 {
@@ -91,7 +96,10 @@ void ContrastApi::set_contrast_max(WindowKind kind, float value)
     api_->compute.pipe_refresh();
 }
 
-void set_contrast_max(float value) { return set_contrast_max(api_->window_pp.get_current_window_type(), value); }
+void ContrastApi::set_contrast_max(float value)
+{
+    return set_contrast_max(api_->view.get_current_window_type(), value);
+}
 
 void ContrastApi::update_contrast(WindowKind kind, float min, float max)
 {
@@ -118,7 +126,7 @@ void ContrastApi::update_contrast(WindowKind kind, float min, float max)
 
 #pragma region Contrast Enabled
 
-bool get_contrast_enabled() { return get_contrast_enabled(api_->window_pp.get_current_window_type()); }
+bool ContrastApi::get_contrast_enabled() { return get_contrast_enabled(api_->view.get_current_window_type()); }
 
 void ContrastApi::set_contrast_enabled(WindowKind kind, bool value)
 {
@@ -138,13 +146,19 @@ void ContrastApi::set_contrast_enabled(WindowKind kind, bool value)
     api_->compute.pipe_refresh();
 }
 
-void set_contrast_enabled(bool value) { return set_contrast_enabled(api_->window_pp.get_current_window_type(), value); }
+void ContrastApi::set_contrast_enabled(bool value)
+{
+    return set_contrast_enabled(api_->view.get_current_window_type(), value);
+}
 
 #pragma endregion
 
 #pragma region Contrast Auto Refresh
 
-bool get_contrast_auto_refresh() { return get_contrast_auto_refresh(api_->window_pp.get_current_window_type()); }
+bool ContrastApi::get_contrast_auto_refresh()
+{
+    return get_contrast_auto_refresh(api_->view.get_current_window_type());
+}
 
 void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value)
 {
@@ -164,13 +178,16 @@ void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value)
     api_->compute.pipe_refresh();
 }
 
-void set_contrast_auto_refresh(bool value) { return set_contrast_auto_refresh(get_current_window_type(), value); }
+void ContrastApi::set_contrast_auto_refresh(bool value)
+{
+    return set_contrast_auto_refresh(api_->view.get_current_window_type(), value);
+}
 
 #pragma endregion
 
 #pragma region Contrast Invert
 
-bool get_contrast_invert() { return get_contrast_invert(api_->window_pp.get_current_window_type()); }
+bool ContrastApi::get_contrast_invert() { return get_contrast_invert(api_->view.get_current_window_type()); }
 
 void ContrastApi::set_contrast_invert(WindowKind kind, bool value)
 {
@@ -190,7 +207,10 @@ void ContrastApi::set_contrast_invert(WindowKind kind, bool value)
     api_->compute.pipe_refresh();
 }
 
-void set_contrast_invert(bool value) { return set_contrast_invert(api_->window_pp.get_current_window_type(), value); }
+void ContrastApi::set_contrast_invert(bool value)
+{
+    return set_contrast_invert(api_->view.get_current_window_type(), value);
+}
 
 #pragma endregion
 

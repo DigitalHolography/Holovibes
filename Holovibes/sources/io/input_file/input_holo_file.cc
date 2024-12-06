@@ -160,7 +160,7 @@ void InputHoloFile::import_compute_settings()
         this->load_footer();
     }
 
-    const auto& api = API;
+    auto& api = API;
     api.input.set_data_type(RecordedDataType::RAW);
 
     // perform convertion of holo file footer if needed

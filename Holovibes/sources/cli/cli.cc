@@ -86,7 +86,7 @@ static void print_verbose(const holovibes::OptionsDescriptor& opts)
 
 int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uint& nb_frames)
 {
-    const auto& api = API;
+    auto& api = API;
     auto err_message = [&](const std::string& name, const uint& value, const std::string& option)
     {
         holovibes::Logger::logger()->error(
@@ -126,7 +126,7 @@ int get_first_and_last_frame(const holovibes::OptionsDescriptor& opts, const uin
 static int set_parameters(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     std::string input_path = opts.input_path.value();
-    const auto& api = API;
+    auto& api = API;
 
     api.input.set_input_file_path(input_path);
 
@@ -264,7 +264,7 @@ static void main_loop(holovibes::Holovibes& holovibes)
 static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::OptionsDescriptor& opts)
 {
     LOG_INFO("Starting CLI workers");
-    const auto& api = API;
+    auto& api = API;
     // Force some values
 
     // Value used in more than 1 thread

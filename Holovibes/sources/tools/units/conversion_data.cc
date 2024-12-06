@@ -54,7 +54,7 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 double ConversionData::fd_to_real(int val, Axis axis) const
 {
     CHECK(window_ != nullptr, "gui::BasicOpenGLWindow *window_ cannot be null");
-    const auto& api = API;
+    auto& api = API;
     auto fd = window_->getFd();
     float pix_size;
     if (window_->getKindOfView() == gui::KindOfView::Hologram)

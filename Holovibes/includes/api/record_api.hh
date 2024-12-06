@@ -4,12 +4,10 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class RecordApi : public IApi
 {
@@ -53,7 +51,7 @@ class RecordApi : public IApi
 
     /*! \brief Return whether the frame recording is enabled or not.
      *
-     * \return true if frame recording is enabled
+     * \return bool true if frame recording is enabled
      */
     inline bool get_frame_record_enabled() { return GET_SETTING(FrameRecordEnabled); }
 
@@ -124,7 +122,7 @@ class RecordApi : public IApi
 
     /*! \brief Return whether the chart recording is enabled or not.
      *
-     * \return true if chart recording is enabled
+     * \return bool true if chart recording is enabled
      */
     inline bool get_chart_record_enabled() { return GET_SETTING(ChartRecordEnabled); }
 
@@ -220,7 +218,7 @@ class RecordApi : public IApi
 
     /*! \brief Return whether we are recording or not
      *
-     * \return true if recording, else false
+     * \return bool true if recording, else false
      */
     bool is_recording();
 

@@ -40,7 +40,7 @@ void OutputHoloFile::export_compute_settings(int input_fps, size_t contiguous)
 
     try
     {
-        const auto& api = API;
+        auto& api = API;
         auto j_fi = json{
             {"pixel_pitch", {{"x", api.input.get_pixel_size()}, {"y", api.input.get_pixel_size()}}},
             {"input_fps", input_fps},

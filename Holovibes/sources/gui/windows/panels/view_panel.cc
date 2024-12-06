@@ -68,7 +68,7 @@ void ViewPanel::update_img_type(int img_type)
 
 void ViewPanel::on_notify()
 {
-    const auto& api = API;
+    auto& api = API;
     const bool is_raw = api.compute.get_compute_mode() == Computation::Raw;
     const bool is_data_not_moments = !(api.input.get_data_type() == RecordedDataType::MOMENTS);
 
@@ -111,12 +111,12 @@ void ViewPanel::on_notify()
 
     // Enable only row that are actually displayed on the screen
     QListView* window_slection_view = qobject_cast<QListView*>(window_selection->view());
-    window_slection_view->setRowHidden(1, !api.view.get_enabled(WindowKind::XZview));
-    window_slection_view->setRowHidden(2, !api.view.get_enabled(WindowKind::YZview));
+    window_slection_view->setRowHidden(1, !api.window_pp.get_enabled(WindowKind::XZview));
+    window_slection_view->setRowHidden(2, !api.window_pp.get_enabled(WindowKind::YZview));
     window_slection_view->setRowHidden(3, !api.view.get_filter2d_view_enabled());
 
     // If one view gets disabled set to the standard XY view
-    int index = static_cast<int>(api.window_pp.get_current_window_type());
+    int index = static_cast<int>(api.view.get_current_window_type());
     window_selection->setCurrentIndex(window_slection_view->isRowHidden(index) ? 0 : index);
 
     // Log

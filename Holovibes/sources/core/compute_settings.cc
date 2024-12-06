@@ -10,13 +10,18 @@
 #include "compute_settings.hh"
 #include <iomanip>
 #include <spdlog/spdlog.h>
+#include "API.hh"
 
 #include "logger.hh"
 
 namespace holovibes::api
 {
 
-// Merge base_json and update_json with priority from update_json
+/*! \brief Merge two json objects
+ *
+ * \param[in] base_json The json object to merge into
+ * \param[in] update_json The json object to merge from
+ */
 void merge_json(json& base_json, const json& update_json)
 {
     for (auto& [key, value] : update_json.items())
@@ -65,7 +70,7 @@ void ComputeSettingsApi::load_compute_settings(const std::string& json_path)
     compute_settings.Dump("cli_load_compute_settings");
 
     LOG_INFO("Compute settings loaded from : {}", json_path);
-    pipe_refresh();
+    API.compute.pipe_refresh();
 }
 
 void ComputeSettingsApi::import_buffer(const std::string& json_path)
@@ -98,12 +103,12 @@ void ComputeSettingsApi::import_buffer(const std::string& json_path)
     buffer_settings.Load();
 
     LOG_INFO("Buffer settings loaded from : {}", json_path);
-    pipe_refresh();
+    API.compute.pipe_refresh();
 }
 
 // clang-format off
 
-json compute_settings_to_json()
+json ComputeSettingsApi::compute_settings_to_json()
 {
    auto compute_settings = ComputeSettings();
    compute_settings.Update();

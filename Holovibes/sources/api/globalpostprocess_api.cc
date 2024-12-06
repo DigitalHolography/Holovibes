@@ -1,13 +1,9 @@
 #include "globalpostprocess_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
-
-#pragma region Internals
-
-inline void GlobalPostProcessApi::set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
-
-#pragma endregion
 
 #pragma region Registration
 
@@ -45,16 +41,6 @@ void GlobalPostProcessApi::set_renorm_enabled(bool value)
 
 static inline const std::filesystem::path dir(GET_EXE_DIR);
 
-/*!
- * \brief Loads a convolution matrix from a file
- *
- * This function is a tool / util supposed to be called by other functions
- *
- * \param[in] file The name of the file to load the matrix from. NOT A FULL PATH
- * \param[in] convo_matrix Where to store the read matrix
- *
- * \throw std::runtime_error runtime_error When the matrix cannot be loaded
- */
 void GlobalPostProcessApi::load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix)
 {
     auto& holo = Holovibes::instance();

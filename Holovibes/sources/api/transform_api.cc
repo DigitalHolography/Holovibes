@@ -1,5 +1,7 @@
 #include "transform_api.hh"
 
+#include "API.hh"
+
 namespace holovibes::api
 {
 
@@ -212,7 +214,7 @@ void TransformApi::set_x_accu_level(uint x_value)
 
 void TransformApi::set_x_cuts(uint value)
 {
-    if (value < get_fd().width)
+    if (value < api_->input.get_fd().width)
     {
         SET_SETTING(X, start, value);
         api_->compute.pipe_refresh();
@@ -227,7 +229,7 @@ void TransformApi::set_y_accu_level(uint y_value)
 
 void TransformApi::set_y_cuts(uint value)
 {
-    if (value < get_fd().height)
+    if (value < api_->input.get_fd().height)
     {
         SET_SETTING(Y, start, value);
         api_->compute.pipe_refresh();

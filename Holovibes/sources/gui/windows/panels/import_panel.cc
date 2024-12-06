@@ -26,7 +26,7 @@ ImportPanel::~ImportPanel() {}
 
 void ImportPanel::on_notify()
 {
-    const auto& api = API;
+    auto& api = API;
     ui_->ImportStartIndexSpinBox->setValue(static_cast<int>(api.input.get_input_file_start_index()));
     ui_->ImportEndIndexSpinBox->setValue(static_cast<int>(api.input.get_input_file_end_index()));
     const char step = api.input.get_data_type() == RecordedDataType::MOMENTS ? 3 : 1;
@@ -137,7 +137,7 @@ void ImportPanel::import_start()
 {
     gui::close_windows();
     if (API.input.import_start())
-        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(API.input.get_compute_mode()));
+        parent_->ui_->ImageRenderingPanel->set_computation_mode(static_cast<int>(API.compute.get_compute_mode()));
 }
 
 void ImportPanel::update_fps() { API.input.set_input_fps(ui_->ImportInputFpsSpinBox->value()); }

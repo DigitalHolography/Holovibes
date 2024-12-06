@@ -5,12 +5,10 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class GlobalPostProcessApi : public IApi
 {
@@ -168,6 +166,25 @@ class GlobalPostProcessApi : public IApi
     inline void set_convolution_file_name(std::string value) { UPDATE_SETTING(ConvolutionFileName, value); }
 
 #pragma endregion
+
+  private:
+    /*! \brief Sets the convolution enabled or not.
+     *
+     * \param[in] value true: enable, false: disable
+     */
+    inline void set_convolution_enabled(bool value) { UPDATE_SETTING(ConvolutionEnabled, value); }
+
+    /*!
+     * \brief Loads a convolution matrix from a file
+     *
+     * This function is a tool / util supposed to be called by other functions
+     *
+     * \param[in] file The name of the file to load the matrix from. NOT A FULL PATH
+     * \param[in] convo_matrix Where to store the read matrix
+     *
+     * \throw std::runtime_error runtime_error When the matrix cannot be loaded
+     */
+    void load_convolution_matrix_file(const std::string& file, std::vector<float>& convo_matrix);
 };
 
 } // namespace holovibes::api

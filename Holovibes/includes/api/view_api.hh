@@ -11,13 +11,11 @@
  */
 #pragma once
 
-#include "API.hh"
+#include "common_api.hh"
 #include "enum_window_kind.hh"
 
 namespace holovibes::api
 {
-class IApi;
-class Api;
 
 class ViewApi : public IApi
 {
@@ -162,6 +160,25 @@ class ViewApi : public IApi
     void* get_chart_last_image();    // get_compute_pipe()->get_chart_display_queue().get()
 
 #pragma endregion
+
+  private:
+    /*! \brief Sets whether the 3D cuts view are enabled or not.
+     *
+     * \param[in] value true: enable, false: disable
+     */
+    inline void set_cuts_view_enabled(bool value) { UPDATE_SETTING(CutsViewEnabled, value); }
+
+    /*! \brief Sets whether the lens view is enabled or not.
+     *
+     * \param[in] value true: enable, false: disable
+     */
+    inline void set_lens_view_enabled(bool value) { UPDATE_SETTING(LensViewEnabled, value); }
+
+    /*! \brief Sets whether the raw view is enabled or not.
+     *
+     * \param[in] value true: enable, false: disable
+     */
+    inline void set_raw_view_enabled(bool value) { UPDATE_SETTING(RawViewEnabled, value); }
 };
 
 } // namespace holovibes::api
