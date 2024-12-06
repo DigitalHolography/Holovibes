@@ -220,7 +220,7 @@ class RecordApi : public IApi
      *
      * \return bool true if recording, else false
      */
-    bool is_recording();
+    bool is_recording() const;
 
 #pragma endregion
 
@@ -252,6 +252,34 @@ class RecordApi : public IApi
     void set_record_buffer_size(uint value);
 
 #pragma endregion
+
+  private:
+    worker::ThreadWorkerController<worker::FrameRecordWorker> frame_record_worker_controller_;
+    worker::ThreadWorkerController<worker::ChartRecordWorker> chart_record_worker_controller_;
+
+    std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
+
+  public:
+    void start_frame_record(const std::function<void()>& callback = []() {});
+
+    void stop_frame_record();
+
+    void start_chart_record(const std::function<void()>& callback = []() {});
+
+    void stop_chart_record();
+
+    /*!
+     * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
+     *
+     */
+    void init_record_queue();
+
+    /*!
+     * \brief Used to record frames
+     */
+    inline std::atomic<std::shared_ptr<Queue>> get_record_queue() { return record_queue_.load(); }
+
+    friend class Holovibes;
 };
 
 } // namespace holovibes::api

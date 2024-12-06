@@ -1,8 +1,10 @@
-/*! \file compute_settings.hh
+/*! \file settings_api.hh
  *
  * \brief Regroup all functions related to the manipulation of the compute settings
  */
 #pragma once
+
+#include "holovibes_config.hh"
 
 #include <nlohmann/json_fwd.hpp>
 using json = ::nlohmann::json;
@@ -18,7 +20,7 @@ class ComputeSettingsApi
      *
      * \param[in] path The absolute path of the .json file where the settings will be saved.
      */
-    void save_compute_settings(const std::string& path = ::holovibes::settings::compute_settings_filepath);
+    void save_compute_settings(const std::string& path = settings::compute_settings_filepath);
 
     /*! \brief Returns the compute settings as a json object.
      *

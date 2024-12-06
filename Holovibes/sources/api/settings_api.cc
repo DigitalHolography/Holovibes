@@ -1,13 +1,14 @@
-/*! \file
+/*! \file settings_api.hh
  *
  * \brief Contains functions related to the compute settings
  *
  */
 
+#include "settings_api.hh"
+
 #include "enum_theme.hh"
 #include "internals_struct.hh"
 #include "compute_settings_struct.hh"
-#include "compute_settings.hh"
 #include <iomanip>
 #include <spdlog/spdlog.h>
 #include "API.hh"

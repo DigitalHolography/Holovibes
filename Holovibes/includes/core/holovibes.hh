@@ -205,11 +205,6 @@ class Holovibes
     std::shared_ptr<Queue> get_gpu_output_queue();
     /*! \} */
 
-    /*!
-     * \brief Used to record frames
-     */
-    std::atomic<std::shared_ptr<Queue>> get_record_queue();
-
     /*! \name Getters/Setters
      * \{
      */
@@ -232,12 +227,6 @@ class Holovibes
      */
     const float get_boundary();
 
-    /*! \brief Say if the worker recording raw/holo/cuts is running.
-     *
-     * \return bool true if recording, else false
-     */
-    bool is_recording() const;
-
     /*! \} */
 
     /*! \brief Initializes the input queue
@@ -253,12 +242,6 @@ class Holovibes
      * \param input_queue_size size of the input queue
      */
     void init_input_queue(const unsigned int input_queue_size);
-
-    /*!
-     * \brief Initializes the record queue, depending on the record mode and the device (GPU or CPU)
-     *
-     */
-    void init_record_queue();
 
     /*! \brief Sets and starts the file_read_worker attribute
      *
@@ -280,22 +263,6 @@ class Holovibes
      * Stops both read_worker, resets the active camera and store the input_queue
      */
     void stop_frame_read();
-
-    /*! \brief Initialize and start the frame record worker controller
-     *
-     * \param path
-     * \param nb_frames_to_record
-     * \param record_mode
-     * \param nb_frames_skip
-     * \param callback
-     */
-    void start_frame_record(const std::function<void()>& callback = []() {});
-
-    void stop_frame_record();
-
-    void start_chart_record(const std::function<void()>& callback = []() {});
-
-    void stop_chart_record();
 
     void start_information_display();
 
@@ -342,8 +309,8 @@ class Holovibes
         if constexpr (has_setting_v<T, worker::FileFrameReadWorker>)
             file_read_worker_controller_.update_setting(setting);
 
-        if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
-            frame_record_worker_controller_.update_setting(setting);
+        // if constexpr (has_setting_v<T, worker::FrameRecordWorker>)
+        //    API.record.frame_record_worker_controller_.update_setting(setting);
 
         if constexpr (has_setting_v<T, Pipe>)
             if (compute_pipe_.load() != nullptr)
@@ -469,11 +436,11 @@ class Holovibes
      */
     std::atomic<std::shared_ptr<BatchInputQueue>> input_queue_{nullptr};
     std::atomic<std::shared_ptr<Queue>> gpu_output_queue_{nullptr};
-    std::atomic<std::shared_ptr<Queue>> record_queue_{nullptr};
     /*! \} */
 
     CudaStreams cuda_streams_;
 
+  public:
     RealtimeSettingsContainer<REALTIME_SETTINGS> realtime_settings_;
 };
 } // namespace holovibes

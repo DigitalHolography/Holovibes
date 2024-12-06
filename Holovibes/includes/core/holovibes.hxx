@@ -8,8 +8,6 @@ inline std::shared_ptr<BatchInputQueue> Holovibes::get_input_queue() { return in
 
 inline std::shared_ptr<Queue> Holovibes::get_gpu_output_queue() { return gpu_output_queue_.load(); }
 
-inline std::atomic<std::shared_ptr<Queue>> Holovibes::get_record_queue() { return record_queue_.load(); }
-
 inline std::shared_ptr<Pipe> Holovibes::get_compute_pipe()
 {
     auto loaded = compute_pipe_.load();

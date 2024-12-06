@@ -19,8 +19,7 @@
 #include "compute_api.hh"
 #include "transform_api.hh"
 #include "information_api.hh"
-
-#include "compute_settings.hh"
+#include "settings_api.hh"
 
 namespace holovibes::api
 {

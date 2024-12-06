@@ -22,7 +22,7 @@ void RecordApi::set_record_mode_enum(RecordMode value)
             if (is_recording())
                 stop_record();
 
-            Holovibes::instance().init_record_queue();
+            init_record_queue();
             LOG_DEBUG("Pipe initialized");
         }
         catch (const std::exception& e)
@@ -76,9 +76,9 @@ void RecordApi::start_record(std::function<void()> callback)
     RecordMode record_mode = GET_SETTING(RecordMode);
 
     if (record_mode == RecordMode::CHART)
-        Holovibes::instance().start_chart_record(callback);
+        start_chart_record(callback);
     else
-        Holovibes::instance().start_frame_record(callback);
+        start_frame_record(callback);
 
     // Notify the changes
     NotifierManager::notify<RecordMode>("record_start", record_mode); // notifying lightUI
@@ -92,15 +92,13 @@ void RecordApi::stop_record()
     auto record_mode = GET_SETTING(RecordMode);
 
     if (record_mode == RecordMode::CHART)
-        Holovibes::instance().stop_chart_record();
+        stop_chart_record();
     else if (record_mode != RecordMode::NONE)
-        Holovibes::instance().stop_frame_record();
+        stop_frame_record();
 
     // Notify the changes
     NotifierManager::notify<RecordMode>("record_stop", record_mode);
 }
-
-bool RecordApi::is_recording() { return Holovibes::instance().is_recording(); }
 
 #pragma endregion
 
@@ -117,7 +115,7 @@ void RecordApi::set_record_queue_location(Device device)
         if (is_recording())
             stop_record();
 
-        Holovibes::instance().init_record_queue();
+        init_record_queue();
     }
 }
 
@@ -131,10 +129,153 @@ void RecordApi::set_record_buffer_size(uint value)
         if (is_recording())
             stop_record();
 
-        Holovibes::instance().init_record_queue();
+        init_record_queue();
     }
 }
 
 #pragma endregion
+
+bool RecordApi::is_recording() const { return frame_record_worker_controller_.is_running(); }
+
+void RecordApi::start_frame_record(const std::function<void()>& callback)
+{
+    api_->compute.pipe_refresh();
+    if (API.transform.get_batch_size() > get_record_buffer_size())
+    {
+        LOG_ERROR("[RECORDER] Batch size must be lower than record queue size");
+        return;
+    }
+
+    set_record_frame_count(get_record_frame_count());
+
+    if (!record_queue_.load())
+        init_record_queue();
+
+    frame_record_worker_controller_.set_callback(callback);
+    // frame_record_worker_controller_.set_error_callback(error_callback_);
+    frame_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+
+    auto all_settings = std::tuple_cat(Holovibes::instance().realtime_settings_.settings_);
+    frame_record_worker_controller_.start(all_settings,
+                                          Holovibes::instance().get_cuda_streams().recorder_stream,
+                                          record_queue_);
+}
+
+void RecordApi::stop_frame_record() { frame_record_worker_controller_.stop(); }
+
+void RecordApi::start_chart_record(const std::function<void()>& callback)
+{
+    chart_record_worker_controller_.set_callback(callback);
+    // chart_record_worker_controller_.set_error_callback(error_callback_);
+    chart_record_worker_controller_.set_priority(THREAD_RECORDER_PRIORITY);
+
+    auto all_settings = std::tuple_cat(Holovibes::instance().realtime_settings_.settings_);
+    chart_record_worker_controller_.start(all_settings);
+}
+
+void RecordApi::stop_chart_record() { chart_record_worker_controller_.stop(); }
+
+void RecordApi::init_record_queue()
+{
+    auto device = get_record_queue_location();
+    auto record_mode = get_record_mode();
+    auto input_queue = Holovibes::instance().get_input_queue();
+    auto gpu_output_queue = Holovibes::instance().get_gpu_output_queue();
+
+    switch (record_mode)
+    {
+    case RecordMode::RAW:
+    {
+        if (!input_queue)
+        {
+            LOG_DEBUG("Cannot create record queue : input queue not created");
+            return;
+        }
+        LOG_DEBUG("RecordMode = Raw");
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(input_queue->get_fd(),
+                                                    get_record_buffer_size(),
+                                                    QueueType::RECORD_QUEUE,
+                                                    device);
+        else
+            record_queue_.load()->rebuild(input_queue->get_fd(),
+                                          get_record_buffer_size(),
+                                          Holovibes::instance().get_cuda_streams().recorder_stream,
+                                          device);
+
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    case RecordMode::HOLOGRAM:
+    {
+        LOG_DEBUG("RecordMode = Hologram");
+
+        if (!gpu_output_queue)
+        {
+            api_->compute.pipe_refresh();
+            return;
+        }
+
+        auto record_fd = gpu_output_queue->get_fd();
+        if (record_fd.depth == camera::PixelDepth::Bits8)
+            record_fd.depth = camera::PixelDepth::Bits16;
+        if (!record_queue_.load())
+        {
+            record_queue_ =
+                std::make_shared<Queue>(record_fd, get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        }
+        else
+            record_queue_.load()->rebuild(record_fd,
+                                          get_record_buffer_size(),
+                                          Holovibes::instance().get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    case RecordMode::CUTS_YZ:
+    case RecordMode::CUTS_XZ:
+    {
+        LOG_DEBUG("RecordMode = CUTS");
+        camera::FrameDescriptor fd_xyz = gpu_output_queue->get_fd();
+        fd_xyz.depth = camera::PixelDepth::Bits16; // Size of ushort
+        if (record_mode == RecordMode::CUTS_XZ)
+            fd_xyz.height = api_->transform.get_time_transformation_size();
+        else
+            fd_xyz.width = api_->transform.get_time_transformation_size();
+
+        if (!record_queue_.load())
+            record_queue_ = std::make_shared<Queue>(fd_xyz, get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        else
+            record_queue_.load()->rebuild(fd_xyz,
+                                          get_record_buffer_size(),
+                                          Holovibes::instance().get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    case RecordMode::MOMENTS:
+    {
+        LOG_DEBUG("RecordMode = Moments");
+        camera::FrameDescriptor record_fd = input_queue->get_fd();
+        record_fd.depth = camera::PixelDepth::Bits32;
+
+        if (!record_queue_.load())
+            record_queue_ =
+                std::make_shared<Queue>(record_fd, get_record_buffer_size(), QueueType::RECORD_QUEUE, device);
+        else
+            record_queue_.load()->rebuild(record_fd,
+                                          get_record_buffer_size(),
+                                          Holovibes::instance().get_cuda_streams().recorder_stream,
+                                          device);
+        LOG_DEBUG("Record queue allocated");
+        break;
+    }
+    default:
+    {
+        LOG_DEBUG("RecordMode = None");
+        break;
+    }
+    }
+}
 
 } // namespace holovibes::api

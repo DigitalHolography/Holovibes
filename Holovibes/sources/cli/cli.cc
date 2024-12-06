@@ -321,7 +321,7 @@ static int start_cli_workers(holovibes::Holovibes& holovibes, const holovibes::O
                                                                 API.record.get_mp4_fps()});
     }
 
-    holovibes.start_frame_record();
+    API.record.start_frame_record();
 
     // The following while ensure the record has been requested by the thread previously launched.
     while ((!holovibes.get_compute_pipe()->is_requested(ICS::FrameRecord)))
