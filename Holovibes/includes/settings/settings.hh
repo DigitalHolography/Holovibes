@@ -73,7 +73,7 @@ DECLARE_SETTING(RecordMode, holovibes::RecordMode);
  * \brief The setting that specifies the number of frames to skip before
  * starting the record.
  */
-DECLARE_SETTING(RecordFrameSkip, size_t);
+DECLARE_SETTING(RecordFrameOffset, size_t);
 
 /*! \brief The setting that specifies the size of the output buffer. */
 DECLARE_SETTING(OutputBufferSize, size_t);
@@ -173,9 +173,6 @@ DECLARE_SETTING(NoiseZone, units::RectFd);
 
 /*! \brief The area on which we'll normalize the colors */
 DECLARE_SETTING(CompositeZone, units::RectFd);
-
-/*! \brief The area used to limit the stft computations */
-DECLARE_SETTING(ZoomedZone, units::RectFd);
 
 /*! \brief The zone of the reticle area */
 DECLARE_SETTING(ReticleZone, units::RectFd);

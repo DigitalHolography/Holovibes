@@ -166,7 +166,7 @@ void LightUI::notify()
     ui_->actionSettings->setEnabled(api::get_camera_kind() != CameraKind::NONE);
 }
 
-void LightUI::set_contrast_mode(bool value) { api::set_contrast_mode(value); }
+void LightUI::set_contrast_mode(bool value) { api::set_contrast_enabled(value); }
 
 void LightUI::set_contrast_min(const double value) { api::set_contrast_min(value); }
 
@@ -188,7 +188,10 @@ void LightUI::camera_ametek_s991_coaxlink_qspf_plus() { change_camera(CameraKind
 
 void LightUI::camera_ametek_s711_coaxlink_qspf_plus() { change_camera(CameraKind::AmetekS711EuresysCoaxlinkQSFP); }
 
-void LightUI::configure_camera() { api::configure_camera(); }
+void LightUI::configure_camera()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString::fromStdString(api::get_camera_ini_name())));
+}
 
 void LightUI::set_recordProgressBar_color(const QColor& color, const QString& text)
 {

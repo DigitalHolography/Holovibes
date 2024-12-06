@@ -323,6 +323,7 @@ void Rendering::autocontrast_caller(
                                    api::get_reticle_zone(),
                                    (view == WindowKind::Filter2D) ? false : setting<settings::ReticleDisplayEnabled>(),
                                    stream_);
+
         api::update_contrast(view, percent_min_max_[0], percent_min_max_[1]);
         break;
     case WindowKind::YZview: // TODO: finished refactoring to remove this switch

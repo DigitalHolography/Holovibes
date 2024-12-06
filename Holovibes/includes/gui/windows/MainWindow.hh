@@ -185,9 +185,6 @@ class MainWindow : public QMainWindow
     virtual void closeEvent(QCloseEvent* event) override;
 
   private:
-    /*! \brief Sets camera frame timout */
-    void set_camera_timeout();
-
     /*! \brief Setups gui from .json file */
     void load_gui();
     void save_gui();

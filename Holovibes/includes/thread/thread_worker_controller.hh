@@ -1,10 +1,10 @@
-/*! \file
+/*! \file thread_worker_controller.hh
  *
- * \brief #TODO Add a description for this file
+ * \brief Defines the ThreadWorkerController class. The base class for all worker controllers.
  */
 #pragma once
 
-#include "utils/custom_type_traits.hh"
+#include "custom_type_traits.hh"
 #include "logger.hh"
 
 namespace holovibes::worker

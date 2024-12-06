@@ -7,7 +7,7 @@
 #include "icamera.hh"
 #include "frame_desc.hh"
 #include "camera_config.hh"
-#include "holovibes_config.hh"
+#include "core/holovibes_config.hh"
 
 #include <spdlog/spdlog.h>
 #include "camera_logger.hh"
