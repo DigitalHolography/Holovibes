@@ -115,7 +115,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the horizontal flip is activated
      */
-    inline bool get_horizontal_flip() { return get_horizontal_flip(api_->window_pp.get_current_window_type()); }
+    bool get_horizontal_flip();
 
     /*! \brief Sets the horizontal flip state of the specified window
      *
@@ -148,7 +148,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return float the rotation of the window
      */
-    inline float get_rotation() { return get_rotation(api_->window_pp.get_current_window_type()); }
+    float get_rotation();
 
     /*! \brief Sets the rotation of the specified window. The rotation is in degrees and is applied anti-clockwise. Only
      * 0, 90, 180 and 270 degrees are supported.
@@ -193,7 +193,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return uint the size of the accumulation window.
      */
-    inline uint get_accumulation_level() { return get_accumulation_level(api_->window_pp.get_current_window_type()); }
+    uint get_accumulation_level();
 
     /*! \brief Sets the size of the accumulation window for the specified window. Must be greater than 0.
      *
@@ -254,7 +254,7 @@ class WindowPostProcessApi : public IApi
      *
      * \return bool true if the window is enabled
      */
-    inline bool get_enabled() { return get_enabled(api_->window_pp.get_current_window_type()); }
+    bool get_enabled();
 
     /*! \brief Sets the enabled state of the specified window
      *
@@ -273,7 +273,7 @@ class WindowPostProcessApi : public IApi
      *
      * \param[in] value the new value of the enabled state
      */
-    inline void set_enabled(bool value) { set_enabled(api_->window_pp.get_current_window_type(), value); }
+    void set_enabled(bool value);
 
 #pragma endregion
 };

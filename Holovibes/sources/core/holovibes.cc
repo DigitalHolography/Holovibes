@@ -51,7 +51,7 @@ void Holovibes::init_input_queue(const camera::FrameDescriptor& fd, const unsign
 
 void Holovibes::init_record_queue()
 {
-    const auto api& = API;
+    const auto& api = API;
     auto device = api.record.get_record_queue_location();
     auto record_mode = api.record.get_record_mode();
     switch (record_mode)
@@ -196,7 +196,7 @@ void Holovibes::start_camera_frame_read(CameraKind camera_kind, const std::funct
 
     try
     {
-        const auto api& = API;
+        const auto& api = API;
 
         api.input.set_pixel_size(active_camera_->get_pixel_size());
         const camera::FrameDescriptor& camera_fd = active_camera_->get_fd();

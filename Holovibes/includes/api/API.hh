@@ -100,6 +100,19 @@ class IApi
 namespace holovibes::api
 {
 
+class CompositeApi;
+class ComputeApi;
+class ContrastApi;
+class Filter2dApi;
+class GlobalPostProcessApi;
+class InformationApi;
+class InputApi;
+class RecordApi;
+class TransformApi;
+class ViewApi;
+class WindowPostProcessApi;
+class ComputeSettingsApi;
+
 #define API holovibes::api::Api::instance()
 
 class Api
@@ -107,7 +120,22 @@ class Api
 
   private:
     // Private ctor
-    Api() { init(); }
+    Api()
+        : composite()
+        , compute()
+        , contrast()
+        , filter2d()
+        , global_pp()
+        , information()
+        , input()
+        , record()
+        , transform()
+        , view()
+        , window_pp()
+        , settings()
+    {
+        init();
+    }
 
     void init()
     {

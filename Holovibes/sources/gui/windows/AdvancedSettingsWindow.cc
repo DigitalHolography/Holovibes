@@ -30,7 +30,7 @@ void AdvancedSettingsWindow::closeEvent(QCloseEvent* event) { emit closed(); }
 
 void AdvancedSettingsWindow::set_ui_values()
 {
-    const auto api& = API;
+    const auto& api = API;
 
     api.record.set_record_queue_location(ui.RecordQueueLocationCheckBox->isChecked() ? Device::GPU : Device::CPU);
 
@@ -83,7 +83,7 @@ void AdvancedSettingsWindow::change_folder(Drag_drop_lineedit* lineEdit)
 
 void AdvancedSettingsWindow::set_current_values()
 {
-    const auto api& = API;
+    const auto& api = API;
 
     ui.FileBSSpinBox->setValue(api.input.get_file_buffer_size());
     ui.InputBSSpinBox->setValue(api.compute.get_input_buffer_size());

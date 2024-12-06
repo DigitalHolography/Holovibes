@@ -55,7 +55,7 @@ class ContrastApi : public IApi
      *
      * \return bool true if the log scale is enabled
      */
-    inline bool get_log_enabled() { return get_log_enabled(api_->window_pp.get_current_window_type()); }
+    bool get_log_enabled();
 
     /*! \brief Enables or Disables log scale on the specified window kind
      *
@@ -68,10 +68,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      */
-    inline void set_log_enabled(bool value)
-    {
-        return set_log_enabled(api_->window_pp.get_current_window_type(), value);
-    }
+    void set_log_enabled(bool value);
 
 #pragma endregion
 
@@ -92,7 +89,7 @@ class ContrastApi : public IApi
      *
      * \return float the contrast max value
      */
-    inline float get_contrast_min() { return get_contrast_min(api_->window_pp.get_current_window_type()); }
+    float get_contrast_min();
 
     /*! \brief Sets the contrast min value of the specified window kind.
      *
@@ -109,10 +106,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast min value
      */
-    inline void set_contrast_min(float value)
-    {
-        return set_contrast_min(api_->window_pp.get_current_window_type(), value);
-    }
+    void set_contrast_min(float value);
 
     /*! \brief Returns the contrast max value of the specified window kind.
      *
@@ -129,7 +123,7 @@ class ContrastApi : public IApi
      *
      * \return float the contrast max value
      */
-    inline float get_contrast_max() { return get_contrast_max(api_->window_pp.get_current_window_type()); }
+    float get_contrast_max();
 
     /*! \brief Sets the contrast max value of the specified window kind.
      *
@@ -146,10 +140,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value the new contrast max value
      */
-    inline void set_contrast_max(float value)
-    {
-        return set_contrast_max(api_->window_pp.get_current_window_type(), value);
-    }
+    void set_contrast_max(float value);
 
     /*! \brief Updates the contrast of the specified window kind.
      *
@@ -176,7 +167,7 @@ class ContrastApi : public IApi
      *
      * \return bool true if the contrast is enabled
      */
-    inline bool get_contrast_enabled() { return get_contrast_enabled(api_->window_pp.get_current_window_type()); }
+    bool get_contrast_enabled();
 
     /*! \brief Enables or Disables the contrast on the specified window kind
      *
@@ -189,10 +180,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      */
-    inline void set_contrast_enabled(bool value)
-    {
-        return set_contrast_enabled(api_->window_pp.get_current_window_type(), value);
-    }
+    void set_contrast_enabled(bool value);
 
 #pragma endregion
 
@@ -209,10 +197,7 @@ class ContrastApi : public IApi
      *
      * \return bool true if the contrast auto refresh is enabled
      */
-    inline bool get_contrast_auto_refresh()
-    {
-        return get_contrast_auto_refresh(api_->window_pp.get_current_window_type());
-    }
+    bool get_contrast_auto_refresh();
 
     /*! \brief Enables or Disables the contrast auto refresh on the specified window kind
      *
@@ -225,10 +210,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      */
-    inline void set_contrast_auto_refresh(bool value)
-    {
-        return set_contrast_auto_refresh(get_current_window_type(), value);
-    }
+    void set_contrast_auto_refresh(bool value);
 
 #pragma endregion
 
@@ -245,7 +227,7 @@ class ContrastApi : public IApi
      *
      * \return bool true if the contrast is inverted
      */
-    inline bool get_contrast_invert() { return get_contrast_invert(api_->window_pp.get_current_window_type()); }
+    bool get_contrast_invert();
 
     /*! \brief Enables or Disables the contrast invert on the specified window kind
      *
@@ -258,10 +240,7 @@ class ContrastApi : public IApi
      *
      * \param[in] value true: enable, false: disable
      */
-    inline void set_contrast_invert(bool value)
-    {
-        return set_contrast_invert(api_->window_pp.get_current_window_type(), value);
-    }
+    void set_contrast_invert(bool value);
 
 #pragma endregion
 

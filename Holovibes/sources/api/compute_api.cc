@@ -104,7 +104,7 @@ void ComputeApi::set_computation_mode(Computation mode)
 
     if (mode == Computation::Hologram)
     {
-        api_->input.change_window(WindowKind::XYview);
+        api_->view.change_window(WindowKind::XYview);
         api_->contrast.set_contrast_enabled(true);
     }
     else

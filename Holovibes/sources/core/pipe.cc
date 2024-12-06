@@ -52,7 +52,7 @@ bool Pipe::make_requests()
     // In order to have a better memory management, free all the ressources that needs to be freed first and allocate
     // the ressources that need to beallocated in second
     bool success_allocation = true;
-    const auto api& = API;
+    const auto& api = API;
 
     /* Free buffers */
     HANDLE_REQUEST(ICS::DisableConvolution, "Disable convolution", postprocess_->dispose());

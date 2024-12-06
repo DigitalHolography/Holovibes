@@ -13,6 +13,14 @@ float ftruncate(const int precision, float value)
 
 #pragma endregion
 
+#pragma region Log
+
+bool get_log_enabled() { return get_log_enabled(api_->window_pp.get_current_window_type()); }
+
+void set_log_enabled(bool value) { return set_log_enabled(api_->window_pp.get_current_window_type(), value); }
+
+#pragma endregion
+
 #pragma region Contrast
 
 float ContrastApi::get_contrast_min(WindowKind kind)
@@ -21,11 +29,7 @@ float ContrastApi::get_contrast_min(WindowKind kind)
     return get_log_enabled(kind) ? min : log10(min);
 }
 
-float ContrastApi::get_contrast_max(WindowKind kind)
-{
-    float max = get_window(kind).contrast.max;
-    return get_log_enabled(kind) ? max : log10(max);
-}
+float get_contrast_min() { return get_contrast_min(api_->window_pp.get_current_window_type()); }
 
 void ContrastApi::set_contrast_min(WindowKind kind, float value)
 {
@@ -52,6 +56,16 @@ void ContrastApi::set_contrast_min(WindowKind kind, float value)
     api_->compute.pipe_refresh();
 }
 
+void set_contrast_min(float value) { return set_contrast_min(api_->window_pp.get_current_window_type(), value); }
+
+float ContrastApi::get_contrast_max(WindowKind kind)
+{
+    float max = get_window(kind).contrast.max;
+    return get_log_enabled(kind) ? max : log10(max);
+}
+
+float get_contrast_max() { return get_contrast_max(api_->window_pp.get_current_window_type()); }
+
 void ContrastApi::set_contrast_max(WindowKind kind, float value)
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
@@ -77,6 +91,8 @@ void ContrastApi::set_contrast_max(WindowKind kind, float value)
     api_->compute.pipe_refresh();
 }
 
+void set_contrast_max(float value) { return set_contrast_max(api_->window_pp.get_current_window_type(), value); }
+
 void ContrastApi::update_contrast(WindowKind kind, float min, float max)
 {
     min = min > 1.0f ? min : 1.0f;
@@ -98,6 +114,12 @@ void ContrastApi::update_contrast(WindowKind kind, float min, float max)
     api_->window_pp.set_window_xyz(kind, window);
 }
 
+#pragma endregion
+
+#pragma region Contrast Enabled
+
+bool get_contrast_enabled() { return get_contrast_enabled(api_->window_pp.get_current_window_type()); }
+
 void ContrastApi::set_contrast_enabled(WindowKind kind, bool value)
 {
     if (api_->compute.get_compute_mode() == Computation::Raw)
@@ -115,6 +137,14 @@ void ContrastApi::set_contrast_enabled(WindowKind kind, bool value)
 
     api_->compute.pipe_refresh();
 }
+
+void set_contrast_enabled(bool value) { return set_contrast_enabled(api_->window_pp.get_current_window_type(), value); }
+
+#pragma endregion
+
+#pragma region Contrast Auto Refresh
+
+bool get_contrast_auto_refresh() { return get_contrast_auto_refresh(api_->window_pp.get_current_window_type()); }
 
 void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value)
 {
@@ -134,6 +164,14 @@ void ContrastApi::set_contrast_auto_refresh(WindowKind kind, bool value)
     api_->compute.pipe_refresh();
 }
 
+void set_contrast_auto_refresh(bool value) { return set_contrast_auto_refresh(get_current_window_type(), value); }
+
+#pragma endregion
+
+#pragma region Contrast Invert
+
+bool get_contrast_invert() { return get_contrast_invert(api_->window_pp.get_current_window_type()); }
+
 void ContrastApi::set_contrast_invert(WindowKind kind, bool value)
 {
     if (api_->compute.get_compute_mode() == Computation::Raw || !get_contrast_enabled())
@@ -151,6 +189,8 @@ void ContrastApi::set_contrast_invert(WindowKind kind, bool value)
 
     api_->compute.pipe_refresh();
 }
+
+void set_contrast_invert(bool value) { return set_contrast_invert(api_->window_pp.get_current_window_type(), value); }
 
 #pragma endregion
 

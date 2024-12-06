@@ -39,7 +39,7 @@ Queue::Queue(const camera::FrameDescriptor& fd, const unsigned int max_size, Que
     // Check if we have enough memory to allocate the queue, otherwise reduce the size and relaunch the process.
     if (!data_.resize(fd_.get_frame_size() * max_size_))
     {
-        const auto api& = API;
+        const auto& api = API;
         bool is_size_modified = false;
         while (!data_.resize(fd_.get_frame_size() * max_size_))
         {
