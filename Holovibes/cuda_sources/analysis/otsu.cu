@@ -341,6 +341,13 @@ void otsu_multi_thresholding(const float* input_d,
         prob[i] = static_cast<float>(hist[i]);
     }
 
+    float total_prob = std::accumulate(prob.begin(), prob.end(), 0.0f);
+    for (auto& p : prob)
+    {
+        p /= total_prob;
+    }
+    print_in_file_cpu(prob.data(), 1, 256, "prob");
+
     std::vector<float> thresh(nclasses - 1);
     std::vector<uint> bin_center(NUM_BINS);
     for (uint i = 0; i < NUM_BINS; i++)
@@ -368,7 +375,7 @@ void otsu_multi_thresholding(const float* input_d,
         std::vector<float> first_moment(NUM_BINS, 0.0f);
 
         set_var_btwcls(prob, var_btwcls, zeroth_moment, first_moment);
-        set_thresh_indices(var_btwcls, 0, 0, thresh_count, 0.0f, current_indices, thresh_indices);
+        set_thresh_indices(var_btwcls, 0, 0, thresh_count, 0.5f, current_indices, thresh_indices);
 
         /* le res est tresh indices*/
 
@@ -389,6 +396,10 @@ void otsu_multi_thresholding(const float* input_d,
     // test[0] = 0.207108953480839f;
     // test[1] = 0.334478400506137f;
     // test[2] = 0.458741275652768f;
+    // test[0] = 0.2f;
+    // test[1] = 0.3254902f;
+    // test[2] = 0.45098039f;
+    // test[2] = 0.334478400506137f;
     cudaXMemcpy(thresholds_d, test, 3 * sizeof(float), cudaMemcpyHostToDevice);
     delete[] test;
 }
